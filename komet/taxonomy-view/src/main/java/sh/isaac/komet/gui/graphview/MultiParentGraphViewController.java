@@ -16,10 +16,8 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.Priority;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sh.isaac.api.ComponentProxy;
-import sh.isaac.api.Get;
-import sh.isaac.api.RefreshListener;
-import sh.isaac.api.TaxonomySnapshot;
+import org.apache.mahout.math.set.OpenIntHashSet;
+import sh.isaac.api.*;
 import sh.isaac.api.alert.Alert;
 import sh.isaac.api.alert.AlertCategory;
 import sh.isaac.api.alert.AlertEvent;
@@ -46,10 +44,7 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.UuidStringKey;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 import static sh.komet.gui.contract.preferences.GraphConfigurationItem.DEFINING_ACTIVE;
@@ -104,6 +99,12 @@ public class MultiParentGraphViewController implements RefreshListener {
     void initialize() {
 
         this.treeView = new TreeView<>();
+
+        MenuItem generateGraphSource = new MenuItem("Generate graph source");
+        generateGraphSource.setOnAction(this::generateJGraphTCode);
+
+        this.treeView.setContextMenu(new ContextMenu(generateGraphSource));
+
         this.treeView.getSelectionModel()
                 .setSelectionMode(SelectionMode.MULTIPLE);
         this.treeView.setCellFactory((TreeView<ConceptChronology> p) -> new MultiParentGraphCell(treeView));
@@ -167,22 +168,27 @@ public class MultiParentGraphViewController implements RefreshListener {
         this.viewChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.viewCoordinateKeyProperty.set(newValue);
             GraphAmalgamWithManifold graphAmalgam = FxGet.graphConfiguration(newValue);
-            this.manifoldProperty.set(graphAmalgam.getManifold());
-            this.displayPolicies = new DefaultMultiParentGraphItemDisplayPolicies(this.manifoldProperty.get());
-            this.taxonomySnapshotProperty.set(FxGet.graphSnapshot(newValue));
-            this.rootTreeItem.clearChildren();
-            for (ConceptSpecification rootSpec: graphAmalgam.getTaxonomyRoots()) {
-                MultiParentGraphItemImpl graphRoot = new MultiParentGraphItemImpl(
-                        Get.conceptService()
-                                .getConceptChronology(rootSpec),
-                        MultiParentGraphViewController.this,
-                        TermAux.UNINITIALIZED_COMPONENT_ID.getNid(),
-                        Iconography.TAXONOMY_ROOT_ICON.getIconographic());
-                this.rootTreeItem.getChildren().add(graphRoot);
+            if (graphAmalgam == null) {
+                // Will be null when FxGet resets on shutdown...
+                this.manifoldProperty.set(null);
+            } else {
+                this.manifoldProperty.set(graphAmalgam.getManifold());
+                this.displayPolicies = new DefaultMultiParentGraphItemDisplayPolicies(this.manifoldProperty.get());
+                this.taxonomySnapshotProperty.set(FxGet.graphSnapshot(newValue));
+                this.rootTreeItem.clearChildren();
+                for (ConceptSpecification rootSpec: graphAmalgam.getTaxonomyRoots()) {
+                    MultiParentGraphItemImpl graphRoot = new MultiParentGraphItemImpl(
+                            Get.conceptService()
+                                    .getConceptChronology(rootSpec),
+                            MultiParentGraphViewController.this,
+                            TermAux.UNINITIALIZED_COMPONENT_ID.getNid(),
+                            Iconography.TAXONOMY_ROOT_ICON.getIconographic());
+                    this.rootTreeItem.getChildren().add(graphRoot);
+                }
+                handleDescriptionTypeChange(null);
+                refreshTaxonomy();
             }
-            handleDescriptionTypeChange(null);
-            refreshTaxonomy();
-        });
+         });
     }
 
     @FXML
@@ -563,6 +569,84 @@ public class MultiParentGraphViewController implements RefreshListener {
         }
 
     }
+
+    public final void generateSmartGraphCode(ActionEvent event) {
+        TreeItem<ConceptChronology> item  = this.treeView.getSelectionModel().getSelectedItem();
+        ConceptChronology concept = item.getValue();
+        TaxonomySnapshot snapshot = taxonomySnapshotProperty.get();
+        OpenIntHashSet conceptNids = new OpenIntHashSet();
+        HashMap<Integer, ArrayList<TaxonomyLink>> taxonomyLinks = new HashMap<>();
+        handleConcept(concept.getNid(), snapshot, conceptNids, taxonomyLinks);
+        String conceptName = Get.conceptDescriptionText(concept.getNid());
+        conceptName = conceptName.replaceAll("\\s+", "_");
+        conceptName = conceptName.replaceAll("-", "_");
+        StringBuffer buff = new StringBuffer("private Graph<String, String> build_" + conceptName + "() {\n");
+        buff.append("\n   Graph<String, String> g = new GraphEdgeList<>();\n\n");
+        Manifold m = this.getManifold();
+        conceptNids.forEachKey(nid -> {
+
+            buff.append("   g.insertVertex(\"").append(m.getPreferredDescriptionText(nid)).append("\");\n");
+            return true;
+        });
+        buff.append("\n");
+        int edgeCount = 1;
+        for (Map.Entry<Integer, ArrayList<TaxonomyLink>> entry: taxonomyLinks.entrySet()) {
+            for (TaxonomyLink link: entry.getValue()) {
+                buff.append("   g.insertEdge(\"").append(m.getPreferredDescriptionText(entry.getKey())).append("\", \"")
+                        .append(m.getPreferredDescriptionText(link.getDestinationNid())).append("\", \"").append(edgeCount++).append("\");\n");
+            }
+        }
+        buff.append("   return g;\n}\n");
+        ClipboardHelper.copyToClipboard(buff);
+        LOG.info(event);
+    }
+    public final void generateJGraphTCode(ActionEvent event) {
+        TreeItem<ConceptChronology> item  = this.treeView.getSelectionModel().getSelectedItem();
+        ConceptChronology concept = item.getValue();
+        TaxonomySnapshot snapshot = taxonomySnapshotProperty.get();
+        OpenIntHashSet conceptNids = new OpenIntHashSet();
+        HashMap<Integer, ArrayList<TaxonomyLink>> taxonomyLinks = new HashMap<>();
+        handleConcept(concept.getNid(), snapshot, conceptNids, taxonomyLinks);
+        String conceptName = Get.conceptDescriptionText(concept.getNid());
+        conceptName = conceptName.replaceAll("\\s+", "_");
+        conceptName = conceptName.replaceAll("-", "_");
+        conceptName = conceptName.replace('(', '_');
+        conceptName = conceptName.replace(')', '_');
+        StringBuffer buff = new StringBuffer("private static Graph<String, DefaultEdge> build_" + conceptName + "() {\n");
+        buff.append("\n   Graph<String, DefaultEdge> g = new DefaultDirectedGraph<>(DefaultEdge.class);\n\n");
+        Manifold m = this.getManifold();
+        conceptNids.forEachKey(nid -> {
+
+            buff.append("   g.addVertex(\"\\\"").append(m.getPreferredDescriptionText(nid)).append("\\\"\");\n");
+            return true;
+        });
+        buff.append("\n");
+        int edgeCount = 1;
+        for (Map.Entry<Integer, ArrayList<TaxonomyLink>> entry: taxonomyLinks.entrySet()) {
+            for (TaxonomyLink link: entry.getValue()) {
+                buff.append("   g.addEdge(\"\\\"").append(m.getPreferredDescriptionText(entry.getKey())).append("\\\"\", \"\\\"")
+                        .append(m.getPreferredDescriptionText(link.getDestinationNid())).append("\\\"\");\n");
+            }
+        }
+        buff.append("   return g;\n}\n");
+        ClipboardHelper.copyToClipboard(buff);
+        LOG.info(event);
+    }
+
+    private void handleConcept(int conceptNid, TaxonomySnapshot snapshot, OpenIntHashSet conceptNids, HashMap<Integer, ArrayList<TaxonomyLink>> taxonomyLinks) {
+        if (!conceptNids.contains(conceptNid)) {
+            conceptNids.add(conceptNid);
+            ArrayList<TaxonomyLink> linkList = new ArrayList<>();
+            taxonomyLinks.put(conceptNid, linkList);
+            for (TaxonomyLink link: snapshot.getTaxonomyParentLinks(conceptNid)) {
+                if (link.getTypeNid() == TermAux.IS_A.getNid()) {
+                    linkList.add(link);
+                }
+                handleConcept(link.getDestinationNid(), snapshot, conceptNids, taxonomyLinks);
+            }
+        }
+    }
+
 
     public final void handleDescriptionTypeChange(ActionEvent event) {
         this.rootTreeItem.invalidate();

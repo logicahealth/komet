@@ -98,6 +98,8 @@ public class ShowConceptInGraphTask extends TimedTaskWithProgressTracker<Void> {
             }
 
             Collections.reverse(pathToRoot);
+
+
             LOG.debug("Calculated root path {}", Arrays.toString(pathToRoot.toArray()));
             Platform.runLater(() -> {
                 this.multiParentGraphView.expandAndSelect(pathToRoot);

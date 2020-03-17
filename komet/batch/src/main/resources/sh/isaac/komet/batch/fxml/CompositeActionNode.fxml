@@ -5,6 +5,7 @@
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.ToolBar?>
@@ -21,11 +22,11 @@
             <ListView fx:id="actionListView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
          </center>
          <top>
-            <GridPane BorderPane.alignment="CENTER">
+            <GridPane maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
               <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" maxWidth="296.0" minWidth="60.0" prefWidth="60.0" />
-                  <ColumnConstraints hgrow="NEVER" maxWidth="492.0" minWidth="88.0" prefWidth="88.0" />
-                <ColumnConstraints hgrow="ALWAYS" maxWidth="492.0" minWidth="10.0" prefWidth="390.0" />
+                <ColumnConstraints hgrow="NEVER" maxWidth="296.0" minWidth="0.0" prefWidth="5.0" />
+                  <ColumnConstraints hgrow="NEVER" maxWidth="492.0" minWidth="86.0" prefWidth="86.0" />
+                <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="390.0" />
                   <ColumnConstraints hgrow="NEVER" maxWidth="492.0" minWidth="75.0" prefWidth="75.0" />
               </columnConstraints>
               <rowConstraints>
@@ -56,17 +57,18 @@
                   <Separator prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="NEVER" />
                   <ToolBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="4">
                      <items>
-                        <Button mnemonicParsing="false" onAction="#addAction" text="add" />
+                        <MenuButton fx:id="addActionMenuButton" mnemonicParsing="false" text="add action" />
                         <Separator orientation="VERTICAL" prefHeight="28.0" prefWidth="26.0" />
+                      <Button fx:id="newButton" minWidth="55.0" mnemonicParsing="false" onAction="#newCompositeAction" prefWidth="55.0" text="new" />
+                        <Button fx:id="openButton" minWidth="55.0" mnemonicParsing="false" onAction="#openCompositeAction" prefWidth="55.0" text="open" />
+                        <Button fx:id="saveButton" disable="true" minWidth="55.0" mnemonicParsing="false" onAction="#saveCompositeAction" prefWidth="55.0" text="save" />
+                        <Button fx:id="saveAsButton" disable="true" mnemonicParsing="false" onAction="#saveCompositeActionAs" text="save as..." />
                      </items>
                   </ToolBar>
-                  <ChoiceBox fx:id="stampChoiceBox" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="150.0" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="NEVER" />
+                  <ChoiceBox fx:id="viewKeyChoiceBox" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="150.0" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="NEVER" />
                   <Label text="viewing: " GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.rowIndex="2" GridPane.vgrow="NEVER" />
                   <Label text="action name: " GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER" />
                   <TextField fx:id="actionNameField" minWidth="100.0" prefWidth="150.0" promptText="Enter action name..." GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="NEVER" />
-                <Button fx:id="newButton" minWidth="55.0" mnemonicParsing="false" onAction="#newCompositeAction" prefWidth="55.0" text="new" />
-                  <Button fx:id="openButton" minWidth="55.0" mnemonicParsing="false" onAction="#openCompositeAction" prefWidth="55.0" text="open" GridPane.rowIndex="1" />
-                  <Button fx:id="saveButton" disable="true" minWidth="55.0" mnemonicParsing="false" onAction="#saveCompositeAction" prefWidth="55.0" text="save" GridPane.rowIndex="2" />
                </children>
             </GridPane>
          </top>

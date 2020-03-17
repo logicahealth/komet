@@ -110,6 +110,7 @@ public class MultiParentGraphItemImpl
         this.graphView = graphView;
         this.nid = Integer.MAX_VALUE;
         this.typeNid = TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
+
     }
 
     MultiParentGraphItemImpl(int conceptSequence, MultiParentGraphViewController graphView, int typeNid) {

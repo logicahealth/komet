@@ -316,7 +316,7 @@ public class EditCoordinateImpl
     }
 
    @Override
-   public EditCoordinate deepClone() {
+   public EditCoordinateImpl deepClone() {
       EditCoordinateImpl newCoordinate = new EditCoordinateImpl(author, module, path);
       newCoordinate.moduleOptions.addAll(moduleOptions);
       newCoordinate.pathOptions.addAll(pathOptions);

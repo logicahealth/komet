@@ -33,6 +33,8 @@ public class ConceptDetailClassificationResultsLinkedPanelProviderFactory extend
 
     @Override
     public Manifold.ManifoldGroup[] getDefaultManifoldGroups() {
-        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.CLASSIFICATON, Manifold.ManifoldGroup.UNLINKED, Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE, Manifold.ManifoldGroup.SEARCH};
+        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.CLASSIFICATON, Manifold.ManifoldGroup.UNLINKED,
+                Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES, Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ACTIVE_FQN_NODES,
+                Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE, Manifold.ManifoldGroup.STATED_GRAPH_NAVIGATION_ANY_NODE, Manifold.ManifoldGroup.SEARCH};
     }
 }

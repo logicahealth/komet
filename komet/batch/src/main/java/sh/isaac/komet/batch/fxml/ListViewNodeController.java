@@ -161,7 +161,7 @@ public class ListViewNodeController implements ComponentList {
         } else {
             fileChooser.setInitialFileName("list-export.txt");
         }
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home"), "Solor"));
+        fileChooser.setInitialDirectory(FxGet.solorDirectory());
         final File exportFile = fileChooser.showSaveDialog(null);
         if (exportFile != null) {
             try {
@@ -185,7 +185,7 @@ public class ListViewNodeController implements ComponentList {
         fileChooser.setTitle("Specify file for import");
         fileChooser.setInitialFileName("list-export.txt");
 
-        fileChooser.setInitialDirectory(new File(System.getProperty("user.home"), "Solor"));
+        fileChooser.setInitialDirectory(FxGet.solorDirectory());
         File importFile = fileChooser.showOpenDialog(null);
         if (importFile != null) {
             try (FileReader reader = new FileReader(importFile); BufferedReader bufferedReader = new BufferedReader(reader)) {

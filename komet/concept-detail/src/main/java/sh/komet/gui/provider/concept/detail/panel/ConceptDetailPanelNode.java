@@ -412,13 +412,13 @@ public class ConceptDetailPanelNode
         return ft;
     }
 
-    private Animation addNode(AnchorPane descriptionHeader) {
-        descriptionHeader.setOpacity(0);
-        VBox.setMargin(descriptionHeader, new Insets(1, 5, 1, 5));
+    private Animation addNode(Node headerNode) {
+        headerNode.setOpacity(0);
+        VBox.setMargin(headerNode, new Insets(1, 5, 1, 5));
         componentPanelBox.getChildren()
-                .add(descriptionHeader);
+                .add(headerNode);
 
-        FadeTransition ft = new FadeTransition(Duration.millis(TRANSITION_ON_TIME), descriptionHeader);
+        FadeTransition ft = new FadeTransition(Duration.millis(TRANSITION_ON_TIME), headerNode);
 
         ft.setFromValue(0);
         ft.setToValue(1);
@@ -464,6 +464,13 @@ public class ConceptDetailPanelNode
             final ParallelTransition parallelTransition = new ParallelTransition();
 
             addChronology(observableConceptChronology, parallelTransition);
+            AnchorPane lineageHeader = setupHeaderPanel("LINEAGE", null);
+            parallelTransition.getChildren()
+                    .add(addNode(lineageHeader));
+
+            parallelTransition.getChildren()
+                    .add(addNode(LineageTree.makeLineageTree(newValue, this.manifoldProperty.get())));
+
 
             AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton);
 

@@ -26,6 +26,7 @@ import sh.isaac.solor.sof.SofExporter;
 import sh.komet.gui.control.concept.PropertySheetConceptSetWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 import java.io.File;
 import java.net.URL;
@@ -77,7 +78,7 @@ public class ExportSpecificationController {
     @FXML
     void selectFile(ActionEvent event) {
         FileChooser chooser = new FileChooser();
-        chooser.setInitialDirectory(new File(System.getProperty("user.home"), "Solor"));
+        chooser.setInitialDirectory(FxGet.solorDirectory());
         chooser.setInitialFileName("export.sof");
         chooser.setTitle("Specify file for export...");
         File chosen = chooser.showSaveDialog(topBorderPane.getScene().getWindow());

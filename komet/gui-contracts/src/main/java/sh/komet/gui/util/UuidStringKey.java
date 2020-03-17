@@ -1,10 +1,16 @@
 package sh.komet.gui.util;
 
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.marshal.Marshalable;
+import sh.isaac.api.marshal.Marshaler;
+import sh.isaac.api.marshal.Unmarshaler;
 import sh.isaac.api.util.NaturalOrder;
 
 import java.util.UUID;
 
-public class UuidStringKey implements Comparable<UuidStringKey> {
+public class UuidStringKey implements Comparable<UuidStringKey>, Marshalable {
+    public static final int marshalVersion = 1;
+
     final UUID uuid;
     String string;
 
@@ -15,6 +21,25 @@ public class UuidStringKey implements Comparable<UuidStringKey> {
     public UuidStringKey(String[] data) {
         this.uuid = UUID.fromString(data[0]);
         this.string = data[1];
+    }
+    @Override
+    @Marshaler
+    public void marshal(ByteArrayDataBuffer out) {
+         out.putInt(marshalVersion);
+         out.putUTF(uuid.toString());
+         out.putUTF(string);
+    }
+
+    @Unmarshaler
+    public static UuidStringKey make(ByteArrayDataBuffer in) {
+        int objectMarshalVersion = in.getInt();
+        switch (objectMarshalVersion) {
+            case marshalVersion:
+                return new UuidStringKey(UUID.fromString(in.getUTF()), in.getUTF());
+            default:
+                throw new UnsupportedOperationException("Unsupported version: " + objectMarshalVersion);
+
+        }
     }
 
     public String[] toStringArray() {

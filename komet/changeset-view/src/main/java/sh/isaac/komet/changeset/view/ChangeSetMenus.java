@@ -41,6 +41,7 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.menu.MenuItemWithText;
+import sh.komet.gui.util.FxGet;
 
 /**
  * @author kec
@@ -80,7 +81,7 @@ public class ChangeSetMenus implements MenuProvider {
         );
         File initialDirectory = new File("target/data/isaac.data/changesets");
         if (!initialDirectory.exists()) {
-            initialDirectory = new File(System.getProperty("user.home"));
+            initialDirectory = FxGet.solorDirectory();
         }
         fileChooser.setInitialDirectory(initialDirectory);
         List<File> selectedFiles = fileChooser.showOpenMultipleDialog(window);
@@ -114,7 +115,7 @@ public class ChangeSetMenus implements MenuProvider {
         );
         File initialDirectory = new File("target/data/isaac.data/changesets");
         if (!initialDirectory.exists()) {
-            initialDirectory = new File(System.getProperty("user.home"));
+            initialDirectory = FxGet.solorDirectory();
         }
         fileChooser.setInitialDirectory(initialDirectory);
         List<File> selectedFiles = fileChooser.showOpenMultipleDialog(window);

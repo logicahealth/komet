@@ -160,7 +160,10 @@ public class Manifold
     static {
         ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.UNLINKED.getGroupName(), () -> new Label());
         ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.SEARCH.getGroupName(), () -> Iconography.SIMPLE_SEARCH.getIconographic());
+        ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES.getGroupName(), () -> Iconography.TAXONOMY_ICON.getIconographic());
+        ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ACTIVE_FQN_NODES.getGroupName(), () -> Iconography.TAXONOMY_ICON.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE.getGroupName(), () -> Iconography.TAXONOMY_ICON.getIconographic());
+        ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.STATED_GRAPH_NAVIGATION_ANY_NODE.getGroupName(), () -> Iconography.TAXONOMY_ICON.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.FLWOR.getGroupName(), () -> Iconography.FLWOR_SEARCH.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.CORRELATION.getGroupName(), () -> new Label("C"));
         ICONOGRAPHIC_SUPPLIER.put(ManifoldGroup.KOMET.getGroupName(), () -> new Label("K"));

@@ -18,7 +18,6 @@ package sh.komet.gui.util;
 
 import javafx.application.Platform;
 import javafx.beans.property.*;
-import javafx.beans.value.WeakChangeListener;
 import javafx.collections.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
@@ -39,6 +38,7 @@ import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
+import sh.isaac.api.util.NaturalOrder;
 import sh.komet.gui.contract.*;
 import sh.komet.gui.contract.preferences.KometPreferences;
 import sh.komet.gui.contract.preferences.PersonaChangeListener;
@@ -54,8 +54,9 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.provider.StatusMessageProvider;
 
 import javax.inject.Singleton;
+import java.io.File;
 import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ConcurrentHashMap;
 
 import static sh.komet.gui.contract.preferences.GraphConfigurationItem.DEFINING_ACTIVE;
 
@@ -70,9 +71,9 @@ public class FxGet implements StaticIsaacCache {
     private static final HashMap<UuidStringKey, Manifold> MANIFOLD_FOR_MANIFOLD_COORDINATE = new HashMap<>();
 
 
-    private static final ConcurrentSkipListSet<ComponentList> componentList = new ConcurrentSkipListSet();
+    private static final ConcurrentHashMap<UuidStringKey, ComponentList> componentListMap = new ConcurrentHashMap();
 
-    private static final ObservableList<ComponentListKey> componentListKeys = FXCollections.observableArrayList(new ArrayList<>());
+    private static final ObservableList<UuidStringKey> componentListKeys = FXCollections.observableArrayList(new ArrayList<>());
 
     private static DialogService DIALOG_SERVICE = null;
     private static RulesDrivenKometService RULES_DRIVEN_KOMET_SERVICE = null;
@@ -432,25 +433,28 @@ public class FxGet implements StaticIsaacCache {
         }
         return MANIFOLDS.get(manifoldGroup);
     }
-    public static ObservableList<ComponentListKey> componentListKeys() {
+    public static ObservableList<UuidStringKey> componentListKeys() {
         return componentListKeys;
+    }
+    public static ComponentList componentList(UuidStringKey componentListKey) {
+        return componentListMap.get(componentListKey);
     }
 
     public static void addComponentList(ComponentList list) {
-        componentList.add(list);
-        componentListKeys.add(new ComponentListKey(list));
+        componentListMap.put(list.getUuidStringKey(), list);
+        componentListKeys.add(list.getUuidStringKey());
         sortComponentList();
     }
 
     public static void removeComponentList(ComponentList list) {
-        componentList.remove(list);
-        componentListKeys.remove(new ComponentListKey(list));
+        componentListMap.remove(list.getUuidStringKey());
+        componentListKeys.remove(list.getUuidStringKey());
     }
 
     private static void sortComponentList() {
         componentListKeys.sort(
                 (o1, o2) -> {
-                    return o1.compareTo(o2);
+                    return NaturalOrder.compareStrings(o1.getString(), o2.getString());
                 });
     }
 
@@ -466,53 +470,15 @@ public class FxGet implements StaticIsaacCache {
         }
     }
 
-    public static class ComponentListKey implements Comparable<ComponentListKey> {
-        private final ComponentList componentList;
+    public static File solorDirectory() {
+        File solorDirectory = new File(System.getProperty("user.home"), "Solor");
+        solorDirectory.mkdirs();
+        return solorDirectory;
+    }
 
-        public ComponentListKey(ComponentList componentList) {
-            this.componentList = componentList;
-            this.componentList.nameProperty().addListener(new WeakChangeListener<>((observable, oldValue, newValue) -> {
-                // force sort when name changes.
-                sortComponentList();
-            }));
-        }
-
-        public UUID getListId() {
-            return componentList.getListId();
-        }
-
-        public String getName() {
-            return componentList.nameProperty().getValue();
-        }
-
-        public ComponentList getComponentList() {
-            return componentList;
-        }
-        @Override
-        public int compareTo(ComponentListKey o) {
-            int nameCompare = getName().compareTo(o.getName());
-            if (nameCompare != 0) {
-                return nameCompare;
-            }
-            return getListId().compareTo(o.getListId());
-        }
-
-        @Override
-        public String toString() {
-            return getName();
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-            ComponentListKey that = (ComponentListKey) o;
-            return this.getListId().equals(that.getListId());
-        }
-
-        @Override
-        public int hashCode() {
-            return this.getListId().hashCode();
-        }
+    public static File actionFileDirectory() {
+        File actionDirectory = new File(FxGet.solorDirectory(), "action files");
+        actionDirectory.mkdirs();
+        return actionDirectory;
     }
 }

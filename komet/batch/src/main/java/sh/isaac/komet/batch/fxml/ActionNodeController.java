@@ -4,6 +4,7 @@ package sh.isaac.komet.batch.fxml;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.MetaData;
@@ -22,6 +23,8 @@ public class ActionNodeController {
     ActionItem actionItem;
     ActionCell actionCell;
 
+    @FXML
+    private Label actionTitle;
 
     @FXML
     private ResourceBundle resources;
@@ -80,6 +83,8 @@ public class ActionNodeController {
     }
 
     public void setAction(Manifold manifold, ActionItem actionItem) {
+        actionItem.setupForGui(manifold);
+        this.actionTitle.setText(actionItem.getTitle());
         this.actionItem = actionItem;
         this.manifold = manifold;
         this.actionBorderPane.setCenter(actionItem.getPropertySheet());

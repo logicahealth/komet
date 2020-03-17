@@ -60,7 +60,7 @@ public class GraphViewExplorationNodeFactory
     */
    @Override
    public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE};
+      return new ManifoldGroup[] {ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES};
    }
 
    @Override

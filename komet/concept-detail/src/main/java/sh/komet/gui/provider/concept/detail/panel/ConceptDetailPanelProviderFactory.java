@@ -70,7 +70,9 @@ public class ConceptDetailPanelProviderFactory implements DetailNodeFactory {
    */
    @Override
    public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.UNLINKED, ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE, ManifoldGroup.SEARCH};
+      return new ManifoldGroup[] {ManifoldGroup.UNLINKED, ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES,
+              ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ACTIVE_FQN_NODES,
+              ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE, ManifoldGroup.STATED_GRAPH_NAVIGATION_ANY_NODE, ManifoldGroup.SEARCH};
    }
 
     @Override

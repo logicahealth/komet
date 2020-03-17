@@ -26,6 +26,13 @@ public class ClipboardHelper {
         Clipboard.getSystemClipboard().setContent(clipboardContent);
     }
 
+    public static void copyToClipboard(CharSequence charSequence) {
+        final ClipboardContent clipboardContent = new ClipboardContent();
+        clipboardContent.putString(charSequence.toString());
+        Clipboard.getSystemClipboard().setContent(clipboardContent);
+    }
+
+
     public static List<UUID> getUuidsFromClipboard() {
         ArrayList<UUID> uuids = new ArrayList<>();
         final Clipboard clipboard = Clipboard.getSystemClipboard();
