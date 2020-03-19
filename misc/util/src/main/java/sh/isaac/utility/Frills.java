@@ -2517,5 +2517,26 @@ public class Frills
       return (conceptNid == MetaData.SOLOR_CONCEPT____SOLOR.getNid() || conceptNid == MetaData.METADATA____SOLOR.getNid() || 
             Get.taxonomyService().wasEverKindOf(conceptNid, MetaData.METADATA____SOLOR.getNid()));
    }
+   
+   /**
+    * @return the nids of the terminology types that should follow snomed rules for content, descriptions, validation, etc.
+    */
+   public static HashSet<Integer> getSCTRulesTermTypes()
+   {
+      //TODO the SCT loaders will need to mark modules for this, so other extensions can be handled properly
+      HashSet<Integer> result = new HashSet<>(6);
+      result.add(MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getNid());
+      result.add(MetaData.US_EXTENSION_MODULES____SOLOR.getNid());
+      result.add(MetaData.METADATA_MODULES____SOLOR.getNid());
+      result.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
+      if (Get.identifierService().hasUuid(UUID.fromString("eaaf13dc-67f5-3299-8c6d-0f08f9ed8158")))  //IHTSDO maintained module
+      {
+         result.add(Get.identifierService().getNidForUuids(UUID.fromString("eaaf13dc-67f5-3299-8c6d-0f08f9ed8158")));
+      }
+      if (Get.identifierService().hasUuid(UUID.fromString("bf291637-8f18-38a3-8cc9-fc28927d68ad")))  //US National Library of Medicine maintained module
+      {
+         result.add(Get.identifierService().getNidForUuids(UUID.fromString("bf291637-8f18-38a3-8cc9-fc28927d68ad")));
+      }
+      return result;
+   }
 }
-

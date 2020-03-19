@@ -74,8 +74,7 @@ public class SimpleQA extends QATask
 			if (cv.isPresent() && cv.get().isActive())
 			{
 				final int termType = Frills.getTerminologyTypeForModule(cv.get().getModuleNid(), coordinate);
-				if ((termType == MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getNid() || termType == MetaData.US_EXTENSION_MODULES____SOLOR.getNid() 
-						|| termType == MetaData.SOLOR_MODULE____SOLOR.getNid()))
+				if (Frills.getSCTRulesTermTypes().contains(termType))
 				{
 					AtomicInteger fqnCount = new AtomicInteger();
 					AtomicInteger rnCount = new AtomicInteger();
