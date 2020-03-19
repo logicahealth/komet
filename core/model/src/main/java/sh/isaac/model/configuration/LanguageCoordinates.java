@@ -42,22 +42,24 @@ package sh.isaac.model.configuration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.Locale;
+import java.util.UUID;
+import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jvnet.hk2.annotations.Service;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.api.ConceptProxy;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LanguageCoordinateService;
-import sh.isaac.api.LookupService;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.commit.ChronologyChangeListener;
+import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
@@ -65,16 +67,20 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.coordinate.LanguageCoordinateImpl;
 
-//~--- classes ----------------------------------------------------------------
-
 /**
  * The Class LanguageCoordinates.
  *
  * @author kec
  */
-public class LanguageCoordinates {
+//Even though this class is static, needs to be a service, so that the reset() gets fired at appropriate times.
+@Service
+@Singleton
+public class LanguageCoordinates implements StaticIsaacCache {
    
    private static final Logger LOG = LogManager.getLogger();
+   
+   private static final Cache<Integer, ConceptSpecification[]> LANG_EXPAND_CACHE = Caffeine.newBuilder().maximumSize(100).build();
+   private static ChronologyChangeListener ccl = null;
    
    /**
     * Case significance to concept nid.
@@ -432,12 +438,12 @@ public class LanguageCoordinates {
     * type
     */
    public static LanguageCoordinate getDefinitionCoordinate(boolean defOnly) {
-	   final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-	              (defOnly ? new ConceptProxy[] {TermAux.DEFINITION_DESCRIPTION_TYPE} : 
-	                  new ConceptProxy[] {TermAux.DEFINITION_DESCRIPTION_TYPE,
-	                    TermAux.REGULAR_NAME_DESCRIPTION_TYPE, 
-	                    TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}), 
-	              null);
+      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
+                 (defOnly ? new ConceptProxy[] {TermAux.DEFINITION_DESCRIPTION_TYPE} : 
+                     new ConceptProxy[] {TermAux.DEFINITION_DESCRIPTION_TYPE,
+                       TermAux.REGULAR_NAME_DESCRIPTION_TYPE, 
+                       TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}), 
+                 null);
 
       final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
       LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.LANGUAGE,
@@ -457,48 +463,92 @@ public class LanguageCoordinates {
     * @return the initial list, plus any equivalent non-core types in the appropriate order.  See {@link DynamicConstants#DYNAMIC_DESCRIPTION_CORE_TYPE}
     */
    public static ConceptSpecification[] expandDescriptionTypePreferenceList(ConceptSpecification[] descriptionTypePreferenceList, StampCoordinate stampCoordinate) {
-      long time = System.currentTimeMillis();
+      LOG.trace("Expand desription types requested");
       StampCoordinate stamp = stampCoordinate == null ? StampCoordinates.getDevelopmentLatestActiveOnly() : stampCoordinate;
-      HashMap<ConceptSpecification, HashSet<ConceptSpecification>> equivalentTypes = new HashMap<>();
-      
-      //Collect the mappings from core types -> non core types
-      Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(sc -> 
-      {
-         DynamicVersion dv = (DynamicVersion)sc.getLatestVersion(stamp).get();
-         ConceptProxy coreType = new ConceptProxy(Get.identifierService().getNidForUuids(((DynamicUUID)dv.getData(0)).getDataUUID()));
-         HashSet<ConceptSpecification> mapped = equivalentTypes.get(coreType);
-         if (mapped == null) {
-            mapped = new HashSet<>();
-            equivalentTypes.put(coreType, mapped);
-         }
-         mapped.add(new ConceptProxy(sc.getReferencedComponentNid()));
-      });
-      
-      if (equivalentTypes.isEmpty()) {
-         //this method is a noop
-         LOG.trace("Expanded description types call is a noop in {}ms", System.currentTimeMillis() - time);
-         return descriptionTypePreferenceList;
+      int requestKey = stamp.hashCode();
+      for (ConceptSpecification cs : descriptionTypePreferenceList) {
+         requestKey = 97 * requestKey + cs.hashCode();
       }
       
-      ArrayList<ConceptSpecification> result = new ArrayList<>();
-      ArrayList<Integer> startNids = new ArrayList<>();
-      ArrayList<Integer> endNids = new ArrayList<>();
-      for (ConceptSpecification coreType : descriptionTypePreferenceList) {
-         startNids.add(coreType.getNid());
-         if (!result.contains(coreType)) {
-            result.add(coreType);
+      return LANG_EXPAND_CACHE.get(requestKey, keyAgain -> 
+      {
+         long time = System.currentTimeMillis();
+        
+         if (ccl == null) {
+            ccl = new ChronologyChangeListener()
+            {
+               UUID me = UUID.randomUUID();
+               {
+                  Get.commitService().addChangeListener(this);
+               }
+               
+               @Override
+               public void handleCommit(CommitRecord commitRecord) {
+                  // ignore
+               }
+               
+               @Override
+               public void handleChange(SemanticChronology sc) {
+                  LANG_EXPAND_CACHE.invalidateAll();
+               }
+               
+               @Override
+               public void handleChange(ConceptChronology cc) {
+                  LANG_EXPAND_CACHE.invalidateAll();
+               }
+               
+               @Override
+               public UUID getListenerUuid() {
+                  return me;
+               }
+            };
          }
-         HashSet<ConceptSpecification> nonCoreTypes = equivalentTypes.get(coreType);
-         if (nonCoreTypes != null) {
-            for (ConceptSpecification type: nonCoreTypes) {
-               if (!result.contains(type)) {
-                  result.add(type);
-                  endNids.add(type.getNid());
+         HashMap<ConceptSpecification, HashSet<ConceptSpecification>> equivalentTypes = new HashMap<>();
+         
+         //Collect the mappings from core types -> non core types
+         Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(sc -> 
+         {
+            DynamicVersion dv = (DynamicVersion)sc.getLatestVersion(stamp).get();
+            ConceptProxy coreType = new ConceptProxy(Get.identifierService().getNidForUuids(((DynamicUUID)dv.getData(0)).getDataUUID()));
+            HashSet<ConceptSpecification> mapped = equivalentTypes.get(coreType);
+            if (mapped == null) {
+               mapped = new HashSet<>();
+               equivalentTypes.put(coreType, mapped);
+            }
+            mapped.add(new ConceptProxy(sc.getReferencedComponentNid()));
+         });
+         
+         if (equivalentTypes.isEmpty()) {
+            //this method is a noop
+            LOG.trace("Expanded description types call is a noop in {}ms", System.currentTimeMillis() - time);
+            return descriptionTypePreferenceList;
+         }
+         
+         ArrayList<ConceptSpecification> result = new ArrayList<>();
+         ArrayList<Integer> startNids = new ArrayList<>();
+         ArrayList<Integer> endNids = new ArrayList<>();
+         for (ConceptSpecification coreType : descriptionTypePreferenceList) {
+            startNids.add(coreType.getNid());
+            if (!result.contains(coreType)) {
+               result.add(coreType);
+            }
+            HashSet<ConceptSpecification> nonCoreTypes = equivalentTypes.get(coreType);
+            if (nonCoreTypes != null) {
+               for (ConceptSpecification type: nonCoreTypes) {
+                  if (!result.contains(type)) {
+                     result.add(type);
+                     endNids.add(type.getNid());
+                  }
                }
             }
          }
-      }
-      LOG.info("Expanded language type list from {} to {} in {}ms", startNids, endNids, System.currentTimeMillis() - time);
-      return result.toArray(new ConceptSpecification[result.size()]);
+         LOG.info("Expanded language type list from {} to {} in {}ms", startNids, endNids, System.currentTimeMillis() - time);
+         return result.toArray(new ConceptSpecification[result.size()]);
+     });
+   }
+
+   @Override
+   public void reset() {
+      LANG_EXPAND_CACHE.invalidateAll();
    }
 }
