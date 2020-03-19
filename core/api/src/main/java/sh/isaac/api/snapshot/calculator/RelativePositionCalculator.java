@@ -526,8 +526,10 @@ public class RelativePositionCalculator implements StaticIsaacCache {
                    break;
                 }
 
-                // Duplicate values encountered.
+                // Duplicate values encountered.  Likely two stamps at the same time on different modules.
                 this.errorCount++;
+                //TODO this should be using the module preference order to determine which one to put at the top...
+                stampsForPosition.add(stampSequence);
 
                 if (this.errorCount < 20) {
                    LOG.warn(
@@ -700,7 +702,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
    }
 
    /**
-    * Gets the latest stamp sequences as a sorted set in an array.
+    * Gets the latest (committed only) stamp sequences as a sorted set in an array.
     *
     * @param stampSequences the stamp sequence stream
     * @return the latest stamp sequences as a sorted set in an array
@@ -725,7 +727,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
    }
 
    /**
-    * Gets the latest stamp sequences as set.
+    * Gets the latest stamp sequences as an array, allowing uncommitted stamps..
     *
     * @param stampSequences the stamp sequence stream
     * @return the latest stamp sequences as set
