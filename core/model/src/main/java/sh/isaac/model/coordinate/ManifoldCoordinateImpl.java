@@ -307,7 +307,7 @@ public class ManifoldCoordinateImpl
     */
    @Override
    public String toString() {
-      return "ManifoldCoordinateImpl{" + this.taxonomyPremiseType + ",\n" + this.stampCoordinate + ", \n" + this.destinationStampCoordinate + ", \n" +
+      return "ManifoldCoordinateImpl{" + this.taxonomyPremiseType + ",\n stamp:" + this.stampCoordinate + ", \n destination stamp: " + this.destinationStampCoordinate + ", \n" +
              this.languageCoordinate + ", \n" + this.logicCoordinate + ", uuid=" + getCoordinateUuid() + '}';
    }
 
