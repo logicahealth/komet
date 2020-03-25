@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -51,7 +52,7 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 	final AssemblageService as;
 	final long deltaChangedAfter;
 	
-	final DateTimeFormatter effectiveTimeFormat = DateTimeFormatter.ofPattern("YYYYMMdd");
+	final DateTimeFormatter effectiveTimeFormat = DateTimeFormatter.ofPattern("YYYYMMdd").withZone(ZoneId.systemDefault());
 	
 	final ConcurrentHashMap<Integer, String> sctidConstants = new ConcurrentHashMap<>();
 
@@ -82,8 +83,8 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 		{
 			throw new IOException("Don't seem to have access to the temp folder");
 		}
-		packageFolder = new File(outputFolder, "SnomedCT_" + product + (scope.isPresent() ? scope.toString() : "") + "RF2_" + status.toString() + "_" 
-				+ releaseDate + "T" + (releaseTime.isPresent() ? releaseTime : "120000") + (releaseTimeZone.isPresent() ? releaseTimeZone : "Z"));
+		packageFolder = new File(outputFolder, "SnomedCT_" + product + (scope.isPresent() ? scope.get().toString() : "") + "RF2_" + status.toString() + "_" 
+				+ releaseDate + "T" + releaseTime.orElse("120000") + releaseTimeZone.orElse("Z"));
 		packageFolder.mkdir();
 		
 		this.makeDelta = makeDelta;
@@ -95,11 +96,14 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 		this.deltaChangedAfter = (makeDelta ? deltaChangedAfter.get() : 0);
 		
 		ff = new RF2FileFetcher(packageFolder, countryNamespace, versionDate.orElse(releaseDate));
+		log.debug("RF2Exporter launched - outputFolder: {}, packageFolder: {}, makeDelta: {}, makeSnapshot: {}, makeFull: {}, coordinate: {}, deltaChangedAfter: {}, {}",
+				outputFolder.getAbsoluteFile().toString(), packageFolder.getAbsoluteFile().toString(), this.makeDelta, this.makeSnapshot, this.makeFull, 
+				this.coordinate.toString(), this.deltaChangedAfter, ff.toString());
 	}
 	
 	
 	@Override
-	protected File call() throws Exception
+	public File call() throws Exception
 	{
 		try
 		{
@@ -132,26 +136,32 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 						String next = null;
 						for (int i = 0; i < allVersions.size(); i++)
 						{
-							//In RF2, we can only write one version per unique day, so in the event some item is modified
-							//more than once in a day, only export the newest edit.
-							if ((i + 1) < allVersions.size())
+							if (coordinate.getModuleNids().contains(allVersions.get(i).getModuleNid()) 
+									&& coordinate.getStampPosition().getPathNid() == allVersions.get(i).getPathNid()
+									&& coordinate.getStampPosition().getTime() > allVersions.get(i).getTime())
 							{
-								String current = next == null ? effectiveTimeFormat.format(Instant.ofEpochMilli(allVersions.get(i).getTime())) : next;
-								next = effectiveTimeFormat.format(Instant.ofEpochMilli(allVersions.get(i + 1).getTime()));
-								if (current.equals(next))
+								//In RF2, we can only write one version per unique day, so in the event some item is modified
+								//more than once in a day, only export the newest edit.
+								if ((i + 1) < allVersions.size())
 								{
-									continue;
+									//TODO [1] this is wrong, it needs to take into account the filter above
+									String current = next == null ? effectiveTimeFormat.format(Instant.ofEpochMilli(allVersions.get(i).getTime())) : next;
+									next = effectiveTimeFormat.format(Instant.ofEpochMilli(allVersions.get(i + 1).getTime()));
+									if (current.equals(next))
+									{
+										continue;
+									}
 								}
-							}
-							if (makeFull)
-							{
-								writeConcept(RF2ReleaseType.Full, allVersions.get(i));
-							}
-							if (makeDelta)
-							{
-								if (allVersions.get(i).getTime() > deltaChangedAfter)
+								if (makeFull)
 								{
-									writeConcept(RF2ReleaseType.Delta, allVersions.get(i));
+									writeConcept(RF2ReleaseType.Full, allVersions.get(i));
+								}
+								if (makeDelta)
+								{
+									if (allVersions.get(i).getTime() > deltaChangedAfter)
+									{
+										writeConcept(RF2ReleaseType.Delta, allVersions.get(i));
+									}
 								}
 							}
 						}
@@ -162,6 +172,10 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 					throw new RuntimeException(e);
 				}
 			});
+			
+			
+			//Need to close prior to zip
+			ff.closeAll();
 			
 			//TODO task progress updates throughout this class, also, tie to progress in zip portion here.
 			Zip z = new Zip(new File(outputFolder, packageFolder.getName() + ".zip"), packageFolder);
@@ -180,7 +194,12 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 		
 		file.writeRow(new String[] {
 				Frills.getSctId(cv.getNid(), coordinate)
-					.orElseThrow(() -> new RuntimeException("No SCTID available on conept " + cv.getPrimordialUuid())).toString(), 
+					.orElseGet(() -> 
+					{
+						//TODO [1] create a mechanism to return / log RF2 creation errors with the RF2
+						log.warn("No SCTID available on conept " + cv.getPrimordialUuid());
+						return 0l;
+					}) + "",
 				effectiveTimeFormat.format(Instant.ofEpochMilli(cv.getTime())),
 				getActive(cv.getStatus()), 
 				getModuleId(cv.getModuleNid()), 
@@ -217,7 +236,13 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 	{
 		return sctidConstants.computeIfAbsent(nid, nidAgain -> 
 		{
-			return Frills.getSctId(nid, null).get().toString();
+			return Frills.getSctId(nid, null).orElseGet(() ->
+			{
+				//TODO [1] proper handling of this
+				log.error("Missing constant SCTID on {}", Get.identifiedObjectService().getChronology(nid));
+				return 0l;
+				
+			}).toString();
 		});
 	}
 

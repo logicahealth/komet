@@ -165,4 +165,12 @@ public class RF2FileFetcher
 			}
 		});
 	}
+
+	@Override
+	public String toString()
+	{
+		return "FileFetcher namespace: " + namespace + ", rootFolder: " + rootFolder.getAbsolutePath() + ", versionDate: " + versionDate;
+	}
+	
+	
 }
