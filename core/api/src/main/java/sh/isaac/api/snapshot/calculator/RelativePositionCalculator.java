@@ -527,18 +527,8 @@ public class RelativePositionCalculator implements StaticIsaacCache {
                 }
 
                 // Duplicate values encountered.  Likely two stamps at the same time on different modules.
-                this.errorCount++;
                 //TODO this should be using the module preference order to determine which one to put at the top...
                 stampsForPosition.add(stampSequence);
-
-                if (this.errorCount < 20) {
-                   LOG.warn(
-                       "{} should never happen. " + "\n  Data is malformed. \n   stamp: {}  \n   Part to test: {}",
-                       new Object[] { RelativePosition.EQUAL, 
-                           Get.stampService().describeStampSequence(stampSequence), 
-                           Get.stampService().describeStampSequence(prevStamp)});
-                }
-
                 break;
 
              case UNREACHABLE:
