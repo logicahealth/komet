@@ -18,12 +18,16 @@ package sh.isaac.api.tree;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.UUID;
 
+import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.collection.MutableCollection;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.api.Get;
 import sh.isaac.api.RefreshListener;
-import sh.isaac.api.TaxonomyLink;
+import sh.isaac.api.Edge;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -142,11 +146,11 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
     }
 
     @Override
-    public NidSet getKindOfConceptNidSet(int rootConceptNid) {
+    public ImmutableIntSet getKindOfConcept(int rootConceptNid) {
         if (includeDefiningTaxonomy) {
-            return getKindOfConceptNidSet(rootConceptNid);
+            return getKindOfConcept(rootConceptNid);
         }
-        return new NidSet();
+        return IntSets.immutable.empty();
     }
 
     @Override
@@ -165,39 +169,27 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
     }
 
     @Override
-    public TaxonomySnapshot makeAnalog(ManifoldCoordinate manifoldCoordinate) {
-        TaxonomyAmalgam analog = new TaxonomyAmalgam(manifoldCoordinate, this.includeDefiningTaxonomy);
+    public ImmutableCollection<Edge> getTaxonomyParentLinks(int parentConceptNid) {
+        MutableCollection<Edge> links = Lists.mutable.empty();
         for (TaxonomySnapshot tree: taxonomies) {
-            analog.taxonomies.add(tree.makeAnalog(manifoldCoordinate));
+            links.addAll((Collection<? extends Edge>) tree.getTaxonomyParentLinks(parentConceptNid));
         }
         for (TaxonomySnapshot tree: inverseTaxonomies) {
-            analog.inverseTaxonomies.add(tree.makeAnalog(manifoldCoordinate));
+            links.addAll((Collection<? extends Edge>) tree.getTaxonomyParentLinks(parentConceptNid));
         }
-        return analog;
+        return links.toImmutable();
     }
 
     @Override
-    public Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
-        List<TaxonomyLink> links = new ArrayList<>();
+    public ImmutableCollection<Edge> getTaxonomyChildLinks(int childConceptNid) {
+        MutableCollection<Edge> links = Lists.mutable.empty();
         for (TaxonomySnapshot tree: taxonomies) {
-            links.addAll((Collection<? extends TaxonomyLink>) tree.getTaxonomyParentLinks(parentConceptNid));
+            links.addAll((Collection<? extends Edge>) tree.getTaxonomyChildLinks(childConceptNid));
         }
         for (TaxonomySnapshot tree: inverseTaxonomies) {
-            links.addAll((Collection<? extends TaxonomyLink>) tree.getTaxonomyParentLinks(parentConceptNid));
+            links.addAll((Collection<? extends Edge>) tree.getTaxonomyChildLinks(childConceptNid));
         }
-        return links;
-    }
-
-    @Override
-    public Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
-        List<TaxonomyLink> links = new ArrayList<>();
-        for (TaxonomySnapshot tree: taxonomies) {
-            links.addAll((Collection<? extends TaxonomyLink>) tree.getTaxonomyChildLinks(childConceptNid));
-        }
-        for (TaxonomySnapshot tree: inverseTaxonomies) {
-            links.addAll((Collection<? extends TaxonomyLink>) tree.getTaxonomyChildLinks(childConceptNid));
-        }
-        return links;
+        return links.toImmutable();
     }
 
     public void reset() {
@@ -236,8 +228,8 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
         }
 
         @Override
-        public NidSet getKindOfConceptNidSet(int rootConceptNid) {
-            return definingTaxonomySnapshot.getKindOfConceptNidSet(rootConceptNid);
+        public ImmutableIntSet getKindOfConcept(int rootConceptNid) {
+            return definingTaxonomySnapshot.getKindOfConcept(rootConceptNid);
         }
 
         @Override
@@ -256,12 +248,12 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
         }
 
         @Override
-        public Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
+        public ImmutableCollection<Edge> getTaxonomyParentLinks(int parentConceptNid) {
             return definingTaxonomySnapshot.getTaxonomyParentLinks(parentConceptNid);
         }
 
         @Override
-        public Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
+        public ImmutableCollection<Edge> getTaxonomyChildLinks(int childConceptNid) {
             return  definingTaxonomySnapshot.getTaxonomyChildLinks(childConceptNid);
         }
 
@@ -273,11 +265,6 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
         @Override
         public ManifoldCoordinate getManifoldCoordinate() {
             return TaxonomyAmalgam.this.manifoldCoordinate;
-        }
-
-        @Override
-        public TaxonomySnapshot makeAnalog(ManifoldCoordinate manifoldCoordinate) {
-            throw new UnsupportedOperationException();
         }
 
         @Override

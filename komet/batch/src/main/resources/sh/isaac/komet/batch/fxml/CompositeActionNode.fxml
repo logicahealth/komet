@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
@@ -8,6 +9,7 @@
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
@@ -17,61 +19,83 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.isaac.komet.batch.fxml.CompositeActionNodeController">
    <children>
-      <BorderPane prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-         <center>
-            <ListView fx:id="actionListView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
-         </center>
-         <top>
-            <GridPane maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
-              <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" maxWidth="296.0" minWidth="0.0" prefWidth="5.0" />
-                  <ColumnConstraints hgrow="NEVER" maxWidth="492.0" minWidth="86.0" prefWidth="86.0" />
-                <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="390.0" />
-                  <ColumnConstraints hgrow="NEVER" maxWidth="492.0" minWidth="75.0" prefWidth="75.0" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="5.0" prefHeight="10.0" vgrow="SOMETIMES" />
-                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
-                  <Button fx:id="applyButton" disable="true" minWidth="70.0" mnemonicParsing="false" onAction="#applyActions" prefHeight="27.0" prefWidth="70.0" text="apply" GridPane.columnIndex="3" GridPane.hgrow="NEVER">
-                     <GridPane.margin>
-                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                     </GridPane.margin>
-                  </Button>
-                  <Button fx:id="commitButton" disable="true" minWidth="70.0" mnemonicParsing="false" onAction="#commitActions" prefHeight="27.0" prefWidth="70.0" text="commit" GridPane.columnIndex="3" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.vgrow="NEVER">
-                     <GridPane.margin>
-                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                     </GridPane.margin>
-                  </Button>
-                  <Button fx:id="cancelButton" disable="true" minWidth="70.0" mnemonicParsing="false" onAction="#cancelActions" prefHeight="27.0" prefWidth="70.0" text="cancel" GridPane.columnIndex="3" GridPane.hgrow="NEVER" GridPane.rowIndex="2" GridPane.vgrow="NEVER">
-                     <GridPane.margin>
-                        <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
-                     </GridPane.margin>
-                  </Button>
-                  <Label text="to: " GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.vgrow="NEVER" />
-                  <ChoiceBox fx:id="listChoiceBox" maxWidth="1.7976931348623157E308" minWidth="100.0" prefHeight="27.0" prefWidth="150.0" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="NEVER" />
-                  <Separator prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="NEVER" />
-                  <ToolBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="4">
-                     <items>
-                        <MenuButton fx:id="addActionMenuButton" mnemonicParsing="false" text="add action" />
-                        <Separator orientation="VERTICAL" prefHeight="28.0" prefWidth="26.0" />
-                      <Button fx:id="newButton" minWidth="55.0" mnemonicParsing="false" onAction="#newCompositeAction" prefWidth="55.0" text="new" />
-                        <Button fx:id="openButton" minWidth="55.0" mnemonicParsing="false" onAction="#openCompositeAction" prefWidth="55.0" text="open" />
-                        <Button fx:id="saveButton" disable="true" minWidth="55.0" mnemonicParsing="false" onAction="#saveCompositeAction" prefWidth="55.0" text="save" />
-                        <Button fx:id="saveAsButton" disable="true" mnemonicParsing="false" onAction="#saveCompositeActionAs" text="save as..." />
-                     </items>
-                  </ToolBar>
-                  <ChoiceBox fx:id="viewKeyChoiceBox" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="150.0" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="NEVER" />
-                  <Label text="viewing: " GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.rowIndex="2" GridPane.vgrow="NEVER" />
-                  <Label text="action name: " GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER" />
-                  <TextField fx:id="actionNameField" minWidth="100.0" prefWidth="150.0" promptText="Enter action name..." GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="NEVER" />
-               </children>
-            </GridPane>
-         </top>
-      </BorderPane>
+      <Accordion AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <panes>
+          <TitledPane fx:id="specificationTitledPane" text="specification">
+            <content>
+              <AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="0.0" minWidth="0.0">
+                     <children>
+                        <BorderPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                           <center>
+                              <ListView fx:id="actionListView" prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER" />
+                           </center>
+                           <top>
+                              <GridPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+                                <columnConstraints>
+                                  <ColumnConstraints hgrow="NEVER" maxWidth="296.0" minWidth="0.0" prefWidth="5.0" />
+                                    <ColumnConstraints hgrow="NEVER" maxWidth="492.0" minWidth="86.0" prefWidth="86.0" />
+                                  <ColumnConstraints hgrow="ALWAYS" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="390.0" />
+                                    <ColumnConstraints hgrow="NEVER" maxWidth="492.0" minWidth="75.0" prefWidth="75.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  <RowConstraints minHeight="5.0" prefHeight="10.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                 <children>
+                                    <Button fx:id="applyButton" disable="true" minWidth="70.0" mnemonicParsing="false" onAction="#applyActions" prefHeight="27.0" prefWidth="70.0" text="apply" GridPane.columnIndex="3" GridPane.hgrow="NEVER">
+                                       <GridPane.margin>
+                                          <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                       </GridPane.margin>
+                                    </Button>
+                                    <Button fx:id="commitButton" disable="true" minWidth="70.0" mnemonicParsing="false" onAction="#commitActions" prefHeight="27.0" prefWidth="70.0" text="commit" GridPane.columnIndex="3" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.vgrow="NEVER">
+                                       <GridPane.margin>
+                                          <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                       </GridPane.margin>
+                                    </Button>
+                                    <Button fx:id="cancelButton" disable="true" minWidth="70.0" mnemonicParsing="false" onAction="#cancelActions" prefHeight="27.0" prefWidth="70.0" text="cancel" GridPane.columnIndex="3" GridPane.hgrow="NEVER" GridPane.rowIndex="2" GridPane.vgrow="NEVER">
+                                       <GridPane.margin>
+                                          <Insets bottom="3.0" left="3.0" right="3.0" top="3.0" />
+                                       </GridPane.margin>
+                                    </Button>
+                                    <Label text="to: " GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.rowIndex="1" GridPane.vgrow="NEVER" />
+                                    <ChoiceBox fx:id="listChoiceBox" maxWidth="1.7976931348623157E308" minWidth="100.0" prefHeight="27.0" prefWidth="150.0" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="NEVER" />
+                                    <Separator prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="NEVER" />
+                                    <ToolBar prefHeight="40.0" prefWidth="200.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="4">
+                                       <items>
+                                          <MenuButton fx:id="addActionMenuButton" mnemonicParsing="false" text="add action" />
+                                          <Separator orientation="VERTICAL" prefHeight="28.0" prefWidth="26.0" />
+                                        <Button fx:id="newButton" minWidth="55.0" mnemonicParsing="false" onAction="#newCompositeAction" prefWidth="55.0" text="new" />
+                                          <Button fx:id="openButton" minWidth="55.0" mnemonicParsing="false" onAction="#openCompositeAction" prefWidth="55.0" text="open" />
+                                          <Button fx:id="saveButton" disable="true" minWidth="55.0" mnemonicParsing="false" onAction="#saveCompositeAction" prefWidth="55.0" text="save" />
+                                          <Button fx:id="saveAsButton" disable="true" mnemonicParsing="false" onAction="#saveCompositeActionAs" text="save as..." />
+                                       </items>
+                                    </ToolBar>
+                                    <ChoiceBox fx:id="viewKeyChoiceBox" maxWidth="1.7976931348623157E308" minWidth="100.0" prefWidth="150.0" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="NEVER" />
+                                    <Label text="viewing: " GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.rowIndex="2" GridPane.vgrow="NEVER" />
+                                    <Label text="action name: " GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.hgrow="NEVER" GridPane.vgrow="NEVER" />
+                                    <TextField fx:id="actionNameField" minWidth="100.0" prefWidth="150.0" promptText="Enter action name..." GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="NEVER" />
+                                 </children>
+                              </GridPane>
+                           </top>
+                        </BorderPane>
+                     </children>
+                  </AnchorPane>
+            </content>
+          </TitledPane>
+          <TitledPane fx:id="affectedConceptsTitledPane" expanded="false" text="affected concepts">
+            <content>
+              <AnchorPane fx:id="affectedConceptsAnchorPane" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+            </content>
+          </TitledPane>
+          <TitledPane fx:id="actionLogTitledPane" expanded="false" text="action log">
+            <content>
+              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" />
+            </content>
+          </TitledPane>
+        </panes>
+      </Accordion>
    </children>
 </AnchorPane>

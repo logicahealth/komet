@@ -39,7 +39,7 @@ public class PropertySheetListWrapper<T> implements PropertySheet.Item {
     private final Function<Manifold,PropertyEditor<T>> newEditorSupplier;
 
     public PropertySheetListWrapper(Manifold manifold, SimpleListProperty<T> wrappedProperty,
-            Supplier<T> newObjectSupplier, Function<Manifold,PropertyEditor<T>> newEditorSupplier) {
+                                    Supplier<T> newObjectSupplier, Function<Manifold,PropertyEditor<T>> newEditorSupplier) {
         this.wrappedProperty = wrappedProperty;
         this.name = manifold.getPreferredDescriptionText(new ConceptProxy(wrappedProperty.getName()));
         this.newObjectSupplier = newObjectSupplier;

@@ -10,7 +10,6 @@ import sh.komet.gui.manifold.Manifold;
 import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 
-import static sh.isaac.MetaData.CONCEPT_DETAILS_PANEL____SOLOR;
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 
 /**

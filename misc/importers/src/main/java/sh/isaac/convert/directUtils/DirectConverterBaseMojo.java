@@ -37,18 +37,6 @@
 
 package sh.isaac.convert.directUtils;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -67,14 +55,22 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.constants.DatabaseInitialization;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
-import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.mojo.LoadTermstore;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  *
@@ -103,7 +99,7 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 	private int printsSinceReturn = 0;
 	private int lastStatus;
 	
-	protected StampCoordinate readbackCoordinate;
+	protected StampFilter readbackCoordinate;
 	
 	/**
 	 * A optional function that can be specified by a concrete subclass, which when called, will provide a set of nids that will be passed
@@ -245,7 +241,7 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 
 			LookupService.startupIsaac();
 			
-			readbackCoordinate = StampCoordinates.getDevelopmentLatest();
+			readbackCoordinate = Coordinates.Filter.DevelopmentLatest();
 
 			Path[] filesToPreload = getIBDFFilesToPreload();
 			if (filesToPreload != null && filesToPreload.length > 0)

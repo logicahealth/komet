@@ -46,7 +46,7 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
    private final Transaction transaction;
 
    public ImportSelectedAndTransformTask(Transaction transaction, Manifold manifold, ImportType importType,
-         List<ContentProvider> entriesToImport) {
+                                         List<ContentProvider> entriesToImport) {
       this.transaction = transaction;
       this.entriesToImport = entriesToImport;
       this.manifold = manifold;

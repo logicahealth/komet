@@ -14,7 +14,7 @@ public class CoordinateGroupPanel extends ParentPanel {
     public CoordinateGroupPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "Coordinates"), manifold, kpc);
         if (!initialized()) {
-            addChild("Stamp", StampCoordinateGroupPanel.class);
+            addChild("Filter", PathGroupPanel.class);
             addChild("Language", LanguageCoordinateGroupPanel.class);
             addChild("Logic", LogicCoordinateGroupPanel.class);
             addChild("Manifold", ManifoldCoordinateGroupPanel.class);

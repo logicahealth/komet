@@ -28,7 +28,6 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.komet.gui.control.property.PropertySheetPurpose;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
@@ -46,8 +45,8 @@ public class AddEditVersionMenuItems {
     final HashMap<String, PropertySheetMenuItem> propertySheetMenuItems = new HashMap<>();
 
     public AddEditVersionMenuItems(Manifold manifold,
-            ObservableCategorizedVersion categorizedVersion,
-            Consumer<PropertySheetMenuItem> propertySheetConsumer) {
+                                   ObservableCategorizedVersion categorizedVersion,
+                                   Consumer<PropertySheetMenuItem> propertySheetConsumer) {
         this.manifold = manifold;
         this.categorizedVersion = categorizedVersion;
         this.propertySheetConsumer = propertySheetConsumer;

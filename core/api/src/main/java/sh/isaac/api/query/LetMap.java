@@ -44,8 +44,6 @@ package sh.isaac.api.query;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 //~--- classes ----------------------------------------------------------------
 
 /**
@@ -53,7 +51,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author kec
  */
-@XmlRootElement
 public class LetMap {
    /** The map. */
    private Map<String, Object> map = new HashMap<>();

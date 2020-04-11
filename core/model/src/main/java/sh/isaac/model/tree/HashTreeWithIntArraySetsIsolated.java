@@ -4,16 +4,23 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.roaringbitmap.IntConsumer;
 import org.roaringbitmap.RoaringBitmap;
+import sh.isaac.api.ConceptActiveService;
 import sh.isaac.api.Get;
 import sh.isaac.api.alert.Alert;
 import sh.isaac.api.alert.AlertCategory;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.alert.AlertType;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
@@ -70,6 +77,8 @@ public class HashTreeWithIntArraySetsIsolated
     protected final int                       assemblageNid;
     protected final OpenIntHashSet roots = new OpenIntHashSet();
     protected final PremiseType premiseType;
+    protected final String coordinateString;
+    protected final StampFilterImmutable vertexFilter;
 
     /**
      * Instantiates a new hash tree with bit sets.
@@ -78,7 +87,9 @@ public class HashTreeWithIntArraySetsIsolated
      * @param assemblageNid the assemblage nid which specifies the assemblage where the concepts in this tree
      * where created within.
      */
-    public HashTreeWithIntArraySetsIsolated(PremiseType premiseType, int assemblageNid) {
+    public HashTreeWithIntArraySetsIsolated(StampFilterImmutable vertexFilter, String coordinateString, PremiseType premiseType, int assemblageNid) {
+        this.vertexFilter = vertexFilter;
+        this.coordinateString = coordinateString;
         this.premiseType = premiseType;
         this.assemblageNid                  = assemblageNid;
         this.conceptNidsWithParents    = new OpenIntHashSet();
@@ -89,6 +100,8 @@ public class HashTreeWithIntArraySetsIsolated
     }
 
     public HashTreeWithIntArraySetsIsolated(HashTreeWithIntArraySetsIsolated another) {
+        this.vertexFilter = another.vertexFilter;
+        this.coordinateString = another.coordinateString;
         this.premiseType = another.premiseType;
         this.assemblageNid                  = another.assemblageNid;
         this.conceptNidsWithParents    = new OpenIntHashSet();
@@ -805,16 +818,17 @@ public class HashTreeWithIntArraySetsIsolated
 
     /**
      * {@inheritDoc}
+     * @return
      */
     @Override
-    public final NidSet getDescendentNidSet(int parentNid) {
-        final NidSet descendentNids = new NidSet();
+    public final int[] getDescendentNids(int parentNid) {
+        final MutableIntSet descendentNids = IntSets.mutable.empty();
         if (this.parentNid_ChildNidSetArray_Map.containsKey(parentNid)) {
             getDescendentsRecursive(parentNid, descendentNids);
-            return descendentNids;
+            return descendentNids.toArray();
         }
 
-        return descendentNids;
+        return descendentNids.toArray();
     }
 
     /**
@@ -1000,7 +1014,7 @@ public class HashTreeWithIntArraySetsIsolated
      * @param parentNid the parentIndex nid
      * @param descendentNids the descendent nids
      */
-    private void getDescendentsRecursive(int parentNid, NidSet descendentNids) {
+    private void getDescendentsRecursive(int parentNid, MutableIntSet descendentNids) {
         if (this.parentNid_ChildNidSetArray_Map.containsKey(parentNid)) {
             for (final int childNid: this.parentNid_ChildNidSetArray_Map.get(parentNid)) {
                 descendentNids.add(childNid);
@@ -1076,18 +1090,39 @@ public class HashTreeWithIntArraySetsIsolated
 
     protected void computeRoots() {
         roots.clear();
+        ConceptActiveService conceptActiveService = Get.conceptActiveService();
+        MutableIntSet inactiveOrphanNids = IntSets.mutable.empty();
         conceptNids.forEachKey((conceptNid) -> {
             if (!conceptNidsWithParents.contains(conceptNid)) {
-                roots.add(conceptNid);
+                if (conceptActiveService.isConceptActive(conceptNid, vertexFilter)) {
+                    roots.add(conceptNid);
+                } else {
+                    // Inactive concepts that are not referenced by an edge.
+                    // We will filter these out, as a different case from inactive vertexes
+                    // referenced. Will list inactive references to console in form that
+                    // can be saved as text, and imported into the list view.
+                    inactiveOrphanNids.add(conceptNid);
+                }
             }
             return true;
         });
+        if (!inactiveOrphanNids.isEmpty()) {
+             StringBuilder inactiveStringBuilder = new StringBuilder();
+             for (int inactiveNid: inactiveOrphanNids.toArray()) {
+                 Optional<? extends Chronology> optionalItem = Get.identifiedObjectService().getChronology(inactiveNid);
+                 if (optionalItem.isPresent()) {
+                     Chronology item = optionalItem.get();
+                     inactiveStringBuilder.append(item.getPrimordialUuid().toString() + "\t" + item.toUserString() + "\n");
+                 }
+             }
+            LOG.warn("Inactive orphans: \n" + inactiveStringBuilder);
+        }
         if (roots.size() != 1) {
             StringBuilder builder1 = new StringBuilder();
             builder1.append("Root count != 1: ");
             builder1.append(roots.size());
             LOG.warn(builder1.toString());
-            final StringBuilder builder = new StringBuilder("Roots: \n");
+            final StringBuilder builder = new StringBuilder("Roots for " + coordinateString + "\n\n");
             int count = 0;
             for (int nid : roots.keys().elements()) {
                 count++;

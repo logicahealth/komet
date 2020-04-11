@@ -71,11 +71,6 @@
                         </dependency>
                         <dependency>
                             <groupId>sh.isaac.provider</groupId>
-                            <artifactId>memory-managment</artifactId>
-                            <version>${project.parent.version}</version>
-                        </dependency>
-                        <dependency>
-                            <groupId>sh.isaac.provider</groupId>
                             <artifactId>progress</artifactId>
                             <version>${project.parent.version}</version>
                         </dependency>

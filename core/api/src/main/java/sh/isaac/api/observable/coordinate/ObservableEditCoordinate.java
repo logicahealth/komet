@@ -43,7 +43,11 @@ package sh.isaac.api.observable.coordinate;
 
 import javafx.beans.property.IntegerProperty;
 
+import javafx.beans.property.ObjectProperty;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.EditCoordinateImmutable;
+import sh.isaac.api.coordinate.EditCoordinateProxy;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -53,35 +57,31 @@ import sh.isaac.api.coordinate.EditCoordinate;
  * @author kec
  */
 public interface ObservableEditCoordinate
-        extends EditCoordinate, ObservableCoordinate {
+        extends EditCoordinateProxy, ObservableCoordinate<EditCoordinateImmutable> {
    /**
     * Author Nid property.
     *
     * @return the integer property
     */
-   IntegerProperty authorNidProperty();
+   ObjectProperty<ConceptSpecification> authorProperty();
 
    /**
     * Module nid property.
     *
     * @return the integer property
     */
-   IntegerProperty moduleNidProperty();
+   ObjectProperty<ConceptSpecification> moduleProperty();
 
    /**
     * Path nid property.
     *
     * @return the integer property
     */
-   IntegerProperty pathNidProperty();
-
-   /**
-    *
-    * @return the underlying edit coordinate implementation.
-    */
-   EditCoordinate getEditCoordinate();
+   ObjectProperty<ConceptSpecification> pathProperty();
 
    @Override
-   public ObservableEditCoordinate deepClone();
+   default EditCoordinateImmutable toEditCoordinateImmutable() {
+      return this.getValue();
+   }
 }
 

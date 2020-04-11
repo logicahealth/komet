@@ -46,6 +46,8 @@ import javafx.beans.property.ObjectProperty;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 import sh.isaac.api.coordinate.StampPosition;
+import sh.isaac.api.coordinate.StampPositionImmutable;
+import sh.isaac.api.coordinate.StampPositionProxy;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -55,13 +57,13 @@ import sh.isaac.api.coordinate.StampPosition;
  * @author kec
  */
 public interface ObservableStampPosition
-        extends StampPosition, ObservableCoordinate {
+        extends StampPositionProxy, ObservableCoordinate<StampPositionImmutable> {
    /**
-    * Stamp path nid property.
+    * Filter path nid property.
     *
-    * @return the integer property
+    * @return the concept specification property for the path of this position is on.
     */
-    ObjectProperty<ConceptSpecification> stampPathConceptSpecificationProperty();
+    ObjectProperty<ConceptSpecification> pathConceptProperty();
 
    /**
     * Time property.

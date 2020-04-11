@@ -60,7 +60,6 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.IndexQueryService;

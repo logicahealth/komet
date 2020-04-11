@@ -44,8 +44,6 @@ package sh.isaac.api.observable.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.IntegerProperty;
-
 
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -53,7 +51,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.transaction.Transaction;
@@ -72,10 +70,10 @@ public interface ObservableConceptChronology
     * A test for validating that a concept contains an active description. Used
     * to validate concept proxies or concept specs at runtime.
     * @param descriptionText text to match against.
-    * @param stampCoordinate coordinate to determine if description is active.
+    * @param stampFilter coordinate to determine if description is active.
     * @return true if any version of a description matches this text.
     */
-   boolean containsActiveDescription(String descriptionText, StampCoordinate stampCoordinate);
+   boolean containsActiveDescription(String descriptionText, StampFilter stampFilter);
 
 
    /**
@@ -105,13 +103,13 @@ public interface ObservableConceptChronology
     * Gets the fully specified description.
     *
     * @param languageCoordinate the language coordinate
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the fully specified description
     */
    @Override
    LatestVersion<ObservableDescriptionVersion> getFullyQualifiedNameDescription(
            LanguageCoordinate languageCoordinate,
-           StampCoordinate stampCoordinate);
+           StampFilter stampFilter);
 
    /**
     * Gets the fully specified description.
@@ -122,7 +120,7 @@ public interface ObservableConceptChronology
    @Override
    default LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
            ManifoldCoordinate manifoldCoordinate) {
-      return getFullyQualifiedNameDescription(manifoldCoordinate, manifoldCoordinate);
+      return getFullyQualifiedNameDescription(manifoldCoordinate.getLanguageCoordinate(), manifoldCoordinate.getStampFilter());
       
    }
 
@@ -130,13 +128,13 @@ public interface ObservableConceptChronology
     * Gets the preferred description.
     *
     * @param languageCoordinate the language coordinate
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the preferred description
     */
    @Override
    LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            LanguageCoordinate languageCoordinate,
-           StampCoordinate stampCoordinate);
+           StampFilter stampFilter);
    /**
     * Gets the preferred description.
     *
@@ -146,7 +144,7 @@ public interface ObservableConceptChronology
    @Override
    default LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            ManifoldCoordinate manifoldCoordinate) {
-      return getPreferredDescription(manifoldCoordinate, manifoldCoordinate);
+      return getPreferredDescription(manifoldCoordinate.getLanguageCoordinate(), manifoldCoordinate.getStampFilter());
    }
 }
 //~--- JDK imports ------------------------------------------------------------

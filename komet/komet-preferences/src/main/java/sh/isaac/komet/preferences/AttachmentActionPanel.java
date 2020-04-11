@@ -325,7 +325,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
                     case CONCEPT: {
                         PropertySheetItemConceptConstraintWrapper constraintsItem = (PropertySheetItemConceptConstraintWrapper) item;
                         PropertySheetItemConceptWrapper conceptItem = constraintsItem.getValue();
-                        b.append("rule \"Setup constraints for ").append(getManifold().getFullySpecifiedDescriptionText(fieldConcept))
+                        b.append("rule \"Setup constraints for ").append(getManifold().getFullyQualifiedDescriptionText(fieldConcept))
                                 .append(" ").append(getPreferencesNode().name()).append("\"\n");
                         b.append("when\n");
                         b.append("   $propertySheetItem : PropertySheetItemConceptWrapper(getSpecification() == new ")

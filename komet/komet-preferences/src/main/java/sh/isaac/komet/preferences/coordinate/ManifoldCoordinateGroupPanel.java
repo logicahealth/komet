@@ -3,8 +3,8 @@ package sh.isaac.komet.preferences.coordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.util.NaturalOrder;
-import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.isaac.komet.preferences.ParentPanel;
+import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.UuidStringKey;
 
@@ -15,10 +15,9 @@ import java.util.prefs.BackingStoreException;
 import static sh.isaac.komet.preferences.coordinate.LanguageCoordinateGroupPanel.US_ENGLISH_FQN_COORDINATE_KEY;
 import static sh.isaac.komet.preferences.coordinate.LanguageCoordinateGroupPanel.US_ENGLISH_PREFERRED_COORDINATE_KEY;
 import static sh.isaac.komet.preferences.coordinate.LogicCoordinateGroupPanel.EL_PROFILE_LOGIC_COORDINATE_KEY;
-import static sh.isaac.komet.preferences.coordinate.StampCoordinateGroupPanel.DEVELOPMENT_LATEST_ACTIVE_ONLY_STAMP_COORDINATE_KEY;
-import static sh.isaac.komet.preferences.coordinate.StampCoordinateGroupPanel.DEVELOPMENT_LATEST_STAMP_COORDINATE_KEY;
-import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import static sh.isaac.komet.preferences.coordinate.ManifoldCoordinateItemPanel.Keys.MANIFOLD_GROUP_UUID;
+import static sh.isaac.komet.preferences.coordinate.PathGroupPanel.DEVELOPMENT_PATH_COORDINATE_KEY;
+import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 
 public class ManifoldCoordinateGroupPanel extends ParentPanel {
     public static final UuidStringKey INFERRED_GRAPH_NAVIGATION_ANY_NODE_MANIFOLD_KEY = new UuidStringKey(
@@ -54,48 +53,36 @@ public class ManifoldCoordinateGroupPanel extends ParentPanel {
                     case SEARCH:
                     case INFERRED_GRAPH_NAVIGATION_ANY_NODE:
                     case UNLINKED:
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.STAMP_FOR_ORIGIN_KEY,
-                                DEVELOPMENT_LATEST_ACTIVE_ONLY_STAMP_COORDINATE_KEY.toStringArray());
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.STAMP_FOR_DESTINATION_KEY,
-                                DEVELOPMENT_LATEST_STAMP_COORDINATE_KEY.toStringArray());
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LANGUAGE_COORDINATE_KEY,
-                                US_ENGLISH_PREFERRED_COORDINATE_KEY.toStringArray());
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LOGIC_COORDINATE_KEY,
-                                EL_PROFILE_LOGIC_COORDINATE_KEY.toStringArray());
-                        childPreferences.put(ManifoldCoordinateItemPanel.Keys.PREMISE_TYPE_KEY, PremiseType.INFERRED.name());
+//                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.STAMP_FOR_DESTINATION_KEY,
+//                                DEVELOPMENT_PATH_COORDINATE_KEY.toStringArray());
+//                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LANGUAGE_COORDINATE_KEY,
+//                                US_ENGLISH_PREFERRED_COORDINATE_KEY.toStringArray());
+//                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LOGIC_COORDINATE_KEY,
+//                                EL_PROFILE_LOGIC_COORDINATE_KEY.toStringArray());
+//                        childPreferences.put(ManifoldCoordinateItemPanel.Keys.PREMISE_TYPE_KEY, PremiseType.INFERRED.name());
                         break;
                     case INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES:
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.STAMP_FOR_ORIGIN_KEY,
-                                DEVELOPMENT_LATEST_ACTIVE_ONLY_STAMP_COORDINATE_KEY.toStringArray());
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.STAMP_FOR_DESTINATION_KEY,
-                                DEVELOPMENT_LATEST_ACTIVE_ONLY_STAMP_COORDINATE_KEY.toStringArray());
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LANGUAGE_COORDINATE_KEY,
-                                US_ENGLISH_PREFERRED_COORDINATE_KEY.toStringArray());
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LOGIC_COORDINATE_KEY,
-                                EL_PROFILE_LOGIC_COORDINATE_KEY.toStringArray());
-                        childPreferences.put(ManifoldCoordinateItemPanel.Keys.PREMISE_TYPE_KEY, PremiseType.INFERRED.name());
+//                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LANGUAGE_COORDINATE_KEY,
+//                                US_ENGLISH_PREFERRED_COORDINATE_KEY.toStringArray());
+//                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LOGIC_COORDINATE_KEY,
+//                                EL_PROFILE_LOGIC_COORDINATE_KEY.toStringArray());
+//                        childPreferences.put(ManifoldCoordinateItemPanel.Keys.PREMISE_TYPE_KEY, PremiseType.INFERRED.name());
                         break;
                     case INFERRED_GRAPH_NAVIGATION_ACTIVE_FQN_NODES:
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.STAMP_FOR_ORIGIN_KEY,
-                                DEVELOPMENT_LATEST_ACTIVE_ONLY_STAMP_COORDINATE_KEY.toStringArray());
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.STAMP_FOR_DESTINATION_KEY,
-                                DEVELOPMENT_LATEST_ACTIVE_ONLY_STAMP_COORDINATE_KEY.toStringArray());
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LANGUAGE_COORDINATE_KEY,
-                                US_ENGLISH_FQN_COORDINATE_KEY.toStringArray());
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LOGIC_COORDINATE_KEY,
-                                EL_PROFILE_LOGIC_COORDINATE_KEY.toStringArray());
-                        childPreferences.put(ManifoldCoordinateItemPanel.Keys.PREMISE_TYPE_KEY, PremiseType.INFERRED.name());
+//                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LANGUAGE_COORDINATE_KEY,
+//                                US_ENGLISH_FQN_COORDINATE_KEY.toStringArray());
+//                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LOGIC_COORDINATE_KEY,
+//                                EL_PROFILE_LOGIC_COORDINATE_KEY.toStringArray());
+//                        childPreferences.put(ManifoldCoordinateItemPanel.Keys.PREMISE_TYPE_KEY, PremiseType.INFERRED.name());
                         break;
                     case STATED_GRAPH_NAVIGATION_ANY_NODE:
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.STAMP_FOR_ORIGIN_KEY,
-                                DEVELOPMENT_LATEST_ACTIVE_ONLY_STAMP_COORDINATE_KEY.toStringArray());
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.STAMP_FOR_DESTINATION_KEY,
-                                DEVELOPMENT_LATEST_STAMP_COORDINATE_KEY.toStringArray());
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LANGUAGE_COORDINATE_KEY,
-                                US_ENGLISH_PREFERRED_COORDINATE_KEY.toStringArray());
-                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LOGIC_COORDINATE_KEY,
-                                EL_PROFILE_LOGIC_COORDINATE_KEY.toStringArray());
-                        childPreferences.put(ManifoldCoordinateItemPanel.Keys.PREMISE_TYPE_KEY, PremiseType.STATED.name());
+//                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.STAMP_FOR_DESTINATION_KEY,
+//                                DEVELOPMENT_PATH_COORDINATE_KEY.toStringArray());
+//                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LANGUAGE_COORDINATE_KEY,
+//                                US_ENGLISH_PREFERRED_COORDINATE_KEY.toStringArray());
+//                        childPreferences.putArray(ManifoldCoordinateItemPanel.Keys.LOGIC_COORDINATE_KEY,
+//                                EL_PROFILE_LOGIC_COORDINATE_KEY.toStringArray());
+//                        childPreferences.put(ManifoldCoordinateItemPanel.Keys.PREMISE_TYPE_KEY, PremiseType.STATED.name());
                 }
 
                 IsaacPreferences manifoldPreferences = addChildPanel(group.getGroupUuid(), Optional.of(group.getGroupName()));

@@ -3,7 +3,6 @@ package sh.isaac.komet.preferences.window;
 import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.SplitPane;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import sh.isaac.MetaData;
@@ -166,7 +165,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
             for (Window window: Window.getWindows()) {
                 if (window instanceof Stage) {
                     Stage stage = (Stage) window;
-                    if (stage.getTitle().startsWith(prefix)) {
+                    if (stage.getTitle() != null && stage.getTitle().startsWith(prefix)) {
                         foundCount++;
                     }
                 }

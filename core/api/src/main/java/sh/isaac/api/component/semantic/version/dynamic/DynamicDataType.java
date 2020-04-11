@@ -67,7 +67,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicPolymorphic;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.util.UuidT3Generator;
 
 //~--- enums ------------------------------------------------------------------
@@ -445,7 +445,7 @@ public enum DynamicDataType {
     */
    private static boolean isChildOf(int childConceptNid, int parentConceptNid)
    {
-      StampCoordinate stamp = Get.defaultCoordinate().getStampCoordinate();
+      StampFilter stamp = Get.defaultCoordinate().getStampFilter();
       
       ArrayList<SemanticChronology> chronologies = new ArrayList<>();
       

@@ -39,7 +39,6 @@
 
 package sh.isaac.api.coordinate;
 
-import java.util.HashSet;
 import java.util.Set;
 import sh.isaac.api.Status;
 
@@ -55,23 +54,21 @@ public interface StateBasedAnalogMaker<T> {
    /**
     * Make analog.
     *
-    * @param status - the allowed status for the resulting analog
+    * @param statuses - the allowed status for the resulting analog
     * @return a new {@code <T>} with the specified allowed states.
     */
-   default T makeCoordinateAnalog(Status... status) {
-      HashSet<Status> statusSet = new HashSet<>();
-      if (status != null) {
-         for (Status s : status) {
-            statusSet.add(s);
-         }
-      }
-      return makeCoordinateAnalog(statusSet);
+   default T makeCoordinateAnalog(Status... statuses) {
+      return makeCoordinateAnalog(StatusSet.of(statuses));
    }
    
    /**
     * @param statusSet - the allowed status for the resulting analog
     * @return new {@code <T>} with the specified allowed states.
     */
-   abstract T makeCoordinateAnalog(Set<Status> statusSet);
+   default T makeCoordinateAnalog(Set<Status> statusSet) {
+      return makeCoordinateAnalog(StatusSet.of(statusSet));
+   }
+
+   T makeCoordinateAnalog(StatusSet statusSet);
 }
 

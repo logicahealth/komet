@@ -41,6 +41,7 @@ import java.time.Duration;
 import java.time.Instant;
 
 import java.util.concurrent.Callable;
+import java.util.concurrent.CancellationException;
 import java.util.function.Consumer;
 import java.util.concurrent.atomic.AtomicInteger;
 //~--- non-JDK imports --------------------------------------------------------
@@ -214,8 +215,15 @@ public abstract class TimedTask<T>
      */
     @Override
     protected void failed() {
-        LOG.warn("Timed task " + taskSequenceId + " failed!", this.getException());
-    }
+        Throwable throwable = this.getException();
+        if (throwable instanceof CancellationException) {
+            LOG.info("Timed task " + taskSequenceId + " " + this.getSimpleName() + " canceled");
+        } else {
+            LOG.warn("Timed task " + taskSequenceId + " failed!", throwable);
+        }
+
+
+     }
 
     protected void generateProgressMessage() {
         if (this.progressMessageGenerator != null) {

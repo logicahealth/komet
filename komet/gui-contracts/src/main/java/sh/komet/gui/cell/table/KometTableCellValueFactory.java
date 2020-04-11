@@ -22,7 +22,7 @@ public class KometTableCellValueFactory {
     public ObservableValue<ObservableVersion> getCellValue(
             TableColumn.CellDataFeatures<ObservableChronology,
                     ObservableVersion> param) {
-        LatestVersion<ObservableVersion> version = param.getValue().getLatestObservableVersion(this.manifold);
+        LatestVersion<ObservableVersion> version = param.getValue().getLatestObservableVersion(this.manifold.getStampFilter());
         if (version.isPresent()) {
             return new SimpleObjectProperty<>(version.get());
         }

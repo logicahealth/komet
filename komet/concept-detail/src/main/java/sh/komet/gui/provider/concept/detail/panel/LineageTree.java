@@ -1,10 +1,9 @@
 package sh.komet.gui.provider.concept.detail.panel;
 
-import javafx.scene.Node;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import sh.isaac.api.Get;
-import sh.isaac.api.TaxonomyLink;
+import sh.isaac.api.Edge;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -23,9 +22,9 @@ public class LineageTree {
     }
 
     private static void addChildren(TreeItem<String> parentTreeItem, ConceptChronology parentConcept, TaxonomySnapshot snapshot, Manifold manifold) {
-        for (TaxonomyLink taxonomyLink: snapshot.getTaxonomyParentLinks(parentConcept.getNid())) {
-            if (taxonomyLink.getTypeNid() == TermAux.IS_A.getNid()) {
-                ConceptChronology childConcept = Get.concept(taxonomyLink.getDestinationNid());
+        for (Edge edge : snapshot.getTaxonomyParentLinks(parentConcept.getNid())) {
+            if (edge.getTypeNid() == TermAux.IS_A.getNid()) {
+                ConceptChronology childConcept = Get.concept(edge.getDestinationNid());
                 TreeItem<String> childItem = new TreeItem<>(manifold.getPreferredDescriptionText(childConcept));
                 parentTreeItem.getChildren().add(childItem);
                 addChildren(childItem, childConcept, snapshot, manifold);

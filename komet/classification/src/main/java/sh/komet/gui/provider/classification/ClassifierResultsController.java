@@ -228,7 +228,7 @@ public class ClassifierResultsController {
             Get.executor().execute(new PrepareConceptSet("Sorting list of inferred changes", classifierResults.getConceptsWithInferredChanges(), inferredChangesList.getItems()));
         }
 
-        stampTextArea.setText(classifierResults.getStampCoordinate().toUserString());
+        stampTextArea.setText(classifierResults.getStampFilter().toUserString());
         logicTextArea.setText(classifierResults.getLogicCoordinate().toUserString());
         editTextArea.setText(classifierResults.getEditCoordinate().toUserString());
     }

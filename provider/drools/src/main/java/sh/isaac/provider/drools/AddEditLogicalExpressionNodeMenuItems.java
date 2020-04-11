@@ -86,10 +86,10 @@ public class AddEditLogicalExpressionNodeMenuItems {
     private MouseEvent mouseEvent;
 
     public AddEditLogicalExpressionNodeMenuItems(Manifold manifold,
-            LogicNode nodeToEdit,
-            LogicalExpression expressionContiningNode,
-            Consumer<LogicalExpression> expressionUpdater,
-            MouseEvent mouseEvent) {
+                                                 LogicNode nodeToEdit,
+                                                 LogicalExpression expressionContiningNode,
+                                                 Consumer<LogicalExpression> expressionUpdater,
+                                                 MouseEvent mouseEvent) {
         this.manifold = manifold;
         this.nodeToEdit = nodeToEdit;
         this.expressionContiningNode = (LogicalExpressionImpl) expressionContiningNode;
@@ -223,7 +223,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
     public void addRoleWithRestrictionsAction(ConceptSpecification roleType, ConceptSpecification assemblageWithRestrictions) {
         ActionGroup newRoleGroup = new ActionGroup("Add " + manifold.getPreferredDescriptionText(roleType) + "...");
         NidSet semanticNids = Get.assemblageService().getSemanticNidsFromAssemblage(assemblageWithRestrictions.getNid());
-        SemanticSnapshotService<SemanticVersion> snapshot = Get.assemblageService().getSnapshot(SemanticVersion.class, manifold);
+        SemanticSnapshotService<SemanticVersion> snapshot = Get.assemblageService().getSnapshot(SemanticVersion.class, manifold.getStampFilter());
         for (int semanticNid : semanticNids.asArray()) {
             LatestVersion<SemanticVersion> latestMembership = snapshot.getLatestSemanticVersion(semanticNid);
             if (latestMembership.isPresent() && latestMembership.get().isActive()) {

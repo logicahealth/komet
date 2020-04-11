@@ -42,6 +42,14 @@
              <version>3.5.0</version>  <!-- Would like to specify provided scope, but can't, because the maven classloader prevents access at runtime -->
              <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>org.eclipse.collections</groupId>
+            <artifactId>eclipse-collections-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.collections</groupId>
+            <artifactId>eclipse-collections</artifactId>
+        </dependency>
     </dependencies>
 
     <build>

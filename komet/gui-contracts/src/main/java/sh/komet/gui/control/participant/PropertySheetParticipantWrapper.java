@@ -22,7 +22,6 @@ import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.model.statement.ParticipantImpl;
-import sh.isaac.model.statement.RepetitionImpl;
 import sh.komet.gui.manifold.Manifold;
 
 /**

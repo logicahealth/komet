@@ -39,7 +39,7 @@ package sh.isaac.api.index;
 
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 
 /**
  * A class for passing Author, Module and/or Path restrictions into lucene queries.
@@ -93,21 +93,21 @@ public class AuthorModulePathRestriction {
    public static AuthorModulePathRestriction restrict(ManifoldCoordinate mc) {
       AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
       ar.authors = new NidSet();
-      ar.modules = mc.getModuleNids();
-      ar.paths = NidSet.of(new int[] { mc.getStampCoordinate().getStampPosition().getStampPathSpecification().getNid() });
+      ar.modules = NidSet.of(mc.getStampFilter().getModuleNids().toArray());
+      ar.paths = NidSet.of(new int[] { mc.getStampFilter().getStampPosition().getPathForPositionNid() });
       return ar;
    }
    
    /**
     * Build an AuthorModulePathRestriction by extracting the modules and Path from the manifold coordinate
-    * @param sc
+    * @param stampFilter
     * @return
     */
-   public static AuthorModulePathRestriction restrict(StampCoordinate sc) {
+   public static AuthorModulePathRestriction restrict(StampFilter stampFilter) {
       AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
       ar.authors = new NidSet();
-      ar.modules = sc.getModuleNids();
-      ar.paths = NidSet.of(new int[] { sc.getStampPosition().getStampPathSpecification().getNid() });
+      ar.modules = NidSet.of(stampFilter.getModuleNids().toArray());
+      ar.paths = NidSet.of(new int[] { stampFilter.getStampPosition().getPathConcept().getNid() });
       return ar;
    }
 

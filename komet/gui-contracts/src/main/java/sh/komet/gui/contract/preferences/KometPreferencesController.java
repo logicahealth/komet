@@ -25,8 +25,6 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
-import sh.komet.gui.contract.preferences.PreferenceGroup;
-import sh.komet.gui.contract.preferences.PreferencesTreeItem;
 import sh.komet.gui.manifold.Manifold;
 
 /**

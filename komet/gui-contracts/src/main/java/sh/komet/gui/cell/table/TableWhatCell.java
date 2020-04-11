@@ -20,8 +20,6 @@ import javafx.scene.control.TableRow;
 import sh.isaac.MetaData;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.komet.gui.manifold.Manifold;

@@ -24,7 +24,6 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.control.property.WindowProperties;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
@@ -69,8 +68,8 @@ public class ConceptCorrelationView {
     }
 
 
-    public static ConceptCorrelationController show(Manifold manifold, 
-            EventHandler<WindowEvent> closeRequestHandler) {
+    public static ConceptCorrelationController show(Manifold manifold,
+                                                    EventHandler<WindowEvent> closeRequestHandler) {
         ConceptCorrelationView correlationView = new ConceptCorrelationView(manifold, "temp");
         Stage stage = correlationView.stage;
         stage.getProperties().put(WindowProperties.NAME_PREFIX, "");

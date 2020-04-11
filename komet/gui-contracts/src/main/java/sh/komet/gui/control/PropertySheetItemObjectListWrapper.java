@@ -44,7 +44,7 @@ public class PropertySheetItemObjectListWrapper<T extends Object> implements Pro
    }
 
    public PropertySheetItemObjectListWrapper(Manifold manifold, ObjectProperty<T> selectionProperty, ObservableList<T> allowedValues) {
-      this.name = manifold.getPreferredDescriptionText(new ConceptProxy(selectionProperty.getName()), selectionProperty.getName());
+      this.name = manifold.getPreferredDescriptionText(new ConceptProxy(selectionProperty.getName()));
       this.selectionProperty = selectionProperty;
       this.allowedValues = allowedValues;
    }

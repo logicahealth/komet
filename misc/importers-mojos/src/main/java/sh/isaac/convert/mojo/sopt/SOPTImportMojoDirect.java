@@ -37,11 +37,12 @@
 
 package sh.isaac.convert.mojo.sopt;
 
-import java.io.File;
-import java.nio.file.Path;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.convert.directUtils.DirectConverter;
+
+import java.io.File;
+import java.nio.file.Path;
 
 /**
  * {@link SOPTImportMojoDirect}
@@ -55,7 +56,7 @@ public class SOPTImportMojoDirect extends SOPTImportHK2Direct
 {
 	/**
 	 * This constructor is for maven and HK2 and should not be used at runtime.  You should 
-	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
+	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, sh.isaac.api.coordinate.StampFilter)} method on it.
 	 */
 	public SOPTImportMojoDirect()
 	{

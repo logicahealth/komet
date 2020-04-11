@@ -41,54 +41,22 @@ package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.time.Instant;
+import org.eclipse.collections.api.set.ImmutableSet;
+import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
+
+import java.time.Instant;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
- * The Interface StampPosition.
+ * The class StampPosition.
+ * An immutable class.
  *
  * @author kec
  */
 public interface StampPosition
-        extends Comparable<StampPosition>, Coordinate {
-   /**
-    * Compare to.
-    *
-    * @param o the o
-    * @return the int
-    */
-   @Override
-   default int compareTo(StampPosition o) {
-      final int comparison = Long.compare(this.getTime(), o.getTime());
-
-      if (comparison != 0) {
-         return comparison;
-      }
-
-      return this.getStampPathSpecification().getPrimordialUuid().compareTo(o.getStampPathSpecification().getPrimordialUuid());
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the stamp path.
-    *
-    * @return the stamp path
-    */
-   StampPath getStampPath();
-
-   default int getPathNid() {
-      return getStampPath().getPathConceptNid();
-   }
-
-   /**
-    * Gets the stamp path concept nid.
-    *
-    * @return the stamp path concept nid
-    */
-    ConceptSpecification getStampPathSpecification();
+        extends Comparable<StampPosition> {
 
    /**
     * Gets the time.
@@ -103,11 +71,64 @@ public interface StampPosition
     * @return the time as instant
     */
    default Instant getTimeAsInstant() {
-      return Instant.ofEpochMilli(getTime());
+      return Instant.ofEpochMilli(this.getTime());
    }
 
+
+   /**
+    * Compare to.
+    *
+    * @param o the o
+    * @return the int
+    */
    @Override
-   StampPosition deepClone();
-   
+   default int compareTo(StampPosition o) {
+      final int comparison = Long.compare(this.getTime(), o.getTime());
+
+      if (comparison != 0) {
+         return comparison;
+      }
+
+      return Integer.compare(this.getPathForPositionNid(), o.getPathForPositionNid());
+   }
+
+
+   int getPathForPositionNid();
+
+   /**
+    * Gets the stamp path concept nid.
+    *
+    * @return the stamp path concept nid
+    */
+   default ConceptSpecification getPathConcept() {
+      return Get.conceptSpecification(getPathForPositionNid());
+   }
+
+   StampPositionImmutable toStampPositionImmutable();
+
+   /**
+    * Gets the path origins.
+    *
+    * @return The origins of this path.
+    */
+   ImmutableSet<StampPositionImmutable> getPathOrigins();
+
+
+   default String toUserString() {
+      final StringBuilder sb = new StringBuilder();
+
+
+      if (this.getTime() == Long.MAX_VALUE) {
+         sb.append("latest");
+      } else if (this.getTime() == Long.MIN_VALUE) {
+         sb.append("CANCELED");
+      } else {
+         sb.append(getTimeAsInstant());
+      }
+
+      sb.append(" on '")
+              .append(Get.conceptDescriptionText(this.getPathForPositionNid())).append("'");
+      return sb.toString();
+   }
 }
 

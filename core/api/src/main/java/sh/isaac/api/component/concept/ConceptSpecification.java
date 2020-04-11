@@ -41,12 +41,10 @@ package sh.isaac.api.component.concept;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import java.util.Optional;
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.util.StringUtils;
-import sh.isaac.api.xml.ConceptSpecificationAdaptor;
+
+import java.util.Optional;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -55,8 +53,6 @@ import sh.isaac.api.xml.ConceptSpecificationAdaptor;
  *
  * @author kec
  */
-@XmlTransient
-@XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)
 public interface ConceptSpecification
         extends IdentifiedObject {
    /** The Constant FIELD_SEPARATOR.  '◽' */

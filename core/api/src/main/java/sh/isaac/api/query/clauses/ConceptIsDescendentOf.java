@@ -41,28 +41,18 @@ package sh.isaac.api.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.EnumSet;
-import java.util.Map;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.query.ClauseComputeType;
-import sh.isaac.api.query.ClauseSemantic;
-import sh.isaac.api.query.LeafClause;
-import sh.isaac.api.query.Query;
-import sh.isaac.api.query.WhereClause;
-import sh.isaac.api.query.LetItemKey;
+import sh.isaac.api.query.*;
 import sh.isaac.api.query.properties.ConceptClause;
 import sh.isaac.api.query.properties.ManifoldClause;
+
+import java.util.EnumSet;
+import java.util.Map;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 
@@ -75,16 +65,12 @@ import sh.isaac.api.query.properties.ManifoldClause;
  *
  * @author dylangrald
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIsDescendentOf
         extends LeafClause implements ConceptClause, ManifoldClause {
    /** The descendent of spec key. */
-   @XmlElement
    LetItemKey descendentOfSpecKey;
 
    /** the manifold coordinate key. */
-   @XmlElement
    LetItemKey manifoldCoordinateKey;
 
    //~--- constructors --------------------------------------------------------

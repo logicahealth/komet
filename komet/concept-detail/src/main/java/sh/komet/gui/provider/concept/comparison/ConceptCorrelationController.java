@@ -34,7 +34,6 @@ import javafx.scene.layout.BorderPane;
 import sh.isaac.api.Get;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.logic.IsomorphicResultsBottomUp;
 import sh.isaac.model.observable.ObservableFields;
 import sh.komet.gui.manifold.Manifold;

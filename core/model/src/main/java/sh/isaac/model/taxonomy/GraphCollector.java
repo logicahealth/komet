@@ -48,7 +48,6 @@ import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
@@ -101,7 +100,7 @@ public class GraphCollector
       }
       this.taxonomyDataProvider = taxonomyDataProvider;
       this.manifoldCoordinate = manifoldCoordinate;
-      this.taxonomyFlags      = TaxonomyFlag.getFlagsFromManifoldCoordinate(manifoldCoordinate);
+      this.taxonomyFlags      = TaxonomyFlag.getFlagsFromPremiseType(manifoldCoordinate.getPremiseType());
 
 //    addToWatchList("779ece66-7e95-323e-a261-214caf48c408");
 //    addToWatchList("778a75c9-8264-36aa-9ad6-b9c6e5ee9187");

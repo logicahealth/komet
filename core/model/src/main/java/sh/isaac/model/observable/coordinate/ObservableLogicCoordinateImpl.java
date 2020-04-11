@@ -41,23 +41,13 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
 import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import sh.isaac.api.component.concept.ConceptSpecification;
-
-//~--- JDK imports ------------------------------------------------------------
-
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinateImmutable;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.model.coordinate.LogicCoordinateImpl;
 import sh.isaac.model.observable.ObservableFields;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.model.observable.SimpleEqualityBasedObjectProperty;
 
 /**
  * The Class ObservableLogicCoordinateImpl.
@@ -65,54 +55,159 @@ import sh.isaac.model.observable.ObservableFields;
  * @author kec
  */
 public class ObservableLogicCoordinateImpl
-        extends ObservableCoordinateImpl
+        extends ObservableCoordinateImpl<LogicCoordinateImmutable>
          implements ObservableLogicCoordinate {
-   /** The logic coordinate. */
-   LogicCoordinateImpl logicCoordinate;
 
    /** The stated assemblage property. */
-   ObjectProperty<ConceptSpecification> statedAssemblageProperty;
+   final ObjectProperty<ConceptSpecification> statedAssemblageProperty;
 
    /** The inferred assemblage property. */
-   ObjectProperty<ConceptSpecification> inferredAssemblageProperty;
+   final ObjectProperty<ConceptSpecification> inferredAssemblageProperty;
 
    /** The description logic profile property. */
-   ObjectProperty<ConceptSpecification> descriptionLogicProfileProperty;
+   final ObjectProperty<ConceptSpecification> descriptionLogicProfileProperty;
 
    /** The classifier property. */
-   ObjectProperty<ConceptSpecification> classifierProperty;
+   final ObjectProperty<ConceptSpecification> classifierProperty;
 
    /** The concept assemblage property. */
-   ObjectProperty<ConceptSpecification> conceptAssemblageProperty;
+   final ObjectProperty<ConceptSpecification> conceptAssemblageProperty;
 
-   //~--- constructors --------------------------------------------------------
+    /** The concept assemblage property. */
+    final ObjectProperty<ConceptSpecification> digraphIdentityProperty;
 
-   /**
-    * Instantiates a new observable logic coordinate impl.
-    */
-   @SuppressWarnings("unused")
-   private ObservableLogicCoordinateImpl() {
-      // for jaxb
-   }
+    //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new observable logic coordinate impl.
     *
-    * @param logicCoordinate the logic coordinate
+    * @param logicCoordinateImmutable the logic coordinate
     */
-   public ObservableLogicCoordinateImpl(LogicCoordinate logicCoordinate) {
-      if (logicCoordinate instanceof ObservableLogicCoordinateImpl) {
-         this.logicCoordinate = ((ObservableLogicCoordinateImpl) logicCoordinate).logicCoordinate;
-      } else {
-         this.logicCoordinate = (LogicCoordinateImpl) logicCoordinate;
-      }
+   public ObservableLogicCoordinateImpl(LogicCoordinateImmutable logicCoordinateImmutable) {
+       super(logicCoordinateImmutable);
+        this.classifierProperty = new SimpleEqualityBasedObjectProperty(this,
+                ObservableFields.CLASSIFIER_NID_FOR_LOGIC_COORDINATE.toExternalString(),
+                logicCoordinateImmutable.getClassifier());
+
+       this.conceptAssemblageProperty = new SimpleEqualityBasedObjectProperty(this,
+               ObservableFields.CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE.toExternalString(),
+               logicCoordinateImmutable.getConceptAssemblage());
+
+       this.descriptionLogicProfileProperty = new SimpleEqualityBasedObjectProperty(this,
+               ObservableFields.DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE.toExternalString(),
+               logicCoordinateImmutable.getDescriptionLogicProfile());
+
+           this.inferredAssemblageProperty = new SimpleEqualityBasedObjectProperty(this,
+                   ObservableFields.INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE.toExternalString(),
+                   logicCoordinateImmutable.getInferredAssemblage());
+
+       this.statedAssemblageProperty = new SimpleEqualityBasedObjectProperty(this,
+               ObservableFields.STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE.toExternalString(),
+               logicCoordinateImmutable.getStatedAssemblage());
+
+       this.digraphIdentityProperty = new SimpleEqualityBasedObjectProperty(this,
+               ObservableFields.DIGRAPH_FOR_LOGIC_COORDINATE.toExternalString(),
+               logicCoordinateImmutable.getDigraphIdentity());
+
+       addListeners();
+
    }
 
-   //~--- methods -------------------------------------------------------------
+    @Override
+    protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends LogicCoordinateImmutable> observable, LogicCoordinateImmutable oldValue, LogicCoordinateImmutable newValue) {
+        this.classifierProperty.setValue(newValue.getClassifier());
+        this.conceptAssemblageProperty.setValue(newValue.getConceptAssemblage());
+        this.descriptionLogicProfileProperty.setValue(newValue.getDescriptionLogicProfile());
+        this.inferredAssemblageProperty.setValue(newValue.getInferredAssemblage());
+        this.statedAssemblageProperty.setValue(newValue.getStatedAssemblage());
+        this.digraphIdentityProperty.setValue(newValue.getDigraphIdentity());
+    }
+
+    @Override
+    protected void addListeners() {
+        this.classifierProperty.addListener(this::classifierConceptChanged);
+        this.conceptAssemblageProperty.addListener(this::classifierConceptAssemblageChanged);
+        this.descriptionLogicProfileProperty.addListener(this::descriptionLogicProfileChanged);
+        this.inferredAssemblageProperty.addListener(this::inferredAssemblageChanged);
+        this.statedAssemblageProperty.addListener(this::statedAssemblageChanged);
+        this.digraphIdentityProperty.addListener(this::digraphIdentityChanged);
+    }
+
+    @Override
+    protected void removeListeners() {
+        this.classifierProperty.removeListener(this::classifierConceptChanged);
+        this.conceptAssemblageProperty.removeListener(this::classifierConceptAssemblageChanged);
+        this.descriptionLogicProfileProperty.removeListener(this::descriptionLogicProfileChanged);
+        this.inferredAssemblageProperty.removeListener(this::inferredAssemblageChanged);
+        this.statedAssemblageProperty.removeListener(this::statedAssemblageChanged);
+        this.digraphIdentityProperty.removeListener(this::digraphIdentityChanged);
+    }
+
+    //~--- methods -------------------------------------------------------------
+   private void digraphIdentityChanged(ObservableValue<? extends ConceptSpecification> observable,
+                                        ConceptSpecification oldDigraphIdentity,
+                                        ConceptSpecification newDigraphIdentity) {
+       this.setValue(LogicCoordinateImmutable.make(getClassifierNid(),
+               getDescriptionLogicProfileNid(),
+               getInferredAssemblageNid(),
+               getStatedAssemblageNid(),
+               getConceptAssemblageNid(),
+               newDigraphIdentity.getNid()));
+   }
+    private void statedAssemblageChanged(ObservableValue<? extends ConceptSpecification> observable,
+                                         ConceptSpecification oldStatedAssemblage,
+                                         ConceptSpecification newStatedAssemblage) {
+        this.setValue(LogicCoordinateImmutable.make(getClassifierNid(),
+                getDescriptionLogicProfileNid(),
+                getInferredAssemblageNid(),
+                newStatedAssemblage.getNid(),
+                getConceptAssemblageNid(),
+                getDigraphIdentityNid()));
+    }
+    private void inferredAssemblageChanged(ObservableValue<? extends ConceptSpecification> observable,
+                                           ConceptSpecification oldInferredAssemblage,
+                                           ConceptSpecification newInferredAssemblage) {
+        this.setValue(LogicCoordinateImmutable.make(getClassifierNid(),
+                getDescriptionLogicProfileNid(),
+                newInferredAssemblage.getNid(),
+                getStatedAssemblageNid(),
+                getConceptAssemblageNid(),
+                getDigraphIdentityNid()));
+    }
+    private void descriptionLogicProfileChanged(ObservableValue<? extends ConceptSpecification> observable,
+                                                ConceptSpecification oldDescriptionLogicProfile,
+                                                ConceptSpecification newDescriptionLogicProfile) {
+        this.setValue(LogicCoordinateImmutable.make(getClassifierNid(),
+                newDescriptionLogicProfile.getNid(),
+                getInferredAssemblageNid(),
+                getStatedAssemblageNid(),
+                getConceptAssemblageNid(),
+                getDigraphIdentityNid()));
+    }
+    private void classifierConceptAssemblageChanged(ObservableValue<? extends ConceptSpecification> observable,
+                                                    ConceptSpecification oldConceptAssemblageConcept,
+                                                    ConceptSpecification newConceptAssemblageConcept) {
+        this.setValue(LogicCoordinateImmutable.make(getClassifierNid(),
+                getDescriptionLogicProfileNid(),
+                getInferredAssemblageNid(),
+                getStatedAssemblageNid(),
+                newConceptAssemblageConcept.getNid(),
+                getDigraphIdentityNid()));
+    }
+    private void classifierConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
+                                          ConceptSpecification oldClassifierConcept,
+                                          ConceptSpecification newClassifierConcept) {
+        this.setValue(LogicCoordinateImmutable.make(newClassifierConcept.getNid(),
+                getDescriptionLogicProfileNid(),
+                getInferredAssemblageNid(),
+                getStatedAssemblageNid(),
+                getConceptAssemblageNid(),
+                getDigraphIdentityNid()));
+    }
 
    @Override
-   public LogicCoordinate  getLogicCoordinate() {
-      return logicCoordinate;
+   public LogicCoordinateImmutable  getLogicCoordinate() {
+      return getValue();
    }
 
     /**
@@ -122,27 +217,11 @@ public class ObservableLogicCoordinateImpl
      */
     @Override
     public ObjectProperty<ConceptSpecification> classifierProperty() {
-        if (this.classifierProperty == null) {
-            this.classifierProperty = new SimpleObjectProperty(this,
-                    ObservableFields.CLASSIFIER_NID_FOR_LOGIC_COORDINATE.toExternalString(),
-                    getClassifier());
-            addListenerReference(this.logicCoordinate.setClassifierProperty(this.classifierProperty));
-            this.classifierProperty.addListener((invalidation) -> fireValueChangedEvent());
-        }
-        
-        return this.classifierProperty;
+         return this.classifierProperty;
     }
 
    @Override
    public ObjectProperty<ConceptSpecification>  conceptAssemblageProperty() {
-      if (this.conceptAssemblageProperty == null) {
-         this.conceptAssemblageProperty = new SimpleObjectProperty(this,
-               ObservableFields.CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE.toExternalString(),
-               getConceptAssemblage());
-         addListenerReference(this.logicCoordinate.setConceptAssemblageProperty(this.conceptAssemblageProperty));
-         this.conceptAssemblageProperty.addListener((invalidation) -> fireValueChangedEvent());
-      }
-
       return this.conceptAssemblageProperty;
    }
 
@@ -153,14 +232,6 @@ public class ObservableLogicCoordinateImpl
     */
    @Override
    public ObjectProperty<ConceptSpecification>  descriptionLogicProfileProperty() {
-      if (this.descriptionLogicProfileProperty == null) {
-         this.descriptionLogicProfileProperty = new SimpleObjectProperty(this,
-               ObservableFields.DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE.toExternalString(),
-               getDescriptionLogicProfile());
-         addListenerReference(this.logicCoordinate.setDescriptionLogicProfileProperty(this.descriptionLogicProfileProperty));
-         this.descriptionLogicProfileProperty.addListener((invalidation) -> fireValueChangedEvent());
-      }
-
       return this.descriptionLogicProfileProperty;
    }
 
@@ -172,7 +243,7 @@ public class ObservableLogicCoordinateImpl
     */
    @Override
    public boolean equals(Object obj) {
-      return this.logicCoordinate.equals(obj);
+      return this.getValue().equals(obj);
    }
 
    /**
@@ -182,7 +253,7 @@ public class ObservableLogicCoordinateImpl
     */
    @Override
    public int hashCode() {
-      return this.logicCoordinate.hashCode();
+      return this.getValue().hashCode();
    }
 
    /**
@@ -192,14 +263,6 @@ public class ObservableLogicCoordinateImpl
     */
    @Override
    public ObjectProperty<ConceptSpecification>  inferredAssemblageProperty() {
-      if (this.inferredAssemblageProperty == null) {
-         this.inferredAssemblageProperty = new SimpleObjectProperty(this,
-               ObservableFields.INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE.toExternalString(),
-               getInferredAssemblage());
-         this.inferredAssemblageProperty.addListener((invalidation) -> fireValueChangedEvent());
-      }
-
-      addListenerReference(this.logicCoordinate.setInferredAssemblageProperty(this.inferredAssemblageProperty));
       return this.inferredAssemblageProperty;
    }
 
@@ -210,14 +273,6 @@ public class ObservableLogicCoordinateImpl
     */
    @Override
    public ObjectProperty<ConceptSpecification>  statedAssemblageProperty() {
-      if (this.statedAssemblageProperty == null) {
-         this.statedAssemblageProperty = new SimpleObjectProperty(this,
-               ObservableFields.STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE.toExternalString(),
-               getStatedAssemblage());
-         addListenerReference(this.logicCoordinate.setStatedAssemblageProperty(this.statedAssemblageProperty));
-         this.statedAssemblageProperty.addListener((invalidation) -> fireValueChangedEvent());
-      }
-
       return this.statedAssemblageProperty;
    }
 
@@ -228,132 +283,42 @@ public class ObservableLogicCoordinateImpl
     */
    @Override
    public String toString() {
-      return "ObservableLogicCoordinateImpl{" + this.logicCoordinate.toString() + '}';
+      return "ObservableLogicCoordinateImpl{" + this.getValue().toString() + '}';
    }
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the classifier.
-    *
-    * @return the classifier
-    */
-   @Override
-   public int getClassifierNid() {
-      if (this.classifierProperty != null) {
-         return this.classifierProperty.get().getNid();
-      }
-
-      return this.logicCoordinate.getClassifierNid();
-   }
-  /**
-    * Gets the concept assemblage nid.
-    *
-    * @return the classifier nid
-    */
-   @Override
-   public int getConceptAssemblageNid() {
-      if (this.conceptAssemblageProperty != null) {
-         return this.conceptAssemblageProperty.get().getNid();
-      }
-
-      return this.logicCoordinate.getConceptAssemblageNid();
-   }
-
-   /**
-    * Gets the description logic profile nid.
-    *
-    * @return the description logic profile nid
-    */
-   @Override
-   public int getDescriptionLogicProfileNid() {
-      if (this.descriptionLogicProfileProperty != null) {
-         return this.descriptionLogicProfileProperty.get().getNid();
-      }
-
-      return this.logicCoordinate.getDescriptionLogicProfileNid();
-   }
-
-   /**
-    * Gets the inferred assemblage nid.
-    *
-    * @return the inferred assemblage nid
-    */
-   @Override
-   public int getInferredAssemblageNid() {
-      if (this.inferredAssemblageProperty != null) {
-         return this.inferredAssemblageProperty.get().getNid();
-      }
-
-      return this.logicCoordinate.getInferredAssemblageNid();
-   }
-
-   /**
-    * Gets the stated assemblage nid.
-    *
-    * @return the stated assemblage nid
-    */
-   @Override
-   public int getStatedAssemblageNid() {
-      if (this.statedAssemblageProperty != null) {
-         return this.statedAssemblageProperty.get().getNid();
-      }
-      return this.logicCoordinate.getStatedAssemblageNid();
-   }
-   
-   
-   @Override
-   public ObservableLogicCoordinateImpl deepClone() {
-      return new ObservableLogicCoordinateImpl(logicCoordinate.deepClone());
-   }
-
-    public ConceptSpecification getStatedAssemblage() {
-        return logicCoordinate.getStatedAssemblage();
-    }
 
     public void setStatedAssemblage(ConceptSpecification statedAssemblage) {
-        logicCoordinate.setStatedAssemblage(statedAssemblage);
-    }
-
-    public ConceptSpecification getInferredAssemblage() {
-        return logicCoordinate.getInferredAssemblage();
+        this.statedAssemblageProperty.setValue(statedAssemblage);
     }
 
     public void setInferredAssemblage(ConceptSpecification inferredAssemblage) {
-        logicCoordinate.setInferredAssemblage(inferredAssemblage);
-    }
-
-    public ConceptSpecification getDescriptionLogicProfile() {
-        return logicCoordinate.getDescriptionLogicProfile();
+        this.inferredAssemblageProperty.setValue(inferredAssemblage);
     }
 
     public void setDescriptionLogicProfile(ConceptSpecification descriptionLogicProfile) {
-        logicCoordinate.setDescriptionLogicProfile(descriptionLogicProfile);
-    }
-
-    public ConceptSpecification getClassifier() {
-        return logicCoordinate.getClassifier();
+        this.descriptionLogicProfileProperty.setValue(descriptionLogicProfile);
     }
 
     public void setClassifier(ConceptSpecification classifier) {
-        logicCoordinate.setClassifier(classifier);
-    }
-
-    public ConceptSpecification getConceptAssemblage() {
-        return logicCoordinate.getConceptAssemblage();
+       this.classifierProperty.setValue(classifier);
     }
 
     public void setConceptAssemblage(ConceptSpecification conceptAssemblage) {
-        logicCoordinate.setConceptAssemblage(conceptAssemblage);
+        this.conceptAssemblageProperty.setValue(conceptAssemblage);
     }
 
     @Override
     public String toUserString() {
-        return logicCoordinate.toUserString();
+        return this.getValue().toUserString();
     }
 
-    public void putExternal(ByteArrayDataBuffer buff) {
-       this.logicCoordinate.putExternal(buff);
+    @Override
+    public LogicCoordinateImmutable toLogicCoordinateImmutable() {
+        return this.getValue();
+    }
+
+    @Override
+    public ObjectProperty<ConceptSpecification> getDigraphIdentityProperty() {
+        return this.digraphIdentityProperty;
     }
 }
 

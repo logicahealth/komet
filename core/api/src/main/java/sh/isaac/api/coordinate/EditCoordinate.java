@@ -48,7 +48,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  *
  * @author kec
  */
-public interface EditCoordinate extends Coordinate {
+public interface EditCoordinate {
    /**
     * Gets the author nid.
     *
@@ -70,10 +70,6 @@ public interface EditCoordinate extends Coordinate {
    default ConceptSpecification getModule() {
        return Get.conceptSpecification(getModuleNid());
    }
-   
-   List<ConceptSpecification> getModuleOptions();
-   
-   void setModuleOptions(List<ConceptSpecification> options);
 
    /**
     * Gets the path nid.
@@ -82,16 +78,11 @@ public interface EditCoordinate extends Coordinate {
     */
    int getPathNid();
 
+   EditCoordinateImmutable toEditCoordinateImmutable();
+
    default ConceptSpecification getPath() {
        return Get.conceptSpecification(getPathNid());
    }
-
-   List<ConceptSpecification> getPathOptions();
-
-   void setPathOptions(List<ConceptSpecification> options);
-   
-   @Override
-   EditCoordinate deepClone();
 
    default String toUserString() {
       StringBuilder sb = new StringBuilder();

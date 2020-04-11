@@ -39,23 +39,20 @@
 
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
-import java.util.concurrent.Semaphore;
+import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import javafx.concurrent.Task;
-import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.memory.MemoryManagementService;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.SequentialAggregateTask;
 import sh.isaac.provider.logic.LogicProvider;
 
 import java.time.Instant;
+import java.util.concurrent.Semaphore;
 
 /**
  * The Class AggregateClassifyTask.
@@ -73,16 +70,15 @@ public class AggregateClassifyTask
    
    /**
     * Instantiates a new aggregate classify task.
-    *
-    * @param stampCoordinate the stamp coordinate
+    *  @param stampFilter the stamp coordinate
     * @param logicCoordinate the logic coordinate
     */
-   private AggregateClassifyTask(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate, boolean cycleCheckFirst) {
+   private AggregateClassifyTask(StampFilter stampFilter, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate, boolean cycleCheckFirst) {
       super("Classify",
-            new Task[] { new ExtractAxioms(stampCoordinate,logicCoordinate), new LoadAxioms(), new ClassifyAxioms(),
-                    new ProcessClassificationResults(stampCoordinate, logicCoordinate, editCoordinate)});
+            new Task[] { new ExtractAxioms(stampFilter,logicCoordinate), new LoadAxioms(), new ClassifyAxioms(),
+                    new ProcessClassificationResults(stampFilter, logicCoordinate, editCoordinate)});
       if (cycleCheckFirst) {
-         cc = new CycleCheck(stampCoordinate, logicCoordinate, editCoordinate);
+         cc = new CycleCheck(stampFilter, logicCoordinate, editCoordinate);
       }
    }
 
@@ -90,10 +86,6 @@ public class AggregateClassifyTask
    protected ClassifierResults call() throws Exception {
       Get.activeTasks().add(this);
       //Logic service doesn't depend on the memory management service, so this isn't safe without checking....
-      if (LookupService.hasService(MemoryManagementService.class)) {
-         LookupService.getService(MemoryManagementService.class)
-                  .addState(ApplicationStates.CLASSIFYING);
-      }
       try {
          log.debug("Aggregate classify begins");
          if (cc != null) {
@@ -114,10 +106,6 @@ public class AggregateClassifyTask
       } finally {
          concurrentRunPrevent.release();
          log.debug("Released classifier lock");
-         if (LookupService.hasService(MemoryManagementService.class)) {
-            LookupService.getService(MemoryManagementService.class)
-                    .removeState(ApplicationStates.CLASSIFYING);
-         }
          Get.service(LogicProvider.class).getPendingLogicTasks().remove(this);
       }
    }
@@ -126,15 +114,15 @@ public class AggregateClassifyTask
      * When this method returns, the task is already executing, or will be shortly, if another classifier execution is already running.  
      * You do not need to execute the task.
      *
-     * @param stampCoordinate the stamp coordinate
+     * @param stampFilter the stamp coordinate
      * @param logicCoordinate the logic coordinate
      * @param cycleCheckFirst true, to do a cycle check on the stated taxonomy prior to classify.  Will abort classify if a cycle is detected.
      * @return an {@code AggregateClassifyTask} already submitted to an executor.
      */
-    public static AggregateClassifyTask get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate, boolean cycleCheckFirst) {
+    public static AggregateClassifyTask get(StampFilter stampFilter, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate, boolean cycleCheckFirst) {
        Instant classifyCommitTime = Get.commitService().getTimeForCommit();
-       stampCoordinate = stampCoordinate.makeCoordinateAnalog(classifyCommitTime.toEpochMilli());
-        final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampCoordinate, logicCoordinate, editCoordinate, cycleCheckFirst);
+       stampFilter = stampFilter.makeCoordinateAnalog(classifyCommitTime.toEpochMilli());
+        final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampFilter, logicCoordinate, editCoordinate, cycleCheckFirst);
         Get.workExecutors()
                 .getExecutor()
                 .execute(classifyTask);

@@ -38,19 +38,19 @@ import sh.komet.gui.manifold.Manifold;
  */
 @Contract
 public interface RulesDrivenKometService extends BusinessRulesService {
-   List<Action> getEditLogicalExpressionNodeMenuItems(Manifold manifold, 
-           LogicNode nodeToEdit, 
-           LogicalExpression expressionContiningNode,
-            Consumer<LogicalExpression> expressionUpdater,
-            MouseEvent mouseEvent);
+   List<Action> getEditLogicalExpressionNodeMenuItems(Manifold manifold,
+                                                      LogicNode nodeToEdit,
+                                                      LogicalExpression expressionContiningNode,
+                                                      Consumer<LogicalExpression> expressionUpdater,
+                                                      MouseEvent mouseEvent);
    
-   List<MenuItem> getEditVersionMenuItems(Manifold manifold, 
-           ObservableCategorizedVersion categorizedVersion, 
-           Consumer<PropertySheetMenuItem> propertySheetConsumer);
+   List<MenuItem> getEditVersionMenuItems(Manifold manifold,
+                                          ObservableCategorizedVersion categorizedVersion,
+                                          Consumer<PropertySheetMenuItem> propertySheetConsumer);
    
-   List<MenuItem> getAddAttachmentMenuItems(Manifold manifold, 
-           ObservableCategorizedVersion categorizedVersion, 
-           BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer);
+   List<MenuItem> getAddAttachmentMenuItems(Manifold manifold,
+                                            ObservableCategorizedVersion categorizedVersion,
+                                            BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer);
    
    void populatePropertySheetEditors(PropertySheetMenuItem propertySheetMenuItem);
    

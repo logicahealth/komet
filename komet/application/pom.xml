@@ -47,14 +47,6 @@
             <artifactId>javafx-fxml</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-        </dependency>
-        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>batch</artifactId>
             <version>${project.version}</version>
@@ -116,6 +108,11 @@
         </dependency>
         <dependency>
             <groupId>sh.isaac.provider</groupId>
+            <artifactId>identifier</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.provider</groupId>
             <artifactId>commit</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -127,11 +124,6 @@
         <dependency>
             <groupId>sh.isaac.komet</groupId>
             <artifactId>changeset-view</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sh.isaac.provider</groupId>
-            <artifactId>memory-managment</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -3,20 +3,14 @@ package sh.isaac.api.query.clauses;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.query.*;
-import sh.isaac.api.query.properties.UndirectedTaxonomyClause;
 import sh.isaac.api.query.properties.ConceptClause;
-import sh.isaac.api.query.properties.TaxonomyDistanceClause;
 import sh.isaac.api.query.properties.ManifoldClause;
+import sh.isaac.api.query.properties.TaxonomyDistanceClause;
+import sh.isaac.api.query.properties.UndirectedTaxonomyClause;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import java.util.EnumSet;
 import java.util.Map;
 
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class TaxonomyRelatedConcepts
         extends LeafClause
         implements ManifoldClause, ConceptClause, TaxonomyDistanceClause, UndirectedTaxonomyClause {
@@ -24,19 +18,15 @@ public class TaxonomyRelatedConcepts
     /**
      * The parent concept spec key.
      */
-    @XmlElement
     LetItemKey referenceConceptSpecKey;
 
     /**
      * the manifold coordinate key.
      */
-    @XmlElement
     LetItemKey manifoldCoordinateKey;
 
-    @XmlElement
     LetItemKey taxonomyDistanceKey;
 
-    @XmlElement
     LetItemKey undirectedTaxonomyKey;
 
     //~--- constructors --------------------------------------------------------

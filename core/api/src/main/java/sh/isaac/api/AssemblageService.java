@@ -55,12 +55,12 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableVersion;
 
@@ -293,11 +293,11 @@ public interface AssemblageService
     *
     * @param <V> the value type
     * @param versionType the version type
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the snapshot
     */
    <V extends SemanticVersion> SemanticSnapshotService<V> getSnapshot(Class<V> versionType,
-         StampCoordinate stampCoordinate);
+                                                                      StampFilter stampFilter);
 
    /**
     * Gets the snapshot.
@@ -305,20 +305,20 @@ public interface AssemblageService
     * @param <V> the value type
     * @param assemblageConceptNid
     * @param versionType the version type
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the snapshot
     */
    <V extends SemanticVersion> SingleAssemblageSnapshot<V> getSingleAssemblageSnapshot(int assemblageConceptNid,
-           Class<V> versionType,
-           StampCoordinate stampCoordinate);
+                                                                                       Class<V> versionType,
+                                                                                       StampFilter stampFilter);
 
    default <V extends SemanticVersion> SingleAssemblageSnapshot<V> getSingleAssemblageSnapshot(
            ConceptSpecification assemblageConcept,
            Class<V> versionType,
-           StampCoordinate stampCoordinate) {
+           StampFilter stampFilter) {
        return getSingleAssemblageSnapshot(assemblageConcept.getNid(),
            versionType,
-           stampCoordinate);
+               stampFilter);
    }
 
    /**
@@ -345,40 +345,40 @@ public interface AssemblageService
     /**
      * 
      * @param assemblageConcept
-     * @param stampCoordinate
-     * @return the OptionalInt for the nid of the concepts that defines the semantics of this assemblage. 
+     * @param stampFilter
+     * @return the OptionalInt for the nid of the concepts that defines the semantics of this assemblage.
      */
-    default OptionalInt getSemanticTypeConceptForAssemblage(ConceptSpecification assemblageConcept, StampCoordinate stampCoordinate) {
-        return getSemanticTypeConceptForAssemblage(assemblageConcept.getNid(), stampCoordinate);
+    default OptionalInt getSemanticTypeConceptForAssemblage(ConceptSpecification assemblageConcept, StampFilter stampFilter) {
+        return getSemanticTypeConceptForAssemblage(assemblageConcept.getNid(), stampFilter);
     }
     
     /**
      * 
      * @param assemblageConceptNid
-     * @param stampCoordiante
-    * @return the OptionalInt for the nid of the concepts that defines the semantics of this assemblage. 
+     * @param stampFilter
+    * @return the OptionalInt for the nid of the concepts that defines the semantics of this assemblage.
      */
-    default OptionalInt getSemanticTypeConceptForAssemblage(int assemblageConceptNid, StampCoordinate stampCoordiante) {
+    default OptionalInt getSemanticTypeConceptForAssemblage(int assemblageConceptNid, StampFilter stampFilter) {
         NidSet assemblageSemanticType = getSemanticNidsForComponentFromAssemblage(assemblageConceptNid, TermAux.SEMANTIC_TYPE.getNid());
         if (assemblageSemanticType.isEmpty()) {
             return OptionalInt.empty();
         }
         SemanticChronology typeSemantic = getSemanticChronology(assemblageSemanticType.asArray()[0]);
-        LatestVersion<ComponentNidVersion> latestVersion = typeSemantic.getLatestVersion(stampCoordiante);
+        LatestVersion<ComponentNidVersion> latestVersion = typeSemantic.getLatestVersion(stampFilter);
         if (latestVersion.isPresent()) {
             return OptionalInt.of(latestVersion.get().getComponentNid());
         }
         return OptionalInt.empty();
     }
     
-    default OptionalInt getPropertyIndexForSemanticField(int semanticFieldConceptNid, int assemblageConceptNid, StampCoordinate stampCoordiante) {
+    default OptionalInt getPropertyIndexForSemanticField(int semanticFieldConceptNid, int assemblageConceptNid, StampFilter stampFilter) {
         NidSet propertyIndexes = getSemanticNidsForComponentFromAssemblage(assemblageConceptNid, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS.getNid());
         if (propertyIndexes.isEmpty()) {
             return OptionalInt.empty();
         }
         for (int semanticNid: propertyIndexes.asArray()) {
             SemanticChronology typeSemanticChronology = getSemanticChronology(semanticNid);
-            LatestVersion<Nid1_Int2_Version> latestVersion = typeSemanticChronology.getLatestVersion(stampCoordiante);
+            LatestVersion<Nid1_Int2_Version> latestVersion = typeSemanticChronology.getLatestVersion(stampFilter);
             if (latestVersion.isPresent() && latestVersion.get().getNid1() == semanticFieldConceptNid) {
                 return OptionalInt.of(latestVersion.get().getInt2() + ObservableVersion.PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex());
             }

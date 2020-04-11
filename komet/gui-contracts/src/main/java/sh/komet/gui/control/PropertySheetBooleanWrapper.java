@@ -39,9 +39,8 @@ public class PropertySheetBooleanWrapper implements PropertySheet.Item {
    }
 
    public PropertySheetBooleanWrapper(Manifold manifold,
-           BooleanProperty booleanProperty) {
-      this(manifold.getPreferredDescriptionText(new ConceptProxy(booleanProperty.getName()), 
-              ConceptSpecification.getNameFromExternalString(booleanProperty.getName())), 
+                                      BooleanProperty booleanProperty) {
+      this(manifold.getPreferredDescriptionText(new ConceptProxy(booleanProperty.getName())),
               booleanProperty);
    }
 

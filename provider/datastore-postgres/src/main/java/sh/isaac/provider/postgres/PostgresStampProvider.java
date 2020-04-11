@@ -38,38 +38,11 @@ package sh.isaac.provider.postgres;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.IntStream;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import javafx.concurrent.Task;
-import javax.xml.bind.DatatypeConverter;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -87,12 +60,31 @@ import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.provider.commit.CancelUncommittedStamps;
 
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.sql.*;
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.IntStream;
+
 //~--- classes ----------------------------------------------------------------
 /**
  *
  * @author mc
  */
-@Service(name = "Stamp Provider")
+@Service(name = "Filter Provider")
 @RunLevel(value = LookupService.SL_L2)
 
 public class PostgresStampProvider
@@ -110,7 +102,7 @@ public class PostgresStampProvider
         if (LOG_SQL_FLAG) {
             LOG.debug(":SQL: " + stmt.toString()
                 + "; -- '"
-                + DatatypeConverter.printHexBinary(bytes)
+                + ByteArrayDataBuffer.printHexBinary(bytes)
                 + "'::bytea");
         }
     }
@@ -147,7 +139,7 @@ public class PostgresStampProvider
     private final AtomicInteger nextStampSequence = new AtomicInteger(FIRST_STAMP_SEQUENCE);
 
     /**
-     * Persistent map of stamp sequences to a Stamp object.
+     * Persistent map of stamp sequences to a Filter object.
      */
     private final ConcurrentHashMap<Stamp, Integer> cacheStampObjectToStampSequenceMap = new ConcurrentHashMap<>();
 
@@ -316,12 +308,12 @@ public class PostgresStampProvider
     @Override
     public String describeStampSequence(int stampSequence) {
         if (stampSequence == -1) {
-            return "{Stamp≤CANCELED≥}";
+            return "{Filter≤CANCELED≥}";
         }
 
         final StringBuilder sb = new StringBuilder();
 
-        sb.append("{Stamp≤");
+        sb.append("{Filter≤");
         sb.append(stampSequence);
         sb.append("::");
 
@@ -429,7 +421,7 @@ public class PostgresStampProvider
     }
 
     /**
-     * Stamp sequences equal except author and time.
+     * Filter sequences equal except author and time.
      *
      * @param stampSequence1 the stamp sequence 1
      * @param stampSequence2 the stamp sequence 2
@@ -1002,7 +994,7 @@ public class PostgresStampProvider
                 TermAux.DEVELOPMENT_PATH.getNid());  // pathNid
         }
 
-        // stampSequence int --> Stamp
+        // stampSequence int --> Filter
         if (this.cacheStampSequenceToStampObjectMap.containsKey(stampSequence)) {
             return this.cacheStampSequenceToStampObjectMap.get(stampSequence);
         }

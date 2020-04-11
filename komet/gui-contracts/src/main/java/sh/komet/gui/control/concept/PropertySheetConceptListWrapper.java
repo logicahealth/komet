@@ -20,7 +20,6 @@ import java.util.Optional;
 import javafx.beans.property.ListProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import org.apache.commons.lang.ObjectUtils;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;

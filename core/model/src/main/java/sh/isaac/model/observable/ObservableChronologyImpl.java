@@ -80,7 +80,7 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
@@ -579,27 +579,27 @@ public abstract class ObservableChronologyImpl
     * Gets the latest version.
     *
     * @param type the type
-    * @param coordinate the coordinate
+    * @param stampFilter the stamp filter
     * @return the latest version
     */
    @Override
    public LatestVersion<ObservableVersion> getLatestVersion(Class<? extends StampedVersion> type,
-         StampCoordinate coordinate) {
-      final RelativePositionCalculator calculator = RelativePositionCalculator.getCalculator(coordinate);
+         StampFilter stampFilter) {
+      final RelativePositionCalculator calculator = stampFilter.getRelativePositionCalculator();
 
       return calculator.getLatestVersion(this);
    }
 
    @Override
-   public <V extends ObservableVersion> LatestVersion<V> getLatestObservableVersion(StampCoordinate coordinate) {
-      final RelativePositionCalculator calculator = RelativePositionCalculator.getCalculator(coordinate);
+   public <V extends ObservableVersion> LatestVersion<V> getLatestObservableVersion(StampFilter stampFilter) {
+      final RelativePositionCalculator calculator = stampFilter.getRelativePositionCalculator();
 
       return calculator.getLatestVersion(this);
    }
 
    @Override
-   public LatestVersion<ObservableVersion> getLatestCommittedVersion(StampCoordinate coordinate) {
-      final RelativePositionCalculator calculator = RelativePositionCalculator.getCalculator(coordinate);
+   public LatestVersion<ObservableVersion> getLatestCommittedVersion(StampFilter stampFilter) {
+      final RelativePositionCalculator calculator = stampFilter.getRelativePositionCalculator();
       return calculator.getLatestCommittedVersion(this);
    }
 

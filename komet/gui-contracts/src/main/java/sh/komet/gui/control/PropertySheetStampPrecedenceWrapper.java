@@ -42,8 +42,7 @@ public class PropertySheetStampPrecedenceWrapper implements PropertySheet.Item {
    }
 
    public PropertySheetStampPrecedenceWrapper(Manifold manifold, ObjectProperty<StampPrecedence> precedenceProperty) {
-      this.name = manifold.getPreferredDescriptionText(new ConceptProxy(precedenceProperty.getName()), 
-              ConceptSpecification.getNameFromExternalString(precedenceProperty.getName()));
+      this.name = manifold.getPreferredDescriptionText(new ConceptProxy(precedenceProperty.getName()));
       this.precedenceProperty = precedenceProperty;
    }
 

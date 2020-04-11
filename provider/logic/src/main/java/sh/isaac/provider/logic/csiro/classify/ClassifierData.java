@@ -36,17 +36,12 @@
  */
 package sh.isaac.provider.logic.csiro.classify;
 
-import java.time.Instant;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicReference;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import au.csiro.ontology.Node;
 import au.csiro.ontology.Ontology;
 import au.csiro.ontology.classification.IReasoner;
 import au.csiro.snorocket.core.SnorocketReasoner;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChronologyChangeListener;
@@ -54,10 +49,15 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.axioms.GraphToAxiomTranslator;
+
+import java.time.Instant;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicReference;
 
 
 /**
@@ -121,7 +121,7 @@ public class ClassifierData
     /**
      * The stamp coordinate.
      */
-    StampCoordinate stampCoordinate;
+    StampFilter stampFilter;
 
     /**
      * The logic coordinate.
@@ -130,12 +130,11 @@ public class ClassifierData
 
     /**
      * Instantiates a new classifier data.
-     *
-     * @param stampCoordinate the stamp coordinate
+     *  @param stampFilter the stamp coordinate
      * @param logicCoordinate the logic coordinate
      */
-    private ClassifierData(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
-        this.stampCoordinate = stampCoordinate;
+    private ClassifierData(StampFilter stampFilter, LogicCoordinate logicCoordinate) {
+        this.stampFilter = stampFilter;
         this.logicCoordinate = logicCoordinate;
     }
 
@@ -197,14 +196,14 @@ public class ClassifierData
             // only process if incremental is a possibility.
             if (this.incrementalAllowed) {
                 final LatestVersion<LogicGraphVersionImpl> optionalLatest
-                        = sc.getLatestVersion(this.stampCoordinate);
+                        = sc.getLatestVersion(this.stampFilter);
 
                 if (optionalLatest.isPresent()) {
                     final LatestVersion<LogicGraphVersionImpl> latest = optionalLatest;
 
                     // get stampCoordinate for last classify.
-                    final StampCoordinate stampToCompare
-                            = this.stampCoordinate.makeCoordinateAnalog(this.lastClassifyInstant.toEpochMilli());
+                    final StampFilter stampToCompare
+                            = this.stampFilter.makeCoordinateAnalog(this.lastClassifyInstant.toEpochMilli());
 
                     // See if there is a change in the optionalLatest vs the last classify.
                     final LatestVersion<LogicGraphVersionImpl> optionalPrevious
@@ -266,7 +265,7 @@ public class ClassifierData
         return "ClassifierData{" + "graphToAxiomTranslator=" + this.allGraphsToAxiomTranslator
                 + ",\n incrementalToAxiomTranslator=" + this.incrementalToAxiomTranslator + ",\n reasoner="
                 + this.reasoner + ",\n lastClassifyInstant=" + this.lastClassifyInstant + ",\n lastClassifyType="
-                + this.lastClassifyType + ",\n stampCoordinate=" + this.stampCoordinate + ",\n logicCoordinate="
+                + this.lastClassifyType + ",\n stampCoordinate=" + this.stampFilter + ",\n logicCoordinate="
                 + this.logicCoordinate + '}';
     }
 
@@ -328,22 +327,22 @@ public class ClassifierData
     /**
      * Gets the.
      *
-     * @param stampCoordinate the stamp coordinate
+     * @param stampFilter the stamp coordinate
      * @param logicCoordinate the logic coordinate
      * @return the classifier data
      */
-    public static ClassifierData get(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
+    public static ClassifierData get(StampFilter stampFilter, LogicCoordinate logicCoordinate) {
         if (SINGLETON.get() == null) {
-            SINGLETON.compareAndSet(null, new ClassifierData(stampCoordinate, logicCoordinate));
+            SINGLETON.compareAndSet(null, new ClassifierData(stampFilter, logicCoordinate));
         } else {
             ClassifierData classifierData = SINGLETON.get();
 
-            while (!classifierData.stampCoordinate.equals(stampCoordinate)
+            while (!classifierData.stampFilter.equals(stampFilter)
                     || !classifierData.logicCoordinate.equals(logicCoordinate)) {
                 Get.commitService()
                         .removeChangeListener(classifierData);
 
-                final ClassifierData newClassifierData = new ClassifierData(stampCoordinate, logicCoordinate);
+                final ClassifierData newClassifierData = new ClassifierData(stampFilter, logicCoordinate);
 
                 SINGLETON.compareAndSet(classifierData, newClassifierData);
                 classifierData = SINGLETON.get();
@@ -382,7 +381,7 @@ public class ClassifierData
         return logicCoordinate;
     }
     
-    public StampCoordinate getStampCoordinate() {
-        return stampCoordinate;
+    public StampFilter getStampFilter() {
+        return stampFilter;
     }
 }

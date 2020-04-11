@@ -28,7 +28,7 @@ public class PreExportUtility {
 
                     Observable_Nid1_Nid2_Int3_Version refDesc =
                             ((LatestVersion<Observable_Nid1_Nid2_Int3_Version>)
-                                    Get.observableSnapshotService(this.manifold).getObservableSemanticVersion(semanticNid))
+                                    Get.observableSnapshotService(this.manifold.getStampFilter()).getObservableSemanticVersion(semanticNid))
                                     .get();
 
                     if(!refsetDescriptorHeaders.containsKey(refDesc.getReferencedComponentNid())){

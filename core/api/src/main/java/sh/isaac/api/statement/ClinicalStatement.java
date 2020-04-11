@@ -20,7 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
+
 
 /**
  *
@@ -37,7 +38,7 @@ public interface ClinicalStatement {
      * 
      * @return the stamp coordinate for this clinical statement. 
      */
-    StampCoordinate getStampCoordinate();
+    StampFilter getStampFilter();
     /**
      * 
      * @return An optional narrative of this clinical statement. 

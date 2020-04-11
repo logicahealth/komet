@@ -37,11 +37,7 @@
 package sh.isaac.komet.gui.graphview;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -53,9 +49,10 @@ import javafx.scene.control.TreeItem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import org.eclipse.collections.api.collection.ImmutableCollection;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.api.TaxonomyLink;
+import sh.isaac.api.Edge;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -101,7 +98,7 @@ public class MultiParentGraphItemImpl
     private String conceptDescriptionText;  // Cached to speed up comparisons with toString method.
     private final int nid;
     private final int typeNid;
-    private Collection<TaxonomyLink> childLinks;
+    private ImmutableCollection<Edge> childLinks;
     private LeafStatus leafStatus = LeafStatus.UNKNOWN;
 
     //~--- constructors --------------------------------------------------------
@@ -213,10 +210,10 @@ public class MultiParentGraphItemImpl
 
     private void updateDescription() {
         if (this.nid != Integer.MAX_VALUE) {
-            LatestVersion<String> latestDescriptionText = graphView.getManifold()
+            Optional<String> latestDescriptionText = graphView.getManifold()
                     .getDescriptionText(nid);
-            latestDescriptionText.ifPresent((descriptionText) -> this.conceptDescriptionText = descriptionText)
-                    .ifAbsent(() -> this.conceptDescriptionText = "no description for " + nid);
+            latestDescriptionText.ifPresentOrElse((descriptionText) -> this.conceptDescriptionText = descriptionText,
+                    () -> this.conceptDescriptionText = "no description for " + nid);
         } else {
             this.conceptDescriptionText = "hidden root";
         }
@@ -242,11 +239,11 @@ public class MultiParentGraphItemImpl
                         childLinks = taxonomySnapshot.getTaxonomyChildLinks(conceptChronology.getNid());
                     }
 
-                    for (TaxonomyLink childLink : childLinks) {
+                    for (Edge childLink : childLinks) {
                         ConceptChronology childChronology = Get.concept(childLink.getDestinationNid());
                         MultiParentGraphItemImpl childItem = new MultiParentGraphItemImpl(childChronology, graphView, childLink.getTypeNid(), null);
                         Manifold manifold = graphView.getManifold();
-                        childItem.setDefined(childChronology.isSufficientlyDefined(manifold, manifold));
+                        childItem.setDefined(childChronology.isSufficientlyDefined(manifold.getStampFilter(), manifold.getLogicCoordinate()));
                         childItem.toString();
                         childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childLink.getDestinationNid()).length > 1);
 

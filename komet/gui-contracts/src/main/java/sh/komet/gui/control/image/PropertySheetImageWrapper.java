@@ -25,8 +25,7 @@ public class PropertySheetImageWrapper implements PropertySheet.Item {
 
     public PropertySheetImageWrapper(Manifold manifold,
                                      ObjectProperty<byte[]> imageDataProperty) {
-        this(manifold.getPreferredDescriptionText(new ConceptProxy(imageDataProperty.getName()),
-                ConceptSpecification.getNameFromExternalString(imageDataProperty.getName())),
+        this(manifold.getPreferredDescriptionText(new ConceptProxy(imageDataProperty.getName())),
                 imageDataProperty);
     }
     public ConceptSpecification getSpecification() {

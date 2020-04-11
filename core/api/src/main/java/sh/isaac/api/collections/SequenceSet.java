@@ -41,12 +41,12 @@ package sh.isaac.api.collections;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+
 import java.util.Collection;
 import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -77,15 +77,6 @@ public class SequenceSet<T extends SequenceSet<T>>
    /**
     * Instantiates a new sequence set.
     *
-    * @param concurrency the concurrency
-    */
-   protected SequenceSet(Concurrency concurrency) {
-      super(concurrency);
-   }
-
-   /**
-    * Instantiates a new sequence set.
-    *
     * @param members the members
     */
    protected SequenceSet(int... members) {
@@ -106,20 +97,11 @@ public class SequenceSet<T extends SequenceSet<T>>
     *
     * @param members the members
     */
-   protected SequenceSet(OpenIntHashSet members) {
-      super(members);
+   protected SequenceSet(ImmutableIntSet members) {
+      super(members.toArray());
    }
 
    //~--- methods -------------------------------------------------------------
-
-   /**
-    * Concurrent.
-    *
-    * @return the sequence set
-    */
-   public static SequenceSet concurrent() {
-      return new SequenceSet(Concurrency.THREAD_SAFE);
-   }
 
    /**
     * Of.
@@ -157,7 +139,7 @@ public class SequenceSet<T extends SequenceSet<T>>
     * @param members the members
     * @return the sequence set
     */
-   public static SequenceSet<?> of(OpenIntHashSet members) {
+   public static SequenceSet<?> of(ImmutableIntSet members) {
       return new SequenceSet<>(members);
    }
 

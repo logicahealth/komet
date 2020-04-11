@@ -53,17 +53,13 @@ import sh.isaac.api.ConceptProxy;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
-import sh.isaac.api.LanguageCoordinateService;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.model.coordinate.LanguageCoordinateImpl;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.coordinate.StampFilter;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -249,221 +245,24 @@ public class LanguageCoordinates {
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the gb english language fully specified name coordinate.
-    *
-    * @return the gb english language fully specified name coordinate
-    */
-   public static LanguageCoordinate getGbEnglishLanguageFullySpecifiedNameCoordinate() {
-      final ConceptProxy[] dialectAssemblagePreferenceList = new ConceptProxy[] { TermAux.GB_DIALECT_ASSEMBLAGE,
-                                                                TermAux.US_DIALECT_ASSEMBLAGE };
-      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              new ConceptProxy[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, TermAux.REGULAR_NAME_DESCRIPTION_TYPE}, null);
-
-      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
-      return new LanguageCoordinateImpl(TermAux.ENGLISH_LANGUAGE,
-                                        dialectAssemblagePreferenceList,
-                                        descriptionTypePreferenceList, 
-                                        modulePreferenceList);
-   }
-
-   /**
-    * Gets the gb english language preferred term coordinate.
-    *
-    * @return the gb english language preferred term coordinate
-    */
-   public static LanguageCoordinate getGbEnglishLanguagePreferredTermCoordinate() {
-      final ConceptProxy[] dialectAssemblagePreferenceList = new ConceptProxy[] { TermAux.GB_DIALECT_ASSEMBLAGE,
-                                                                TermAux.US_DIALECT_ASSEMBLAGE };
-      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              new ConceptProxy[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE, TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}, null);
-
-      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
-      return new LanguageCoordinateImpl(TermAux.ENGLISH_LANGUAGE,
-                                        dialectAssemblagePreferenceList,
-                                        descriptionTypePreferenceList, 
-                                        modulePreferenceList);
-   }
-
-   /**
-    * Gets the us english language fully specified name coordinate.
-    *
-    * @return the us english language fully specified name coordinate
-    */
-   public static LanguageCoordinate getUsEnglishLanguageFullySpecifiedNameCoordinate() {
-      final ConceptProxy[] dialectAssemblagePreferenceList = new ConceptProxy[] { TermAux.US_DIALECT_ASSEMBLAGE,
-                                                                TermAux.GB_DIALECT_ASSEMBLAGE };
-      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-            new ConceptProxy[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, TermAux.REGULAR_NAME_DESCRIPTION_TYPE}, null);
-
-      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
-      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.ENGLISH_LANGUAGE,
-                                        dialectAssemblagePreferenceList,
-                                        descriptionTypePreferenceList, 
-                                        modulePreferenceList);
-      
-      coordinate.setNextPriorityLanguageCoordinate(getSpanishLanguageFullySpecifiedNameCoordinate());
-      
-      return coordinate;
-   }
-
-   /**
-    * Gets the us english language preferred term coordinate.
-    *
-    * @return the us english language preferred term coordinate
-    */
-   public static LanguageCoordinate getUsEnglishLanguagePreferredTermCoordinate() {
-      final ConceptProxy[] dialectAssemblagePreferenceList = new ConceptProxy[] { TermAux.US_DIALECT_ASSEMBLAGE,
-                                                                TermAux.GB_DIALECT_ASSEMBLAGE };
-      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              new ConceptProxy[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE, TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}, null);
-
-      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
-      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.ENGLISH_LANGUAGE,
-                                        dialectAssemblagePreferenceList,
-                                        descriptionTypePreferenceList, 
-                                        modulePreferenceList);
-      coordinate.setNextPriorityLanguageCoordinate(getSpanishLanguagePreferredTermCoordinate());
-      
-      return coordinate;
-   }
-   public static LanguageCoordinate getSpanishLanguageFullySpecifiedNameCoordinate() {
-      final ConceptProxy[] dialectAssemblagePreferenceList = new ConceptProxy[] { TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE };
-      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              new ConceptProxy[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE,TermAux.REGULAR_NAME_DESCRIPTION_TYPE}, null);
-
-      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
-      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.SPANISH_LANGUAGE,
-                                        dialectAssemblagePreferenceList,
-                                        descriptionTypePreferenceList, 
-                                        modulePreferenceList);
-      coordinate.setNextPriorityLanguageCoordinate(getFullyQualifiedCoordinate(false));
-
-      return coordinate;
-   }
-   /**
-    * Gets the us english language preferred term coordinate.
-    *
-    * @return the us english language preferred term coordinate
-    */
-   public static LanguageCoordinate getSpanishLanguagePreferredTermCoordinate() {
-      final ConceptProxy[] dialectAssemblagePreferenceList = new ConceptProxy[] { TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE };
-      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              new ConceptProxy[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE, TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}, null);
-
-      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
-      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.SPANISH_LANGUAGE,
-                                        dialectAssemblagePreferenceList,
-                                        descriptionTypePreferenceList, 
-                                        modulePreferenceList);
-      coordinate.setNextPriorityLanguageCoordinate(getRegularNameCoordinate(false));
-      return coordinate;
-   }
-   
-   /**
-    * A coordinate that completely ignores language - descriptions ranked by this coordinate will only be ranked by
-    * description type and module preference.  This coordinate is primarily useful as a fallback coordinate for the final 
-    * {@link LanguageCoordinate#getNextPriorityLanguageCoordinate()} in a chain
-    * 
-    * See {@link LanguageCoordinateService#getSpecifiedDescription(StampCoordinate, java.util.List, LanguageCoordinate)}
-    * @param regNameOnly if true, only returns descriptions of type regular name, if false, prefers those, but will 
-    *     return a FQN or definition if regular name isn't available.  Also allows extended description types of each.
-    *
-    * @return a coordinate that prefers regular names, of arbitrary language, but will return descriptions of any description
-    * type
-    */
-   public static LanguageCoordinate getRegularNameCoordinate(boolean regNameOnly) {
-      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              (regNameOnly ? new ConceptProxy[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE} : 
-                new ConceptProxy[] {TermAux.REGULAR_NAME_DESCRIPTION_TYPE, 
-                        TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, 
-                        TermAux.DEFINITION_DESCRIPTION_TYPE}), 
-              null);
-
-      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
-      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.LANGUAGE,
-                                        new ConceptProxy[] {},
-                                        descriptionTypePreferenceList, 
-                                        modulePreferenceList);
-      return coordinate;
-   }
-   
-   /**
-    * A coordinate that completely ignores language - descriptions ranked by this coordinate will only be ranked by
-    * description type and module preference.  This coordinate is primarily useful as a fallback coordinate for the final 
-    * {@link LanguageCoordinate#getNextPriorityLanguageCoordinate()} in a chain
-    * 
-    * See {@link LanguageCoordinateService#getSpecifiedDescription(StampCoordinate, java.util.List, LanguageCoordinate)}
-    * @param fqnOnly if true, only returns descriptions of fqn if false, prefers those, but will return a regular name or definition 
-    *     if fqn name isn't available.  Also allows extended description types of each. 
-    *
-    * @return a coordinate that prefers fully qualified names, of arbitrary language  but will return descriptions of any description
-    * type
-    */
-   public static LanguageCoordinate getFullyQualifiedCoordinate(boolean fqnOnly) {
-      final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-              (fqnOnly ? new ConceptProxy[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE} : 
-                  new ConceptProxy[] {TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE,
-                    TermAux.REGULAR_NAME_DESCRIPTION_TYPE, 
-                    TermAux.DEFINITION_DESCRIPTION_TYPE}), 
-              null);
-
-      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
-      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.LANGUAGE,
-                                        new ConceptProxy[] {},
-                                        descriptionTypePreferenceList, 
-                                        modulePreferenceList);
-      return coordinate;
-   }
-   
-   /**
-    * A coordinate that completely ignores language - descriptions ranked by this coordinate will only be ranked by
-    * description type and module preference.  This coordinate is primarily useful as a fallback coordinate for the final 
-    * {@link LanguageCoordinate#getNextProrityLanguageCoordinate()} in a chain
-    * 
-    * See {@link LanguageCoordinateService#getSpecifiedDescription(StampCoordinate, java.util.List, LanguageCoordinate)}
-    * @param defOnly - if true, will only return definition types (or extended types) - if false, will fall back to regular name types, 
-    *     then FQN types. 
-    *
-    * @return a coordinate that prefers definitions, of arbitrary language.
-    * type
-    */
-   public static LanguageCoordinate getDefinitionCoordinate(boolean defOnly) {
-	   final ConceptSpecification[] descriptionTypePreferenceList = expandDescriptionTypePreferenceList(
-	              (defOnly ? new ConceptProxy[] {TermAux.DEFINITION_DESCRIPTION_TYPE} : 
-	                  new ConceptProxy[] {TermAux.DEFINITION_DESCRIPTION_TYPE,
-	                    TermAux.REGULAR_NAME_DESCRIPTION_TYPE, 
-	                    TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}), 
-	              null);
-
-      final ConceptProxy[] modulePreferenceList = new ConceptProxy[] { TermAux.SCT_CORE_MODULE, TermAux.SOLOR_OVERLAY_MODULE, TermAux.SOLOR_MODULE};
-      LanguageCoordinateImpl coordinate = new LanguageCoordinateImpl(TermAux.LANGUAGE,
-                                        new ConceptProxy[] {},
-                                        descriptionTypePreferenceList, 
-                                        modulePreferenceList);
-      return coordinate;
-   }
-   
    /**
     * Take in a list of the description type prefs, such as {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}, {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}
     * and include any non-core description types that are linked to these core types, in the right order, so that the LanguageCoordinates can include the 
     * non-core description types in the appropriate places when looking for descriptions.
-    * @param descriptionTypePreferenceList the starting list - should only consist of core description types - 
-    * {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}, {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}, {@link TermAux#DEFINITION_DESCRIPTION_TYPE} 
-    * @param stampCoordinate - optional - if not provided, uses {@link StampCoordinates#getDevelopmentLatestActiveOnly()}
+    * @param descriptionTypePreferenceList the starting list - should only consist of core description types -
+    * {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}, {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}, {@link TermAux#DEFINITION_DESCRIPTION_TYPE}
+    * @param stampFilter - optional - if not provided, uses {@link Coordinates.Filter.getDevelopmentLatestActiveOnly()}
     * @return the initial list, plus any equivalent non-core types in the appropriate order.  See {@link DynamicConstants#DYNAMIC_DESCRIPTION_CORE_TYPE}
     */
-   public static ConceptSpecification[] expandDescriptionTypePreferenceList(ConceptSpecification[] descriptionTypePreferenceList, StampCoordinate stampCoordinate) {
+   public static ConceptSpecification[] expandDescriptionTypePreferenceList(ConceptSpecification[] descriptionTypePreferenceList, StampFilter stampFilter) {
       long time = System.currentTimeMillis();
-      StampCoordinate stamp = stampCoordinate == null ? StampCoordinates.getDevelopmentLatestActiveOnly() : stampCoordinate;
+      StampFilter filter = stampFilter == null ? Coordinates.Filter.DevelopmentLatestActiveOnly() : stampFilter;
       HashMap<ConceptSpecification, HashSet<ConceptSpecification>> equivalentTypes = new HashMap<>();
       
       //Collect the mappings from core types -> non core types
       Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(sc -> 
       {
-         DynamicVersion dv = (DynamicVersion)sc.getLatestVersion(stamp).get();
+         DynamicVersion dv = (DynamicVersion)sc.getLatestVersion(filter).get();
          ConceptProxy coreType = new ConceptProxy(Get.identifierService().getNidForUuids(((DynamicUUID)dv.getData(0)).getDataUUID()));
          HashSet<ConceptSpecification> mapped = equivalentTypes.get(coreType);
          if (mapped == null) {

@@ -39,16 +39,14 @@
 
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import sh.isaac.api.ConceptProxy;
+
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
@@ -63,18 +61,17 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 public class ExtractAxioms
         extends TimedTaskWithProgressTracker<ClassifierData> {
 
-   StampCoordinate stampCoordinate;
+    StampFilter stampFilter;
 
    LogicCoordinate logicCoordinate;
 
    /**
     * Instantiates a new extract axioms.
-    *
-    * @param stampCoordinate the stamp coordinate
+    *  @param stampFilter the stamp coordinate
     * @param logicCoordinate the logic coordinate
     */
-   public ExtractAxioms(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
-      this.stampCoordinate = stampCoordinate;
+   public ExtractAxioms(StampFilter stampFilter, LogicCoordinate logicCoordinate) {
+      this.stampFilter = stampFilter;
       this.logicCoordinate = logicCoordinate;
       updateTitle("Extract axioms");
       
@@ -88,13 +85,13 @@ public class ExtractAxioms
        try {
            LOG.info("Extract Axioms running");
            final AtomicInteger logicGraphMembers = new AtomicInteger();
-           final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
+           final ClassifierData cd = ClassifierData.get(this.stampFilter, this.logicCoordinate);
            
            if (cd.isIncrementalAllowed()) {
                // axioms are already extracted.
            } else {
                cd.clearAxioms();
-               processAllStatedAxioms(this.stampCoordinate, this.logicCoordinate, cd, logicGraphMembers);
+               processAllStatedAxioms(this.stampFilter.toStampFilterImmutable(), this.logicCoordinate, cd, logicGraphMembers);
            }
            return cd;
        } finally {
@@ -105,19 +102,18 @@ public class ExtractAxioms
 
    /**
     * Process all stated axioms.
-    *
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @param logicCoordinate the logic coordinate
     * @param cd the cd
     * @param logicGraphMembers the logic graph members
     */
-   protected void processAllStatedAxioms(StampCoordinate stampCoordinate,
-         LogicCoordinate logicCoordinate,
-         ClassifierData cd,
-         AtomicInteger logicGraphMembers) {
+   protected void processAllStatedAxioms(StampFilterImmutable stampFilter,
+                                         LogicCoordinate logicCoordinate,
+                                         ClassifierData cd,
+                                         AtomicInteger logicGraphMembers) {
       final SemanticSnapshotService<LogicGraphVersionImpl> semanticSnapshot = Get.assemblageService()
                                                                             .getSnapshot(LogicGraphVersionImpl.class,
-                                                                                  stampCoordinate);
+                                                                                    stampFilter);
 
       AtomicInteger inactiveConcepts = new AtomicInteger(0);
 
@@ -127,7 +123,7 @@ public class ExtractAxioms
                                 final int conceptNid = lgs.getReferencedComponentNid();
 
                                 if (Get.conceptService()
-                                       .isConceptActive(conceptNid, stampCoordinate)) {
+                                       .isConceptActive(conceptNid, stampFilter)) {
                                    cd.translate(lgs);
                                    logicGraphMembers.incrementAndGet();
                                 } else {

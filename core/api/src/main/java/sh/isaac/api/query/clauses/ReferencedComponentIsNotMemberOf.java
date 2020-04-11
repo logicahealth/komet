@@ -16,9 +16,6 @@
  */
 package sh.isaac.api.query.clauses;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.query.ClauseSemantic;
@@ -29,8 +26,6 @@ import sh.isaac.api.query.Query;
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class ReferencedComponentIsNotMemberOf
         extends ReferencedComponentIsMemberOf {
 

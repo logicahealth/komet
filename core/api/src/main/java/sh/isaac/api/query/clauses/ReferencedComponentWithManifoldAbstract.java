@@ -16,16 +16,11 @@
  */
 package sh.isaac.api.query.clauses;
 
+import sh.isaac.api.query.*;
 import sh.isaac.api.query.properties.ManifoldClause;
-import java.util.EnumSet;
-import javax.xml.bind.annotation.XmlElement;
-import sh.isaac.api.query.ClauseComputeType;
-import sh.isaac.api.query.ClauseSemantic;
-import sh.isaac.api.query.LeafClause;
-import sh.isaac.api.query.LetItemKey;
-import sh.isaac.api.query.Query;
-import sh.isaac.api.query.WhereClause;
 import sh.isaac.api.query.properties.ReferencedComponentClause;
+
+import java.util.EnumSet;
 
 /**
  *
@@ -37,13 +32,11 @@ public abstract class ReferencedComponentWithManifoldAbstract extends LeafClause
     /**
      * The parent concept spec key.
      */
-    @XmlElement
     LetItemKey referencedComponentSpecKey;
 
     /**
      * the manifold coordinate key.
      */
-    @XmlElement
     LetItemKey manifoldCoordinateKey;
     
     //~--- constructors --------------------------------------------------------

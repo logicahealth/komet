@@ -37,25 +37,12 @@
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
 
-import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.Set;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.mahout.math.list.IntArrayList;
 import au.csiro.ontology.Node;
 import au.csiro.ontology.Ontology;
 import javafx.concurrent.Task;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.mahout.math.list.IntArrayList;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
@@ -67,7 +54,6 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitService;
-import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -75,7 +61,8 @@ import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
@@ -87,6 +74,14 @@ import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.logic.ClassifierResultsImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
+
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 
 /**
  * The Class ProcessClassificationResults.
@@ -101,7 +96,7 @@ public class ProcessClassificationResults
 
     int classificationDuplicateCount = -1;
     int classificationCountDuplicatesToNote = 10;
-    private final StampCoordinate stampCoordinate;
+    private final StampFilterImmutable stampFilter;
     private final LogicCoordinate logicCoordinate;
     private final EditCoordinate editCoordinate;
     private final Instant effectiveCommitTime;
@@ -110,12 +105,12 @@ public class ProcessClassificationResults
      * Instantiates a new process classification results task.
      *
      */
-    public ProcessClassificationResults(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate) {
-        if (stampCoordinate.getStampPosition().getTime() == Long.MAX_VALUE) {
-            throw new IllegalStateException("Stamp position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
+    public ProcessClassificationResults(StampFilter stampFilter, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate) {
+        if (stampFilter.getStampPosition().getTime() == Long.MAX_VALUE) {
+            throw new IllegalStateException("Filter position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
         }
-        this.stampCoordinate = stampCoordinate;
-        this.effectiveCommitTime = stampCoordinate.getStampPosition().getTimeAsInstant();
+        this.stampFilter = stampFilter.toStampFilterImmutable();
+        this.effectiveCommitTime = stampFilter.getStampPosition().getTimeAsInstant();
         this.logicCoordinate = logicCoordinate;
         this.editCoordinate = editCoordinate;
         updateTitle("Retrieve inferred axioms");
@@ -221,7 +216,7 @@ public class ProcessClassificationResults
 //        }
         return new ClassifierResultsImpl(affectedConcepts,
                 equivalentSets,
-                writeBackInferred(transaction, classifiedResult, affectedConcepts), stampCoordinate, logicCoordinate, editCoordinate);
+                writeBackInferred(transaction, classifiedResult, affectedConcepts), stampFilter, logicCoordinate, editCoordinate);
     }
 
     /**
@@ -317,7 +312,7 @@ public class ProcessClassificationResults
                     final SemanticChronology rawStatedChronology
                             = assemblageService.getSemanticChronology(statedSemanticNidOptional.getAsInt());
                     final LatestVersion<LogicGraphVersion> latestStatedDefinitionOptional
-                            = ((SemanticChronology) rawStatedChronology).getLatestVersion(this.inputData.getStampCoordinate());
+                            = ((SemanticChronology) rawStatedChronology).getLatestVersion(this.inputData.getStampFilter());
 
                     if (latestStatedDefinitionOptional.isPresent()) {
                         final LogicalExpressionBuilder inferredBuilder
@@ -386,7 +381,7 @@ public class ProcessClassificationResults
 
                                 // check to see if changed from old...
                                 final LatestVersion<LogicGraphVersion> latestDefinitionOptional
-                                        = inferredChronology.getLatestVersion(this.inputData.getStampCoordinate());
+                                        = inferredChronology.getLatestVersion(this.inputData.getStampFilter());
 
                                 if (latestDefinitionOptional.isPresent()) {
                                     if (!latestDefinitionOptional.get()
@@ -433,7 +428,7 @@ public class ProcessClassificationResults
                 LOG.warn("Inferred duplicates found: " + classificationDuplicateCount);
             }
             LOG.info("Processed " + sufficientSets + " sufficient sets.");
-            LOG.info("stampCoordinate: " + this.inputData.getStampCoordinate());
+            LOG.info("stampCoordinate: " + this.inputData.getStampFilter());
             LOG.info("logicCoordinate: " + this.inputData.getLogicCoordinate());
             return commitRecord;
         } catch (InterruptedException | ExecutionException e) {

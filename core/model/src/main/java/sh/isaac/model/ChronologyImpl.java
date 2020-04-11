@@ -44,7 +44,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.SortedSet;
@@ -68,7 +67,7 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.datastore.ChronologySerializeable;
@@ -796,12 +795,12 @@ public abstract class ChronologyImpl
      * Gets the latest version.
      *
      * @param <V>
-     * @param coordinate the coordinate
+     * @param filter the coordinate
      * @return the latest version
      */
     @Override
-    public <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
-        final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+    public <V extends Version> LatestVersion<V> getLatestVersion(StampFilter filter) {
+        final RelativePositionCalculator calc = filter.getRelativePositionCalculator();
 
         final int[] latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
@@ -813,8 +812,8 @@ public abstract class ChronologyImpl
     }
 
     @Override
-    public <V extends Version> LatestVersion<V> getLatestCommittedVersion(StampCoordinate coordinate) {
-        final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+    public <V extends Version> LatestVersion<V> getLatestCommittedVersion(StampFilter filter) {
+        final RelativePositionCalculator calc = filter.getRelativePositionCalculator();
 
         final int[] latestStampSequences = calc.getLatestCommittedStampSequencesAsSet(this.getVersionStampSequences());
 
@@ -828,12 +827,12 @@ public abstract class ChronologyImpl
     /**
      * Checks if latest version active.
      *
-     * @param coordinate the coordinate
+     * @param filter the coordinate
      * @return true, if latest version active
      */
     @Override
-    public boolean isLatestVersionActive(StampCoordinate coordinate) {
-        final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate.makeCoordinateAnalog(Status.ANY_STATUS_SET));
+    public boolean isLatestVersionActive(StampFilter filter) {
+        final RelativePositionCalculator calc = filter.getRelativePositionCalculator();
         final int[] latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
         for (int stampSequence : latestStampSequences) {
@@ -1098,19 +1097,18 @@ public abstract class ChronologyImpl
     /**
      * Gets the visible ordered version list.
      *
-     * @param stampCoordinate the stamp coordinate
+     * @param stampFilter the stamp coordinate
      * @return the visible ordered version list
      */
     @Override
-    public <V extends StampedVersion> List<V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
-        final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(stampCoordinate);
+    public <V extends StampedVersion> List<V> getVisibleOrderedVersionList(StampFilter stampFilter) {
+        final RelativePositionCalculator calc = stampFilter.getRelativePositionCalculator();
         final SortedSet<V> sortedLogicGraphs = new TreeSet<>(
                 (V graph1,
                         V graph2) -> {
                     final RelativePosition relativePosition = calc.fastRelativePosition(
                             graph1,
-                            graph2,
-                            stampCoordinate.getStampPrecedence());
+                            graph2);
 
                     switch (relativePosition) {
                         case BEFORE:

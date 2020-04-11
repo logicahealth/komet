@@ -47,7 +47,7 @@ import java.util.function.ObjIntConsumer;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.collections.StampSequenceSet;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -66,10 +66,10 @@ public class LatestPrimitiveStampCollector
    /**
     * Instantiates a new latest primitive stamp collector.
     *
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     */
-   public LatestPrimitiveStampCollector(StampCoordinate stampCoordinate) {
-      this.computer = RelativePositionCalculator.getCalculator(stampCoordinate);
+   public LatestPrimitiveStampCollector(StampFilter stampFilter) {
+      this.computer = RelativePositionCalculator.getCalculator(stampFilter.toStampFilterImmutable());
    }
 
    //~--- methods -------------------------------------------------------------
@@ -164,7 +164,7 @@ public class LatestPrimitiveStampCollector
          } else {
             oldResult.add(possibleNewLatestStamp);
 
-//          String stampInfo = Stamp.stampArrayToString(oldResult.stream().toArray());
+//          String stampInfo = Filter.stampArrayToString(oldResult.stream().toArray());
 //          System.out.println(stampInfo);
             throw new UnsupportedOperationException("l Can't compute latest stamp for: " + possibleNewLatestStamp);
          }

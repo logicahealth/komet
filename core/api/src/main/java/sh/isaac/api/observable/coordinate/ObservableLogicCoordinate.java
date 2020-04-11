@@ -45,6 +45,8 @@ import javafx.beans.property.ObjectProperty;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinateImmutable;
+import sh.isaac.api.coordinate.LogicCoordinateProxy;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -54,7 +56,7 @@ import sh.isaac.api.coordinate.LogicCoordinate;
  * @author kec
  */
 public interface ObservableLogicCoordinate
-        extends LogicCoordinate, ObservableCoordinate {
+        extends LogicCoordinateProxy, ObservableCoordinate<LogicCoordinateImmutable> {
     
     /**
      * 
@@ -96,10 +98,14 @@ public interface ObservableLogicCoordinate
     * @return the stated assemblage concept property. 
     */
    ObjectProperty<ConceptSpecification> statedAssemblageProperty();
-   
-   @Override
-   public ObservableLogicCoordinate deepClone();
-   
+
+   /**
+    * digraph identity property.
+    *
+    * @return the digraph identity property.
+    */
+   ObjectProperty<ConceptSpecification> getDigraphIdentityProperty();
+
 
 }
 

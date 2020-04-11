@@ -50,14 +50,13 @@ import java.util.stream.Stream;
 import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.TaxonomySnapshot;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -76,7 +75,7 @@ public class Snapshot {
    LogicCoordinate logicCoordinate;
 
    /** The stamp coordinate. */
-   StampCoordinate stampCoordinate;
+   StampFilter stampFilter;
 
    /** The taxonomy coordinate. */
    ManifoldCoordinate manifoldCoordinate;
@@ -88,21 +87,20 @@ public class Snapshot {
 
    /**
     * Instantiates a new snapshot.
-    *
-    * @param languageCoordinate the language coordinate
+    *  @param languageCoordinate the language coordinate
     * @param logicCoordinate the logic coordinate
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @param manifoldCoordinate the taxonomy coordinate
     */
    public Snapshot(LanguageCoordinate languageCoordinate,
                    LogicCoordinate logicCoordinate,
-                   StampCoordinate stampCoordinate,
+                   StampFilter stampFilter,
                    ManifoldCoordinate manifoldCoordinate) {
       this.languageCoordinate = languageCoordinate;
       this.logicCoordinate    = logicCoordinate;
-      this.stampCoordinate    = stampCoordinate;
+      this.stampFilter = stampFilter;
       this.manifoldCoordinate = manifoldCoordinate;
-      this.positionCalculator = RelativePositionCalculator.getCalculator(stampCoordinate);
+      this.positionCalculator = RelativePositionCalculator.getCalculator(stampFilter.toStampFilterImmutable());
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -116,7 +114,7 @@ public class Snapshot {
     */
    public <V extends SemanticVersion> SemanticSnapshotService<V> getSemanticSnapshotService(Class<V> type) {
       return Get.assemblageService()
-                .getSnapshot(type, this.stampCoordinate);
+                .getSnapshot(type, this.stampFilter);
    }
 
    /**

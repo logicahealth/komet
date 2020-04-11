@@ -48,7 +48,6 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
-import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -57,7 +56,7 @@ import sh.isaac.api.DataTarget;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.tree.TreeNodeVisitData;
@@ -428,8 +427,8 @@ public abstract class AbstractLogicNode
    }
 
    @Override
-   public LatestVersion<DescriptionVersion> getPreferredDescription(StampCoordinate stampCoordinate,
-         LanguageCoordinate languageCoordinate) {
+   public LatestVersion<DescriptionVersion> getPreferredDescription(StampFilter stampFilter,
+                                                                    LanguageCoordinate languageCoordinate) {
       int sequenceForDescription = -1;
 
       switch (getNodeSemantic()) {
@@ -449,7 +448,7 @@ public abstract class AbstractLogicNode
 
       LatestVersion<DescriptionVersion> latestDescription = languageCoordinate.getPreferredDescription(
                                                                 sequenceForDescription,
-                                                                      stampCoordinate);
+              stampFilter);
 
       return latestDescription;
    }

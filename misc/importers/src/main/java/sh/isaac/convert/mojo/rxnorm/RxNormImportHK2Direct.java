@@ -36,39 +36,6 @@
  */
 package sh.isaac.convert.mojo.rxnorm;
 
-import java.beans.PropertyVetoException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.glassfish.hk2.api.PerLookup;
@@ -83,7 +50,8 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.api.util.UuidT3Generator;
@@ -100,11 +68,35 @@ import sh.isaac.converters.sharedUtils.umlsUtils.RRFDatabaseHandle;
 import sh.isaac.converters.sharedUtils.umlsUtils.Relationship;
 import sh.isaac.converters.sharedUtils.umlsUtils.UMLSFileReader;
 import sh.isaac.converters.sharedUtils.umlsUtils.rrf.REL;
-import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
+
+import java.beans.PropertyVetoException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * {@link RxNormImportHK2Direct}
@@ -170,7 +162,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 
 	/**
 	 * This constructor is for maven and HK2 and should not be used at runtime.  You should
-	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
+	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter)} method on it.
 	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
 	 */
 	protected RxNormImportHK2Direct() {
@@ -214,13 +206,13 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 	 *      sh.isaac.api.coordinate.StampCoordinate)
 	 */
 	@Override
-	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate)
+	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter)
 	{
 		this.outputDirectory = outputDirectory;
 		this.inputFileLocationPath = inputFolder;
 		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
 		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		this.readbackCoordinate = stampCoordinate == null ? StampCoordinates.getDevelopmentLatest() : stampCoordinate;
+		this.readbackCoordinate = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
 		
 		if (this.outputDirectory == null)
 		{
@@ -1746,7 +1738,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 	{
 		Get.assemblageService().getSemanticNidsFromAssemblage(MetaData.SCTID____SOLOR.getNid()).stream().forEach(semantic -> {
 			final LatestVersion<StringVersion> lv = ((SemanticChronology) Get.assemblageService().getSemanticChronology(semantic))
-					.getLatestVersion(StampCoordinates.getDevelopmentLatest());
+					.getLatestVersion(Coordinates.Filter.DevelopmentLatest());
 			final StringVersion ss = lv.get();
 			final Long sctId = Long.parseLong(ss.getString());
 			final UUID conceptUUID = Get.identifierService().getUuidPrimordialForNid(ss.getReferencedComponentNid());

@@ -29,13 +29,13 @@ public class PropertySheetItemConceptNidWrapper implements ConceptSpecification,
    private final NidSet allowedValues = new NidSet();
    
    public PropertySheetItemConceptNidWrapper(Manifold manifoldForDisplay,
-           IntegerProperty conceptNidProperty, int... allowedValues) {
+                                             IntegerProperty conceptNidProperty, int... allowedValues) {
       this(manifoldForDisplay, manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(conceptNidProperty.getName())), conceptNidProperty, allowedValues);
    }
 
 
    public PropertySheetItemConceptNidWrapper(Manifold manifoldForDisplay, String name,
-           IntegerProperty conceptNidProperty, int... allowedValues) {
+                                             IntegerProperty conceptNidProperty, int... allowedValues) {
       this.manifoldForDisplay = manifoldForDisplay;
       this.name = name;
       this.conceptNidProperty = conceptNidProperty;
@@ -53,7 +53,7 @@ public class PropertySheetItemConceptNidWrapper implements ConceptSpecification,
 
    @Override
    public String getFullyQualifiedName() {
-      return this.manifoldForDisplay.getFullySpecifiedDescriptionText(conceptNidProperty.get());
+      return this.manifoldForDisplay.getFullyQualifiedDescriptionText(conceptNidProperty.get());
    }
 
    @Override

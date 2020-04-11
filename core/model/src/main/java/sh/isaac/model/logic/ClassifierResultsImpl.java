@@ -1,22 +1,15 @@
 package sh.isaac.model.logic;
 
 import org.apache.mahout.math.list.IntArrayList;
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.collections.IntArrayWrapper;
 import sh.isaac.api.commit.CommitRecord;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
-import sh.isaac.model.coordinate.EditCoordinateImpl;
-import sh.isaac.model.coordinate.LogicCoordinateImpl;
-import sh.isaac.model.coordinate.StampCoordinateImpl;
+import sh.isaac.api.observable.coordinate.ObservablePathCoordinate;
 
 import java.time.Instant;
 import java.util.*;
@@ -41,11 +34,11 @@ public class ClassifierResultsImpl implements ClassifierResults {
 
     private HashSet<Integer> orphanedConcepts = new HashSet<>();
 
-    private StampCoordinateImpl stampCoordinate;
+    private StampFilterImmutable stampFilter;
 
-    private LogicCoordinateImpl logicCoordinate;
+    private LogicCoordinateImmutable logicCoordinate;
 
-    private EditCoordinateImpl editCoordinate;
+    private EditCoordinateImmutable editCoordinate;
 
     private ClassifierResultsImpl(ByteArrayDataBuffer data) {
         this.classificationConceptSet = new HashSet<>();
@@ -83,9 +76,9 @@ public class ClassifierResultsImpl implements ClassifierResults {
         for (int orphanNid: data.getNidArray()) {
             orphanedConcepts.add(orphanNid);
         }
-        this.stampCoordinate = StampCoordinateImpl.make(data);
-        this.logicCoordinate = LogicCoordinateImpl.make(data);
-        this.editCoordinate = EditCoordinateImpl.make(data);
+        this.stampFilter = StampFilterImmutable.make(data);
+        this.logicCoordinate = LogicCoordinateImmutable.make(data);
+        this.editCoordinate = EditCoordinateImmutable.make(data);
     }
 
     private void convertToConceptsWithInferredChanges() {
@@ -135,9 +128,9 @@ public class ClassifierResultsImpl implements ClassifierResults {
             out.putBoolean(false);
         }
         out.putNidArray(orphanedConcepts);
-        this.stampCoordinate.putExternal(out);
-        this.logicCoordinate.putExternal(out);
-        this.editCoordinate.putExternal(out);
+        this.stampFilter.marshal(out);
+        this.logicCoordinate.toLogicCoordinateImmutable().marshal(out);
+        this.editCoordinate.marshal(out);
 
     }
 
@@ -147,17 +140,17 @@ public class ClassifierResultsImpl implements ClassifierResults {
 
     /**
      * Instantiates a new classifier results.
-     *
-     * @param classificationConceptSet the affected concepts
+     *  @param classificationConceptSet the affected concepts
      * @param equivalentSets the equivalent sets
      * @param commitRecord the commit record
+     * @param stampFilter
      */
     public ClassifierResultsImpl(Set<Integer> classificationConceptSet,
-                             Set<IntArrayList> equivalentSets,
-                             Optional<CommitRecord> commitRecord,
-                             StampCoordinate stampCoordinate,
-                             LogicCoordinate logicCoordinate,
-                             EditCoordinate editCoordinate) {
+                                 Set<IntArrayList> equivalentSets,
+                                 Optional<CommitRecord> commitRecord,
+                                 StampFilter stampFilter,
+                                 LogicCoordinate logicCoordinate,
+                                 EditCoordinate editCoordinate) {
         this.classificationConceptSet = classificationConceptSet;
         this.equivalentSets = new HashSet<>();
         for (IntArrayList set: equivalentSets) {
@@ -169,17 +162,18 @@ public class ClassifierResultsImpl implements ClassifierResults {
         if (this.commitRecord.isPresent()) {
             convertToConceptsWithInferredChanges();
         }
-        assignCoordinates(stampCoordinate, logicCoordinate, editCoordinate);
+        assignCoordinates(stampFilter, logicCoordinate, editCoordinate);
     }
 
     /**
      * This constructor is only intended to be used when a classification wasn't performed, because there were cycles present.
      * @param conceptsWithCycles
      * @param orphans
+     * @param stampFilter
      */
     public ClassifierResultsImpl(Map<Integer, Set<int[]>> conceptsWithCycles, Set<Integer> orphans,
-                             StampCoordinate stampCoordinate,
-                             LogicCoordinate logicCoordinate,
+                                 StampFilter stampFilter,
+                                 LogicCoordinate logicCoordinate,
                                  EditCoordinate editCoordinate) {
         this.classificationConceptSet = new HashSet<>();
         this.equivalentSets   = new HashSet<>();
@@ -187,46 +181,25 @@ public class ClassifierResultsImpl implements ClassifierResults {
         this.conceptsWithCycles = Optional.of(conceptsWithCycles);
         this.orphanedConcepts.addAll(orphans);
 
-        assignCoordinates(stampCoordinate, logicCoordinate, editCoordinate);
+        assignCoordinates(stampFilter, logicCoordinate, editCoordinate);
     }
 
-    private final void assignCoordinates(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate,
+    private final void assignCoordinates(StampFilter stampFilter, LogicCoordinate logicCoordinate,
                                          EditCoordinate editCoordinate) {
-        if (stampCoordinate.getStampPosition().getTime() == Long.MAX_VALUE) {
-            throw new IllegalStateException("Stamp position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
+        if (stampFilter.getStampPosition().getTime() == Long.MAX_VALUE) {
+            throw new IllegalStateException("Filter position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
         }
         if (editCoordinate == null) {
             throw new NullPointerException("Edit coordinate cannot be null. ");
         }
-        if (stampCoordinate instanceof ManifoldCoordinate) {
 
-            stampCoordinate = ((ManifoldCoordinate) stampCoordinate).getStampCoordinate();
-        }
-
-        if (stampCoordinate instanceof ObservableStampCoordinate) {
-            stampCoordinate = ((ObservableStampCoordinate) stampCoordinate).getStampCoordinate();
-        }
-
-        this.stampCoordinate  = (StampCoordinateImpl) stampCoordinate;
-
-        if (logicCoordinate instanceof ManifoldCoordinate) {
-            logicCoordinate = ((ManifoldCoordinate) logicCoordinate).getLogicCoordinate();
-        }
-
-        if (logicCoordinate instanceof ObservableLogicCoordinate) {
-            logicCoordinate = ((ObservableLogicCoordinate) logicCoordinate).getLogicCoordinate();
-        }
-
-        this.logicCoordinate  = (LogicCoordinateImpl) logicCoordinate;
-
-        if (editCoordinate instanceof ObservableEditCoordinate) {
-            editCoordinate = ((ObservableEditCoordinate) editCoordinate).getEditCoordinate();
-        }
-        this.editCoordinate = (EditCoordinateImpl) editCoordinate;
+        this.stampFilter = stampFilter.toStampFilterImmutable();
+        this.logicCoordinate  = logicCoordinate.toLogicCoordinateImmutable();
+        this.editCoordinate = editCoordinate.toEditCoordinateImmutable();
 
 
-        if (stampCoordinate.getStampPosition().getTime() == Long.MAX_VALUE) {
-            throw new IllegalStateException("Stamp position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
+        if (stampFilter.getStampPosition().getTime() == Long.MAX_VALUE) {
+            throw new IllegalStateException("Filter position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
         }
 
     }
@@ -271,8 +244,8 @@ public class ClassifierResultsImpl implements ClassifierResults {
     }
 
     @Override
-    public StampCoordinate getStampCoordinate() {
-        return stampCoordinate;
+    public StampFilter getStampFilter() {
+        return stampFilter;
     }
 
     @Override
@@ -287,7 +260,7 @@ public class ClassifierResultsImpl implements ClassifierResults {
 
     @Override
     public Instant getCommitTime() {
-        return this.stampCoordinate.getStampPosition().getTimeAsInstant();
+        return this.stampFilter.getStampPosition().getTimeAsInstant();
     }
 
     @Override

@@ -16,33 +16,23 @@
  */
 package sh.isaac.api.query.clauses;
 
-import sh.isaac.api.query.properties.StampCoordinateClause;
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Optional;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.query.ClauseComputeType;
-import sh.isaac.api.query.ClauseSemantic;
-import sh.isaac.api.query.LeafClause;
-import sh.isaac.api.query.LetItemKey;
-import sh.isaac.api.query.Query;
-import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.query.*;
+import sh.isaac.api.query.properties.StampCoordinateClause;
+
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class ReferencedComponentIsNotActive extends LeafClause implements StampCoordinateClause {
 
     /**
@@ -77,7 +67,7 @@ public class ReferencedComponentIsNotActive extends LeafClause implements StampC
      */
     @Override
     public final Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-        StampCoordinate stampCoordinate = getLetItem(stampCoordinateKey);
+        StampFilter stampCoordinate = getLetItem(stampCoordinateKey);
 
         NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
         for (int nid: possibleComponents.asArray()) {

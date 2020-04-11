@@ -50,13 +50,16 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.Semaphore;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
+import org.eclipse.collections.impl.factory.primitive.IntIntMaps;
+import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
+import org.eclipse.collections.impl.map.mutable.primitive.IntObjectHashMap;
 import org.jvnet.hk2.annotations.Service;
 import com.lmax.disruptor.dsl.Disruptor;
 import javafx.concurrent.Task;
@@ -64,7 +67,6 @@ import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.IntObjectHashMap;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitService;
@@ -80,7 +82,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.BinaryDataServiceFactory;
@@ -209,7 +211,8 @@ public class Get
 
    //TODO there is either a threading issue, with a load not waiting for a clean to complete, or, there is a bug in this IntObjectHashMap, 
    //which leads to index out of bounds exceptions once in a while, during a build test.  Need to finish tracking down...
-   private static IntObjectHashMap<ConceptSpecification> TERM_AUX_CACHE = null;
+   // Removed IntObjectHashMap and replaced with Eclipse Collections
+   private static MutableIntObjectMap<ConceptSpecification> TERM_AUX_CACHE = null;
 
    /**
     * Instantiates a new Get.
@@ -398,7 +401,7 @@ public class Get
       if (Get.identifierService().getObjectTypeForComponent(conceptNid) == IsaacObjectType.SEMANTIC) {
          SemanticChronology sc = Get.assemblageService().getSemanticChronology(conceptNid);
          if (sc.getVersionType() == VersionType.DESCRIPTION) {
-            LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate());
+            LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate().getStampFilter());
             if (latestDescription.isPresent()) {
                return "Desc: " + latestDescription.get().getText();
             }
@@ -508,10 +511,10 @@ public class Get
        if (nid >= 0) {
            throw new IllegalStateException("Nids must be < 0: " + nid);
        }
-       
-       IntObjectHashMap<ConceptSpecification> localRef = TERM_AUX_CACHE;
+
+      MutableIntObjectMap<ConceptSpecification> localRef = TERM_AUX_CACHE;
        if (localRef == null) {
-          localRef = new IntObjectHashMap<>();
+          localRef = IntObjectMaps.mutable.empty();
           for (ConceptSpecification conceptSpecification: TermAux.getAllSpecs()) {
              localRef.put(conceptSpecification.getNid(), conceptSpecification);
           }
@@ -553,7 +556,7 @@ public class Get
    }
 
    /**
-    * Coordinate factory.
+    * ImmutableCoordinate factory.
     *
     * @return the coordinate factory
     */
@@ -730,8 +733,8 @@ public class Get
       return observableChronologyService;
    }
 
-   public static ObservableSnapshotService observableSnapshotService(StampCoordinate stampCoordinate) {
-      return observableChronologyService().getObservableSnapshotService(stampCoordinate);
+   public static ObservableSnapshotService observableSnapshotService(StampFilter stampFilter) {
+      return observableChronologyService().getObservableSnapshotService(stampFilter);
    }
    
 
@@ -872,7 +875,7 @@ public class Get
    }
 
    /**
-    * Stamp service.
+    * Filter service.
     *
     * @return the stamp service
     */

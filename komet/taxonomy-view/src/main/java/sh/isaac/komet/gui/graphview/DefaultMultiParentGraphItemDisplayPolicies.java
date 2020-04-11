@@ -19,14 +19,17 @@
 
 package sh.isaac.komet.gui.graphview;
 
-import java.util.EnumSet;
 import javafx.scene.Node;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampFilterImmutable;
+import sh.isaac.api.coordinate.StatusSet;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.manifold.Manifold;
+
+import java.util.EnumSet;
 
 /**
  * DefaultMultiParentGraphItemDisplayPolicies
@@ -74,20 +77,15 @@ public class DefaultMultiParentGraphItemDisplayPolicies implements MultiParentGr
    @Override
    public boolean shouldDisplay(MultiParentGraphItem treeItem) {
       int conceptNid = treeItem.getConceptNid();
-      if (manifold.getManifoldCoordinate().optionalDestinationStampCoordinate().isPresent()) {
-          StampCoordinate destinationStampCoordinate = manifold.getManifoldCoordinate().optionalDestinationStampCoordinate().get();
-          EnumSet<Status> allowedStates = destinationStampCoordinate.getAllowedStates();
-          EnumSet<Status> states = Get.conceptActiveService().getConceptStates(conceptNid, destinationStampCoordinate);
-          for (Status state: states) {
-              if (allowedStates.contains(state)) {
-                  return true;
-              }
-          }
-          return false;
-      }
-      // Assuming you have been pointed here by a valid relationship of some type,
-      // if there is no specified destination stamp coordinate, then always return true
-      return true;
+       StampFilterImmutable vertexStampFilter = manifold.getVertexStampFilter().toStampFilterImmutable();
+       StatusSet allowedStates = vertexStampFilter.getAllowedStates();
+       EnumSet<Status> states = Get.conceptActiveService().getConceptStates(conceptNid, vertexStampFilter);
+       for (Status state: states) {
+           if (allowedStates.contains(state)) {
+               return true;
+           }
+       }
+       return false;
    }
    
    

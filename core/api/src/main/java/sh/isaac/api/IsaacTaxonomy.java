@@ -731,23 +731,28 @@ public class IsaacTaxonomy {
            ConceptService conceptService,
            AssemblageService assemblageService)
            throws IllegalStateException {
-      final List<Chronology> builtObjects = new ArrayList<>();
+      try {
+         final List<Chronology> builtObjects = new ArrayList<>();
 
-      builder.build(transaction, stampCoordinate, builtObjects);
-      builtObjects.forEach((builtObject) -> {
-         if (builtObject instanceof ConceptChronology) {
-            conceptService.writeConcept(
-                    (ConceptChronology) builtObject);
-            ConceptChronology restored = conceptService.getConceptChronology(((ConceptChronology) builtObject).getNid());
-            if (restored.getAssemblageNid() >= 0) {
-               LOG.error("Bad restore of: " + restored);
+         builder.build(transaction, stampCoordinate, builtObjects);
+         builtObjects.forEach((builtObject) -> {
+            if (builtObject instanceof ConceptChronology) {
+               conceptService.writeConcept(
+                       (ConceptChronology) builtObject);
+               ConceptChronology restored = conceptService.getConceptChronology(((ConceptChronology) builtObject).getNid());
+               if (restored.getAssemblageNid() >= 0) {
+                  LOG.error("Bad restore of: " + restored);
+               }
+            } else if (builtObject instanceof SemanticChronology) {
+               assemblageService.writeSemanticChronology((SemanticChronology) builtObject);
+            } else {
+               throw new UnsupportedOperationException("Can't handle: " + builtObject);
             }
-         } else if (builtObject instanceof SemanticChronology) {
-            assemblageService.writeSemanticChronology((SemanticChronology) builtObject);
-         } else {
-            throw new UnsupportedOperationException("Can't handle: " + builtObject);
-         }
-      });
+         });
+      } catch (IllegalArgumentException e) {
+         LOG.error("Building: \n\n" + builder + "\n\n", e);
+         throw e;
+      }
    }
 
    /**

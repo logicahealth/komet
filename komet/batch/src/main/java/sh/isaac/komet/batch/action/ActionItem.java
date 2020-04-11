@@ -5,9 +5,10 @@ import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.marshal.Marshalable;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.komet.batch.VersionChangeListener;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.manifold.Manifold;
 
@@ -43,25 +44,27 @@ public abstract class ActionItem implements Marshalable {
      * ActionItems should use enum keys defined within their own class so that there is no duplicate assignment
      * of a key.
      * @param cache
+     * @param stampFilter
      */
     protected abstract void setupForApply(ConcurrentHashMap<Enum, Object> cache,
-                                       Transaction transaction,
-                                       StampCoordinate stampCoordinate,
-                                       EditCoordinate editCoordinate);
+                                          Transaction transaction,
+                                          StampFilter stampFilter,
+                                          EditCoordinate editCoordinate);
 
     /**
      * This is the call that actually performs the action.
      * @param chronology
      * @param cache
      * @param transaction
-     * @param stampCoordinate
+     * @param stampFilter
      * @param editCoordinate
      */
     protected abstract void apply(Chronology chronology,
                                   ConcurrentHashMap<Enum, Object> cache,
                                   Transaction transaction,
-                                  StampCoordinate stampCoordinate,
-                                  EditCoordinate editCoordinate);
+                                  StampFilter stampFilter,
+                                  EditCoordinate editCoordinate,
+                                  VersionChangeListener versionChangeListener);
 
     public abstract String getTitle();
 

@@ -69,8 +69,9 @@ import javafx.scene.transform.NonInvertibleTransformException;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.collection.ImmutableCollection;
 import sh.isaac.api.Get;
-import sh.isaac.api.TaxonomyLink;
+import sh.isaac.api.Edge;
 
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
@@ -207,17 +208,17 @@ final public class MultiParentGraphCell
          if (treeItem.isSecondaryParentOpened()) {
             removeExtraParents(treeItem, siblings);
          } else {
-            Collection<TaxonomyLink> allParents = treeItem.getGraphView()
+            ImmutableCollection<Edge> allParents = treeItem.getGraphView()
                                        .getTaxonomySnapshot()
                                        .getTaxonomyParentLinks(value.getNid());
             ArrayList<MultiParentGraphItemImpl> secondaryParentItems = new ArrayList<>();
 
-            for (TaxonomyLink parentLink: allParents) {
+            for (Edge parentLink: allParents) {
                if ((allParents.size() == 1) || (parentLink.getDestinationNid() != parentItem.getValue().getNid())) {
                   ConceptChronology parentChronology = Get.concept(parentLink.getDestinationNid());
                   MultiParentGraphItemImpl extraParentItem = new MultiParentGraphItemImpl(parentChronology, treeItem.getGraphView(), parentLink.getTypeNid(), null);
                   Manifold manifold = treeItem.getGraphView().getManifold();
-                  extraParentItem.setDefined(parentChronology.isSufficientlyDefined(manifold, manifold));
+                  extraParentItem.setDefined(parentChronology.isSufficientlyDefined(manifold.getStampFilter(), manifold.getLogicCoordinate()));
                   extraParentItem.setMultiParentDepth(treeItem.getMultiParentDepth() + 1);
                   secondaryParentItems.add(extraParentItem);
                }

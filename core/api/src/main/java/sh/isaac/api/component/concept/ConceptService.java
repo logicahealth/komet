@@ -53,8 +53,8 @@ import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.collections.IntSet;
 
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -118,11 +118,11 @@ public interface ConceptService
    /**
     * Checks if concept active.
     *
-    * @param conceptNid 
-    * @param stampCoordinate the stamp coordinate
+    * @param conceptNid
+    * @param stampFilter the stamp coordinate
     * @return true, if concept active
     */
-   boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate);
+   boolean isConceptActive(int conceptNid, StampFilterImmutable stampFilter);
 
    /**
     * Gets the concept chronology stream.

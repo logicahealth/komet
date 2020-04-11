@@ -1761,4 +1761,159 @@ public class LogicalExpressionImpl
         }
         return false;
     }
+
+    @Override
+    public boolean containsConcept(ConceptSpecification conceptSpecification) {
+        return containsConcept(conceptSpecification.getNid());
+    }
+
+    @Override
+    public boolean containsConcept(int nid) {
+        for (AbstractLogicNode logicNode: logicNodes) {
+            switch (logicNode.getNodeSemantic()) {
+                case CONCEPT:
+                    if (((ConceptNodeWithNids) logicNode).getConceptNid() == nid) {
+                        return true;
+                    }
+                    break;
+                case FEATURE:
+                    if (((FeatureNodeWithNids) logicNode).getMeasureSemanticNid() == nid) {
+                        return true;
+                    }
+                    if (((FeatureNodeWithNids) logicNode).getTypeConceptNid() == nid) {
+                        return true;
+                    }
+                    break;
+                case PROPERTY_PATTERN_IMPLICATION:
+                    if (((PropertyPatternImplicationWithNids) logicNode).getPropertyImplication() == nid) {
+                        return true;
+                    }
+                    for (int patternNid: ((PropertyPatternImplicationWithNids) logicNode).getPropertyPattern()) {
+                        if (patternNid == nid) {
+                            return true;
+                        }
+                    }
+                    break;
+                case ROLE_ALL:
+                    if (((RoleNodeAllWithNids) logicNode).getTypeConceptNid() == nid) {
+                        return true;
+                    }
+                    break;
+                case ROLE_SOME:
+                    if (((RoleNodeSomeWithNids) logicNode).getTypeConceptNid() == nid) {
+                        return true;
+                    }
+                    break;
+                case TEMPLATE:
+                    if (((TemplateNodeWithNids) logicNode).getTemplateConceptNid() == nid) {
+                        return true;
+                    }
+                    if (((TemplateNodeWithNids) logicNode).getAssemblageConceptNid() == nid) {
+                        return true;
+                    }
+                    break;
+
+
+                case DISJOINT_WITH:
+                case AND:
+                case OR:
+                case DEFINITION_ROOT:
+                case LITERAL_BOOLEAN:
+                case LITERAL_DOUBLE:
+                case LITERAL_INSTANT:
+                case LITERAL_INTEGER:
+                case LITERAL_STRING:
+                case NECESSARY_SET:
+                case PROPERTY_SET:
+                case SUBSTITUTION_BOOLEAN:
+                case SUBSTITUTION_CONCEPT:
+                case SUBSTITUTION_FLOAT:
+                case SUBSTITUTION_INSTANT:
+                case SUBSTITUTION_INTEGER:
+                case SUBSTITUTION_STRING:
+                case SUFFICIENT_SET:
+                default:
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public LogicalExpression replaceAllConceptOccurences(ConceptSpecification conceptToFind, ConceptSpecification replacementConcept) {
+        int nidToFind = conceptToFind.getNid();
+        int replacementNid = replacementConcept.getNid();
+        LogicalExpressionImpl newExpression = this.deepClone();
+        for (AbstractLogicNode logicNode: newExpression.logicNodes) {
+            switch (logicNode.getNodeSemantic()) {
+                case CONCEPT:
+                    if (((ConceptNodeWithNids) logicNode).getConceptNid() == nidToFind) {
+                        ((ConceptNodeWithNids) logicNode).setConceptNid(replacementNid);
+                    }
+                    break;
+                case FEATURE:
+                    if (((FeatureNodeWithNids) logicNode).getMeasureSemanticNid() == nidToFind) {
+                        ((FeatureNodeWithNids) logicNode).setMeasureSemanticNid(replacementNid);
+                    }
+                    if (((FeatureNodeWithNids) logicNode).getTypeConceptNid() == nidToFind) {
+                        ((FeatureNodeWithNids) logicNode).setTypeConceptNid(replacementNid);
+                    }
+                    break;
+                case PROPERTY_PATTERN_IMPLICATION:
+                    if (((PropertyPatternImplicationWithNids) logicNode).getPropertyImplication() == nidToFind) {
+                        ((PropertyPatternImplicationWithNids) logicNode).setPropertyImplication(replacementNid);
+                    }
+                    int[] propertyPattern = ((PropertyPatternImplicationWithNids) logicNode).getPropertyPattern();
+                    for (int i = 0; i < propertyPattern.length; i++) {
+                        if (propertyPattern[i] == nidToFind)  {
+                            propertyPattern[i] = replacementNid;
+                        }
+                    }
+                    break;
+                case ROLE_ALL:
+                    if (((RoleNodeAllWithNids) logicNode).getTypeConceptNid() == nidToFind) {
+                        ((RoleNodeAllWithNids) logicNode).setTypeConceptNid(replacementNid);
+                    }
+                    break;
+                case ROLE_SOME:
+                    if (((RoleNodeSomeWithNids) logicNode).getTypeConceptNid() == nidToFind) {
+                        ((RoleNodeSomeWithNids) logicNode).setTypeConceptNid(replacementNid);
+                    }
+                    break;
+                case TEMPLATE:
+                    if (((TemplateNodeWithNids) logicNode).getTemplateConceptNid() == nidToFind) {
+                        ((TemplateNodeWithNids) logicNode).setTemplateConceptNid(replacementNid);
+                    }
+                    if (((TemplateNodeWithNids) logicNode).getAssemblageConceptNid() == nidToFind) {
+                        ((TemplateNodeWithNids) logicNode).setAssemblageConceptNid(replacementNid);
+                    }
+                    break;
+
+
+                case DISJOINT_WITH:
+                case AND:
+                case OR:
+                case DEFINITION_ROOT:
+                case LITERAL_BOOLEAN:
+                case LITERAL_DOUBLE:
+                case LITERAL_INSTANT:
+                case LITERAL_INTEGER:
+                case LITERAL_STRING:
+                case NECESSARY_SET:
+                case PROPERTY_SET:
+                case SUBSTITUTION_BOOLEAN:
+                case SUBSTITUTION_CONCEPT:
+                case SUBSTITUTION_FLOAT:
+                case SUBSTITUTION_INSTANT:
+                case SUBSTITUTION_INTEGER:
+                case SUBSTITUTION_STRING:
+                case SUFFICIENT_SET:
+                default:
+            }
+        }
+        return newExpression;
+    }
+
+    LogicalExpressionImpl deepClone() {
+        return new LogicalExpressionImpl(this.getData(DataTarget.INTERNAL), DataSource.INTERNAL);
+    }
 }

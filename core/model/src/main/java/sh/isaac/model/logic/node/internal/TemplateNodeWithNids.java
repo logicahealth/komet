@@ -301,6 +301,9 @@ public final class TemplateNodeWithNids
    public int getAssemblageConceptNid() {
       return this.assemblageConceptNid;
    }
+   public void setAssemblageConceptNid(int assemblageConceptNid) {
+      this.assemblageConceptNid = assemblageConceptNid;
+   }
 
    /**
     * Gets the children.
@@ -333,6 +336,9 @@ public final class TemplateNodeWithNids
     */
    public int getTemplateConceptNid() {
       return this.templateConceptNid;
+   }
+   public void setTemplateConceptNid(int templateConceptNid) {
+      this.templateConceptNid = templateConceptNid;
    }
 }
 

@@ -93,7 +93,7 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
     private final SimpleSearchService                         searchService        = new SimpleSearchService();
     private final SimpleListProperty<Integer> draggedTaxonomyConceptsForFilteringListProperty =
             new SimpleListProperty<>(FXCollections.observableArrayList());
-    private Manifold                                          manifold;
+    private Manifold manifold;
     private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.SIMPLE_SEARCH.getIconographic());
 
     private final SimpleObjectProperty<ConceptSpecification> selectedConceptSpecificationProperty = new SimpleObjectProperty<>();
@@ -392,7 +392,7 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
             switch (newValue) {
                 case SUCCEEDED:
                     ObservableList<ObservableDescriptionVersion> tableItems = this.resultTable.getItems();
-                    ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold);
+                    ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold.getStampFilter());
 
                     if(this.searchService.getValue().size() == 0) {
                         this.resultTable.setPlaceholder(new Label("No Results Found..."));

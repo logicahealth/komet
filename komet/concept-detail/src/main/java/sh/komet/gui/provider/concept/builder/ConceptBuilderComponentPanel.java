@@ -19,7 +19,7 @@ package sh.komet.gui.provider.concept.builder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-import java.util.UUID;
+
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
@@ -117,7 +117,7 @@ public class ConceptBuilderComponentPanel
 
     //~--- constructors --------------------------------------------------------
     public ConceptBuilderComponentPanel(Manifold manifold,
-            ObservableVersion observableVersion, boolean independentCommit, StringProperty conceptText) {
+                                        ObservableVersion observableVersion, boolean independentCommit, StringProperty conceptText) {
         this.conceptText = conceptText;
         this.independentCommit = independentCommit;
         this.manifold = manifold;

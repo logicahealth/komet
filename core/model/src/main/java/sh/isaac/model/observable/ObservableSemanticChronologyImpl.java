@@ -59,10 +59,10 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.version.brittle.*;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableVersion;
@@ -286,13 +286,13 @@ public class ObservableSemanticChronologyImpl
    }
 
    @Override
-   public <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
-      return getSemanticChronology().getLatestVersion(coordinate);
+   public <V extends Version> LatestVersion<V> getLatestVersion(StampFilter stampFilter) {
+      return getSemanticChronology().getLatestVersion(stampFilter);
    }
 
    @Override
-   public boolean isLatestVersionActive(StampCoordinate coordinate) {
-      return getSemanticChronology().isLatestVersionActive(coordinate);
+   public boolean isLatestVersionActive(StampFilter stampFilter) {
+      return getSemanticChronology().isLatestVersionActive(stampFilter);
    }
 
    @Override

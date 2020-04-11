@@ -15,30 +15,12 @@
  */
 package sh.isaac.convert.directUtils;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiFunction;
-import java.util.function.BooleanSupplier;
 import org.apache.commons.lang.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevelException;
 import sh.isaac.MetaData;
-import sh.isaac.api.AssemblageService;
-import sh.isaac.api.DataTarget;
-import sh.isaac.api.Get;
-import sh.isaac.api.IdentifierService;
-import sh.isaac.api.Status;
-import sh.isaac.api.TaxonomyService;
+import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -50,18 +32,13 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.MutableComponentNidVersion;
-import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
-import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
-import sh.isaac.api.component.semantic.version.MutableStringVersion;
-import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.component.semantic.version.*;
+import sh.isaac.api.component.semantic.version.dynamic.*;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.coordinate.LanguageCoordinateImmutable;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpression;
@@ -72,9 +49,6 @@ import sh.isaac.api.util.metainf.VersionFinder;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.stats.LoadStats;
 import sh.isaac.model.concept.ConceptChronologyImpl;
-import sh.isaac.model.configuration.LanguageCoordinates;
-import sh.isaac.model.configuration.ManifoldCoordinates;
-import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.NecessarySetNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
@@ -85,6 +59,12 @@ import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.utility.Frills;
+
+import java.util.*;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
+import java.util.function.BooleanSupplier;
 
 /**
  * A class to help structure external terminologies into the system in a consistent way, especially with respect to metadata.
@@ -1288,14 +1268,14 @@ public class DirectWriteHelper
 	 * tag for the module re-using the constant.
 	 * 
 	 * @param existingConstant the existing concept
-	 * @param time the commit time - will be overridden, if we are merging with something newer, such that the resulting time is newer than the 
+	 * @param time the commit time - will be overridden, if we are merging with something newer, such that the resulting time is newer than the
 	 *        newest time in the merge source
-	 * @param stampCoordinate the stamp coordinate to use when reading the current graph
+	 * @param stampFilter the stamp coordinate to use when reading the current graph
 	 * @return the UUID of the updated graph
 	 */
-	public UUID linkToExistingAttributeTypeConcept(ConceptSpecification existingConstant, long time, StampCoordinate stampCoordinate)
+	public UUID linkToExistingAttributeTypeConcept(ConceptSpecification existingConstant, long time, StampFilter stampFilter)
 	{
-		List<LatestVersion<LogicGraphVersionImpl>> lgs = assemblageService.getSnapshot(LogicGraphVersionImpl.class, stampCoordinate)
+		List<LatestVersion<LogicGraphVersionImpl>> lgs = assemblageService.getSnapshot(LogicGraphVersionImpl.class, stampFilter)
 				.getLatestSemanticVersionsForComponentFromAssemblage(existingConstant.getNid(), MetaData.EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE____SOLOR.getNid());
 
 		if (lgs.size() == 0)
@@ -1842,8 +1822,8 @@ public class DirectWriteHelper
 			throw new RuntimeException("The concept " + concept + " " + name + " does not exist!");
 		}
 		
-		if (!Get.taxonomyService().getSnapshotNoTree(ManifoldCoordinates.getStatedManifoldCoordinate(StampCoordinates.getDevelopmentLatest(), 
-				LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate())).isChildOf(typeNid, Get.nidForUuids(parentTypesNode)))
+		if (!Get.taxonomyService().getSnapshotNoTree(ManifoldCoordinateImmutable.makeStated(Coordinates.Filter.DevelopmentLatest(),
+				Coordinates.Language.UsEnglishPreferredName())).isChildOf(typeNid, Get.nidForUuids(parentTypesNode)))
 		{
 			throw new RuntimeException("The existing concept " + concept + " " + name + " must be a child of the parentTypesNode " + parentTypesNode);
 		}	

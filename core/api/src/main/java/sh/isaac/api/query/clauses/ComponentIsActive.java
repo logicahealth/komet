@@ -19,15 +19,11 @@ package sh.isaac.api.query.clauses;
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
@@ -40,8 +36,6 @@ import sh.isaac.api.query.properties.StampCoordinateClause;
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class ComponentIsActive extends LeafClause implements StampCoordinateClause {
 
     /**
@@ -70,7 +64,7 @@ public class ComponentIsActive extends LeafClause implements StampCoordinateClau
     //~--- methods -------------------------------------------------------------
     @Override
     public final Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
-        StampCoordinate stampCoordinate = getLetItem(stampCoordinateKey);
+        StampFilter stampFilter = getLetItem(stampCoordinateKey);
         NidSet possibleComponents = incomingComponents.get(getAssemblageForIteration());
         for (int nid: possibleComponents.asArray()) {
             final Optional<? extends Chronology> chronology
@@ -78,7 +72,7 @@ public class ComponentIsActive extends LeafClause implements StampCoordinateClau
                             .getChronology(nid);
             if (chronology.isPresent()) {
                 if (!chronology.get()
-                        .isLatestVersionActive(stampCoordinate)) {
+                        .isLatestVersionActive(stampFilter)) {
                     possibleComponents.remove(nid);
                 }
             } else {
@@ -129,7 +123,6 @@ public class ComponentIsActive extends LeafClause implements StampCoordinateClau
         return whereClause;
     }
 
-    @XmlElement
     public LetItemKey getStampCoordinateKey() {
         return stampCoordinateKey;
     }

@@ -114,6 +114,7 @@ public enum ObservableFields
    /** The stated assemblage nid for logic coordinate. */
    STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("Stated assemblage nid for logic coordinate", "Stated assemblage"),
 
+   DIGRAPH_FOR_LOGIC_COORDINATE("Digraph for logic coordinate", "Digraph for logic coordinate"),
    /** The inferred assemblage nid for logic coordinate. */
    INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("Inferred assemblage nid for logic coordinate", "Inferred assemblage"),
 
@@ -126,10 +127,10 @@ public enum ObservableFields
    CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE("Concept assemblage for logic coordinate", "Concepts to classify"),
 
    /** The stamp precedence for stamp coordinate. */
-   STAMP_PRECEDENCE_FOR_STAMP_COORDINATE("Stamp precedence for stamp coordinate", "Precedence"),
+   STAMP_PRECEDENCE_FOR_STAMP_COORDINATE("Filter precedence for stamp coordinate", "Precedence"),
 
    /** The stamp position for stamp coordinate. */
-   STAMP_POSITION_FOR_STAMP_COORDINATE("Stamp position for stamp coordinate", "Stamp position"),
+   STAMP_POSITION_FOR_STAMP_COORDINATE("Filter position for stamp coordinate", "Filter position"),
 
    /** The module nid array for stamp coordinate. */
    MODULE_NID_ARRAY_FOR_STAMP_COORDINATE("Module nid array for stamp coordinate", "Modules for stamp coordinates"),
@@ -138,11 +139,12 @@ public enum ObservableFields
 
    AUTHOR_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Author specification set for stamp coordinate", "Author set"),
 
+   DIGRAPH_SPECIFICATION_SET("Digraph concept set", "Digraph set"),
    /** The allowed states for stamp coordinate. */
    ALLOWED_STATES_FOR_STAMP_COORDINATE("Allowed states for stamp coordinate", "Allowed states"),
 
    /** The path nid for stamp path. */
-   PATH_NID_FOR_STAMP_PATH("Path nid for stamp path", "Path nid for stamp path"),
+   PATH_FOR_PATH_COORDINATE("Path for path coordinate", "Path"),
 
    /** The path origin list for stamp path. */
    PATH_ORIGIN_LIST_FOR_STAMP_PATH("Path origin list for stamp path", "Path origin"),
@@ -156,11 +158,16 @@ public enum ObservableFields
    /** The premise type for taxonomy coordinate. */
    PREMISE_TYPE_FOR_TAXONOMY_COORDINATE("Premise type for taxonomy coordinate", "Premise"),
 
+   STAMP_FILTER_FOR_VERTEX("Filter filter for vertex", "Vertex filter"),
+   STAMP_FILTER_FOR_EDGE("Filter filter for edge", "Edge filter"),
+   STAMP_FILTER_FOR_LANGUAGE("Filter filter for language", "Language filter"),
+
+
    /** The stamp coordinate for taxonomy coordinate. */
-   STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE("Stamp coordinate for taxonomy coordinate", "Stamp coordinate for taxonomy"),
+   STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE("Filter coordinate for taxonomy coordinate", "Filter coordinate for taxonomy"),
    
    /** The stamp coordinate for taxonomy coordinate. */
-   STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE_DESTINATION("Stamp coordinate for taxonomy coordinate destination", "Stamp coordinate for taxonomy destination"),
+   STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE_DESTINATION("Filter coordinate for taxonomy coordinate destination", "Filter coordinate for taxonomy destination"),
 
    /** The language coordinate for taxonomy coordinate. */
    LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE("Language coordinate for taxonomy coordinate", "Language coordinate"),
@@ -168,8 +175,12 @@ public enum ObservableFields
    /** The logic coordinate for taxonomy coordinate. */
    LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE("Logic coordinate for taxonomy coordinate", "Logic coordinate"),
 
+   VERTEX_SORT_PROPERTY("Vertex sort for manifold", "Vertex sort"),
+   DIGRAPH_PROPERTY("Digraph for manifold", "Digraph"),
+   STAMP_FILTER_FOR_PATH("Filter filter for manifold", "Filter filter"),
+
    /** The uuid for taxonomy coordinate. */
-   UUID_FOR_TAXONOMY_COORDINATE("UUID for taxonomy coordinate", "Coordinate UUID"),
+   UUID_FOR_TAXONOMY_COORDINATE("UUID for taxonomy coordinate", "ImmutableCoordinate UUID"),
 
    /** The case significance concept nid for description. */
    CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION("Case significance concept nid for description", "Case significance"),
@@ -309,7 +320,7 @@ public enum ObservableFields
    
    UNSTRUCTURED_CIRCUMSTANCE_TEXT("Unstructured circumstance text", "Text"),
    
-   STATEMENT_STAMP_COORDINATE("Stamp coordinate"),
+   STATEMENT_STAMP_COORDINATE("Filter coordinate"),
    
    STATEMENT_MODE("Statement mode", "Statement mode"),
    

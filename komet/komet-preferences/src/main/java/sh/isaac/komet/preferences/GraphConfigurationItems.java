@@ -20,11 +20,9 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.util.UuidStringKey;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 
 import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.*;

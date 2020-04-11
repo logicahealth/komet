@@ -104,7 +104,7 @@ public class ConceptForControlWrapper
    @Override
    public String getFullyQualifiedName() {
       if (conceptNid != 0) {
-         return this.manifold.getFullySpecifiedDescriptionText(this.conceptNid);
+         return this.manifold.getFullyQualifiedDescriptionText(this.conceptNid);
       }
       return "unspecified";
    }
@@ -112,7 +112,7 @@ public class ConceptForControlWrapper
    @Override
    public Optional<String> getRegularName() {
       if (conceptNid != 0) {
-         return this.manifold.getRegularName(this.conceptNid);
+         return Optional.ofNullable(this.manifold.getPreferredDescriptionText(this.conceptNid));
       }
       return Optional.empty();
    }

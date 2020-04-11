@@ -33,7 +33,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
@@ -128,8 +128,8 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
    }
 
    @Override
-   public LatestVersion<? extends ObservableVersion> getLatestVersion(Class<? extends StampedVersion> type, StampCoordinate coordinate) {
-      return getChronology().getLatestVersion(type, coordinate);
+   public LatestVersion<? extends ObservableVersion> getLatestVersion(Class<? extends StampedVersion> type, StampFilter stampFilter) {
+      return getChronology().getLatestVersion(type, stampFilter);
    }
 
    @Override
@@ -148,18 +148,18 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
    }
 
    @Override
-   public <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
-      return getChronology().getLatestVersion(coordinate);
+   public <V extends Version> LatestVersion<V> getLatestVersion(StampFilter stampFilter) {
+      return getChronology().getLatestVersion(stampFilter);
    }
 
    @Override
-   public <V extends Version> CategorizedVersions<V> getCategorizedVersions(StampCoordinate coordinate) {
-      return getChronology().getCategorizedVersions(coordinate);
+   public <V extends Version> CategorizedVersions<V> getCategorizedVersions(StampFilter stampFilter) {
+      return getChronology().getCategorizedVersions(stampFilter);
    }
 
    @Override
-   public boolean isLatestVersionActive(StampCoordinate coordinate) {
-      return getChronology().isLatestVersionActive(coordinate);
+   public boolean isLatestVersionActive(StampFilter stampFilter) {
+      return getChronology().isLatestVersionActive(stampFilter);
    }
 
    @Override
@@ -194,8 +194,8 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
    }
 
    @Override
-   public <V extends StampedVersion> List<V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
-      return getChronology().getVisibleOrderedVersionList(stampCoordinate);
+   public <V extends StampedVersion> List<V> getVisibleOrderedVersionList(StampFilter stampFilter) {
+      return getChronology().getVisibleOrderedVersionList(stampFilter);
    }
 
    @Override
@@ -289,8 +289,8 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
    }
 
    @Override
-   public <V extends Version> LatestVersion<V> getLatestCommittedVersion(StampCoordinate coordinate) {
-      return getChronology().getLatestCommittedVersion(coordinate);
+   public <V extends Version> LatestVersion<V> getLatestCommittedVersion(StampFilter stampFilter) {
+      return getChronology().getLatestCommittedVersion(stampFilter);
    }
 
    @Override
@@ -304,8 +304,8 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
     }
 
     @Override
-    public <V extends ObservableVersion> LatestVersion<V> getLatestObservableVersion(StampCoordinate coordinate) {
-        return getChronology().getLatestObservableVersion(coordinate);
+    public <V extends ObservableVersion> LatestVersion<V> getLatestObservableVersion(StampFilter stampFilter) {
+        return getChronology().getLatestObservableVersion(stampFilter);
     }
    
 }

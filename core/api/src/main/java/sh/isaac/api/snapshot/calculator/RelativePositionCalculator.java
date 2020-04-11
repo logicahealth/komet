@@ -41,42 +41,39 @@ package sh.isaac.api.snapshot.calculator;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.time.Instant;
-
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.inject.Singleton;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.mahout.math.list.IntArrayList;
-import org.apache.mahout.math.set.OpenIntHashSet;
-
+import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-
-
 import org.roaringbitmap.IntConsumer;
 import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.RoaringIntSet;
+import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampCoordinateReadOnly;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.coordinate.StampPosition;
-import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.coordinate.StatusSet;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
+
+import javax.annotation.PreDestroy;
+import javax.inject.Singleton;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicInteger;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 
@@ -86,12 +83,16 @@ import sh.isaac.api.observable.ObservableVersion;
  * @author kec
  */
 @Service
-@Singleton  // Singleton from the perspective of HK2 managed instances
-public class RelativePositionCalculator implements StaticIsaacCache {
+@RunLevel(value = LookupService.SL_L2)
+// Singleton from the perspective of HK2 managed instances, there will be more than one
+// RelativePositionCalculator created in normal use.
+public class RelativePositionCalculator {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
-   private static RelativePositionCalculator lastCalculator = null;
+   private static final ConcurrentReferenceHashMap<StampFilterImmutable, RelativePositionCalculator> SINGLETONS =
+           new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
+                   ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
    //~--- fields --------------------------------------------------------------
 
@@ -100,8 +101,8 @@ public class RelativePositionCalculator implements StaticIsaacCache {
    private StampService stampService;
 
    /** The coordinate. */
-   private StampCoordinateReadOnly coordinate;
-   private EnumSet<Status>  allowedStates;
+   private final StampFilterImmutable filter;
+   private final StatusSet allowedStates;
    private final ConcurrentHashMap<Integer, Boolean> stampOnRoute = new ConcurrentHashMap<>();
    private final ConcurrentHashMap<Integer, Boolean> stampIsAllowedState = new ConcurrentHashMap<>();
 
@@ -119,18 +120,21 @@ public class RelativePositionCalculator implements StaticIsaacCache {
     */
    private RelativePositionCalculator() {
       // No arg constructor for HK2 managed instance
+      // This instance just enables reset functionality...
+      this.filter = null;
+      this.allowedStates = null;
    }
 
    /**
     * Instantiates a new relative position calculator.
     *
-    * @param coordinate the coordinate
+    * @param filter the coordinate
     */
-   private RelativePositionCalculator(StampCoordinateReadOnly coordinate) {
+   private RelativePositionCalculator(StampFilterImmutable filter) {
       //For the internal callback to populate the cache
-      this.coordinate             = coordinate;
-      this.pathNidSegmentMap = setupPathNidSegmentMap(coordinate.getStampPosition());
-      this.allowedStates          = coordinate.getAllowedStates();
+      this.filter = filter;
+      this.pathNidSegmentMap = setupPathNidSegmentMap(filter.getStampPosition());
+      this.allowedStates          = filter.getAllowedStates();
    }
 
    //~--- methods -------------------------------------------------------------
@@ -140,12 +144,10 @@ public class RelativePositionCalculator implements StaticIsaacCache {
     *
     * @param stampSequence1 the stamp sequence 1
     * @param stampSequence2 the stamp sequence 2
-    * @param precedencePolicy the precedence policy
     * @return the relative position
     */
    public RelativePosition fastRelativePosition(int stampSequence1,
-         int stampSequence2,
-         StampPrecedence precedencePolicy) {
+         int stampSequence2) {
       final long ss1Time           = getStampService()
                                         .getTimeForStamp(stampSequence1);
       final int  ss1ModuleNid = getStampService()
@@ -192,20 +194,6 @@ public class RelativePositionCalculator implements StaticIsaacCache {
          return RelativePosition.UNREACHABLE;
       }
 
-      if (precedencePolicy == StampPrecedence.TIME) {
-         if (ss1Time < ss2Time) {
-            return RelativePosition.BEFORE;
-         }
-
-         if (ss1Time > ss2Time) {
-            return RelativePosition.AFTER;
-         }
-
-         if (ss1Time == ss2Time) {
-            return RelativePosition.EQUAL;
-         }
-      }
-
       if (seg1.precedingSegments.contains(seg2.segmentSequence)) {
          return RelativePosition.BEFORE;
       }
@@ -222,12 +210,10 @@ public class RelativePositionCalculator implements StaticIsaacCache {
     *
     * @param v1 the v 1
     * @param v2 the v 2
-    * @param precedencePolicy the precedence policy
     * @return the relative position
     */
    public RelativePosition fastRelativePosition(StampedVersion v1,
-         StampedVersion v2,
-         StampPrecedence precedencePolicy) {
+         StampedVersion v2) {
       if (v1.getPathNid() == v2.getPathNid()) {
          final Segment seg = this.pathNidSegmentMap.get(v1.getPathNid());
 
@@ -272,20 +258,6 @@ public class RelativePositionCalculator implements StaticIsaacCache {
       if (!(seg1.containsPosition(v1.getPathNid(), v1.getModuleNid(), v1.getTime()) &&
             seg2.containsPosition(v2.getPathNid(), v2.getModuleNid(), v2.getTime()))) {
          return RelativePosition.UNREACHABLE;
-      }
-
-      if (precedencePolicy == StampPrecedence.TIME) {
-         if (v1.getTime() < v2.getTime()) {
-            return RelativePosition.BEFORE;
-         }
-
-         if (v1.getTime() > v2.getTime()) {
-            return RelativePosition.AFTER;
-         }
-
-         if (v1.getTime() == v2.getTime()) {
-            return RelativePosition.EQUAL;
-         }
       }
 
       if (seg1.precedingSegments.contains(seg2.segmentSequence)) {
@@ -353,7 +325,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
          return RelativePosition.UNREACHABLE;
       }
 
-      return fastRelativePosition(stampSequence1, stampSequence2, StampPrecedence.PATH);
+      return fastRelativePosition(stampSequence1, stampSequence2);
    }
 
    /**
@@ -368,7 +340,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
          return RelativePosition.UNREACHABLE;
       }
 
-      return fastRelativePosition(v1, v2, StampPrecedence.PATH);
+      return fastRelativePosition(v1, v2);
    }
 
    /**
@@ -378,7 +350,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
     */
    @Override
    public String toString() {
-      return "RelativePositionCalculator{" + this.coordinate + '}';
+      return "RelativePositionCalculator{" + this.filter + '}';
    }
 
    /**
@@ -397,17 +369,16 @@ public class RelativePositionCalculator implements StaticIsaacCache {
          ConcurrentSkipListSet<Integer> precedingSegments) {
       final Segment segment = new Segment(
                                   segmentSequence.getAndIncrement(),
-                                  destination.getStampPathSpecification().getNid(),
+                                  destination.getPathConcept().getNid(),
                                   destination.getTime(),
                                   precedingSegments);
 
       // precedingSegments is cumulative, each recursive call adds another
       precedingSegments.add(segment.segmentSequence);
-      pathNidSegmentMap.put(destination.getStampPathSpecification().getNid(), segment);
-      destination.getStampPath()
-                 .getPathOrigins()
+      pathNidSegmentMap.put(destination.getPathForPositionNid(), segment);
+      destination.getPathOrigins()
                  .stream()
-                 .forEach((origin) -> {
+                 .forEach((StampPosition origin) -> {
          // Recursive call
                         addOriginsToPathNidSegmentMap(
                             origin,
@@ -431,7 +402,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
       final List<StampedVersion> partsToCompare = new ArrayList<>(partsForPosition);
 
       for (final StampedVersion prevPartToTest: partsToCompare) {
-         switch (fastRelativePosition(part, prevPartToTest, this.coordinate.getStampPrecedence())) {
+         switch (fastRelativePosition(part, prevPartToTest)) {
          case AFTER:
             partsForPosition.remove((V) prevPartToTest);
             partsForPosition.add((V) part);
@@ -504,7 +475,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
       final RoaringBitmap stampsToCompare = stampsForPosition.clone();
 
       stampsToCompare.forEach((IntConsumer) prevStamp -> {
-         switch (fastRelativePosition(stampSequence, prevStamp, coordinate.getStampPrecedence())) {
+         switch (fastRelativePosition(stampSequence, prevStamp)) {
             case AFTER:
                stampsForPosition.remove(prevStamp);
                stampsForPosition.add(stampSequence);
@@ -549,8 +520,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
                throw new UnsupportedOperationException(
                        "n Can't handle: " + fastRelativePosition(
                                stampSequence,
-                               prevStamp,
-                               RelativePositionCalculator.this.coordinate.getStampPrecedence()));
+                               prevStamp));
          }
       });
 
@@ -585,6 +555,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
       }
       return this.stampService;
    }
+
    private boolean isAllowedState(int stampSequence) {
       if (stampIsAllowedState.containsKey(stampSequence)) {
          return stampIsAllowedState.get(stampSequence);
@@ -597,39 +568,13 @@ public class RelativePositionCalculator implements StaticIsaacCache {
    /**
     * Gets the calculator.
     *
-    * @param coordinate the coordinate
+    * @param filter the filter
     * @return the calculator
     */
-   public static RelativePositionCalculator getCalculator(StampCoordinate coordinate) {
-       RelativePositionCalculator calcToTry = lastCalculator;
-       if (calcToTry != null) {
-           if (calcToTry.coordinate == coordinate) {
-               return calcToTry;
-           }
-       }
-
-      calcToTry = new RelativePositionCalculator(coordinate.getStampCoordinateReadOnly());
-      lastCalculator = calcToTry;
-
-      return calcToTry;
+   public static RelativePositionCalculator getCalculator(StampFilterImmutable filter) {
+      return SINGLETONS.computeIfAbsent(filter,
+              digraphCoordinateImmutable -> new RelativePositionCalculator(filter));
    }
-
-
-   /**
-    * Gets the destination.
-    *
-    * @return the destination
-    */
-   public StampPosition getDestination() {
-      return this.coordinate.getStampPosition();
-   }
-
-// private class StampSequenceSetSupplier implements Supplier<StampSequenceSet> {
-//     @Override
-//     public StampSequenceSet get() {
-//         return new StampSequenceSet();
-//     }
-// };
 
    /**
     * Checks if latest active.
@@ -748,7 +693,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
                       }
                    });
 
-      if (Status.isActiveOnlySet(this.coordinate.getAllowedStates())) {
+      if (this.filter.getAllowedStates().isActiveOnly()) {
          final HashSet<V> inactiveVersions = new HashSet<>();
 
          latestVersionSet.stream()
@@ -876,8 +821,8 @@ public class RelativePositionCalculator implements StaticIsaacCache {
        * @return true, if successful
        */
       private boolean containsPosition(int pathConceptNid, int moduleConceptNid, long time) {
-         if (RelativePositionCalculator.this.coordinate.getModuleNids().isEmpty() ||
-               RelativePositionCalculator.this.coordinate.getModuleNids().contains(moduleConceptNid)) {
+         if (RelativePositionCalculator.this.filter.getModuleNids().isEmpty() ||
+               RelativePositionCalculator.this.filter.getModuleNids().contains(moduleConceptNid)) {
             if ((this.pathConceptNid == pathConceptNid) && (time != Long.MIN_VALUE)) {
                return time <= this.endTime;
             }
@@ -890,9 +835,9 @@ public class RelativePositionCalculator implements StaticIsaacCache {
    /** 
     * {@inheritDoc}
     */
-   @Override
+   @PreDestroy
    public void reset() {
-      lastCalculator = null;
+      SINGLETONS.clear();
    }
 }
 

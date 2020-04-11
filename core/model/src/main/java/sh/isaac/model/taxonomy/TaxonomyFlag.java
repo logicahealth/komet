@@ -38,14 +38,11 @@ package sh.isaac.model.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Collection;
 import java.util.EnumSet;
-import java.util.Iterator;
-import java.util.concurrent.ConcurrentHashMap;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.PremiseType;
 
 //~--- enums ------------------------------------------------------------------
 
@@ -150,11 +147,11 @@ public enum TaxonomyFlag {
     /**
      * Gets the flags from taxonomy coordinate.
      *
-     * @param viewCoordinate the view coordinate
+     * @param premiseType the view coordinate
      * @return the flags from taxonomy coordinate
      */
-    public static int getFlagsFromManifoldCoordinate(ManifoldCoordinate viewCoordinate) {
-        switch (viewCoordinate.getTaxonomyPremiseType()) {
+    public static int getFlagsFromPremiseType(PremiseType premiseType) {
+        switch (premiseType) {
             case INFERRED:
                 return TaxonomyFlag.INFERRED.bits;
 
@@ -162,7 +159,7 @@ public enum TaxonomyFlag {
                 return TaxonomyFlag.STATED.bits;
 
             default:
-                throw new UnsupportedOperationException("no support for: " + viewCoordinate.getTaxonomyPremiseType());
+                throw new UnsupportedOperationException("no support for: " + premiseType);
         }
     }
 

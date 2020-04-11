@@ -139,10 +139,10 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     
     @Override
     public List<Action> getEditLogicalExpressionNodeMenuItems(Manifold manifold,
-            LogicNode nodeToEdit,
-            LogicalExpression expressionContiningNode,
-            Consumer<LogicalExpression> expressionUpdater, 
-            MouseEvent mouseEvent) {
+                                                              LogicNode nodeToEdit,
+                                                              LogicalExpression expressionContiningNode,
+                                                              Consumer<LogicalExpression> expressionUpdater,
+                                                              MouseEvent mouseEvent) {
         AddEditLogicalExpressionNodeMenuItems executionItem
                 = new AddEditLogicalExpressionNodeMenuItems(manifold, nodeToEdit,
                         expressionContiningNode, expressionUpdater, mouseEvent);
@@ -153,7 +153,7 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     
     @Override
     public List<MenuItem> getEditVersionMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
-            Consumer<PropertySheetMenuItem> propertySheetConsumer) {
+                                                  Consumer<PropertySheetMenuItem> propertySheetConsumer) {
         AddEditVersionMenuItems executionItem = new AddEditVersionMenuItems(manifold, categorizedVersion, propertySheetConsumer);
         this.staticSession.execute(executionItem);
         if (this.dynamicSession != null) {
@@ -164,7 +164,7 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     
     @Override
     public List<MenuItem> getAddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
-            BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
+                                                    BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
         AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifold, categorizedVersion, newAttachmentConsumer);
         this.staticSession.execute(executionItem);
         if (this.dynamicSession != null) {

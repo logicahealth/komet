@@ -53,7 +53,7 @@ import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -72,18 +72,18 @@ public interface LogicService {
     * 
     * Implementors should likely override the provided StampCoordinate time with NOW, if it is passed in with latest.
     *
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @param logicCoordinate the logic coordinate
     * @param editCoordinate the edit coordinate
     * @return the classifier service
     */
-   ClassifierService getClassifierService(StampCoordinate stampCoordinate,
-         LogicCoordinate logicCoordinate,
-         EditCoordinate editCoordinate);
+   ClassifierService getClassifierService(StampFilter stampFilter,
+                                          LogicCoordinate logicCoordinate,
+                                          EditCoordinate editCoordinate);
    
    default ClassifierService getClassifierService(ManifoldCoordinate coordinate,
          EditCoordinate editCoordinate) {
-      return getClassifierService(coordinate, coordinate, editCoordinate);
+      return getClassifierService(coordinate.getStampFilter(), coordinate.getLogicCoordinate(), editCoordinate);
    }
 
    /**
@@ -91,12 +91,12 @@ public interface LogicService {
     *
     * @param conceptId the concept id
     * @param logicAssemblageId the logic assemblage id
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the logical expression
     */
    LatestVersion<? extends LogicalExpression> getLogicalExpression(int conceptId,
-         int logicAssemblageId,
-         StampCoordinate stampCoordinate);
+                                                                   int logicAssemblageId,
+                                                                   StampFilter stampFilter);
 
    /**
     *

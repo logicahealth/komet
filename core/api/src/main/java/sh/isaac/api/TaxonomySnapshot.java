@@ -45,6 +45,9 @@ package sh.isaac.api;
 //~--- non-JDK imports --------------------------------------------------------
 
 import java.util.Collection;
+
+import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.Tree;
@@ -103,7 +106,7 @@ public interface TaxonomySnapshot {
     * @param rootConceptNid the root id
     * @return the kind of nid set
     */
-   NidSet getKindOfConceptNidSet(int rootConceptNid);
+   ImmutableIntSet getKindOfConcept(int rootConceptNid);
 
    /**
     * Gets the roots.
@@ -133,14 +136,14 @@ public interface TaxonomySnapshot {
     * @param parentConceptNid
     * @return an Iterable of all the parent taxonomy links. 
     */
-   Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid);
+   ImmutableCollection<Edge> getTaxonomyParentLinks(int parentConceptNid);
 
    /**
     * For circumstances where there is more than one type of relationship in the taxonomy. 
     * @param childConceptNid
     * @return an Iterable of all the child taxonomy links. 
     */
-   Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid);
+   ImmutableCollection<Edge> getTaxonomyChildLinks(int childConceptNid);
    
    /**
     * Gets the taxonomy tree.
@@ -154,12 +157,6 @@ public interface TaxonomySnapshot {
     * @return ManifoldCoordinate
     */
    ManifoldCoordinate getManifoldCoordinate();
-   /**
-    * 
-    * @param manifoldCoordinate
-    * @return An analog snapshot that uses the provided manifold coordinate.
-    */
-   TaxonomySnapshot makeAnalog(ManifoldCoordinate manifoldCoordinate);
-   
+
 }
 

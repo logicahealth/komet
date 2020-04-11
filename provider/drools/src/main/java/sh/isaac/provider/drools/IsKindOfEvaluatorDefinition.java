@@ -16,7 +16,6 @@
  */
 package sh.isaac.provider.drools;
 
-import java.util.concurrent.ExecutionException;
 import org.drools.core.base.BaseEvaluator;
 import org.drools.core.base.ValueType;
 import org.drools.core.base.evaluators.EvaluatorDefinition;
@@ -66,7 +65,7 @@ public class IsKindOfEvaluatorDefinition extends IsaacBaseEvaluatorDefinition im
            } else {
               throw new UnsupportedOperationException("Can't convert: " + value2);
            }
-           if (!possibleKind.getCoordinateUuid().equals(parentKind.getCoordinateUuid())) {
+           if (!possibleKind.getManifoldCoordinateUuid().equals(parentKind.getManifoldCoordinateUuid())) {
               throw new UnsupportedOperationException("Snapshots have different manifold coordinates: \n"
                       + " possibleKind: " + possibleKind
                       + " parentKind: " + parentKind

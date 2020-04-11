@@ -83,7 +83,6 @@ public class ConceptDetailTreeTableNode
     public ConceptDetailTreeTableNode(Manifold conceptDetailManifold) {
         try {
             this.manifoldProperty.set(conceptDetailManifold);
-            this.manifoldProperty.get().getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
 
             conceptDetailManifold.manifoldSelectionProperty().addListener(this::updateTitleListener);
             this.conceptLabelToolbar = ConceptLabelToolbar.make(this.manifoldProperty, this.selectionIndexProperty,
@@ -131,7 +130,7 @@ public class ConceptDetailTreeTableNode
             titleProperty.set(this.manifoldProperty.get().getPreferredDescriptionText(optionalConcept.get()));
             toolTipProperty.set(
                     "concept details for: "
-                            + this.manifoldProperty.get().getFullySpecifiedDescriptionText(
+                            + this.manifoldProperty.get().getFullyQualifiedDescriptionText(
                             optionalConcept.get()));
         }
     }

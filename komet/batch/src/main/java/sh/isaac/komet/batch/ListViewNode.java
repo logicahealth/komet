@@ -15,8 +15,6 @@ import sh.komet.gui.manifold.Manifold;
 import java.io.IOException;
 import java.util.Optional;
 
-import static sh.isaac.komet.batch.ListViewFactory.LIST_VIEW;
-
 public class ListViewNode implements ExplorationNode {
     public enum Keys {
         MANIFOLD_GROUP_NAME,

@@ -89,7 +89,6 @@ import sh.isaac.model.logic.node.internal.PropertyPatternImplicationWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
-import sh.komet.gui.control.concept.ConceptLabel;
 import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.drag.drop.IsaacClipboard;
 import sh.komet.gui.manifold.Manifold;
@@ -351,7 +350,7 @@ public class AxiomView {
 
     private void commitEdit(Event event) {
 
-        LatestVersion<LogicGraphVersion> latestVersion = manifold.getStatedLogicGraphVersion(this.expression.getConceptBeingDefinedNid());
+        LatestVersion<LogicGraphVersion> latestVersion = manifold.getStatedLogicalDefinition(this.expression.getConceptBeingDefinedNid());
         if (latestVersion.isPresent()) {
             LogicGraphVersion version = latestVersion.get();
             ObservableSemanticChronologyImpl observableSemanticChronology = new ObservableSemanticChronologyImpl(version.getChronology());
@@ -419,7 +418,7 @@ public class AxiomView {
                     titleLabel.setText(manifold.getPreferredDescriptionText(conceptNode.getConceptNid()));
 
 
-                    LatestVersion<Version> latest = Get.concept(conceptNode.getConceptNid()).getLatestVersion(manifold);
+                    LatestVersion<Version> latest = manifold.getStampFilter().latestConceptVersion(conceptNode.getConceptNid());
                     if (latest.isPresent()) {
                         Status latestStatus = latest.get().getStatus();
                         titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false,
@@ -639,7 +638,7 @@ public class AxiomView {
 
                     ConceptChronology cc = Get.concept(expression.getConceptBeingDefinedNid());
 
-                    LatestVersion<Version> latest = cc.getLatestVersion(manifold);
+                    LatestVersion<Version> latest = cc.getLatestVersion(manifold.getStampFilter());
                     if (latest.isPresent()) {
                         titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
                                 latest.get().getStatus(), manifold, premiseType));
@@ -859,8 +858,12 @@ public class AxiomView {
                     conceptNid = logicNode.getNidForConceptBeingDefined();
             }
 
-            IsaacClipboard content = new IsaacClipboard(Get.concept(conceptNid));
-            db.setContent(content);
+            try {
+                IsaacClipboard content = new IsaacClipboard(Get.concept(conceptNid));
+                db.setContent(content);
+            } catch (Exception e) {
+                FxGet.dialogs().showErrorDialog("Error dragging object...", e.getClass().getSimpleName() + " during drag.", e.getLocalizedMessage());
+            }
             event.consume();
         }
 

@@ -37,20 +37,6 @@
 
 package sh.isaac.convert.mojo.rf2Direct;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.Future;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.plugin.MojoExecutionException;
@@ -61,25 +47,32 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.coordinate.LanguageCoordinateImmutable;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
-import sh.isaac.model.configuration.LanguageCoordinates;
-import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.pombuilder.converter.ContentConverterCreator;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.solor.ContentProvider;
-import sh.isaac.solor.direct.DirectImporter;
-import sh.isaac.solor.direct.ImportType;
-import sh.isaac.solor.direct.LoincExpressionToConcept;
-import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
-import sh.isaac.solor.direct.Rf2RelationshipTransformer;
+import sh.isaac.solor.direct.*;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.concurrent.Future;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * Stub class to keep the various dynamic class loaders happy...
@@ -95,7 +88,7 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 
 	/**
 	 * This constructor is for maven and HK2 and should not be used at runtime.  You should
-	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
+	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter)} method on it.
 	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
 	 */
 	protected RF2ImportHK2Direct() {
@@ -148,13 +141,13 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	}
 	
 	@Override
-	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate)
+	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter)
 	{
 		this.outputDirectory = outputDirectory;
 		this.inputFileLocationPath = inputFolder;
 		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
 		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		this.readbackCoordinate = stampCoordinate == null ? StampCoordinates.getDevelopmentLatest() : stampCoordinate;
+		this.readbackCoordinate = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
 	}
 
 	@Override
@@ -212,7 +205,7 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	
 				log.info("Adding navigation concepts...");
 				LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(transaction,
-						new ManifoldCoordinateImpl(readbackCoordinate, LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()));
+						ManifoldCoordinateImmutable.makeStated(readbackCoordinate, Coordinates.Language.UsEnglishFullyQualifiedName()));
 				Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
 				addNavigationConceptsTask.get();
 			}

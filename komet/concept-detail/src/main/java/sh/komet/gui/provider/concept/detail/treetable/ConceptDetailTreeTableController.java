@@ -39,8 +39,6 @@ package sh.komet.gui.provider.concept.detail.treetable;
 //~--- JDK imports ------------------------------------------------------------
 import java.net.URL;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.ResourceBundle;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -48,7 +46,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 
@@ -64,11 +61,7 @@ import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersions;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
-import sh.isaac.api.observable.ObservableChronology;
-import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.komet.gui.cell.treetable.TreeTableAuthorTimeCellFactory;
 import sh.komet.gui.cell.treetable.TreeTableConceptCellFactory;
@@ -217,7 +210,7 @@ public class ConceptDetailTreeTableController {
                          selectionList.get(this.selectionIndexProperty.get()).getNid());
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions
                  = observableConceptChronology.getCategorizedVersions(
-                 manifoldProperty.get());
+                 manifoldProperty.get().getStampFilter());
 
          TreeItem<ObservableCategorizedVersion> assemblageRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
          addChildren(assemblageRoot, observableConceptChronology.getObservableSemanticList().sorted(), true);
@@ -230,7 +223,7 @@ public class ConceptDetailTreeTableController {
                             ObservableList<ObservableSemanticChronology> children, boolean addSemantics) {
       for (ObservableSemanticChronology child : children) {
          TreeItem<ObservableCategorizedVersion> parentToAddTo = parent;
-         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(getManifold());
+         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(getManifold().getStampFilter());
 
          if (categorizedVersions.getLatestVersion()
                  .isPresent()) {

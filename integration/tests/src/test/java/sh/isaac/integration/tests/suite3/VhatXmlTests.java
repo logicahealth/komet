@@ -1,35 +1,7 @@
 package sh.isaac.integration.tests.suite3;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.prefs.BackingStoreException;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathConstants;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathExpressionException;
-import javax.xml.xpath.XPathFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.maven.plugin.logging.SystemStreamLog;
 import org.jvnet.testing.hk2testng.HK2;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
@@ -54,8 +26,7 @@ import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.SystemPropertyConstants;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.convert.delta.vhat.VHATDeltaImport;
@@ -63,10 +34,19 @@ import sh.isaac.misc.associations.AssociationInstance;
 import sh.isaac.misc.associations.AssociationUtilities;
 import sh.isaac.misc.constants.VHATConstants;
 import sh.isaac.misc.exporters.VetsExporter;
-import sh.isaac.model.configuration.LanguageCoordinates;
-import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.mojo.LoadTermstore;
 import sh.isaac.utility.Frills;
+
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.xpath.*;
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
+import java.util.prefs.BackingStoreException;
 
 /**
  *
@@ -819,7 +799,7 @@ public class VhatXmlTests
             // Test concepts imported
 //         Get.startIndexTask((Class<IndexServiceBI>[])null).get();
 
-            StampCoordinate activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampCoordinate();
+            StampFilter activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampFilter();
 
             Assert.assertTrue(propertyTypeExists(activeStampCoord, "AAA_VistA_CVX_Code"));
             Assert.assertTrue(relationshipTypeExists(activeStampCoord, "aaa_vista_has_newflag"));
@@ -972,7 +952,7 @@ public class VhatXmlTests
             // Test concepts imported
 //         Get.startIndexTask((Class<IndexServiceBI>[])null).get();
 
-            StampCoordinate activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampCoordinate();
+            StampFilter activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampFilter();
 
             Assert.assertTrue(this.subsetExists(activeStampCoord, "AAA SQA New Imm Procedures", -601L));
             Assert.assertTrue(this.subsetExists(activeStampCoord, "AAA SQA Laboratory Tests", -602L));
@@ -1033,7 +1013,7 @@ public class VhatXmlTests
             // Test concepts imported
 //         Get.startIndexTask((Class<IndexServiceBI>[])null).get();
 
-            StampCoordinate activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampCoordinate();
+            StampFilter activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampFilter();
             Optional<Integer> nid = Frills.getNidForVUID(-506L);
             Assert.assertTrue(nid.isPresent());
 
@@ -1212,7 +1192,7 @@ public class VhatXmlTests
             // Test concepts imported
 //         Get.startIndexTask((Class<IndexServiceBI>[])null).get();
 //
-            StampCoordinate activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampCoordinate();
+            StampFilterImmutable activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampFilter().toStampFilterImmutable();
             Optional<Integer> nid = Frills.getNidForVUID(-505L);
             Assert.assertTrue(nid.isPresent());
 
@@ -1274,7 +1254,7 @@ public class VhatXmlTests
             // Test concepts imported
 //         Get.startIndexTask((Class<IndexServiceBI>[])null).get();
 //
-            StampCoordinate activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampCoordinate();
+            StampFilterImmutable activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampFilter().toStampFilterImmutable();
             Optional<Integer> nid = Frills.getNidForVUID(-505L);
             Assert.assertTrue(nid.isPresent());
 
@@ -1599,7 +1579,7 @@ public class VhatXmlTests
             // Test concepts imported
 //         Get.startIndexTask((Class<IndexServiceBI>[])null).get();
 
-            StampCoordinate stampCoord = Get.coordinateFactory().createDevelopmentLatestStampCoordinate();
+            StampFilterImmutable stampCoord = Get.coordinateFactory().createDevelopmentLatestStampFilter().toStampFilterImmutable();
             Optional<Integer> nid = Frills.getNidForVUID(-505L);
             Assert.assertTrue(nid.isPresent());
 
@@ -1710,7 +1690,7 @@ public class VhatXmlTests
             // Test concepts imported
 //         Get.startIndexTask((Class<IndexServiceBI>[])null).get();
 
-            StampCoordinate stampCoord = Get.coordinateFactory().createDevelopmentLatestStampCoordinate();
+            StampFilterImmutable stampCoord = Get.coordinateFactory().createDevelopmentLatestStampFilter().toStampFilterImmutable();
             Optional<Integer> nid = Frills.getNidForVUID(-505L);
             Assert.assertTrue(nid.isPresent());
 
@@ -1837,7 +1817,7 @@ public class VhatXmlTests
             // Test concepts imported
 //         Get.startIndexTask((Class<IndexServiceBI>[])null).get();
 
-            StampCoordinate stampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampCoordinate();
+            StampFilterImmutable stampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampFilter().toStampFilterImmutable();
             Optional<Integer> nid = Frills.getNidForVUID(-505L);
             Assert.assertTrue(nid.isPresent());
 
@@ -1908,7 +1888,7 @@ public class VhatXmlTests
         Assert.assertTrue(validateXPath(doc, "count(" + RELATIONSHIP + "[" + "./Action/text() = 'add'" + " and ./TypeName/text() = 'has_parent'"
                 + " and ./NewTargetCode/text() = '5245593'" + " and ./Active/text() = 'true'" + "]) = 1"));
 
-        StampCoordinate activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampCoordinate();
+        StampFilterImmutable activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampFilter().toStampFilterImmutable();
         LanguageCoordinate defUsLangCoord = Get.coordinateFactory().getUsEnglishLanguagePreferredTermCoordinate();
         Optional<Integer> nid = Frills.getNidForVUID(400000L);
         Assert.assertTrue(nid.isPresent());
@@ -1942,7 +1922,7 @@ public class VhatXmlTests
         // For VetsExporter
         long now = System.currentTimeMillis();
 
-        StampCoordinate activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampCoordinate();
+        StampFilterImmutable activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampFilter().toStampFilterImmutable();
 
         Assert.assertFalse(propertyTypeExists(activeStampCoord, "A0_Mike_New_Property"));
         Assert.assertFalse(propertyTypeExists(activeStampCoord, "A0_Mike_Property2"));
@@ -1999,7 +1979,7 @@ public class VhatXmlTests
         // For VetsExporter
         long now = System.currentTimeMillis();
 
-        StampCoordinate activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampCoordinate();
+        StampFilterImmutable activeStampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampFilter().toStampFilterImmutable();
 
         Assert.assertFalse(subsetExists(activeStampCoord, "A0 Loser Subset Membership", 600001L));
         Assert.assertFalse(subsetExists(activeStampCoord, "A0 Cool Subset Membership", 600000L));
@@ -2192,7 +2172,7 @@ public class VhatXmlTests
             // Test concepts imported
 //         Get.startIndexTask((Class<IndexServiceBI>[])null).get();
 
-            StampCoordinate stampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampCoordinate();
+            StampFilterImmutable stampCoord = Get.coordinateFactory().createDevelopmentLatestActiveOnlyStampFilter().toStampFilterImmutable();
 
             Optional<Integer> nid = Frills.getNidForVUID(600200L);
             Assert.assertTrue(nid.isPresent());
@@ -5383,7 +5363,7 @@ public class VhatXmlTests
         }
     }
 
-    private String getCodeFromNid(int componentNid, StampCoordinate stamp)
+    private String getCodeFromNid(int componentNid, StampFilter stampFilter)
     {
 
         Optional<SemanticChronology> sc = Get.assemblageService()
@@ -5395,7 +5375,7 @@ public class VhatXmlTests
 
             if (sc.get().getVersionType() == VersionType.STRING)
             {
-                LatestVersion<StringVersion> sv = sc.get().getLatestVersion(stamp);
+                LatestVersion<StringVersion> sv = sc.get().getLatestVersion(stampFilter);
                 if (sv.isPresent())
                 {
                     return sv.get().getString();
@@ -5403,7 +5383,7 @@ public class VhatXmlTests
             }
             else if (sc.get().getVersionType() == VersionType.DYNAMIC)  // this path will become dead code, after the data is fixed.
             {
-                LatestVersion<DynamicVersion> sv = sc.get().getLatestVersion(stamp);
+                LatestVersion<DynamicVersion> sv = sc.get().getLatestVersion(stampFilter);
                 if (sv.isPresent())
                 {
                     if (sv.get().getData() != null && sv.get().getData().length == 1)
@@ -5417,9 +5397,9 @@ public class VhatXmlTests
         return null;
     }
 
-    private String getPreferredNameDescriptionType(int conceptNid, StampCoordinate stamp)
+    private String getPreferredNameDescriptionType(int conceptNid, StampFilter stampFilter)
     {
-        final StampCoordinate defStamp = (stamp == null) ? Get.coordinateFactory().createDevelopmentLatestStampCoordinate() : stamp;
+        final StampFilter defStamp = (stampFilter == null) ? Get.coordinateFactory().createDevelopmentLatestStampFilter() : stampFilter;
 
         ArrayList<String> descriptions = new ArrayList<>(1);
         ArrayList<String> inActiveDescriptions = new ArrayList<>(1);
@@ -5446,17 +5426,17 @@ public class VhatXmlTests
         if (descriptions.size() == 0)
         {
             // This doesn't happen for concept that represent subsets, for example.
-            String description = Frills.getDescription(conceptNid, defStamp, LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate())
+            String description = Frills.getDescription(conceptNid, defStamp, Coordinates.Language.UsEnglishPreferredName())
                     .orElse("ERROR!");
             return description;
         }
         return descriptions.get(0);
     }
 
-    private boolean vuidExistsForConcept(ConceptChronology concept, StampCoordinate stamp, long vuidToCheck)
+    private boolean vuidExistsForConcept(ConceptChronology concept, StampFilter stamp, long vuidToCheck)
     {
         boolean foundVuid = false;
-        final StampCoordinate defStamp = (stamp == null) ? Get.coordinateFactory().createDevelopmentLatestStampCoordinate() : stamp;
+        final StampFilter defStamp = (stamp == null) ? Get.coordinateFactory().createDevelopmentLatestStampFilter() : stamp;
 
         for (Object semanticObj : Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid()).toArray())
         {
@@ -5482,9 +5462,9 @@ public class VhatXmlTests
         return foundVuid;
     }
 
-    private boolean codeExistsForConcept(ConceptChronology concept, StampCoordinate stamp, long codeToCheck)
+    private boolean codeExistsForConcept(ConceptChronology concept, StampFilter stampFilter, long codeToCheck)
     {
-        final StampCoordinate defStamp = (stamp == null) ? Get.coordinateFactory().createDevelopmentLatestStampCoordinate() : stamp;
+        final StampFilter defStamp = (stampFilter == null) ? Get.coordinateFactory().createDevelopmentLatestStampFilter() : stampFilter;
 
         for (Object semanticObj : Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid()).toArray())
         {
@@ -5499,9 +5479,9 @@ public class VhatXmlTests
         return false;
     }
 
-    private boolean descriptionExistsForConcept(ConceptChronology concept, StampCoordinate stamp, LanguageCoordinate lang, String descToCheck)
+    private boolean descriptionExistsForConcept(ConceptChronology concept, StampFilter stampFilter, LanguageCoordinate lang, String descToCheck)
     {
-        final StampCoordinate defStamp = (stamp == null) ? Get.coordinateFactory().createDevelopmentLatestStampCoordinate() : stamp;
+        final StampFilter defStamp = (stampFilter == null) ? Get.coordinateFactory().createDevelopmentLatestStampFilter() : stampFilter;
 
         final LanguageCoordinate defLang = (lang == null) ? Get.coordinateFactory().getUsEnglishLanguagePreferredTermCoordinate() : lang;
 
@@ -5516,10 +5496,10 @@ public class VhatXmlTests
         return foundDesc;
     }
 
-    private Map<String, Boolean> relationshipExistsForConcept(ConceptChronology concept, StampCoordinate stamp, String tpyeNameToCheck,
+    private Map<String, Boolean> relationshipExistsForConcept(ConceptChronology concept, StampFilterImmutable stampFilter, String tpyeNameToCheck,
                                                               String newTargetCodeToCheck, String oldTargetCodeToCheck)
     {
-        final StampCoordinate defStamp = (stamp == null) ? Get.coordinateFactory().createDevelopmentLatestStampCoordinate() : stamp;
+        final StampFilter defStamp = (stampFilter == null) ? Get.coordinateFactory().createDevelopmentLatestStampFilter() : stampFilter;
 
         final Map<String, Boolean> relMap = new HashMap<>();
 
@@ -5655,11 +5635,13 @@ public class VhatXmlTests
      * }
      */
 
-    private boolean relationshipTypeExists(StampCoordinate stamp, String typeToCheck)
+    private boolean relationshipTypeExists(StampFilter stampFilter, String typeToCheck)
     {
-        final StampCoordinate defStamp = (stamp == null) ? Get.coordinateFactory().createDevelopmentLatestStampCoordinate() : stamp;
 
-        for (int conceptId : Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(defStamp, null))
+
+        final StampFilter defStamp = (stampFilter == null) ? Get.coordinateFactory().createDevelopmentLatestStampFilter() : stampFilter;
+
+        for (int conceptId : Get.taxonomyService().getSnapshot(ManifoldCoordinateImmutable.makeStated(defStamp, Coordinates.Language.UsEnglishPreferredName()))
                 .getTaxonomyChildConceptNids(VHATConstants.VHAT_ASSOCIATION_TYPES.getNid()))
         {
             ConceptChronology concept = Get.conceptService().getConceptChronology(conceptId);
@@ -5673,11 +5655,10 @@ public class VhatXmlTests
         return false;
     }
 
-    private boolean propertyTypeExists(StampCoordinate stamp, String typeToCheck)
+    private boolean propertyTypeExists(StampFilter stampFilter, String typeToCheck)
     {
-        final StampCoordinate defStamp = (stamp == null) ? Get.coordinateFactory().createDevelopmentLatestStampCoordinate() : stamp;
-
-        for (int conceptId : Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(defStamp, null))
+        final StampFilter defStamp = (stampFilter == null) ? Get.coordinateFactory().createDevelopmentLatestStampFilter() : stampFilter;
+        for (int conceptId : Get.taxonomyService().getSnapshot(ManifoldCoordinateImmutable.makeStated(defStamp, Coordinates.Language.UsEnglishPreferredName()))
                 .getTaxonomyChildConceptNids(VHATConstants.VHAT_ATTRIBUTE_TYPES.getNid()))
         {
             ConceptChronology concept = Get.conceptService().getConceptChronology(conceptId);
@@ -5714,11 +5695,11 @@ public class VhatXmlTests
      * }
      */
 
-    private boolean subsetExists(StampCoordinate stamp, String subsetToCheck, Long subsetVuidToCheck)
+    private boolean subsetExists(StampFilter stampFilter, String subsetToCheck, Long subsetVuidToCheck)
     {
-        final StampCoordinate defStamp = (stamp == null) ? Get.coordinateFactory().createDevelopmentLatestStampCoordinate() : stamp;
+        final StampFilter defStamp = (stampFilter == null) ? Get.coordinateFactory().createDevelopmentLatestStampFilter() : stampFilter;
 
-        for (int conceptId : Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(defStamp, null))
+        for (int conceptId : Get.taxonomyService().getSnapshot(ManifoldCoordinateImmutable.makeStated(defStamp, Coordinates.Language.UsEnglishPreferredName()))
                 .getTaxonomyChildConceptNids(VHATConstants.VHAT_REFSETS.getNid()))
         {
             ConceptChronology concept = Get.conceptService().getConceptChronology(conceptId);
@@ -5783,14 +5764,14 @@ public class VhatXmlTests
      * }
      */
 
-    private boolean subsetMembershipExistsForConcept(ConceptChronology concept, StampCoordinate stamp, Long vuidToCheck)
+    private boolean subsetMembershipExistsForConcept(ConceptChronology concept, StampFilter stampFilter, Long vuidToCheck)
     {
         for (Object sc : Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid()).toArray())
         {
             SemanticChronology semantic = (SemanticChronology) sc;
             if (semantic.getVersionType() == VersionType.DESCRIPTION)
             {
-                LatestVersion<DescriptionVersion> descriptionVersion = semantic.getLatestVersion(stamp);
+                LatestVersion<DescriptionVersion> descriptionVersion = semantic.getLatestVersion(stampFilter);
                 if (descriptionVersion.isPresent())
                 {
                     for (Object nsc : Get.assemblageService().getSemanticChronologyStreamForComponent(semantic.getNid()).toArray())
@@ -5801,7 +5782,7 @@ public class VhatXmlTests
                         {
                             if (nestedSemantic.getVersionType() == VersionType.DYNAMIC)
                             {
-                                long vuid = Frills.getVuId(nestedSemantic.getAssemblageNid(), stamp).orElse(0L).longValue();
+                                long vuid = Frills.getVuId(nestedSemantic.getAssemblageNid(), stampFilter).orElse(0L).longValue();
                                 if (vuidToCheck.equals(vuid))
                                 {
                                     return true;

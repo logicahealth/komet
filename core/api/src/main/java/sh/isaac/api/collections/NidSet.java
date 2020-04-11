@@ -39,6 +39,8 @@
 
 package sh.isaac.api.collections;
 
+import java.io.DataInput;
+import java.io.IOException;
 import java.util.ArrayList;
 
 //~--- JDK imports ------------------------------------------------------------
@@ -46,10 +48,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.mahout.math.set.OpenIntHashSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
@@ -91,12 +94,8 @@ public class NidSet extends AbstractIntSet<NidSet> {
     *
     * @param members the members
     */
-   private NidSet(OpenIntHashSet members) {
+   private NidSet(MutableIntSet members) {
       super(members);
-   }
-
-   public NidSet(Concurrency concurrency) {
-      super(concurrency);
    }
 
    //~--- methods -------------------------------------------------------------
@@ -109,6 +108,9 @@ public class NidSet extends AbstractIntSet<NidSet> {
     */
    public static NidSet of(Collection<ConceptSpecification> members) {
       return new NidSet(members.stream().mapToInt(i -> i.getNid()));
+   }
+   public static NidSet of(Stream<Integer> memberStream) {
+      return new NidSet(memberStream.mapToInt(i -> i));
    }
 
    /**
@@ -127,10 +129,6 @@ public class NidSet extends AbstractIntSet<NidSet> {
    
    public static NidSet of(ConceptSpecification... members) {
       return new NidSet(Arrays.stream(members).mapToInt(i -> i.getNid()));
-   }
-   
-   public static NidSet concurrent() {
-      return new NidSet(Concurrency.THREAD_SAFE);
    }
 
    /**
@@ -159,7 +157,7 @@ public class NidSet extends AbstractIntSet<NidSet> {
     * @param members the members
     * @return the nid set
     */
-   public static NidSet of(OpenIntHashSet members) {
+   public static NidSet of(MutableIntSet members) {
       return new NidSet(members);
    }
 
@@ -197,5 +195,16 @@ public class NidSet extends AbstractIntSet<NidSet> {
       this.stream().forEach(item -> result.add(new ConceptProxy(item)));
       return result;
    }
+
+
+   public static NidSet of(DataInput input) throws IOException {
+      final int size = input.readInt();
+      NidSet nidSet = new NidSet();
+      for (int i = 0; i < size; i++) {
+         nidSet.add(input.readInt());
+      }
+      return nidSet;
+   }
+
 }
 

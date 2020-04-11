@@ -25,7 +25,6 @@ import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import sh.isaac.komet.iconography.IconographyHelper;
-import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.control.property.WindowProperties;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
@@ -71,8 +70,8 @@ public class StatementView {
         }
     }
 
-    public static StatementViewController show(Manifold manifold, 
-            EventHandler<WindowEvent> closeRequestHandler) {
+    public static StatementViewController show(Manifold manifold,
+                                               EventHandler<WindowEvent> closeRequestHandler) {
 
         StatementView statementView = new StatementView(manifold, "temp");
         Stage stage = statementView.stage;

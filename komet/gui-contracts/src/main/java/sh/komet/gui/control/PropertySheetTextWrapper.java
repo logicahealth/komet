@@ -43,9 +43,8 @@ public class PropertySheetTextWrapper  implements PropertySheet.Item {
    }
 
    public PropertySheetTextWrapper(Manifold manifold,
-           StringProperty textProperty) {
-      this(manifold.getPreferredDescriptionText(new ConceptProxy(textProperty.getName()), 
-              ConceptSpecification.getNameFromExternalString(textProperty.getName())), 
+                                   StringProperty textProperty) {
+      this(manifold.getPreferredDescriptionText(new ConceptProxy(textProperty.getName())),
               textProperty);
    }
     public ConceptSpecification getSpecification() {

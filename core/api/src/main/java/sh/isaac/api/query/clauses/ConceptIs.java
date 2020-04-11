@@ -37,24 +37,16 @@
 package sh.isaac.api.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
+
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.query.*;
+import sh.isaac.api.query.properties.ConceptClause;
+
 import java.util.EnumSet;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 //~--- non-JDK imports --------------------------------------------------------
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.query.ClauseComputeType;
-import sh.isaac.api.query.ClauseSemantic;
-import sh.isaac.api.query.LeafClause;
-import sh.isaac.api.query.LetItemKey;
-import sh.isaac.api.query.Query;
-import sh.isaac.api.query.WhereClause;
-import sh.isaac.api.query.properties.ConceptClause;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -63,16 +55,13 @@ import sh.isaac.api.query.properties.ConceptClause;
  *
  * @author dylangrald
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class ConceptIs
         extends LeafClause implements ConceptClause {
 
     /**
      * The concept spec string.
      */
-    @XmlElement
-    LetItemKey conceptSpecString;
+     LetItemKey conceptSpecString;
 
     //~--- constructors --------------------------------------------------------
     /**

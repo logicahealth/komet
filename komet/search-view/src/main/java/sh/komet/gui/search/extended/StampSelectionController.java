@@ -179,21 +179,21 @@ public class StampSelectionController
 						}
 						else
 						{
-							setText(item == Integer.MAX_VALUE ? " - Any Author - " : readManifoldCoordinate.getDescription(item).orElse(""));
+							setText(item == Integer.MAX_VALUE ? " - Any Author - " : readManifoldCoordinate.getDescriptionText(item).orElse(""));
 						}
 					}
 				};
 			}
 		});
 		
-		authors.getItems().addAll(Frills.getAllChildrenOfConcept(MetaData.USER____SOLOR.getNid(), true, true, readManifoldCoordinate));
+		authors.getItems().addAll(Frills.getAllChildrenOfConcept(MetaData.USER____SOLOR.getNid(), true, true, readManifoldCoordinate.getStampFilter()));
 		authors.getItems().add(MetaData.USER____SOLOR.getNid());
 		Collections.sort(authors.getItems(), new Comparator<Integer>()
 		{
 			@Override
 			public int compare(Integer o1, Integer o2)
 			{
-				return readManifoldCoordinate.getDescription(o1).orElse("").compareTo(readManifoldCoordinate.getDescription(o2).orElse(""));
+				return readManifoldCoordinate.getDescriptionText(o1).orElse("").compareTo(readManifoldCoordinate.getDescriptionText(o2).orElse(""));
 			}
 		});
 		
@@ -227,20 +227,20 @@ public class StampSelectionController
 						}
 						else
 						{
-							setText(item == Integer.MAX_VALUE ? " - Any Path - " : readManifoldCoordinate.getDescription(item).orElse(""));
+							setText(item == Integer.MAX_VALUE ? " - Any Path - " : readManifoldCoordinate.getDescriptionText(item).orElse(""));
 						}
 					}
 				};
 			}
 		});
 		
-		paths.getItems().addAll(Frills.getAllChildrenOfConcept(MetaData.PATH____SOLOR.getNid(), true, true, readManifoldCoordinate));
+		paths.getItems().addAll(Frills.getAllChildrenOfConcept(MetaData.PATH____SOLOR.getNid(), true, true, readManifoldCoordinate.getStampFilter()));
 		Collections.sort(paths.getItems(), new Comparator<Integer>()
 		{
 			@Override
 			public int compare(Integer o1, Integer o2)
 			{
-				return readManifoldCoordinate.getDescription(o1).orElse("").compareTo(readManifoldCoordinate.getDescription(o2).orElse(""));
+				return readManifoldCoordinate.getDescriptionText(o1).orElse("").compareTo(readManifoldCoordinate.getDescriptionText(o2).orElse(""));
 			}
 		});
 		paths.getItems().add(0, Integer.MAX_VALUE);
@@ -339,9 +339,9 @@ public class StampSelectionController
 		modules.getChildren().add(treeItem.getGraphic());
 		VBox.setMargin(treeItem.getGraphic(), new Insets(0, 0, 0, (10 * depth)));
 		for (int nid : Frills.getAllChildrenOfConcept((treeItem.getValue() == Integer.MAX_VALUE ? MetaData.MODULE____SOLOR.getNid() : treeItem.getValue()), 
-				false, false, readManifoldCoordinate))
+				false, false, readManifoldCoordinate.getStampFilter()))
 		{
-			TreeItem<Integer> child = new TreeItem<Integer>(nid, new CheckBox(readManifoldCoordinate.getDescription(nid).orElse("")));
+			TreeItem<Integer> child = new TreeItem<Integer>(nid, new CheckBox(readManifoldCoordinate.getDescriptionText(nid).orElse("")));
 			((CheckBox)child.getGraphic()).selectedProperty().addListener((change, oldV, newV) -> {
 				if (change.getValue().booleanValue())
 				{
@@ -361,7 +361,7 @@ public class StampSelectionController
 			@Override
 			public int compare(TreeItem<Integer> o1, TreeItem<Integer> o2)
 			{
-				return readManifoldCoordinate.getDescription(o1.getValue()).orElse("").compareTo(readManifoldCoordinate.getDescription(o2.getValue()).orElse(""));
+				return readManifoldCoordinate.getDescriptionText(o1.getValue()).orElse("").compareTo(readManifoldCoordinate.getDescriptionText(o2.getValue()).orElse(""));
 			}
 		});
 	}

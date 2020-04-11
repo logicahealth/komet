@@ -10,19 +10,15 @@ import sh.isaac.api.Get;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.util.UUIDUtil;
 import sh.komet.gui.cell.CellHelper;
 import sh.komet.gui.cell.table.*;
 import sh.komet.gui.clipboard.ClipboardHelper;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.util.FxGet;
 
-import javax.sound.sampled.Clip;
 import java.net.URL;
 import java.util.*;
 
 import static javafx.scene.layout.Region.USE_COMPUTED_SIZE;
-import static sh.komet.gui.clipboard.ClipboardHelper.getUuidsFromClipboard;
 
 public class VersionTableController {
     private static final KeyCodeCombination keyCodePaste = new KeyCodeCombination(KeyCode.V, KeyCombination.SHORTCUT_DOWN);

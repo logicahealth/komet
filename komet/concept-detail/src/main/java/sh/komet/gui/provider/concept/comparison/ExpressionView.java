@@ -61,7 +61,6 @@ public class ExpressionView implements DetailNode, Supplier<List<MenuItem>> {
     //~--- constructors --------------------------------------------------------
     public ExpressionView(Manifold conceptDetailManifold) {
         this.manifoldProperty.set(conceptDetailManifold);
-        conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
         this.conceptLabelToolbar = ConceptLabelToolbar.make(this.manifoldProperty, this.selectionIndexProperty,
                 this, Optional.of(false));
         conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());

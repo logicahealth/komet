@@ -37,20 +37,17 @@
 
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
-import java.util.*;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.model.configuration.LanguageCoordinates;
-import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.model.logic.ClassifierResultsImpl;
+
+import java.util.*;
 
 /**
  * {@link CycleCheck}
@@ -65,22 +62,22 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 	private Logger log = LogManager.getLogger();
 	private ManifoldCoordinate mc;
 	private HashSet<Integer> orphans = new HashSet<>();
-	private final StampCoordinate stampCoordinate;
+	private final StampFilter stampCoordinate;
 	private final LogicCoordinate logicCoordinate;
 	private final EditCoordinate editCoordinate;
 	
 	/**
 	 * Set up a new cycle checker task
-	 * @param stampCoordinate
+	 * @param stampFilter
 	 * @param logicCoordinate
 	 */
-	public CycleCheck(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate)
+	public CycleCheck(StampFilter stampFilter, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate)
 	{
-		this.stampCoordinate = stampCoordinate;
+		this.stampCoordinate = stampFilter;
 		this.logicCoordinate = logicCoordinate;
 		this.editCoordinate = editCoordinate;
 		updateTitle("Cycle Check");
-		mc = new ManifoldCoordinateImpl(PremiseType.STATED, stampCoordinate, LanguageCoordinates.getFullyQualifiedCoordinate(false), logicCoordinate);
+		mc = ManifoldCoordinateImmutable.makeStated(stampFilter, Coordinates.Language.UsEnglishPreferredName(), logicCoordinate);
 	}
 
 	/**
@@ -154,7 +151,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 		}
 		if (parents.length == 0 && nid != TermAux.SOLOR_ROOT.getNid()
 			//Only mark as an orphan if the concept is active, as most inactive rels aren't currently loaded.
-							&& Get.concept(nid).getLatestVersion(ts.getManifoldCoordinate().getStampCoordinate()).isPresentAnd(v -> v.isActive()))
+							&& Get.concept(nid).getLatestVersion(ts.getManifoldCoordinate().getVertexStampFilter()).isPresentAnd(v -> v.isActive()))
 
 		{
 			//orphan

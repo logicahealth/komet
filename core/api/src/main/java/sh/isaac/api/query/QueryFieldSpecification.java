@@ -45,7 +45,7 @@ public interface QueryFieldSpecification {
 
     ConceptSpecification getPropertySpecification();
 
-    LetItemKey getStampCoordinateKey();
+    LetItemKey getStampFilterKey();
 
     SimpleIntegerProperty propertyIndexProperty();
 

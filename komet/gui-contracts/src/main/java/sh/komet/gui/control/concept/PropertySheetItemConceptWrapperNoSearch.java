@@ -55,12 +55,12 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
     private ConceptSpecification propertySpecification = null;
     
     public PropertySheetItemConceptWrapperNoSearch(Manifold manifoldForDisplay,
-            ObjectProperty<? extends ConceptSpecification> conceptProperty, ObservableList<ConceptSpecification> allowedValues) {
+                                                   ObjectProperty<? extends ConceptSpecification> conceptProperty, ObservableList<ConceptSpecification> allowedValues) {
         this(manifoldForDisplay, manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(conceptProperty.getName())), conceptProperty, allowedValues);
     }
     
     public PropertySheetItemConceptWrapperNoSearch(Manifold manifoldForDisplay, String name,
-            ObjectProperty<? extends ConceptSpecification> conceptProperty, ObservableList<ConceptSpecification> allowedValues) {
+                                                   ObjectProperty<? extends ConceptSpecification> conceptProperty, ObservableList<ConceptSpecification> allowedValues) {
         this.manifoldForDisplay = manifoldForDisplay;
         this.name = name;
         this.allowedValues = allowedValues;
@@ -172,7 +172,7 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
     
     @Override
     public String getFullyQualifiedName() {
-        return this.manifoldForDisplay.getFullySpecifiedDescriptionText(conceptProperty.get());
+        return this.manifoldForDisplay.getFullyQualifiedDescriptionText(conceptProperty.get());
     }
     
     @Override

@@ -30,6 +30,8 @@ import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomyService;
 import sh.isaac.api.bootstrap.TermAux;
@@ -77,7 +79,7 @@ public class NativeExport extends TimedTaskWithProgressTracker<Integer> {
     @Override
     protected Integer call() throws Exception {
         try {
-            updateMessage("Counting identifiers...");
+             updateMessage("Counting identifiers...");
             int[] assemblageNids = Get.identifierService().getAssemblageNids();
             for (int assemblageNid : assemblageNids) {
                 Get.identifierService().getNidsForAssemblage(assemblageNid).forEach((nid) -> {

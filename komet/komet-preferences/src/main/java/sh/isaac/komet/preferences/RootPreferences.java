@@ -36,7 +36,7 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class RootPreferences extends AbstractPreferences {
 
-    public RootPreferences(IsaacPreferences preferencesNode, Manifold manifold, 
+    public RootPreferences(IsaacPreferences preferencesNode, Manifold manifold,
             KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "Root"), manifold, 
                 kpc);

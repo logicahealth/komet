@@ -38,7 +38,7 @@ public class ConcurrentSpineList<E extends Object> {
     private void growArray(int spineIndex) {
         AtomicReferenceArray<E> spineArray = spineArrayReference.get();
         if (spineIndex >= spineArray.length()) {
-            AtomicReferenceArray<E> newSpineArray = new AtomicReferenceArray<>(spineArray.length() + incrementSize);
+            AtomicReferenceArray<E> newSpineArray = new AtomicReferenceArray<>(spineIndex + incrementSize);
             for (int i = 0; i < spineArray.length(); i++) {
                 newSpineArray.set(i, spineArray.get(i));
             }

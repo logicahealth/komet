@@ -38,36 +38,24 @@ package sh.isaac.provider.logic;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.*;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
-//~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.glassfish.hk2.runlevel.RunLevel;
-
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicService;
@@ -76,7 +64,15 @@ import sh.isaac.model.logic.ClassifierResultsImpl;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
-import sh.isaac.api.component.semantic.SemanticSnapshotService;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.*;
+import java.time.Instant;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 
@@ -204,28 +200,28 @@ public class LogicProvider
     /**
      * Gets the classifier service.
      *
-     * @param stampCoordinate the stamp coordinate
+     * @param stampFilter the stamp coordinate
      * @param logicCoordinate the logic coordinate
      * @param editCoordinate  the edit coordinate
      * @return the classifier service
      */
     @Override
-    public ClassifierService getClassifierService(StampCoordinate stampCoordinate,
+    public ClassifierService getClassifierService(StampFilter stampFilter,
                                                   LogicCoordinate logicCoordinate,
                                                   EditCoordinate editCoordinate) {
-        StampCoordinate sc;
-        if (stampCoordinate.getStampPosition().getTime() == Long.MAX_VALUE) {
+        StampFilter stampFilterAnalog;
+        if (stampFilter.getStampPosition().getTime() == Long.MAX_VALUE) {
             LOG.info("changing classify coordinate time to now, rather that latest");
-            sc = stampCoordinate.makeCoordinateAnalog(System.currentTimeMillis());
+            stampFilterAnalog = stampFilter.makeCoordinateAnalog(System.currentTimeMillis());
         }
         else {
-            sc = stampCoordinate;
+            stampFilterAnalog = stampFilter;
         }
-        final ClassifierServiceKey key = new ClassifierServiceKey(sc, logicCoordinate, editCoordinate);
+        final ClassifierServiceKey key = new ClassifierServiceKey(stampFilterAnalog, logicCoordinate, editCoordinate);
 
         if (!classifierServiceMap.containsKey(key)) {
             classifierServiceMap.putIfAbsent(key,
-                    new ClassifierProvider(sc, logicCoordinate, editCoordinate));
+                    new ClassifierProvider(stampFilterAnalog, logicCoordinate, editCoordinate));
         }
 
         return classifierServiceMap.get(key);
@@ -236,16 +232,16 @@ public class LogicProvider
      *
      * @param conceptId         the concept id
      * @param logicAssemblageId the logic assemblage id
-     * @param stampCoordinate   the stamp coordinate
+     * @param stampFilter   the stamp coordinate
      * @return the logical expression
      */
     @Override
     public LatestVersion<? extends LogicalExpression> getLogicalExpression(int conceptId,
                                                                            int logicAssemblageId,
-                                                                           StampCoordinate stampCoordinate) {
+                                                                           StampFilter stampFilter) {
         final SemanticSnapshotService<LogicGraphVersionImpl> ssp = Get.assemblageService()
                 .getSnapshot(LogicGraphVersionImpl.class,
-                        stampCoordinate);
+                        stampFilter);
 
         List<LatestVersion<LogicalExpression>> latestExpressions = new ArrayList<>();
         final List<LatestVersion<LogicGraphVersionImpl>> latestVersions
@@ -294,7 +290,7 @@ public class LogicProvider
         /**
          * The stamp coordinate.
          */
-        StampCoordinate stampCoordinate;
+        StampFilter stampCoordinate;
 
         /**
          * The logic coordinate.
@@ -310,15 +306,14 @@ public class LogicProvider
 
         /**
          * Instantiates a new classifier service key.
-         *
-         * @param stampCoordinate the stamp coordinate
+         *  @param stampFilter the stamp coordinate
          * @param logicCoordinate the logic coordinate
          * @param editCoordinate  the edit coordinate
          */
-        public ClassifierServiceKey(StampCoordinate stampCoordinate,
+        public ClassifierServiceKey(StampFilter stampFilter,
                                     LogicCoordinate logicCoordinate,
                                     EditCoordinate editCoordinate) {
-            this.stampCoordinate = stampCoordinate;
+            this.stampCoordinate = stampFilter;
             this.logicCoordinate = logicCoordinate;
             this.editCoordinate = editCoordinate;
         }
@@ -380,7 +375,7 @@ public class LogicProvider
 
     @Override
     public void addClassifierResults(ClassifierResults classifierResults) {
-        Instant classifierTime = classifierResults.getStampCoordinate().getStampPosition().getTimeAsInstant();
+        Instant classifierTime = classifierResults.getStampFilter().getStampPosition().getTimeAsInstant();
         if (Platform.isFxApplicationThread()) {
             classifierInstants.add(classifierTime);
         } else {

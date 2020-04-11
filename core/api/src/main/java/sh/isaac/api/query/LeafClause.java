@@ -41,18 +41,14 @@ package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 //~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -64,8 +60,6 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  *
  * @author kec
  */
-@XmlRootElement(name = "leaf")
-@XmlAccessorType(value = XmlAccessType.NONE)
 public abstract class LeafClause
         extends Clause {
 

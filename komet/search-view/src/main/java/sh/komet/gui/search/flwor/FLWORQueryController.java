@@ -54,40 +54,18 @@ package sh.komet.gui.search.flwor;
 * See the License for the specific language governing permissions and
 * limitations under the License.
  */
-import sh.isaac.api.query.JoinProperty;
-import sh.isaac.api.query.AttributeFunction;
-import sh.isaac.api.query.LetItemKey;
-import sh.isaac.api.query.AttributeSpecification;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
 import javafx.beans.property.ReadOnlyObjectWrapper;
-
-//~--- non-JDK imports --------------------------------------------------------
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
-
 import javafx.collections.ObservableList;
-
 import javafx.event.ActionEvent;
-
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point2D;
-
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.control.*;
@@ -98,54 +76,51 @@ import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-
-//~--- JDK imports ------------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
-
-//~--- non-JDK imports --------------------------------------------------------
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
-import sh.isaac.api.ConceptProxy;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.observable.ObservableConceptProxy;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
-import sh.isaac.api.query.Clause;
-import sh.isaac.api.query.ForSet;
-import sh.isaac.api.query.Or;
-import sh.isaac.api.query.ParentClause;
-import sh.isaac.api.query.Query;
-import sh.isaac.api.query.SortSpecification;
-import sh.isaac.api.query.clauses.*;
+import sh.isaac.api.query.*;
+import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.api.util.time.DurationUtil;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.model.xml.Jaxb;
-
 import sh.komet.gui.action.ConceptAction;
-import sh.komet.gui.control.concept.ConceptSpecificationForControlWrapper;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
+
+import javax.xml.bind.JAXBException;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+
+//~--- non-JDK imports --------------------------------------------------------
+//~--- JDK imports ------------------------------------------------------------
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 public class FLWORQueryController
@@ -329,10 +304,10 @@ public class FLWORQueryController
         ObservableSnapshotService[] snapshotArray = new ObservableSnapshotService[columnCount];
         for (int column = 0; column < resultColumns.size(); column++) {
             AttributeSpecification columnSpecification = resultColumns.get(column);
-            if (columnSpecification.getStampCoordinateKey() != null) {
-                StampCoordinate stamp = (StampCoordinate) letPropertySheet.getLetItemObjectMap().get(columnSpecification.getStampCoordinateKey());
+            if (columnSpecification.getStampFilterKey() != null) {
+                StampFilter stamp = (StampFilter) letPropertySheet.getLetItemObjectMap().get(columnSpecification.getStampFilterKey());
                 if (stamp == null) {
-                    throw new IllegalStateException("No coordinate for key: " + columnSpecification.getStampCoordinateKey());
+                    throw new IllegalStateException("No coordinate for key: " + columnSpecification.getStampFilterKey());
                 }
                 snapshotArray[column] = Get.observableSnapshotService(stamp);
             }
@@ -357,7 +332,7 @@ public class FLWORQueryController
                     List<ReadOnlyProperty<?>> propertyList = propertyListArray[resultArrayNidIndex];
                     ReadOnlyProperty<?> property = propertyList.get(columnSpecification.getPropertyIndex());
                     if (columnSpecification.getAttributeFunction() != null) {
-                        StampCoordinate sc = (StampCoordinate) letPropertySheet.getLetItemObjectMap().get(columnSpecification.getStampCoordinateKey());
+                        StampFilter sc = (StampFilter) letPropertySheet.getLetItemObjectMap().get(columnSpecification.getStampFilterKey());
                         resultRow[column] = columnSpecification.getAttributeFunction().apply(property.getValue().toString(), sc, query);
                     } else {
                         resultRow[column] = property.getValue().toString();
@@ -378,10 +353,13 @@ public class FLWORQueryController
             try (FileReader reader = new FileReader(selectedFile)) {
                 setManifold(this.manifold);
                 setQuery(null);
-                Unmarshaller unmarshaller = Jaxb.createUnmarshaller();
+                throw new UnsupportedOperationException();
+                /*Unmarshaller unmarshaller = Jaxb.createUnmarshaller();
                 Query queryFromDisk = (Query) unmarshaller.unmarshal(reader);
                 queryFromDisk.getRoot().setEnclosingQuery(queryFromDisk);
                 setQuery(queryFromDisk);
+
+                 */
             } catch (Throwable ex) {
                 FxGet.dialogs().showErrorDialog("Error importing " + selectedFile.getName(), ex);
             }
@@ -397,6 +375,8 @@ public class FLWORQueryController
             File selectedFile = fileChooser.showSaveDialog(spacerLabel.getScene().getWindow());
             if (selectedFile != null) {
 
+                throw new UnsupportedOperationException();
+                /**
                 Marshaller marshaller = Jaxb.createMarshaller();
                 marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, true);
 
@@ -407,8 +387,8 @@ public class FLWORQueryController
                 
                 for (LetItemKey key : this.letPropertySheet.getLetItemObjectMap().keySet()) {
                     Object value = this.letPropertySheet.getLetItemObjectMap().get(key);
-                    if (value instanceof ObservableStampCoordinate) {
-                        value = ((ObservableStampCoordinate) value).getStampCoordinate();
+                    if (value instanceof ObservablePathCoordinate) {
+                        value = ((ObservablePathCoordinate) value).getPathCoordinate();
                     } else if (value instanceof ObservableLanguageCoordinate) {
                         value = ((ObservableLanguageCoordinate) value).getLanguageCoordinate();
                     } else if (value instanceof ObservableLogicCoordinate) {
@@ -436,9 +416,10 @@ public class FLWORQueryController
                 rootClause.setEnclosingQuery(query);
                 marshaller.marshal(query, new FileWriter(selectedFile, Charset.forName(StandardCharsets.UTF_8.name())));
                 this.query.setLetDeclarations(currentMap);
+                 **/
             }
 
-        } catch (JAXBException | IOException ex) {
+        } catch (Exception ex) {
             LOG.error(ex.getLocalizedMessage(), ex);
         }
 
@@ -925,7 +906,7 @@ public class FLWORQueryController
         returnStampCoordinateColumn.setCellValueFactory((param) -> {
             return param.getValue().stampCoordinateKeyProperty();
         });
-        returnStampCoordinateColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(this.letPropertySheet.getStampCoordinateKeys()));
+        returnStampCoordinateColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(this.letPropertySheet.getStampFilterKeys()));
 
         returnFunctionColumn.setCellValueFactory((param) -> {
             return param.getValue().attributeFunctionProperty();
@@ -935,7 +916,7 @@ public class FLWORQueryController
         orderStampCoordinateColumn.setCellValueFactory((param) -> {
             return param.getValue().stampCoordinateKeyProperty();
         });
-        orderStampCoordinateColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(this.letPropertySheet.getStampCoordinateKeys()));
+        orderStampCoordinateColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(this.letPropertySheet.getStampFilterKeys()));
 
         orderFunctionColumn.setCellValueFactory((param) -> {
             return param.getValue().attributeFunctionProperty();

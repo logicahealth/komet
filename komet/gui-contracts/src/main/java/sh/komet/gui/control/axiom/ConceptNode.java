@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.control.axiom;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -33,7 +34,6 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.drag.drop.IsaacClipboard;
 import sh.komet.gui.manifold.Manifold;
@@ -56,7 +56,7 @@ public class ConceptNode extends Label {
         this.setText(manifold.getPreferredDescriptionText(conceptNid));
 
         HBox controlBox;
-        LatestVersion<Version> latest = Get.concept(conceptNid).getLatestVersion(manifold);
+        LatestVersion<Version> latest = manifold.getStampFilter().latestConceptVersion(conceptNid);
         if (latest.isPresent()) {
             controlBox = new HBox(openConceptButton, AxiomView.computeGraphic(conceptNid, false,
                     latest.get().getStatus(), manifold, premiseType));

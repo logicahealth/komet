@@ -191,7 +191,7 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
 
         this.statedDefinition = new ObservableLogicGraphVersionImpl(conceptUuid, manifold.getLogicCoordinate().getStatedAssemblageNid());
         this.statedDefinition.setStatus(Status.ACTIVE);
-        this.statedDefinition.assemblageNidProperty().set(manifold.getStatedAssemblageNid());
+        this.statedDefinition.assemblageNidProperty().set(manifold.getLogicCoordinate().getStatedAssemblageNid());
 
         layoutBuilderComponents();
     }

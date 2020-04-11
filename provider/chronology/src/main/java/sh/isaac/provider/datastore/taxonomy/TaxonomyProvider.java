@@ -44,6 +44,12 @@ import javafx.concurrent.Task;
 import javafx.concurrent.Worker.State;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.*;
@@ -56,22 +62,15 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.api.task.TaskCountManager;
-import sh.isaac.api.tree.TaxonomyLinkage;
+import sh.isaac.api.tree.EdgeImpl;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
-import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.TaxonomyDebugService;
-import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
-import sh.isaac.model.coordinate.StampCoordinateImpl;
-import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
 
@@ -309,7 +308,7 @@ public class TaxonomyProvider
     }
 
     @Override
-    public boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate) {
+    public boolean isConceptActive(int conceptNid, StampFilterImmutable stampFilter) {
         int assemblageNid = identifierService.getAssemblageNid(conceptNid).getAsInt();
         int[] taxonomyData = store.getTaxonomyData(assemblageNid, conceptNid);
 
@@ -320,7 +319,7 @@ public class TaxonomyProvider
         TaxonomyRecordPrimitive taxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
 
         try {
-            return taxonomyRecord.isConceptActive(conceptNid, stampCoordinate);
+            return taxonomyRecord.isConceptActive(conceptNid, stampFilter.getRelativePositionCalculator());
         } catch (NoSuchElementException ex) {
             StringBuilder builder = new StringBuilder();
             builder.append("Error determining if concept is active.");
@@ -331,7 +330,7 @@ public class TaxonomyProvider
     }
 
     @Override
-    public EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate) {
+    public EnumSet<Status> getConceptStates(int conceptNid, StampFilterImmutable stampFilter) {
         int assemblageNid = identifierService.getAssemblageNid(conceptNid).getAsInt();
         int[] taxonomyData = store.getTaxonomyData(assemblageNid, conceptNid);
 
@@ -341,7 +340,7 @@ public class TaxonomyProvider
 
         TaxonomyRecordPrimitive taxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
 
-        return taxonomyRecord.getConceptStates(conceptNid, stampCoordinate);
+        return taxonomyRecord.getConceptStates(conceptNid, stampFilter);
     }
 
     @Override
@@ -366,15 +365,13 @@ public class TaxonomyProvider
 
     @Override
     public TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, Set<Status> allowedStates, boolean computeTree) {
-        return computeTree ? 
-                getSnapshot(new ManifoldCoordinateImpl(
-                    new StampCoordinateImpl(StampPrecedence.TIME,
-                        new StampPositionImpl(Long.MAX_VALUE, pathNid),
-                        modules, new ArrayList<>(), allowedStates), null)) :
-                getSnapshotNoTree(new ManifoldCoordinateImpl(
-                        new StampCoordinateImpl(StampPrecedence.TIME,
-                                new StampPositionImpl(Long.MAX_VALUE, pathNid),
-                                modules, new ArrayList<>(), allowedStates), null));
+
+        ManifoldCoordinateImmutable statedManifold = ManifoldCoordinateImmutable.makeStated(StampFilterImmutable.make(StatusSet.of(allowedStates), pathNid, modules),
+                Coordinates.Language.UsEnglishPreferredName());
+
+        return computeTree ?
+                getSnapshot(statedManifold) :
+                getSnapshotNoTree(statedManifold);
     }
 
     @Override
@@ -419,27 +416,20 @@ public class TaxonomyProvider
     private class SnapshotCacheKey {
 
         final PremiseType taxPremiseType;
-        UUID stampCoordinateUuid;
-        UUID destinationCoordinateUuid;
+        final UUID manifoldCoordinateUuid;
         final int customSortHash;
 
         public SnapshotCacheKey(ManifoldCoordinate mc) {
-            this.taxPremiseType = mc.getTaxonomyPremiseType();
-            this.stampCoordinateUuid = mc.getStampCoordinateUuid();
-            if (mc.optionalDestinationStampCoordinate().isPresent()) {
-                this.destinationCoordinateUuid = mc.optionalDestinationStampCoordinate().get().getStampCoordinateUuid();
-            } else {
-                this.destinationCoordinateUuid = UUIDUtil.NIL_UUID;
-            }
-            this.customSortHash = mc.getCustomTaxonomySortHashCode();
+            this.taxPremiseType = mc.getPremiseType();
+            this.manifoldCoordinateUuid = mc.getManifoldCoordinateUuid();
+            this.customSortHash = mc.getVertexSort().hashCode();
         }
 
         @Override
         public int hashCode() {
             int hash = 7;
             hash = 29 * hash + Objects.hashCode(this.taxPremiseType);
-            hash = 29 * hash + this.stampCoordinateUuid.hashCode();
-            hash = 29 * hash + this.destinationCoordinateUuid.hashCode();
+            hash = 29 * hash + this.manifoldCoordinateUuid.hashCode();
             hash = 29 * hash + customSortHash;
             return hash;
         }
@@ -448,8 +438,7 @@ public class TaxonomyProvider
         public String toString() {
             return "SnapshotCacheKey{" +
                     "taxPremiseType=" + taxPremiseType +
-                    ",\n   stampCoordinate=" + stampCoordinateUuid +
-                    ",\n   destinationCoordinate=" + destinationCoordinateUuid +
+                    ",\n   stampCoordinate=" + manifoldCoordinateUuid +
                     ",\n   customSortHash=" + customSortHash +
                     '}';
         }
@@ -469,10 +458,7 @@ public class TaxonomyProvider
             if (this.taxPremiseType != other.taxPremiseType) {
                 return false;
             }
-            if (!Objects.equals(this.stampCoordinateUuid, other.stampCoordinateUuid)) {
-                return false;
-            }
-            if (!Objects.equals(this.destinationCoordinateUuid, other.destinationCoordinateUuid)) {
+            if (!Objects.equals(this.manifoldCoordinateUuid, other.manifoldCoordinateUuid)) {
                 return false;
             }
             if (this.customSortHash != other.customSortHash) {
@@ -632,7 +618,11 @@ public class TaxonomyProvider
                                     try {
                                         this.treeSnapshot = treeTask.get();
                                     } catch (InterruptedException | ExecutionException ex) {
-                                        LOG.error("Unexpected error constructing taxonomy snapshot provider", ex);
+                                        if (ex.getCause() instanceof CancellationException) {
+                                            LOG.info(theTask.getTitle() + " canceled.");
+                                        } else {
+                                            LOG.error("Unexpected error constructing taxonomy snapshot provider", ex);
+                                        }
                                     }
                                 }
 
@@ -651,28 +641,23 @@ public class TaxonomyProvider
         }
 
         @Override
-        public TaxonomySnapshot makeAnalog(ManifoldCoordinate manifoldCoordinate) {
-            return TaxonomyProvider.this.getSnapshot(manifoldCoordinate);
-        }
-
-        @Override
-        public Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
+        public ImmutableCollection<Edge> getTaxonomyParentLinks(int parentConceptNid) {
             int[] parentNids = getTaxonomyParentConceptNids(parentConceptNid);
-            ArrayList<TaxonomyLink> links = new ArrayList<>(parentNids.length);
+            MutableList<Edge> links = Lists.mutable.ofInitialCapacity(parentNids.length);
             for (int parentNid: parentNids) {
-                links.add(new TaxonomyLinkage(TermAux.IS_A.getNid(), parentNid));
+                links.add(new EdgeImpl(TermAux.IS_A.getNid(), parentNid));
             }
-            return links;
+            return links.toImmutable();
         }
 
         @Override
-        public Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
+        public ImmutableCollection<Edge> getTaxonomyChildLinks(int childConceptNid) {
             int[] childNids = getTaxonomyChildConceptNids(childConceptNid);
-            ArrayList<TaxonomyLink> links = new ArrayList<>(childNids.length);
+            MutableList<Edge> links = Lists.mutable.ofInitialCapacity(childNids.length);
             for (int childNid: childNids) {
-                links.add(new TaxonomyLinkage(TermAux.IS_A.getNid(), childNid));
+                links.add(new EdgeImpl(TermAux.IS_A.getNid(), childNid));
             }
-            return links;
+            return links.toImmutable();
         }
 
         private void succeeded(ObservableValue<? extends State> observable, State oldValue, State newValue) {
@@ -706,7 +691,7 @@ public class TaxonomyProvider
             }
             
             //filter out destinations that don't match the coordinate
-            if (Get.conceptService().getConceptChronology(childId).getLatestVersion(manifoldCoordinate.optionalDestinationStampCoordinate().get()).isAbsent()) {
+            if (Get.conceptService().getConceptChronology(childId).getLatestVersion(manifoldCoordinate.getVertexStampFilter()).isAbsent()) {
                 return false;
             }
             TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
@@ -782,22 +767,23 @@ public class TaxonomyProvider
          * @return the kind of sequence set
          */
         @Override
-        public NidSet getKindOfConceptNidSet(int rootId) {
+        public ImmutableIntSet getKindOfConcept(int rootId) {
+            MutableIntSet kindNids = IntSets.mutable.empty();
             if (treeSnapshot != null) {
-                NidSet kindOfSet = this.treeSnapshot.getDescendentNidSet(rootId);
+                kindNids.addAll(this.treeSnapshot.getDescendentNids(rootId));
 
-                kindOfSet.add(rootId);
-                return kindOfSet;
+                kindNids.add(rootId);
+                return kindNids.toImmutable();
             }
 
             int[] childNids = getTaxonomyChildConceptNids(rootId);
-            NidSet kindOfSet = NidSet.of(getTaxonomyChildConceptNids(rootId));
+            kindNids.addAll(getTaxonomyChildConceptNids(rootId));
 
             for (int childNid : childNids) {
-                kindOfSet.addAll(getKindOfConceptNidSet(childNid));
+                kindNids.addAll(getKindOfConcept(childNid));
             }
 
-            return kindOfSet;
+            return kindNids.toImmutable();
         }
 
         @Override
@@ -953,15 +939,15 @@ public class TaxonomyProvider
         }
 
         @Override
-        public NidSet getKindOfConceptNidSet(int rootId) {
+        public ImmutableIntSet getKindOfConcept(int rootId) {
             int[] childNids = getTaxonomyChildConceptNids(rootId);
-            NidSet kindOfSet = NidSet.of(getTaxonomyChildConceptNids(rootId));
+            MutableIntSet kindOfSet = IntSets.mutable.of(getTaxonomyChildConceptNids(rootId));
 
             for (int childNid : childNids) {
-                kindOfSet.addAll(getKindOfConceptNidSet(childNid));
+                kindOfSet.addAll(getKindOfConcept(childNid));
             }
 
-            return kindOfSet;
+            return kindOfSet.toImmutable();
         }
 
         @Override
@@ -1007,28 +993,23 @@ public class TaxonomyProvider
         }
 
         @Override
-        public TaxonomySnapshot makeAnalog(ManifoldCoordinate manifoldCoordinate) {
-            return TaxonomyProvider.this.getSnapshot(manifoldCoordinate);
-        }
-
-        @Override
-        public Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
+        public ImmutableCollection<Edge> getTaxonomyParentLinks(int parentConceptNid) {
             int[] parentNids = getTaxonomyParentConceptNids(parentConceptNid);
-            ArrayList<TaxonomyLink> links = new ArrayList<>(parentNids.length);
+            MutableList<Edge> links = Lists.mutable.ofInitialCapacity(parentNids.length);
             for (int parentNid: parentNids) {
-                links.add(new TaxonomyLinkage(TermAux.IS_A.getNid(), parentNid));
+                links.add(new EdgeImpl(TermAux.IS_A.getNid(), parentNid));
             }
-            return links;
+            return links.toImmutable();
         }
     
         @Override
-        public Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
+        public ImmutableCollection<Edge> getTaxonomyChildLinks(int childConceptNid) {
             int[] childNids = getTaxonomyChildConceptNids(childConceptNid);
-            ArrayList<TaxonomyLink> links = new ArrayList<>(childNids.length);
+            MutableList<Edge> links = Lists.mutable.ofInitialCapacity(childNids.length);
             for (int childNid: childNids) {
-                links.add(new TaxonomyLinkage(TermAux.IS_A.getNid(), childNid));
+                links.add(new EdgeImpl(TermAux.IS_A.getNid(), childNid));
             }
-            return links;
+            return links.toImmutable();
         }
     }
 }

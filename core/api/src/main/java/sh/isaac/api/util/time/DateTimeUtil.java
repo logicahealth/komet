@@ -16,6 +16,7 @@
  */
 package sh.isaac.api.util.time;
 
+import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
@@ -44,6 +45,7 @@ public class DateTimeUtil {
     private static final DateTimeFormatter YEAR_FORMATTER = DateTimeFormatter.ofPattern("yyyy");
     private static final DateTimeFormatter ZONE_FORMATTER = DateTimeFormatter.ISO_DATE_TIME;
     private static final DateTimeFormatter TEXT_FORMAT_WITH_ZONE = DateTimeFormatter.ofPattern("MMM dd, yyyy; hh:mm a zzz");
+    private static final DateTimeFormatter TIME_SIMPLE = DateTimeFormatter.ofPattern("HH:mm:ss");
 
 
     public static ZonedDateTime epochToZonedDateTime(long epochMilliSecond) {
@@ -61,7 +63,13 @@ public class DateTimeUtil {
         }
        return FORMATTER.format(Instant.ofEpochMilli(epochMilliSecond).atZone(ZoneOffset.UTC));
     }
+    public static String timeNowSimple() {
+        return TIME_SIMPLE.format(ZonedDateTime.now());
+    }
 
+    public static String nowWithZone() {
+        return textFormatWithZone(ZonedDateTime.now());
+    }
     public static String textFormatWithZone(ZonedDateTime zonedDateTime) {
         return TEXT_FORMAT_WITH_ZONE.format(zonedDateTime);
     }

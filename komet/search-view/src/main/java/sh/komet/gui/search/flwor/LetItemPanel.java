@@ -16,7 +16,6 @@
  */
 package sh.komet.gui.search.flwor;
 
-import sh.isaac.api.query.LetItemKey;
 import javafx.beans.Observable;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
@@ -31,16 +30,11 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.ObservableConceptProxy;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampPosition;
-import sh.isaac.api.query.ManifoldCoordinateForQuery;
-import sh.komet.gui.control.PropertySheetItemDateTimeWrapper;
-import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
-import sh.komet.gui.control.PropertySheetStampPrecedenceWrapper;
-import sh.komet.gui.control.PropertySheetStatusSetWrapper;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
+import sh.isaac.api.observable.coordinate.ObservablePathCoordinate;
+import sh.isaac.api.query.LetItemKey;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
-import sh.komet.gui.control.concept.PropertySheetConceptSetWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.manifold.Manifold;
@@ -70,9 +64,9 @@ public class LetItemPanel {
     
     private final LetPropertySheet letPropertySheet;
 
-    public LetItemPanel(Manifold manifold, LetItemKey letItemKey, 
-            ListView<LetItemKey> letListViewletListView, Observable letItem, 
-            LetPropertySheet letPropertySheet) {
+    public LetItemPanel(Manifold manifold, LetItemKey letItemKey,
+                        ListView<LetItemKey> letListViewletListView, Observable letItem,
+                        LetPropertySheet letPropertySheet) {
         this.manifold = manifold;
         this.sheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
         this.sheet.getItems().add(new PropertySheetTextWrapper(manifold, nameProperty));
@@ -86,8 +80,8 @@ public class LetItemPanel {
             this.letListView.getItems().set(this.letListView.getItems().indexOf(letItemKey), letItemKey);
             this.letListView.getSelectionModel().select(letItemKey);
         });
-        if (letItem instanceof ObservableStampCoordinate) {
-            setupStampCoordinate((ObservableStampCoordinate) letItem);
+        if (letItem instanceof ObservablePathCoordinate) {
+            setupStampCoordinate((ObservablePathCoordinate) letItem);
         }
         if (letItem instanceof ObservableLanguageCoordinate) {
             setupLanguageCoordinate((ObservableLanguageCoordinate) letItem);
@@ -95,8 +89,8 @@ public class LetItemPanel {
         if (letItem instanceof ObservableLogicCoordinate) {
             setupLogicCoordinate((ObservableLogicCoordinate) letItem);
         }
-        if (letItem instanceof ManifoldCoordinateForQuery) {
-            setupManifoldCoordinate((ManifoldCoordinateForQuery) letItem);
+        if (letItem instanceof ObservableManifoldCoordinate) {
+            setupManifoldCoordinate((ObservableManifoldCoordinate) letItem);
         }
         if (letItem instanceof ObservableConceptProxy) {
             setupConceptProxy((ObservableConceptProxy) letItem);
@@ -122,16 +116,16 @@ public class LetItemPanel {
         return sheet;
     }
 
-    private void setupManifoldCoordinate(ManifoldCoordinateForQuery setupManifoldCoordinate) {
+    private void setupManifoldCoordinate(ObservableManifoldCoordinate manifoldCoordinate) {
 
         ObservableList<PremiseType> premiseTypes = 
                 FXCollections.observableArrayList(PremiseType.INFERRED, PremiseType.STATED);
-        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("Premise type", setupManifoldCoordinate.premiseTypeProperty(), 
-                premiseTypes));
-        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("STAMP for origin", setupManifoldCoordinate.originStampCoordinateKey(), letPropertySheet.getStampCoordinateKeys()));
-        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("STAMP for destination", setupManifoldCoordinate.destinationStampCoordinateKey(), letPropertySheet.getStampCoordinateKeys()));
-        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("Language coordinate", setupManifoldCoordinate.languageCoordinateKeyProperty(), letPropertySheet.getLanguageCoordinateKeys()));
-        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("Logic coordinate", setupManifoldCoordinate.logicCoordinateKeyProperty(), letPropertySheet.getLogicCoordinateKeys()));
+//        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("Premise type", manifoldCoordinate.getDigraph().,
+//                premiseTypes));
+//        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("STAMP for origin", manifoldCoordinate.originStampCoordinateKey(), letPropertySheet.getStampFilterKeys()));
+//        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("STAMP for destination", manifoldCoordinate.destinationStampCoordinateKey(), letPropertySheet.getStampFilterKeys()));
+//        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("Language coordinate", manifoldCoordinate.languageCoordinateKeyProperty(), letPropertySheet.getLanguageCoordinateKeys()));
+//        this.sheet.getItems().add(new PropertySheetItemObjectListWrapper("Logic coordinate", manifoldCoordinate.logicCoordinateKeyProperty(), letPropertySheet.getLogicCoordinateKeys()));
     }
     
 
@@ -143,16 +137,16 @@ public class LetItemPanel {
         this.sheet.getItems().add(new PropertySheetConceptListWrapper(manifold, languageCoordinateItem.descriptionTypePreferenceListProperty()));
     }
     
-    private void setupStampCoordinate(ObservableStampCoordinate stampCoordinateItem) {
-        this.sheet.getItems().add(new PropertySheetStatusSetWrapper(manifold, stampCoordinateItem.allowedStatesProperty()));
-        ObservableStampPosition stampPosition = stampCoordinateItem.stampPositionProperty().get();
-        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(manifold, "Path", 
-                stampPosition.stampPathConceptSpecificationProperty(), TermAux.DEVELOPMENT_PATH, TermAux.MASTER_PATH));
-        this.sheet.getItems().add(new PropertySheetItemDateTimeWrapper("Time", stampPosition.timeProperty()));
-        this.sheet.getItems().add(new PropertySheetStampPrecedenceWrapper("Precedence", stampCoordinateItem.stampPrecedenceProperty()));
-        this.sheet.getItems().add(new PropertySheetConceptSetWrapper(manifold, stampCoordinateItem.moduleSpecificationsProperty()));
-        this.sheet.getItems().add(new PropertySheetConceptListWrapper(manifold, stampCoordinateItem.modulePreferenceListForVersionsProperty()));
-        this.sheet.getItems().add(new PropertySheetConceptSetWrapper(manifold, stampCoordinateItem.authorSpecificationsProperty()));
+    private void setupStampCoordinate(ObservablePathCoordinate stampCoordinateItem) {
+//        this.sheet.getItems().add(new PropertySheetStatusSetWrapper(manifold, stampCoordinateItem.allowedStatesProperty()));
+//        ObservableStampPosition stampPosition = stampCoordinateItem.stampPositionProperty().get();
+//        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(manifold, "Path",
+//                stampPosition.pathConceptProperty(), TermAux.DEVELOPMENT_PATH, TermAux.MASTER_PATH));
+//        this.sheet.getItems().add(new PropertySheetItemDateTimeWrapper("Time", stampPosition.timeProperty()));
+//        this.sheet.getItems().add(new PropertySheetStampPrecedenceWrapper("Precedence", stampCoordinateItem.stampPrecedenceProperty()));
+//        this.sheet.getItems().add(new PropertySheetConceptSetWrapper(manifold, stampCoordinateItem.moduleSpecificationsProperty()));
+//        this.sheet.getItems().add(new PropertySheetConceptListWrapper(manifold, stampCoordinateItem.modulePreferenceListForVersionsProperty()));
+//        this.sheet.getItems().add(new PropertySheetConceptSetWrapper(manifold, stampCoordinateItem.authorSpecificationsProperty()));
     }
     
     private void setupLogicCoordinate(ObservableLogicCoordinate logicCoordinateItem) {

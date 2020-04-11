@@ -20,6 +20,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ObservableList;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.statement.*;
 
 import java.util.List;
@@ -29,7 +30,6 @@ import javafx.beans.property.SimpleIntegerProperty;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.model.observable.ObservableFields;
 
 /**
@@ -72,8 +72,8 @@ public class ClinicalStatementImpl implements ClinicalStatement {
     }
     
     @Override
-    public StampCoordinate getStampCoordinate() {
-        return manifold.get();
+    public StampFilter getStampFilter() {
+        return manifold.get().getStampFilter();
     }
 
     public SimpleObjectProperty<ManifoldCoordinate> stampCoordinateProperty() {

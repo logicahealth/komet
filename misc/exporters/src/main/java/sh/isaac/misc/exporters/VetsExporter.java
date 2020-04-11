@@ -36,38 +36,19 @@
  */
 package sh.isaac.misc.exporters;
 
-import java.io.OutputStream;
-import java.text.SimpleDateFormat;
-import java.time.Year;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -78,27 +59,29 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.mapping.constants.IsaacMappingConstants;
 import sh.isaac.misc.associations.AssociationInstance;
 import sh.isaac.misc.associations.AssociationUtilities;
 import sh.isaac.misc.constants.VHATConstants;
-import sh.isaac.misc.constants.terminology.data.ActionType;
-import sh.isaac.misc.constants.terminology.data.DesignationType;
-import sh.isaac.misc.constants.terminology.data.KindType;
-import sh.isaac.misc.constants.terminology.data.PropertyType;
-import sh.isaac.misc.constants.terminology.data.Terminology;
+import sh.isaac.misc.constants.terminology.data.*;
 import sh.isaac.misc.constants.terminology.data.Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Designations.Designation;
 import sh.isaac.misc.constants.terminology.data.Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Designations.Designation.SubsetMemberships.SubsetMembership;
 import sh.isaac.misc.constants.terminology.data.Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Relationships.Relationship;
-import sh.isaac.model.configuration.LanguageCoordinates;
-import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
-import sh.isaac.model.coordinate.StampCoordinateImpl;
-import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.utility.Frills;
-import sh.isaac.api.TaxonomySnapshot;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.Marshaller;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
+import java.io.OutputStream;
+import java.text.SimpleDateFormat;
+import java.time.Year;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 
 
@@ -114,7 +97,7 @@ public class VetsExporter {
 
    private Terminology terminology;
 
-   private StampCoordinate STAMP_COORDINATES = null;
+   private StampFilter STAMP_COORDINATES = null;
 
    TaxonomySnapshot tss;
    
@@ -136,10 +119,10 @@ public class VetsExporter {
 
       this.fullExportMode = fullExportMode;
 
-      STAMP_COORDINATES = new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(endDate, MetaData.DEVELOPMENT_PATH____SOLOR.getNid()),
-            new HashSet(), new ArrayList(), Status.ANY_STATUS_SET);
+      STAMP_COORDINATES = StampFilterImmutable.make(StatusSet.ACTIVE_AND_INACTIVE, StampPositionImmutable.make(endDate, MetaData.DEVELOPMENT_PATH____SOLOR.getNid()),
+              IntSets.immutable.empty(), IntLists.immutable.empty());
       
-      tss = Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(STAMP_COORDINATES, null));
+      tss = Get.taxonomyService().getSnapshot(ManifoldCoordinateImmutable.makeStated(STAMP_COORDINATES, Coordinates.Language.UsEnglishFullyQualifiedName()));
 
       // XML object
       terminology = new Terminology();
@@ -162,7 +145,7 @@ public class VetsExporter {
       Set<String> newRelationshipTypes = new HashSet<>();
       
       // Add to map
-      Arrays.stream(Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(STAMP_COORDINATES, LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate()))
+      Arrays.stream(Get.taxonomyService().getSnapshot(ManifoldCoordinateImmutable.makeStated(STAMP_COORDINATES, Coordinates.Language.UsEnglishFullyQualifiedName()))
       .getTaxonomyChildConceptNids(
             VHATConstants.VHAT_ASSOCIATION_TYPES.getNid())).forEach((conceptId) -> {
                ConceptChronology concept = Get.conceptService().getConceptChronology(conceptId);
@@ -190,7 +173,7 @@ public class VetsExporter {
       }
 
       // Add to map
-      Arrays.stream(Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(STAMP_COORDINATES, LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate()))
+      Arrays.stream(Get.taxonomyService().getSnapshot(ManifoldCoordinateImmutable.makeStated(STAMP_COORDINATES, Coordinates.Language.UsEnglishPreferredName()))
          .getTaxonomyChildConceptNids(
             VHATConstants.VHAT_ATTRIBUTE_TYPES.getNid())).forEach((conceptId) -> {
                ConceptChronology concept = Get.conceptService().getConceptChronology(conceptId);
@@ -218,7 +201,7 @@ public class VetsExporter {
       }
 
       // Add to map
-      Arrays.stream(Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(STAMP_COORDINATES, LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate()))
+      Arrays.stream(Get.taxonomyService().getSnapshot(ManifoldCoordinateImmutable.makeStated(STAMP_COORDINATES, Coordinates.Language.UsEnglishPreferredName()))
             .getTaxonomyChildConceptNids(
             Get.identifierService().getNidForUuids(VHATConstants.VHAT_DESCRIPTION_TYPES.getPrimordialUuid()))).forEach((conceptId) -> {
                ConceptChronology concept = Get.conceptService().getConceptChronology(conceptId);
@@ -246,7 +229,7 @@ public class VetsExporter {
       }
 
       // Get data, Add to map
-      Arrays.stream(Get.taxonomyService().getSnapshot(new ManifoldCoordinateImpl(STAMP_COORDINATES, LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate()))
+      Arrays.stream(Get.taxonomyService().getSnapshot(ManifoldCoordinateImmutable.makeStated(STAMP_COORDINATES, Coordinates.Language.UsEnglishPreferredName()))
             .getTaxonomyChildConceptNids(VHATConstants.VHAT_REFSETS.getNid())).forEach((tcs) ->
       {
          ConceptChronology concept = Get.conceptService().getConceptChronology(tcs);
@@ -1052,7 +1035,7 @@ public class VetsExporter {
          //This doesn't happen for concept that represent subsets, for example.
          log.debug("Failed to find a description flagged as preferred on concept " + Get.identifierService().getUuidPrimordialForNid(conceptNid));
          String description = Frills.getDescription(conceptNid, STAMP_COORDINATES,
-               LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate()).orElse("ERROR!");
+                 Coordinates.Language.UsEnglishPreferredName()).orElse("ERROR!");
          if (description.equals("ERROR!"))
          {
             log.error("Failed to find any description on concept " + Get.identifierService().getUuidPrimordialForNid(conceptNid));

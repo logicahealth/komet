@@ -59,7 +59,7 @@ public class QueryClause {
     SimpleStringProperty clauseName;
     Manifold manifold;
     SimpleObjectProperty<ConceptSpecification> forSpecProperty = new SimpleObjectProperty<>(this, MetaData.FOR_ASSEMBLAGE____SOLOR.toExternalString());
-    SimpleObjectProperty<LetItemKey> stampKeyProperty = new SimpleObjectProperty<>(this, MetaData.STAMP_COORDINATE____SOLOR.toExternalString());
+    //SimpleObjectProperty<LetItemKey> stampKeyProperty = new SimpleObjectProperty<>(this, MetaData.STAMP_COORDINATE____SOLOR.toExternalString());
     ObservableList<JoinProperty> joinProperties;
     PropertySheet clausePropertySheet = null;
 
@@ -70,15 +70,15 @@ public class QueryClause {
 
     //~--- constructors -----------------------------------------------------
     protected QueryClause(Clause clause, Manifold manifold, ForPanel forPropertySheet, ObservableList<JoinProperty> joinProperties,
-            LetPropertySheet letPropertySheet) {
+                          LetPropertySheet letPropertySheet) {
         this.manifold = manifold;
         this.forPropertySheet = forPropertySheet;
         this.letPropertySheet = letPropertySheet;
         this.clauseProperty = new SimpleObjectProperty<>(this, "clauseProperty", clause);
-        this.clauseName = new SimpleStringProperty(this, clause.getClauseConcept().toExternalString(), manifold.getManifoldCoordinate().getPreferredDescriptionText(clause.getClauseConcept()));
+        this.clauseName = new SimpleStringProperty(this, clause.getClauseConcept().toExternalString(), manifold.getPreferredDescriptionText(clause.getClauseConcept()));
         this.clauseProperty.addListener(
                 (javafx.beans.value.ObservableValue<? extends sh.isaac.api.query.Clause> ov, sh.isaac.api.query.Clause oldClause, sh.isaac.api.query.Clause newClause)
-                -> this.clauseName.setValue(manifold.getManifoldCoordinate().getPreferredDescriptionText(newClause.getClauseConcept())));
+                -> this.clauseName.setValue(manifold.getPreferredDescriptionText(newClause.getClauseConcept())));
         this.joinProperties = joinProperties;
     }
 
@@ -243,11 +243,11 @@ public class QueryClause {
                 joinSpec.secondFieldProperty, joinProperties));
 
         clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("stamp",
-                joinSpec.stampCoordinateKeyProperty(), letPropertySheet.getStampCoordinateKeys()));
-        if (joinSpec.getStampCoordinateKey() == null & !letPropertySheet.getStampCoordinateKeys().isEmpty()) {
-            joinSpec.setStampCoordinateKey(letPropertySheet.getStampCoordinateKeys().get(0));
+                joinSpec.stampCoordinateKeyProperty(), letPropertySheet.getStampFilterKeys()));
+        if (joinSpec.getStampFilterKey() == null & !letPropertySheet.getStampFilterKeys().isEmpty()) {
+            joinSpec.setStampCoordinateKey(letPropertySheet.getStampFilterKeys().get(0));
         }
-        joinSpec.stampCoordinateKeyProperty().set(joinSpec.getStampCoordinateKey());
+        joinSpec.stampCoordinateKeyProperty().set(joinSpec.getStampFilterKey());
     }
     protected PropertySheet setupDifferenceQuery() {
         ChangedBetweenVersions changedClause = (ChangedBetweenVersions) clauseProperty.get();
@@ -256,19 +256,20 @@ public class QueryClause {
     }
 
     private PropertySheet setupStampKeyProperty(Supplier<LetItemKey> supplier, Consumer<LetItemKey> consumer, String label) {
-        SimpleObjectProperty<LetItemKey> stampKeyForClauseProperty = new SimpleObjectProperty<>(this, MetaData.ORIGIN_STAMP_COORDINATE_KEY_FOR_MANIFOLD____SOLOR.toExternalString());
-        this.clauseSpecificProperties.add(stampKeyForClauseProperty);
-        if (supplier.get() == null & !letPropertySheet.getStampCoordinateKeys().isEmpty()) {
-            consumer.accept(letPropertySheet.getStampCoordinateKeys().get(0));
-        }
-        stampKeyForClauseProperty.set(supplier.get());
-
-        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper(label,
-                stampKeyForClauseProperty, letPropertySheet.getStampCoordinateKeys()));
-        stampKeyForClauseProperty.addListener((observable, oldValue, newValue) -> {
-            consumer.accept(newValue);
-        });
-        return clausePropertySheet;
+        throw new UnsupportedOperationException();
+//        SimpleObjectProperty<LetItemKey> stampKeyForClauseProperty = new SimpleObjectProperty<>(this, MetaData.ORIGIN_STAMP_COORDINATE_KEY_FOR_MANIFOLD____SOLOR.toExternalString());
+//        this.clauseSpecificProperties.add(stampKeyForClauseProperty);
+//        if (supplier.get() == null & !letPropertySheet.getStampFilterKeys().isEmpty()) {
+//            consumer.accept(letPropertySheet.getStampFilterKeys().get(0));
+//        }
+//        stampKeyForClauseProperty.set(supplier.get());
+//
+//        clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper(label,
+//                stampKeyForClauseProperty, letPropertySheet.getStampFilterKeys()));
+//        stampKeyForClauseProperty.addListener((observable, oldValue, newValue) -> {
+//            consumer.accept(newValue);
+//        });
+//        return clausePropertySheet;
     }
 
     protected PropertySheet setupStampCoordinateClause(String keyName) {

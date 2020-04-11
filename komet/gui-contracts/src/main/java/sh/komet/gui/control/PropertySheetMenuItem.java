@@ -96,7 +96,7 @@ public class PropertySheetMenuItem
 
     //~--- constructors --------------------------------------------------------
     public PropertySheetMenuItem(Manifold manifold,
-            ObservableCategorizedVersion categorizedVersion) {
+                                 ObservableCategorizedVersion categorizedVersion) {
         this.manifold = manifold;
         this.observableVersion = categorizedVersion;
         this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
@@ -232,7 +232,7 @@ public class PropertySheetMenuItem
             int assemblageNid = observableVersion.getAssemblageNid();
             OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
                     propertyConceptSpecification.getNid(),
-                    assemblageNid, manifold);
+                    assemblageNid, manifold.getStampFilter());
             if (propertyIndex.isPresent()) {
                 property = observableVersion.getProperties().get(propertyIndex.getAsInt());
             }

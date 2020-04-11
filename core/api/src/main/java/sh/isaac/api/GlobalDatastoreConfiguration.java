@@ -24,7 +24,7 @@ import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.isaac.api.observable.coordinate.ObservablePathCoordinate;
 
 /**
  * This interface defines all attributes of the system that can be get or set on a global basis, and are persisted as part of the 
@@ -77,9 +77,9 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	/**
 	 * Gets the default stamp coordinate.
 	 *
-	 * @return an {@code ObservableStampCoordinate} based on the configuration defaults.
+	 * @return an {@code ObservablePathCoordinate} based on the configuration defaults.
 	 */
-	public ObservableStampCoordinate getDefaultStampCoordinate();
+	public ObservablePathCoordinate getDefaultStampCoordinate();
 
 	/**
 	 * Return the known (if any) details to utilize to make a GIT server connection.

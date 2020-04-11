@@ -136,9 +136,6 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         if (manifold == null) {
             throw new NullPointerException("Manifold cannot be null.");
         }
-        if (manifold.getStampCoordinate() == null) {
-            throw new NullPointerException("Manifold.getStampCoordinate() cannot be null.");
-        }
         if (manifold.getLanguageCoordinate() == null) {
             throw new NullPointerException("Manifold.getLanguageCoordinate() cannot be null.");
         }

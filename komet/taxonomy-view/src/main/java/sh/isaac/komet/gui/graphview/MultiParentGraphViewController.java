@@ -39,8 +39,8 @@ import javafx.fxml.FXML;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import sh.komet.gui.layout.LayoutAnimator;
-import sh.komet.gui.manifold.GraphAmalgamWithManifold;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.GraphAmalgamWithManifold;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.UuidStringKey;
 
@@ -575,7 +575,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         ConceptChronology concept = item.getValue();
         TaxonomySnapshot snapshot = taxonomySnapshotProperty.get();
         OpenIntHashSet conceptNids = new OpenIntHashSet();
-        HashMap<Integer, ArrayList<TaxonomyLink>> taxonomyLinks = new HashMap<>();
+        HashMap<Integer, ArrayList<Edge>> taxonomyLinks = new HashMap<>();
         handleConcept(concept.getNid(), snapshot, conceptNids, taxonomyLinks);
         String conceptName = Get.conceptDescriptionText(concept.getNid());
         conceptName = conceptName.replaceAll("\\s+", "_");
@@ -590,8 +590,8 @@ public class MultiParentGraphViewController implements RefreshListener {
         });
         buff.append("\n");
         int edgeCount = 1;
-        for (Map.Entry<Integer, ArrayList<TaxonomyLink>> entry: taxonomyLinks.entrySet()) {
-            for (TaxonomyLink link: entry.getValue()) {
+        for (Map.Entry<Integer, ArrayList<Edge>> entry: taxonomyLinks.entrySet()) {
+            for (Edge link: entry.getValue()) {
                 buff.append("   g.insertEdge(\"").append(m.getPreferredDescriptionText(entry.getKey())).append("\", \"")
                         .append(m.getPreferredDescriptionText(link.getDestinationNid())).append("\", \"").append(edgeCount++).append("\");\n");
             }
@@ -605,7 +605,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         ConceptChronology concept = item.getValue();
         TaxonomySnapshot snapshot = taxonomySnapshotProperty.get();
         OpenIntHashSet conceptNids = new OpenIntHashSet();
-        HashMap<Integer, ArrayList<TaxonomyLink>> taxonomyLinks = new HashMap<>();
+        HashMap<Integer, ArrayList<Edge>> taxonomyLinks = new HashMap<>();
         handleConcept(concept.getNid(), snapshot, conceptNids, taxonomyLinks);
         String conceptName = Get.conceptDescriptionText(concept.getNid());
         conceptName = conceptName.replaceAll("\\s+", "_");
@@ -622,8 +622,8 @@ public class MultiParentGraphViewController implements RefreshListener {
         });
         buff.append("\n");
         int edgeCount = 1;
-        for (Map.Entry<Integer, ArrayList<TaxonomyLink>> entry: taxonomyLinks.entrySet()) {
-            for (TaxonomyLink link: entry.getValue()) {
+        for (Map.Entry<Integer, ArrayList<Edge>> entry: taxonomyLinks.entrySet()) {
+            for (Edge link: entry.getValue()) {
                 buff.append("   g.addEdge(\"\\\"").append(m.getPreferredDescriptionText(entry.getKey())).append("\\\"\", \"\\\"")
                         .append(m.getPreferredDescriptionText(link.getDestinationNid())).append("\\\"\");\n");
             }
@@ -633,12 +633,12 @@ public class MultiParentGraphViewController implements RefreshListener {
         LOG.info(event);
     }
 
-    private void handleConcept(int conceptNid, TaxonomySnapshot snapshot, OpenIntHashSet conceptNids, HashMap<Integer, ArrayList<TaxonomyLink>> taxonomyLinks) {
+    private void handleConcept(int conceptNid, TaxonomySnapshot snapshot, OpenIntHashSet conceptNids, HashMap<Integer, ArrayList<Edge>> taxonomyLinks) {
         if (!conceptNids.contains(conceptNid)) {
             conceptNids.add(conceptNid);
-            ArrayList<TaxonomyLink> linkList = new ArrayList<>();
+            ArrayList<Edge> linkList = new ArrayList<>();
             taxonomyLinks.put(conceptNid, linkList);
-            for (TaxonomyLink link: snapshot.getTaxonomyParentLinks(conceptNid)) {
+            for (Edge link: snapshot.getTaxonomyParentLinks(conceptNid)) {
                 if (link.getTypeNid() == TermAux.IS_A.getNid()) {
                     linkList.add(link);
                 }

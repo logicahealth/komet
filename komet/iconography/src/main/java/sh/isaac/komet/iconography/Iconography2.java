@@ -30,6 +30,10 @@ import static sh.isaac.komet.iconography.IconSource.*;
  */
 public enum Iconography2 {
 
+    // TODO Consider replacement with: Ikonli
+    // https://dlsc.com/2020/03/11/javafx-tip-32-need-icons-use-ikonli/
+    // https://github.com/kordamp/ikonli
+
     //TODO make Iconagraphy a service/provider
     TAXONOMY_ICON(MATERIAL_DESIGNS_WEBFONT, "FILE_TREE", "taxonomy-icon"),
     TAXONOMY_ROOT_ICON(MATERIAL_DESIGNS_WEBFONT, "HEXAGON_OUTLINE", "taxonomy-root-icon"),

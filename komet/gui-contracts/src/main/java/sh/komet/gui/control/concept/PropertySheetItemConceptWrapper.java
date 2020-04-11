@@ -54,12 +54,12 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
     private ConceptSpecification propertySpecification = null;
 
     public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay,
-            ObjectProperty<? extends ConceptSpecification> conceptProperty, int... allowedValues) {
+                                           ObjectProperty<? extends ConceptSpecification> conceptProperty, int... allowedValues) {
         this(manifoldForDisplay, manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(conceptProperty.getName())), conceptProperty, allowedValues);
     }
 
     public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay, String name,
-            ObjectProperty<? extends ConceptSpecification> conceptProperty, int... allowedValues) {
+                                           ObjectProperty<? extends ConceptSpecification> conceptProperty, int... allowedValues) {
         this.manifoldForDisplay = manifoldForDisplay;
         this.name = name;
         this.conceptProperty = (SimpleObjectProperty<ConceptSpecification>) conceptProperty;
@@ -75,12 +75,12 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
     }
     
     public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay, String name,
-            ObjectProperty<? extends ConceptSpecification> conceptProperty) {
+                                           ObjectProperty<? extends ConceptSpecification> conceptProperty) {
         this(manifoldForDisplay, name, conceptProperty, (ConceptSpecification[]) new ConceptSpecification[0]);
     }
 
     public PropertySheetItemConceptWrapper(Manifold manifoldForDisplay, String name,
-            ObjectProperty<? extends ConceptSpecification> conceptProperty, ConceptSpecification... allowedValues) {
+                                           ObjectProperty<? extends ConceptSpecification> conceptProperty, ConceptSpecification... allowedValues) {
         this.manifoldForDisplay = manifoldForDisplay;
         this.name = name;
         this.conceptProperty = (SimpleObjectProperty<ConceptSpecification>) conceptProperty;
@@ -144,7 +144,7 @@ public class PropertySheetItemConceptWrapper implements ConceptSpecification, Pr
 
     @Override
     public String getFullyQualifiedName() {
-        return this.manifoldForDisplay.getFullySpecifiedDescriptionText(conceptProperty.get());
+        return this.manifoldForDisplay.getFullyQualifiedDescriptionText(conceptProperty.get());
     }
 
     @Override

@@ -161,7 +161,7 @@ public class DocBook {
         List<SemanticChronology> descriptions = Get.concept(concept).getConceptDescriptionList();
         HashMap<Integer, DescriptionVersion> nidDescriptionVersionMap = new HashMap<>();
         for (SemanticChronology descriptionChronology: descriptions) {
-            LatestVersion<DescriptionVersion> latestDescriptionVersion = descriptionChronology.getLatestVersion(manifold);
+            LatestVersion<DescriptionVersion> latestDescriptionVersion = descriptionChronology.getLatestVersion(manifold.getStampFilter());
             if (latestDescriptionVersion.isPresent()) {
                 DescriptionVersion descriptionVersion = latestDescriptionVersion.get();
                 if (descriptionVersion.getDescriptionTypeConceptNid() == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid() 
@@ -171,7 +171,7 @@ public class DocBook {
             }
         }
         
-        LatestVersion<DescriptionVersion> latestFQN = manifold.getFullySpecifiedDescription(concept);
+        LatestVersion<DescriptionVersion> latestFQN = manifold.getFullyQualifiedDescription(concept);
         if (latestFQN.isPresent()) {
             DescriptionVersion fqn = latestFQN.get();
             addDescriptionText(builder, fqn.getText());
@@ -203,7 +203,7 @@ public class DocBook {
 
         Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(concept.getNid(), TermAux.SNOMED_IDENTIFIER.getNid())
                 .forEach(((semanticChronology) -> {
-                    LatestVersion<StringVersion> latest = semanticChronology.getLatestVersion(manifold);
+                    LatestVersion<StringVersion> latest = semanticChronology.getLatestVersion(manifold.getStampFilter());
                     if (latest.isPresent()) {
                         builder.append("          ").append("<row><entry/><entry>SCTID: ");
                         builder.append(latest.get().getString());
@@ -213,7 +213,7 @@ public class DocBook {
     }
 
     private static void addTextDefinition(StringBuilder builder, ConceptSpecification concept, ManifoldCoordinate manifold) {
-        LatestVersion<DescriptionVersion> definition = manifold.getDefinitionDescription(Get.concept(concept).getConceptDescriptionList(), manifold);
+        LatestVersion<DescriptionVersion> definition = manifold.getLanguageCoordinate().getDefinitionDescription(Get.concept(concept).getConceptDescriptionList(), manifold.getStampFilter());
         if (definition.isPresent() && definition.get().getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
             addDescriptionText(builder, definition.get().getText());
         } else {
@@ -223,7 +223,7 @@ public class DocBook {
     }
 
     private static void addStatedDefinition(StringBuilder builder, ConceptChronology concept, ManifoldCoordinate manifold) {
-        LatestVersion<LogicGraphVersion> definition = concept.getLogicalDefinition(manifold, PremiseType.STATED, manifold);
+        LatestVersion<LogicGraphVersion> definition = concept.getLogicalDefinition(manifold.getStampFilter(), PremiseType.STATED, manifold.getLogicCoordinate());
         if (definition.isPresent()) {
             LogicGraphVersion logicGraph = definition.get();
             builder.append("          ").append("<row><entry/><entry><literallayout><emphasis>");
@@ -233,7 +233,7 @@ public class DocBook {
     }
 
     private static void addInferredDefinition(StringBuilder builder, ConceptChronology concept, ManifoldCoordinate manifold) {
-        LatestVersion<LogicGraphVersion> definition = concept.getLogicalDefinition(manifold, PremiseType.INFERRED, manifold);
+        LatestVersion<LogicGraphVersion> definition = manifold.getLogicalDefinition(concept, PremiseType.INFERRED);
         if (definition.isPresent()) {
             LogicGraphVersion logicGraph = definition.get();
             builder.append("          ").append("<row><entry/><entry><literallayout><emphasis>");

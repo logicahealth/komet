@@ -39,6 +39,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class CellHelper {
     private static final Logger LOG = LogManager.getLogger();
@@ -165,16 +166,14 @@ public class CellHelper {
     public static String getTextForComponent(Manifold manifold, Chronology component) {
         switch (component.getVersionType()) {
             case CONCEPT: {
-                LatestVersion<String> latestDescriptionText = manifold.getDescriptionText(component.getNid());
+                Optional<String> latestDescriptionText = manifold.getDescriptionText(component.getNid());
                 if (latestDescriptionText.isPresent()) {
                     return latestDescriptionText.get();
-                } else if (!latestDescriptionText.versionList().isEmpty()) {
-                    return latestDescriptionText.versionList().get(0);
                 }
                 return "No description for concept: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(component.getNid()));
             }
             case DESCRIPTION: {
-                LatestVersion<DescriptionVersion> latest = component.getLatestVersion(manifold);
+                LatestVersion<DescriptionVersion> latest = component.getLatestVersion(manifold.getStampFilter());
                 if (latest.isPresent()) {
                     return latest.get().getText();
                 } else if (!latest.versionList().isEmpty()) {
@@ -184,7 +183,7 @@ public class CellHelper {
             }
 
             default:
-                LatestVersion<Version>  latest = component.getLatestVersion(manifold);
+                LatestVersion<Version>  latest = component.getLatestVersion(manifold.getStampFilter());
                 if (latest.isPresent()) {
                     return latest.get().toUserString();
                 } else if (!latest.versionList().isEmpty()) {
@@ -197,11 +196,9 @@ public class CellHelper {
     public static String getTextForComponent(Manifold manifold, Version version) {
         switch (version.getSemanticType()) {
             case CONCEPT: {
-                LatestVersion<String> latestDescriptionText = manifold.getDescriptionText(version.getNid());
+                Optional<String> latestDescriptionText = manifold.getDescriptionText(version.getNid());
                 if (latestDescriptionText.isPresent()) {
                     return latestDescriptionText.get();
-                } else if (!latestDescriptionText.versionList().isEmpty()) {
-                    return latestDescriptionText.versionList().get(0);
                 }
                 return "No description for concept: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(version.getNid()));
             }
@@ -392,7 +389,7 @@ public class CellHelper {
             case SEMANTIC:
                 SemanticChronology semantic = Get.assemblageService()
                         .getSemanticChronology(componentNidVersion.getComponentNid());
-                LatestVersion<SemanticVersion> latest = semantic.getLatestVersion(cell.getManifold());
+                LatestVersion<SemanticVersion> latest = semantic.getLatestVersion(cell.getManifold().getStampFilter());
 
                 if (latest.isPresent()) {
                     processString(assemblageNameText, referencedComponentText, latest.get().toUserString(), StyleClasses.SEMANTIC_TEXT);

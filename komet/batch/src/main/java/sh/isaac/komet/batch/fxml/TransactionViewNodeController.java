@@ -2,7 +2,6 @@ package sh.isaac.komet.batch.fxml;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.collections.SetChangeListener;
@@ -14,8 +13,6 @@ import javafx.scene.layout.BorderPane;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.transaction.Transaction;
@@ -25,11 +22,13 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.row.DragAndDropRowFactory;
 import sh.komet.gui.table.version.VersionTable;
 import sh.komet.gui.util.FxGet;
+import sh.komet.gui.util.UuidStringKey;
 
 import java.net.URL;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 public class TransactionViewNodeController implements ComponentList {
 
@@ -102,8 +101,13 @@ public class TransactionViewNodeController implements ComponentList {
     }
 
     @Override
-    public ObservableList<ObservableChronology> getComponents() {
-        return versionTable.getRootNode().getItems();
+    public Stream<Chronology> getComponentStream() {
+        return versionTable.getRootNode().getItems().stream().map(observableChronology -> (Chronology) observableChronology);
+    }
+
+    @Override
+    public Optional<ObservableList<ObservableChronology>>  getOptionalObservableComponentList() {
+        return Optional.of(versionTable.getRootNode().getItems());
     }
 
     public void close() {
@@ -178,9 +182,16 @@ public class TransactionViewNodeController implements ComponentList {
     public StringProperty nameProperty() {
         return nameProperty;
     }
+
     @Override
-    public UUID getListId() {
-        return listId;
+    public UuidStringKey getUuidStringKey() {
+        return new UuidStringKey(listId, nameProperty().getValue());
     }
+
+    @Override
+    public int listSize() {
+        return versionTable.getRootNode().getItems().size();
+    }
+
 
 }

@@ -36,42 +36,13 @@
  */
 package sh.isaac.provider.datastore.chronology;
 
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.LongAccumulator;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.AssemblageService;
-import sh.isaac.api.Get;
-import sh.isaac.api.IdentifiedObjectService;
-import sh.isaac.api.IdentifierService;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.MetadataService;
-import sh.isaac.api.SingleAssemblageSnapshot;
-import sh.isaac.api.Status;
+import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -82,7 +53,6 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -93,9 +63,7 @@ import sh.isaac.api.component.semantic.version.MutableStringVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -108,9 +76,21 @@ import sh.isaac.model.ModelGet;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
 import sh.isaac.model.configuration.EditCoordinates;
-import sh.isaac.model.configuration.LanguageCoordinates;
-import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -324,9 +304,9 @@ public class ChronologyProvider
     }
 
     @Override
-    public boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate) {
+    public boolean isConceptActive(int conceptSequence, StampFilterImmutable stampFilter) {
         return Get.conceptActiveService()
-                .isConceptActive(conceptSequence, stampCoordinate);
+                .isConceptActive(conceptSequence, stampFilter);
     }
 
     @Override
@@ -350,7 +330,7 @@ public class ChronologyProvider
                 }
 
             } else {
-                throw new NoSuchElementException("No element for: " + conceptId + Arrays.toString(Get.identifierService().getUuidsForNid(conceptId).toArray()));
+                throw new NoSuchElementException("No element for: " + conceptId + " " + Arrays.toString(Get.identifierService().getUuidsForNid(conceptId).toArray()));
             }
         }
 
@@ -434,7 +414,7 @@ public class ChronologyProvider
       Optional<SemanticChronology> sdic = getSemanticChronologyStreamForComponentFromAssemblage(TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
              .findFirst();
        if (sdic.isPresent()) {
-          LatestVersion<Version> sdi = sdic.get().getLatestVersion(StampCoordinates.getDevelopmentLatest());
+          LatestVersion<Version> sdi = sdic.get().getLatestVersion(Coordinates.Filter.DevelopmentLatest());
           if (sdi.isPresent()) {
              try {
                 UUID temp = UUID.fromString(((StringVersion) sdi.get()).getString());
@@ -572,7 +552,7 @@ public class ChronologyProvider
                     nidToChronologyCache.put(chronology.getNid(), chronology);
                 }
             } else {
-                throw new NoSuchElementException("No element for: " + semanticId + Arrays.toString(Get.identifierService().getUuidsForNid(semanticId).toArray()));
+                throw new NoSuchElementException("No element for: " + semanticId + " " + Arrays.toString(Get.identifierService().getUuidsForNid(semanticId).toArray()));
             }
         }
         return chronology;
@@ -747,8 +727,8 @@ public class ChronologyProvider
 
     @Override
     public <V extends SemanticVersion> SemanticSnapshotService<V> getSnapshot(Class<V> versionType,
-            StampCoordinate stampCoordinate) {
-        return new AssemblageSnapshotProvider<>(versionType, stampCoordinate, this);
+                                                                              StampFilter stampFilter) {
+        return new AssemblageSnapshotProvider<>(versionType, stampFilter, this);
     }
 
     // TODO implement with a persistent cache of version types...
@@ -801,8 +781,9 @@ public class ChronologyProvider
      */
     public class ConceptSnapshotProvider implements ConceptSnapshotService {
 
-        ManifoldCoordinate manifoldCoordinate;
-        LanguageCoordinate regNameCoord;
+        final ManifoldCoordinate manifoldCoordinate;
+        final LanguageCoordinate regNameCoord;
+        final StampFilterImmutable stampFilterImmutable;
 
         /**
          * Instantiates a new concept snapshot provider.
@@ -811,7 +792,8 @@ public class ChronologyProvider
          */
         public ConceptSnapshotProvider(ManifoldCoordinate manifoldCoordinate) {
             this.manifoldCoordinate = manifoldCoordinate;
-            this.regNameCoord = LanguageCoordinates.getRegularNameCoordinate(false);
+            this.stampFilterImmutable = manifoldCoordinate.getStampFilter().toStampFilterImmutable();
+            this.regNameCoord = Coordinates.Language.AnyLanguageRegularName();
         }
 
         @Override
@@ -821,7 +803,7 @@ public class ChronologyProvider
 
         @Override
         public boolean isConceptActive(int conceptNid) {
-            return ChronologyProvider.this.isConceptActive(conceptNid, this.manifoldCoordinate);
+            return ChronologyProvider.this.isConceptActive(conceptNid, this.stampFilterImmutable);
         }
 
         @Override
@@ -840,10 +822,10 @@ public class ChronologyProvider
                 throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptId);
             }
 
-            LatestVersion<DescriptionVersion> lv = this.manifoldCoordinate.getDescription(Get.assemblageService().getDescriptionsForComponent(conceptId));
+            LatestVersion<DescriptionVersion> lv = this.manifoldCoordinate.getDescription(conceptId);
             if (lv.isAbsent()) {
                //Use a coordinate that will return anything
-               return regNameCoord.getDescription(Get.assemblageService().getDescriptionsForComponent(conceptId), this.manifoldCoordinate);
+               return regNameCoord.getDescription(Get.assemblageService().getDescriptionsForComponent(conceptId), this.manifoldCoordinate.getLanguageStampFilter());
             }
             else {
                return lv;
@@ -857,9 +839,9 @@ public class ChronologyProvider
     }
 
     @Override
-    public <V extends SemanticVersion> SingleAssemblageSnapshot<V> getSingleAssemblageSnapshot(int assemblageConceptNid, Class<V> versionType, StampCoordinate stampCoordinate) {
+    public <V extends SemanticVersion> SingleAssemblageSnapshot<V> getSingleAssemblageSnapshot(int assemblageConceptNid, Class<V> versionType, StampFilter stampFilter) {
         return (SingleAssemblageSnapshot<V>) new SingleAssemblageSnapshotProvider(assemblageConceptNid, 
-                (SemanticSnapshotService<V>) getSnapshot(versionType, stampCoordinate));
+                (SemanticSnapshotService<V>) getSnapshot(versionType, stampFilter));
     }
     
     

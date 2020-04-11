@@ -1,6 +1,8 @@
 package sh.isaac.komet.batch.action;
 
 import javafx.beans.property.SimpleObjectProperty;
+import org.eclipse.collections.api.list.primitive.ImmutableIntList;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -8,14 +10,12 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.coordinate.EditCoordinateImpl;
+import sh.isaac.komet.batch.VersionChangeListener;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.manifold.Manifold;
 
@@ -50,7 +50,7 @@ import static sh.isaac.komet.batch.action.PromoteComponentActionFactory.PROMOTE_
 public class PromoteComponentAction extends ActionItem {
     public static final int marshalVersion = 1;
     private enum PromoteKeys {
-        PROMOTION_PATH_STAMP_COORDINATE,
+        PROMOTION_STAMP_FILTER,
         PROMOTION_EDIT_COORDINATE
     }
     // origin path
@@ -100,33 +100,31 @@ public class PromoteComponentAction extends ActionItem {
 
 
     @Override
-    protected void setupForApply(ConcurrentHashMap<Enum, Object> cache, Transaction transaction, StampCoordinate stampCoordinate, EditCoordinate editCoordinate) {
-        cache.put(PromoteKeys.PROMOTION_PATH_STAMP_COORDINATE, stampCoordinate.makePathAnalog(promotionPathProperty.get()));
+    protected void setupForApply(ConcurrentHashMap<Enum, Object> cache, Transaction transaction, StampFilter stampFilter, EditCoordinate editCoordinate) {
+        StampFilterImmutable promotionFilter = StampFilterImmutable.make(stampFilter.getAllowedStates(),
+                StampPositionImmutable.make(stampFilter.getTime(), promotionPathProperty.get()),
+                stampFilter.getModuleNids(),
+                stampFilter.getModulePreferenceOrder());
+        cache.put(PromoteKeys.PROMOTION_STAMP_FILTER, promotionFilter);
 
-        EditCoordinateImpl promotionPathEditCoordinate;
-        if (editCoordinate instanceof ObservableEditCoordinate) {
-            promotionPathEditCoordinate = (EditCoordinateImpl) ((ObservableEditCoordinate) editCoordinate).getEditCoordinate().deepClone();
-        } else {
-            promotionPathEditCoordinate = (EditCoordinateImpl) editCoordinate.deepClone();
-        }
-        promotionPathEditCoordinate.setPathNid(promotionPathProperty.get().getNid());
-
-        cache.put(PromoteKeys.PROMOTION_EDIT_COORDINATE, stampCoordinate.makePathAnalog(promotionPathProperty.get()));
+        EditCoordinateImmutable promotionPathEditCoordinate = EditCoordinateImmutable.make(editCoordinate.getAuthorNid(), editCoordinate.getModuleNid(), promotionPathProperty.get().getNid());
+        cache.put(PromoteKeys.PROMOTION_EDIT_COORDINATE, promotionPathEditCoordinate);
     }
 
 
     @Override
-    public void apply(Chronology chronology, ConcurrentHashMap<Enum, Object> cache, Transaction transaction, StampCoordinate stampCoordinate, EditCoordinate editCoordinate) {
-        LatestVersion<Version> latestVersion = chronology.getLatestVersion(stampCoordinate);
+    public void apply(Chronology chronology, ConcurrentHashMap<Enum, Object> cache, Transaction transaction,
+                      StampFilter stampFilter, EditCoordinate editCoordinate, VersionChangeListener versionChangeListener) {
+        LatestVersion<Version> latestVersion = chronology.getLatestVersion(stampFilter);
         if (latestVersion.isAbsent()) {
             LOG.warn("Batch editing requires a latest version to update. None found for: " + chronology);
             // Nothing to do.
             return;
         }
         // See if the latest on the promotion path is different...
-        StampCoordinate promotionPathStampCoordinate = (StampCoordinate) cache.get(PromoteKeys.PROMOTION_PATH_STAMP_COORDINATE);
+        PathCoordinate promotionPathCoordinate = (PathCoordinate) cache.get(PromoteKeys.PROMOTION_STAMP_FILTER);
         EditCoordinate promotionPathEditCoordinate = (EditCoordinate) cache.get(PromoteKeys.PROMOTION_EDIT_COORDINATE);
-        LatestVersion<Version> promotionPathVersion = chronology.getLatestVersion(promotionPathStampCoordinate);
+        LatestVersion<Version> promotionPathVersion = chronology.getLatestVersion(promotionPathCoordinate.getStampFilter());
         if (promotionPathVersion.isPresent()) {
             // need to compare and see if different...
             LOG.info("Test for promotion: \n" + latestVersion.get() + "\n" + promotionPathVersion.get());
@@ -136,6 +134,7 @@ public class PromoteComponentAction extends ActionItem {
             Version version = latestVersion.get();
             Version analog = version.makeAnalog(transaction, promotionPathEditCoordinate);
             Get.commitService().addUncommitted(transaction, analog);
+            versionChangeListener.versionChanged(version, analog);
         }
     }
 

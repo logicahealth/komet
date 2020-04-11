@@ -5,44 +5,27 @@ import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
-import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampPosition;
-import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.logic.LogicalExpressionBuilder;
-import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.model.coordinate.StampCoordinateImpl;
-import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.StringReader;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import static sh.isaac.api.logic.LogicalExpressionBuilder.*;
 
 public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> {
     /**
@@ -145,27 +128,24 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
         updateMessage("Converting " + premiseType + " Owl expressions");
 
         List<SemanticChronology> owlChronologiesForConcept = new ArrayList<>();
-        TreeSet<StampPositionImpl> stampPositions = new TreeSet<>();
+        TreeSet<StampPosition> stampPositions = new TreeSet<>();
 
         for (int owlNid: owlNids) {
             SemanticChronology owlChronology = Get.assemblageService().getSemanticChronology(owlNid);
             owlChronologiesForConcept.add(owlChronology);
             for (int stampSequence: owlChronology.getVersionStampSequences()) {
-                stampPositions.add(new StampPositionImpl(Get.stampService().getTimeForStamp(stampSequence),
+                stampPositions.add(StampPositionImmutable.make(Get.stampService().getTimeForStamp(stampSequence),
                         Get.stampService().getPathNidForStamp(stampSequence)));
             }
         }
 
 
-        for (StampPositionImpl stampPosition: stampPositions) {
-            StampCoordinate stampCoordinateForPosition = new StampCoordinateImpl(StampPrecedence.PATH,
-                    stampPosition,
-                    new HashSet(), new ArrayList(),
-                    Status.makeActiveOnlySet());
+        for (StampPosition stampPosition: stampPositions) {
+            StampFilter stampFilterForPosition = StampFilterImmutable.make(StatusSet.ACTIVE_ONLY, stampPosition);
             List<String> owlExpressionsToProcess = new ArrayList<>();
 
             for (SemanticChronology owlChronology: owlChronologiesForConcept) {
-                LatestVersion<StringVersion> latestVersion = owlChronology.getLatestVersion(stampCoordinateForPosition);
+                LatestVersion<StringVersion> latestVersion = owlChronology.getLatestVersion(stampFilterForPosition);
                 if (latestVersion.isPresent()) {
                     StringVersion sv = latestVersion.get();
                     if (sv.getStatus() == Status.ACTIVE) {
@@ -201,27 +181,25 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
                     expression,
                     PremiseType.STATED,
                     stampPosition.getTime(),
-                    TermAux.SOLOR_OVERLAY_MODULE.getNid(), stampCoordinateForPosition);
+                    TermAux.SOLOR_OVERLAY_MODULE.getNid(), stampFilterForPosition);
         }
 
     }
 
     /**
      * Adds the relationship graph.
-     *
-     * @param conceptNid        the conceptNid
+     *  @param conceptNid        the conceptNid
      * @param logicalExpression the logical expression
      * @param premiseType       the premise type
      * @param time              the time
      * @param moduleNid         the module
-     * @param stampCoordinate   for determining current version if a graph already
-     *                          exists.
+     * @param stampFilter   for determining current version if a graph already
      */
     public void addLogicGraph(Transaction transaction, int conceptNid,
                               LogicalExpression logicalExpression,
                               PremiseType premiseType,
                               long time,
-                              int moduleNid, StampCoordinate stampCoordinate) {
+                              int moduleNid, StampFilter stampFilter) {
         if (time == Long.MAX_VALUE) {
             time = commitTime.toEpochMilli();
         }
@@ -248,7 +226,7 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
             }
             OptionalInt optionalGraphNid = graphNidsForComponent.findFirst();
             SemanticChronology existingGraph = Get.assemblageService().getSemanticChronology(optionalGraphNid.getAsInt());
-            LatestVersion<LogicGraphVersionImpl> latest = existingGraph.getLatestVersion(stampCoordinate);
+            LatestVersion<LogicGraphVersionImpl> latest = existingGraph.getLatestVersion(stampFilter);
             if (latest.isPresent()) {
                 LogicGraphVersionImpl logicGraphLatest = latest.get();
                 LogicalExpression latestExpression = logicGraphLatest.getLogicalExpression();

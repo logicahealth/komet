@@ -20,11 +20,8 @@ import java.util.UUID;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.UserConfigurationInternalImpl.ConfigurationOption;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.isaac.api.observable.coordinate.*;
+import sh.isaac.api.observable.coordinate.ObservablePathCoordinate;
 
 /**
  * This class provides the ability for the users to customize and persist changes to various default values.
@@ -82,7 +79,7 @@ public interface UserConfiguration
 	/**
 	 * @return The manifold coordinate as configured by the current user, which is 
 	 * mostly made up of the {@link #getEditCoordinate()}, {@link #getLanguageCoordinate()}, and 
-	 * {@link #getStampCoordinate()}
+	 * {@link #getPathCoordinate()}
 	 * Any changed made within the returned value will not be automatically persisted.
 	 */
 	public ObservableManifoldCoordinate getManifoldCoordinate();
@@ -91,7 +88,7 @@ public interface UserConfiguration
 	 * @return the stamp coordinate as configured by the current user
 	 * Any changes made within the returned value will not be automatically persisted.
 	 */
-	public ObservableStampCoordinate getStampCoordinate();
+	public ObservablePathCoordinate getPathCoordinate();
 
 	/**
 	 * Enable a key/value store mechanism to store arbitrary objects.  This enables add-on modules

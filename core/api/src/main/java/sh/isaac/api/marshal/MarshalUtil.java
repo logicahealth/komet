@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.file.Files;
@@ -59,26 +60,26 @@ public class MarshalUtil {
         }
     }
 
-    public static void toFile(Object object, File file) throws IOException, ReflectiveOperationException {
+    public static void toFile(Object object, File file) throws IOException {
         toFile(object, file.toPath());
     }
 
-    public static void toFile(Object object, Path filePath) throws ReflectiveOperationException, IOException {
+    public static void toFile(Object object, Path filePath) throws IOException {
         try (OutputStream outputStream = Files.newOutputStream(filePath)) {
             outputStream.write(toBytes(object));
         }
     }
-    public static <T extends Object> T fromFile(File file) throws ReflectiveOperationException, IOException {
+    public static <T extends Object> T fromFile(File file) throws IOException {
         return fromFile(file.toPath());
     }
 
-    public static <T extends Object> T fromFile(Path filePath) throws ReflectiveOperationException, IOException {
+    public static <T extends Object> T fromFile(Path filePath) throws IOException {
         try (InputStream inputStream = Files.newInputStream(filePath)) {
             return fromBytes(inputStream.readAllBytes());
         }
     }
 
-    public static byte[] toBytes(Object object) throws ReflectiveOperationException {
+    public static byte[] toBytes(Object object) {
         ByteArrayDataBuffer buffer = new ByteArrayDataBuffer();
         buffer.setExternalData(true);
         marshal(object, buffer);
@@ -86,13 +87,13 @@ public class MarshalUtil {
         return buffer.getData();
     }
 
-    public static <T extends Object> T fromBytes(byte[] bytes) throws ReflectiveOperationException {
+    public static <T extends Object> T fromBytes(byte[] bytes) {
         ByteArrayDataBuffer buff = new ByteArrayDataBuffer(bytes);
         buff.setExternalData(true);
         return unmarshal(buff);
     }
 
-    public static void marshal(Object object, ByteArrayDataBuffer out) throws ReflectiveOperationException {
+    public static void marshal(Object object, ByteArrayDataBuffer out) {
         switch (MarshalToken.fromClass(object)) {
             case LIST:
                 marshalList((List) object, out);
@@ -104,12 +105,12 @@ public class MarshalUtil {
                 out.putByte(MarshalToken.NULL.token);
                 break;
             default:
-                throw new ReflectiveOperationException("Can't marshal " + object.getClass().getName());
+                throw new RuntimeException("Can't marshal " + object.getClass().getName());
         }
 
     }
 
-    private static void marshalList(List list, ByteArrayDataBuffer out) throws ReflectiveOperationException {
+    private static void marshalList(List list, ByteArrayDataBuffer out) {
         out.putByte(MarshalToken.LIST.token);
         out.putInt(list.size());
         for (Object listElement: list) {
@@ -117,7 +118,7 @@ public class MarshalUtil {
         }
     }
 
-    private static <T extends Object> T listUnmarshal(ByteArrayDataBuffer in) throws ReflectiveOperationException {
+    private static <T extends Object> T listUnmarshal(ByteArrayDataBuffer in)  {
         int listSize = in.getInt();
         ArrayList list = new ArrayList(listSize);
         for (int i = 0; i < listSize; i++) {
@@ -127,7 +128,7 @@ public class MarshalUtil {
     }
 
 
-    private static void marshalDefault(Object object, ByteArrayDataBuffer out) throws ReflectiveOperationException {
+    private static void marshalDefault(Object object, ByteArrayDataBuffer out) {
         out.putByte(MarshalToken.MARSHALABLE.token);
         Class objectClass = object.getClass();
         String objectClassName = objectClass.getName();
@@ -136,7 +137,7 @@ public class MarshalUtil {
             for (Annotation annotation: method.getAnnotations()) {
                 if (annotation instanceof Marshaler) {
                     if (Modifier.isStatic(method.getModifiers())) {
-                        throw new ReflectiveOperationException("Marshaler method for class: " + objectClassName
+                        throw new RuntimeException("Marshaler method for class: " + objectClassName
                                 + " is static: " + method);
                     } else {
                         marshalMethodList.add(method);
@@ -149,14 +150,19 @@ public class MarshalUtil {
         } else if (marshalMethodList.size() == 1) {
             out.putUTF(objectClassName);
             Method unmarshalMethod = marshalMethodList.get(0);
-            unmarshalMethod.invoke(object, out);
+            try {
+                unmarshalMethod.invoke(object, out);
+            } catch (IllegalAccessException | InvocationTargetException e) {
+                e.printStackTrace();
+                throw new RuntimeException(e);
+            }
         } else {
-            throw new ReflectiveOperationException("More than one unmarshal method for class: " + objectClassName
+            throw new RuntimeException("More than one unmarshal method for class: " + objectClassName
                     + " methods: " + marshalMethodList);
         }
     }
 
-    public static <T extends Object> T unmarshal(ByteArrayDataBuffer in) throws ReflectiveOperationException {
+    public static <T extends Object> T unmarshal(ByteArrayDataBuffer in) {
         MarshalToken marshalToken = MarshalToken.fromBuffer(in);
         switch (marshalToken) {
             case LIST:
@@ -166,34 +172,39 @@ public class MarshalUtil {
             case NULL:
                 return null;
             default:
-                throw new ReflectiveOperationException("Can't unmarshal: " + marshalToken);
+                throw new RuntimeException("Can't unmarshal: " + marshalToken);
         }
 
 
     }
-    private static <T extends Object> T defaultUnmarshal(ByteArrayDataBuffer in) throws ReflectiveOperationException {
-        String className = in.getUTF();
-        Class objectClass = Class.forName(className);
-        ArrayList<Method> unmarshalMethodList = new ArrayList<>();
-        for (Method method: objectClass.getDeclaredMethods()) {
-            for (Annotation annotation: method.getAnnotations()) {
-                if (annotation instanceof Unmarshaler) {
-                    if (Modifier.isStatic(method.getModifiers())) {
-                        unmarshalMethodList.add(method);
-                    } else {
-                        throw new ReflectiveOperationException("Marshaler method for class: " + className
-                                + " is not static: " + method);
+    private static <T extends Object> T defaultUnmarshal(ByteArrayDataBuffer in) {
+        try {
+            String className = in.getUTF();
+            Class objectClass = Class.forName(className);
+            ArrayList<Method> unmarshalMethodList = new ArrayList<>();
+            for (Method method: objectClass.getDeclaredMethods()) {
+                for (Annotation annotation: method.getAnnotations()) {
+                    if (annotation instanceof Unmarshaler) {
+                        if (Modifier.isStatic(method.getModifiers())) {
+                            unmarshalMethodList.add(method);
+                        } else {
+                            throw new RuntimeException("Marshaler method for class: " + className
+                                    + " is not static: " + method);
+                        }
                     }
                 }
             }
+            if (unmarshalMethodList.isEmpty()) {
+                throw new IllegalStateException("No unmarshal method for class: " + className);
+            } else if (unmarshalMethodList.size() == 1) {
+                Method unmarshalMethod = unmarshalMethodList.get(0);
+                     return (T) unmarshalMethod.invoke(null, in);
+             }
+            throw new RuntimeException("More than one unmarshal method for class: " + className
+                    + " methods: " + unmarshalMethodList);
+        } catch (ClassNotFoundException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Is the right jar on the class path? ", e);
         }
-        if (unmarshalMethodList.isEmpty()) {
-            throw new IllegalStateException("No unmarshal method for class: " + className);
-        } else if (unmarshalMethodList.size() == 1) {
-            Method unmarshalMethod = unmarshalMethodList.get(0);
-                 return (T) unmarshalMethod.invoke(null, in);
-         }
-        throw new ReflectiveOperationException("More than one unmarshal method for class: " + className
-                + " methods: " + unmarshalMethodList);
     }
 }

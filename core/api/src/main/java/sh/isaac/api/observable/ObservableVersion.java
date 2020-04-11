@@ -129,7 +129,7 @@ public interface ObservableVersion
    IntegerProperty pathNidProperty();
 
    /**
-    * Stamp sequence property.
+    * Filter sequence property.
     *
     * @return the integer property
     */

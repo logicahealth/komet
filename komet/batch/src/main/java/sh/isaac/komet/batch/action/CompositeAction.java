@@ -1,20 +1,25 @@
 package sh.isaac.komet.batch.action;
 
+import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.marshal.Marshalable;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.komet.batch.VersionChangeListener;
 import sh.komet.gui.util.UuidStringKey;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
+import java.util.stream.Stream;
 
 public class CompositeAction implements Marshalable {
 
@@ -37,7 +42,7 @@ public class CompositeAction implements Marshalable {
 
     @Override
     @Marshaler
-    public void marshal(ByteArrayDataBuffer out) throws ReflectiveOperationException {
+    public void marshal(ByteArrayDataBuffer out) {
         out.putInt(marshalVersion);
         out.putUTF(actionTitle);
         MarshalUtil.marshal(listKey, out);
@@ -46,7 +51,7 @@ public class CompositeAction implements Marshalable {
     }
 
     @Unmarshaler
-    public static CompositeAction make(ByteArrayDataBuffer in) throws ReflectiveOperationException {
+    public static CompositeAction make(ByteArrayDataBuffer in) {
         int objectMarshalVersion = in.getInt();
         switch (objectMarshalVersion) {
             case marshalVersion:
@@ -59,23 +64,14 @@ public class CompositeAction implements Marshalable {
         }
     }
 
-    public void apply(List<? extends Chronology> items,
+    public void apply(int count, Stream<Chronology> itemsStream,
                       Transaction transaction,
-                      StampCoordinate stampCoordinate,
-                      EditCoordinate editCoordinate) {
-
-        ConcurrentHashMap<Enum, Object> cache = new ConcurrentHashMap<>();
-        for (ActionItem actionItem: actionItemList) {
-            actionItem.setupForApply(cache, transaction,
-                    stampCoordinate, editCoordinate);
-        }
-
-        for (Chronology chronologyItem: items) {
-            for (ActionItem actionItem: actionItemList) {
-                actionItem.apply(chronologyItem, cache, transaction,
-                        stampCoordinate, editCoordinate);
-            }
-        }
+                      StampFilter stampFilter,
+                      EditCoordinate editCoordinate,
+                      VersionChangeListener versionChangeListener) {
+        CompositeActionTask compositeActionTask = new CompositeActionTask(count, itemsStream, transaction,
+                stampFilter, editCoordinate, versionChangeListener);
+        Future<?> future = Get.executor().submit(compositeActionTask);
     }
 
     public String getActionTitle() {
@@ -92,5 +88,51 @@ public class CompositeAction implements Marshalable {
 
     public List<ActionItem> getActionItemList() {
         return Collections.unmodifiableList(actionItemList);
+    }
+
+    private class CompositeActionTask extends TimedTaskWithProgressTracker<Void> {
+
+        final Stream<Chronology> itemsStream;
+        final Transaction transaction;
+        final StampFilter stampFilter;
+        final EditCoordinate editCoordinate;
+        final VersionChangeListener versionChangeListener;
+
+        public CompositeActionTask(int size, Stream<Chronology> itemsStream,
+                                   Transaction transaction,
+                                   StampFilter stampFilter,
+                                   EditCoordinate editCoordinate,
+                                   VersionChangeListener versionChangeListener) {
+            this.itemsStream = itemsStream;
+            this.transaction = transaction;
+            this.stampFilter = stampFilter;
+            this.editCoordinate = editCoordinate;
+            this.versionChangeListener = versionChangeListener;
+            super.addToTotalWork(size);
+            super.updateTitle("Executing: " + actionTitle);
+            Get.activeTasks().add(this);
+        }
+
+        @Override
+        protected Void call() throws Exception {
+            try {
+                ConcurrentHashMap<Enum, Object> cache = new ConcurrentHashMap<>();
+                for (ActionItem actionItem: actionItemList) {
+                    actionItem.setupForApply(cache, transaction,
+                            stampFilter, editCoordinate);
+                }
+
+                itemsStream.parallel().forEach(chronology -> {
+                    for (ActionItem actionItem: actionItemList) {
+                        actionItem.apply(chronology, cache, transaction,
+                                stampFilter, editCoordinate, versionChangeListener);
+                        super.completedUnitOfWork();
+                    }
+                });
+                return null;
+            } finally {
+                Get.activeTasks().remove(this);
+            }
+        }
     }
 }

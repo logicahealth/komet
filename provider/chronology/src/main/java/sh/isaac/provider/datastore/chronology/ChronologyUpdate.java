@@ -37,25 +37,11 @@
 package sh.isaac.provider.datastore.chronology;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.OptionalInt;
-import java.util.TreeSet;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
-import javax.inject.Singleton;
-
-//~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.mahout.math.list.IntArrayList;
-import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.ConceptProxy;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.StaticIsaacCache;
@@ -77,8 +63,16 @@ import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.model.taxonomy.TaxonomyFlag;
 import sh.isaac.model.taxonomy.TaxonomyRecord;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
-import sh.isaac.model.taxonomy.TypeStampTaxonomyRecords;
 import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
+
+import javax.inject.Singleton;
+import java.util.List;
+import java.util.OptionalInt;
+import java.util.TreeSet;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicLong;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -140,6 +134,8 @@ public class ChronologyUpdate implements StaticIsaacCache {
                 record,
                 ChronologyUpdate::merge);
     }
+
+    private static ConceptProxy amebicEncephalitis = new ConceptProxy("Granulomatous amebic encephalitis (disorder)",UUID.fromString("8202f7c4-8390-3c72-96fa-a34d3d21c032"));
     public static void handleTaxonomyUpdate(SemanticChronology logicGraphChronology) {
         initCheck();
         int referencedComponentNid = logicGraphChronology.getReferencedComponentNid();
@@ -152,6 +148,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
             // TODO, remove this hack and figure out why some components are missing their assemblage. 
             conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
         }
+        final List<Graph<LogicGraphVersion>> versionGraphList = logicGraphChronology.getVersionGraphList();
 
 //   System.out.println("Taxonomy update " + taxonomyUpdateCount.getAndIncrement() + " for: " + 
 //         referencedComponentNid + " index: " + 
@@ -162,9 +159,12 @@ public class ChronologyUpdate implements StaticIsaacCache {
             taxonomyFlags = TaxonomyFlag.INFERRED;
         } else {
             taxonomyFlags = TaxonomyFlag.STATED;
+            if (referencedComponentNid == amebicEncephalitis.getNid()) {
+                LOG.info("Processing stated update: " + versionGraphList);
+            }
         }
 
-        final List<Graph<LogicGraphVersion>> versionGraphList = logicGraphChronology.getVersionGraphList();
+
         TaxonomyRecord taxonomyRecordForConcept = new TaxonomyRecord();
 
         for (Graph<LogicGraphVersion> versionGraph : versionGraphList) {
@@ -390,10 +390,16 @@ public class ChronologyUpdate implements StaticIsaacCache {
                     logicalExpression);
         }
 
+        TreeSet<LogicNode> retainedRoots = new TreeSet<>();
+        for (LogicNode relationshipRoot :isomorphicResults.getSharedRelationshipRoots()) {
+            retainedRoots.add(relationshipRoot);
+        }
+
         for (LogicNode relationshipRoot : isomorphicResults.getDeletedRelationshipRoots()) {
-            if (addedRoots.contains(relationshipRoot)) {
+            if (addedRoots.contains(relationshipRoot) || retainedRoots.contains(relationshipRoot)) {
                 continue;
             }
+
             final int activeStampSequence = node.getData()
                     .getStampSequence();
             final int stampSequence = Get.stampService()

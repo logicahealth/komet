@@ -11,7 +11,7 @@ import java.util.Optional;
 
 public class PropertySheetItemListViewWrapper implements PropertySheet.Item {
 
-    private final ObservableIntegerArray observableIntegerArray; //from Coordinate
+    private final ObservableIntegerArray observableIntegerArray; //from ImmutableCoordinate
     private final String name;
     private SimpleListProperty<ConceptForControlWrapper> simpleListProperty;
     private ListChangeListener<ConceptForControlWrapper> listChangeListener;

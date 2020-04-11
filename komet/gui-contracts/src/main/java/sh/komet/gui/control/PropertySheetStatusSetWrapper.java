@@ -48,9 +48,8 @@ public class PropertySheetStatusSetWrapper implements PropertySheet.Item {
     }
 
     public PropertySheetStatusSetWrapper(Manifold manifold,
-            SetProperty<Status> statusSetProperty) {
-        this(manifold.getPreferredDescriptionText(new ConceptProxy(statusSetProperty.getName()),
-                ConceptSpecification.getNameFromExternalString(statusSetProperty.getName())),
+                                         SetProperty<Status> statusSetProperty) {
+        this(manifold.getPreferredDescriptionText(new ConceptProxy(statusSetProperty.getName())),
                 statusSetProperty);
     }
     public ConceptSpecification getSpecification() {

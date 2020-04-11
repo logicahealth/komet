@@ -46,10 +46,7 @@ package sh.isaac.api.observable.coordinate;
 
 import javafx.beans.property.ObjectProperty;
 
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-
-import java.util.Optional;
+import sh.isaac.api.coordinate.*;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -59,70 +56,46 @@ import java.util.Optional;
  * @author kec
  */
 public interface ObservableManifoldCoordinate
-        extends ManifoldCoordinate, ObservableCoordinate {
+        extends ManifoldCoordinate, ObservableCoordinate<ManifoldCoordinateImmutable> {
+
+
+   @Override
+   ObservableDigraphCoordinate getDigraph();
+
+   @Override
+   ObservableLogicCoordinate getLogicCoordinate();
+
+   @Override
+   ObservableLanguageCoordinate getLanguageCoordinate();
+
    /**
-    * Language coordinate property.
     *
-    * @return the object property
+    * @return the vertexSort property.
     */
-   ObjectProperty<ObservableLanguageCoordinate> languageCoordinateProperty();
+   ObjectProperty<VertexSort> vertexSortProperty();
 
    /**
-    * Logic coordinate property.
     *
-    * @return the object property
+    * @return the digraph coordinate property.
     */
-   ObjectProperty<ObservableLogicCoordinate> logicCoordinateProperty();
+   ObjectProperty<DigraphCoordinateImmutable> digraphCoordinateImmutableProperty();
 
    /**
-    * Premise type property.
-    *
-    * @return the object property
+    * In most cases all stamp filters will be the same.
+    * @return the digraph edge stamp filter services as the default stamp filter.
     */
-   ObjectProperty<PremiseType> taxonomyPremiseTypeProperty();
+   ObservableStampFilter getStampFilter();
 
    /**
-    * Stamp coordinate property.
-    *
-    * @return the object property
+    * In most cases all stamp filters will be the same.
+    * @return the digraph vertex stamp filter services as the default stamp filter.
     */
-   ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty();
+   ObservableStampFilter getLanguageStampFilter();
 
-   /**
-    * 
-    * @return an observable coordinate, instead of the simple stamp coordinate
-    */
-   @Override
-   public ObservableStampCoordinate getStampCoordinate();
-   
-   /**
-    * @see sh.isaac.api.coordinate.ManifoldCoordinate#optionalDestinationStampCoordinate()
-    */
-   @Override
-   public Optional<? extends ObservableStampCoordinate> optionalDestinationStampCoordinate();
-   
-   /**
-    * @return An observable version of {@link #optionalDestinationStampCoordinate()}
+   ObservableStampFilter getVertexStampFilter();
 
-    */
-   public ObjectProperty<ObservableStampCoordinate> destinationStampCoordinateProperty();
+   ObservableStampFilter getEdgeStampFilter();
 
-   /**
-    * 
-    * @return an observable coordinate, instead of the simple language coordinate
-    */
-   @Override
-   public ObservableLanguageCoordinate getLanguageCoordinate();
 
-   /**
-    * 
-    * @return an observable coordinate, instead of the simple logic coordinate
-    */
-   @Override
-   public ObservableLogicCoordinate getLogicCoordinate();
-   
-   
-   @Override
-   public ObservableManifoldCoordinate deepClone();
 }
 

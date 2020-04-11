@@ -41,35 +41,31 @@ package sh.isaac.model.concept;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.ChronologyImpl;
-import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
-import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 
@@ -123,13 +119,13 @@ public class ConceptChronologyImpl
     * Contains description.
     *
     * @param descriptionText the description text
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return true, if successful
     */
    @Override
-   public boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate) {
+   public boolean containsDescription(String descriptionText, StampFilter stampFilter) {
       for (LatestVersion<DescriptionVersion> descVersion: Get.assemblageService()
-                .getSnapshot(DescriptionVersion.class, stampCoordinate)
+                .getSnapshot(DescriptionVersion.class, stampFilter)
                 .getLatestDescriptionVersionsForComponent(getNid())) {
          if (descVersion.isPresent() && descVersion.get().getText().equals(descriptionText)) {
             return true;
@@ -347,27 +343,27 @@ public class ConceptChronologyImpl
     * Gets the fully specified description.
     *
     * @param languageCoordinate the language coordinate
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the fully specified description
     */
    @Override
    public LatestVersion<DescriptionVersion> getFullyQualifiedNameDescription(LanguageCoordinate languageCoordinate,
-         StampCoordinate stampCoordinate) {
-      return languageCoordinate.getFullySpecifiedDescription(getConceptDescriptionList(), stampCoordinate);
+                                                                             StampFilter stampFilter) {
+      return languageCoordinate.getFullyQualifiedDescription(getConceptDescriptionList(), stampFilter);
    }
 
    /**
     * Gets the logical definition.
     *
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @param premiseType the premise type
     * @param logicCoordinate the logic coordinate
     * @return the logical definition
     */
    @Override
-   public LatestVersion<LogicGraphVersion> getLogicalDefinition(StampCoordinate stampCoordinate,
-         PremiseType premiseType,
-         LogicCoordinate logicCoordinate) {
+   public LatestVersion<LogicGraphVersion> getLogicalDefinition(StampFilter stampFilter,
+                                                                PremiseType premiseType,
+                                                                LogicCoordinate logicCoordinate) {
       int assemblageSequence;
 
       if (premiseType == PremiseType.INFERRED) {
@@ -376,28 +372,28 @@ public class ConceptChronologyImpl
          assemblageSequence = logicCoordinate.getStatedAssemblageNid();
       }
       List<LatestVersion<LogicGraphVersion>> latestVersionList = Get.assemblageService()
-                .getSnapshot(LogicGraphVersion.class, stampCoordinate)
+                .getSnapshot(LogicGraphVersion.class, stampFilter)
                 .getLatestSemanticVersionsForComponentFromAssemblage(getNid(), assemblageSequence);
       if (latestVersionList.isEmpty()) {
          return new LatestVersion<>();
       }
       return Get.assemblageService()
-                .getSnapshot(LogicGraphVersion.class, stampCoordinate)
+                .getSnapshot(LogicGraphVersion.class, stampFilter)
                 .getLatestSemanticVersionsForComponentFromAssemblage(getNid(), assemblageSequence).get(0);
    }
 
    /**
     * Gets the logical definition chronology report.
     *
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @param premiseType the premise type
     * @param logicCoordinate the logic coordinate
     * @return the logical definition chronology report
     */
    @Override
-   public String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate,
-         PremiseType premiseType,
-         LogicCoordinate logicCoordinate) {
+   public String getLogicalDefinitionChronologyReport(StampFilter stampFilter,
+                                                      PremiseType premiseType,
+                                                      LogicCoordinate logicCoordinate) {
       int assemblageSequence;
 
       if (premiseType == PremiseType.INFERRED) {
@@ -415,7 +411,7 @@ public class ConceptChronologyImpl
       if (definitionChronologyOptional.isPresent()) {
          
          final List<LogicGraphVersionImpl> versions =
-            definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate);
+            definitionChronologyOptional.get().getVisibleOrderedVersionList(stampFilter);
 
 //       Collection<LogicGraphSemanticImpl> versionsList = new ArrayList<>();
 //       for (LogicGraphVersionImpl lgs : definitionChronologyOptional.get().getVisibleOrderedVersionList(stampCoordinate)) {
@@ -473,21 +469,21 @@ public class ConceptChronologyImpl
 
    @Override
    public Optional<String> getRegularName() {
-      return Get.defaultCoordinate()
-                                    .getRegularName(this.getNid());
+      return Optional.ofNullable(Get.defaultCoordinate()
+                                    .getPreferredDescriptionText(this.getNid()));
    }
 
    /**
     * Gets the preferred description.
     *
     * @param languageCoordinate the language coordinate
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the preferred description
     */
    @Override
    public LatestVersion<DescriptionVersion> getPreferredDescription(LanguageCoordinate languageCoordinate,
-         StampCoordinate stampCoordinate) {
-      return languageCoordinate.getPreferredDescription(getConceptDescriptionList(), stampCoordinate);
+                                                                    StampFilter stampFilter) {
+      return languageCoordinate.getPreferredDescription(getConceptDescriptionList(), stampFilter);
    }
 }
 

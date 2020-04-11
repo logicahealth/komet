@@ -37,28 +37,11 @@
 
 package sh.isaac.misc.modules.vhat;
 
-import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.Future;
-import java.util.concurrent.ScheduledFuture;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
@@ -76,7 +59,6 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
@@ -85,23 +67,28 @@ import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampPosition;
-import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.misc.constants.VHATConstants;
-import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.model.coordinate.EditCoordinateImpl;
-import sh.isaac.model.coordinate.StampCoordinateImpl;
-import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.utility.Frills;
+
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import java.util.*;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.Future;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
+
+import static sh.isaac.api.logic.LogicalExpressionBuilder.*;
 
 /**
  * 
@@ -118,7 +105,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
    // Cached VHAT module nids
    private static NidSet VHAT_MODULES = null;
 
-   private static StampCoordinate VHAT_STAMP_COORDINATE = null;
+   private static StampFilter VHAT_STAMP_COORDINATE = null;
 
    private boolean enabled = true;
 
@@ -215,24 +202,22 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
       return providerUuid;
    }
    
-   private static Set<ConceptSpecification> getVHATModules(StampCoordinate coord) {
+   private static ImmutableIntSet getVHATModules(StampFilter stampFilter) {
       // Initialize VHAT module nids cache
       if (VHAT_MODULES == null || VHAT_MODULES.size() == 0) { // Should be unnecessary
-         VHAT_MODULES = NidSet.of(Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true, coord).toArray(new Integer[0]));
+         VHAT_MODULES = NidSet.of(Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true, stampFilter).toArray(new Integer[0]));
       }
-      HashSet<ConceptSpecification> vhatModules = new HashSet<>();
-      for (int nid: VHAT_MODULES.asArray()) {
-          vhatModules.add(Get.conceptSpecification(nid));
-      }
-      return vhatModules;
+      return IntSets.immutable.of(VHAT_MODULES.asArray());
    }
    
-   private static StampCoordinate getVHATDevelopmentLatestStampCoordinate() {
+   private static StampFilter getVHATDevelopmentLatestStampFilter() {
       if (VHAT_STAMP_COORDINATE == null) {
-         StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
+         StampPosition stampPosition = StampPositionImmutable.make(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
          
-         VHAT_STAMP_COORDINATE = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, getVHATModules(StampCoordinates.getDevelopmentLatest()),
-               new ArrayList<>(), Status.ANY_STATUS_SET);
+         VHAT_STAMP_COORDINATE = StampFilterImmutable.make(StatusSet.ACTIVE_AND_INACTIVE,
+                 stampPosition,
+                 getVHATModules(Coordinates.Filter.DevelopmentLatest()),
+                 IntLists.immutable.empty());
       }
 
       return VHAT_STAMP_COORDINATE;
@@ -320,7 +305,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
          LOG.trace("HandleCommit handling logic graph " + logicGraphNid + ". " + semanticNidsForUnhandledLogicGraphChanges.size() + " logic graphs remaining");
 
          SemanticChronology sc = Get.assemblageService().getSemanticChronology(logicGraphNid);
-         LatestVersion<Version> logicGraph = sc.getLatestVersion(getVHATDevelopmentLatestStampCoordinate());
+         LatestVersion<Version> logicGraph = sc.getLatestVersion(getVHATDevelopmentLatestStampFilter());
          if (!logicGraph.isPresent()) {
             // Apparently not a relevant LOGIC_GRAPH semantic
             return;
@@ -345,7 +330,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
             }
          }
 
-         final EditCoordinate editCoordinate = new EditCoordinateImpl(logicGraph.get().getAuthorNid(), logicGraph.get().getModuleNid(), logicGraph.get().getPathNid());
+         final EditCoordinate editCoordinate = EditCoordinateImmutable.make(logicGraph.get().getAuthorNid(), logicGraph.get().getModuleNid(), logicGraph.get().getPathNid());
 
          final Collection<DynamicVersion> hasParentAssociationDynamicSemantics = getActiveHasParentAssociationDynamicSemanticsAttachedToComponent(
                ((LogicGraphVersion) logicGraph.get()).getReferencedComponentNid());
@@ -502,7 +487,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
                + " hasParent associations remaining");
 
          SemanticChronology sc = Get.assemblageService().getSemanticChronology(hasParentSemanticNid);
-         LatestVersion<Version> hasParentSemantic = sc.getLatestVersion(getVHATDevelopmentLatestStampCoordinate());
+         LatestVersion<Version> hasParentSemantic = sc.getLatestVersion(getVHATDevelopmentLatestStampFilter());
          if (!hasParentSemantic.isPresent()) {
             // Apparently not a relevant has_parent association semantic
             return;
@@ -513,7 +498,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
          LOG.trace("Running VHATIsAHasParentSynchronizingChronologyChangeListener handleChange() on VHAT has_parent dynamic semantic {} for concept {}", sc.getPrimordialUuid(),
                referencedConcept.getPrimordialUuid());
 
-         final EditCoordinate editCoordinate = new EditCoordinateImpl(hasParentSemantic.get().getAuthorNid(), hasParentSemantic.get().getModuleNid(),
+         final EditCoordinate editCoordinate = EditCoordinateImmutable.make(hasParentSemantic.get().getAuthorNid(), hasParentSemantic.get().getModuleNid(),
                hasParentSemantic.get().getPathNid());
 
          // Handle changes to associations
@@ -631,8 +616,8 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
       while (it.hasNext()) {
          SemanticChronology hasParentAssociationDynamicSemantic = (SemanticChronology) it.next();
          // Ensure only working with ACTIVE hasParentAssociationDynamicSemantic version
-         if (hasParentAssociationDynamicSemantic.isLatestVersionActive(getVHATDevelopmentLatestStampCoordinate())) {
-            LatestVersion<Version> optionalLatestVersion = hasParentAssociationDynamicSemantic.getLatestVersion(getVHATDevelopmentLatestStampCoordinate());
+         if (hasParentAssociationDynamicSemantic.isLatestVersionActive(getVHATDevelopmentLatestStampFilter())) {
+            LatestVersion<Version> optionalLatestVersion = hasParentAssociationDynamicSemantic.getLatestVersion(getVHATDevelopmentLatestStampFilter());
             if (optionalLatestVersion.isPresent()) {
                if (!optionalLatestVersion.contradictions().isEmpty()) {
                   // TODO handle contradictions
@@ -655,7 +640,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
       final Iterator<SemanticChronology> it = getSemanticsForComponentFromAssemblagesFilteredBySemanticType(nid).iterator();
       while (it.hasNext()) {
          SemanticChronology hasParentAssociationDynamicSemantic = it.next();
-         LatestVersion<Version> optionalLatestVersion = hasParentAssociationDynamicSemantic.getLatestVersion(getVHATDevelopmentLatestStampCoordinate());
+         LatestVersion<Version> optionalLatestVersion = hasParentAssociationDynamicSemantic.getLatestVersion(getVHATDevelopmentLatestStampFilter());
          if (optionalLatestVersion.isPresent()) {
             if (!optionalLatestVersion.contradictions().isEmpty()) {
                // TODO handle contradictions

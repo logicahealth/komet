@@ -16,11 +16,7 @@
  */
 package sh.isaac.api.query.clauses;
 
-import java.util.EnumSet;
-import java.util.Map;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.collections.NidSet;
@@ -33,12 +29,13 @@ import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 
+import java.util.EnumSet;
+import java.util.Map;
+
 /**
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class ReferencedComponentIsKindOf
         extends ReferencedComponentWithManifoldAbstract {
 
@@ -76,12 +73,12 @@ public class ReferencedComponentIsKindOf
         ManifoldCoordinate manifoldCoordinate = (ManifoldCoordinate) this.enclosingQuery.getLetDeclarations().get(manifoldCoordinateKey);
         ConceptSpecification parentSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(referencedComponentSpecKey);
         ConceptChronology parentConcept = Get.concept(parentSpec);
-        if (!parentConcept.isLatestVersionActive(manifoldCoordinate)) {
+        if (!parentConcept.isLatestVersionActive(manifoldCoordinate.getVertexStampFilter())) {
             throw new IllegalStateException("Parent concept in kind-of query is inactive.");
         }
 
         TaxonomySnapshot snapshot = Get.taxonomyService().getSnapshot(manifoldCoordinate);
-        NidSet kindOfSet = snapshot.getKindOfConceptNidSet(parentSpec.getNid());
+        ImmutableIntSet kindOfSet = snapshot.getKindOfConcept(parentSpec.getNid());
 
         NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
         

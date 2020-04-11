@@ -68,9 +68,9 @@ public enum IsaacObjectType {
     */
    SEMANTIC((byte) 2, (byte) 1, "Semantic"),
    //3 was a commit record, deprecated, should not be reused
-   STAMP_COMMENT((byte) 4, (byte) 1, "Stamp Comment"),
-   STAMP_ALIAS((byte) 5, (byte) 1, "Stamp Alias"),
-   STAMP((byte) 6, (byte) 1, "Stamp"),
+   STAMP_COMMENT((byte) 4, (byte) 1, "Filter Comment"),
+   STAMP_ALIAS((byte) 5, (byte) 1, "Filter Alias"),
+   STAMP((byte) 6, (byte) 1, "Filter"),
    //7 was logical expression, deprecated, should not be reused
    UNKNOWN((byte) 128, (byte) 0, "Unknown");
 

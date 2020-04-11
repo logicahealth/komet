@@ -41,8 +41,6 @@ package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 //~--- constant enums ---------------------------------------------------------
 
 /**
@@ -50,7 +48,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author dylangrald
  */
-@XmlRootElement
 public enum ReturnTypes {
    /**
     * The native identifier of the component.

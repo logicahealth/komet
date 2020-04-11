@@ -21,7 +21,7 @@ import sh.komet.gui.interfaces.DetailNode;
 
 /**
  * A factory to enable creation of plug-in libraries to provide fx nodes, that represent a detail view of the 
- * {@code Manifold}'s focused object. 
+ * {@code Manifold}'s focused object.
  * @author kec
  */
 @Contract

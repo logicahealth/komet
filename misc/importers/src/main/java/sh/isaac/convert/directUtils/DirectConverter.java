@@ -43,7 +43,7 @@ import java.nio.file.Path;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import org.jvnet.hk2.annotations.Contract;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
@@ -65,13 +65,13 @@ public interface DirectConverter
 
 	/**
 	 * @param outputDirectory - optional - if provided, debug info will be written here
-	 * @param inputFolder - the folder to search for the source file(s).  Implementors should only utilize 
+	 * @param inputFolder - the folder to search for the source file(s).  Implementors should only utilize
 	 * {@link Path} operations on the inputFolder, incase the input folder is coming from a {@link FileSystems} that
 	 * doesn't suport toFile, such as zip.
 	 * @param converterSourceArtifactVersion - the version number of the source file being passed in
-	 * @param stampCoordinate - the coordinate to use for readback in cases where content merges into existing content
+	 * @param stampFilter - the coordinate to use for readback in cases where content merges into existing content
 	 */
-	void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate);
+	void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter);
 
 	/**
 	 * Run the actual conversion

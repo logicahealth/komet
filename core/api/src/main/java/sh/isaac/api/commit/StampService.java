@@ -42,6 +42,7 @@ package sh.isaac.api.commit;
 //~--- JDK imports ------------------------------------------------------------
 
 import javafx.concurrent.Task;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.Get;
@@ -50,7 +51,7 @@ import sh.isaac.api.VersionManagmentPathService;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.transaction.Transaction;
 
@@ -257,25 +258,20 @@ public interface StampService
     * end coordinate. IF authors are specified on the endCoordinate, only stamps from those
     * authors are included in the results.
     *
-    * @param startCoordinate
-    * @param endCoordinate
+    * @param startFilter
+    * @param endFilter
     * @return all stamps between the provided coordinates.
     */
-   default StampSequenceSet getStampsBetweenCoordinates(StampCoordinate startCoordinate, StampCoordinate endCoordinate) {
+   default StampSequenceSet getStampsBetweenCoordinates(StampFilter startFilter, StampFilter endFilter) {
       StampSequenceSet matchingStamps = new StampSequenceSet();
 
       VersionManagmentPathService positionCalc = Get.versionManagmentPathService();
-      NidSet authorNids = endCoordinate.getAuthorNids();
       StampService stampService = Get.stampService();
       getStampSequences().forEach(stamp -> {
-         if (positionCalc.getRelativePosition(stamp, startCoordinate) == RelativePosition.AFTER) {
-            RelativePosition relativeToEnd = positionCalc.getRelativePosition(stamp, endCoordinate);
+         if (positionCalc.getRelativePosition(stamp, startFilter) == RelativePosition.AFTER) {
+            RelativePosition relativeToEnd = positionCalc.getRelativePosition(stamp, endFilter);
             if (relativeToEnd == RelativePosition.EQUAL || relativeToEnd == RelativePosition.BEFORE) {
-               if (authorNids.isEmpty()) {
                   matchingStamps.add(stamp);
-               } else if (authorNids.contains(stampService.getAuthorNidForStamp(stamp))) {
-                   matchingStamps.add(stamp);
-               }
             }
          }
       });

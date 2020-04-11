@@ -41,12 +41,9 @@ package sh.isaac.api.tree;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Arrays;
 import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
 
-import org.apache.mahout.math.set.OpenIntHashSet;
-import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.collections.NidSet;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -130,7 +127,7 @@ public interface Tree {
     * descendents.
     * @return {@code BitSet} of the descendents of the {@code parentNid}
     */
-   NidSet getDescendentNidSet(int parentNid);
+   int[] getDescendentNids(int parentNid);
 
    /**
     * Gets the parent identifiers.

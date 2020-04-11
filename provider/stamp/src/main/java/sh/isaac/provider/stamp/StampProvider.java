@@ -46,7 +46,6 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.RoaringIntSet;
 import sh.isaac.api.collections.SequenceSet;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.commit.StampService;
@@ -64,6 +63,7 @@ import sh.isaac.provider.commit.TransactionImpl;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
+import javax.inject.Singleton;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -78,7 +78,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.function.BiFunction;
 import java.util.stream.IntStream;
 
 //~--- classes ----------------------------------------------------------------
@@ -126,7 +125,7 @@ public class StampProvider
     private final AtomicInteger nextStampSequence = new AtomicInteger(FIRST_STAMP_SEQUENCE);
 
     /**
-     * Persistent map of stamp sequences to a Stamp object. When a Stamp is canceld, the time is
+     * Persistent map of stamp sequences to a STAMP object. When a STAMP is cancelled, the time is
      * set to Long.MIN_VALUE, therefore there can be more than one stamp sequence for canceled
      * stamps. The stamp map supports an int[] so that when more than one canceled stamp with a
      * particuar module, author, & path will be properly represented.
@@ -201,11 +200,11 @@ public class StampProvider
                         }
                     });
 
-            LOG.info("DataStore implements extended API, will be used for Stamp Manager");
+            LOG.info("DataStore implements extended API, will be used for Filter Manager");
         } else {
             Files.createDirectories(this.dbFolderPath);
             this.stampManagerFolder = this.dbFolderPath.resolve(DEFAULT_STAMP_MANAGER_FOLDER);
-            LOG.info("DataStore does not implement extended API, local file store will be used for Stamp Manager");
+            LOG.info("DataStore does not implement extended API, local file store will be used for Filter Manager");
 
             this.sequenceToStamp = new StampFileStoreMap(
                     new File(this.stampManagerFolder.toFile(),
@@ -315,7 +314,7 @@ public class StampProvider
                         uncommittedStamp.moduleNid,
                         uncommittedStamp.pathNid);
                 if (stamp.getStatus() == Status.CANCELED) {
-                    LOG.info("Canceling Stamp <" + stampSequence + ">: " + stamp + " " + transaction);
+                    LOG.info("Canceling Filter <" + stampSequence + ">: " + stamp + " " + transaction);
                 }
 
                 addStamp(stamp, stampSequence);
@@ -512,6 +511,8 @@ public class StampProvider
 
     /**
      * Start me.
+     * NOTE: cannot get descriptions of concepts at this run level, the stamp provider must start before the
+     * concept service and assemblage service can start.
      */
     @PostConstruct
     private void startMe() {
@@ -617,13 +618,6 @@ public class StampProvider
                     {
                         this.uncommittedStampIntegerConcurrentHashMap.put(stampPair.getValue(), stampPair.getKey());
                     });
-                }
-            }
-            for (int stamp = 1; stamp < nextStampSequence.get(); stamp++) {
-                try {
-                    String descripton = describeStampSequence(stamp);
-                } catch (NoSuchElementException e) {
-                    LOG.warn(e.getLocalizedMessage());
                 }
             }
         } catch (final IOException e) {

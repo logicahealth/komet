@@ -46,8 +46,13 @@ import java.util.function.Supplier;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -56,11 +61,11 @@ import javafx.collections.ObservableSet;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 
+import org.eclipse.collections.api.set.ImmutableSet;
 import sh.isaac.MetaData;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -69,11 +74,7 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.interfaces.EditInFlight;
@@ -100,7 +101,7 @@ import sh.komet.gui.interfaces.EditInFlight;
  * @author kec
  */
 public class Manifold
-        implements StampCoordinateProxy, LanguageCoordinateProxy, LogicCoordinateProxy, ManifoldCoordinateProxy {
+        implements ObservableManifoldCoordinate {
 
     private static final ConcurrentHashMap<ManifoldGroup, Manifold> MANIFOLD_MAP = new ConcurrentHashMap<>();
 
@@ -174,7 +175,7 @@ public class Manifold
         for (ManifoldGroup group: ManifoldGroup.values()) {
             if (group != ManifoldGroup.UNLINKED) {
                 MANIFOLD_MAP.put(group, new Manifold(group.groupName, group.groupUuid, Get.configurationService()
-                        .getUserConfiguration(Optional.empty()).getManifoldCoordinate().deepClone(),
+                        .getUserConfiguration(Optional.empty()).getManifoldCoordinate(),
                         Get.configurationService()
                                 .getUserConfiguration(Optional.empty()).getEditCoordinate()));
             }
@@ -199,9 +200,6 @@ public class Manifold
                      UUID manifoldUuid,
                      ObservableManifoldCoordinate observableManifoldCoordinate,
                      ObservableEditCoordinate editCoordinate) {
-        if (observableManifoldCoordinate.getStampCoordinate() == null) {
-            throw new NullPointerException("Manifold.getStampCoordinate() cannot be null.");
-        }
         if (observableManifoldCoordinate.getLanguageCoordinate() == null) {
             throw new NullPointerException("Manifold.getLanguageCoordinate() cannot be null.");
         }
@@ -251,9 +249,7 @@ public class Manifold
                     // remitem.remove(Outer.this);
                 }
                 for (ComponentProxy additem : c.getAddedSubList()) {
-                    ComponentProxy historyRecord = new ComponentProxy(
-                            additem.getNid(),
-                            getFullySpecifiedDescriptionText(additem.getNid()));
+                    ComponentProxy historyRecord = new ComponentProxy(additem.getNid(), getFullyQualifiedDescriptionText(additem.getNid()));
                     addHistory(historyRecord, manifoldHistory);
                 }
             }
@@ -261,11 +257,6 @@ public class Manifold
         if (this.selectionPreferenceUpdater != null) {
             this.selectionPreferenceUpdater.run();
         }
-    }
-
-    @Override
-    public Manifold deepClone() {
-        throw new UnsupportedOperationException("Manifolds are singletons... Cloning would violate the singleton aspect...");
     }
 
     public String groupNameProperty() {
@@ -310,7 +301,7 @@ public class Manifold
                 groupName,
                 manifoldUuid,
                 Get.configurationService()
-                        .getUserConfiguration(Optional.empty()).getManifoldCoordinate().deepClone(),
+                        .getUserConfiguration(Optional.empty()).getManifoldCoordinate(),
                 Get.configurationService()
                         .getUserConfiguration(Optional.empty()).getEditCoordinate());
         return manifold;
@@ -318,13 +309,10 @@ public class Manifold
 
 
     private static Manifold newManifold(String name,
-                                       UUID manifoldUuid,
-                                       ObservableManifoldCoordinate observableManifoldCoordinate,
-                                       ObservableEditCoordinate editCoordinate) {
+                                        UUID manifoldUuid,
+                                        ObservableManifoldCoordinate observableManifoldCoordinate,
+                                        ObservableEditCoordinate editCoordinate) {
         Manifold manifold = new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate);
-        if (manifold.getStampCoordinate() == null) {
-            throw new NullPointerException("Manifold.getStampCoordinate() cannot be null.");
-        }
         if (manifold.getLanguageCoordinate() == null) {
             throw new NullPointerException("Manifold.getLanguageCoordinate() cannot be null.");
         }
@@ -332,18 +320,6 @@ public class Manifold
             throw new NullPointerException("Manifold.getLogicCoordinate() cannot be null.");
         }
         return manifold;
-    }
-
-    public LatestVersion<String> getDescriptionText(int conceptNid) {
-        LatestVersion<DescriptionVersion> latestVersion = getDescription(conceptNid, this);
-        if (latestVersion.isPresent()) {
-            LatestVersion<String> latestText = new LatestVersion<>(latestVersion.get().getText());
-            for (DescriptionVersion contradition : latestVersion.contradictions()) {
-                latestText.addLatest(contradition.getText());
-            }
-            return latestText;
-        }
-        return new LatestVersion<>();
     }
 
     @Override
@@ -443,33 +419,9 @@ public class Manifold
         return Optional.empty();
     }
 
-    @Override
-    public ObservableLanguageCoordinate getLanguageCoordinate() {
-        return this.observableManifoldCoordinate.getLanguageCoordinate();
-    }
-
-    @Override
-    public ObservableLogicCoordinate getLogicCoordinate() {
-        return this.observableManifoldCoordinate.getLogicCoordinate();
-    }
-
-    @Override
-    public ObservableManifoldCoordinate getManifoldCoordinate() {
-        return observableManifoldCoordinate;
-    }
 
     public UUID getManifoldUuid() {
         return manifoldUuid;
-    }
-
-    @Override
-    public ObservableStampCoordinate getStampCoordinate() {
-        return this.observableManifoldCoordinate.getStampCoordinate();
-    }
-
-    @Override
-    public Optional<? extends StampCoordinate> optionalDestinationStampCoordinate() {
-        return this.observableManifoldCoordinate.optionalDestinationStampCoordinate();
     }
 
     public void addEditInFlight(EditInFlight editInFlight) {
@@ -480,68 +432,118 @@ public class Manifold
     }
 
     @Override
-    public Optional<LanguageCoordinate> getNextPriorityLanguageCoordinate() {
-        return this.observableManifoldCoordinate.getNextPriorityLanguageCoordinate();
+    public ObservableDigraphCoordinate getDigraph() {
+        return this.observableManifoldCoordinate.getDigraph();
     }
 
     @Override
-    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
-        return this.observableManifoldCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
+    public ObservableLogicCoordinate getLogicCoordinate() {
+        return this.observableManifoldCoordinate.getLogicCoordinate();
     }
 
     @Override
-    public int[] getModulePreferenceListForLanguage() {
-        return this.observableManifoldCoordinate.getModulePreferenceListForLanguage();
+    public ObservableLanguageCoordinate getLanguageCoordinate() {
+        return this.observableManifoldCoordinate.getLanguageCoordinate();
     }
 
     @Override
-    public List<ConceptSpecification> getModulePreferenceOrderForVersions() {
-        return this.observableManifoldCoordinate.getModulePreferenceOrderForVersions();
+    public ObjectProperty<VertexSort> vertexSortProperty() {
+        return this.observableManifoldCoordinate.vertexSortProperty();
     }
 
     @Override
-    public Set<ConceptSpecification> getModuleSpecifications() {
-        return this.observableManifoldCoordinate.getModuleSpecifications();
+    public ObjectProperty<DigraphCoordinateImmutable> digraphCoordinateImmutableProperty() {
+        return this.observableManifoldCoordinate.digraphCoordinateImmutableProperty();
     }
 
     @Override
-    public ConceptSpecification getLanguageConcept() {
-        return this.observableManifoldCoordinate.getLanguageConcept();
+    public ObservableStampFilter getStampFilter() {
+        return this.observableManifoldCoordinate.getStampFilter();
     }
 
     @Override
-    public ConceptSpecification[] getDescriptionTypeSpecPreferenceList() {
-        return this.observableManifoldCoordinate.getDescriptionTypeSpecPreferenceList();
+    public ObservableStampFilter getLanguageStampFilter() {
+        return this.observableManifoldCoordinate.getLanguageStampFilter();
     }
 
     @Override
-    public ConceptSpecification[] getDialectAssemblageSpecPreferenceList() {
-        return this.observableManifoldCoordinate.getDialectAssemblageSpecPreferenceList();
+    public ObservableStampFilter getVertexStampFilter() {
+        return this.observableManifoldCoordinate.getVertexStampFilter();
     }
 
     @Override
-    public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
-        return this.observableManifoldCoordinate.getModuleSpecPreferenceListForLanguage();
+    public ObservableStampFilter getEdgeStampFilter() {
+        return this.observableManifoldCoordinate.getEdgeStampFilter();
     }
 
     @Override
-    public Set<ConceptSpecification> getAuthorSpecifications() {
-        return this.observableManifoldCoordinate.getAuthorSpecifications();
+    public void addListener(ChangeListener<? super ManifoldCoordinateImmutable> listener) {
+        this.observableManifoldCoordinate.addListener(listener);
     }
 
     @Override
-    public NidSet getAuthorNids() {
-        return this.observableManifoldCoordinate.getAuthorNids();
+    public void removeListener(ChangeListener<? super ManifoldCoordinateImmutable> listener) {
+        this.observableManifoldCoordinate.removeListener(listener);
     }
 
     @Override
-    public void putExternal(ByteArrayDataBuffer out) {
-        throw new UnsupportedOperationException();
+    public ManifoldCoordinateImmutable getValue() {
+        return this.observableManifoldCoordinate.getValue();
     }
 
     @Override
-    public StampCoordinateReadOnly getStampCoordinateReadOnly() {
-        return getStampCoordinate().getStampCoordinateReadOnly();
+    public void addListener(InvalidationListener listener) {
+        this.observableManifoldCoordinate.addListener(listener);
+    }
+
+    @Override
+    public void removeListener(InvalidationListener listener) {
+        this.observableManifoldCoordinate.removeListener(listener);
+    }
+
+    @Override
+    public VertexSort getVertexSort() {
+        return this.observableManifoldCoordinate.getVertexSort();
+    }
+
+    @Override
+    public void bind(ObservableValue<? extends ManifoldCoordinateImmutable> observable) {
+        this.observableManifoldCoordinate.bind(observable);
+    }
+
+    @Override
+    public void unbind() {
+        this.observableManifoldCoordinate.unbind();
+    }
+
+    @Override
+    public boolean isBound() {
+        return this.observableManifoldCoordinate.isBound();
+    }
+
+    @Override
+    public void bindBidirectional(Property<ManifoldCoordinateImmutable> other) {
+        this.observableManifoldCoordinate.bindBidirectional(other);
+    }
+
+    @Override
+    public void unbindBidirectional(Property<ManifoldCoordinateImmutable> other) {
+        this.observableManifoldCoordinate.unbindBidirectional(other);
+    }
+
+    @Override
+    public Object getBean() {
+        return this.observableManifoldCoordinate.getBean();
+    }
+
+    @Override
+    public String getName() {
+        return this.observableManifoldCoordinate.getName();
+    }
+
+    @Override
+    public void setValue(ManifoldCoordinateImmutable value) {
+        this.observableManifoldCoordinate.setValue(value);
     }
 }
 

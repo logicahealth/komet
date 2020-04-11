@@ -55,16 +55,12 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableVersion;
@@ -103,12 +99,12 @@ public class ObservableConceptChronologyImpl
     * Contains active description.
     *
     * @param descriptionText the description text
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return true, if successful
     */
    @Override
-   public boolean containsActiveDescription(String descriptionText, StampCoordinate stampCoordinate) {
-      return this.getConceptChronology().containsDescription(descriptionText, stampCoordinate);
+   public boolean containsActiveDescription(String descriptionText, StampFilter stampFilter) {
+      return this.getConceptChronology().containsDescription(descriptionText, stampFilter);
    }
 
    /**
@@ -157,16 +153,16 @@ public class ObservableConceptChronologyImpl
     * Gets the fully specified description.
     *
     * @param languageCoordinate the language coordinate
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the fully specified description
     */
    @Override
    public LatestVersion<ObservableDescriptionVersion> getFullyQualifiedNameDescription(
            LanguageCoordinate languageCoordinate,
-           StampCoordinate stampCoordinate) {
+           StampFilter stampFilter) {
       final LatestVersion<? extends DescriptionVersion> optionalFqn =
          this.getConceptChronology().getFullyQualifiedNameDescription(languageCoordinate,
-                                                                 stampCoordinate);
+                 stampFilter);
 
       return getSpecifiedDescription(optionalFqn);
    }
@@ -194,16 +190,16 @@ public class ObservableConceptChronologyImpl
     * Gets the preferred description.
     *
     * @param languageCoordinate the language coordinate
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the preferred description
     */
    @Override
    public LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            LanguageCoordinate languageCoordinate,
-           StampCoordinate stampCoordinate) {
+           StampFilter stampFilter) {
       final LatestVersion<? extends DescriptionVersion> optionalPreferred =
          this.getConceptChronology().getPreferredDescription(languageCoordinate,
-                                                            stampCoordinate);
+                 stampFilter);
 
       return getSpecifiedDescription(optionalPreferred);
    }
@@ -236,13 +232,13 @@ public class ObservableConceptChronologyImpl
    }
 
    @Override
-   public <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
-      return getConceptChronology().getLatestVersion(coordinate);
+   public <V extends Version> LatestVersion<V> getLatestVersion(StampFilter stampFilter) {
+      return getConceptChronology().getLatestVersion(stampFilter);
    }
 
    @Override
-   public boolean isLatestVersionActive(StampCoordinate coordinate) {
-      return getConceptChronology().isLatestVersionActive(coordinate);
+   public boolean isLatestVersionActive(StampFilter stampFilter) {
+      return getConceptChronology().isLatestVersionActive(stampFilter);
    }
 
    @Override
@@ -256,8 +252,8 @@ public class ObservableConceptChronologyImpl
    }
 
    @Override
-   public boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate) {
-      return getConceptChronology().containsDescription(descriptionText, stampCoordinate);
+   public boolean containsDescription(String descriptionText, StampFilter stampFilter) {
+      return getConceptChronology().containsDescription(descriptionText, stampFilter);
    }
 
    @Override
@@ -266,13 +262,13 @@ public class ObservableConceptChronologyImpl
    }
 
    @Override
-   public LatestVersion<LogicGraphVersion> getLogicalDefinition(StampCoordinate stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
-      return getConceptChronology().getLogicalDefinition(stampCoordinate, premiseType, logicCoordinate);
+   public LatestVersion<LogicGraphVersion> getLogicalDefinition(StampFilter stampFilter, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+      return getConceptChronology().getLogicalDefinition(stampFilter, premiseType, logicCoordinate);
    }
 
    @Override
-   public String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate, PremiseType premiseType, LogicCoordinate logicCoordinate) {
-      return getConceptChronology().getLogicalDefinitionChronologyReport(stampCoordinate, premiseType, logicCoordinate);
+   public String getLogicalDefinitionChronologyReport(StampFilter stampFilter, PremiseType premiseType, LogicCoordinate logicCoordinate) {
+      return getConceptChronology().getLogicalDefinitionChronologyReport(stampFilter, premiseType, logicCoordinate);
    }
 
    @Override

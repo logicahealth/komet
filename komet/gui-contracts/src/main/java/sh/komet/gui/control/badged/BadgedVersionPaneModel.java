@@ -590,7 +590,7 @@ public abstract class BadgedVersionPaneModel {
     }
 
     private void addAcceptabilityBadge(DescriptionVersion description, int dialogAssembblageNid, ImageView countryBadge) throws NoSuchElementException {
-        OptionalInt optAcceptabilityNid = manifold.getAcceptabilityNid(description.getNid(), dialogAssembblageNid, manifold);
+        OptionalInt optAcceptabilityNid = manifold.getAcceptabilityNid(description.getNid(), dialogAssembblageNid);
         if (optAcceptabilityNid.isPresent()) {
             int acceptabilityNid = optAcceptabilityNid.getAsInt();
             if (acceptabilityNid == MetaData.PREFERRED____SOLOR.getNid()) {
@@ -739,7 +739,7 @@ public abstract class BadgedVersionPaneModel {
 
         ObservableVersion observableVersion = propertySheetMenuItem.getVersionInFlight();
         observableVersion.putUserObject(PROPERTY_SHEET_ATTACHMENT, propertySheetMenuItem);
-        CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(manifold);
+        CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(manifold.getStampFilter());
 
         ComponentPaneModel componentPane = new ComponentPaneModel(getManifold(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap, getDisclosureStateMap());
         extensionPaneModels.add(componentPane);

@@ -39,15 +39,6 @@
 
 package sh.isaac.provider.logic.csiro.classify;
 
-import java.util.Optional;
-
-//~--- JDK imports ------------------------------------------------------------
-
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.MetaData;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
@@ -60,14 +51,20 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
+
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+
+//~--- JDK imports ------------------------------------------------------------
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 
@@ -85,7 +82,7 @@ public class GetConceptNidForExpressionTask
    ClassifierProvider classifierProvider;
 
    /** The stamp coordinate. */
-   StampCoordinate stampCoordinate;
+   StampFilter stampFilter;
 
    /** The logic coordinate. */
    LogicCoordinate logicCoordinate;
@@ -108,7 +105,7 @@ public class GetConceptNidForExpressionTask
          EditCoordinate statedEditCoordinate) {
       this.expression           = expression;
       this.classifierProvider   = classifierProvider;
-      this.stampCoordinate      = classifierProvider.stampCoordinate;
+      this.stampFilter = classifierProvider.stampFilter;
       this.logicCoordinate      = classifierProvider.logicCoordinate;
       this.statedEditCoordinate = statedEditCoordinate;
       updateTitle("Get ID for Expression");
@@ -152,7 +149,7 @@ public class GetConceptNidForExpressionTask
       try {
          final SemanticSnapshotService<LogicGraphVersionImpl> semanticSnapshot = Get.assemblageService()
                                                                                .getSnapshot(LogicGraphVersionImpl.class,
-                                                                                           this.stampCoordinate);
+                                                                                           this.stampFilter);
 
          updateMessage("Searching existing definitions...");
 

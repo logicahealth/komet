@@ -9,6 +9,7 @@ import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.observable.ObservableVersion;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -26,6 +27,8 @@ public interface Transaction {
     Set<Integer> getComponentNidsForTransaction();
 
     int getCheckCountForTransaction();
+
+    Optional<String> getTransactionName();
 
     boolean readyToCommit(ConcurrentSkipListSet<ChangeChecker> checkers,
                           ConcurrentSkipListSet<AlertObject> alertCollection,

@@ -60,7 +60,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 
@@ -143,13 +143,13 @@ public interface ObservableChronology
     * Gets the latest version.
     *
     * @param type the type
-    * @param coordinate the coordinate
+    * @param stampFilter the stamp filter
     * @return the latest version
     */
    LatestVersion<? extends ObservableVersion> getLatestVersion(Class<? extends StampedVersion> type,
-                                                            StampCoordinate coordinate);
+                                                            StampFilter stampFilter);
 
-   <V extends ObservableVersion> LatestVersion<V> getLatestObservableVersion(StampCoordinate coordinate);
+   <V extends ObservableVersion> LatestVersion<V> getLatestObservableVersion(StampFilter stampFilter);
 
    /**
     * This creates an observable version that is not added to the version list,

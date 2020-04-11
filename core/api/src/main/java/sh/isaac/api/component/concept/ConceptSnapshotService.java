@@ -43,6 +43,8 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 
+import java.util.NoSuchElementException;
+
 /**
  * The Interface ConceptSnapshotService.
  *
@@ -61,13 +63,17 @@ public interface ConceptSnapshotService {
     * {@code "No desc for: " + UUID;} will be returned.
     */
    default String conceptDescriptionText(int conceptNid) {
-       final LatestVersion<DescriptionVersion> descriptionOptional = getDescriptionOptional(conceptNid);
+      try {
+         final LatestVersion<DescriptionVersion> descriptionOptional = getDescriptionOptional(conceptNid);
 
-       if (descriptionOptional.isPresent()) {
-           return descriptionOptional.get().getText();
-       }
+         if (descriptionOptional.isPresent()) {
+             return descriptionOptional.get().getText();
+         }
 
-       return "No desc for: " + Get.identifierService().getUuidPrimordialStringForNid(conceptNid);
+         return "No desc for: " + Get.identifierService().getUuidPrimordialStringForNid(conceptNid);
+      } catch (NoSuchElementException e) {
+        return "No desc for: " + e.getLocalizedMessage();
+      }
    }
 
    /**
@@ -122,12 +128,13 @@ public interface ConceptSnapshotService {
     * there is not description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(int conceptNid) {
-      return getManifoldCoordinate().getFullySpecifiedDescription(Get.assemblageService().getDescriptionsForComponent(conceptNid));
+   default LatestVersion<DescriptionVersion> getFullyQualifiedDescription(int conceptNid) {
+      return getManifoldCoordinate().getFullyQualifiedDescription(conceptNid);
    }
 
    /**
-    * Gets the preferred description.
+    * Gets the preferred description. The preferred description is a regular name that is
+    * preferred within the rules of the language coordinate (dialects, etc).
     *
     * @param conceptNid of the concept to get the description for
     * @return The preferred description for this concept. Optional in case
@@ -135,6 +142,6 @@ public interface ConceptSnapshotService {
     * {@code LanguageCoordinate} of this snapshot.
     */
    default LatestVersion<DescriptionVersion> getPreferredDescription(int conceptNid) {
-      return getManifoldCoordinate().getPreferredDescription(Get.assemblageService().getDescriptionsForComponent(conceptNid));
+      return getManifoldCoordinate().getPreferredDescription(conceptNid);
    }
 }

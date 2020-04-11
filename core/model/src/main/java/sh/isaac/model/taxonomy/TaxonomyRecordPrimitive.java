@@ -44,13 +44,15 @@ import java.util.EnumSet;
 import java.util.Optional;
 
 import org.apache.mahout.math.list.IntArrayList;
+import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.coordinate.StampCoordinate;
+
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
 //~--- classes ----------------------------------------------------------------
@@ -327,16 +329,16 @@ public class TaxonomyRecordPrimitive {
     * Concept satisfies stamp.
     *
     * @param conceptNid the concept nid
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return true, if successful
     */
-   public boolean conceptSatisfiesStamp(int conceptNid, StampCoordinate stampCoordinate) {
-      final RelativePositionCalculator computer = RelativePositionCalculator.getCalculator(stampCoordinate);
+   public boolean conceptSatisfiesFilter(int conceptNid, StampFilterImmutable stampFilter) {
+      final RelativePositionCalculator computer = stampFilter.getRelativePositionCalculator();
 
-      return conceptSatisfiesStamp(conceptNid, computer);
+      return conceptSatisfiesFilter(conceptNid, computer);
    }
 
-   public boolean conceptSatisfiesStamp(int conceptNid, RelativePositionCalculator calculator) {
+   public boolean conceptSatisfiesFilter(int conceptNid, RelativePositionCalculator calculator) {
       int index = 0;
 
       while (index < taxonomyData.length) {
@@ -346,7 +348,7 @@ public class TaxonomyRecordPrimitive {
          final int length = taxonomyData[index];
          if (recordConceptNid == conceptNid) {
             final TypeStampTaxonomyRecords records = new TypeStampTaxonomyRecords(taxonomyData, index);
-            return records.containsConceptNidViaType(conceptNid, TaxonomyFlag.CONCEPT_STATUS.bits, calculator);
+            return records.containsConceptNidViaTypeWithAllowedStatus(conceptNid, TaxonomyFlag.CONCEPT_STATUS.bits, calculator);
          }
 
          index += length;
@@ -357,8 +359,8 @@ public class TaxonomyRecordPrimitive {
       return false;
    }
 
-   public EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate) {
-      return getTaxonomyRecordUnpacked().getConceptStates(conceptNid, stampCoordinate);
+   public EnumSet<Status> getConceptStates(int conceptNid, StampFilterImmutable stampFilter) {
+      return getTaxonomyRecordUnpacked().getConceptStates(conceptNid, stampFilter);
    }
    /**
     * Contains nid via type.
@@ -519,17 +521,39 @@ public class TaxonomyRecordPrimitive {
     * Checks if concept active.
     *
     * @param conceptNid the concept nid
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return true, if concept active
     * @deprecated replace with calls that use RelativePositionCalculator
     * TODO replace with calls that use RelativePositionCalculator
     */
-   public boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate) {
-      return conceptSatisfiesStamp(conceptNid, stampCoordinate);
+   public boolean isConceptActive(int conceptNid, StampFilterImmutable stampFilter) {
+      return isConceptActive(conceptNid, stampFilter.getRelativePositionCalculator());
    }
 
    public boolean isConceptActive(int conceptNid, RelativePositionCalculator relativePositionCalculator) {
-      return conceptSatisfiesStamp(conceptNid, relativePositionCalculator);
+      int index = 0;
+
+      while (index < taxonomyData.length) {
+         // the destination nid
+         final int recordConceptNid = taxonomyData[index++];
+         // followed by a variable number of type, stamp, flag records
+         final int length = taxonomyData[index];
+         if (recordConceptNid == conceptNid) {
+            final TypeStampTaxonomyRecords records = new TypeStampTaxonomyRecords(taxonomyData, index);
+            int[] stampValues = records.latestStampsForConceptNidViaTypeWithAllowedStatus(conceptNid, TaxonomyFlag.CONCEPT_STATUS.bits, relativePositionCalculator);
+            for (int stamp: stampValues) {
+               if (Get.stampService().isStampActive(stamp)) {
+                  return true;
+               }
+            }
+         }
+
+         index += length;
+         if (index < 0) {
+            throw new IllegalStateException("Index: " + index);
+         }
+      }
+      return false;
    }
 
    /**
@@ -537,15 +561,17 @@ public class TaxonomyRecordPrimitive {
     *
     * @param conceptNid the concept nid
     * @param taxonomyData the taxonomy map
-    * @param sc the sc
+    * @param stampFilter the sc
     * @return true, if concept active
+    * @deprecated replace with calls that use RelativePositionCalculator
+    * TODO replace with calls that use RelativePositionCalculator
     */
    public static boolean isConceptActive(int conceptNid,
-         final int[] taxonomyData,
-         StampCoordinate sc) {
+                                         final int[] taxonomyData,
+                                         StampFilterImmutable stampFilter) {
 
       if (taxonomyData != null) {
-         if (new TaxonomyRecordPrimitive(taxonomyData).isConceptActive(conceptNid, sc)) {
+         if (new TaxonomyRecordPrimitive(taxonomyData).isConceptActive(conceptNid, stampFilter)) {
             return true;
          }
       }

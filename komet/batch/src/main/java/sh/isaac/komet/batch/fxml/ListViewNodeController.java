@@ -18,13 +18,14 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.util.UUIDUtil;
 import sh.komet.gui.drag.drop.DropHelper;
 import sh.komet.gui.interfaces.ComponentList;
-import sh.komet.gui.manifold.GraphAmalgamWithManifold;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.GraphAmalgamWithManifold;
 import sh.komet.gui.row.DragAndDropRowFactory;
 import sh.komet.gui.table.version.VersionTable;
 import sh.komet.gui.util.FxGet;
@@ -34,6 +35,7 @@ import java.io.*;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 
 public class ListViewNodeController implements ComponentList {
 
@@ -77,9 +79,14 @@ public class ListViewNodeController implements ComponentList {
         this.viewChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             GraphAmalgamWithManifold graphAmalgamWithManifold = FxGet.graphConfiguration(newValue);
             this.manifold = graphAmalgamWithManifold.getManifold();
+            this.versionTable = new VersionTable(this.manifold);
             this.versionTable.setManifold(this.manifold);
         });
         this.viewChoiceBox.getSelectionModel().select(FxGet.defaultViewKey());
+    }
+
+    public ObservableList<ObservableChronology> getItemList() {
+        return this.versionTable.getRootNode().getItems();
     }
 
     public void setManifold(Manifold manifoldToIgnore) {
@@ -256,8 +263,21 @@ public class ListViewNodeController implements ComponentList {
     }
 
     @Override
-    public ObservableList<ObservableChronology> getComponents() {
+    public Stream<Chronology> getComponentStream() {
+        return versionTable.getRootNode().getItems().stream().map(observableChronology -> (Chronology) observableChronology);
+    }
+
+    @Override
+    public Optional<ObservableList<ObservableChronology>>  getOptionalObservableComponentList() {
+        return Optional.of(versionTable.getRootNode().getItems());
+    }
+
+    private ObservableList<ObservableChronology> getComponents() {
         return versionTable.getRootNode().getItems();
+    }
+    @Override
+    public int listSize() {
+        return versionTable.getRootNode().getItems().size();
     }
 
     @Override
@@ -266,8 +286,8 @@ public class ListViewNodeController implements ComponentList {
     }
 
     @Override
-    public UUID getListId() {
-        return listId;
+    public UuidStringKey getUuidStringKey() {
+        return new UuidStringKey(listId, nameProperty().getValue());
     }
 
 

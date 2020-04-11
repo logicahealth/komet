@@ -19,17 +19,13 @@ package sh.isaac.api.query.clauses;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LeafClause;
@@ -41,22 +37,18 @@ import sh.isaac.api.query.WhereClause;
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
-public class ComponentIsNotMemberOf 
+public class ComponentIsNotMemberOf
         extends LeafClause {
 
     /**
      * the stamp coordinate key.
      */
-    @XmlElement
     LetItemKey stampCoordinateKey;
 
     /**
      * The assemblage spec key.
      */
     //
-    @XmlElement
     LetItemKey assemblageSpecKey;
 
     //~--- constructors --------------------------------------------------------
@@ -90,11 +82,11 @@ public class ComponentIsNotMemberOf
     @Override
     public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
 
-       StampCoordinate stampCoordinate = (StampCoordinate) this.enclosingQuery.getLetDeclarations().get(stampCoordinateKey);
+       StampFilter stampFilter = (StampFilter) this.enclosingQuery.getLetDeclarations().get(stampCoordinateKey);
        ConceptSpecification assemblageSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(assemblageSpecKey);
        NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
        SingleAssemblageSnapshot<SemanticVersion> snapshot = Get.assemblageService()
-                .getSingleAssemblageSnapshot(assemblageSpec, SemanticVersion.class, stampCoordinate);
+                .getSingleAssemblageSnapshot(assemblageSpec, SemanticVersion.class, stampFilter);
         
         for (int nid: possibleComponents.asArray()) {
             List<LatestVersion<SemanticVersion>> latestList

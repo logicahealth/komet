@@ -41,27 +41,15 @@ package sh.isaac.model.configuration;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import javafx.collections.ObservableList;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
-import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
-import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
-import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
-import sh.isaac.model.observable.coordinate.ObservableStampCoordinateImpl;
-import sh.isaac.model.observable.coordinate.ObservableStampPositionImpl;
-import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
-import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
+import sh.isaac.api.coordinate.*;
+import sh.isaac.api.observable.coordinate.*;
+import sh.isaac.model.observable.coordinate.*;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 
@@ -71,60 +59,38 @@ import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
  * @author kec
  */
 public class DefaultCoordinateProvider {
-   /** The defaults setup. */
-   AtomicBoolean defaultsSetup = new AtomicBoolean();
-
-   /** The defaults setup latch. */
-   CountDownLatch defaultsSetupLatch = new CountDownLatch(1);
-
    /** The observable edit coordinate. */
-   ObservableEditCoordinate observableEditCoordinate;
+   private final ObservableEditCoordinate observableEditCoordinate;
 
    /** The observable language coordinate. */
-   ObservableLanguageCoordinate observableLanguageCoordinate;
+   private final ObservableLanguageCoordinate observableLanguageCoordinate;
 
    /** The observable logic coordinate. */
-   ObservableLogicCoordinate observableLogicCoordinate;
+   private final ObservableLogicCoordinate observableLogicCoordinate;
 
    /** The observable stamp coordinate. */
-   ObservableStampCoordinate observableStampCoordinate;
+   private final ObservablePathCoordinate observablePathCoordinate;
 
    /** The observable stamp position. */
-   ObservableStampPositionImpl observableStampPosition;
+   private final ObservableStampPositionImpl observableStampPosition;
 
    /** The observable taxonomy coordinate. */
-   ObservableManifoldCoordinate observableManifoldCoordinate;
+   private final ObservableManifoldCoordinate observableManifoldCoordinate;
 
    //~--- methods -------------------------------------------------------------
 
-   /**
-    * Setup defaults.
-    */
-   private void setupDefaults() {
-      try {
-         if (this.defaultsSetup.compareAndSet(false, true)) {
-            this.observableEditCoordinate =
-               new ObservableEditCoordinateImpl(EditCoordinates.getDefaultUserSolorOverlay());
-            this.observableLanguageCoordinate = new ObservableLanguageCoordinateImpl(
-                LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate());
-            this.observableLogicCoordinate = new ObservableLogicCoordinateImpl(LogicCoordinates.getStandardElProfile());
-            this.observableStampCoordinate =
-               new ObservableStampCoordinateImpl(StampCoordinates.getDevelopmentLatestActiveOnly());
-            this.observableStampPosition =
-               new ObservableStampPositionImpl(StampCoordinates.getDevelopmentLatestActiveOnly().getStampPosition());
-            this.observableManifoldCoordinate = new ObservableManifoldCoordinateImpl(
-                ManifoldCoordinates.getInferredManifoldCoordinate(this.observableStampCoordinate,
+   public DefaultCoordinateProvider() {
+      this.observableEditCoordinate =
+              new ObservableEditCoordinateImpl(EditCoordinates.getDefaultUserSolorOverlay());
+      this.observablePathCoordinate = ObservablePathCoordinateImpl.make(Coordinates.Path.Development());
+      this.observableLogicCoordinate = new ObservableLogicCoordinateImpl(Coordinates.Logic.ElPlusPlus());
+      this.observableLanguageCoordinate = new ObservableLanguageCoordinateImpl(
+              Coordinates.Language.UsEnglishFullyQualifiedName());
+      this.observableStampPosition = new ObservableStampPositionImpl(Coordinates.Position.LatestOnDevelopment());
+      this.observableManifoldCoordinate = new ObservableManifoldCoordinateImpl(
+              ManifoldCoordinateImmutable.makeInferred(this.observablePathCoordinate.getStampFilter(),
                       this.observableLanguageCoordinate,
                       this.observableLogicCoordinate));
-            this.observableStampCoordinate.stampPositionProperty()
-                                          .setValue(this.observableStampPosition);
-            this.defaultsSetupLatch.countDown();
-         }
-
-         this.defaultsSetupLatch.await();
-      } catch (final InterruptedException ex) {
-         throw new RuntimeException(ex);
-      }
    }
 
    /**
@@ -133,7 +99,6 @@ public class DefaultCoordinateProvider {
     * @param conceptId the new default classifier
     */
    public void setDefaultClassifier(int conceptId) {
-      setupDefaults();
       this.observableLogicCoordinate.classifierProperty()
                                     .set(new ConceptProxy(conceptId));
    }
@@ -144,7 +109,6 @@ public class DefaultCoordinateProvider {
     * @param conceptId the new default description logic profile
     */
    public void setDefaultDescriptionLogicProfile(int conceptId) {
-      setupDefaults();
       this.observableLogicCoordinate.descriptionLogicProfileProperty()
                                     .set(new ConceptProxy(conceptId));
    }
@@ -155,8 +119,6 @@ public class DefaultCoordinateProvider {
     * @param descriptionTypePreferenceList the new default description type preference list
     */
    public void setDefaultDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
-      setupDefaults();
-
       final ObservableList<ConceptSpecification> descriptionTypeList =
          this.observableLanguageCoordinate.descriptionTypePreferenceListProperty()
                                           .get();
@@ -173,8 +135,6 @@ public class DefaultCoordinateProvider {
     * @param dialectAssemblagePreferenceList the new default dialect assemblage preference list
     */
    public void setDefaultDialectAssemblagePreferenceList(int[] dialectAssemblagePreferenceList) {
-      setupDefaults();
-
       final ObservableList<ConceptSpecification> dialectAssemblageList =
          this.observableLanguageCoordinate.dialectAssemblagePreferenceListProperty()
                                           .get();
@@ -191,7 +151,6 @@ public class DefaultCoordinateProvider {
     * @return the default edit coordinate
     */
    public ObservableEditCoordinate getDefaultEditCoordinate() {
-      setupDefaults();
       return this.observableEditCoordinate;
    }
 
@@ -201,7 +160,6 @@ public class DefaultCoordinateProvider {
     * @param conceptId the new default inferred assemblage
     */
    public void setDefaultInferredAssemblage(int conceptId) {
-      setupDefaults();
       this.observableLogicCoordinate.inferredAssemblageProperty()
                                     .set(new ConceptProxy(conceptId));
    }
@@ -212,7 +170,6 @@ public class DefaultCoordinateProvider {
     * @param conceptId the new default language
     */
    public void setDefaultLanguage(int conceptId) {
-      setupDefaults();
       this.observableLanguageCoordinate.languageConceptProperty()
                                        .set(Get.conceptSpecification(conceptId));
    }
@@ -223,7 +180,6 @@ public class DefaultCoordinateProvider {
     * @return the default language coordinate
     */
    public ObservableLanguageCoordinate getDefaultLanguageCoordinate() {
-      setupDefaults();
       return this.observableLanguageCoordinate;
    }
 
@@ -233,7 +189,6 @@ public class DefaultCoordinateProvider {
     * @return the default logic coordinate
     */
    public ObservableLogicCoordinate getDefaultLogicCoordinate() {
-      setupDefaults();
       return this.observableLogicCoordinate;
    }
 
@@ -243,9 +198,7 @@ public class DefaultCoordinateProvider {
     * @param conceptId the new default module
     */
    public void setDefaultModule(int conceptId) {
-      setupDefaults();
-      this.observableEditCoordinate.moduleNidProperty()
-                                   .set(conceptId);
+      this.observableEditCoordinate.moduleProperty().setValue(Get.conceptSpecification(conceptId));
    }
 
    /**
@@ -254,11 +207,8 @@ public class DefaultCoordinateProvider {
     * @param pathSpecification
     */
    public void setDefaultPath(ConceptSpecification pathSpecification) {
-      setupDefaults();
-      this.observableStampPosition.stampPathConceptSpecificationProperty()
-                                  .set(pathSpecification);
-      this.observableEditCoordinate.pathNidProperty()
-                                   .set(pathSpecification.getNid());
+      this.observableStampPosition.pathConceptProperty().set(pathSpecification);
+      this.observableEditCoordinate.pathProperty().set(pathSpecification);
    }
 
    /**
@@ -266,9 +216,8 @@ public class DefaultCoordinateProvider {
     *
     * @return the default stamp coordinate
     */
-   public ObservableStampCoordinate getDefaultStampCoordinate() {
-      setupDefaults();
-      return this.observableStampCoordinate;
+   public ObservablePathCoordinate getDefaultStampCoordinate() {
+      return this.observablePathCoordinate;
    }
 
    /**
@@ -277,7 +226,6 @@ public class DefaultCoordinateProvider {
     * @param conceptId the new default stated assemblage
     */
    public void setDefaultStatedAssemblage(int conceptId) {
-      setupDefaults();
       this.observableLogicCoordinate.statedAssemblageProperty()
                                     .set(new ConceptProxy(conceptId));
    }
@@ -288,7 +236,6 @@ public class DefaultCoordinateProvider {
     * @return the default taxonomy coordinate
     */
    public ObservableManifoldCoordinate getDefaultManifoldCoordinate() {
-      setupDefaults();
       return this.observableManifoldCoordinate;
    }
 
@@ -298,7 +245,6 @@ public class DefaultCoordinateProvider {
     * @param timeInMs the new default time
     */
    public void setDefaultTime(long timeInMs) {
-      setupDefaults();
       this.observableStampPosition.timeProperty()
                                   .set(timeInMs);
    }
@@ -309,8 +255,7 @@ public class DefaultCoordinateProvider {
     * @param premiseType the new default premise type
     */
    public void setDefaultPremiseType(PremiseType premiseType) {
-      setupDefaults();
-      this.observableManifoldCoordinate.taxonomyPremiseTypeProperty().set(premiseType);
+      this.observableManifoldCoordinate.getDigraph().premiseTypeProperty().setValue(premiseType);
    }
 
    /**
@@ -319,9 +264,7 @@ public class DefaultCoordinateProvider {
     * @param conceptId the new default user
     */
    public void setDefaultUser(int conceptId) {
-      setupDefaults();
-      this.observableEditCoordinate.authorNidProperty()
-                                   .set(conceptId);
+      this.observableEditCoordinate.authorProperty().setValue(Get.conceptSpecification(conceptId));
    }
 }
 

@@ -8,6 +8,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.batch.iconography.PluginIcons;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.util.FxGet;
 
 import javax.inject.Singleton;
 
@@ -17,6 +18,10 @@ import javax.inject.Singleton;
 public class ListViewFactory implements ExplorationNodeFactory<ListViewNode> {
 
     public static final String LIST_VIEW = "List View";
+    {
+        ConceptComponentList conceptComponentList = new ConceptComponentList();
+        FxGet.addComponentList(conceptComponentList);
+    }
 
     @Override
     public ListViewNode createNode(Manifold manifold, IsaacPreferences nodePreferences) {

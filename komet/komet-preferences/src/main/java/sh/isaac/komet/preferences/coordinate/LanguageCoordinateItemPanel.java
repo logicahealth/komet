@@ -4,13 +4,14 @@ import javafx.beans.property.SimpleStringProperty;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.LanguageCoordinateImmutable;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.preferences.AbstractPreferences;
-import sh.isaac.model.coordinate.LanguageCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
@@ -41,14 +42,7 @@ public class LanguageCoordinateItemPanel extends AbstractPreferences {
 
     public LanguageCoordinateItemPanel(LanguageCoordinate languageCoordinate, String coordinateName, IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
         super(preferencesNode, coordinateName, manifold, kpc);
-        if (languageCoordinate instanceof ManifoldCoordinate) {
-            languageCoordinate = ((ManifoldCoordinate) languageCoordinate).getLanguageCoordinate();
-        }
-        if (languageCoordinate instanceof ObservableLanguageCoordinate) {
-            languageCoordinate = ((ObservableLanguageCoordinate) languageCoordinate).getLanguageCoordinate();
-        }
-
-        this.languageCoordinateItem = new ObservableLanguageCoordinateImpl(languageCoordinate.deepClone());
+         this.languageCoordinateItem = new ObservableLanguageCoordinateImpl(languageCoordinate.toLanguageCoordinateImmutable());
         setup(manifold);
         this.itemKey = new UuidStringKey(UUID.fromString(preferencesNode.name()), nameProperty.get());
         FxGet.languageCoordinates().put(itemKey, languageCoordinateItem);
@@ -66,11 +60,11 @@ public class LanguageCoordinateItemPanel extends AbstractPreferences {
         Optional<byte[]> optionalBytes = preferencesNode.getByteArray(Keys.LANGUAGE_COORDINATE_DATA);
         if (optionalBytes.isPresent()) {
             ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(optionalBytes.get());
-            LanguageCoordinateImpl languageCoordinate = LanguageCoordinateImpl.make(buffer);
+            LanguageCoordinateImmutable languageCoordinate = LanguageCoordinateImmutable.make(buffer);
             this.languageCoordinateItem = new ObservableLanguageCoordinateImpl(languageCoordinate);
         } else {
             setGroupName("US English");
-            LanguageCoordinate languageCoordinate = Get.coordinateFactory().getUsEnglishLanguagePreferredTermCoordinate();
+            LanguageCoordinateImmutable languageCoordinate = Coordinates.Language.UsEnglishPreferredName();
             this.languageCoordinateItem = new ObservableLanguageCoordinateImpl(languageCoordinate);
         }
         setup(manifold);
@@ -102,7 +96,7 @@ public class LanguageCoordinateItemPanel extends AbstractPreferences {
     protected void saveFields() throws BackingStoreException {
         getPreferencesNode().put(PreferenceGroup.Keys.GROUP_NAME, this.nameProperty.get());
         ByteArrayDataBuffer buff = new ByteArrayDataBuffer();
-        this.languageCoordinateItem.putExternal(buff);
+        this.languageCoordinateItem.getValue().marshal(buff);
         buff.trimToSize();
         getPreferencesNode().putByteArray(Keys.LANGUAGE_COORDINATE_DATA, buff.getData());
     }
@@ -113,12 +107,12 @@ public class LanguageCoordinateItemPanel extends AbstractPreferences {
 
         this.nameProperty.set(getPreferencesNode().get(PreferenceGroup.Keys.GROUP_NAME, getGroupName()));
         ByteArrayDataBuffer revertbuffer = new ByteArrayDataBuffer();
-        this.languageCoordinateItem.putExternal(revertbuffer);
+        this.languageCoordinateItem.getValue().marshal(revertbuffer);
         revertbuffer.trimToSize();
         byte[] data = getPreferencesNode().getByteArray(Keys.LANGUAGE_COORDINATE_DATA, revertbuffer.getData());
 
         ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(data);
-        LanguageCoordinateImpl languageCoordinate = LanguageCoordinateImpl.make(buffer);
+        LanguageCoordinate languageCoordinate = LanguageCoordinateImmutable.make(buffer);
         if (!languageCoordinate.getLanguageCoordinateUuid().equals(this.languageCoordinateItem.getLanguageCoordinateUuid())) {
 
             this.languageCoordinateItem.languageConceptProperty().setValue(languageCoordinate.getLanguageConcept());
@@ -130,7 +124,7 @@ public class LanguageCoordinateItemPanel extends AbstractPreferences {
             this.languageCoordinateItem.modulePreferenceListForLanguage().setAll(languageCoordinate.getModuleSpecPreferenceListForLanguage());
 
             // TODO: handle next priority language coordinate.
-            //LanguageCoordinateImpl nextPriorityLanguageCoordinate = null;
+            //LanguageCoordinate nextPriorityLanguageCoordinate = null;
 
         }
     }

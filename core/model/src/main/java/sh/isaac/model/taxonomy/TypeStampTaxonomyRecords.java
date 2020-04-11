@@ -193,10 +193,13 @@ public class TypeStampTaxonomyRecords {
      * @param computer the computer
      * @return true, if successful
      */
-    public boolean containsConceptNidViaType(int typeNid, int flags, RelativePositionCalculator computer) {
+    public boolean containsConceptNidViaTypeWithAllowedStatus(int typeNid, int flags, RelativePositionCalculator computer) {
         final int[] latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeNid, flags));
 
         return latestStamps.length > 0;
+    }
+    public int[] latestStampsForConceptNidViaTypeWithAllowedStatus(int typeNid, int flags, RelativePositionCalculator computer) {
+        return computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeNid, flags));
     }
 
     /**
@@ -224,10 +227,10 @@ public class TypeStampTaxonomyRecords {
      * @param computer the computer
      * @return true, if successful
      */
-    public boolean containsConceptNidViaType(int typeNid, ManifoldCoordinate tc, RelativePositionCalculator computer) {
-        final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
+    public boolean containsConceptNidViaTypeWithAllowedStatus(int typeNid, ManifoldCoordinate tc, RelativePositionCalculator computer) {
+        final int flags = TaxonomyFlag.getFlagsFromPremiseType(tc.getPremiseType());
 
-        return TypeStampTaxonomyRecords.this.containsConceptNidViaType(typeNid, flags, computer);
+        return TypeStampTaxonomyRecords.this.containsConceptNidViaTypeWithAllowedStatus(typeNid, flags, computer);
     }
 
     /**
@@ -238,7 +241,7 @@ public class TypeStampTaxonomyRecords {
      * @param computer the computer
      * @return true, if successful
      */
-    public boolean containsConceptNidViaType(NidSet typeNidSet, int flags, RelativePositionCalculator computer) {
+    public boolean containsConceptNidViaTypeWithAllowedStatus(NidSet typeNidSet, int flags, RelativePositionCalculator computer) {
 
         final int[] latestStamps = computer.getLatestStampSequencesAsSet(
                 getStampsOfTypeWithFlags(typeNidSet, flags));
@@ -254,12 +257,12 @@ public class TypeStampTaxonomyRecords {
      * @param computer the computer
      * @return true, if successful
      */
-    public boolean containsConceptNidViaType(NidSet typeNidSet,
-            ManifoldCoordinate tc,
-            RelativePositionCalculator computer) {
-        final int flags = TaxonomyFlag.getFlagsFromManifoldCoordinate(tc);
+    public boolean containsConceptNidViaTypeWithAllowedStatus(NidSet typeNidSet,
+                                                              ManifoldCoordinate tc,
+                                                              RelativePositionCalculator computer) {
+        final int flags = TaxonomyFlag.getFlagsFromPremiseType(tc.getPremiseType());
 
-        return TypeStampTaxonomyRecords.this.containsConceptNidViaType(typeNidSet, flags, computer);
+        return TypeStampTaxonomyRecords.this.containsConceptNidViaTypeWithAllowedStatus(typeNidSet, flags, computer);
     }
 
     /**

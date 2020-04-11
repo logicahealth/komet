@@ -197,22 +197,22 @@ public class CommitProvider
     /**
      * Persistent stamp nid.
      */
-    private final NidSet uncommittedConceptsWithChecksNidSet = NidSet.concurrent();
+    private final ConcurrentSkipListSet<Integer>  uncommittedConceptsWithChecksNidSet = new ConcurrentSkipListSet<>();
 
     /**
      * The uncommitted concepts no checks nid set.
      */
-    private final NidSet uncommittedConceptsNoChecksNidSet = NidSet.concurrent();
+    private final ConcurrentSkipListSet<Integer>  uncommittedConceptsNoChecksNidSet = new ConcurrentSkipListSet<>();
 
     /**
      * The uncommitted semantics with checks nid set.
      */
-    private final NidSet uncommittedSemanticsWithChecksNidSet = NidSet.concurrent();
+    private final ConcurrentSkipListSet<Integer>  uncommittedSemanticsWithChecksNidSet = new ConcurrentSkipListSet<>();
 
     /**
      * The uncommitted semantics no checks nid set.
      */
-    private final NidSet uncommittedSemanticsNoChecksNidSet = NidSet.concurrent();
+    private final ConcurrentSkipListSet<Integer>  uncommittedSemanticsNoChecksNidSet = new ConcurrentSkipListSet<>();
 
     private Set<Task<?>> pendingCommitTasks = ConcurrentHashMap.newKeySet();
 
@@ -460,7 +460,7 @@ public class CommitProvider
                 final StampAlias stampAlias = (StampAlias) isaacExternalizable;
 
                 this.stampAliasMap.addAlias(stampAlias.getStampSequence(), stampAlias.getStampAlias());
-                //TODO [DAN 3] with Stamp Alias, I'm not sure on the implications this may have for the index.  There
+                //TODO [DAN 3] with Filter Alias, I'm not sure on the implications this may have for the index.  There
                 //may be a required index update, with a stamp alias....
                 break;
 
@@ -523,7 +523,7 @@ public class CommitProvider
                 final StampAlias stampAlias = (StampAlias) isaacExternalizable;
 
                 this.stampAliasMap.addAlias(stampAlias.getStampSequence(), stampAlias.getStampAlias());
-                //TODO [DAN 3] with Stamp Alias, I'm not sure on the implications this may have for the index.  There
+                //TODO [DAN 3] with Filter Alias, I'm not sure on the implications this may have for the index.  There
                 //may be a required index update, with a stamp alias....
                 break;
 
@@ -815,7 +815,7 @@ public class CommitProvider
             switch (chronicle.getIsaacObjectType()) {
                 case CONCEPT: {
                     final int nid = chronicle.getNid();
-                    final NidSet set = changeCheckerActive ? this.uncommittedConceptsWithChecksNidSet
+                    final ConcurrentSkipListSet<Integer> set = changeCheckerActive ? this.uncommittedConceptsWithChecksNidSet
                             : this.uncommittedConceptsNoChecksNidSet;
 
                     if (chronicle.isUncommitted()) {
@@ -829,7 +829,7 @@ public class CommitProvider
 
                 case SEMANTIC: {
                     final int nid = chronicle.getNid();
-                    final NidSet set = changeCheckerActive ? this.uncommittedSemanticsWithChecksNidSet
+                    final ConcurrentSkipListSet<Integer> set = changeCheckerActive ? this.uncommittedSemanticsWithChecksNidSet
                             : this.uncommittedSemanticsNoChecksNidSet;
 
                     if (chronicle.isUncommitted()) {
@@ -932,10 +932,10 @@ public class CommitProvider
                                  = new DataInputStream(new FileInputStream(new File(this.commitManagerFolder.toFile(),
                             COMMIT_MANAGER_DATA_FILENAME)))) {
                         this.databaseSequence.set(in.readLong());
-                        this.uncommittedConceptsWithChecksNidSet.read(in);
-                        this.uncommittedConceptsNoChecksNidSet.read(in);
-                        this.uncommittedSemanticsWithChecksNidSet.read(in);
-                        this.uncommittedSemanticsNoChecksNidSet.read(in);
+                        this.uncommittedConceptsWithChecksNidSet.addAll(NidSet.of(in).box());
+                        this.uncommittedConceptsNoChecksNidSet.addAll(NidSet.of(in).box());
+                        this.uncommittedSemanticsWithChecksNidSet.addAll(NidSet.of(in).box());
+                        this.uncommittedSemanticsNoChecksNidSet.addAll(NidSet.of(in).box());
                     }
 
                     LOG.info("Reading: " + STAMP_ALIAS_MAP_FILENAME);
@@ -948,10 +948,10 @@ public class CommitProvider
                     // If a DB is just built by a loader, its possible that the databaseSequence was never incremented, and then, never stored to the data store.
                     // It needs to stay the default value, startup value, in this case.  
                     this.databaseSequence.set(dataStore.getSharedStoreLong(DEFAULT_COMMIT_MANAGER_FOLDER + "databaseSequence").orElse(this.databaseSequence.get()));
-                    this.uncommittedConceptsWithChecksNidSet.addAll(nidStore.get(uncommittedConceptsWithChecksNidSetId));
-                    this.uncommittedConceptsNoChecksNidSet.addAll(nidStore.get(uncommittedConceptsNoChecksNidSetId));
-                    this.uncommittedSemanticsWithChecksNidSet.addAll(nidStore.get(uncommittedSemanticsWithChecksNidSetId));
-                    this.uncommittedSemanticsNoChecksNidSet.addAll(nidStore.get(uncommittedSemanticsNoChecksNidSetId));
+                    this.uncommittedConceptsWithChecksNidSet.addAll(nidStore.get(uncommittedConceptsWithChecksNidSetId).box());
+                    this.uncommittedConceptsNoChecksNidSet.addAll(nidStore.get(uncommittedConceptsNoChecksNidSetId).box());
+                    this.uncommittedSemanticsWithChecksNidSet.addAll(nidStore.get(uncommittedSemanticsWithChecksNidSetId).box());
+                    this.uncommittedSemanticsNoChecksNidSet.addAll(nidStore.get(uncommittedSemanticsNoChecksNidSetId).box());
                 }
                 stampAliasMap = new StampAliasMap(dataStore);  //doen't need to read, it reads live as necessary
                 stampCommentMap = new StampCommentMap(dataStore); //doen't need to read, it reads live as necessary
@@ -1060,17 +1060,17 @@ public class CommitProvider
                                     this.commitManagerFolder.toFile(),
                                     COMMIT_MANAGER_DATA_FILENAME)))) {
                 out.writeLong(this.databaseSequence.get());
-                this.uncommittedConceptsWithChecksNidSet.write(out);
-                this.uncommittedConceptsNoChecksNidSet.write(out);
-                this.uncommittedSemanticsWithChecksNidSet.write(out);
-                this.uncommittedSemanticsNoChecksNidSet.write(out);
+                NidSet.of(this.uncommittedConceptsWithChecksNidSet.stream()).write(out);
+                NidSet.of(this.uncommittedConceptsNoChecksNidSet.stream()).write(out);
+                NidSet.of(this.uncommittedSemanticsWithChecksNidSet.stream()).write(out);
+                NidSet.of(this.uncommittedSemanticsNoChecksNidSet.stream()).write(out);
             }
         } else {
             //Just need to write the uncommitted nidset data.   Everything else  is written on change
-            nidStore.put(uncommittedConceptsWithChecksNidSetId, this.uncommittedConceptsWithChecksNidSet);
-            nidStore.put(uncommittedConceptsNoChecksNidSetId, this.uncommittedConceptsNoChecksNidSet);
-            nidStore.put(uncommittedSemanticsWithChecksNidSetId, this.uncommittedSemanticsWithChecksNidSet);
-            nidStore.put(uncommittedSemanticsNoChecksNidSetId, this.uncommittedSemanticsNoChecksNidSet);
+            nidStore.put(uncommittedConceptsWithChecksNidSetId, NidSet.of(this.uncommittedConceptsWithChecksNidSet.stream()));
+            nidStore.put(uncommittedConceptsNoChecksNidSetId, NidSet.of(this.uncommittedConceptsNoChecksNidSet.stream()));
+            nidStore.put(uncommittedSemanticsWithChecksNidSetId, NidSet.of(this.uncommittedSemanticsWithChecksNidSet.stream()));
+            nidStore.put(uncommittedSemanticsNoChecksNidSetId, NidSet.of(this.uncommittedSemanticsNoChecksNidSet.stream()));
         }
     }
 

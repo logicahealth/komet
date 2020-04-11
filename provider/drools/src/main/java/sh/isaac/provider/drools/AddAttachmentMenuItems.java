@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.OptionalInt;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import javafx.scene.control.MenuItem;
@@ -32,7 +31,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.model.observable.version.*;
@@ -59,7 +57,7 @@ public class AddAttachmentMenuItems {
     final HashMap<String, PropertySheetMenuItem> propertySheetMenuItems = new HashMap<>();
 
     public AddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
-            BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
+                                  BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
         this.manifold = manifold;
         this.categorizedVersion = categorizedVersion;
         this.newAttachmentConsumer = newAttachmentConsumer;
@@ -105,7 +103,7 @@ public class AddAttachmentMenuItems {
     }
 
     protected ObservableVersion makeNewVersion(ConceptSpecification assemblageSpecification) throws NoSuchElementException, InterruptedException, IllegalStateException, ExecutionException {
-        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageSpecification, manifold);
+        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageSpecification, manifold.getStampFilter());
         if (optionalSemanticConceptNid.isPresent()) {
             int semanticTypeNid = optionalSemanticConceptNid.getAsInt();
             if (semanticTypeNid == MetaData.CONCEPT_SEMANTIC____SOLOR.getNid()

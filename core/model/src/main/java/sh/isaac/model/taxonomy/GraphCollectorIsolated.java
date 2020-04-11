@@ -5,15 +5,15 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.coordinate.DigraphCoordinateImmutable;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.VertexSort;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
-import sh.isaac.model.tree.HashTreeBuilder;
 import sh.isaac.model.tree.HashTreeBuilderIsolated;
 
 import java.util.Arrays;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.ObjIntConsumer;
 
@@ -30,36 +30,43 @@ public class GraphCollectorIsolated
     /** The taxonomy map. */
     private final IntFunction<int[]> taxonomyDataProvider;
 
-    private final RelativePositionCalculator relativePositionCalculator;
-
-    Optional<RelativePositionCalculator> optionalDestinationCalculator;
-    Optional<Function<int[],int[]>> optionalSortFunction;
+    private final DigraphCoordinateImmutable digraph;
+    private final RelativePositionCalculator edgeComputer;
+    private final RelativePositionCalculator vertexComputer;
+    private final VertexSort sort;
 
     /** The taxonomy flags. */
     private final int taxonomyFlags;
 
     //~--- constructors --------------------------------------------------------
+    /**
+     * Instantiates a new graph collector.
+     *
+     * @param taxonomyDataProvider the taxonomy map
+     * @param manifoldCoordinate calculates current versions of components.
+     */
+    public GraphCollectorIsolated(IntFunction<int[]> taxonomyDataProvider,
+                                  ManifoldCoordinate manifoldCoordinate) {
+        this(taxonomyDataProvider, manifoldCoordinate.getDigraph().toDigraphImmutable(), manifoldCoordinate.getVertexSort());
+    }
 
     /**
      * Instantiates a new graph collector.
      *
      * @param taxonomyDataProvider the taxonomy map
-     * @param relativePositionCalculator calculates current versions of components.
+     * @param digraph calculates current versions of components.
      */
     public GraphCollectorIsolated(IntFunction<int[]> taxonomyDataProvider,
-                                  RelativePositionCalculator relativePositionCalculator,
-                                  int taxonomyFlags,
-                                  Optional<RelativePositionCalculator> optionalDestinationCalculator,
-                                  Optional<Function<int[],int[]>> optionalSortFunction) {
+                                  DigraphCoordinateImmutable digraph, VertexSort sort) {
         if (taxonomyDataProvider == null) {
             throw new IllegalStateException("taxonomyDataProvider cannot be null");
         }
         this.taxonomyDataProvider = taxonomyDataProvider;
-        this.relativePositionCalculator = relativePositionCalculator;
-        this.taxonomyFlags      = taxonomyFlags;
-        this.optionalDestinationCalculator = optionalDestinationCalculator;
-        this.optionalSortFunction = optionalSortFunction;
-
+        this.digraph = digraph;
+        this.edgeComputer = digraph.getEdgeStampFilter().getRelativePositionCalculator();
+        this.vertexComputer = digraph.getVertexStampFilter().getRelativePositionCalculator();
+        this.taxonomyFlags = TaxonomyFlag.getFlagsFromPremiseType(digraph.getPremiseType());
+        this.sort = sort;
      }
 
     //~--- methods -------------------------------------------------------------
@@ -104,19 +111,19 @@ public class GraphCollectorIsolated
             }
             final TaxonomyRecord taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.getTaxonomyRecordUnpacked();
             final int[] destinationConceptNids = taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
-                    this.taxonomyDataProvider, this.taxonomyFlags, this.relativePositionCalculator,
-                    this.optionalDestinationCalculator, this.optionalSortFunction);
+                    this.taxonomyDataProvider, this.taxonomyFlags, this.edgeComputer,
+                    this.vertexComputer, this.sort, this.digraph);
 
 
          if (destinationConceptNids.length == 0  &&
                  originNid != TermAux.SOLOR_ROOT.getNid() &&
                  isaacPrimitiveTaxonomyRecord.containsStampOfTypeWithFlags(this.ISA_CONCEPT_NID, this.taxonomyFlags) &&
-                 isaacPrimitiveTaxonomyRecord.isConceptActive(originNid, this.relativePositionCalculator)) {
+                 isaacPrimitiveTaxonomyRecord.isConceptActive(originNid, this.vertexComputer)) {
             // again for steping through with the debugger. Remove when issues resolved.
-             LOG.info("Found concept with no parents: " + originNid);
+             LOG.info("Found concept with no parents: " + Get.conceptDescriptionText(originNid) + " <" + originNid + ">");
              final int[] destinationConceptNids2 = taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
-                    this.taxonomyDataProvider, this.taxonomyFlags, this.relativePositionCalculator,
-                    this.optionalDestinationCalculator, this.optionalSortFunction);
+                    this.taxonomyDataProvider, this.taxonomyFlags, this.edgeComputer,
+                    this.vertexComputer, this.sort, this.digraph);
              LOG.info("Second try equals: " + Arrays.equals(destinationConceptNids, destinationConceptNids2));
              LOG.info("Second try: " + Arrays.toString(destinationConceptNids2));
          }

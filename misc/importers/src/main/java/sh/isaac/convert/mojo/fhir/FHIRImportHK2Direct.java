@@ -36,50 +36,11 @@
  */
 package sh.isaac.convert.mojo.fhir;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.ChronoField;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
+import fhir.*;
+import javafx.util.Pair;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
-import fhir.Bundle;
-import fhir.BundleEntry;
-import fhir.BundleTypeList;
-import fhir.Canonical;
-import fhir.CodeSystem;
-import fhir.CodeSystemConcept;
-import fhir.CodeSystemContentModeList;
-import fhir.CodeSystemDesignation;
-import fhir.CodeSystemProperty;
-import fhir.CodeSystemProperty1;
-import fhir.CodeableConcept;
-import fhir.Coding;
-import fhir.ContactDetail;
-import fhir.ContactPoint;
-import fhir.DomainResource;
-import fhir.Extension;
-import fhir.Identifier;
-import fhir.Meta;
-import fhir.PublicationStatusList;
-import fhir.Uri;
-import fhir.ValueSet;
-import javafx.util.Pair;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LanguageCode;
@@ -89,7 +50,8 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT5Generator;
@@ -97,15 +59,27 @@ import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
-import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.model.semantic.types.DynamicBooleanImpl;
-import sh.isaac.model.semantic.types.DynamicDoubleImpl;
-import sh.isaac.model.semantic.types.DynamicIntegerImpl;
-import sh.isaac.model.semantic.types.DynamicLongImpl;
-import sh.isaac.model.semantic.types.DynamicStringImpl;
+import sh.isaac.model.semantic.types.*;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.utility.LanguageMap;
+
+import java.io.File;
+import java.io.IOException;
+import java.lang.String;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
+import java.util.List;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 
 /**
  * {@link FHIRImportHK2Direct}
@@ -167,7 +141,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 
 	/**
 	 * This constructor is for maven and HK2 and should not be used at runtime.  You should 
-	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
+	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter)} method on it.
 	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
 	 */
 	protected FHIRImportHK2Direct() {
@@ -193,16 +167,16 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent(Transaction, Consumer, BiConsumer)}
 	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
 	 * 
-	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(File, Path, String, StampCoordinate)
+	 * @see DirectConverter#configure(File, Path, String, StampFilter)
 	 */
 	@Override
-	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate)
+	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter)
 	{
 		this.outputDirectory = outputDirectory;
 		this.inputFileLocationPath = inputFolder;
 		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
 		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		this.readbackCoordinate = stampCoordinate == null ? StampCoordinates.getDevelopmentLatest() : stampCoordinate;
+		this.readbackCoordinate = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
 	}
 	
 	@Override
@@ -305,7 +279,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)}, null, null, oldestDate);
 		
-		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, oldestDate, StampCoordinates.getDevelopmentLatest());
+		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, oldestDate, Coordinates.Filter.DevelopmentLatest());
 		
 		UUID titleDesc = dwh.makeDescriptionTypeConcept(transaction, null, TITLE, null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, oldestDate);
 		dwh.makeDescriptionEnNoDialect(titleDesc, "A short, descriptive, user-friendly title for the code system", 

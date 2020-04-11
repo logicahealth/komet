@@ -13,6 +13,7 @@ import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -135,9 +136,9 @@ public class SimpleSearchService extends Service<NidSet> {
 
                         for (int allowedParentNid : getParentNids()) {
                             System.out.println(allowedParentNid);
-                            NidSet kindOfSet = taxonomySnapshot.getKindOfConceptNidSet(allowedParentNid);
+                            ImmutableIntSet kindOfSet = taxonomySnapshot.getKindOfConcept(allowedParentNid);
 
-                            allowedConceptNids.addAll(kindOfSet);
+                            allowedConceptNids.addAll(kindOfSet.toArray());
 
                             updateProgress(
                                     computeProgress(PROGRESS_INCREMENT_VALUE
@@ -210,13 +211,13 @@ public class SimpleSearchService extends Service<NidSet> {
             }
 
             protected void handleDescription(SemanticChronology semanticChronology, NidSet allowedConceptNids, TaxonomySnapshot taxonomySnapshot, NidSet filteredValues) {
-                LatestVersion<DescriptionVersion> description = semanticChronology.getLatestVersion(getManifold());
+                LatestVersion<DescriptionVersion> description = semanticChronology.getLatestVersion(getManifold().getStampFilter());
                 if (!description.isPresent()) {
                     return;
                 }
                 DescriptionVersion descriptionVersion = description.get();
                 int conceptNid = descriptionVersion.getReferencedComponentNid();
-                if (!Get.conceptActiveService().isConceptActive(conceptNid, manifold)) {
+                if (!Get.conceptActiveService().isConceptActive(conceptNid, manifold.getStampFilter().toStampFilterImmutable())) {
                     return;
                 }
                 if (!getParentNids().isEmpty()) {

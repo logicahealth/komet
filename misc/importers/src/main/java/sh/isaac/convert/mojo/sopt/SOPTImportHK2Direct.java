@@ -36,20 +36,6 @@
  */
 package sh.isaac.convert.mojo.sopt;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
@@ -58,7 +44,8 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
@@ -69,9 +56,23 @@ import sh.isaac.convert.mojo.sopt.data.EnumValidatedXSLFileReader;
 import sh.isaac.convert.mojo.sopt.data.SOPTDataColumnsV1;
 import sh.isaac.convert.mojo.sopt.data.SOPTValueSetColumnsV1;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
-import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * {@link SOPTImportHK2Direct}
@@ -92,7 +93,7 @@ public class SOPTImportHK2Direct extends DirectConverterBaseMojo implements Dire
 
 	/**
 	 * This constructor is for maven and HK2 and should not be used at runtime.  You should
-	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
+	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter)} method on it.
 	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
 	 */
 	protected SOPTImportHK2Direct() {
@@ -118,16 +119,16 @@ public class SOPTImportHK2Direct extends DirectConverterBaseMojo implements Dire
 	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent()}
 	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
 	 * 
-	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String, sh.isaac.api.coordinate.StampCoordinate)
+	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String, sh.isaac.api.coordinate.StampFilter)
 	 */
 	@Override
-	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate)
+	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter)
 	{
 		this.outputDirectory = outputDirectory;
 		this.inputFileLocationPath = inputFolder;
 		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
 		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		this.readbackCoordinate = stampCoordinate == null ? StampCoordinates.getDevelopmentLatest() : stampCoordinate;
+		this.readbackCoordinate = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
 	}
 	
 	@Override

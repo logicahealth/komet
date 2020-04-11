@@ -23,7 +23,6 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
-import org.apache.commons.lang.Validate;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.config.Ini;
@@ -38,16 +37,12 @@ import sh.isaac.MetaData;
 import sh.isaac.api.BusinessRulesResource;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 
-import static sh.komet.gui.contract.preferences.GraphConfigurationItem.DEFINING_ACTIVE;
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
-import sh.isaac.model.coordinate.EditCoordinateImpl;
+
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.UserPreferenceItems;
 import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
@@ -175,9 +170,9 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         
         // For modules and paths, read/write constraints 
         FxGet.rulesDrivenKometService().addResourcesAndUpdate(getBusinessRulesResources());
-        FxGet.editCoordinate().authorNidProperty().set(userConceptProperty.get().getNid());
-        FxGet.editCoordinate().moduleNidProperty().set(moduleConceptProperty.get().getNid());
-        FxGet.editCoordinate().pathNidProperty().set(pathConceptProperty.get().getNid());
+        FxGet.editCoordinate().authorProperty().set(userConceptProperty.get());
+        FxGet.editCoordinate().moduleProperty().set(moduleConceptProperty.get());
+        FxGet.editCoordinate().pathProperty().set(pathConceptProperty.get());
     }
 
     @Override

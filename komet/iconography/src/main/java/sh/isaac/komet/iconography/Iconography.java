@@ -43,7 +43,11 @@ import static sh.isaac.komet.iconography.IconSource.*;
 public enum Iconography implements Icons {
    
    
-//TODO make Iconagraphy a service/provider 
+//TODO make Iconagraphy a service/provider
+   // TODO Consider replacement with: Ikonli
+   // https://dlsc.com/2020/03/11/javafx-tip-32-need-icons-use-ikonli/
+   // https://github.com/kordamp/ikonli
+
    TAXONOMY_ICON(MATERIAL_DESIGNS_WEBFONT, "taxonomy-icon", MaterialDesignIcon.FILE_TREE),
    TAXONOMY_ROOT_ICON(MATERIAL_DESIGNS_WEBFONT, "taxonomy-root-icon", MaterialDesignIcon.HEXAGON_OUTLINE),
    TAXONOMY_DEFINED_MULTIPARENT_OPEN(MATERIAL_DESIGNS_WEBFONT, "taxonomy-defined-multiparent-open-icon", MaterialDesignIcon.ARROW_UP_BOLD_CIRCLE_OUTLINE),

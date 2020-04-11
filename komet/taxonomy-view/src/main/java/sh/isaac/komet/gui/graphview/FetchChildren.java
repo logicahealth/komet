@@ -21,7 +21,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
 import sh.isaac.api.Get;
-import sh.isaac.api.TaxonomyLink;
+import sh.isaac.api.Edge;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.task.TaskCountManager;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
@@ -79,17 +79,17 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                 ConcurrentSkipListSet<MultiParentGraphItemImpl> childrenToAdd = new ConcurrentSkipListSet<>();
                 TaxonomySnapshot taxonomySnapshot = treeItemImpl.getGraphView().getTaxonomySnapshot();
                 Manifold manifold = treeItemImpl.getGraphView().getManifold();
-                Collection<TaxonomyLink>  children = taxonomySnapshot.getTaxonomyChildLinks(conceptChronology.getNid());
+                Collection<Edge>  children = (Collection<Edge>) taxonomySnapshot.getTaxonomyChildLinks(conceptChronology.getNid());
                 addToTotalWork(children.size() + 1);
 
                 TaskCountManager taskCountManager = Get.taskCountManager();
-                for (TaxonomyLink childLink : children) {
+                for (Edge childLink : children) {
                     taskCountManager.acquire();
                     Get.executor().execute(() -> {
                         try {
                             ConceptChronology childChronology = Get.concept(childLink.getDestinationNid());
                             MultiParentGraphItemImpl childItem = new MultiParentGraphItemImpl(childChronology, treeItemImpl.getGraphView(), childLink.getTypeNid(), null);
-                            childItem.setDefined(childChronology.isSufficientlyDefined(manifold, manifold));
+                            childItem.setDefined(childChronology.isSufficientlyDefined(manifold.getStampFilter(), manifold.getLogicCoordinate()));
                             childItem.toString();
                             childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childLink.getDestinationNid()).length > 1);
                             childItem.isLeaf();

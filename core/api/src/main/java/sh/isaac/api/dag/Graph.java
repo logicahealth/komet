@@ -41,8 +41,12 @@ package sh.isaac.api.dag;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.api.logic.LogicNode;
+import sh.isaac.api.tree.TreeNodeVisitData;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BiConsumer;
 
 //~--- classes ----------------------------------------------------------------
 

@@ -60,15 +60,14 @@ import org.glassfish.hk2.api.Rank;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- classes ----------------------------------------------------------------
@@ -272,12 +271,12 @@ public class MockSemanticService
     *
     * @param <V> the value type
     * @param versionType the version type
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the snapshot
     */
    @Override
    public <V extends SemanticVersion> SemanticSnapshotService<V> getSnapshot(Class<V> versionType,
-         StampCoordinate stampCoordinate) {
+                                                                             StampFilter stampFilter) {
       throw new UnsupportedOperationException();
    }
 
@@ -347,7 +346,7 @@ public class MockSemanticService
    }
 
     @Override
-    public <V extends SemanticVersion> SingleAssemblageSnapshot<V> getSingleAssemblageSnapshot(int assemblageConceptNid, Class<V> versionType, StampCoordinate stampCoordinate) {
+    public <V extends SemanticVersion> SingleAssemblageSnapshot<V> getSingleAssemblageSnapshot(int assemblageConceptNid, Class<V> versionType, StampFilter stampFilter) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

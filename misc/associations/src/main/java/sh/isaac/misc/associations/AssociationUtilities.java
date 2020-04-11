@@ -36,12 +36,6 @@
  */
 package sh.isaac.misc.associations;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
@@ -54,12 +48,14 @@ import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.index.SearchResult;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.index.IndexSemanticQueryService;
+import sh.isaac.api.index.SearchResult;
 import sh.isaac.model.semantic.DynamicUtilityImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.utility.Frills;
+
+import java.util.*;
 
 
 /**
@@ -84,17 +80,17 @@ public class AssociationUtilities
    /**
     * Get a particular associations 
     * @param associationNid
-    * @param stamp - optional - if not provided, uses the default from the config service
+    * @param stampFilter - optional - if not provided, uses the default from the config service
     * @return the found associationInstance, if present on the provided stamp path
     */
-   public static Optional<AssociationInstance> getAssociation(int associationNid, StampCoordinate stamp)
+   public static Optional<AssociationInstance> getAssociation(int associationNid, StampFilter stampFilter)
    {
-      StampCoordinate localStamp = stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp;
+      StampFilter localStamp = stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter;
       SemanticChronology sc = Get.assemblageService().getSemanticChronology(associationNid);
       LatestVersion<Version> latest = sc.getLatestVersion(localStamp);
       if (latest.isPresent())
       {
-         return Optional.of(AssociationInstance.read((DynamicVersion)latest.get(), stamp));
+         return Optional.of(AssociationInstance.read((DynamicVersion)latest.get(), stampFilter));
       }
       return Optional.empty();
    }
@@ -102,13 +98,13 @@ public class AssociationUtilities
    /**
     * Get all associations that originate on the specified componentNid
     * @param componentNid
-    * @param stamp - optional - if not provided, uses the default from the config service
+    * @param stampFilter - optional - if not provided, uses the default from the config service
     * @return the associations
     */
-   public static List<AssociationInstance> getSourceAssociations(int componentNid, StampCoordinate stamp)
+   public static List<AssociationInstance> getSourceAssociations(int componentNid, StampFilter stampFilter)
    {
       ArrayList<AssociationInstance> results = new ArrayList<>();
-      StampCoordinate localStamp = stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp;
+      StampFilter localStamp = stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter;
       
       Set<Integer> associationTypes = getAssociationConceptNids();
       if (associationTypes.size() == 0) 
@@ -123,7 +119,7 @@ public class AssociationUtilities
                {
                   if (latest.get().getSemanticType() == VersionType.DYNAMIC) 
                   {
-                     results.add(AssociationInstance.read((DynamicVersion)latest.get(), stamp));
+                     results.add(AssociationInstance.read((DynamicVersion)latest.get(), stampFilter));
                   }
                   else
                   {
@@ -138,11 +134,11 @@ public class AssociationUtilities
    /**
     * Get all association instances that have a target of the specified componentNid
     * @param componentNid
-    * @param stamp - optional - if not provided, uses the default from the config service
+    * @param stampFilter - optional - if not provided, uses the default from the config service
     * @return  the association instances
     */
    //TODO [DAN 3] should probably have a method here that takes in a target UUID, since that seems to be how I stored them?
-   public static List<AssociationInstance> getTargetAssociations(int componentNid, StampCoordinate stamp)
+   public static List<AssociationInstance> getTargetAssociations(int componentNid, StampFilter stampFilter)
    {
       ArrayList<AssociationInstance> result = new ArrayList<>();
 
@@ -173,11 +169,11 @@ public class AssociationUtilities
          {
             @SuppressWarnings("rawtypes")
             LatestVersion<DynamicVersion> latest = Get.assemblageService().getSnapshot(DynamicVersion.class, 
-                  stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp).getLatestSemanticVersion(sr.getNid());
+                  stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter).getLatestSemanticVersion(sr.getNid());
             
             if (latest.isPresent())
             {
-               result.add(AssociationInstance.read(latest.get(), stamp));
+               result.add(AssociationInstance.read(latest.get(), stampFilter));
             }
          }
       }
@@ -191,20 +187,20 @@ public class AssociationUtilities
    /**
     * 
     * @param associationTypeConceptNid
-    * @param stamp - optional - if not provided, uses the default from the config service
+    * @param stampFilter - optional - if not provided, uses the default from the config service
     * @return the associations of the specified type
     */
-   public static List<AssociationInstance> getAssociationsOfType(int associationTypeConceptNid, StampCoordinate stamp)
+   public static List<AssociationInstance> getAssociationsOfType(int associationTypeConceptNid, StampFilter stampFilter)
    {
       ArrayList<AssociationInstance> results = new ArrayList<>();
-      StampCoordinate localStamp = stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp;
+      StampFilter localFilter = stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter;
       Get.assemblageService().getSemanticChronologyStream(associationTypeConceptNid)
          .forEach(associationC -> 
             {
-               LatestVersion<Version> latest = associationC.getLatestVersion(localStamp);
+               LatestVersion<Version> latest = associationC.getLatestVersion(localFilter);
                if (latest.isPresent())
                {
-                  results.add(AssociationInstance.read((DynamicVersion)latest.get(), stamp));
+                  results.add(AssociationInstance.read((DynamicVersion)latest.get(), stampFilter));
                }
                
             });

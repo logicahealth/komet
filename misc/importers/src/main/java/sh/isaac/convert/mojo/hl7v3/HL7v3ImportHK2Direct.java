@@ -36,77 +36,12 @@
  */
 package sh.isaac.convert.mojo.hl7v3;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringWriter;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.regex.Pattern;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBElement;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.bind.ValidationEvent;
-import javax.xml.bind.ValidationEventHandler;
-import javax.xml.transform.stream.StreamSource;
+import mifschema.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.poi.util.CloseIgnoringInputStream;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
-import mifschema.CodeBasedContentDefinition;
-import mifschema.CodeSystem;
-import mifschema.CodeSystemVersion;
-import mifschema.CombinedContentDefinition;
-import mifschema.ComplexMarkupWithLanguage;
-import mifschema.Concept;
-import mifschema.ConceptCode;
-import mifschema.ConceptDomain;
-import mifschema.ConceptDomainProperty;
-import mifschema.ConceptDomainPropertyKind;
-import mifschema.ConceptDomainRef;
-import mifschema.ConceptProperty;
-import mifschema.ConceptPropertyTypeKind;
-import mifschema.ConceptRelationship;
-import mifschema.ConceptRelationshipKind;
-import mifschema.ContentDefinition;
-import mifschema.Flow;
-import mifschema.GlobalVocabularyModel;
-import mifschema.HistoryItem;
-import mifschema.IncludeRelatedCodes;
-import mifschema.Inline;
-import mifschema.ObjectFactory;
-import mifschema.PackageKind;
-import mifschema.PrintName;
-import mifschema.PropertyDefaultHandlingKind;
-import mifschema.Reflexivity;
-import mifschema.RelationshipTraversalKind;
-import mifschema.SupportedConceptProperty;
-import mifschema.SupportedConceptRelationship;
-import mifschema.Symmetry;
-import mifschema.Transitivity;
-import mifschema.ValueSet;
-import mifschema.ValueSetVersion;
-import mifschema.VocabularyValueSetRef;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -116,20 +51,39 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
-import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.semantic.types.DynamicArrayImpl;
 import sh.isaac.model.semantic.types.DynamicBooleanImpl;
 import sh.isaac.model.semantic.types.DynamicNidImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
+
+import javax.xml.bind.*;
+import javax.xml.transform.stream.StreamSource;
+import java.io.File;
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.StringWriter;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 /**
  * {@link HL7v3ImportHK2Direct}
@@ -167,7 +121,7 @@ public class HL7v3ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 
 	/**
 	 * This constructor is for maven and HK2 and should not be used at runtime.  You should 
-	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
+	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter)} method on it.
 	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
 	 */
 	protected HL7v3ImportHK2Direct() {
@@ -194,16 +148,16 @@ public class HL7v3ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent(Transaction, Consumer, BiConsumer)}
 	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
 	 * 
-	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String, sh.isaac.api.coordinate.StampCoordinate)
+	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String, sh.isaac.api.coordinate.StampFilter)
 	 */
 	@Override
-	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate)
+	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter)
 	{
 		this.outputDirectory = outputDirectory;
 		this.inputFileLocationPath = inputFolder;
 		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
 		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		this.readbackCoordinate = stampCoordinate == null ? StampCoordinates.getDevelopmentLatest() : stampCoordinate;
+		this.readbackCoordinate = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
 	}
 	
 	@Override

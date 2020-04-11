@@ -16,35 +16,24 @@
  */
 package sh.isaac.api.query.clauses;
 
-import sh.isaac.api.query.properties.ReferencedComponentClause;
-import java.util.EnumSet;
-import java.util.Map;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.query.ClauseComputeType;
-import sh.isaac.api.query.ClauseSemantic;
-import sh.isaac.api.query.LeafClause;
-import sh.isaac.api.query.LetItemKey;
-import sh.isaac.api.query.Query;
-import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.query.*;
+import sh.isaac.api.query.properties.ReferencedComponentClause;
+
+import java.util.EnumSet;
+import java.util.Map;
 
 /**
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
-public class ReferencedComponentIs         
+public class ReferencedComponentIs
         extends LeafClause implements ReferencedComponentClause {
 
    /** The concept spec key. */
-   @XmlElement
    LetItemKey referencedComponentSpecKey;
 
 

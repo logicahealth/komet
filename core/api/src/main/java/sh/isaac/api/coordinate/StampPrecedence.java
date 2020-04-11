@@ -39,8 +39,6 @@
 
 package sh.isaac.api.coordinate;
 
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlType;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -50,8 +48,6 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
  *
  * @author kec
  */
-@XmlType(name = "StampPrecedence")
-@XmlEnum
 public enum StampPrecedence {
    /** The time. */
    TIME("time precedence",

@@ -18,10 +18,6 @@
  */
 package sh.isaac.integration.tests.suite2;
 
-import java.io.File;
-import java.nio.file.Paths;
-import java.util.*;
-
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -38,15 +34,19 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.SystemPropertyConstants;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.convert.mojo.turtle.TurtleImportHK2Direct;
 import sh.isaac.model.configuration.LanguageCoordinates;
-import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
+
+import java.io.File;
+import java.nio.file.Paths;
+import java.util.*;
 
 /**
  * These tests have been rewritten to test against the beverage ontology, which is included in the resources folder.
@@ -274,7 +274,7 @@ public class QueryProviderTest {
 
         //predicate that only returns grain terms
         Assert.assertEquals(di.query("whiskey", false, null, nid -> {
-            if (((DescriptionVersion)Get.assemblageService().getSemanticChronology(nid).getLatestVersion(StampCoordinates.getDevelopmentLatest()).get())
+            if (((DescriptionVersion)Get.assemblageService().getSemanticChronology(nid).getLatestVersion(Coordinates.Filter.DevelopmentLatest()).get())
                     .getText().contains("grain")) {
                 return true;
             }
@@ -283,14 +283,14 @@ public class QueryProviderTest {
 
         ArrayList<String> temp = new ArrayList<>();
         for (SearchResult x : di.query("whiskey", false, null, nid -> {
-            if (((DescriptionVersion)Get.assemblageService().getSemanticChronology(nid).getLatestVersion(StampCoordinates.getDevelopmentLatest()).get())
+            if (((DescriptionVersion)Get.assemblageService().getSemanticChronology(nid).getLatestVersion(Coordinates.Filter.DevelopmentLatest()).get())
                     .getText().contains("grain")) {
                 return true;
             }
             return false;
         }, null, 1, 20, null))
         {
-            temp.add(((DescriptionVersion)Get.assemblageService().getSemanticChronology(x.getNid()).getLatestVersion(StampCoordinates.getDevelopmentLatest()).get())
+            temp.add(((DescriptionVersion)Get.assemblageService().getSemanticChronology(x.getNid()).getLatestVersion(Coordinates.Filter.DevelopmentLatest()).get())
                     .getText());
 //			printResults(Arrays.asList(new SearchResult[] {x}));
         }
@@ -358,7 +358,7 @@ public class QueryProviderTest {
     {
         for (SearchResult sr : result)
         {
-            System.out.println(Get.assemblageService().getSemanticChronology(sr.getNid()).getLatestVersion(StampCoordinates.getDevelopmentLatest()).get().toString());
+            System.out.println(Get.assemblageService().getSemanticChronology(sr.getNid()).getLatestVersion(Coordinates.Filter.DevelopmentLatest()).get().toString());
         }
     }
 

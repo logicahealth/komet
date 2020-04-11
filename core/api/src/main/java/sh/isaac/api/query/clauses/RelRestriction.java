@@ -41,27 +41,16 @@ package sh.isaac.api.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.api.Get;
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.query.*;
+
 import java.util.EnumSet;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-
 //~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.query.ClauseComputeType;
-import sh.isaac.api.query.ClauseSemantic;
-import sh.isaac.api.query.LeafClause;
-import sh.isaac.api.query.Query;
-import sh.isaac.api.query.WhereClause;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.query.LetItemKey;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -72,28 +61,21 @@ import sh.isaac.api.query.LetItemKey;
  *
  * @author dylangrald
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class RelRestriction
         extends LeafClause {
    /** The rel type key. */
-   @XmlElement
    LetItemKey relTypeKey;
 
    /** The destination spec key. */
-   @XmlElement
    LetItemKey destinationSpecKey;
 
    /** the manifold coordinate key. */
-   @XmlElement
    LetItemKey manifoldCoordinateKey;
 
    /** The destination subsumption key. */
-   @XmlElement
    LetItemKey destinationSubsumptionKey;
 
    /** The rel type subsumption key. */
-   @XmlElement
    LetItemKey relTypeSubsumptionKey;
 
 
@@ -163,14 +145,14 @@ public class RelRestriction
       relTypeSet.add(relType.getNid());
 
       if (relTypeSubsumption) {
-         relTypeSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).getKindOfConceptNidSet(relType.getNid()));
+         relTypeSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).getKindOfConcept(relType.getNid()));
       }
 
       NidSet destinationSet = new NidSet();
       destinationSet.add(destinationSpec.getNid());
 
       if (destinationSubsumption) {
-         destinationSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).getKindOfConceptNidSet(destinationSpec.getNid()));
+         destinationSet.or(Get.taxonomyService().getSnapshot(manifoldCoordinate).getKindOfConcept(destinationSpec.getNid()));
       }
       throw new UnsupportedOperationException("Reimplement with new taxonomy service. ");
 //      for (int destinationSequence: Get.taxonomyService()

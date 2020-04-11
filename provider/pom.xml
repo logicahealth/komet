@@ -40,7 +40,6 @@
         <module>chronology</module>
         <module>xodus-datastore</module>
         <module>mv-datastore</module>
-        <module>memory-managment</module>
         <module>datastore-locator</module>
         <module>identifier</module>
         <module>datastore-postgres</module>

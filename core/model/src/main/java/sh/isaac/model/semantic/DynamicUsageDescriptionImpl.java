@@ -74,8 +74,8 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicValidatorType;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.model.configuration.StampCoordinates;
 
 /**
  * See {@link DynamicUsageDescription}.
@@ -140,7 +140,7 @@ public class DynamicUsageDescriptionImpl
             assemblageConcept.getConceptDescriptionList()) {
          @SuppressWarnings("rawtypes")
          final LatestVersion descriptionVersion =
-            ((SemanticChronology) descriptionSemantic).getLatestVersion(StampCoordinates.getDevelopmentLatest());
+            ((SemanticChronology) descriptionSemantic).getLatestVersion(Coordinates.Filter.DevelopmentLatest());
 
          if (descriptionVersion.isPresent()) {
             final DescriptionVersion ds = (DescriptionVersion) descriptionVersion.get();
@@ -180,7 +180,7 @@ public class DynamicUsageDescriptionImpl
          .forEach(semantic -> {
                      if (semantic.getVersionType() == VersionType.DYNAMIC) {
                         final LatestVersion<? extends DynamicVersion> semanticVersion =
-                   ((SemanticChronology) semantic).getLatestVersion(StampCoordinates.getDevelopmentLatest());
+                   ((SemanticChronology) semantic).getLatestVersion(Coordinates.Filter.DevelopmentLatest());
 
                         if (semanticVersion.isPresent()) {
                            final DynamicVersion       ds                  = semanticVersion.get();
@@ -425,7 +425,7 @@ public class DynamicUsageDescriptionImpl
             if (metadata.isPresent())
             {
                //Read this semantic, to find out the type info
-               LatestVersion<SemanticVersion> latest = metadata.get().getLatestVersion(StampCoordinates.getDevelopmentLatest());
+               LatestVersion<SemanticVersion> latest = metadata.get().getLatestVersion(Coordinates.Filter.DevelopmentLatest());
                if (latest.isPresent())
                {
                   if (latest.get().getSemanticType() == VersionType.COMPONENT_NID)
@@ -648,7 +648,7 @@ public class DynamicUsageDescriptionImpl
       case Str1_Str2_Nid3_Nid4:
       case Str1_Str2_Nid3_Nid4_Nid5:
       case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
-         LatestVersion<BrittleVersion> version = semantic.getLatestVersion(StampCoordinates.getDevelopmentLatest());
+         LatestVersion<BrittleVersion> version = semantic.getLatestVersion(Coordinates.Filter.DevelopmentLatest());
             if (version.isPresent())
             {
                ArrayList<DynamicColumnInfo> dci = new ArrayList<>();
@@ -716,7 +716,7 @@ public class DynamicUsageDescriptionImpl
 
    /**
     * Method to read the column descriptor info that is on (some) of the static semantics in the system
-    * @param assemblageNid
+    * @param assemblageBeingDefinedNid
     * @return
     */
    private static Optional<int[]> readStaticSemanticInfo(int assemblageBeingDefinedNid)
@@ -727,7 +727,7 @@ public class DynamicUsageDescriptionImpl
       Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(assemblageBeingDefinedNid, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS.getNid())
          .forEach(semantic ->
          {
-            LatestVersion<Nid1_Int2_Version> lvs = semantic.getLatestVersion(StampCoordinates.getDevelopmentLatest());
+            LatestVersion<Nid1_Int2_Version> lvs = semantic.getLatestVersion(Coordinates.Filter.DevelopmentLatest());
             if (lvs.isPresent())
             {
                columnTitles.put(lvs.get().getInt2(), lvs.get().getNid1());
@@ -841,7 +841,7 @@ public class DynamicUsageDescriptionImpl
       }
       final ConceptChronology assemblageConcept = Get.conceptService().getConceptChronology(assemblageConceptNid);
       for (final SemanticChronology descriptionSemantic : assemblageConcept.getConceptDescriptionList()) {
-         final LatestVersion<Version> descriptionVersion = ((SemanticChronology) descriptionSemantic).getLatestVersion(StampCoordinates.getDevelopmentLatest());
+         final LatestVersion<Version> descriptionVersion = ((SemanticChronology) descriptionSemantic).getLatestVersion(Coordinates.Filter.DevelopmentLatest());
 
          if (descriptionVersion.isPresent()) {
             final DescriptionVersion ds = (DescriptionVersion) descriptionVersion.get();

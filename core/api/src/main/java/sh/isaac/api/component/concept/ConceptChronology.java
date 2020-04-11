@@ -52,15 +52,10 @@ import java.util.List;
 
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.transaction.Transaction;
@@ -87,10 +82,10 @@ public interface ConceptChronology
     * A test for validating that a concept contains an active description. Used
     * to validate concept proxies or concept specifications at runtime.
     * @param descriptionText text to match against.
-    * @param stampCoordinate coordinate to determine if description is active.
+    * @param stampFilter coordinate to determine if description is active.
     * @return true if any version of a description matches this text.
     */
-   boolean containsDescription(String descriptionText, StampCoordinate stampCoordinate);
+   boolean containsDescription(String descriptionText, StampFilter stampFilter);
 
    /**
     * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
@@ -126,11 +121,11 @@ public interface ConceptChronology
     * Gets the fully specified description.
     *
     * @param languageCoordinate the language coordinate
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the fully specified description
     */
    LatestVersion<? extends DescriptionVersion> getFullyQualifiedNameDescription(LanguageCoordinate languageCoordinate,
-         StampCoordinate stampCoordinate);
+                                                                                StampFilter stampFilter);
    
    /**
     * Gets the fully specified description.
@@ -140,24 +135,24 @@ public interface ConceptChronology
     * @return the fully specified description
     */
    default LatestVersion<? extends DescriptionVersion> getFullySpecifiedDescription(ManifoldCoordinate coordinate) {
-      return getFullyQualifiedNameDescription(coordinate, coordinate);
+      return getFullyQualifiedNameDescription(coordinate.getLanguageCoordinate(), coordinate.getStampFilter());
    }
 
    /**
     * Gets the logical definition.
     *
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @param premiseType the premise type
     * @param logicCoordinate the logic coordinate
     * @return the logical definition
     */
-   LatestVersion<LogicGraphVersion> getLogicalDefinition(StampCoordinate stampCoordinate,
-         PremiseType premiseType,
-         LogicCoordinate logicCoordinate);
+   LatestVersion<LogicGraphVersion> getLogicalDefinition(StampFilter stampFilter,
+                                                         PremiseType premiseType,
+                                                         LogicCoordinate logicCoordinate);
    
-   default boolean isSufficientlyDefined(StampCoordinate stampCoordinate,
-         LogicCoordinate logicCoordinate) {
-      LatestVersion<LogicGraphVersion> latestDefinition = getLogicalDefinition(stampCoordinate,
+   default boolean isSufficientlyDefined(StampFilter stampFilter,
+                                         LogicCoordinate logicCoordinate) {
+      LatestVersion<LogicGraphVersion> latestDefinition = getLogicalDefinition(stampFilter,
          PremiseType.STATED,
          logicCoordinate);
       if (latestDefinition.isPresent()) {
@@ -170,24 +165,24 @@ public interface ConceptChronology
     * Return a formatted text report showing chronology of logical definitions
     * for this concept, according to the provided parameters.
     *
-    * @param stampCoordinate specifies the ordering and currency of versions.
+    * @param stampFilter specifies the ordering and currency of versions.
     * @param premiseType Stated or inferred premise type
     * @param logicCoordinate specifies the assemblages where the definitions are stored.
     * @return the logical definition chronology report
     */
-   String getLogicalDefinitionChronologyReport(StampCoordinate stampCoordinate,
-         PremiseType premiseType,
-         LogicCoordinate logicCoordinate);
+   String getLogicalDefinitionChronologyReport(StampFilter stampFilter,
+                                               PremiseType premiseType,
+                                               LogicCoordinate logicCoordinate);
 
    /**
     * Gets the preferred description.
     *
     * @param languageCoordinate the language coordinate
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the preferred description
     */
    LatestVersion<? extends DescriptionVersion> getPreferredDescription(LanguageCoordinate languageCoordinate,
-         StampCoordinate stampCoordinate);
+                                                                       StampFilter stampFilter);
 
 
    /**
@@ -197,7 +192,7 @@ public interface ConceptChronology
     * @return the preferred description
     */
    default LatestVersion<? extends DescriptionVersion> getPreferredDescription(ManifoldCoordinate coordinate) {
-      return getPreferredDescription(coordinate, coordinate);
+      return getPreferredDescription(coordinate.getLanguageCoordinate(), coordinate.getStampFilter());
    }
 
    /**

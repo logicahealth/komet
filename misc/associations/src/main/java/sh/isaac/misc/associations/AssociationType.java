@@ -56,10 +56,10 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
 import sh.isaac.utility.Frills;
 
 
@@ -81,18 +81,18 @@ public class AssociationType
    /**
     * Read all details that define an Association.  
     * @param conceptNid The concept that represents the association assemblage
-    * @param stamp optional - uses system default if not provided.
+    * @param stampFilter optional - uses system default if not provided.
     * @param language optional - uses system default if not provided
     * @return the AssociationType information
     */
-   public static AssociationType read(int conceptNid, StampCoordinate stamp, LanguageCoordinate language)
+   public static AssociationType read(int conceptNid, StampFilter stampFilter, LanguageCoordinate language)
    {
       AssociationType at = new AssociationType(conceptNid);
-      
-      StampCoordinate localStamp = (stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
+
+      StampFilter localStamp = (stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter);
       LanguageCoordinate localLanguage = (language == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate() : language);
       
-      at.associationName_ = Get.conceptService().getSnapshot(new ManifoldCoordinateImpl(localStamp, localLanguage)).conceptDescriptionText(conceptNid);
+      at.associationName_ = Get.conceptService().getSnapshot(ManifoldCoordinateImmutable.makeStated(localStamp, localLanguage)).conceptDescriptionText(conceptNid);
       
       //Find the inverse name
       for (DescriptionVersion desc : Frills.getDescriptionsOfType(conceptNid, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR, localStamp.makeCoordinateAnalog(Status.ACTIVE)))
@@ -184,18 +184,18 @@ public class AssociationType
     * @param associationName - The name of the association (used for the FSN and preferred term of the underlying concept)
     * @param associationInverseName - (optional) inverse name of the association (if it makes sense for the association)
     * @param description - (optional) description that describes the purpose of the association
-    * @param referencedComponentRestriction - (optional) - may be null - if provided - this restricts the type of object referenced by the nid or 
-    * UUID that is set for the referenced component in an instance of this semantic.  If {@link IsaacObjectType#UNKNOWN} is passed, it is ignored, as 
+    * @param referencedComponentRestriction - (optional) - may be null - if provided - this restricts the type of object referenced by the nid or
+    * UUID that is set for the referenced component in an instance of this semantic.  If {@link IsaacObjectType#UNKNOWN} is passed, it is ignored, as
     * if it were null.
     * @param referencedComponentSubRestriction - (optional) - may be null - subtype restriction for {@link IsaacObjectType#SEMANTIC} restrictions
-    * @param stampCoord - optional - used during the readback to create the return object.  See {@link #read(int, StampCoordinate, LanguageCoordinate)}
+    * @param stampFilter - optional - used during the readback to create the return object.  See {@link #read(int, StampFilter, LanguageCoordinate)}
     * @param editCoord - optional - the edit coordinate to use when creating the association.  Uses the system default if not provided.
     * @return the concept nid of the created concept that carries the association definition
     */
       public static AssociationType createAssociation(String associationName, String associationInverseName, String description,
-                                                      IsaacObjectType referencedComponentRestriction, VersionType referencedComponentSubRestriction, StampCoordinate stampCoord, EditCoordinate editCoord) {
+                                                      IsaacObjectType referencedComponentRestriction, VersionType referencedComponentSubRestriction, StampFilter stampFilter, EditCoordinate editCoord) {
          try {
-            Transaction transaction = Get.commitService().newTransaction(Optional.of("create assoication steps"), ChangeCheckerMode.ACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.of("create association steps"), ChangeCheckerMode.ACTIVE);
             EditCoordinate localEditCoord = (editCoord == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getEditCoordinate() : editCoord);
 
             //We need to create a new concept - which itself is defining a dynamic semantic - so set that up here.
@@ -225,7 +225,7 @@ public class AssociationType
             transaction.commit();
             //final get is to wait for commit completion
 
-         return read(rdud.getDynamicUsageDescriptorNid(), stampCoord, Get.languageCoordinateService().getUsEnglishLanguagePreferredTermCoordinate());
+         return read(rdud.getDynamicUsageDescriptorNid(), stampFilter, Get.languageCoordinateService().getUsEnglishLanguagePreferredTermCoordinate());
       }
       catch (Exception e)
       {

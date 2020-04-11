@@ -5,8 +5,6 @@ import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.api.util.UUIDUtil;
 
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlTransient;
 import java.util.*;
 
 import static sh.isaac.api.component.concept.ConceptSpecification.FIELD_SEPARATOR;
@@ -15,16 +13,13 @@ public class ComponentProxy implements IdentifiedObject {
     /**
      * Universal identifiers for the concept proxied by the is object.
      */
-    @XmlAttribute(name = "uuids", required = true)
     private UUID[] uuids;
 
     /**
      * The fully qualified name for this object.
      */
-    @XmlAttribute(name = "componentDescription", required = true)
     private final String componentString;
 
-    @XmlTransient
     private int cachedNid = 0;
 
     public ComponentProxy(int componentNid, String componentString) {
@@ -82,7 +77,7 @@ public class ComponentProxy implements IdentifiedObject {
         }
         return cachedNid;
     }
-    @XmlTransient
+
     @Override
     public UUID getPrimordialUuid() {
         if ((this.getUuids() == null) || (this.uuids.length < 1)) {
@@ -108,7 +103,7 @@ public class ComponentProxy implements IdentifiedObject {
      * @return the universal identifiers for the concept proxied by the is object
      */
     @Override
-    @XmlTransient
+
     public UUID[] getUuids() {
         if (this.uuids == null) {
             this.uuids = Get.identifierService().getUuidArrayForNid(cachedNid);

@@ -61,7 +61,7 @@ import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
@@ -156,7 +156,7 @@ public interface Chronology
     * @param coordinate the coordinate
     * @return the latest version
     */
-   <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate);
+   <V extends Version> LatestVersion<V> getLatestVersion(StampFilter coordinate);
    
    /**
     * Exclude uncommitted versions from the latest version computation. 
@@ -164,7 +164,7 @@ public interface Chronology
     * @param coordinate
     * @return 
     */
-   <V extends Version> LatestVersion<V> getLatestCommittedVersion(StampCoordinate coordinate);
+   <V extends Version> LatestVersion<V> getLatestCommittedVersion(StampFilter coordinate);
 
 
    /**
@@ -174,20 +174,20 @@ public interface Chronology
     * @param coordinate the coordinate
     * @return the latest version
     */
-   default <V extends Version> CategorizedVersions<V> getCategorizedVersions(StampCoordinate coordinate) {
+   default <V extends Version> CategorizedVersions<V> getCategorizedVersions(StampFilter coordinate) {
       LatestVersion<V> latestVersion = getLatestCommittedVersion(coordinate);
       return new CategorizedVersions<>(latestVersion, this);
    }
 
    /**
     * Determine if the latest version is active, on a given stamp coordinate.  This method ignores the
-    * state attribute of the provided StampCoordinate - allowing all Status types -
+    * state attribute of the provided stampFilter - allowing all Status types -
     * it returns true if the latest version is {@link Status#ACTIVE}
     *
     * @param coordinate the coordinate
     * @return true, if latest version active
     */
-   boolean isLatestVersionActive(StampCoordinate coordinate);
+   boolean isLatestVersionActive(StampFilter coordinate);
    
    /**
     * Determine if the version with the latest timestamp is active. Note that
@@ -269,17 +269,16 @@ public interface Chronology
     * Gets the visible ordered version list.
     *
     * @param <V>
-    * @param stampCoordinate used to determine visibility and order of versions
+    * @param stampFilter used to determine visibility and order of versions
     * @return a list of all visible versions of this object chronology, sorted in
     * ascending order (oldest version first, newest version last).
     */
-   default <V extends StampedVersion> List<V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
-      final RelativePositionCalculator calc              = RelativePositionCalculator.getCalculator(stampCoordinate);
+   default <V extends StampedVersion> List<V> getVisibleOrderedVersionList(StampFilter stampFilter) {
+      final RelativePositionCalculator calc              = RelativePositionCalculator.getCalculator(stampFilter.toStampFilterImmutable());
       final SortedSet<V>               sortedLogicGraphs = new TreeSet<>((StampedVersion graph1,
                                                                           StampedVersion graph2) -> {
                final RelativePosition relativePosition = calc.fastRelativePosition(graph1,
-                                                                                   graph2,
-                                                                                   stampCoordinate.getStampPrecedence());
+                                                                                   graph2);
 
                switch (relativePosition) {
                case BEFORE:
@@ -311,11 +310,11 @@ public interface Chronology
      * Returns a mutable version for editing. Will return an existing uncommitted version if the
      * transaction identifier matches, if not it will clone the latest version according to the stamp
      * coordinate.
-     * @param stampCoordinate
+     * @param stampFilter
      * @param transaction
      * @return a mutable version
      */
-   default <V extends Version> V getVersionToEdit(StampCoordinate stampCoordinate, int authorNid, int pathNid, Transaction transaction) {
+   default <V extends Version> V getVersionToEdit(StampFilter stampFilter, int authorNid, int pathNid, Transaction transaction) {
        for (Version version: getVersionList()) {
            if (version.getCommitState() == CommitStates.UNCOMMITTED &&
                    transaction.containsTransactionId(Get.stampService().getTransactionIdForStamp(version.getStampSequence()))) {
@@ -324,14 +323,14 @@ public interface Chronology
            }
        }
 
-       LatestVersion<V> latestVersion = getLatestVersion(stampCoordinate);
+       LatestVersion<V> latestVersion = getLatestVersion(stampFilter);
        if (latestVersion.isPresent()) {
            V v = ((Version) latestVersion.get()).makeAnalog(transaction, authorNid);
            v.setPathNid(pathNid);
            transaction.addVersionToTransaction(v);
            return v;
        }
-       throw new IllegalStateException("No latest version for stamp: " + stampCoordinate + "\n\n" + this);
+       throw new IllegalStateException("No latest version for stamp: " + stampFilter + "\n\n" + this);
    }
 }
 

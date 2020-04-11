@@ -36,19 +36,6 @@
  */
 package sh.komet.gui.search.extended;
 
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.ResourceBundle;
-import java.util.Set;
-
-import javafx.scene.control.*;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import com.sun.javafx.collections.ObservableListWrapper;
 import javafx.application.Platform;
 import javafx.beans.Observable;
@@ -63,18 +50,15 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.*;
 import sh.isaac.api.chronicle.Chronology;
@@ -85,28 +69,15 @@ import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.index.AuthorModulePathRestriction;
-import sh.isaac.api.index.IndexDescriptionQueryService;
-import sh.isaac.api.index.IndexQueryService;
-import sh.isaac.api.index.IndexSemanticQueryService;
-import sh.isaac.api.index.IndexStatusListener;
-import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.component.semantic.version.dynamic.*;
+import sh.isaac.api.coordinate.*;
+import sh.isaac.api.index.*;
 import sh.isaac.api.query.CompositeQueryResult;
 import sh.isaac.api.query.QueryHandle;
 import sh.isaac.api.util.Interval;
 import sh.isaac.api.util.NumericUtils;
 import sh.isaac.api.util.TaskCompleteCallback;
 import sh.isaac.model.configuration.LanguageCoordinates;
-import sh.isaac.model.configuration.ManifoldCoordinates;
-import sh.isaac.model.coordinate.StampCoordinateImpl;
-import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.NumericUtilsDynamic;
@@ -117,6 +88,9 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.ConceptNode;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.ValidBooleanBinding;
+
+import java.net.URL;
+import java.util.*;
 
 /**
  * Controller class for the Extended Search View.
@@ -502,7 +476,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                                             HBox.setMargin(assemblageCon, new Insets(0.0, 0.0, 0.0, 10.0));
                                             assemblageConBox.getChildren().add(assemblageCon);
                                             assemblageConBox.getChildren().add(new Label("  "
-                                                    + readManifoldCoordinate.getDescription(versions.get(i).getAssemblageNid()).orElse("-off path-")));
+                                                    + readManifoldCoordinate.getDescriptionText(versions.get(i).getAssemblageNid()).orElse("-off path-")));
                                             box.getChildren().add(assemblageConBox);
 
                                             Label attachedData = new Label("Data");
@@ -743,7 +717,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                     } else if (descriptionTypeSelection.getSelectionModel().getSelectedIndex() < descriptionTypeSelectionExtendedIndex) {
                         LOG.debug("Doing a description search on core description type {}", Get.conceptDescriptionText(descriptionTypeSelection.getValue().getNid()));
                         descriptionTypeRestriction = LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[]{new ConceptProxy(descriptionTypeSelection.getValue().getNid())}, 
-                                readManifoldCoordinate);
+                                readManifoldCoordinate.getStampFilter());
                         extendedDescriptionTypeRestriction = null;
                     } else {
                         LOG.debug("Doing a description search on the extended type {}", descriptionTypeSelection.getValue().getDescription());
@@ -866,20 +840,20 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                 -> {
             try {
                 descriptionTypeSelection.getItems().add(new SimpleDisplayConcept("All", Integer.MIN_VALUE));
-                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR}, readManifoldCoordinate)) {
+                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR}, readManifoldCoordinate.getStampFilter())) {
                     descriptionTypeSelection.getItems().add(new SimpleDisplayConcept((spec.equals(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR) ? "" : "  ") 
-                           + readManifoldCoordinate.getRegularName(spec).get(), spec.getNid()));
+                           + readManifoldCoordinate.getPreferredDescriptionText(spec), spec.getNid()));
                 }
-                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR}, readManifoldCoordinate)) {
+                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR}, readManifoldCoordinate.getStampFilter())) {
                     descriptionTypeSelection.getItems().add(new SimpleDisplayConcept((spec.equals(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR) ? "" : "  ") 
-                           + readManifoldCoordinate.getRegularName(spec).get(), spec.getNid()));
+                           + readManifoldCoordinate.getPreferredDescriptionText(spec), spec.getNid()));
                 }
-                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR}, readManifoldCoordinate)) {
+                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR}, readManifoldCoordinate.getStampFilter())) {
                     descriptionTypeSelection.getItems().add(new SimpleDisplayConcept((spec.equals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR) ? "" : "  ") 
-                           + readManifoldCoordinate.getRegularName(spec).get(), spec.getNid()));
+                           + readManifoldCoordinate.getPreferredDescriptionText(spec), spec.getNid()));
                 }
                 Set<Integer> extendedDescriptionTypes = Frills.getAllChildrenOfConcept(
-                        MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getNid(), true, true, readManifoldCoordinate);
+                        MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getNid(), true, true, readManifoldCoordinate.getStampFilter());
                 ArrayList<SimpleDisplayConcept> temp = new ArrayList<>();
                 
                 if (extendedDescriptionTypes.size() > 0) {
@@ -977,17 +951,22 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
 
         //Listen for changes in the outside language coordinate in the things we pass through.
         outsideManifold.getLanguageCoordinate().addListener((invalidation) -> resetReadManifold());
-        outsideManifold.getStampCoordinate().stampPrecedenceProperty().addListener((invalidation) -> resetReadManifold());
-        outsideManifold.getStampCoordinate().stampPositionProperty().get().stampPathConceptSpecificationProperty().addListener((invalidation) -> resetReadManifold());
+        // TODO update
+        //outsideManifold.getStampCoordinate().stampPrecedenceProperty().addListener((invalidation) -> resetReadManifold());
+        //outsideManifold.getStampCoordinate().stampPositionProperty().get().stampPathConceptSpecificationProperty().addListener((invalidation) -> resetReadManifold());
         timeStatusRestriction = new TimeStatusRestriction(null, null, Status.makeActiveOnlySet(), outsideManifold);
         updateStampLabels();        
     }
 
     private void resetReadManifold() {
-        StampCoordinate stamp = new StampCoordinateImpl(outsideManifold.getStampCoordinate().getStampPrecedence(),
-                new StampPositionImpl(Long.MAX_VALUE, outsideManifold.getStampCoordinate().getStampPosition().getStampPathSpecification()),
+        // TODO update
+        /*
+        StampFilter stamp = StampFilterImmutable.make(
+                StampPositionImmutable.make(Long.MAX_VALUE, outsideManifold.getStampCoordinate().getStampPosition().getStampPathSpecification()),
                 new HashSet(), new ArrayList(), Status.ANY_STATUS_SET);
-        readManifoldCoordinate = ManifoldCoordinates.getStatedManifoldCoordinate(stamp, outsideManifold.getLanguageCoordinate());
+        readManifoldCoordinate = ManifoldCoordinateImmutable.makeStated(stamp, outsideManifold.getLanguageCoordinate());
+
+         */
     }
 
     /**

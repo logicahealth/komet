@@ -17,7 +17,7 @@ import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
@@ -136,15 +136,15 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
 
                 if (Get.metadataService()
                         .wasMetadataImported()) {
-                    final StampCoordinate stampCoordinate = Get.coordinateFactory()
-                            .createDevelopmentLatestStampCoordinate();
+                    final StampFilter developmentLatestStampFilter = Get.coordinateFactory()
+                            .createDevelopmentLatestStampFilter();
                     final LogicCoordinate logicCoordinate = Get.coordinateFactory()
                             .createStandardElProfileLogicCoordinate();
                     final EditCoordinate editCoordinate = Get.coordinateFactory()
                             .createClassifierSolorOverlayEditCoordinate();
                     final ClassifierService logicService = Get.logicService()
                             .getClassifierService(
-                                    stampCoordinate,
+                                    developmentLatestStampFilter,
                                     logicCoordinate,
                                     editCoordinate);
                     final Task<ClassifierResults> classifyTask = logicService.classify();

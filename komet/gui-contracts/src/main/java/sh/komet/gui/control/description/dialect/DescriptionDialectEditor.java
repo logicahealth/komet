@@ -40,7 +40,9 @@ import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.property.PropertySheetItem;
 import sh.komet.gui.control.property.PropertySheetPurpose;
 import sh.komet.gui.manifold.Manifold;
+
 import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
+
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 

@@ -109,7 +109,7 @@ public class ConceptLabelToolbar {
       this.menuSupplier = menuSupplier;
       this.conceptLabel = new ManifoldLinkedConceptLabel(manifoldProperty,
               selectionIndexProperty,
-              ManifoldLinkedConceptLabel::setFullySpecifiedText, menuSupplier);
+              ManifoldLinkedConceptLabel::setFullyQualifiedText, menuSupplier);
       if (focusTabOnConceptChange.isPresent())
       {
          this.focusOnChange.selectedProperty().set(focusTabOnConceptChange.get());

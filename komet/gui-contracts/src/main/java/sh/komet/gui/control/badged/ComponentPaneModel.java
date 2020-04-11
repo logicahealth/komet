@@ -14,7 +14,6 @@ import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -172,7 +171,7 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
         if (isSemanticTypeSupported(observableChronology)) {
             CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
                     = observableChronology.getCategorizedVersions(
-                    getManifold());
+                    getManifold().getStampFilter());
 
             if (oscCategorizedVersions.getLatestVersion()
                     .isPresent()) {

@@ -113,8 +113,8 @@ import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.ConceptSearchResult;
@@ -341,7 +341,7 @@ public abstract class LuceneIndexer
     * {@inheritDoc}
     */
    @Override
-   public List<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult, StampCoordinate stampForMerge)
+   public List<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult, StampFilter stampFilterForMerge)
    {
       final HashMap<Integer, ConceptSearchResult> merged = new HashMap<>();
       final List<ConceptSearchResult> result = new ArrayList<>();
@@ -359,7 +359,7 @@ public abstract class LuceneIndexer
          }
          else
          {
-            final ConceptSearchResult csr = new ConceptSearchResult(conNid.getAsInt(), sr.getNid(), sr.getScore(), stampForMerge);
+            final ConceptSearchResult csr = new ConceptSearchResult(conNid.getAsInt(), sr.getNid(), sr.getScore(), stampFilterForMerge);
 
             merged.put(conNid.getAsInt(), csr);
             result.add(csr);
@@ -508,10 +508,10 @@ public abstract class LuceneIndexer
    }
    
    /**
-    * Return a Query adding the appropriate Stamp criteria for Path and/or Module(s).
+    * Return a Query adding the appropriate Filter criteria for Path and/or Module(s).
     * 
-    * @param query The query base to add Stamp parameters to
-    * @param stamp The StampCoordinate to further restrict the query
+    * @param query The query base to add Filter parameters to
+    * @param amp The AuthorModulePathRestriction to further restrict the query
     * @return
     */
    protected Query addAmpRestriction(Query query, AuthorModulePathRestriction amp)
@@ -724,7 +724,7 @@ public abstract class LuceneIndexer
    }
    
    /**
-    * see {@link #search(Query, Predicate, AmpRestriction, Integer, Integer, Long)} for details on this method.
+    * see {@link #search(Query, Predicate, AuthorModulePathRestriction, Integer, Integer, Long)} for details on this method.
     * 
     * This API variation is simply so a second object can be returned to the caller (via the lastDoc reference)
     * for special cases.  

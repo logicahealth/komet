@@ -59,7 +59,7 @@ import sh.isaac.api.util.Hashcode;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class Stamp.
+ * The Class Filter.
  * TODO: add license and copyright nids to the class. . 
  */
 public class Stamp
@@ -213,7 +213,7 @@ public class Stamp
    }
 
    /**
-    * Stamp array to string.
+    * Filter array to string.
     *
     * @param stampSet the stamp set
     * @return the string
@@ -231,7 +231,7 @@ public class Stamp
    }
 
    /**
-    * Stamp array to string.
+    * Filter array to string.
     *
     * @param stampCollection the stamp collection
     * @return the string
@@ -252,7 +252,7 @@ public class Stamp
    }
 
    /**
-    * Stamp array to string.
+    * Filter array to string.
     *
     * @param stampArray the stamp array
     * @return the string
@@ -270,7 +270,7 @@ public class Stamp
    }
 
    /**
-    * Stamp from int stamp.
+    * Filter from int stamp.
     *
     * @param stamp the stamp
     * @return the stamp
@@ -289,7 +289,7 @@ public class Stamp
    public String toString() {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("Stamp{s:");
+      sb.append("Filter{s:");
       sb.append(this.status);
       sb.append(", t:");
       if (this.time == Long.MAX_VALUE) {

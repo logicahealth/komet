@@ -207,7 +207,7 @@ public class HashTreeBuilder
             }
 
             Alert.publishAddition(
-                    new TreeCycleError(cycle, visitData, this, manifoldCoordinate.getTaxonomyPremiseType() + " Cycle found", cycleDescription.toString(), AlertType.ERROR));
+                    new TreeCycleError(cycle, visitData, this, manifoldCoordinate.getDigraph().getPremiseType() + " Cycle found", cycleDescription.toString(), AlertType.ERROR));
         }
 
         LOG.debug("Nodes visited: " + visitData.getNodesVisited());

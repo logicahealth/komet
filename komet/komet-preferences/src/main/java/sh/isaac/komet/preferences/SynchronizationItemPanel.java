@@ -146,7 +146,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
         });
     }
     
-    public SynchronizationItemPanel(IsaacPreferences preferencesNode, Manifold manifold, 
+    public SynchronizationItemPanel(IsaacPreferences preferencesNode, Manifold manifold,
             KometPreferencesController kpc) {
         super(getEquivalentUserPreferenceNode(preferencesNode), preferencesNode.get(GROUP_NAME, "Change sets"), 
                 manifold, kpc);

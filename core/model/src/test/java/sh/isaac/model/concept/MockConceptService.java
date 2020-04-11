@@ -61,7 +61,7 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -130,12 +130,12 @@ public class MockConceptService
    /**
     * Checks if concept active.
     *
-    * @param conceptNid the concept nid
-    * @param stampCoordinate the stamp coordinate
+    * @param conceptSequence the concept nid
+    * @param stampFilter the stamp coordinate
     * @return true, if concept active
     */
    @Override
-   public boolean isConceptActive(int conceptSequence, StampCoordinate stampCoordinate) {
+   public boolean isConceptActive(int conceptSequence, StampFilterImmutable stampFilter) {
       return false;
    }
 

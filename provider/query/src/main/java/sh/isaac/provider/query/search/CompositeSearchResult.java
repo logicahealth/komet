@@ -106,7 +106,7 @@ public class CompositeSearchResult implements CompositeQueryResult {
                 @Override
                 public LatestVersion<Version> apply(Chronology t) {
                     if (cachedValue == null) {
-                        cachedValue = t.getLatestVersion(CompositeSearchResult.this.manifoldCoord);
+                        cachedValue = t.getLatestVersion(CompositeSearchResult.this.manifoldCoord.getStampFilter());
                     }
                     return cachedValue;
                 }

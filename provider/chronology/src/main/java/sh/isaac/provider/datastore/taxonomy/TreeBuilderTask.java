@@ -41,14 +41,12 @@ package sh.isaac.provider.datastore.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
 import java.util.Optional;
-import java.util.UUID;
-import java.util.function.Function;
+import java.util.concurrent.CancellationException;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 
@@ -59,7 +57,6 @@ import org.apache.logging.log4j.Logger;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.progress.Stoppable;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.tree.Tree;
@@ -83,11 +80,8 @@ public class TreeBuilderTask
    private final int                       conceptAssemblageNid;
    private boolean                         stopRequested = false;
 
-   private final RelativePositionCalculator relativePositionCalculator;
-   private final int taxonomyFlags;
-   private final Optional<RelativePositionCalculator> optionalDestinationCalculator;
-   private final Optional<Function<int[],int[]>> optionalSortFunction;
-   private final PremiseType premiseType;
+   private final DigraphCoordinateImmutable digraph;
+   private final VertexSort vertexSort;
 
 /*
     public GraphCollectorIsolated(IntFunction<int[]> taxonomyDataProvider,
@@ -102,37 +96,26 @@ public class TreeBuilderTask
    private static final Logger LOG = LogManager.getLogger();
 
    //~--- constructors --------------------------------------------------------
-
    public TreeBuilderTask(IntFunction<int[]> taxonomyDataProvider,
                           ManifoldCoordinate manifoldCoordinate) {
+      this(taxonomyDataProvider, manifoldCoordinate.toDigraphImmutable(), manifoldCoordinate.getVertexSort());
+   }
+
+   public TreeBuilderTask(IntFunction<int[]> taxonomyDataProvider,
+                          DigraphCoordinateImmutable digraph, VertexSort vertexSort) {
       if (taxonomyDataProvider == null) {
          throw new IllegalStateException("taxonomyDataProvider cannot be null");
       }
-      this.premiseType = manifoldCoordinate.getTaxonomyPremiseType();
+      this.digraph = digraph;
+      this.vertexSort = vertexSort;
       this.taxonomyDataProvider               = taxonomyDataProvider;
-      this.relativePositionCalculator = manifoldCoordinate.getRelativePositionCalculator();
-      this.taxonomyFlags = TaxonomyFlag.getFlagsFromManifoldCoordinate(manifoldCoordinate);
-      if (manifoldCoordinate.optionalDestinationStampCoordinate().isPresent()) {
-
-         this.optionalDestinationCalculator = Optional.of(
-                 manifoldCoordinate.optionalDestinationStampCoordinate().get().getRelativePositionCalculator());
-      } else {
-         this.optionalDestinationCalculator = Optional.empty();
-      }
-
-      if (manifoldCoordinate.hasCustomTaxonomySort()) {
-         this.optionalSortFunction = Optional.of(manifoldCoordinate::sortConcepts);
-      } else {
-         this.optionalSortFunction = Optional.empty();
-      }
-      this.conceptAssemblageNid               = manifoldCoordinate.getLogicCoordinate()
-            .getConceptAssemblageNid();
+      this.conceptAssemblageNid               = digraph.getLogicCoordinate().getConceptAssemblageNid();
       LookupService.registerStoppable(this, LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL);
       this.conceptCount = (int) Get.identifierService()
                                    .getNidsForAssemblage(conceptAssemblageNid)
                                    .count();
       this.addToTotalWork(conceptCount * 2); // once to construct tree, ones to traverse tree
-      this.updateTitle("Generating " + manifoldCoordinate.getTaxonomyPremiseType() + " snapshot");
+      this.updateTitle("Generating " + digraph.getPremiseType() + " snapshot");
       this.setProgressMessageGenerator(
           (task) -> {
              updateMessage(message);
@@ -170,10 +153,7 @@ public class TreeBuilderTask
 
    private Tree compute() {
 
-      GraphCollectorIsolated  collector = new GraphCollectorIsolated(this.taxonomyDataProvider,
-              this.relativePositionCalculator, this.taxonomyFlags,
-              this.optionalDestinationCalculator,
-              this.optionalSortFunction);
+      GraphCollectorIsolated  collector = new GraphCollectorIsolated(this.taxonomyDataProvider,this.digraph, this.vertexSort);
       IntStream       conceptNidStream = Get.identifierService()
                                             .getNidsForAssemblage(conceptAssemblageNid);
       long count = conceptNidStream.count();
@@ -182,7 +162,7 @@ public class TreeBuilderTask
       } 
       
       if (stopRequested) {
-         throw new RuntimeException("Stop requested during compute");
+         throw new CancellationException("Stop requested during compute");
       }
       conceptNidStream = Get.identifierService()
                                             .getNidsForAssemblage(conceptAssemblageNid);
@@ -196,8 +176,9 @@ public class TreeBuilderTask
                return true;
             })
                                                          .collect(
-                                                               () -> new HashTreeBuilderIsolated(
-                                                                     this.premiseType,
+                                                               () -> new HashTreeBuilderIsolated(this.digraph.getVertexStampFilter(),
+                                                                       this.digraph.toUserString(),
+                                                                     this.digraph.getPremiseType(),
                                                                            this.conceptAssemblageNid),
                                                                      collector,
                                                                      collector);
@@ -207,7 +188,7 @@ public class TreeBuilderTask
       Tree tree = graphBuilder.getSimpleDirectedGraph(this);
 
       message = "complete";
-      LOG.info("Tree build completed for {}", this.relativePositionCalculator.getDestination());
+      //LOG.info("Tree build completed for {}", this.digraph.toUserString());
       return tree;
    }
 
@@ -223,7 +204,7 @@ public class TreeBuilderTask
    public void completedUnitOfWork()
    {
       if (stopRequested) {
-         throw new RuntimeException(stopMessage);
+         throw new CancellationException(stopMessage);
       }
       super.completedUnitOfWork();
    }
@@ -232,7 +213,7 @@ public class TreeBuilderTask
    public void completedUnitsOfWork(long unitsCompleted)
    {
       if (stopRequested) {
-         throw new RuntimeException(stopMessage);
+         throw new CancellationException(stopMessage);
       }
       super.completedUnitsOfWork(unitsCompleted);
    }

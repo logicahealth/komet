@@ -13,9 +13,7 @@
      <modules>
         <module>taxonomy-view</module>
         <module>iconography</module>
-        <module>application</module>
         <module>gui-contracts</module>
-        <module>search-view</module>
         <module>css</module>
         <module>dialog</module>
         <module>concept-detail</module>
@@ -33,5 +31,7 @@
         <module>batch</module>
         <module>livd</module>
         <module>classification</module>
+         <module>search-view</module>
+         <module>application</module>
      </modules>
 </project>

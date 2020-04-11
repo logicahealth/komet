@@ -37,30 +37,23 @@
 
 package sh.isaac.model.configuration;
 
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.Rank;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.ConceptProxy;
-import sh.isaac.api.Get;
-import sh.isaac.api.GlobalDatastoreConfiguration;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.RemoteServiceInfo;
+import sh.isaac.api.*;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.metacontent.MetaContentService;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.api.util.PasswordHasher;
+
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * The default implementation of {@link GlobalDatastoreConfiguration} which stores
@@ -150,7 +143,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ObservableStampCoordinate getDefaultStampCoordinate()
+	public ObservablePathCoordinate getDefaultStampCoordinate()
 	{
 		initCheckCoords();
 		return this.defaultCoordinateProvider.getDefaultStampCoordinate();
@@ -344,10 +337,10 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 					defaultCoordinateProvider.setDefaultStatedAssemblage(dcp.getDefaultLogicCoordinate().getStatedAssemblageNid());
 					break;
 				case TIME:
-					defaultCoordinateProvider.setDefaultTime(dcp.getDefaultStampCoordinate().getStampPosition().getTime());
+					defaultCoordinateProvider.setDefaultTime(dcp.getDefaultStampCoordinate().getStampFilter().getStampPosition().getTime());
 					break;
 				case PREMISE_TYPE:
-					defaultCoordinateProvider.setDefaultPremiseType(dcp.getDefaultManifoldCoordinate().getTaxonomyPremiseType());
+					defaultCoordinateProvider.setDefaultPremiseType(dcp.getDefaultManifoldCoordinate().getPremiseType());
 					break;
 				case USER:
 					defaultCoordinateProvider.setDefaultUser(dcp.getDefaultEditCoordinate().getAuthorNid());
@@ -527,9 +520,9 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 			case STATED_ASSEMBLAGE:
 				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultLogicCoordinate().getStatedAssemblageNid());
 			case TIME:
-				return (T) Long.valueOf(defaultCoordinateProvider.getDefaultStampCoordinate().getStampPosition().getTime());
+				return (T) Long.valueOf(defaultCoordinateProvider.getDefaultStampCoordinate().getStampFilter().getStampPosition().getTime());
 			case PREMISE_TYPE:
-				return (T)defaultCoordinateProvider.getDefaultManifoldCoordinate().getTaxonomyPremiseType();
+				return (T)defaultCoordinateProvider.getDefaultManifoldCoordinate().getPremiseType();
 			case USER:
 				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultEditCoordinate().getAuthorNid());
 			default :

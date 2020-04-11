@@ -29,7 +29,7 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec 
  */
 public class ChoiceBoxControls {
-   public static ChoiceBox<ConceptSpecification> getDescriptionTypeForDisplay(Manifold manifold) {      
+   public static ChoiceBox<ConceptSpecification> getDescriptionTypeForDisplay(Manifold manifold) {
       return makeChoiceBox(manifold, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
    }
 

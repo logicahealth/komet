@@ -49,9 +49,9 @@ import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.coordinate.StampFilter;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -164,14 +164,32 @@ public interface LanguageCoordinateService {
     * If none of the description match a specified module ranking, then the descriptions are returned in an arbitrary order, 
     * between {@link LatestVersion#get()} and {@link LatestVersion#contradictions()}.
     *
-    * @param stampCoordinate used to determine which versions of descriptions and dialect annotations are current.
+    * @param stampFilter used to determine which versions of descriptions and dialect annotations are current.
     * @param descriptionList List of descriptions to consider.
     * @param languageCoordinate Used to determine ranking of candidate matches.
     * @return the specified description
     */
-   LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate,
-         List<SemanticChronology> descriptionList,
-         LanguageCoordinate languageCoordinate);
+   LatestVersion<DescriptionVersion> getSpecifiedDescription(StampFilter stampFilter,
+                                                             List<SemanticChronology> descriptionList,
+                                                             LanguageCoordinate languageCoordinate);
+
+   /**
+    * Same as getSpecifiedDescription(StampFilter stampFilter,
+    *                                 List<SemanticChronology> descriptionList,
+    *                                 LanguageCoordinate languageCoordinate);
+    * but allows the descriptionTypePriority to be independent of the coordinate, without forcing a clone of
+    * the coordinate.
+    *
+    * @param stampFilter
+    * @param descriptionList
+    * @param descriptionTypePriority
+    * @param languageCoordinate
+    * @return
+    */
+   LatestVersion<DescriptionVersion> getSpecifiedDescription(StampFilter stampFilter,
+                                                             List<SemanticChronology> descriptionList,
+                                                             int[] descriptionTypePriority,
+                                                             LanguageCoordinate languageCoordinate);
 
    /**
     * Gets the synonym concept nid.

@@ -82,7 +82,6 @@ public class LogicDetailNode
     //~--- constructors --------------------------------------------------------
     public LogicDetailNode(Manifold conceptDetailManifold) {
         this.manifoldProperty.set(conceptDetailManifold);
-        conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
         this.conceptLabelToolbar = ConceptLabelToolbar.make(this.manifoldProperty, this.selectionIndexProperty,
                 this, Optional.of(false));
         conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
@@ -119,7 +118,7 @@ public class LogicDetailNode
                 titleProperty.set(this.manifoldProperty.get().getPreferredDescriptionText(newValue));
                 toolTipProperty.set(
                         "concept details for: "
-                                + this.manifoldProperty.get().getFullySpecifiedDescriptionText(
+                                + this.manifoldProperty.get().getFullyQualifiedDescriptionText(
                                         newValue));
             }
         }

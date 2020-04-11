@@ -36,35 +36,12 @@
  */
 package sh.isaac.convert.delta.vhat;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.LongSupplier;
-import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
-import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import javax.xml.transform.stream.StreamSource;
-import javax.xml.validation.Schema;
-import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.xml.sax.SAXException;
 import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
@@ -78,17 +55,9 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.CommitTask;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.version.DynamicVersion;
-import sh.isaac.api.component.semantic.version.MutableDescriptionVersion;
-import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
-import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
-import sh.isaac.api.component.semantic.version.MutableStringVersion;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.version.*;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
@@ -96,10 +65,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicValidatorType;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.index.SearchResult;
@@ -109,11 +75,7 @@ import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.mapping.constants.IsaacMappingConstants;
 import sh.isaac.misc.constants.VHATConstants;
-import sh.isaac.misc.constants.terminology.data.ActionType;
-import sh.isaac.misc.constants.terminology.data.ConceptType;
-import sh.isaac.misc.constants.terminology.data.DesignationType;
-import sh.isaac.misc.constants.terminology.data.PropertyType;
-import sh.isaac.misc.constants.terminology.data.Terminology;
+import sh.isaac.misc.constants.terminology.data.*;
 import sh.isaac.misc.constants.terminology.data.Terminology.CodeSystem;
 import sh.isaac.misc.constants.terminology.data.Terminology.CodeSystem.Version.CodedConcepts;
 import sh.isaac.misc.constants.terminology.data.Terminology.CodeSystem.Version.CodedConcepts.CodedConcept;
@@ -131,25 +93,33 @@ import sh.isaac.misc.constants.terminology.data.Terminology.CodeSystem.Version.M
 import sh.isaac.misc.constants.terminology.data.Terminology.Subsets.Subset;
 import sh.isaac.misc.constants.terminology.data.Terminology.Types.Type;
 import sh.isaac.misc.modules.vhat.VHATIsAHasParentSynchronizingChronologyChangeListener;
-import sh.isaac.model.configuration.LanguageCoordinates;
-import sh.isaac.model.configuration.LogicCoordinates;
-import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.model.coordinate.EditCoordinateImpl;
-import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
-import sh.isaac.model.coordinate.StampCoordinateImpl;
-import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.NecessarySetNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
-import sh.isaac.model.semantic.types.DynamicArrayImpl;
-import sh.isaac.model.semantic.types.DynamicIntegerImpl;
-import sh.isaac.model.semantic.types.DynamicLongImpl;
-import sh.isaac.model.semantic.types.DynamicNidImpl;
-import sh.isaac.model.semantic.types.DynamicStringImpl;
-import sh.isaac.model.semantic.types.DynamicUUIDImpl;
+import sh.isaac.model.semantic.types.*;
 import sh.isaac.model.semantic.version.DynamicImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.utility.Frills;
+
+import javax.xml.XMLConstants;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.Schema;
+import javax.xml.validation.SchemaFactory;
+import javax.xml.validation.Validator;
+import java.io.File;
+import java.io.IOException;
+import java.io.StringReader;
+import java.net.URL;
+import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.LongSupplier;
 
 /**
  * Goal which converts VHAT data into the workbench jbin format
@@ -186,19 +156,19 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 		this.xmlData = xmlData;
 		this.outputDirectory = debugOutputFolder;
 		this.time = System.currentTimeMillis();
-		HashSet<ConceptSpecification> modulesToRead = new HashSet<>();
-		modulesToRead.add(MetaData.MODULE____SOLOR);
-		modulesToRead.add(MetaData.VHAT_MODULES____SOLOR);
-		Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, false, StampCoordinates.getDevelopmentLatest())
-				.forEach(i -> modulesToRead.add(Get.conceptSpecification(i)));
+		MutableIntSet modulesToRead = IntSets.mutable.empty();
+		modulesToRead.add(MetaData.MODULE____SOLOR.getNid());
+		modulesToRead.add(MetaData.VHAT_MODULES____SOLOR.getNid());
+		Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, false, Coordinates.Filter.DevelopmentLatest())
+				.forEach(i -> modulesToRead.add(i));
 		
-		this.readbackCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid()),
-				modulesToRead, new ArrayList<>(), Status.ANY_STATUS_SET);
+		this.readbackCoordinate = StampFilterImmutable.make(StatusSet.ACTIVE_AND_INACTIVE, StampPositionImmutable.make(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid()),
+				modulesToRead.toImmutable(), IntLists.immutable.empty());
 
-		this.editCoordinate = new EditCoordinateImpl(Get.identifierService().getNidForUuids(author), Get.identifierService().getNidForUuids(module),
+		this.editCoordinate = EditCoordinateImmutable.make(Get.identifierService().getNidForUuids(author), Get.identifierService().getNidForUuids(module),
 				Get.identifierService().getNidForUuids(path));
 
-		this.logicreadbackCoordinate = LogicCoordinates.getStandardElProfile();
+		this.logicreadbackCoordinate = Coordinates.Logic.ElPlusPlus();
 		
 		LOG.debug("Processing passed in XML data of length " + xmlData.length());
 	
@@ -1768,7 +1738,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 	}
 
 	private static void copy(DirectWriteHelper dwh, UUID existingParentComponent, SemanticChronology copyOfParentComponent,
-			StampCoordinate readbackCoordinate, EditCoordinate editCoordinate, long time)
+							 StampFilter readbackCoordinate, EditCoordinate editCoordinate, long time)
 	{
 		Get.assemblageService().getSemanticChronologyStreamForComponent(Get.nidForUuids(existingParentComponent)).forEach(existingNestedSemantic -> {
 			LatestVersion<Version> latestVersionOfExistingNestedSemantic = existingNestedSemantic.getLatestVersion(readbackCoordinate);
@@ -2039,7 +2009,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 				}
 
 				for (int parent : Get.taxonomyService()
-						.getSnapshot(new ManifoldCoordinateImpl(this.readbackCoordinate, LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate()))
+						.getSnapshot(ManifoldCoordinateImmutable.makeStated(this.readbackCoordinate, Coordinates.Language.UsEnglishPreferredName()))
 						.getTaxonomyParentConceptNids(Get.nidForUuids(concept)))
 				{
 					UUID potential = Get.identifierService().getUuidPrimordialForNid(parent);

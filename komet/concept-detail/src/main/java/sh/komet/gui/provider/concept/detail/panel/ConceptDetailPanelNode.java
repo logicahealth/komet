@@ -350,7 +350,7 @@ public class ConceptDetailPanelNode
         if (ComponentPaneModel.isSemanticTypeSupported(observableChronology.getVersionType())) {
             CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
                     = observableChronology.getCategorizedVersions(
-                            this.manifoldProperty.get());
+                            this.manifoldProperty.get().getStampFilter());
 
             if (oscCategorizedVersions.getLatestVersion()
                     .isPresent()) {
@@ -456,7 +456,7 @@ public class ConceptDetailPanelNode
             }
 
             toolTipProperty.set(
-                    "concept details for: " + this.manifoldProperty.get().getFullySpecifiedDescriptionText(newValue));
+                    "concept details for: " + this.manifoldProperty.get().getFullyQualifiedDescriptionText(newValue));
 
             ObservableConceptChronology observableConceptChronology = Get.observableChronologyService()
                     .getObservableConceptChronology(
@@ -464,14 +464,15 @@ public class ConceptDetailPanelNode
             final ParallelTransition parallelTransition = new ParallelTransition();
 
             addChronology(observableConceptChronology, parallelTransition);
+
+            /* TODO finish lineage view
             AnchorPane lineageHeader = setupHeaderPanel("LINEAGE", null);
             parallelTransition.getChildren()
                     .add(addNode(lineageHeader));
 
             parallelTransition.getChildren()
                     .add(addNode(LineageTree.makeLineageTree(newValue, this.manifoldProperty.get())));
-
-
+            */
             AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton);
 
             addDescriptionButton.getStyleClass()
@@ -514,7 +515,7 @@ public class ConceptDetailPanelNode
                                 } else {
                                     LatestVersion<SemanticVersion> latest
                                             = semanticChronology.getLatestVersion(
-                                            this.manifoldProperty.get());
+                                            this.manifoldProperty.get().getStampFilter());
 
                                     if (latest.isPresent()) {
                                         return latest.get()
@@ -557,7 +558,7 @@ public class ConceptDetailPanelNode
                                             }
 
                                             if (o1.getAssemblageNid()
-                                            == this.manifoldProperty.get().getInferredAssemblageNid()) {
+                                            == this.manifoldProperty.get().getLogicCoordinate().getInferredAssemblageNid()) {
                                                 return -1;
                                             }
 
@@ -717,19 +718,19 @@ public class ConceptDetailPanelNode
 
     private void updateManifoldHistoryStates() {
         if (historySwitch.isSelected()) {
-            this.manifoldProperty.get().getStampCoordinate()
-                    .allowedStatesProperty()
-                    .clear();
-            this.manifoldProperty.get().getStampCoordinate()
-                    .allowedStatesProperty()
-                    .addAll(Status.makeActiveAndInactiveSet());
+//            this.manifoldProperty.get().getStampCoordinate()
+//                    .allowedStatesProperty()
+//                    .clear();
+//            this.manifoldProperty.get().getStampCoordinate()
+//                    .allowedStatesProperty()
+//                    .addAll(Status.makeActiveAndInactiveSet());
         } else {
-            this.manifoldProperty.get().getStampCoordinate()
-                    .allowedStatesProperty()
-                    .clear();
-            this.manifoldProperty.get().getStampCoordinate()
-                    .allowedStatesProperty()
-                    .addAll(Status.makeActiveOnlySet());
+//            this.manifoldProperty.get().getStampCoordinate()
+//                    .allowedStatesProperty()
+//                    .clear();
+//            this.manifoldProperty.get().getStampCoordinate()
+//                    .allowedStatesProperty()
+//                    .addAll(Status.makeActiveOnlySet());
         }
     }
 

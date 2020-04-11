@@ -49,8 +49,8 @@ import sh.komet.gui.control.property.PropertySheetItem;
 import sh.komet.gui.control.property.SessionProperty;
 import sh.komet.gui.interfaces.ComponentList;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.GraphAmalgamWithManifold;
 import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.manifold.GraphAmalgamWithManifold;
 import sh.komet.gui.provider.StatusMessageProvider;
 
 import javax.inject.Singleton;
@@ -211,14 +211,14 @@ public class FxGet implements StaticIsaacCache {
         TreeMap<Integer, ConceptSpecification> fieldIndexToFieldConcept = new TreeMap<>();
         TreeMap<Integer, ConceptSpecification> fieldIndexToFieldDataType = new TreeMap<>();
         List<PropertySheet.Item> items = new ArrayList();
-        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageConcept, manifold);
+        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageConcept, manifold.getStampFilter());
 
         if (optionalSemanticConceptNid.isPresent()) {
             int semanticConceptNid = optionalSemanticConceptNid.getAsInt();
             NidSet semanticTypeOfFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(semanticConceptNid, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE.getNid());
             for (int nid : semanticTypeOfFields.asArray()) { // one member, "Concept field": 1
                 SemanticChronology semanticTypeField = Get.assemblageService().getSemanticChronology(nid);
-                LatestVersion<Version> latestSemanticTypeField = semanticTypeField.getLatestVersion(manifold);
+                LatestVersion<Version> latestSemanticTypeField = semanticTypeField.getLatestVersion(manifold.getStampFilter());
                 Nid1_Int2_Version latestSemanticTypeFieldVersion = (Nid1_Int2_Version) latestSemanticTypeField.get();
                 fieldIndexToFieldDataType.put(latestSemanticTypeFieldVersion.getInt2(), Get.concept(latestSemanticTypeFieldVersion.getNid1()));
             }
@@ -226,7 +226,7 @@ public class FxGet implements StaticIsaacCache {
             NidSet assemblageSemanticFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(assemblageConcept.getNid(), MetaData.SEMANTIC_FIELDS_ASSEMBLAGE____SOLOR.getNid());
             for (int nid : assemblageSemanticFields.asArray()) {
                 SemanticChronology semanticField = Get.assemblageService().getSemanticChronology(nid);
-                LatestVersion<Version> latestSemanticField = semanticField.getLatestVersion(manifold);
+                LatestVersion<Version> latestSemanticField = semanticField.getLatestVersion(manifold.getStampFilter());
                 Nid1_Int2_Version latestSemanticFieldVersion = (Nid1_Int2_Version) latestSemanticField.get();
                 fieldIndexToFieldConcept.put(latestSemanticFieldVersion.getInt2(), Get.concept(latestSemanticFieldVersion.getNid1()));
             }
@@ -308,7 +308,7 @@ public class FxGet implements StaticIsaacCache {
         return EditCoordinate.get();
     }
 
-    private static ObservableMap<UuidStringKey, ObservableStampCoordinate>    STAMP_COORDINATES = FXCollections.observableMap(new TreeMap<>());
+    private static ObservableMap<UuidStringKey, ObservablePathCoordinate>    STAMP_COORDINATES = FXCollections.observableMap(new TreeMap<>());
     private static ObservableMap<UuidStringKey, ObservableLanguageCoordinate> LANGUAGE_COORDINATES = FXCollections.observableMap(new TreeMap<>());
     private static ObservableMap<UuidStringKey, ObservableLogicCoordinate>    LOGIC_COORDINATES = FXCollections.observableMap(new TreeMap<>());
     private static ObservableMap<UuidStringKey, ObservableManifoldCoordinate> MANIFOLD_COORDINATES = FXCollections.observableMap(new TreeMap<>());
@@ -317,7 +317,7 @@ public class FxGet implements StaticIsaacCache {
     private static final ObservableList<UuidStringKey> LOGIC_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
     private static final ObservableList<UuidStringKey> MANIFOLD_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
     static {
-        STAMP_COORDINATES.addListener((MapChangeListener.Change<? extends UuidStringKey, ? extends ObservableStampCoordinate> change) -> {
+        STAMP_COORDINATES.addListener((MapChangeListener.Change<? extends UuidStringKey, ? extends ObservablePathCoordinate> change) -> {
             if (change.wasAdded()) {
                 STAMP_COORDINATE_KEY_LIST.add(change.getKey());
             }
@@ -351,7 +351,7 @@ public class FxGet implements StaticIsaacCache {
         });
     }
 
-    public static ObservableMap<UuidStringKey, ObservableStampCoordinate> stampCoordinates() {
+    public static ObservableMap<UuidStringKey, ObservablePathCoordinate> pathCoordinates() {
         return STAMP_COORDINATES;
     }
     public static ObservableMap<UuidStringKey, ObservableLanguageCoordinate> languageCoordinates() {
@@ -411,7 +411,7 @@ public class FxGet implements StaticIsaacCache {
         NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(nodeSpecConcept.getNid(), TermAux.PROVIDER_CLASS_ASSEMBLAGE.getNid());
         for (int nid: semanticNids.asArray()) {
             SemanticChronology chronology = Get.assemblageService().getSemanticChronology(nid);
-            LatestVersion<StringVersion> optionalProviderClassStr = chronology.getLatestVersion(FxGet.manifold(Manifold.ManifoldGroup.KOMET));
+            LatestVersion<StringVersion> optionalProviderClassStr = chronology.getLatestVersion(FxGet.manifold(Manifold.ManifoldGroup.KOMET).getStampFilter());
             if (optionalProviderClassStr.isPresent()) {
                 StringVersion providerClassString = optionalProviderClassStr.get();
                 try {

@@ -32,6 +32,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.komet.gui.drag.drop.DragAndDropHelper;
 import sh.komet.gui.manifold.Manifold;
+
 import static sh.komet.gui.style.StyleClasses.CONCEPT_LABEL;
 
 /**
@@ -52,8 +53,8 @@ public class ConceptLabel
 
    //~--- constructors --------------------------------------------------------
    public ConceptLabel(Manifold manifold,
-            Consumer<ConceptLabel> descriptionTextUpdater,
-            Function<ConceptLabel, List<MenuItem>> menuSupplier) {
+                       Consumer<ConceptLabel> descriptionTextUpdater,
+                       Function<ConceptLabel, List<MenuItem>> menuSupplier) {
         super(EMPTY_TEXT);
         if (menuSupplier == null) {
             throw new IllegalStateException("Supplier<List<MenuItem>> menuSupplier cannot be null");

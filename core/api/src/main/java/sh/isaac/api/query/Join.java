@@ -16,33 +16,24 @@
  */
 package sh.isaac.api.query;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 import javafx.beans.property.ReadOnlyProperty;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
-import static sh.isaac.api.query.Clause.getParentClauses;
-import sh.isaac.api.xml.JoinSpecificationAdaptor;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
-public class Join 
+public class Join
         extends ParentClause {
 
     List<? extends JoinSpecification> joinSpecifications = new ArrayList<>();
@@ -71,9 +62,6 @@ public class Join
         // no cached data in task. 
     }
 
-    @XmlElement(name = "JoinSpecification")
-    @XmlJavaTypeAdapter(JoinSpecificationAdaptor.class)    
-    @XmlElementWrapper(name = "Join")
     public List<? extends JoinSpecification> getJoinSpecifications() {
         return joinSpecifications;
     }
@@ -101,16 +89,16 @@ public class Join
         for (JoinSpecification joinSpec: joinSpecifications) {
             NidSet nidSet1 = searchSpace.get(joinSpec.getFirstAssemblage());
             NidSet nidSet2 = searchSpace.get(joinSpec.getSecondAssemblage());
-            StampCoordinate stampCoordinate = getLetItem(joinSpec.getStampCoordinateKey());
+            StampFilter stampFilter = getLetItem(joinSpec.getStampFilterKey());
             for (int nid1: nidSet1.asArray()) {
                 ObservableChronology chron1 = Get.observableChronology(nid1);
-                LatestVersion<ObservableVersion> version1Latest = chron1.getLatestObservableVersion(stampCoordinate);
+                LatestVersion<ObservableVersion> version1Latest = chron1.getLatestObservableVersion(stampFilter);
                 if (version1Latest.isPresent() && version1Latest.get().getPropertyMap().containsKey(joinSpec.getFirstField().getFieldSpec())) {
                     ObservableVersion v1 = version1Latest.get();
                     ReadOnlyProperty<?> v1Prop = v1.getPropertyMap().get(joinSpec.getFirstField().getFieldSpec());
                     for (int nid2: nidSet2.asArray()) {
                         ObservableChronology chron2 = Get.observableChronology(nid2);
-                        LatestVersion<ObservableVersion> version2Latest = chron2.getLatestObservableVersion(stampCoordinate);
+                        LatestVersion<ObservableVersion> version2Latest = chron2.getLatestObservableVersion(stampFilter);
                         if (version2Latest.isPresent() && version2Latest.get().getPropertyMap().containsKey(joinSpec.getSecondField().getFieldSpec())) {
                             ObservableVersion v2 = version2Latest.get();
                             ReadOnlyProperty<?> v2Prop = v2.getPropertyMap().get(joinSpec.getSecondField().getFieldSpec());

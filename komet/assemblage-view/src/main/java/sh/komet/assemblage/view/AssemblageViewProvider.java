@@ -17,33 +17,27 @@
 package sh.komet.assemblage.view;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
-import com.google.common.util.concurrent.AtomicDouble;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.mahout.math.Arrays;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.util.number.NumberUtil;
@@ -52,7 +46,6 @@ import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
-import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.search.SearchToolbar;
 import sh.komet.gui.util.FxGet;
 
@@ -198,8 +191,8 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
 
     public class Searcher implements Runnable {
         final String searchString;
-        final AtomicDouble nodeCount = new AtomicDouble();
-        final AtomicDouble testedNodes = new AtomicDouble();
+        final AtomicInteger nodeCount = new AtomicInteger();
+        final AtomicInteger testedNodes = new AtomicInteger();
 
         public Searcher(String searchString) {
             this.searchString = searchString;
@@ -207,7 +200,7 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
         }
 
         private void countNodes(TreeItem<ObservableCategorizedVersion>  treeNode) {
-            nodeCount.addAndGet(1.0);
+            nodeCount.incrementAndGet();
             for (TreeItem<ObservableCategorizedVersion>  child : treeNode.getChildren()) {
                 countNodes(child);
             }
@@ -230,7 +223,7 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
                     }
                 });
             }
-            testedNodes.addAndGet(1.0);
+            testedNodes.incrementAndGet();
             searchToolbar.setProgress(testedNodes.doubleValue()/nodeCount.doubleValue());
         }
     }

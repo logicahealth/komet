@@ -41,57 +41,40 @@ package sh.isaac.api.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.collections.StampSequenceSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.query.*;
+
 import java.util.EnumSet;
 import java.util.Map;
 import java.util.Optional;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.Version;
-
 //~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.collections.StampSequenceSet;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampPosition;
-import sh.isaac.api.query.ClauseComputeType;
-import sh.isaac.api.query.ClauseSemantic;
-import sh.isaac.api.query.LeafClause;
-import sh.isaac.api.query.LetItemKey;
-import sh.isaac.api.query.Query;
-import sh.isaac.api.query.WhereClause;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
  * Computes the components that have been modified between the specified
- * Stamp Coordinates.
+ * Filter Coordinates.
  *
  * @author dylangrald
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class ChangedBetweenVersions
         extends LeafClause {
 
    /**
     * The <code>StampCoordinate</code> used to specify version one.
     */
-   @XmlElement
    LetItemKey stampCoordinateOneKey;
 
    /**
     * The <code>StampCoordinate</code> used to specify version two.
     */
-   @XmlElement
    LetItemKey stampCoordinateTwoKey;
 
    //~--- constructors --------------------------------------------------------
@@ -141,14 +124,14 @@ public class ChangedBetweenVersions
      */
     @Override
     public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
-        StampCoordinate stampCoordinateOne = (StampCoordinate) this.enclosingQuery.getLetDeclarations()
+        StampFilter stampFilterOne = (StampFilter) this.enclosingQuery.getLetDeclarations()
                          .get(this.stampCoordinateOneKey);
-        StampCoordinate stampCoordinateTwo = (StampCoordinate) this.enclosingQuery.getLetDeclarations()
+        StampFilter stampFilterTwo = (StampFilter) this.enclosingQuery.getLetDeclarations()
                          .get(this.stampCoordinateTwoKey);
 
         NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
 
-        StampSequenceSet allowedStamps = Get.stampService().getStampsBetweenCoordinates(stampCoordinateOne, stampCoordinateTwo);
+        StampSequenceSet allowedStamps = Get.stampService().getStampsBetweenCoordinates(stampFilterOne, stampFilterTwo);
 
         
         for (int nid: possibleComponents.asArray()) {

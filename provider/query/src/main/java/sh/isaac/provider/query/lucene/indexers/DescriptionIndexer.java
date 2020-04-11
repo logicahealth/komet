@@ -16,15 +16,6 @@
  */
 package sh.isaac.provider.query.lucene.indexers;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Locale;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Predicate;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.TextField;
@@ -48,7 +39,6 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.AuthorModulePathRestriction;
@@ -56,9 +46,12 @@ import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.SemanticTags;
-import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
+
+import java.io.IOException;
+import java.util.*;
+import java.util.function.Predicate;
 
 /**
  * Lucene Manager which specializes in indexing descriptions.
@@ -345,10 +338,7 @@ public class DescriptionIndexer extends LuceneIndexer
 					maxScore = score;
 				}
 			}
-			
-			//A coordinate for best-effort readback of descriptions
-			StampCoordinate sc = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultStampCoordinate().makeCoordinateAnalog(Status.makeAnyStateSet());
-			
+
 			// normalize the scores between 0 and 1
 			for (final SearchResult sr : results) {
 				//This cast is safe, per the docs of the internal search
@@ -359,8 +349,8 @@ public class DescriptionIndexer extends LuceneIndexer
 				
 				if (chronology.isPresent() && chronology.get().getIsaacObjectType() == IsaacObjectType.SEMANTIC) {
 					if (((SemanticChronology)chronology.get()).getVersionType() == VersionType.DESCRIPTION) {
-						
-						LatestVersion<DescriptionVersion> dv = chronology.get().getLatestVersion(sc);
+
+						LatestVersion<DescriptionVersion> dv = chronology.get().getLatestVersion(Get.defaultCoordinate().getStampFilter());
 						if (dv.isPresent()) {
 							float adjustValue = 0f;
 							String matchingString = dv.get().getText().toLowerCase(Locale.ENGLISH);

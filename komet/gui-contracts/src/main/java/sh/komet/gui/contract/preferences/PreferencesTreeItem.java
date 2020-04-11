@@ -81,7 +81,7 @@ public class PreferencesTreeItem extends TreeItem<PreferenceGroup>  {
 
 
     static public Optional<PreferencesTreeItem> from(IsaacPreferences preferences,
-                                              Manifold manifold, KometPreferencesController controller)  {
+                                                     Manifold manifold, KometPreferencesController controller)  {
         Optional<String> optionalPropertySheetClass = preferences.get(PROPERTY_SHEET_CLASS);
         if (optionalPropertySheetClass.isPresent()) {
             try {

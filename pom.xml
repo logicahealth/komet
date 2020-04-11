@@ -83,6 +83,7 @@
       <caffeine.version>2.7.0</caffeine.version>
       <disruptor.version>3.3.7</disruptor.version>
       <docbkx-maven-plugin.version>2.0.17</docbkx-maven-plugin.version>
+      <eclipse-collections.version>10.2.0</eclipse-collections.version>
       <enforcer-api.version>3.0.0-M1</enforcer-api.version>
       <fortify.version>16.10</fortify.version>
       <gitflow-maven-plugin-version>1.12.0</gitflow-maven-plugin-version>
@@ -303,11 +304,6 @@
             <version>${guava.version}</version>
          </dependency>
          <dependency>
-            <groupId>javax.activation</groupId>
-            <artifactId>activation</artifactId>
-            <version>${activation.version}</version>
-         </dependency>
-         <dependency>
             <groupId>net.java.dev.jna</groupId>
             <artifactId>jna</artifactId>
             <version>${jna.version}</version>
@@ -347,6 +343,16 @@
             <artifactId>enforcer-api</artifactId>
             <version>${enforcer-api.version}</version>
          </dependency>
+          <dependency>
+              <groupId>org.eclipse.collections</groupId>
+              <artifactId>eclipse-collections-api</artifactId>
+              <version>${eclipse-collections.version}</version>
+          </dependency>
+          <dependency>
+              <groupId>org.eclipse.collections</groupId>
+              <artifactId>eclipse-collections</artifactId>
+              <version>${eclipse-collections.version}</version>
+          </dependency>
          <dependency>
             <groupId>org.codehaus.plexus</groupId>
             <artifactId>plexus-classworlds</artifactId>
@@ -444,6 +450,7 @@
             <artifactId>commons-io</artifactId>
             <version>${commons-io.version}</version>
          </dependency>
+          <!-- TODO: eliminate mahout-collections, replace with eclipse collections-->
          <dependency>
             <groupId>org.apache.mahout</groupId>
             <artifactId>mahout-collections</artifactId>

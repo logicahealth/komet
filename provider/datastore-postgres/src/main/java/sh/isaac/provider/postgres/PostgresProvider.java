@@ -18,26 +18,6 @@ package sh.isaac.provider.postgres;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-import java.util.function.BinaryOperator;
-import java.util.stream.IntStream;
-import javax.xml.bind.DatatypeConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
@@ -49,7 +29,6 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import static sh.isaac.api.externalizable.ByteArrayDataBuffer.getInt;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
@@ -61,9 +40,18 @@ import sh.isaac.model.collections.SpinedNidIntMap;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.SemanticVersionImpl;
-import sh.isaac.model.taxonomy.TaxonomyRecord;
-import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import sh.isaac.provider.datastore.cache.CacheBootstrap;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.*;
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
+import java.util.function.BinaryOperator;
+import java.util.stream.IntStream;
+
+import static sh.isaac.api.externalizable.ByteArrayDataBuffer.getInt;
 
 /**
  *
@@ -80,7 +68,7 @@ public class PostgresProvider
         if (LOG_SQL_FLAG) {
             LOG.debug(":SQL: " + stmt.toString()
                 + "; -- '"
-                + DatatypeConverter.printHexBinary(bytes)
+                + ByteArrayDataBuffer.printHexBinary(bytes)
                 + "'::bytea");
         }
     }
@@ -479,7 +467,7 @@ public class PostgresProvider
             if (LOG_BYTECHECK_FLAG) {
                 StringBuilder sb = new StringBuilder();
                 dataList.forEach((dv) -> {
-                    sb.append(DatatypeConverter.printHexBinary(dv)).append(" * ");
+                    sb.append(ByteArrayDataBuffer.printHexBinary(dv)).append(" * ");
                 });
                 LOG.debug("--+ :" + chronologyNid + ":BYTECHECK:PUT: " + sb.toString());
             }
@@ -674,11 +662,11 @@ public class PostgresProvider
         if (LOG_BYTECHECK_FLAG) {
             StringBuilder sb = new StringBuilder();
             dataList.forEach((dv) -> {
-                sb.append(DatatypeConverter.printHexBinary(dv)).append(" * ");
+                sb.append(ByteArrayDataBuffer.printHexBinary(dv)).append(" * ");
             });
             LOG.debug("--+ :" + nid + ":BYTECHECK:GET: " + sb.toString());
             byte[] byteBufferBytes = byteBuffer.getData();
-            LOG.debug("--+ :" + nid + ":BYTECHECK-GET: " + DatatypeConverter.printHexBinary(byteBufferBytes));
+            LOG.debug("--+ :" + nid + ":BYTECHECK-GET: " + ByteArrayDataBuffer.printHexBinary(byteBufferBytes));
         }
         // :DEBUG:END:
 

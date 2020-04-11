@@ -144,6 +144,12 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
          popParent();
          createConcept(TermAux.SOLOR_METADATA).addDescription("version:" + AUXILIARY_METADATA_VERSION, TermAux.DEFINITION_DESCRIPTION_TYPE);
          pushParent(current());
+            createConcept("Directed graph", "DigraphCoordinate");
+            pushParent(current());
+                createConcept(EL_PLUS_PLUS_DIGRAPH)
+                        .addDescription("The directed graph that results from classifying a set of EL++ axioms.", TermAux.DEFINITION_DESCRIPTION_TYPE)
+                        .setModule(TermAux.KOMET_MODULE);
+                popParent();
             // order (int), field type (concept) 
             // order (int), field concept (concept)
             createConcept(TermAux.ANY_ASSEMBLAGE);
@@ -758,7 +764,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ObservableFields.ASSEMBLAGE_FOR_CONSTRAINT);
                   createConcept("Promotion source path").setModule(TermAux.KOMET_MODULE);
                   createConcept("Promotion destination path").setModule(TermAux.KOMET_MODULE);
-
+                  createConcept("Concept to find").setModule(KOMET_MODULE);
+                  createConcept("Replacement concept").setModule(KOMET_MODULE);
                   popParent();
                createConcept("Configuration properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
@@ -883,9 +890,15 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(GIT_USER_NAME);
                   createConcept(GIT_PASSWORD);
                   popParent();
-               createConcept("Stamp coordinate properties").setModule(TermAux.KOMET_MODULE);
+                createConcept("Path coordinate properties").setModule(TermAux.KOMET_MODULE);
+                pushParent(current());
+                    createConcept("Path coordinate name");
+                    createConcept("Path concept");
+                    createConcept("Path origins");
+                    popParent();
+               createConcept("Filter coordinate properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
-                  createConcept("Stamp coordinate name");
+                  createConcept("Filter coordinate name");
                   popParent();
                createConcept("Language coordinate properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
@@ -916,7 +929,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept("Center pane defaults", "Center defaults").setModule(TermAux.KOMET_MODULE);
                   createConcept("Right pane defaults", "Right defaults").setModule(TermAux.KOMET_MODULE);
                   popParent();
-               createConcept("Coordinate properties").setModule(TermAux.KOMET_MODULE);
+               createConcept("ImmutableCoordinate properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
                   createConcept(AUTHOR_NID_FOR_EDIT_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_NID_FOR_EDIT_COORDINATE).setModule(TermAux.KOMET_MODULE);
@@ -932,6 +945,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(DIGRAPH_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(CLASSIFIER_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
@@ -942,15 +956,22 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(MODULE_NID_ARRAY_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(AUTHOR_SPECIFICATION_SET_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
-                  createConcept(PATH_NID_FOR_STAMP_PATH).setModule(TermAux.KOMET_MODULE);
+                  createConcept(PATH_FOR_PATH_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(PATH_ORIGIN_LIST_FOR_STAMP_PATH).setModule(TermAux.KOMET_MODULE);
                   createConcept(TIME_FOR_STAMP_POSITION).setModule(TermAux.KOMET_MODULE);
                   createConcept(PATH_NID_FOR_STAMP_POSITION).setModule(TermAux.KOMET_MODULE);
                   createConcept(PREMISE_TYPE_FOR_TAXONOMY_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(UUID_FOR_TAXONOMY_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(STAMP_FILTER_FOR_EDGE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(STAMP_FILTER_FOR_LANGUAGE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(STAMP_FILTER_FOR_VERTEX).setModule(TermAux.KOMET_MODULE);
                   createConcept(STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(DIGRAPH_SPECIFICATION_SET).setModule(TermAux.KOMET_MODULE);
                   createConcept(LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(VERTEX_SORT_PROPERTY).setModule(TermAux.KOMET_MODULE);
+                  createConcept(DIGRAPH_PROPERTY).setModule(TermAux.KOMET_MODULE);
+                  createConcept(STAMP_FILTER_FOR_PATH).setModule(TermAux.KOMET_MODULE);
                   popParent();
                createConcept(DESCRIPTION_DIALECT);
                createConcept("Description/dialect properties");

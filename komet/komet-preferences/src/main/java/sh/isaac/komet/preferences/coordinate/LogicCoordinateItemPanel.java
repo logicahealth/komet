@@ -5,13 +5,14 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinateImmutable;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.preferences.AbstractPreferences;
-import sh.isaac.model.coordinate.LogicCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
@@ -42,13 +43,7 @@ public class LogicCoordinateItemPanel extends AbstractPreferences {
                                     IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
 
         super(preferencesNode, coordinateName, manifold, kpc);
-        if (logicCoordinate instanceof ManifoldCoordinate) {
-            logicCoordinate = ((ManifoldCoordinate) logicCoordinate).getLogicCoordinate();
-        }
-        if (logicCoordinate instanceof ObservableLogicCoordinate) {
-            logicCoordinate = ((ObservableLogicCoordinate) logicCoordinate).getLogicCoordinate();
-        }
-        this.logicCoordinateItem = new ObservableLogicCoordinateImpl(logicCoordinate.deepClone());
+        this.logicCoordinateItem = new ObservableLogicCoordinateImpl(logicCoordinate.toLogicCoordinateImmutable());
 
         setup(manifold);
         this.itemKey = new UuidStringKey(UUID.fromString(preferencesNode.name()), nameProperty.get());
@@ -60,12 +55,11 @@ public class LogicCoordinateItemPanel extends AbstractPreferences {
         Optional<byte[]> optionalBytes = preferencesNode.getByteArray(Keys.LOGIC__COORDINATE_DATA);
         if (optionalBytes.isPresent()) {
             ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(optionalBytes.get());
-            LogicCoordinateImpl logicCoordinate = LogicCoordinateImpl.make(buffer);
+            LogicCoordinateImmutable logicCoordinate = LogicCoordinateImmutable.make(buffer);
             this.logicCoordinateItem = new ObservableLogicCoordinateImpl(logicCoordinate);
         } else {
-            setGroupName("US English");
-            LogicCoordinate logicCoordinate = Get.coordinateFactory().createStandardElProfileLogicCoordinate();
-            this.logicCoordinateItem = new ObservableLogicCoordinateImpl(logicCoordinate.deepClone());
+            setGroupName("EL++");
+            this.logicCoordinateItem = new ObservableLogicCoordinateImpl(Coordinates.Logic.ElPlusPlus());
         }
         setup(manifold);
         this.itemKey = new UuidStringKey(UUID.fromString(preferencesNode.name()), nameProperty.get());
@@ -103,7 +97,7 @@ public class LogicCoordinateItemPanel extends AbstractPreferences {
     protected void saveFields() throws BackingStoreException {
         getPreferencesNode().put(PreferenceGroup.Keys.GROUP_NAME, this.nameProperty.get());
         ByteArrayDataBuffer buff = new ByteArrayDataBuffer();
-        this.logicCoordinateItem.putExternal(buff);
+        this.logicCoordinateItem.getValue().marshal(buff);
         buff.trimToSize();
         getPreferencesNode().putByteArray(Keys.LOGIC__COORDINATE_DATA, buff.getData());
    }
@@ -112,11 +106,11 @@ public class LogicCoordinateItemPanel extends AbstractPreferences {
     protected void revertFields() throws BackingStoreException {
         this.nameProperty.set(getPreferencesNode().get(PreferenceGroup.Keys.GROUP_NAME, getGroupName()));
         ByteArrayDataBuffer revertbuffer = new ByteArrayDataBuffer();
-        this.logicCoordinateItem.putExternal(revertbuffer);
+        this.logicCoordinateItem.getValue().marshal(revertbuffer);
         revertbuffer.trimToSize();
         byte[] data = getPreferencesNode().getByteArray(Keys.LOGIC__COORDINATE_DATA, revertbuffer.getData());
         ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(data);
-        LogicCoordinateImpl logicCoordinate = LogicCoordinateImpl.make(buffer);
+        LogicCoordinate logicCoordinate = LogicCoordinateImmutable.make(buffer);
         if (!logicCoordinate.getLogicCoordinateUuid().equals(this.logicCoordinateItem.getLogicCoordinateUuid())) {
             this.logicCoordinateItem.setClassifier(logicCoordinate.getClassifier());
             this.logicCoordinateItem.setConceptAssemblage(logicCoordinate.getConceptAssemblage());

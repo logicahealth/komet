@@ -1,6 +1,6 @@
 DROP TABLE datastore_id_table;
 
--- Stamp
+-- Filter
 
 DROP TABLE stamp_committed_table;
 DROP TABLE stamp_uncommitted_table;

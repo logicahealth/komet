@@ -48,7 +48,6 @@ package sh.isaac.api.externalizable;
 
 import java.util.UUID;
 
-import javax.xml.bind.annotation.XmlAttribute;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -67,23 +66,18 @@ import sh.isaac.api.identity.StampedVersion;
  */
 public class StampUniversal implements IsaacExternalizable {
    /** The status. */
-   @XmlAttribute
    public Status status;
 
    /** The time. */
-   @XmlAttribute
    public long time;
 
    /** The author uuid. */
-   @XmlAttribute
    public UUID authorUuid;
 
    /** The module uuid. */
-   @XmlAttribute
    public UUID moduleUuid;
 
    /** The path uuid. */
-   @XmlAttribute
    public UUID pathUuid;
 
    //~--- constructors --------------------------------------------------------

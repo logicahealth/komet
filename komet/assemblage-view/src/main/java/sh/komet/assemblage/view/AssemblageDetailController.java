@@ -17,11 +17,8 @@
 package sh.komet.assemblage.view;
 
 import java.net.URL;
-import java.util.List;
 import java.util.ResourceBundle;
-import java.util.function.Supplier;
 
-import javafx.beans.Observable;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -35,7 +32,6 @@ import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersions;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
@@ -126,7 +122,7 @@ public class AssemblageDetailController {
            ObservableList<? extends ObservableChronology> children, boolean addSemantics) {
       for (ObservableChronology child : children) {
          TreeItem<ObservableCategorizedVersion> parentToAddTo = parent;
-         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(manifoldProperty.get());
+         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(manifoldProperty.get().getStampFilter());
 
          if (categorizedVersions.getLatestVersion()
                  .isPresent()) {
@@ -170,7 +166,7 @@ public class AssemblageDetailController {
                          c.getList().get(0).getNid());
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions
                  = observableConceptChronology.getCategorizedVersions(
-                 manifoldProperty.get());
+                 manifoldProperty.get().getStampFilter());
 
          TreeItem<ObservableCategorizedVersion> assemblageRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
          ObservableList<ObservableChronology> children = FXCollections.observableArrayList();

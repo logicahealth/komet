@@ -68,6 +68,7 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
             MetaData.TAXONOMY_PANEL____SOLOR,
             MetaData.CLASSIFICATION_RESULTS_PANEL____SOLOR,
             MetaData.COMPOSITE_ACTION_PANEL____SOLOR,
+            MetaData.TRANSACTION_LIST_PANEL____SOLOR
     };
 
     private UUID personaUuid;
@@ -284,7 +285,7 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
     }
 
     public static WindowPreferencesItem createNewDefaultWindowPreferences(IsaacPreferences windowPreferencesNode,
-                                                                   Manifold manifold, KometPreferencesController kpc) {
+                                                                          Manifold manifold, KometPreferencesController kpc) {
 
         TransientPreferences transientPersonaPreferences = new TransientPreferences(PersonasPanel.DEFAULT_PERSONA_UUID);
         transientPersonaPreferences.put(GROUP_NAME, DEFAULT_PERSONA_NAME);

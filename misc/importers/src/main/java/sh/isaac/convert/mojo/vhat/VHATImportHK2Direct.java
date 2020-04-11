@@ -36,26 +36,6 @@
  */
 package sh.isaac.convert.mojo.vhat;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.Map.Entry;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.function.Function;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
@@ -69,7 +49,8 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicValidatorType;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
@@ -77,30 +58,26 @@ import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.convert.mojo.vhat.data.TerminologyDataReader;
-import sh.isaac.convert.mojo.vhat.data.dto.ConceptImportDTO;
-import sh.isaac.convert.mojo.vhat.data.dto.DesignationExtendedImportDTO;
-import sh.isaac.convert.mojo.vhat.data.dto.DesignationImportDTO;
-import sh.isaac.convert.mojo.vhat.data.dto.MapEntryImportDTO;
-import sh.isaac.convert.mojo.vhat.data.dto.MapSetImportDTO;
-import sh.isaac.convert.mojo.vhat.data.dto.NamedPropertiedItemImportDTO;
-import sh.isaac.convert.mojo.vhat.data.dto.PropertyImportDTO;
-import sh.isaac.convert.mojo.vhat.data.dto.RelationshipImportDTO;
-import sh.isaac.convert.mojo.vhat.data.dto.SubsetImportDTO;
-import sh.isaac.convert.mojo.vhat.data.dto.SubsetMembershipImportDTO;
-import sh.isaac.convert.mojo.vhat.data.dto.TerminologyDTO;
-import sh.isaac.convert.mojo.vhat.data.dto.TypeImportDTO;
+import sh.isaac.convert.mojo.vhat.data.dto.*;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.mapping.constants.IsaacMappingConstants;
 import sh.isaac.misc.constants.VHATConstants;
-import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.model.semantic.types.DynamicArrayImpl;
-import sh.isaac.model.semantic.types.DynamicIntegerImpl;
-import sh.isaac.model.semantic.types.DynamicLongImpl;
-import sh.isaac.model.semantic.types.DynamicNidImpl;
-import sh.isaac.model.semantic.types.DynamicStringImpl;
-import sh.isaac.model.semantic.types.DynamicUUIDImpl;
+import sh.isaac.model.semantic.types.*;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.Map.Entry;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * {@link VHATImportHK2Direct}
@@ -128,7 +105,7 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 
 	/**
 	 * This constructor is for maven and HK2 and should not be used at runtime.  You should
-	 * get your reference of this class from HK2, and then call the {@link #configure(File, Path, String, StampCoordinate)} method on it.
+	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter)} method on it.
 	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
 	 */
 	protected VHATImportHK2Direct() {
@@ -154,16 +131,16 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent()}
 	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
 	 * 
-	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String, sh.isaac.api.coordinate.StampCoordinate)
+	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String, sh.isaac.api.coordinate.StampFilter)
 	 */
 	@Override
-	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampCoordinate stampCoordinate)
+	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter)
 	{
 		this.outputDirectory = outputDirectory;
 		this.inputFileLocationPath = inputFolder;
 		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
 		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		this.readbackCoordinate = stampCoordinate == null ? StampCoordinates.getDevelopmentLatest() : stampCoordinate;
+		this.readbackCoordinate = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
 	}
 	
 	@Override

@@ -19,7 +19,7 @@ public class ReplaceAllInExpressionFactory implements ActionFactory {
     @Override
     public ActionItem makeActionItem(Manifold manifoldForDisplay) {
         ReplaceAllInExpression item = new ReplaceAllInExpression();
-        item.setupItemForGui(manifoldForDisplay);
+        item.setupForGui(manifoldForDisplay);
         return item;
     }
 }

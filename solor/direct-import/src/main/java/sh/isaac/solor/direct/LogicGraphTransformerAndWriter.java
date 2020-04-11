@@ -33,6 +33,9 @@ import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.DataTarget;
@@ -51,10 +54,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampPosition;
-import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
@@ -64,8 +64,6 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.util.time.DateTimeUtil;
-import sh.isaac.model.coordinate.StampCoordinateImpl;
-import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 
 /**
@@ -169,18 +167,21 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
                 .getLogicalExpressionBuilder();
         final ArrayList<Assertion> assertions = new ArrayList<>();
         final HashMap<Integer, ArrayList<Assertion>> groupedAssertions = new HashMap<>();
-
-        StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH,
-                stampPosition,
-                new HashSet<>(), new ArrayList<>(),
-                Status.makeActiveOnlySet());
+/*
+StatusSet allowedStates,
+                         StampPosition stampPosition,
+                         ImmutableIntSet authorNids,
+                         PathCoordinate pathCoordinate
+ */
+        StampFilterImmutable stampFilter = StampFilterImmutable.make(StatusSet.ACTIVE_ONLY, stampPosition,
+                IntSets.immutable.empty(), IntLists.immutable.empty());
         
         // only process active concepts... TODO... Process all
-        if (Get.conceptActiveService().isConceptActive(conceptNid, stampCoordinate)) {
+        if (Get.conceptActiveService().isConceptActive(conceptNid, stampFilter)) {
 
             // for each relationship, add to assertion or grouped assertions. 
             for (final SemanticChronology rb : relationships) {
-                LatestVersion<Rf2Relationship> latestRel = rb.getLatestVersion(stampCoordinate);
+                LatestVersion<Rf2Relationship> latestRel = rb.getLatestVersion(stampFilter);
                 if (latestRel.isPresent()) {
                     Rf2Relationship relationship = latestRel.get();
     
@@ -230,7 +231,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
                 List<SemanticChronology> implicationList = implicationChronologyStream.collect(Collectors.toList());
                 if (implicationList.size() == 1) {
                     SemanticChronology implicationChronology = implicationList.get(0);
-                    LatestVersion<ComponentNidVersion> latestImplication = implicationChronology.getLatestVersion(stampCoordinate);
+                    LatestVersion<ComponentNidVersion> latestImplication = implicationChronology.getLatestVersion(stampFilter);
                     if (latestImplication.isPresent()) {
                         ComponentNidVersion definitionStatus = latestImplication.get();
                         if (definitionStatus.getComponentNid() == sufficientDefinition) {
@@ -265,7 +266,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
                             le,
                             premiseType,
                             stampPosition.getTime(),
-                            solorOverlayModuleNid, stampCoordinate);
+                            solorOverlayModuleNid, stampFilter);
                 } else {
                     LOG.error("expression not meaningful?");
                 }
@@ -292,7 +293,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             SemanticChronology relationshipChronology = Get.assemblageService().getSemanticChronology(relNid);
             for (int stamp : relationshipChronology.getVersionStampSequences()) {
                 StampService stampService = Get.stampService();
-                stampPositionsToProcess.add(new StampPositionImpl(stampService.getTimeForStamp(stamp), stampService.getPathNidForStamp(stamp)));
+                stampPositionsToProcess.add(StampPositionImmutable.make(stampService.getTimeForStamp(stamp), stampService.getPathNidForStamp(stamp)));
             }
             relationshipChronologiesForConcept.add(relationshipChronology);
         }
@@ -309,20 +310,18 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
 
     /**
      * Adds the relationship graph.
-     *
-     * @param conceptNid the conceptNid
+     *  @param conceptNid the conceptNid
      * @param logicalExpression the logical expression
      * @param premiseType the premise type
      * @param time the time for the commit.
      * @param moduleNid the module
-     * @param stampCoordinate for determining current version if a graph already
-     * exists.
+     * @param stampFilter for determining current version if a graph already
      */
     public void addLogicGraph(Transaction transaction, int conceptNid,
                               LogicalExpression logicalExpression,
                               PremiseType premiseType,
                               long time,
-                              int moduleNid, StampCoordinate stampCoordinate) {
+                              int moduleNid, StampFilter stampFilter) {
         if (time == Long.MAX_VALUE) {
             time = commitTime.toEpochMilli();
         }
@@ -349,7 +348,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             }
             OptionalInt optionalGraphNid = graphNidsForComponent.findFirst();
             SemanticChronology existingGraph = Get.assemblageService().getSemanticChronology(optionalGraphNid.getAsInt());
-            LatestVersion<LogicGraphVersionImpl> latest = existingGraph.getLatestVersion(stampCoordinate);
+            LatestVersion<LogicGraphVersionImpl> latest = existingGraph.getLatestVersion(stampFilter);
             if (latest.isPresent()) {
                 LogicGraphVersionImpl logicGraphLatest = latest.get();
                 LogicalExpression latestExpression = logicGraphLatest.getLogicalExpression();

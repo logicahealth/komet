@@ -65,7 +65,7 @@ public class ConceptMenuItem extends MenuItem implements ConceptSpecification {
 
     @Override
     public String getFullyQualifiedName() {
-        return this.manifold.getFullySpecifiedDescriptionText(this.spec);
+        return this.manifold.getFullyQualifiedDescriptionText(this.spec);
     }
 
     @Override

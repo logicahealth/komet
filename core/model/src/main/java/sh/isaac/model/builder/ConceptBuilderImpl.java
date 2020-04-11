@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  *
  * You may not use this file except in compliance with the License.
@@ -14,20 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
+ * Contributions from 2013-2017 where performed either by US government
+ * employees, or under US Veterans Health Administration contracts.
  *
  * US Veterans Health Administration contributions by government employees
  * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
- * 
+ * protection in the United States. Portions contributed by government
+ * employees are USGovWork (17USC §105). Not subject to copyright.
+ *
  * Contribution by contractors to the US Veterans Health Administration
  * during this period are contractually contributed under the
  * Apache License, Version 2.0.
  *
  * See: https://www.usa.gov/government-works
- * 
+ *
  * Contributions prior to 2013:
  *
  * Copyright (C) International Health Terminology Standards Development Organisation.
@@ -37,6 +37,7 @@
 package sh.isaac.model.builder;
 
 //~--- JDK imports ------------------------------------------------------------
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -80,6 +81,7 @@ import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
+
 /**
  * The Class ConceptBuilderImpl.
  *
@@ -88,416 +90,417 @@ import sh.isaac.model.ModelGet;
 public class ConceptBuilderImpl
         extends ComponentBuilder<ConceptChronology>
         implements ConceptBuilder {
-   private static final Logger LOG = LogManager.getLogger();
+    private static final Logger LOG = LogManager.getLogger();
 
-   /**
-    * The description builders.
-    */
-   private final List<DescriptionBuilder<?, ?>> descriptionBuilders = new ArrayList<>();
+    /**
+     * The description builders.
+     */
+    private final List<DescriptionBuilder<?, ?>> descriptionBuilders = new ArrayList<>();
 
-   /**
-    * The logical expression builders.
-    */
-   private final List<LogicalExpressionBuilder> logicalExpressionBuilders = new ArrayList<>();
+    /**
+     * The logical expression builders.
+     */
+    private final List<LogicalExpressionBuilder> logicalExpressionBuilders = new ArrayList<>();
 
-   /**
-    * The logical expressions.
-    */
-   private final List<LogicalExpression> logicalExpressions = new ArrayList<>();
+    /**
+     * The logical expressions.
+     */
+    private final List<LogicalExpression> logicalExpressions = new ArrayList<>();
 
-   /**
-    * The FQN description builder.
-    */
-   private transient DescriptionBuilder<?, ?> fqnDescriptionBuilder = null;
+    /**
+     * The FQN description builder.
+     */
+    private transient DescriptionBuilder<?, ?> fqnDescriptionBuilder = null;
 
-   /**
-    * The preferred description builder.
-    */
-   private transient DescriptionBuilder<?, ?> preferredDescriptionBuilder = null;
-   
-   private final transient HashMap<LogicalExpressionBuilder, SemanticBuilder<?>> builtLogicalExpressionBuilders = new HashMap<>();
-   private final transient HashMap<LogicalExpression, SemanticBuilder<?>> builtLogicalExpressions = new HashMap<>();
+    /**
+     * The preferred description builder.
+     */
+    private transient DescriptionBuilder<?, ?> preferredDescriptionBuilder = null;
 
-   /**
-    * The concept name.
-    */
-   private final String conceptName;
+    private final transient HashMap<LogicalExpressionBuilder, SemanticBuilder<?>> builtLogicalExpressionBuilders = new HashMap<>();
+    private final transient HashMap<LogicalExpression, SemanticBuilder<?>> builtLogicalExpressions = new HashMap<>();
 
-   /**
-    * The semantic tag.
-    */
-   private final String semanticTag;
+    /**
+     * The concept name.
+     */
+    private final String conceptName;
 
-   /**
-    * The default language for descriptions.
-    */
-   private final ConceptSpecification defaultLanguageForDescriptions;
+    /**
+     * The semantic tag.
+     */
+    private final String semanticTag;
 
-   /**
-    * The default dialect assemblage for descriptions.
-    */
-   private final ConceptSpecification defaultDialectAssemblageForDescriptions;
+    /**
+     * The default language for descriptions.
+     */
+    private final ConceptSpecification defaultLanguageForDescriptions;
 
-   /**
-    * The default logic coordinate.
-    */
-   private final LogicCoordinate defaultLogicCoordinate;
+    /**
+     * The default dialect assemblage for descriptions.
+     */
+    private final ConceptSpecification defaultDialectAssemblageForDescriptions;
 
-   //~--- constructors --------------------------------------------------------
-   /**
-    * Instantiates a new concept builder ochre impl.
-    *
-    * @param conceptName - Optional - if specified, a FQN will be created using this value (but see additional
-    * information on semanticTag)
-    * @param semanticTag - Optional - if specified, conceptName must be specified, and two descriptions will be created
-    * using the following forms: 
-    * FQN: - "conceptName (semanticTag)" 
-    * Regular Name: "conceptName" 
-    * If the specified conceptName already contains a semantic tag, this tag will override the semanticTag parameter (and the semanticTag
-    * parameter will be ignored)
-    * 
-    * If the semantic tag is not specified: 
-    *   - If the specified FQN contains a semantic tag, the FQN will be created using that value.  A regular name will be created by stripping the 
-    *     supplied semantic tag. 
-    *   - If the specified FQN does not contain a semantic tag, no regular term will be created (and the FQN will be created WITHOUT a semantic tag)
-    * 
-    * @param logicalExpression - Optional
-    * @param defaultLanguageForDescriptions - Optional - used as the language for the created FQN and preferred term
-    * @param defaultDialectAssemblageForDescriptions - Optional - used as the language for the created FQN and preferred
-    * term
-    * @param defaultLogicCoordinate - Optional - used during the creation of the logical expression, if either a
-    * logicalExpression is passed, or if @link {@link #addLogicalExpression(LogicalExpression)} or
-    * {@link #addLogicalExpressionBuilder(LogicalExpressionBuilder)} are used later.
-    * @param assemblageId the assemblage ID to create this concept in
-    */
-   public ConceptBuilderImpl(String conceptName,
-           String semanticTag,
-           LogicalExpression logicalExpression,
-           ConceptSpecification defaultLanguageForDescriptions,
-           ConceptSpecification defaultDialectAssemblageForDescriptions,
-           LogicCoordinate defaultLogicCoordinate,
-           int assemblageId) {
-      super(assemblageId);
-      this.conceptName = SemanticTags.stripSemanticTagIfPresent(conceptName);
-      this.semanticTag = SemanticTags.findSemanticTagIfPresent(conceptName).orElse(semanticTag);
-      this.defaultLanguageForDescriptions = defaultLanguageForDescriptions;
-      this.defaultDialectAssemblageForDescriptions = defaultDialectAssemblageForDescriptions;
-      this.defaultLogicCoordinate = defaultLogicCoordinate;
-      setupConceptBuilder(conceptName, semanticTag, logicalExpression, defaultLanguageForDescriptions, defaultDialectAssemblageForDescriptions, defaultLogicCoordinate);
-   }
+    /**
+     * The default logic coordinate.
+     */
+    private final LogicCoordinate defaultLogicCoordinate;
 
-   public ConceptBuilderImpl(String conceptName,
-                             UUID primordialUuid,
-                             String semanticTag,
-                             LogicalExpression logicalExpression,
-                             ConceptSpecification defaultLanguageForDescriptions,
-                             ConceptSpecification defaultDialectAssemblageForDescriptions,
-                             LogicCoordinate defaultLogicCoordinate,
-                             int assemblageId) {
-      super(primordialUuid, assemblageId);
-      this.conceptName = SemanticTags.stripSemanticTagIfPresent(conceptName);
-      this.semanticTag = SemanticTags.findSemanticTagIfPresent(conceptName).orElse(semanticTag);
-      this.defaultLanguageForDescriptions = defaultLanguageForDescriptions;
-      this.defaultDialectAssemblageForDescriptions = defaultDialectAssemblageForDescriptions;
-      this.defaultLogicCoordinate = defaultLogicCoordinate;
-      setupConceptBuilder(conceptName, semanticTag, logicalExpression, defaultLanguageForDescriptions, defaultDialectAssemblageForDescriptions, defaultLogicCoordinate);
-   }
+    //~--- constructors --------------------------------------------------------
 
-   private void setupConceptBuilder(String conceptName, String semanticTag, LogicalExpression logicalExpression, ConceptSpecification defaultLanguageForDescriptions, ConceptSpecification defaultDialectAssemblageForDescriptions, LogicCoordinate defaultLogicCoordinate) {
-      if (this.defaultLogicCoordinate.getStatedAssemblageNid() != TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid()) {
-         throw new IllegalStateException("Incorrect stated assemblage: " + Get.conceptDescriptionText(this.defaultLogicCoordinate.getStatedAssemblageNid()));
-      }
+    /**
+     * Instantiates a new concept builder ochre impl.
+     *
+     * @param conceptName                             - Optional - if specified, a FQN will be created using this value (but see additional
+     *                                                information on semanticTag)
+     * @param semanticTag                             - Optional - if specified, conceptName must be specified, and two descriptions will be created
+     *                                                using the following forms:
+     *                                                FQN: - "conceptName (semanticTag)"
+     *                                                Regular Name: "conceptName"
+     *                                                If the specified conceptName already contains a semantic tag, this tag will override the semanticTag parameter (and the semanticTag
+     *                                                parameter will be ignored)
+     *                                                <p>
+     *                                                If the semantic tag is not specified:
+     *                                                - If the specified FQN contains a semantic tag, the FQN will be created using that value.  A regular name will be created by stripping the
+     *                                                supplied semantic tag.
+     *                                                - If the specified FQN does not contain a semantic tag, no regular term will be created (and the FQN will be created WITHOUT a semantic tag)
+     * @param logicalExpression                       - Optional
+     * @param defaultLanguageForDescriptions          - Optional - used as the language for the created FQN and preferred term
+     * @param defaultDialectAssemblageForDescriptions - Optional - used as the language for the created FQN and preferred
+     *                                                term
+     * @param defaultLogicCoordinate                  - Optional - used during the creation of the logical expression, if either a
+     *                                                logicalExpression is passed, or if @link {@link #addLogicalExpression(LogicalExpression)} or
+     *                                                {@link #addLogicalExpressionBuilder(LogicalExpressionBuilder)} are used later.
+     * @param assemblageId                            the assemblage ID to create this concept in
+     */
+    public ConceptBuilderImpl(String conceptName,
+                              String semanticTag,
+                              LogicalExpression logicalExpression,
+                              ConceptSpecification defaultLanguageForDescriptions,
+                              ConceptSpecification defaultDialectAssemblageForDescriptions,
+                              LogicCoordinate defaultLogicCoordinate,
+                              int assemblageId) {
+        super(assemblageId);
+        this.conceptName = SemanticTags.stripSemanticTagIfPresent(conceptName);
+        this.semanticTag = SemanticTags.findSemanticTagIfPresent(conceptName).orElse(semanticTag);
+        this.defaultLanguageForDescriptions = defaultLanguageForDescriptions;
+        this.defaultDialectAssemblageForDescriptions = defaultDialectAssemblageForDescriptions;
+        this.defaultLogicCoordinate = defaultLogicCoordinate;
+        setupConceptBuilder(conceptName, semanticTag, logicalExpression, defaultLanguageForDescriptions, defaultDialectAssemblageForDescriptions, defaultLogicCoordinate);
+    }
 
-      if (logicalExpression != null) {
-         this.logicalExpressions.add(logicalExpression);
-      }
-   }
+    public ConceptBuilderImpl(String conceptName,
+                              UUID primordialUuid,
+                              String semanticTag,
+                              LogicalExpression logicalExpression,
+                              ConceptSpecification defaultLanguageForDescriptions,
+                              ConceptSpecification defaultDialectAssemblageForDescriptions,
+                              LogicCoordinate defaultLogicCoordinate,
+                              int assemblageId) {
+        super(primordialUuid, assemblageId);
+        this.conceptName = SemanticTags.stripSemanticTagIfPresent(conceptName);
+        this.semanticTag = SemanticTags.findSemanticTagIfPresent(conceptName).orElse(semanticTag);
+        this.defaultLanguageForDescriptions = defaultLanguageForDescriptions;
+        this.defaultDialectAssemblageForDescriptions = defaultDialectAssemblageForDescriptions;
+        this.defaultLogicCoordinate = defaultLogicCoordinate;
+        setupConceptBuilder(conceptName, semanticTag, logicalExpression, defaultLanguageForDescriptions, defaultDialectAssemblageForDescriptions, defaultLogicCoordinate);
+    }
 
-   //~--- methods -------------------------------------------------------------
-   /**
-    * Adds the description.
-    *
-    * @param descriptionBuilder the description builder
-    * @return the concept builder
-    */
-   @Override
-   public ConceptBuilder addDescription(DescriptionBuilder<?, ?> descriptionBuilder) {
-      this.descriptionBuilders.add(descriptionBuilder);
-      return this;
-   }
+    private void setupConceptBuilder(String conceptName, String semanticTag, LogicalExpression logicalExpression, ConceptSpecification defaultLanguageForDescriptions, ConceptSpecification defaultDialectAssemblageForDescriptions, LogicCoordinate defaultLogicCoordinate) {
+        if (this.defaultLogicCoordinate.getStatedAssemblageNid() != TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid()) {
+            throw new IllegalStateException("Incorrect stated assemblage: " + Get.conceptDescriptionText(this.defaultLogicCoordinate.getStatedAssemblageNid()));
+        }
 
-   /**
-    * Adds the description.
-    *
-    * @param value the value
-    * @param descriptionType the description type
-    * @return the concept builder
-    */
-   @Override
-   public ConceptBuilder addDescription(String value, ConceptSpecification descriptionType) {
-      if ((this.defaultLanguageForDescriptions == null) || (this.defaultDialectAssemblageForDescriptions == null)) {
-         throw new IllegalStateException("language and dialect are required if a concept name is provided");
-      }
+        if (logicalExpression != null) {
+            this.logicalExpressions.add(logicalExpression);
+        }
+    }
 
-      if (!value.equals(this.conceptName)) {
-         this.descriptionBuilders.add(LookupService.getService(DescriptionBuilderService.class)
-                 .getDescriptionBuilder(value, this, descriptionType, this.defaultLanguageForDescriptions)
-                 .addAcceptableInDialectAssemblage(this.defaultDialectAssemblageForDescriptions));
-      }
+    //~--- methods -------------------------------------------------------------
 
-      return this;
-   }
+    /**
+     * Adds the description.
+     *
+     * @param descriptionBuilder the description builder
+     * @return the concept builder
+     */
+    @Override
+    public ConceptBuilder addDescription(DescriptionBuilder<?, ?> descriptionBuilder) {
+        this.descriptionBuilders.add(descriptionBuilder);
+        return this;
+    }
 
-   /**
-    * Adds the logical expression.
-    *
-    * @param logicalExpression the logical expression
-    * @return the concept builder
-    */
-   @Override
-   public ConceptBuilder addLogicalExpression(LogicalExpression logicalExpression) {
-      this.logicalExpressions.add(logicalExpression);
-      return this;
-   }
+    /**
+     * Adds the description.
+     *
+     * @param value           the value
+     * @param descriptionType the description type
+     * @return the concept builder
+     */
+    @Override
+    public ConceptBuilder addDescription(String value, ConceptSpecification descriptionType) {
+        if ((this.defaultLanguageForDescriptions == null) || (this.defaultDialectAssemblageForDescriptions == null)) {
+            throw new IllegalStateException("language and dialect are required if a concept name is provided");
+        }
 
-   /**
-    * Adds the logical expression builder.
-    *
-    * @param logicalExpressionBuilder the logical expression builder
-    * @return the concept builder
-    */
-   @Override
-   public ConceptBuilder addLogicalExpressionBuilder(LogicalExpressionBuilder logicalExpressionBuilder) {
-      this.logicalExpressionBuilders.add(logicalExpressionBuilder);
-      return this;
-   }
+        if (!value.equals(this.conceptName)) {
+            this.descriptionBuilders.add(LookupService.getService(DescriptionBuilderService.class)
+                    .getDescriptionBuilder(value, this, descriptionType, this.defaultLanguageForDescriptions)
+                    .addAcceptableInDialectAssemblage(this.defaultDialectAssemblageForDescriptions));
+        }
 
-   /**
-    * Sets the logical expression. This method erases any previous logical expressions.
-    *
-    * @param logicalExpression the logical expression
-    * @return the concept builder
-    */
-   @Override
-   public ConceptBuilder setLogicalExpression(LogicalExpression logicalExpression) {
-      this.logicalExpressions.clear();
-      this.logicalExpressions.add(logicalExpression);
-      return this;
-   }
+        return this;
+    }
 
-   /**
-    * Sets the logical expression builder. This method erases previous logical expression builders.
-    *
-    * @param logicalExpressionBuilder the logical expression builder
-    * @return the concept builder
-    */
-   @Override
-   public ConceptBuilder setLogicalExpressionBuilder(LogicalExpressionBuilder logicalExpressionBuilder) {
-      this.logicalExpressionBuilders.clear();
-      this.logicalExpressionBuilders.add(logicalExpressionBuilder);
-      return this;
-   }
+    /**
+     * Adds the logical expression.
+     *
+     * @param logicalExpression the logical expression
+     * @return the concept builder
+     */
+    @Override
+    public ConceptBuilder addLogicalExpression(LogicalExpression logicalExpression) {
+        this.logicalExpressions.add(logicalExpression);
+        return this;
+    }
 
-   /**
-    * Builds the.
-    *
-    * @param stampCoordinate the stamp coordinate
-    * @param builtObjects the built objects
-    * @return the concept chronology
-    * @throws IllegalStateException the illegal state exception
-    */
-   @Override
-   public ConceptChronology build(Transaction transaction, int stampCoordinate,
-           List<Chronology> builtObjects)
-           throws IllegalStateException {
-      
-      
-      UUID[] uuids = getUuids();
-      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], this.assemblageId);
-      for (int i = 1; i < uuids.length; i++) {
-         conceptChronology.addAdditionalUuids(uuids[i]);
-      }
+    /**
+     * Adds the logical expression builder.
+     *
+     * @param logicalExpressionBuilder the logical expression builder
+     * @return the concept builder
+     */
+    @Override
+    public ConceptBuilder addLogicalExpressionBuilder(LogicalExpressionBuilder logicalExpressionBuilder) {
+        this.logicalExpressionBuilders.add(logicalExpressionBuilder);
+        return this;
+    }
 
-      if (getModule().isPresent()) {
-         Stamp requested = Get.stampService().getStamp(stampCoordinate);
-         stampCoordinate = Get.stampService().getStampSequence(requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
-      }
-      
-      final int finalStamp = stampCoordinate;
-      
-      conceptChronology.createMutableVersion(stampCoordinate);
-      ModelGet.identifierService().setupNid(conceptChronology.getNid(), conceptChronology.getAssemblageNid(), conceptChronology.getIsaacObjectType(), conceptChronology.getVersionType());
-      builtObjects.add(conceptChronology);
-      getDescriptionBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
-      try {
-         getSemanticBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
-      } catch (RuntimeException e) {
-         LOG.error("Error from semantic builder when building: " + this.toString());
-         throw e;
-      }
-      return conceptChronology;
-   }
+    /**
+     * Sets the logical expression. This method erases any previous logical expressions.
+     *
+     * @param logicalExpression the logical expression
+     * @return the concept builder
+     */
+    @Override
+    public ConceptBuilder setLogicalExpression(LogicalExpression logicalExpression) {
+        this.logicalExpressions.clear();
+        this.logicalExpressions.add(logicalExpression);
+        return this;
+    }
 
-   /**
-    * Builds the.
-    *
-    * @param editCoordinate the edit coordinate
-    * @param builtObjects the built objects
-    * @return the optional wait task
-    * @throws IllegalStateException the illegal state exception
-    */
-   @Override
-   public OptionalWaitTask<ConceptChronology> build(Transaction transaction, EditCoordinate editCoordinate,
-                                                    List<Chronology> builtObjects)
-           throws IllegalStateException {
-      final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
-      UUID[] uuids = getUuids();
-      final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], this.assemblageId);
-      for (int i = 1; i < uuids.length; i++) {
-         conceptChronology.addAdditionalUuids(uuids[i]);
-      }
-      Version version;
-      if (getModule().isPresent()) {
-         version = conceptChronology.createMutableVersion(transaction, this.state, editCoordinate, getModule().get());
-      } else {
-         version = conceptChronology.createMutableVersion(transaction, this.state, editCoordinate);
-      }
-      transaction.addVersionToTransaction(version);
+    /**
+     * Sets the logical expression builder. This method erases previous logical expression builders.
+     *
+     * @param logicalExpressionBuilder the logical expression builder
+     * @return the concept builder
+     */
+    @Override
+    public ConceptBuilder setLogicalExpressionBuilder(LogicalExpressionBuilder logicalExpressionBuilder) {
+        this.logicalExpressionBuilders.clear();
+        this.logicalExpressionBuilders.add(logicalExpressionBuilder);
+        return this;
+    }
 
-      builtObjects.add(conceptChronology);
+    /**
+     * Builds the.
+     *
+     * @param stampCoordinate the stamp coordinate
+     * @param builtObjects    the built objects
+     * @return the concept chronology
+     * @throws IllegalStateException the illegal state exception
+     */
+    @Override
+    public ConceptChronology build(Transaction transaction, int stampCoordinate,
+                                   List<Chronology> builtObjects)
+            throws IllegalStateException {
 
-      getDescriptionBuilders().forEach((builder) -> nestedBuilders.add(builder.build(transaction, editCoordinate, builtObjects)));
-      getSemanticBuilders().forEach((builder) -> nestedBuilders.add(builder.build(transaction, editCoordinate, builtObjects)));
+        try {
 
-
-      Task<Void> primaryNested = Get.commitService()
-              .addUncommitted(transaction, conceptChronology);
-
-      return new OptionalWaitTask<>(primaryNested, conceptChronology, nestedBuilders);
-   }
-
-   /**
-    * Merge from spec.
-    *
-    * @param conceptSpec the concept spec
-    * @return the concept builder
-    */
-   @Override
-   public ConceptBuilder mergeFromSpec(ConceptSpecification conceptSpec) {
-      setPrimordialUuid(conceptSpec.getPrimordialUuid());
-      addUuids(conceptSpec.getUuids());
-      
-      String specSemTag = SemanticTags.findSemanticTagIfPresent(conceptSpec.getFullyQualifiedName()).orElse(null);
-      
-      //Not sure if adding two FQN is ideal, but not sure the proper merge otherwise.
-      if (!this.conceptName.equals(SemanticTags.stripSemanticTagIfPresent(conceptSpec.getFullyQualifiedName()))
-            || StringUtils.isNotBlank(this.semanticTag) && StringUtils.isNotBlank(specSemTag) && !this.semanticTag.equals(specSemTag))
-      {
-         addDescription(SemanticTags.addSemanticTagIfAbsent(conceptSpec.getFullyQualifiedName(), specSemTag), TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE);
-      }
-
-            
-      Optional<String> temp = conceptSpec.getRegularName();
-      
-      if (temp.isPresent() && !temp.get().equals(this.conceptName)) {
-         addDescription(temp.get(), TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
-      }
-
-      return this;
-   }
-
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the concept description text.
-    *
-    * @return the concept description text
-    */
-   @Override
-   public String getFullyQualifiedName() {
-      return getFullySpecifiedDescriptionBuilder().getDescriptionText();
-   }
-
-   /**
-    * Gets the fully specified description builder.
-    *
-    * @return the fully specified description builder
-    */
-   @Override
-   public DescriptionBuilder<?, ?> getFullySpecifiedDescriptionBuilder() {
-      synchronized (this) {
-         if ((this.fqnDescriptionBuilder == null) && StringUtils.isNotBlank(this.conceptName)) {
-
-            if ((this.defaultLanguageForDescriptions == null)
-                    || (this.defaultDialectAssemblageForDescriptions == null)) {
-               throw new IllegalStateException("language and dialect are required if a concept name is provided");
+            UUID[] uuids = getUuids();
+            final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], this.assemblageId);
+            for (int i = 1; i < uuids.length; i++) {
+                conceptChronology.addAdditionalUuids(uuids[i]);
             }
 
-            this.fqnDescriptionBuilder = LookupService.getService(DescriptionBuilderService.class)
-                    .getDescriptionBuilder(
-                       StringUtils.isNotBlank(this.semanticTag) ? SemanticTags.addSemanticTagIfAbsent(this.conceptName, this.semanticTag) : this.conceptName,
-                            this,
-                            TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE,
-                            this.defaultLanguageForDescriptions)
-                    .addPreferredInDialectAssemblage(this.defaultDialectAssemblageForDescriptions);
-         }
-      }
-
-      return this.fqnDescriptionBuilder;
-   }
-
-   /**
-    * Gets the synonym preferred description builder.
-    *
-    * @return the synonym preferred description builder
-    */
-   @Override
-   public DescriptionBuilder<?, ?> getPreferredDescriptionBuilder() {
-      synchronized (this) {
-         if (this.preferredDescriptionBuilder == null && StringUtils.isNotBlank(this.conceptName)) {
-            if ((this.defaultLanguageForDescriptions == null)
-                    || (this.defaultDialectAssemblageForDescriptions == null)) {
-               throw new IllegalStateException("language and dialect are required if a concept name is provided");
+            if (getModule().isPresent()) {
+                Stamp requested = Get.stampService().getStamp(stampCoordinate);
+                stampCoordinate = Get.stampService().getStampSequence(requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
             }
 
-            String prefName = null;
+            final int finalStamp = stampCoordinate;
 
-            if (StringUtils.isNotBlank(this.semanticTag)) {
-               prefName = this.conceptName;  //We have all ready stripped semantic tags from this
-            } else {
-               // they didn't provide a stand-alone semantic tag.  don't create a preferred term, as it would just be identical to the FSN.
+            conceptChronology.createMutableVersion(stampCoordinate);
+            ModelGet.identifierService().setupNid(conceptChronology.getNid(), conceptChronology.getAssemblageNid(), conceptChronology.getIsaacObjectType(), conceptChronology.getVersionType());
+            builtObjects.add(conceptChronology);
+            getDescriptionBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
+            getSemanticBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
+            return conceptChronology;
+        } catch (RuntimeException e) {
+            LOG.error("Error from semantic builder when building: " + this.toString());
+            throw e;
+        }
+    }
+
+    /**
+     * Builds the.
+     *
+     * @param editCoordinate the edit coordinate
+     * @param builtObjects   the built objects
+     * @return the optional wait task
+     * @throws IllegalStateException the illegal state exception
+     */
+    @Override
+    public OptionalWaitTask<ConceptChronology> build(Transaction transaction, EditCoordinate editCoordinate,
+                                                     List<Chronology> builtObjects)
+            throws IllegalStateException {
+        final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
+        UUID[] uuids = getUuids();
+        final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], this.assemblageId);
+        for (int i = 1; i < uuids.length; i++) {
+            conceptChronology.addAdditionalUuids(uuids[i]);
+        }
+        Version version;
+        if (getModule().isPresent()) {
+            version = conceptChronology.createMutableVersion(transaction, this.state, editCoordinate, getModule().get());
+        } else {
+            version = conceptChronology.createMutableVersion(transaction, this.state, editCoordinate);
+        }
+        transaction.addVersionToTransaction(version);
+
+        builtObjects.add(conceptChronology);
+
+        getDescriptionBuilders().forEach((builder) -> nestedBuilders.add(builder.build(transaction, editCoordinate, builtObjects)));
+        getSemanticBuilders().forEach((builder) -> nestedBuilders.add(builder.build(transaction, editCoordinate, builtObjects)));
+
+
+        Task<Void> primaryNested = Get.commitService()
+                .addUncommitted(transaction, conceptChronology);
+
+        return new OptionalWaitTask<>(primaryNested, conceptChronology, nestedBuilders);
+    }
+
+    /**
+     * Merge from spec.
+     *
+     * @param conceptSpec the concept spec
+     * @return the concept builder
+     */
+    @Override
+    public ConceptBuilder mergeFromSpec(ConceptSpecification conceptSpec) {
+        setPrimordialUuid(conceptSpec.getPrimordialUuid());
+        addUuids(conceptSpec.getUuids());
+
+        String specSemTag = SemanticTags.findSemanticTagIfPresent(conceptSpec.getFullyQualifiedName()).orElse(null);
+
+        //Not sure if adding two FQN is ideal, but not sure the proper merge otherwise.
+        if (!this.conceptName.equals(SemanticTags.stripSemanticTagIfPresent(conceptSpec.getFullyQualifiedName()))
+                || StringUtils.isNotBlank(this.semanticTag) && StringUtils.isNotBlank(specSemTag) && !this.semanticTag.equals(specSemTag)) {
+            addDescription(SemanticTags.addSemanticTagIfAbsent(conceptSpec.getFullyQualifiedName(), specSemTag), TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE);
+        }
+
+
+        Optional<String> temp = conceptSpec.getRegularName();
+
+        if (temp.isPresent() && !temp.get().equals(this.conceptName)) {
+            addDescription(temp.get(), TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
+        }
+
+        return this;
+    }
+
+    //~--- get methods ---------------------------------------------------------
+
+    /**
+     * Gets the concept description text.
+     *
+     * @return the concept description text
+     */
+    @Override
+    public String getFullyQualifiedName() {
+        return getFullySpecifiedDescriptionBuilder().getDescriptionText();
+    }
+
+    /**
+     * Gets the fully specified description builder.
+     *
+     * @return the fully specified description builder
+     */
+    @Override
+    public DescriptionBuilder<?, ?> getFullySpecifiedDescriptionBuilder() {
+        synchronized (this) {
+            if ((this.fqnDescriptionBuilder == null) && StringUtils.isNotBlank(this.conceptName)) {
+
+                if ((this.defaultLanguageForDescriptions == null)
+                        || (this.defaultDialectAssemblageForDescriptions == null)) {
+                    throw new IllegalStateException("language and dialect are required if a concept name is provided");
+                }
+
+                this.fqnDescriptionBuilder = LookupService.getService(DescriptionBuilderService.class)
+                        .getDescriptionBuilder(
+                                StringUtils.isNotBlank(this.semanticTag) ? SemanticTags.addSemanticTagIfAbsent(this.conceptName, this.semanticTag) : this.conceptName,
+                                this,
+                                TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE,
+                                this.defaultLanguageForDescriptions)
+                        .addPreferredInDialectAssemblage(this.defaultDialectAssemblageForDescriptions);
             }
+        }
 
-            if (prefName != null) {
-               this.preferredDescriptionBuilder = LookupService.getService(DescriptionBuilderService.class)
-                       .getDescriptionBuilder(prefName,
-                               this,
-                               TermAux.REGULAR_NAME_DESCRIPTION_TYPE,
-                               this.defaultLanguageForDescriptions)
-                       .addPreferredInDialectAssemblage(this.defaultDialectAssemblageForDescriptions);
+        return this.fqnDescriptionBuilder;
+    }
+
+    /**
+     * Gets the synonym preferred description builder.
+     *
+     * @return the synonym preferred description builder
+     */
+    @Override
+    public DescriptionBuilder<?, ?> getPreferredDescriptionBuilder() {
+        synchronized (this) {
+            if (this.preferredDescriptionBuilder == null && StringUtils.isNotBlank(this.conceptName)) {
+                if ((this.defaultLanguageForDescriptions == null)
+                        || (this.defaultDialectAssemblageForDescriptions == null)) {
+                    throw new IllegalStateException("language and dialect are required if a concept name is provided");
+                }
+
+                String prefName = null;
+
+                if (StringUtils.isNotBlank(this.semanticTag)) {
+                    prefName = this.conceptName;  //We have all ready stripped semantic tags from this
+                } else {
+                    // they didn't provide a stand-alone semantic tag.  don't create a preferred term, as it would just be identical to the FSN.
+                }
+
+                if (prefName != null) {
+                    this.preferredDescriptionBuilder = LookupService.getService(DescriptionBuilderService.class)
+                            .getDescriptionBuilder(prefName,
+                                    this,
+                                    TermAux.REGULAR_NAME_DESCRIPTION_TYPE,
+                                    this.defaultLanguageForDescriptions)
+                            .addPreferredInDialectAssemblage(this.defaultDialectAssemblageForDescriptions);
+                }
             }
-         }
-      }
+        }
 
-      return this.preferredDescriptionBuilder;
-   }
+        return this.preferredDescriptionBuilder;
+    }
 
-   @Override
-   public Optional<String> getRegularName() {
-      DescriptionBuilder<?, ?> descriptionBuilder = getPreferredDescriptionBuilder();
-      return Optional.of(descriptionBuilder.getDescriptionText());
-   }
+    @Override
+    public Optional<String> getRegularName() {
+        DescriptionBuilder<?, ?> descriptionBuilder = getPreferredDescriptionBuilder();
+        return Optional.of(descriptionBuilder.getDescriptionText());
+    }
 
-   @Override
-   public String toString() {
-      if (this.isPrimordialUuidSet()) {
-         return "ConceptBuilderImpl{" + conceptName + (StringUtils.isNotBlank(semanticTag) ? " (" + semanticTag + ") " : " ") + this.getPrimordialUuid() + '}';
-      }
-      return "ConceptBuilderImpl{" + conceptName + (StringUtils.isNotBlank(semanticTag) ? " (" + semanticTag + ") " : " ") + "Primordial UUID not set" + '}';
-   }
-   
-   @Override
-   public List<DescriptionBuilder<?, ?>> getDescriptionBuilders() {
-        List<DescriptionBuilder<?, ?>> temp = new ArrayList<>(descriptionBuilders.size() +2);
+    @Override
+    public String toString() {
+        if (this.isPrimordialUuidSet()) {
+            return "ConceptBuilderImpl{" + conceptName + (StringUtils.isNotBlank(semanticTag) ? " (" + semanticTag + ") " : " ") + this.getPrimordialUuid() + '}';
+        }
+        return "ConceptBuilderImpl{" + conceptName + (StringUtils.isNotBlank(semanticTag) ? " (" + semanticTag + ") " : " ") + "Primordial UUID not set" + '}';
+    }
+
+    @Override
+    public List<DescriptionBuilder<?, ?>> getDescriptionBuilders() {
+        List<DescriptionBuilder<?, ?>> temp = new ArrayList<>(descriptionBuilders.size() + 2);
         temp.addAll(descriptionBuilders);
         if (getFullySpecifiedDescriptionBuilder() != null) {
             temp.add(getFullySpecifiedDescriptionBuilder());
@@ -508,65 +511,65 @@ public class ConceptBuilderImpl
         return temp;
     }
 
-   @Override
-   public IdentifiedComponentBuilder<ConceptChronology> setT5Uuid(UUID namespace, BiConsumer<String, UUID> consumer) {
-      if (isPrimordialUuidSet() && getPrimordialUuid().version() == 4) {
+    @Override
+    public IdentifiedComponentBuilder<ConceptChronology> setT5Uuid(UUID namespace, BiConsumer<String, UUID> consumer) {
+        if (isPrimordialUuidSet() && getPrimordialUuid().version() == 4) {
             throw new RuntimeException("Attempting to set Type 5 UUID where the UUID was previously set to random on - " + getFullyQualifiedName());
-      }
-      if (!isPrimordialUuidSet()) {
-         setPrimordialUuid(UuidT5Generator.get(namespace == null ? UuidT5Generator.PATH_ID_FROM_FS_DESC : namespace, getFullyQualifiedName(), consumer));
-      }
-      return this;
-   }
-   
-   @Override
-   public IdentifiedComponentBuilder<ConceptChronology> setT5UuidNested(UUID namespace) {
-      setT5Uuid(namespace, null);
-      for (DescriptionBuilder<?, ?> db : getDescriptionBuilders()) {
-         db.setT5UuidNested(namespace);
-      }
-      
-      for (SemanticBuilder<?> sb : getSemanticBuilders()) {
-         sb.setT5UuidNested(namespace);
-      }
-      return this;
-   }
+        }
+        if (!isPrimordialUuidSet()) {
+            setPrimordialUuid(UuidT5Generator.get(namespace == null ? UuidT5Generator.PATH_ID_FROM_FS_DESC : namespace, getFullyQualifiedName(), consumer));
+        }
+        return this;
+    }
 
-   @Override
-   public List<SemanticBuilder<?>> getSemanticBuilders() {
-      List<SemanticBuilder<?>> temp = new ArrayList<>(super.getSemanticBuilders().size() + logicalExpressionBuilders.size() + logicalExpressions.size());
-      temp.addAll(super.getSemanticBuilders());
+    @Override
+    public IdentifiedComponentBuilder<ConceptChronology> setT5UuidNested(UUID namespace) {
+        setT5Uuid(namespace, null);
+        for (DescriptionBuilder<?, ?> db : getDescriptionBuilders()) {
+            db.setT5UuidNested(namespace);
+        }
 
-      if (defaultLogicCoordinate == null && (logicalExpressions.size() > 0 || logicalExpressionBuilders.size() > 0)) {
-         throw new IllegalStateException("A logic coordinate is required when a logical expression is passed");
-      }
+        for (SemanticBuilder<?> sb : getSemanticBuilders()) {
+            sb.setT5UuidNested(namespace);
+        }
+        return this;
+    }
 
-      SemanticBuilderService<?> builderService = LookupService.getService(SemanticBuilderService.class);
-      for (LogicalExpression logicalExpression : logicalExpressions) {
-         if (!builtLogicalExpressions.containsKey(logicalExpression)) {
-            builtLogicalExpressions.put(logicalExpression,
-                  builderService.getLogicalExpressionBuilder(logicalExpression, this, defaultLogicCoordinate.getStatedAssemblageNid()));
-         }
-         temp.add(builtLogicalExpressions.get(logicalExpression));
-      }
-      for (LogicalExpressionBuilder builder : logicalExpressionBuilders) {
-         if (!builtLogicalExpressionBuilders.containsKey(builder)) {
-            builtLogicalExpressionBuilders.put(builder,
-                  builderService.getLogicalExpressionBuilder(builder.build(), this, defaultLogicCoordinate.getStatedAssemblageNid()));
-         }
-         temp.add(builtLogicalExpressionBuilders.get(builder));
-      }
+    @Override
+    public List<SemanticBuilder<?>> getSemanticBuilders() {
+        List<SemanticBuilder<?>> temp = new ArrayList<>(super.getSemanticBuilders().size() + logicalExpressionBuilders.size() + logicalExpressions.size());
+        temp.addAll(super.getSemanticBuilders());
 
-      return temp;
-   }
+        if (defaultLogicCoordinate == null && (logicalExpressions.size() > 0 || logicalExpressionBuilders.size() > 0)) {
+            throw new IllegalStateException("A logic coordinate is required when a logical expression is passed");
+        }
 
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public VersionType getVersionType() {
-      return VersionType.CONCEPT;
-   }
+        SemanticBuilderService<?> builderService = LookupService.getService(SemanticBuilderService.class);
+        for (LogicalExpression logicalExpression : logicalExpressions) {
+            if (!builtLogicalExpressions.containsKey(logicalExpression)) {
+                builtLogicalExpressions.put(logicalExpression,
+                        builderService.getLogicalExpressionBuilder(logicalExpression, this, defaultLogicCoordinate.getStatedAssemblageNid()));
+            }
+            temp.add(builtLogicalExpressions.get(logicalExpression));
+        }
+        for (LogicalExpressionBuilder builder : logicalExpressionBuilders) {
+            if (!builtLogicalExpressionBuilders.containsKey(builder)) {
+                builtLogicalExpressionBuilders.put(builder,
+                        builderService.getLogicalExpressionBuilder(builder.build(), this, defaultLogicCoordinate.getStatedAssemblageNid()));
+            }
+            temp.add(builtLogicalExpressionBuilders.get(builder));
+        }
+
+        return temp;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public VersionType getVersionType() {
+        return VersionType.CONCEPT;
+    }
 
     @Override
     public ConceptBuilder addComponentIntSemantic(UUID semanticUuid, ConceptSpecification component, int fieldIndex, ConceptSpecification assemblage) {
@@ -595,6 +598,6 @@ public class ConceptBuilderImpl
     public ConceptBuilder addFieldSemanticConcept(UUID semanticUuid, UUID conceptUuid, int fieldIndex) {
         addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(Get.nidForUuids(conceptUuid), fieldIndex, this, TermAux.SEMANTIC_TYPE.getNid()).setPrimordialUuid(semanticUuid));
         return this;
-     }
+    }
 
 }

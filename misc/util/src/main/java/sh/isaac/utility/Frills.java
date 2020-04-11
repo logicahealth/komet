@@ -37,43 +37,18 @@
 
 package sh.isaac.utility;
 
-import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.PrimitiveIterator;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
-import javax.inject.Singleton;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.jvnet.hk2.annotations.Service;
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.MetaData;
-import sh.isaac.api.ConceptProxy;
-import sh.isaac.api.Get;
-import sh.isaac.api.IsaacCache;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.Status;
+import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -84,65 +59,27 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.commit.Stamp;
-import sh.isaac.api.component.concept.ConceptBuilder;
-import sh.isaac.api.component.concept.ConceptBuilderService;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptService;
-import sh.isaac.api.component.concept.ConceptSnapshot;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.component.concept.*;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.ComponentNidVersion;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.version.DynamicVersion;
-import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.component.semantic.version.MutableDescriptionVersion;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnUtility;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.component.semantic.version.*;
+import sh.isaac.api.component.semantic.version.dynamic.*;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampPosition;
-import sh.isaac.api.coordinate.StampPrecedence;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.index.SearchResult;
-import sh.isaac.api.logic.LogicNode;
-import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.logic.LogicalExpressionBuilder;
-import sh.isaac.api.logic.LogicalExpressionBuilderService;
-import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.api.logic.*;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.transaction.Transaction;
-import sh.isaac.api.util.NumericUtils;
-import sh.isaac.api.util.SctId;
-import sh.isaac.api.util.SemanticTags;
-import sh.isaac.api.util.TaskCompleteCallback;
-import sh.isaac.api.util.UUIDUtil;
+import sh.isaac.api.util.*;
 import sh.isaac.mapping.constants.IsaacMappingConstants;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.concept.ConceptVersionImpl;
-import sh.isaac.model.configuration.LanguageCoordinates;
-import sh.isaac.model.configuration.LogicCoordinates;
-import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.model.coordinate.EditCoordinateImpl;
-import sh.isaac.model.coordinate.ManifoldCoordinateImpl;
-import sh.isaac.model.coordinate.StampCoordinateImpl;
-import sh.isaac.model.coordinate.StampPositionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
@@ -150,14 +87,20 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.model.semantic.types.DynamicUUIDImpl;
-import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
-import sh.isaac.model.semantic.version.DescriptionVersionImpl;
-import sh.isaac.model.semantic.version.DynamicImpl;
-import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
-import sh.isaac.model.semantic.version.LongVersionImpl;
-import sh.isaac.model.semantic.version.StringVersionImpl;
-import sh.isaac.api.TaxonomySnapshot;
-import sh.isaac.api.Util;
+import sh.isaac.model.semantic.version.*;
+
+import javax.inject.Singleton;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static sh.isaac.api.logic.LogicalExpressionBuilder.*;
 
 /**
  * The Class Frills.
@@ -247,7 +190,7 @@ public class Frills
 
          conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____SOLOR);
          conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____SOLOR);
-         conceptBuilderService.setDefaultLogicCoordinate(LogicCoordinates.getStandardElProfile());
+         conceptBuilderService.setDefaultLogicCoordinate(Coordinates.Logic.ElPlusPlus());
 
          final DescriptionBuilderService descriptionBuilderService = LookupService.getService(
                                                                          DescriptionBuilderService.class);
@@ -453,12 +396,12 @@ public class Frills
 
       return EDIT_MODULE_FOR_TERMINOLOGY_CACHE.get(module, moduleAgain -> {
          
-         final int termTypeConcept = findTermTypeConcept(moduleAgain, null);
-         final StampCoordinate stamp = StampCoordinates.getDevelopmentLatest();
-         final LanguageCoordinate fqnCoord = LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
+         final int termTypeConcept = findTermTypeConcept(moduleAgain, Coordinates.Filter.DevelopmentLatest());
+         final StampFilter stamp = Coordinates.Filter.DevelopmentLatest();
+         final LanguageCoordinate fqnCoord = Coordinates.Language.UsEnglishFullyQualifiedName();
          
          //iterate the children, find one that has a FQN than ends with "Edit (SOLOR)"
-         int[] termTypeChildren = Get.taxonomyService().getSnapshotNoTree(new ManifoldCoordinateImpl(stamp, fqnCoord)).getTaxonomyChildConceptNids(termTypeConcept);
+         int[] termTypeChildren = Get.taxonomyService().getSnapshotNoTree(ManifoldCoordinateImmutable.makeStated(stamp, fqnCoord)).getTaxonomyChildConceptNids(termTypeConcept);
          for (int nid : termTypeChildren) {
             String fqn = fqnCoord.getFullyQualifiedName(nid, stamp).orElseGet(() -> "");
             int index = fqn.indexOf("Edit (" + ConceptProxy.METADATA_SEMANTIC_TAG + ")"); 
@@ -485,7 +428,7 @@ public class Frills
             Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
             int nid = Get.conceptBuilderService().getDefaultConceptBuilder(termTypeFQN, ConceptProxy.METADATA_SEMANTIC_TAG, defBuilder.build(), 
                  MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid()).setT5UuidNested(Get.concept(module).getPrimordialUuid()).build(transaction,
-                       new EditCoordinateImpl(TermAux.USER.getNid(),  TermAux.CORE_METADATA_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid())).get().getNid();
+                    EditCoordinateImmutable.make(TermAux.USER.getNid(),  TermAux.CORE_METADATA_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid())).get().getNid();
              commitCheck(transaction.commit("creating new edit module for terminology type " + Get.conceptDescriptionText(termTypeConcept)));
              return nid;
          }
@@ -497,31 +440,35 @@ public class Frills
    
    /**
     * Walk up the module tree, looking for the module concept nid directly under {@link MetaData#MODULE____SOLOR} - return it if found, otherwise, return null.
-    * 
-    * @param conceptModuleNid the module to look up
-    * @param stamp - optional - uses default if not provided.  If provided, and doesn't include the metadata modules, it will use a modified stamp
-    * that includes the metadata module, since that module is required to read the module hierarchy.  It also modifies the time, to always use the latest 
-    * time when evaluating the parents, because 1) the parent hierarchy of the modules shouldn't ever change from one version to another and 
+    *  @param conceptModuleNid the module to look up
+    * @param stampFilter - optional - uses default if not provided.  If provided, and doesn't include the metadata modules, it will use a modified stamp
+    * that includes the metadata module, since that module is required to read the module hierarchy.  It also modifies the time, to always use the latest
+    * time when evaluating the parents, because 1) the parent hierarchy of the modules shouldn't ever change from one version to another and
     * 2) often times, the metadata hierarchy gets built with a timestamp that is later than the version in the content, since metadata is loaded at DB build time
-    * not content conversion time.
     */
-   private static Integer findTermTypeConcept(int conceptModuleNid, StampCoordinate stamp) {
-      StampCoordinate stampToUse = stamp == null ? StampCoordinates.getDevelopmentLatest() : stamp;
+   private static Integer findTermTypeConcept(int conceptModuleNid, StampFilter stampFilter) {
+      StampFilter stampToUse = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
       
-      if (stamp!= null) {
+      if (stampFilter != null) {
          //ensure the provided stamp includes the metadata module
-         if (stamp.getModuleNids().size() > 0 && !stamp.getModuleNids().contains(MetaData.CORE_METADATA_MODULE____SOLOR.getNid()))
+         if (stampFilter.getModuleNids().size() > 0 && !stampFilter.getModuleNids().contains(MetaData.CORE_METADATA_MODULE____SOLOR.getNid()))
          {
-            stampToUse = stamp.makeModuleAnalog(Arrays.asList(new ConceptSpecification[] {MetaData.CORE_METADATA_MODULE____SOLOR}), true);
+            MutableIntSet moduleNids = IntSets.mutable.of(stampFilter.getModuleNids().toArray());
+            moduleNids.add(MetaData.CORE_METADATA_MODULE____SOLOR.getNid());
+
+
+            stampToUse = StampFilterImmutable.make(stampToUse.getAllowedStates(), stampToUse.getStampPosition(),
+                    moduleNids.toImmutable(),
+                    stampToUse.getModulePreferenceOrder());
          }
-         if (stamp.getStampPosition().getTime() != Long.MAX_VALUE)
+         if (stampFilter.getStampPosition().getTime() != Long.MAX_VALUE)
          {
              stampToUse = stampToUse.makeCoordinateAnalog(Long.MAX_VALUE);
          }
       }
       
       int[] parents = Get.taxonomyService().getSnapshotNoTree(
-            new ManifoldCoordinateImpl(stampToUse, null))
+              ManifoldCoordinateImmutable.makeStated(stampToUse, Coordinates.Language.UsEnglishPreferredName()))
             .getTaxonomyParentConceptNids(conceptModuleNid);
       for (int current : parents)
       {
@@ -551,16 +498,16 @@ public class Frills
    
    /**
     * Utility method to get the best text value description for a concept, according to the passed in options, 
-    * or the user preferences.  Calls {@link #getDescription(int, StampCoordinate, LanguageCoordinate)} with values 
+    * or the user preferences.  Calls {@link #getDescription(int, StampFilter, LanguageCoordinate)} with values
     * extracted from the taxonomyCoordinate, or null. 
     * @param conceptUUID - UUID for a concept
+    * @param stampFilter - optional - if not provided, defaults to system preference values
     * @param languageCoordinate - optional - if not provided, defaults to system preferences values
-    * @param stampCoordinate - optional - if not provided, defaults to system preference values
     * @return the description
     */
-   public static Optional<String> getDescription(UUID conceptUUID, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) 
+   public static Optional<String> getDescription(UUID conceptUUID, StampFilter stampFilter, LanguageCoordinate languageCoordinate)
    {
-      return getDescription(Get.identifierService().getNidForUuids(conceptUUID), stampCoordinate, languageCoordinate);
+      return getDescription(Get.identifierService().getNidForUuids(conceptUUID), stampFilter, languageCoordinate);
    }
    
    /**
@@ -571,25 +518,24 @@ public class Frills
     * @return the description
     */
    public static Optional<String> getDescription(int conceptNid, ManifoldCoordinate manifoldCoordinate) {
-      return getDescription(conceptNid, 
-          manifoldCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getManifoldCoordinate().getStampCoordinate() 
-                : manifoldCoordinate.getStampCoordinate(), 
-          manifoldCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getManifoldCoordinate().getLanguageCoordinate() 
-                : manifoldCoordinate.getLanguageCoordinate());
+      manifoldCoordinate = manifoldCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getManifoldCoordinate()
+              : manifoldCoordinate;
+
+      return manifoldCoordinate.getDescriptionText(conceptNid);
    }
    
    /**
     * Utility method to get the best text value description for a concept, according to the passed in options, 
     * or the user preferences. 
     * @param conceptNid - The nid of the concept
+    * @param stampFilter - optional - if not provided, defaults to system preference values
     * @param languageCoordinate - optional - if not provided, defaults to system preferences values
-    * @param stampCoordinate - optional - if not provided, defaults to system preference values
     * @return the description, if available
     */
-   public static Optional<String> getDescription(int conceptNid, StampCoordinate stampCoordinate, LanguageCoordinate languageCoordinate) {
+   public static Optional<String> getDescription(int conceptNid, StampFilter stampFilter, LanguageCoordinate languageCoordinate) {
       LanguageCoordinate lc = languageCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate() : languageCoordinate;
       LatestVersion<DescriptionVersion> d = lc.getDescription(conceptNid, 
-            stampCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stampCoordinate);
+            stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter);
 
       if (d.isPresent()) {
          return Optional.of(d.get().getText());
@@ -599,27 +545,27 @@ public class Frills
    
    /**
     * If this description is flagged as an extended description type, return the type concept of the extension.
-    * @param stampCoordinate - optional Stamp - pass null to use the default stamp.  In either case, this only looks for an active extended type - state is overridden.
-    * @param descriptionId - the nid or sequence of the description semantic to check for an extended type. 
-    * @param returnInactiveExtendedType - true to return an extended description type even if it is INACTVE .  
+    * @param stampFilter - optional Filter - pass null to use the default stamp.  In either case, this only looks for an active extended type - state is overridden.
+    * @param descriptionId - the nid or sequence of the description semantic to check for an extended type.
+    * @param returnInactiveExtendedType - true to return an extended description type even if it is INACTVE .
     * false to only return the extended description type if it is present and active (returns EMPTY if the extended type is missing or inactive)
     * @return the concept identifer of the extended type
     */
-   public static Optional<UUID> getDescriptionExtendedTypeConcept(StampCoordinate stampCoordinate, int descriptionId, boolean returnInactiveExtendedType) 
+   public static Optional<UUID> getDescriptionExtendedTypeConcept(StampFilter stampFilter, int descriptionId, boolean returnInactiveExtendedType)
    {
       Optional<SemanticChronology> descriptionExtendedTypeAnnotationSemantic =
             getAnnotationSemantic(descriptionId, DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid());
       
       if (descriptionExtendedTypeAnnotationSemantic.isPresent()) 
       {
-         final StampCoordinate effectiveStampCoordinate = (stampCoordinate == null) ? 
-               Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate().makeCoordinateAnalog(Status.ANY_STATUS_SET) : 
-                  stampCoordinate.makeCoordinateAnalog(Status.ANY_STATUS_SET);
+         final StampFilter effectiveStampCoordinate = (stampFilter == null) ?
+               Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() :
+                  stampFilter.makeCoordinateAnalog(Status.ANY_STATUS_SET);
          
          LatestVersion<Version> lsv = descriptionExtendedTypeAnnotationSemantic.get().getLatestVersion(effectiveStampCoordinate);
          if (! lsv.isPresent()) {
             LOG.info("No latest version present for descriptionExtendedTypeAnnotationSemantic chronology " 
-                  + descriptionExtendedTypeAnnotationSemantic.get().getPrimordialUuid() + " using " + (stampCoordinate != null ? "passed" : "default") 
+                  + descriptionExtendedTypeAnnotationSemantic.get().getPrimordialUuid() + " using " + (stampFilter != null ? "passed" : "default")
                   + " stamp coordinate analog " + effectiveStampCoordinate);
             return Optional.empty();
          }
@@ -630,7 +576,7 @@ public class Frills
          }
          if (!returnInactiveExtendedType && lsv.get().getStatus() != Status.ACTIVE) {
             LOG.info("Latest version present is NOT ACTIVE for descriptionExtendedTypeAnnotationSemantic chronology " 
-                  + descriptionExtendedTypeAnnotationSemantic.get().getPrimordialUuid() + " using " + (stampCoordinate != null ? "passed" : "default") 
+                  + descriptionExtendedTypeAnnotationSemantic.get().getPrimordialUuid() + " using " + (stampFilter != null ? "passed" : "default")
                   + " stamp coordinate analog " + effectiveStampCoordinate);
             return Optional.empty();   
          }
@@ -660,18 +606,17 @@ public class Frills
    /**
     * Calls {@link #getConceptForUnknownIdentifier(String)} in a background thread.  returns immediately. 
     * 
-    * 
-    * @param identifier - what to search for
+    *  @param identifier - what to search for
     * @param callback - who to inform when lookup completes
     * @param callId - An arbitrary identifier that will be returned to the caller when this completes
-    * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
+    * @param stampFilter - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
     * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
     */
    public static void lookupConceptForUnknownIdentifier(
          final String identifier,
          final TaskCompleteCallback<ConceptSnapshot> callback,
          final Integer callId,
-         final StampCoordinate stampCoord,
+         final StampFilter stampFilter,
          final LanguageCoordinate langCoord)
    {
       LOG.debug("Threaded Lookup: '{}'", identifier);
@@ -685,7 +630,7 @@ public class Frills
             Optional<? extends ConceptChronology> c = getConceptForUnknownIdentifier(identifier);
             if (c.isPresent())
             {
-               Optional<ConceptSnapshot> temp = getConceptSnapshot(c.get().getNid(), stampCoord, langCoord);
+               Optional<ConceptSnapshot> temp = getConceptSnapshot(c.get().getNid(), stampFilter, langCoord);
                if (temp.isPresent())
                {
                   result = temp.get();
@@ -703,21 +648,20 @@ public class Frills
    /**
     * 
     * All done in a background thread, method returns immediately
-    * 
-    * @param nid - The NID to search for
+    *  @param nid - The NID to search for
     * @param callback - who to inform when lookup completes
     * @param callId - An arbitrary identifier that will be returned to the caller when this completes
-    * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
+    * @param stampFilter - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
     * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
     */
-   public static void lookupConceptSnapshot(final int nid, final TaskCompleteCallback<ConceptSnapshot> callback, final Integer callId, 
-         final StampCoordinate stampCoord, final LanguageCoordinate langCoord) {
+   public static void lookupConceptSnapshot(final int nid, final TaskCompleteCallback<ConceptSnapshot> callback, final Integer callId,
+                                            final StampFilter stampFilter, final LanguageCoordinate langCoord) {
       LOG.debug("Threaded Lookup: '{}'", nid);
       final long submitTime = System.currentTimeMillis();
       Runnable r = new Runnable() {
          @Override
          public void run() {
-            Optional<ConceptSnapshot> c = getConceptSnapshot(nid, stampCoord, langCoord);
+            Optional<ConceptSnapshot> c = getConceptSnapshot(nid, stampFilter, langCoord);
             if (c.isPresent()) {
                callback.taskComplete(c.get(), submitTime, callId);
             } else {
@@ -731,30 +675,20 @@ public class Frills
    /**
     * Make stamp coordinate analog varying by modules only.
     *
-    * @param existingStampCoordinate the existing stamp coordinate
+    * @param existingStampFilter the existing stamp coordinate
     * @param requiredModuleSequence the required module nid
     * @param optionalModuleSequences the optional module nids
     * @return the stamp coordinate
     */
-   public static StampCoordinate makeStampCoordinateAnalogVaryingByModulesOnly(StampCoordinate existingStampCoordinate,
-         int requiredModuleSequence,
-         int... optionalModuleSequences) {
-      final HashSet<ConceptSpecification> moduleSet = new HashSet<>();
+   public static StampFilter makeStampFilterAnalogVaryingByModulesOnly(StampFilter existingStampFilter,
+                                                                       int requiredModuleSequence,
+                                                                       int... optionalModuleSequences) {
+      final MutableIntSet moduleSet = IntSets.mutable.of(requiredModuleSequence);
+      moduleSet.addAll(optionalModuleSequences);
 
-      moduleSet.add(Get.conceptSpecification(requiredModuleSequence));
-
-      if (optionalModuleSequences != null) {
-         for (final int seq: optionalModuleSequences) {
-            moduleSet.add(Get.conceptSpecification(seq));
-         }
-      }
-
-      final StampCoordinate newStampCoordinate = new StampCoordinateImpl(
-                                                     existingStampCoordinate.getStampPrecedence(),
-                                                           existingStampCoordinate.getStampPosition(),
-                                                           moduleSet,
-                                                           existingStampCoordinate.getModulePreferenceOrderForVersions(),
-                                                           existingStampCoordinate.getAllowedStates());
+      final StampFilter newStampCoordinate = StampFilterImmutable.make(existingStampFilter.getAllowedStates(),
+              existingStampFilter.getStampPosition(), moduleSet.toImmutable(),
+              existingStampFilter.getModulePreferenceOrder());
 
       return newStampCoordinate;
    }
@@ -784,23 +718,22 @@ public class Frills
             }
 
             final LatestVersion<DescriptionVersion> descriptionVersion = ((SemanticChronology) dc).getLatestVersion(Get.configurationService()
-                  .getUserConfiguration(Optional.empty()).getStampCoordinate()
-                  .makeCoordinateAnalog(Status.ANY_STATUS_SET));
+                  .getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter());
 
             if (descriptionVersion.isPresent()) {
                final DescriptionVersion d = descriptionVersion.get();
-               final int descriptionType = getDescriptionType(d.getDescriptionTypeConceptNid(), null); 
+               final int descriptionType = getDescriptionType(d.getDescriptionTypeConceptNid(), Coordinates.Filter.DevelopmentLatest());
 
                if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
                   fqn = d.getText();
                } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
-                  if (Frills.isDescriptionPreferred(d.getNid(), null)) {
+                  if (Frills.isDescriptionPreferred(d.getNid(), Coordinates.Filter.DevelopmentLatest())) {
                      columnName = d.getText();
                   } else {
                      acceptableSynonym = d.getText();
                   }
                } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
-                  if (Frills.isDescriptionPreferred(d.getNid(), null)) {
+                  if (Frills.isDescriptionPreferred(d.getNid(), Coordinates.Filter.DevelopmentLatest())) {
                      columnDescription = d.getText();
                   } else {
                      acceptableDefinition = d.getText();
@@ -850,11 +783,11 @@ public class Frills
    }
    
    /**
-    * calls {@link Frills#resetStatus(Transaction, Status, Chronology, EditCoordinate, StampCoordinate...)} but has types specified for concepts
+    * calls {@link Frills#resetStatus(Transaction, Status, Chronology, EditCoordinate, StampFilter...)} but has types specified for concepts
     */
    private static VersionUpdatePair<ConceptVersion> resetConceptState(Transaction transaction, Status status, ConceptChronology chronology,
-         EditCoordinate editCoordinate, StampCoordinate ... readCoordinates) throws Exception {   
-      return resetStatus(transaction, status, chronology, editCoordinate, readCoordinates);
+                                                                      EditCoordinate editCoordinate, StampFilter... stampFilters) throws Exception {
+      return resetStatus(transaction, status, chronology, editCoordinate, stampFilters);
    }
    
    /**
@@ -867,7 +800,7 @@ public class Frills
     *           - the chronology of the object that we want to create a new version of with the specified state
     * @param editCoordinate
     *           - where to create the new version
-    * @param readCoordinates
+    * @param readFilters
     *           - (optional) the read coordinates to read the current state from. Defaults to the system default if not provided. When more than one is provided,
     *           it tries each in order, until is finds the first one that is present.
     * @return - null, if no change was required, or, the mutable that will need to be committed. Also returns the latestVersion that the state was read from for
@@ -876,14 +809,14 @@ public class Frills
     */
    @SuppressWarnings({"unchecked" })
    private static <T extends Version> VersionUpdatePair<T> resetStatus(Transaction transaction, Status status, Chronology chronology, EditCoordinate editCoordinate,
-         StampCoordinate... readCoordinates) throws Exception {
+                                                                       StampFilter... readFilters) throws Exception {
       String detail = chronology.getIsaacObjectType() + " " + chronology.getClass().getSimpleName() + " (UUID=" + chronology.getPrimordialUuid() + ")";
       LatestVersion<Version> latestVersion = null;
 
-      if (readCoordinates == null || readCoordinates.length == 0) {
-         latestVersion = chronology.getLatestVersion(Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate());
+      if (readFilters == null || readFilters.length == 0) {
+         latestVersion = chronology.getLatestVersion(Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter());
       } else {
-         for (StampCoordinate rc : readCoordinates) {
+         for (StampFilter rc : readFilters) {
             latestVersion = chronology.getLatestVersion(rc);
             if (latestVersion.isPresent()) {
                break;
@@ -922,13 +855,13 @@ public class Frills
     *           - the id of the object to change the state of
     * @param editCoordinate
     *           - where to write the new state.
-    * @param readCoordinates
+    * @param stampFilters
     *           - (optional) the read coordinates to read the current state from. Defaults to the system default if not provided. When more than one is provided,
     *           it tries each in order, until is finds the first one that is present.
     * @return - empty optional, if no change, or the uncommitted chronology of the object that was changed.
     * @throws Exception
     */
-   public static Optional<Chronology> resetStatusWithNoCommit(Transaction transaction, Status status, int componentToModify, EditCoordinate editCoordinate, StampCoordinate... readCoordinates) throws Exception {
+   public static Optional<Chronology> resetStatusWithNoCommit(Transaction transaction, Status status, int componentToModify, EditCoordinate editCoordinate, StampFilter... stampFilters) throws Exception {
 
       final IsaacObjectType type = Get.identifierService().getObjectTypeForComponent(componentToModify);
 
@@ -942,7 +875,7 @@ public class Frills
             ConceptChronology cc = Get.conceptService().getConceptChronology(componentToModify);
             nid = cc.getNid();
 
-            VersionUpdatePair<ConceptVersion> updatePair = resetConceptState(transaction, status, cc, editCoordinate, readCoordinates);
+            VersionUpdatePair<ConceptVersion> updatePair = resetConceptState(transaction, status, cc, editCoordinate, stampFilters);
             if (updatePair != null) {
                priorState = updatePair.latest.getStatus();
                objectToCommit = cc;
@@ -955,7 +888,7 @@ public class Frills
             nid = semantic.getNid();
             switch (semantic.getVersionType()) {
                case DESCRIPTION: {
-                  VersionUpdatePair<DescriptionVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<DescriptionVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, stampFilters);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -968,7 +901,7 @@ public class Frills
                   break;
                }
                case STRING: {
-                  VersionUpdatePair<StringVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<StringVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, stampFilters);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -979,7 +912,7 @@ public class Frills
                   break;
                }
                case DYNAMIC: {
-                  VersionUpdatePair<DynamicImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<DynamicImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, stampFilters);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -989,7 +922,7 @@ public class Frills
                   break;
                }
                case COMPONENT_NID: {
-                  VersionUpdatePair<ComponentNidVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<ComponentNidVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, stampFilters);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -999,7 +932,7 @@ public class Frills
                   break;
                }
                case LOGIC_GRAPH: {
-                  VersionUpdatePair<LogicGraphVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<LogicGraphVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, stampFilters);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -1009,7 +942,7 @@ public class Frills
                   break;
                }
                case LONG: {
-                  VersionUpdatePair<LongVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<LongVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, stampFilters);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -1019,7 +952,7 @@ public class Frills
                   break;
                }
                case MEMBER:
-                  VersionUpdatePair<VersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, readCoordinates);
+                  VersionUpdatePair<VersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, stampFilters);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -1069,13 +1002,13 @@ public class Frills
     * @param conceptNid The concept to look at
     * @param recursive recurse down from the concept
     * @param leafOnly only return leaf nodes
-    * @param stamp - optional - defaults to system default if not provided.
+    * @param stampFilter - optional - defaults to system default if not provided.
     * @return the set of concept nid ids that represent the children
     */
-      public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly, StampCoordinate stamp) {
+      public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly, StampFilter stampFilter) {
       
       TaxonomySnapshot tss = Get.taxonomyService().getSnapshotNoTree(
-            new ManifoldCoordinateImpl((stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp), null));
+              ManifoldCoordinateImmutable.makeStated((stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter), Coordinates.Language.UsEnglishPreferredName()));
       
       Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptNid, recursive, leafOnly, tss);
       if (leafOnly && temp.size() == 1) {
@@ -1177,12 +1110,12 @@ public class Frills
     *
     * @param componentId the component id
     * @param assemblageConceptId the assemblage concept id
-    * @param stamp the stamp
+    * @param stampFilter the stamp
     * @return the annotation string value
     */
    public static Optional<String> getAnnotationStringValue(int componentId,
-         int assemblageConceptId,
-         StampCoordinate stamp) {
+                                                           int assemblageConceptId,
+                                                           StampFilter stampFilter) {
       try {
          final UUID assemblageConceptUuid = Get.identifierService()
                                                          .getUuidPrimordialForNid(assemblageConceptId);
@@ -1193,7 +1126,7 @@ public class Frills
 
          Get.assemblageService()
             .getSnapshot(SemanticVersion.class,
-                (stamp == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
+                (stampFilter == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter)
             .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, assemblageConceptNid)
             .forEach(latestSemantic -> {
                    if (latestSemantic.get()
@@ -1268,11 +1201,11 @@ public class Frills
     */
    public static Optional<Boolean> isConceptFullyDefined(int conceptNid, boolean stated) {
       final Optional<SemanticChronology> semantic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptNid,
-            (stated ? LogicCoordinates.getStandardElProfile().getStatedAssemblageNid() : LogicCoordinates.getStandardElProfile().getInferredAssemblageNid())
+            (stated ? Coordinates.Logic.ElPlusPlus().getStatedAssemblageNid() : Coordinates.Logic.ElPlusPlus().getInferredAssemblageNid())
                ).findAny();
 
       if (semantic.isPresent()) {
-         final LatestVersion<LogicGraphVersion> sv = ((SemanticChronology) semantic.get()).getLatestVersion(StampCoordinates.getDevelopmentLatest());
+         final LatestVersion<LogicGraphVersion> sv = ((SemanticChronology) semantic.get()).getLatestVersion(Coordinates.Filter.DevelopmentLatest());
 
          if (sv.isPresent()) {
             return Optional.of(isConceptFullyDefined((LogicGraphVersion) sv.get()));
@@ -1286,16 +1219,16 @@ public class Frills
     * Find the CODE(s) for a component (if it has one) {@link MetaData#CODE____SOLOR}
     *
     * @param componentNid
-    * @param stamp - optional - if not provided uses default from config
+    * @param stampFilter - optional - if not provided uses default from config
     * service
     * @return the codes, if found, or empty (will not return null)
     */
-   public static List<String> getCodes(int componentNid, StampCoordinate stamp) {
+   public static List<String> getCodes(int componentNid, StampFilter stampFilter) {
       try 
       {
          ArrayList<String> codes = new ArrayList<>(1);
-         Get.assemblageService().getSnapshot(SemanticVersion.class, stamp == null ? 
-               Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
+         Get.assemblageService().getSnapshot(SemanticVersion.class, stampFilter == null ?
+               Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter)
                .getLatestSemanticVersionsForComponentFromAssemblage(componentNid,
                      MetaData.CODE____SOLOR.getNid()).forEach(latestSemantic ->
                      {
@@ -1372,18 +1305,18 @@ public class Frills
     * Gets the concept snapshot.
     *
     * @param conceptNidOrSequence the concept nid or sequence
-    * @param stampCoord - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
+    * @param stampFilter - optional - what stamp to use when returning the ConceptSnapshot (defaults to user prefs)
     * @param langCoord - optional - what lang coord to use when returning the ConceptSnapshot (defaults to user prefs)
     * @return the ConceptSnapshot, or an optional that indicates empty, if the identifier was invalid, or if the concept didn't
     * have a version available on the specified manifoldCoordinate
     */
-   public static Optional<ConceptSnapshot> getConceptSnapshot(int conceptNidOrSequence, StampCoordinate stampCoord, LanguageCoordinate langCoord) {
+   public static Optional<ConceptSnapshot> getConceptSnapshot(int conceptNidOrSequence, StampFilter stampFilter, LanguageCoordinate langCoord) {
       final Optional<? extends ConceptChronology> c = Get.conceptService().getOptionalConcept(conceptNidOrSequence);
 
       if (c.isPresent()) {
          try {
-               return Optional.of(Get.conceptService().getSnapshot(new ManifoldCoordinateImpl(
-                     stampCoord == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stampCoord,
+               return Optional.of(Get.conceptService().getSnapshot(ManifoldCoordinateImmutable.makeStated(
+                     stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter,
                      langCoord == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate() : langCoord))
                         .getConceptSnapshot(c.get().getNid()));
          } catch (final Exception e) {
@@ -1399,16 +1332,16 @@ public class Frills
    }
 
    /**
-    * Gets the concept snapshot.  Call {@link #getConceptSnapshot(int, StampCoordinate, LanguageCoordinate)}
+    * Gets the concept snapshot.  Call {@link #getConceptSnapshot(int, StampFilter, LanguageCoordinate)}
     *
     * @param conceptUUID the concept UUID
-    * @param stampCoord the stamp to utilize
+    * @param stampFilter the stamp to utilize
     * @param langCoord  the language to utilize
     * @return the ConceptSnapshot, or an optional that indicates empty, if the identifier was invalid, or if the concept didn't
     *   have a version available on the specified stampCoord
     */
-   public static Optional<ConceptSnapshot> getConceptSnapshot(UUID conceptUUID, StampCoordinate stampCoord, LanguageCoordinate langCoord) {
-      return getConceptSnapshot(Get.identifierService().getNidForUuids(conceptUUID), stampCoord, langCoord);
+   public static Optional<ConceptSnapshot> getConceptSnapshot(UUID conceptUUID, StampFilter stampFilter, LanguageCoordinate langCoord) {
+      return getConceptSnapshot(Get.identifierService().getNidForUuids(conceptUUID), stampFilter, langCoord);
    }
 
 
@@ -1418,12 +1351,12 @@ public class Frills
     *
     * Note that this will never return true for external description types, if they don't utilize snomed style preferred / acceptable.
     * @param descriptionSemanticNid the description semantic nid
-    * @param stamp - optional - if not provided, uses default from config service
+    * @param stampFilter - optional - if not provided, uses default from config service
     * @return true, if description is preferred in some language
     * @throws RuntimeException If there is unexpected data (incorrectly) attached to the semantic
     */
    public static boolean isDescriptionPreferred(int descriptionSemanticNid,
-         StampCoordinate stamp)
+                                                StampFilter stampFilter)
             throws RuntimeException {
       final AtomicReference<Boolean> answer = new AtomicReference<>();
 
@@ -1434,7 +1367,8 @@ public class Frills
                 if (nestedSemantic.getVersionType() == VersionType.COMPONENT_NID) {
                   final LatestVersion<ComponentNidVersion> latest = ((SemanticChronology) nestedSemantic)
                         .getLatestVersion(
-                              (stamp == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate(): stamp);
+                              (stampFilter == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter():
+                                      stampFilter);
 
                    if (latest.isPresent()) {
                       if (latest.get()
@@ -1468,17 +1402,18 @@ public class Frills
    /**
     * For a given description, determine if it is marked as an "inverse" style description.  This is typically done for concepts that represent 
     * an association, where you want to have descriptions of both "is A" and "has parent".
-    * @param descriptionChronology the description to check for an inverse annotation marker. 
-    * @param stamp optional - default from system configuration used if not provided.
+    * @param descriptionChronology the description to check for an inverse annotation marker.
+    * @param stampFilter optional - default from system configuration used if not provided.
     * @param activeOnly - if true, only return true if the  inverse annotation is active.  If false, ignore the state of
     *     the inverse annotation, and just return true if any inverse annotation is found.
     * @return
     */
-   public static boolean isDescriptionInverse(SemanticChronology descriptionChronology, StampCoordinate stamp, boolean activeOnly) {
+   public static boolean isDescriptionInverse(SemanticChronology descriptionChronology, StampFilter stampFilter, boolean activeOnly) {
      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(descriptionChronology.getNid(),
             DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getNid()).anyMatch(semanticC -> {
                return activeOnly ? descriptionChronology
-                     .isLatestVersionActive((stamp == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate(): stamp)
+                     .isLatestVersionActive((stampFilter == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter():
+                             stampFilter)
                      : true;
             });
    }
@@ -1488,12 +1423,12 @@ public class Frills
     * method is essentially a no-op.  Otherwise, reads the annotations to determine the core type linked to the external description type.
     * 
     * @param descriptionType the description type to check the core type on.
-    * @param stamp optional - used system defaults if not provided.
-    * @return the nid of the core description type, one of {@link MetaData#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR}, 
+    * @param stampFilter optional - used system defaults if not provided.
+    * @return the nid of the core description type, one of {@link MetaData#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR},
     *     {@link MetaData#REGULAR_NAME_DESCRIPTION_TYPE____SOLOR}, or {@link MetaData#DEFINITION_DESCRIPTION_TYPE____SOLOR}.
     *     In the case of a data error, and the core type is missing, a runtime exception is thrown.
     */
-   public static int getDescriptionType(int descriptionType, StampCoordinate stamp) {
+   public static int getDescriptionType(int descriptionType, StampFilter stampFilter) {
       if (descriptionType == MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
          return descriptionType;
       }
@@ -1507,7 +1442,8 @@ public class Frills
          return DESC_CORE_TYPE_CACHE.get(descriptionType, typeAgain -> {
             //This must be an external description type.  External description types should have an annotation on them that links them to a core
             //type description.
-            StampCoordinate stampToUse = (stamp == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
+            StampFilter stampToUse = (stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() :
+                    stampFilter);
             AtomicReference<UUID> type = new AtomicReference<>();
             Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(descriptionType,
                   DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(semanticChronlogy ->
@@ -1545,20 +1481,20 @@ public class Frills
     * {@link MetaData#REGULAR_NAME_DESCRIPTION_TYPE____SOLOR} or
     * {@link MetaData#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR} or
     * {@link MetaData#DEFINITION_DESCRIPTION_TYPE____SOLOR}
-    * @param stamp - optional - if not provided gets the default from the config service
+    * @param stampFilter - optional - if not provided gets the default from the config service
     * @return the descriptions - may be empty, will not be null
     */
    public static List<DescriptionVersion> getDescriptionsOfType(int conceptNid,
-         ConceptSpecification descriptionType,
-         StampCoordinate stamp) {
+                                                                ConceptSpecification descriptionType,
+                                                                StampFilter stampFilter) {
       final ArrayList<DescriptionVersion> results = new ArrayList<>();
 
       Get.assemblageService()
          .getSemanticChronologyStreamForComponent(conceptNid)
          .forEach(descriptionC -> {
                 if (descriptionC.getVersionType() == VersionType.DESCRIPTION) {
-                   final LatestVersion<DescriptionVersion> latest = ((SemanticChronology) descriptionC).getLatestVersion((stamp == null)? 
-                         Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp);
+                   final LatestVersion<DescriptionVersion> latest = ((SemanticChronology) descriptionC).getLatestVersion((stampFilter == null)?
+                         Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter);
 
                    if (latest.isPresentAnd(dv -> dv.getDescriptionTypeConceptNid() == descriptionType.getNid())) {
                          results.add(latest.get());
@@ -1570,14 +1506,14 @@ public class Frills
    
    /**
     * Get a list of all "extended" description types - the children of {@link MetaData#DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR}
-    * @param stamp - optional - defaults to system default if not provided
+    * @param stampFilter - optional - defaults to system default if not provided
     * @return the list of extended description types
     * @throws IOException
     */
-   public static List<SimpleDisplayConcept> getExtendedDescriptionTypes(StampCoordinate stamp) throws IOException {
+   public static List<SimpleDisplayConcept> getExtendedDescriptionTypes(StampFilter stampFilter) throws IOException {
       Set<Integer> extendedDescriptionTypes;
       ArrayList<SimpleDisplayConcept> temp = new ArrayList<>();
-      extendedDescriptionTypes = Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getNid(), true, true, stamp);
+      extendedDescriptionTypes = Frills.getAllChildrenOfConcept(MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getNid(), true, true, stampFilter);
       for (Integer seq : extendedDescriptionTypes) {
          temp.add(new SimpleDisplayConcept(seq));
       }
@@ -1600,7 +1536,7 @@ public class Frills
    /**
     * @param id String identifier may parse to int NID, int sequence or UUID
     * 
-    * Calls {@link #getIdInfo(String, StampCoordinate, LanguageCoordinate)} with development latest and US English FSN
+    * Calls {@link #getIdInfo(String, StampFilter, LanguageCoordinate)} with development latest and US English FSN
     * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
     * 
     * This method should only be used for logging. The returned data structure is not meant to be parsed.
@@ -1608,32 +1544,31 @@ public class Frills
    private static IdInfo getIdInfo(String id) {
       return getIdInfo(
           id,
-          StampCoordinates.getDevelopmentLatest(),
-          LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate());
+              Coordinates.Filter.DevelopmentLatest(), Coordinates.Language.UsEnglishFullyQualifiedName());
    }
    /**
     * @param id int identifier
-    * @param sc
+    * @param stampFilter
     * @param lc
-    * calls {@link #getIdInfo(int, StampCoordinate, LanguageCoordinate)}
+    * calls {@link #getIdInfo(int, StampFilter, LanguageCoordinate)}
     * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
     * 
     * This method should only be used for logging. The returned data structure is not meant to be parsed.
     */
-   private static IdInfo getIdInfo(int id, StampCoordinate sc, LanguageCoordinate lc) {
-      return getIdInfo(Integer.toString(id), sc, lc);
+   private static IdInfo getIdInfo(int id, StampFilter stampFilter, LanguageCoordinate lc) {
+      return getIdInfo(Integer.toString(id), stampFilter, lc);
    }
 
    /**
     * 
+    * @param languageCoordinate the language coordinate to use, when looking up descriptions.  Uses us english, if not provided.
     * @param id String identifier may parse to int NID, or UUID
-    * @param stampCoordinate The stamp coordinate to use, when looking up descriptions - uses dev latest if not passed
-    * @param lc the language coordinate to use, when looking up descriptions.  Uses us english, if not provided.
+    * @param stampFilter The stamp coordinate to use, when looking up descriptions - uses dev latest if not passed
     * @return a IdInfo, the toString() for which will display known identifiers and descriptions associated with the passed id
     * 
     * This method should only be used for logging. The returned data structure is not meant to be parsed.
     */
-   private static IdInfo getIdInfo(String id, final StampCoordinate stampCoordinate, final LanguageCoordinate languageCoordinate) {
+   private static IdInfo getIdInfo(String id, final StampFilter stampFilter, final LanguageCoordinate languageCoordinate) {
       Map<String, Object> idInfo = new HashMap<>();
 
       Long sctId = null;
@@ -1641,9 +1576,9 @@ public class Frills
       UUID[] uuids = null;
       IsaacObjectType typeOfPassedId = null;
       
-      StampCoordinate sc = stampCoordinate == null ? StampCoordinates.getDevelopmentLatest() : stampCoordinate; 
+      StampFilter sc = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
       
-      LanguageCoordinate lc = languageCoordinate == null ? LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate() : languageCoordinate; 
+      LanguageCoordinate lc = languageCoordinate == null ? Coordinates.Language.UsEnglishFullyQualifiedName() : languageCoordinate;
 
       try {
          OptionalInt intId = NumericUtils.getInt(id);
@@ -1670,7 +1605,7 @@ public class Frills
          }
 
          if (nid != null) {
-            idInfo.put("DESC", Get.conceptService().getSnapshot(new ManifoldCoordinateImpl(sc, lc)).conceptDescriptionText(nid));
+            idInfo.put("DESC", Get.conceptService().getSnapshot(ManifoldCoordinateImmutable.makeStated(sc, lc)).conceptDescriptionText(nid));
             if (typeOfPassedId == IsaacObjectType.CONCEPT) {
                Optional<Long> optSctId = Frills.getSctId(nid, sc);
                if (optSctId.isPresent()) {
@@ -1741,32 +1676,32 @@ public class Frills
     *
     * @param id The int sequence or NID of the Concept for which the logic graph is requested
     * @param stated boolean indicating stated vs inferred definition chronology should be used
-    * @param stampCoordinate The StampCoordinate for which the logic graph is requested
+    * @param stampFilter The StampCoordinate for which the logic graph is requested
     * @param languageCoordinate The LanguageCoordinate for which the logic graph is requested
     * @param logicCoordinate the LogicCoordinate for which the logic graph is requested
     * @return An Optional containing a LogicGraphVersion SemanticChronology
     */
    public static Optional<SemanticChronology> getLogicGraphChronology(int id,
-         boolean stated,
-         StampCoordinate stampCoordinate,
-         LanguageCoordinate languageCoordinate,
-         LogicCoordinate logicCoordinate) {
+                                                                      boolean stated,
+                                                                      StampFilter stampFilter,
+                                                                      LanguageCoordinate languageCoordinate,
+                                                                      LogicCoordinate logicCoordinate) {
       LOG.debug("Getting {} logic graph chronology for {}", (stated ? "stated" : "inferred"), 
-            Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
+            Optional.ofNullable(Frills.getIdInfo(id, stampFilter, languageCoordinate)));
 
       final Optional<SemanticChronology> defChronologyOptional = stated ? getStatedDefinitionChronology(id, logicCoordinate)
             : getInferredDefinitionChronology(id, logicCoordinate);
 
       if (defChronologyOptional.isPresent()) {
          LOG.debug("Got {} logic graph chronology for {}", (stated ? "stated": "inferred"), 
-               Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
+               Optional.ofNullable(Frills.getIdInfo(id, stampFilter, languageCoordinate)));
 
          final SemanticChronology semanticChronology = (SemanticChronology) defChronologyOptional.get();
 
          return Optional.of(semanticChronology);
       } else {
          LOG.debug("NO {} logic graph chronology for {}", (stated ? "stated" : "inferred"), 
-               Optional.ofNullable(Frills.getIdInfo(id, stampCoordinate, languageCoordinate)));
+               Optional.ofNullable(Frills.getIdInfo(id, stampFilter, languageCoordinate)));
          return Optional.empty();
       }
    }
@@ -1775,17 +1710,17 @@ public class Frills
     * Gets the logic graph version.
     *
     * @param logicGraphSemanticChronology The SemanticChronology chronology for which the logic graph version is requested
-    * @param stampCoordinate StampCoordinate to be used for selecting latest version
+    * @param stampFilter StampCoordinate to be used for selecting latest version
     * @return An Optional containing a LogicGraphVersion SemanticChronology
     */
    public static LatestVersion<LogicGraphVersion> getLogicGraphVersion(
-         SemanticChronology logicGraphSemanticChronology,
-         StampCoordinate stampCoordinate) {
+           SemanticChronology logicGraphSemanticChronology,
+           StampFilter stampFilter) {
       LOG.debug("Getting logic graph semantic for {}",
           Optional.ofNullable(Frills.getIdInfo(logicGraphSemanticChronology.getReferencedComponentNid())));
 
       final LatestVersion<LogicGraphVersion> latest = ((SemanticChronology) logicGraphSemanticChronology).getLatestVersion(
-                                                                stampCoordinate);
+              stampFilter);
 
       if (latest.isPresent()) {
          LOG.debug("Got logic graph semantic for {}",
@@ -1945,12 +1880,12 @@ public class Frills
     * Find the SCTID for a component (if it has one).
     *
     * @param componentNid the component nid
-    * @param stamp - optional - if not provided uses default from config
+    * @param stampFilter - optional - if not provided uses default from config
     * service
     * @return the id, if found, or empty (will not return null)
     */
-   public static Optional<Long> getSctId(int componentNid, StampCoordinate stamp) {
-     Optional<String> s = getAltId(MetaData.SCTID____SOLOR.getNid(), componentNid, stamp);
+   public static Optional<Long> getSctId(int componentNid, StampFilter stampFilter) {
+     Optional<String> s = getAltId(MetaData.SCTID____SOLOR.getNid(), componentNid, stampFilter);
      if (s.isPresent()) {
         return Optional.of(Long.parseLong(s.get()));
      }
@@ -1960,15 +1895,15 @@ public class Frills
    /**
     * Find the alt id for a component (if it has one).
     * 
-    * @param idType The type you are looking for - should be a child of {@link MetaData#IDENTIFIER_SOURCE____SOLOR} 
+    * @param idType The type you are looking for - should be a child of {@link MetaData#IDENTIFIER_SOURCE____SOLOR}
     * @param componentNid the concept or semantic to look at
-    * @param stamp (optional) the stamp to use for readback, uses the system default, if not provided.
-    * @return 
+    * @param stampFilter (optional) the stamp to use for readback, uses the system default, if not provided.
+    * @return
     */
-   public static Optional<String> getAltId(int idType, int componentNid, StampCoordinate stamp) {
+   public static Optional<String> getAltId(int idType, int componentNid, StampFilter stampFilter) {
       try {
          final List<LatestVersion<StringVersionImpl>> semantic = Get.assemblageService()
-               .getSnapshot(StringVersionImpl.class, (stamp == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stamp)
+               .getSnapshot(StringVersionImpl.class, (stampFilter == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter)
                .getLatestSemanticVersionsForComponentFromAssemblage(componentNid, idType);
 
          if (semantic.size() > 0 && semantic.get(0).isPresent()) {
@@ -2023,21 +1958,24 @@ public class Frills
     * Construct a stamp coordinate from an existing stamp coordinate, and the path from the edit coordinate, ensuring that the returned
     * stamp coordinate includes the module edit coordinate.
     *
-    * @param stampCoordinate - optional - used to fill in the stamp details not available from the edit coordinate.  If not provided,
+    * @param stampFilter - optional - used to fill in the stamp details not available from the edit coordinate.  If not provided,
     * uses the system defaults.
     * @param editCoordinate - ensure that the returned stamp coordinate includes the module and path from this edit coordinate.
     * @return a new stamp coordinate
     */
-   public static StampCoordinate getStampCoordinateFromEditCoordinate(final StampCoordinate stampCoordinate,
-         EditCoordinate editCoordinate) {
-      StampCoordinate scLocal = stampCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getStampCoordinate() : stampCoordinate;
+   public static StampFilter getStampCoordinateFromEditCoordinate(final StampFilter stampFilter,
+                                                                  EditCoordinate editCoordinate) {
+      StampFilter scLocal = stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter;
 
-      final StampPosition stampPosition = new StampPositionImpl(scLocal.getStampPosition().getTime(), editCoordinate.getPathNid());
-      final StampCoordinateImpl temp = new StampCoordinateImpl(scLocal.getStampPrecedence(), stampPosition, scLocal.getModuleSpecifications(), 
-            new ArrayList<>(), scLocal.getAllowedStates());
+      final StampPosition stampPosition = StampPositionImmutable.make(scLocal.getStampPosition().getTime(), editCoordinate.getPathNid());
+      StampFilter temp = StampFilterImmutable.make(scLocal.getAllowedStates(), stampPosition, scLocal.getModuleNids(),
+            IntLists.immutable.empty());
 
       if (temp.getModuleNids().size() > 0) {
-         temp.getModuleNids().add(editCoordinate.getModuleNid());
+         MutableIntSet moduleNids = IntSets.mutable.of(temp.getModuleNids().toArray());
+         moduleNids.add(editCoordinate.getModuleNid());
+         temp = StampFilterImmutable.make(scLocal.getAllowedStates(), stampPosition, moduleNids.toImmutable(),
+                 IntLists.immutable.empty());
       }
 
       return temp;
@@ -2046,36 +1984,34 @@ public class Frills
    /**
     * Gets the stamp coordinate from stamp.
     *
-    * @param stamp Stamp from which to generate StampCoordinate
-    * @return StampCoordinate corresponding to Stamp values
+    * @param stamp Filter from which to generate StampCoordinate
+    * @return StampCoordinate corresponding to Filter values
     *
     * StampPrecedence set to StampPrecedence.TIME
     *
     * Use StampCoordinate.makeCoordinateAnalog() to customize result
     */
-   public static StampCoordinate getStampCoordinateFromStamp(Stamp stamp) {
+   public static StampFilter getStampCoordinateFromStamp(Stamp stamp) {
       return getStampCoordinateFromStamp(stamp, StampPrecedence.TIME);
    }
 
    /**
     * Gets the stamp coordinate from stamp.
     *
-    * @param stamp Stamp from which to generate StampCoordinate
+    * @param stamp Filter from which to generate StampCoordinate
     * @param precedence Precedence to assign StampCoordinate
-    * @return StampCoordinate corresponding to Stamp values
+    * @return StampCoordinate corresponding to Filter values
     *
     * Use StampCoordinate.makeCoordinateAnalog() to customize result
     */
-   public static StampCoordinate getStampCoordinateFromStamp(Stamp stamp, StampPrecedence precedence) {
-      final StampPosition stampPosition = new StampPositionImpl(stamp.getTime(), stamp.getPathNid());
-      final StampCoordinate stampCoordinate = new StampCoordinateImpl(
-                                                  precedence,
-                                                        stampPosition,
-                                                        Arrays.asList(new ConceptSpecification[] { Get.conceptSpecification(stamp.getModuleNid())}),
-                                                        new ArrayList<>(),
-                                                        EnumSet.of(stamp.getStatus()));
+   public static StampFilter getStampCoordinateFromStamp(Stamp stamp, StampPrecedence precedence) {
+      final StampPosition stampPosition = StampPositionImmutable.make(stamp.getTime(), stamp.getPathNid());
+      final StampFilter stampCoordinate = StampFilterImmutable.make(StatusSet.of(stamp.getStatus()),
+              stampPosition,
+              IntSets.immutable.of(stamp.getModuleNid()),
+              IntLists.immutable.empty());
 
-      LOG.debug("Created StampCoordinate from Stamp: " + stamp + ": " + stampCoordinate);
+      LOG.debug("Created StampCoordinate from Filter: " + stamp + ": " + stampCoordinate);
       return stampCoordinate;
    }
 
@@ -2089,7 +2025,7 @@ public class Frills
     *
     * Use StampCoordinate.makeCoordinateAnalog() to customize result
     */
-   public static StampCoordinate getStampCoordinateFromVersion(StampedVersion version) {
+   public static StampFilter getStampCoordinateFromVersion(StampedVersion version) {
       return getStampCoordinateFromVersion(version, StampPrecedence.TIME);
    }
 
@@ -2102,14 +2038,12 @@ public class Frills
     *
     * Use StampCoordinate.makeCoordinateAnalog() to customize result
     */
-   public static StampCoordinate getStampCoordinateFromVersion(StampedVersion version, StampPrecedence precedence) {
-      final StampPosition stampPosition = new StampPositionImpl(version.getTime(), version.getPathNid());
-      final StampCoordinate stampCoordinate = new StampCoordinateImpl(
-                                                  precedence,
-                                                        stampPosition,
-                                                        Arrays.asList(new ConceptSpecification[] { Get.conceptSpecification(version.getModuleNid())}),
-                                                        new ArrayList<>(),
-                                                        EnumSet.of(version.getStatus()));
+   public static StampFilter getStampCoordinateFromVersion(StampedVersion version, StampPrecedence precedence) {
+      final StampPosition stampPosition = StampPositionImmutable.make(version.getTime(), version.getPathNid());
+      final StampFilter stampCoordinate = StampFilterImmutable.make(StatusSet.of(version.getStatus()),
+              stampPosition,
+              IntSets.immutable.of(version.getModuleNid()),
+              IntLists.immutable.empty());
 
       LOG.debug("Created StampCoordinate from StampedVersion: " + toString(version) + ": " + stampCoordinate);
       return stampCoordinate;
@@ -2132,23 +2066,23 @@ public class Frills
     * set of concept nids.
     * 
     * @param oc the concept to read modules for
-    * @param stamp optional - if null, return the modules ignoring coordinates.  If not null, only return modules visible on the given coordinate
+    * @param stampFilter optional - if null, return the modules ignoring coordinates.  If not null, only return modules visible on the given coordinate
     * @return the types
     */
-   public static HashSet<Integer> getTerminologyTypes(ConceptChronology oc, StampCoordinate stamp) {
+   public static HashSet<Integer> getTerminologyTypes(ConceptChronology oc, StampFilter stampFilter) {
       HashSet<Integer> modules = new HashSet<>();
       HashSet<Integer> terminologyTypes = new HashSet<>();
       
-      if (stamp == null) {
+      if (stampFilter == null) {
          for (int stampSequence : oc.getVersionStampSequences()) {
             modules.add(Get.stampService().getModuleNidForStamp(stampSequence));
          }
       } else {
          oc.getVersionList().stream().filter(version -> {
-            return stamp.getAllowedStates().contains(version.getStatus())
-                  && (stamp.getModuleNids().size() == 0 ? true : stamp.getModuleNids().contains(version.getModuleNid())
-                  && (version.getTime() <= stamp.getStampPosition().getTime())
-                  && (version.getPathNid() == stamp.getStampPosition().getPathNid()));
+            return stampFilter.getAllowedStates().contains(version.getStatus())
+                  && (stampFilter.getModuleNids().size() == 0 ? true : stampFilter.getModuleNids().contains(version.getModuleNid())
+                  && (version.getTime() <= stampFilter.getStampPosition().getTime())
+                  && (version.getPathNid() == stampFilter.getStampPosition().getPathForPositionNid()));
          }).forEach(version -> {
             modules.add(version.getModuleNid());
          });
@@ -2156,10 +2090,10 @@ public class Frills
 
       for (int moduleNid : modules) {
          try {
-            terminologyTypes.add(getTerminologyTypeForModule(moduleNid, stamp));
+            terminologyTypes.add(getTerminologyTypeForModule(moduleNid, stampFilter));
          }
          catch (Exception e) {
-            LOG.error("Error reading terminology type for: {} with stamp: {}.  The error is: {}", oc, stamp, e);
+            LOG.error("Error reading terminology type for: {} with stamp: {}.  The error is: {}", oc, stampFilter, e);
          }
       }
       return terminologyTypes;
@@ -2169,14 +2103,14 @@ public class Frills
     * For a given module concept, walk up the module hierarchy, and return the terminology type concept that represents the module, 
     * which would be a module concept that is a direct child on {@link MetaData#MODULE____SOLOR}
     * @param module the module to look up
-    * @param stamp - optional - uses default if not provided.  If provided, and doesn't include the metadata modules, it will use a modified stamp
+    * @param stampFilter - optional - uses default if not provided.  If provided, and doesn't include the metadata modules, it will use a modified stamp
     * that includes the metadata module, since that module is required to read the module hierarchy.
     * @return the terminology type module
     */
-   public static int getTerminologyTypeForModule(int module, StampCoordinate stamp)
+   public static int getTerminologyTypeForModule(int module, StampFilter stampFilter)
    {
       Integer temp = (MODULE_TO_TERM_TYPE_CACHE.get(module, mNid -> {
-          return findTermTypeConcept(module, stamp);
+          return findTermTypeConcept(module, stampFilter);
         }));
         if (temp == null) {
            throw new RuntimeException("The passed in module '" + module + " " + Get.conceptDescriptionText(module) +  " ' was not a child of MODULE (SOLOR)");
@@ -2256,25 +2190,25 @@ public class Frills
    /**
     * Find the VUID for a component (if it has one)
     * 
-    * Calls {@link #getVuId(int, StampCoordinate)} with a null (default) stamp coordinate
+    * Calls {@link #getVuId(int, StampFilter)} with a null (default) stamp coordinate
     *
     * @param componentNid
     * @return the id, if found, or empty (will not return null)
     */
    public static Optional<Long> getVuId(int componentNid) {
-      return getVuId(componentNid, null);
+      return getVuId(componentNid, Coordinates.Filter.DevelopmentLatest());
    }
 
    /**
     * Find the VUID for a component (if it has one).
     *
     * @param componentNid the component nid
-    * @param stamp - optional - if not provided uses default from config service
+    * @param stampFilter - optional - if not provided uses default from config service
     * @return the id, if found, or empty (will not return null)
     */
-   public static Optional<Long> getVuId(int componentNid, StampCoordinate stamp) {
+   public static Optional<Long> getVuId(int componentNid, StampFilter stampFilter) {
       
-        Optional<String> s = getAltId(MetaData.VUID____SOLOR.getNid(), componentNid, stamp);
+        Optional<String> s = getAltId(MetaData.VUID____SOLOR.getNid(), componentNid, stampFilter);
         if (s.isPresent()) {
            return Optional.of(Long.parseLong(s.get()));
         }
@@ -2296,13 +2230,15 @@ public class Frills
       }
 
       // StampCoordinate with LATEST ACTIVE_ONLY from all VHAT modules
-      final StampPosition stampPosition = new StampPositionImpl(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
-      final Set<Integer> vhatModules = Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true, null);
-      final Set<ConceptSpecification> vhatModulesConceptSpecSet = new HashSet<>();
-      vhatModules.forEach((moduleNid) -> {
-          vhatModulesConceptSpecSet.add(Get.conceptSpecification(moduleNid));
-       });
-      final StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH, stampPosition, vhatModulesConceptSpecSet, new ArrayList<>(), Status.ACTIVE_ONLY_SET);
+      final StampPosition stampPosition = StampPositionImmutable.make(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid());
+      final ImmutableIntSet vhatModules = IntSets.immutable.of(
+              Frills.getAllChildrenOfConcept(MetaData.VHAT_MODULES____SOLOR.getNid(), true, true, Coordinates.Filter.DevelopmentLatest())
+                      .stream().mapToInt(value -> value).toArray());
+
+      final StampFilter stampCoordinate = StampFilterImmutable.make(StatusSet.ACTIVE_ONLY,
+              stampPosition,
+              vhatModules,
+              IntLists.immutable.empty());
 
       final Set<Integer> matchingVuidSemanticNids = new HashSet<>();
 

@@ -17,7 +17,6 @@
 package sh.komet.gui.cell.table;
 
 import javafx.scene.control.TableRow;
-import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.komet.gui.manifold.Manifold;

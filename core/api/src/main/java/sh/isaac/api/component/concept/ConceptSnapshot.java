@@ -75,7 +75,6 @@ public interface ConceptSnapshot
     */
    boolean containsActiveDescription(String descriptionText);
 
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the chronology.
@@ -92,23 +91,13 @@ public interface ConceptSnapshot
    Set<? extends StampedVersion> getContradictions();
 
    /**
-    * This method will try first to return a description that matches the manifold 
-    * language coordinate preferences.  If that fails, it will attempt to return a 
-    * fully specified description, next the preferred description, finally any description 
-    * if there is no preferred or fully specified description that satisfies the {@code StampCoordinate} and the
-    * {@code LanguageCoordinate} of this snapshot.
-    * @return a description for this concept.
-    */
-   DescriptionVersion getDescription();
-
-   /**
     * Gets the fully specified description.
     *
     * @return The fully specified description for this concept. Optional in case
     * there is no description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   LatestVersion<DescriptionVersion> getFullySpecifiedDescription();
+   LatestVersion<DescriptionVersion> getFullyQualifiedDescription();
    
    /**
     * Gets the fully specified description text.
@@ -118,7 +107,7 @@ public interface ConceptSnapshot
     * {@code LanguageCoordinate} of this snapshot.
     */
    default LatestVersion<String> getFullySpecifiedDescriptionText() {
-       LatestVersion<DescriptionVersion> latest = getFullySpecifiedDescription();
+       LatestVersion<DescriptionVersion> latest = getFullyQualifiedDescription();
        if (latest.isPresent()) {
            return LatestVersion.of(latest.get().getText());
        }
@@ -203,7 +192,7 @@ public interface ConceptSnapshot
        List<LatestVersion<V>> semanticList = new ArrayList<>(semanticNids.size());
        for (int semanticNid: semanticNids.asArray()) {
            SemanticChronology chronology = Get.assemblageService().getSemanticChronology(semanticNid);
-           LatestVersion<V> latestVersion = chronology.getLatestVersion(this);
+           LatestVersion<V> latestVersion = chronology.getLatestVersion(this.getStampFilter());
            if (latestVersion.isPresent()) {
                semanticList.add(latestVersion);
            }
@@ -223,7 +212,7 @@ public interface ConceptSnapshot
        NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(getNid(), assemblageConceptNid);
        for (int semanticNid: semanticNids.asArray()) {
            SemanticChronology chronology = Get.assemblageService().getSemanticChronology(semanticNid);
-           LatestVersion<V> latestVersion = chronology.getLatestVersion(this);
+           LatestVersion<V> latestVersion = chronology.getLatestVersion(this.getStampFilter());
            if (latestVersion.isPresent()) {
                return latestVersion;
            }

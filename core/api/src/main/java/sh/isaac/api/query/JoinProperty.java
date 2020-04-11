@@ -45,7 +45,7 @@ public class JoinProperty {
 
     @Override
     public String toString() {
-        return manifold.getPreferredDescriptionText(assemblageSpec) + ": " + manifold.getPreferredDescriptionText(fieldSpec);
+        return manifold.getVertexLabel(assemblageSpec) + ": " + manifold.getVertexLabel(fieldSpec);
     }
 
     @Override

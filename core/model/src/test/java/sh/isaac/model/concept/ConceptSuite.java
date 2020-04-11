@@ -69,12 +69,12 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinateImmutable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.memory.HeapUseTicker;
 import sh.isaac.api.progress.ActiveTasksTicker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.builder.ConceptBuilderImpl;
-import sh.isaac.model.coordinate.LogicCoordinateImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -201,11 +201,12 @@ public class ConceptSuite {
       final int descriptionLogicProfileNid = TermAux.EL_PLUS_PLUS_LOGIC_PROFILE.getNid();
       final int                  classifierNid = TermAux.SNOROCKET_CLASSIFIER.getNid();
       final int                  conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
-      final LogicCoordinate defaultLogicCoordinate = new LogicCoordinateImpl(statedAssemblageNid,
-                                                                             inferredAssemblageNid,
-                                                                             descriptionLogicProfileNid,
-                                                                             classifierNid, 
-                                                                             conceptAssemblageNid);
+      final int digraphIdentityNid = TermAux.EL_PLUS_PLUS_DIGRAPH.getNid();
+
+      final LogicCoordinate defaultLogicCoordinate = LogicCoordinateImmutable.make(classifierNid,
+              descriptionLogicProfileNid, inferredAssemblageNid,
+              statedAssemblageNid, conceptAssemblageNid,digraphIdentityNid);
+
       final ConceptBuilderImpl testConceptBuilder = new ConceptBuilderImpl(conceptName,
                                                                                      semanticTag,
                                                                                      null,

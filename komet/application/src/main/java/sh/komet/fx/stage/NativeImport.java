@@ -49,7 +49,7 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
 //    private final ConcurrentHashMap<IsaacObjectType, Integer> cacheObjectTypeToNidMap = new ConcurrentHashMap<>();
 //    private final ConcurrentHashMap<VersionType, Integer> cacheVersionTypeToNidMap = new ConcurrentHashMap<>();
 //
-//    private final ConcurrentHashMap<Integer, Stamp> cacheStampSequenceToStampObjectMap = new ConcurrentHashMap<>();
+//    private final ConcurrentHashMap<Integer, Filter> cacheStampSequenceToStampObjectMap = new ConcurrentHashMap<>();
     public NativeImport(File importFile) {
         this.importFile = importFile;
         updateTitle("Native import from " + importFile.getName());
@@ -404,7 +404,7 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
         return encodeHexString(buffer.array());
     }
 
-    // Note: Import copy of PostgresStampProvider convertStampToBytes(Stamp stamp)
+    // Note: Import copy of PostgresStampProvider convertStampToBytes(Filter stamp)
     public byte[] convertStampToBytes(Stamp stamp) {
         ByteArrayDataBuffer srcData = new ByteArrayDataBuffer();
 

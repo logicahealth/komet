@@ -46,11 +46,12 @@ import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.roaringbitmap.IntConsumer;
 import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.Get;
@@ -64,7 +65,6 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.NodeStatus;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
-import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.api.util.time.DurationUtil;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.collections.IntObjectMap;
@@ -841,16 +841,17 @@ public class HashTreeWithIntArraySets
 
    /**
     * {@inheritDoc}
+    * @return
     */
    @Override
-   public final NidSet getDescendentNidSet(int parentNid) {
-      final NidSet descendentNids = new NidSet();
+   public final int[] getDescendentNids(int parentNid) {
+      final MutableIntSet descendentNids = IntSets.mutable.empty();
       if (this.parentNid_ChildNidSetArray_Map.containsKey(parentNid)) {
          getDescendentsRecursive(parentNid, descendentNids);
-         return descendentNids;
+         return descendentNids.toArray();
       }
 
-      return descendentNids;
+      return descendentNids.toArray();
    }
 
    /**
@@ -1007,7 +1008,7 @@ public class HashTreeWithIntArraySets
                          .append(" ")
                          .append(Get.conceptDescriptionText(nidToTest));
                } else {
-                  builder.append(manifoldCoordinate.getTaxonomyPremiseType()).append(" Cycle found: \n");
+                  builder.append(manifoldCoordinate.getPremiseType()).append(" Cycle found: \n");
 
                   if (cycleArray.length == 1) {
                      builder.append("\n   SELF REFERENCE");
@@ -1036,7 +1037,7 @@ public class HashTreeWithIntArraySets
     * @param parentNid the parentIndex nid
     * @param descendentNids the descendent nids
     */
-   private void getDescendentsRecursive(int parentNid, NidSet descendentNids) {
+   private void getDescendentsRecursive(int parentNid, MutableIntSet descendentNids) {
       if (this.parentNid_ChildNidSetArray_Map.containsKey(parentNid)) {
          for (final int childNid: this.parentNid_ChildNidSetArray_Map.get(parentNid)) {
             descendentNids.add(childNid);
@@ -1123,7 +1124,7 @@ public class HashTreeWithIntArraySets
          builder1.append("Root count != 1: ");
          builder1.append(roots.size());
          LOG.warn(builder1.toString());
-         final StringBuilder builder = new StringBuilder("Roots: \n");
+         final StringBuilder builder = new StringBuilder(manifoldCoordinate.toUserString() + " Roots: \n");
          int count = 0;
          for (int nid : roots.keys().elements()) {
             count++;
@@ -1134,7 +1135,7 @@ public class HashTreeWithIntArraySets
             printWatch(nid, "root: ");
          }
          String title = roots.size() + " " +
-                 manifoldCoordinate.getTaxonomyPremiseType().toString() + 
+                 manifoldCoordinate.getPremiseType().toString() +
                  " roots";
          if (roots.isEmpty()) {
             title = "No taxonomy roots";
@@ -1198,7 +1199,5 @@ public class HashTreeWithIntArraySets
         });
         return nodeNids;
     }
-   
-   
 }
 

@@ -39,9 +39,8 @@ public class PropertySheetPasswordWrapper implements PropertySheet.Item {
    }
 
    public PropertySheetPasswordWrapper(Manifold manifold,
-           StringProperty textProperty) {
-      this(manifold.getPreferredDescriptionText(new ConceptProxy(textProperty.getName()), 
-              ConceptSpecification.getNameFromExternalString(textProperty.getName())), 
+                                       StringProperty textProperty) {
+      this(manifold.getPreferredDescriptionText(new ConceptProxy(textProperty.getName())),
               textProperty);
    }
 

@@ -403,7 +403,7 @@ public abstract class ObservableVersionImpl
     }
 
     /**
-     * Stamp sequence property.
+     * Filter sequence property.
      *
      * @return the integer property
      */

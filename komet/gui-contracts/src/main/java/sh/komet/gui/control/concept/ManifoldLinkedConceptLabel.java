@@ -150,7 +150,7 @@ public class ManifoldLinkedConceptLabel
         conceptLoincCodeMenuItem.setOnAction((event) -> {
             Optional<ConceptChronology> concept = this.manifoldProperty.get().getOptionalFocusedConcept(selectionIndexProperty.get());
             if (concept.isPresent()) {
-                Optional<String> optionalLoincCode = Get.identifierService().getIdentifierFromAuthority(concept.get().getNid(), MetaData.LOINC_ID_ASSEMBLAGE____SOLOR, manifoldProperty.get());
+                Optional<String> optionalLoincCode = Get.identifierService().getIdentifierFromAuthority(concept.get().getNid(), MetaData.LOINC_ID_ASSEMBLAGE____SOLOR, manifoldProperty.get().getStampFilter());
 
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
@@ -168,7 +168,7 @@ public class ManifoldLinkedConceptLabel
         conceptSnomedCodeItem.setOnAction((event) -> {
             Optional<ConceptChronology> concept = this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
             if (concept.isPresent()) {
-                Optional<String> optionalSnomedCode = Get.identifierService().getIdentifierFromAuthority(concept.get().getNid(), MetaData.SCTID____SOLOR, manifoldProperty.get());
+                Optional<String> optionalSnomedCode = Get.identifierService().getIdentifierFromAuthority(concept.get().getNid(), MetaData.SCTID____SOLOR, manifoldProperty.get().getStampFilter());
 
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
@@ -362,13 +362,11 @@ public class ManifoldLinkedConceptLabel
         label.setText(EMPTY_TEXT);
     }
 
-    public static void setFullySpecifiedText(ManifoldLinkedConceptLabel label) {
+    public static void setFullyQualifiedText(ManifoldLinkedConceptLabel label) {
         
         if (label.manifoldProperty.get().getOptionalFocusedConcept(label.selectionIndexProperty.get()).isPresent()) {
             ConceptChronology focusedConcept = Get.concept(label.manifoldProperty.get().getOptionalFocusedConcept(label.selectionIndexProperty.get()).get());
-            label.manifoldProperty.get().getDescription(focusedConcept.getNid(), new int[] {
-                    MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid(), 
-                    MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid()})
+            label.manifoldProperty.get().getFullyQualifiedDescription(focusedConcept.getNid())
                     .ifPresent(label::setDescriptionText)
                     .ifAbsent(label::setEmptyText);
         } else {
@@ -379,9 +377,7 @@ public class ManifoldLinkedConceptLabel
     public static void setPreferredText(ManifoldLinkedConceptLabel label) {
         if (label.manifoldProperty.get().getOptionalFocusedConcept(label.selectionIndexProperty.get()).isPresent()) {
             ConceptChronology focusedConcept = Get.concept(label.manifoldProperty.get().getOptionalFocusedConcept(label.selectionIndexProperty.get()).get());
-            label.manifoldProperty.get().getDescription(focusedConcept.getNid(), new int[] {
-                  MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid(), 
-                  MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()})
+            label.manifoldProperty.get().getPreferredDescription(focusedConcept.getNid())
                     .ifPresent(label::setDescriptionText)
                     .ifAbsent(label::setEmptyText);
         } else {

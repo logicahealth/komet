@@ -23,11 +23,10 @@ import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.ConfigurationService;
-import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.RemoteServiceInfo;
+import sh.isaac.MetaData;
+import sh.isaac.api.*;
 import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.sync.MergeFailOption;
@@ -51,6 +50,7 @@ import java.nio.file.Path;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -205,6 +205,9 @@ public class KometBaseMenus implements MenuProvider {
                     Get.executor().submit(transformer);
                 });
 
+                MenuItem testGAE = new MenuItemWithText("Test GAE");
+                testGAE.setOnAction(this::testGAE);
+
                 MenuItem completeClassify = new MenuItemWithText("Complete classify");
                 completeClassify.setOnAction((ActionEvent event) -> {
                     //TODO change how we get the edit coordinate. 
@@ -226,12 +229,20 @@ public class KometBaseMenus implements MenuProvider {
 
                 return new MenuItem[]{
                     completeClassify, completeReindex, recomputeTaxonomy,
-                    transformSourcesFull, transformSourcesActiveOnly,
+                    transformSourcesFull, transformSourcesActiveOnly, testGAE
                 };
             }
         }
 
         return new MenuItem[]{};
+    }
+
+    private void testGAE(ActionEvent actionEvent) {
+        ConceptProxy gaeProxy = new ConceptProxy("Granulomatous amebic encephalitis (disorder)", UUID.fromString("8202f7c4-8390-3c72-96fa-a34d3d21c032"));
+        List<SemanticChronology> semanticChronologies = Get.assemblageService().getSemanticChronologiesForComponentFromAssemblage(gaeProxy.getNid(), MetaData.EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE____SOLOR.getNid());
+        for (SemanticChronology semanticChronology: semanticChronologies) {
+            Get.taxonomyService().updateTaxonomy(semanticChronology);
+        }
     }
 
     private void executeSctOwl(ActionEvent actionEvent) {
@@ -342,26 +353,27 @@ public class KometBaseMenus implements MenuProvider {
         File flworFile = fileChooser.showOpenDialog(null);
         if (flworFile != null) {
             try (FileReader reader = new FileReader(flworFile)) {
-                Query queryFromDisk = Query.fromXml(reader);
-
-                fileChooser.setTitle("Specify query result file");
-                fileChooser.setInitialFileName("results.txt");
-                File resultsFile = fileChooser.showSaveDialog(null);
-                
-                List<List<String>> results = queryFromDisk.executeQuery();
-                
-                try (FileWriter writer = new FileWriter(resultsFile, Charset.forName(StandardCharsets.UTF_8.name()))) {
-                    for (List<String> row: results) {
-                        for (int i = 0; i < row.size(); i++) {
-                            writer.append(row.get(i));
-                            if (i < row.size() -1) {
-                                writer.append("\t");
-                            } else {
-                                writer.append("\n");
-                            }
-                        }
-                    }
-                }
+                throw new UnsupportedOperationException();
+//                Query queryFromDisk = Query.fromXml(reader);
+//
+//                fileChooser.setTitle("Specify query result file");
+//                fileChooser.setInitialFileName("results.txt");
+//                File resultsFile = fileChooser.showSaveDialog(null);
+//
+//                List<List<String>> results = queryFromDisk.executeQuery();
+//
+//                try (FileWriter writer = new FileWriter(resultsFile, Charset.forName(StandardCharsets.UTF_8.name()))) {
+//                    for (List<String> row: results) {
+//                        for (int i = 0; i < row.size(); i++) {
+//                            writer.append(row.get(i));
+//                            if (i < row.size() -1) {
+//                                writer.append("\t");
+//                            } else {
+//                                writer.append("\n");
+//                            }
+//                        }
+//                    }
+//                }
 
             } catch (Throwable ex) {
                 FxGet.dialogs().showErrorDialog("Error importing " + flworFile.getName(), ex);

@@ -41,17 +41,7 @@ package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.List;
-
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
+import java.util.*;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -66,8 +56,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author kec
  */
-@XmlRootElement(name = "parent")
-@XmlAccessorType(value = XmlAccessType.NONE)
 public abstract class ParentClause
         extends Clause {
    /**
@@ -76,8 +64,6 @@ public abstract class ParentClause
     * used to compute the constructed
     * <code>Query</code>.
     */
-   @XmlElementWrapper(name = "child-clauses")
-   @XmlElement(name = "clause")
    private List<Clause> children = new ArrayList<>();
 
    //~--- constructors --------------------------------------------------------

@@ -1,35 +1,43 @@
 package sh.isaac.komet.batch.fxml;
 
+import javafx.application.Platform;
 import javafx.collections.MapChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Node;
 import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.FileChooser;
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.marshal.MarshalUtil;
-import sh.isaac.api.observable.ObservableChronology;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.isaac.api.observable.concept.ObservableConceptChronology;
+import sh.isaac.api.observable.coordinate.ObservablePathCoordinate;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.batch.ActionCell;
+import sh.isaac.komet.batch.VersionChangeListener;
 import sh.isaac.komet.batch.action.ActionFactory;
 import sh.isaac.komet.batch.action.ActionItem;
 import sh.isaac.komet.batch.action.CompositeAction;
+import sh.komet.gui.interfaces.ComponentList;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.UuidStringKey;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
-public class CompositeActionNodeController {
+public class CompositeActionNodeController implements VersionChangeListener {
 
 
     public static final String SOLOR_ACTION_FILE_EXT = ".saf";
@@ -38,6 +46,18 @@ public class CompositeActionNodeController {
 
     @FXML
     private URL location;
+
+    @FXML
+    private TitledPane specificationTitledPane;
+
+    @FXML
+    private AnchorPane affectedConceptsAnchorPane;
+
+    @FXML
+    private TitledPane affectedConceptsTitledPane;
+
+    @FXML
+    private TitledPane actionLogTitledPane;
 
     @FXML
     private ListView<ActionNodeController> actionListView;
@@ -81,6 +101,8 @@ public class CompositeActionNodeController {
 
     private File currentFile;
 
+    private ListViewNodeController listViewController;
+
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
         assert actionListView != null : "fx:id=\"actionListView\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
@@ -95,9 +117,9 @@ public class CompositeActionNodeController {
         assert saveButton != null : "fx:id=\"saveButton\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
 
         listChoiceBox.setItems(FxGet.componentListKeys());
-        viewKeyChoiceBox.getItems().setAll(FxGet.stampCoordinates().keySet());
-        FxGet.stampCoordinates().addListener((MapChangeListener<UuidStringKey, ObservableStampCoordinate>) change -> {
-            viewKeyChoiceBox.getItems().setAll(FxGet.stampCoordinates().keySet());
+        viewKeyChoiceBox.getItems().setAll(FxGet.pathCoordinates().keySet());
+        FxGet.pathCoordinates().addListener((MapChangeListener<UuidStringKey, ObservablePathCoordinate>) change -> {
+            viewKeyChoiceBox.getItems().setAll(FxGet.pathCoordinates().keySet());
         });
 
         //LetPropertySheet letPropertySheet = new LetPropertySheet();
@@ -134,6 +156,8 @@ public class CompositeActionNodeController {
             });
             addActionMenuButton.getItems().add(factoryItem);
         }
+
+        Platform.runLater(() -> specificationTitledPane.setExpanded(true));
     }
 
     void addAction(ActionItem actionItem) {
@@ -178,7 +202,7 @@ public class CompositeActionNodeController {
                     actionNodeController.setAction(manifold, actionItem);
                     actionListView.getItems().add(actionNodeController);
                 }
-            } catch (IOException | ReflectiveOperationException e) {
+            } catch (IOException e) {
                 FxGet.dialogs().showErrorDialog(e);
             }
         }
@@ -191,7 +215,7 @@ public class CompositeActionNodeController {
                 CompositeAction compositeAction = getCompositeAction();
                 currentFile.createNewFile();
                 MarshalUtil.toFile(compositeAction, currentFile);
-            } catch (IOException | ReflectiveOperationException e) {
+            } catch (IOException e) {
                 FxGet.dialogs().showErrorDialog(e);
             }
         } else {
@@ -217,11 +241,10 @@ public class CompositeActionNodeController {
                 this.actionNameField.setText(exportName);
                 this.currentFile = exportFile;
                 this.saveButton.setDisable(false);
-            } catch (IOException | ReflectiveOperationException e) {
+            } catch (IOException e) {
                 FxGet.dialogs().showErrorDialog(e);
             }
         }
-
     }
 
 
@@ -233,11 +256,7 @@ public class CompositeActionNodeController {
         commitButton.setDisable(false);
         cancelButton.setDisable(false);
 
-        Date date = new Date();
-        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
-
-        String timeString = formatter.format(date);
-
+        String timeString = DateTimeUtil.timeNowSimple();
         if (transaction == null) {
             this.transaction = Get.commitService().newTransaction(Optional.of(actionNameField.getText()
                     + " " + timeString), ChangeCheckerMode.ACTIVE);
@@ -245,21 +264,75 @@ public class CompositeActionNodeController {
 
         UuidStringKey stampKey = viewKeyChoiceBox.getSelectionModel().selectedItemProperty().getValue();
         if (stampKey == null) {
-            FxGet.dialogs().showErrorDialog("No Stamp selected",
+            FxGet.dialogs().showErrorDialog("No Filter selected",
                     "You must select a stamp coordinate to define the version eligible for promotion",
                     "The stamp coordinate is applied to a chronology to compute the latest version. " +
                             "Without the stamp coordinate, a promotion determination cannot be made. ");
             return;
         }
-        StampCoordinate stampCoordinate = FxGet.stampCoordinates().get(stampKey);
+        ObservablePathCoordinate pathCoordinate = FxGet.pathCoordinates().get(stampKey);
         EditCoordinate editCoordinate = FxGet.editCoordinate();
         if (listKey != null) {
-            CompositeAction compositeAction = getCompositeAction();
-            compositeAction.apply(FxGet.componentList(listKey).getComponents(), this.transaction,
-                    stampCoordinate, editCoordinate);
+            try {
+                this.affectedConceptsTitledPane.setText("affected concepts");
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/ListViewNode.fxml"));
+                Node root = loader.load();
+                this.listViewController = loader.getController();
+                Manifold listManifold = Manifold.get(Manifold.ManifoldGroup.LIST);
+
+                this.listViewController.setManifold(listManifold);
+                this.listViewController.nameProperty().setValue(this.actionNameField.getText() + " " + DateTimeUtil.nowWithZone());
+
+                AnchorPane.setTopAnchor(root, 1.0);
+                AnchorPane.setRightAnchor(root, 1.0);
+                AnchorPane.setBottomAnchor(root, 1.0);
+                AnchorPane.setLeftAnchor(root, 1.0);
+                this.affectedConceptsAnchorPane.getChildren().setAll(root);
+
+                CompositeAction compositeAction = getCompositeAction();
+                ComponentList componentList = FxGet.componentList(listKey);
+                compositeAction.apply(componentList.listSize(), componentList.getComponentStream(), this.transaction,
+                        pathCoordinate.getStampFilter(), editCoordinate, this);
+            } catch (IOException e) {
+                FxGet.dialogs().showErrorDialog(e);
+            }
         } else {
             FxGet.dialogs().showErrorDialog("No list selected", "You must select a list to apply the actions to",
                     "The actions are applied to a list of components. You must select a list to apply the actions to.");
+        }
+    }
+
+    @Override
+    public void versionChanged(Version oldValue, Version newValue) {
+        switch (newValue.getSemanticType()) {
+            case CONCEPT:
+                addAffectedConcept(newValue.getNid());
+                break;
+            default:
+                SemanticChronology sc = ((SemanticVersion) newValue).getChronology();
+                while (sc != null) {
+                    Optional<? extends Chronology> optionalReferencedComponent = Get.identifiedObjectService().getChronology(sc.getReferencedComponentNid());
+                    sc = null;
+                    if (optionalReferencedComponent.isPresent()) {
+                        Chronology referencedComponent = optionalReferencedComponent.get();
+                        if (referencedComponent.getVersionType() == VersionType.CONCEPT) {
+                            addAffectedConcept(referencedComponent.getNid());
+                        } else {
+                            sc = (SemanticChronology) referencedComponent;
+                        }
+                    }
+                }
+        }
+    }
+
+    private void addAffectedConcept(int conceptNid) {
+        if (this.listViewController != null) {
+            ObservableConceptChronology conceptChronology = Get.observableChronologyService().getObservableConceptChronology(conceptNid);
+            Platform.runLater(() -> {
+                this.listViewController.getItemList().add(conceptChronology);
+                int count = this.listViewController.getItemList().size();
+                this.affectedConceptsTitledPane.setText("affected concepts: " + count);
+            });
         }
     }
 

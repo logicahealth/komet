@@ -895,8 +895,12 @@ public class FileSystemDataStore
    {
       OptionalInt current = getAssemblageOfNid(nid);
       if (current.isPresent() && current.getAsInt() != assemblage) {
-           throw new IllegalArgumentException("The nid " + nid + " is already assigned to assemblage " 
-                   + current + " and cannot be reassigned to " + nid);
+          StringBuilder sb = new StringBuilder();
+          sb.append("The nid ").append(nid).append(" (").append(Get.identifierService().getUuidsForNid(nid)).append(") ");
+          sb.append(" is already assigned to assemblage ").append(current).append(" (").append(Get.identifierService().getUuidsForNid(current.getAsInt())).append(") ");
+          sb.append(" and cannot be reassigned to: ").append(assemblage).append(" (").append(Get.identifierService().getUuidsForNid(assemblage)).append(") ");
+
+           throw new IllegalArgumentException(sb.toString());
       }
       else {
          nidToAssemblageNidMap.put(nid,  assemblage);

@@ -23,7 +23,6 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
-import sh.komet.gui.util.FxGet;
 
 /**
  * Common methods for node factories

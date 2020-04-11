@@ -53,7 +53,6 @@ import java.util.UUID;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -62,7 +61,6 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.identity.StampedVersion;
-import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
@@ -97,10 +95,8 @@ public class ConceptSnapshotImpl
       this.conceptChronology  = conceptChronology;
       this.manifoldCoordinate    = manifoldCoordinate;
 
-      final LatestVersion<ConceptVersion> latestVersion =
-         RelativePositionCalculator.getCalculator(manifoldCoordinate)
-                                   .getLatestVersion(conceptChronology);
-
+      final LatestVersion<ConceptVersion> latestVersion = manifoldCoordinate.getStampFilter()
+              .getRelativePositionCalculator().getLatestVersion(conceptChronology);
       this.snapshotVersion = latestVersion;
    }
 
@@ -114,7 +110,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public boolean containsActiveDescription(String descriptionText) {
-      return this.conceptChronology.containsDescription(descriptionText, this.manifoldCoordinate);
+      return this.conceptChronology.containsDescription(descriptionText, this.manifoldCoordinate.getLanguageStampFilter());
    }
 
    /**
@@ -129,7 +125,7 @@ public class ConceptSnapshotImpl
 
    @Override
    public String toString() {
-      return this.getDescription().getText();
+      return this.getLanguageCoordinate().getAnyName(this.getNid(), this.getLanguageStampFilter());
    }
    //~--- get methods ---------------------------------------------------------
 
@@ -144,7 +140,12 @@ public class ConceptSnapshotImpl
                                  .getAuthorNid();
    }
 
-   /**
+    @Override
+    public int getPathNid() {
+        return this.snapshotVersion.get().getPathNid();
+    }
+
+    /**
     * Gets the chronology.
     *
     * @return the chronology
@@ -170,7 +171,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public String getFullyQualifiedName() {
-      return getLanguageCoordinate().getFullyQualifiedName(getNid(), getStampCoordinate()).orElse("No FQN description for: " + getNid());
+      return getLanguageCoordinate().getFullyQualifiedName(getNid(), getLanguageStampFilter()).orElse("No FQN description for: " + getNid());
    }
 
    /**
@@ -184,30 +185,14 @@ public class ConceptSnapshotImpl
    }
 
    /**
-    * {@inheritDoc}
-    */
-   @Override
-   public DescriptionVersion getDescription() {
-      LatestVersion<DescriptionVersion> optionalDescription = this.manifoldCoordinate.getDescription(conceptChronology.getConceptDescriptionList());
-      if (optionalDescription.isPresent()) {
-         return optionalDescription.get();
-      }
-      else {
-          //Use a coordinate that will return anything
-          return LanguageCoordinates.getFullyQualifiedCoordinate(false).getDescription(conceptChronology.getConceptDescriptionList(), this.manifoldCoordinate).get();
-       }
-   }
-
-   /**
     * Gets the fully specified description.
     *
     * @return the fully specified description
     */
    @Override
-   public LatestVersion<DescriptionVersion> getFullySpecifiedDescription() {
-      return this.manifoldCoordinate.getFullySpecifiedDescription(Get.assemblageService()
-            .getDescriptionsForComponent(getNid()),
-            this.manifoldCoordinate);
+   public LatestVersion<DescriptionVersion> getFullyQualifiedDescription() {
+      return getLanguageCoordinate().getFullyQualifiedDescription(getNid(),
+            getLanguageStampFilter());
    }
 
    /**
@@ -217,8 +202,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public int getModuleNid() {
-      return this.snapshotVersion.get()
-                                 .getModuleNid();
+      return this.snapshotVersion.get().getModuleNid();
    }
 
    /**
@@ -228,19 +212,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public int getNid() {
-      return this.snapshotVersion.get()
-                                 .getNid();
-   }
-
-   /**
-    * Gets the path nid.
-    *
-    * @return the path nid
-    */
-   @Override
-   public int getPathNid() {
-      return this.snapshotVersion.get()
-                                 .getPathNid();
+      return this.snapshotVersion.get().getNid();
    }
 
    /**
@@ -250,9 +222,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getPreferredDescription() {
-      return this.manifoldCoordinate.getPreferredDescription(Get.assemblageService()
-            .getDescriptionsForComponent(getNid()),
-            this.manifoldCoordinate);
+      return getLanguageCoordinate().getPreferredDescription(getNid(), getLanguageStampFilter());
    }
 
    /**
@@ -262,8 +232,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public UUID getPrimordialUuid() {
-      return this.snapshotVersion.get()
-                                 .getPrimordialUuid();
+      return this.snapshotVersion.get().getPrimordialUuid();
    }
 
    /**
@@ -273,8 +242,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public int getStampSequence() {
-      return this.snapshotVersion.get()
-                                 .getStampSequence();
+      return this.snapshotVersion.get().getStampSequence();
    }
 
    /**
@@ -284,8 +252,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public Status getStatus() {
-      return this.snapshotVersion.get()
-                                 .getStatus();
+      return this.snapshotVersion.get().getStatus();
    }
 
    /**
@@ -295,8 +262,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public long getTime() {
-      return this.snapshotVersion.get()
-                                 .getTime();
+      return this.snapshotVersion.get().getTime();
    }
 
    /**
@@ -306,79 +272,28 @@ public class ConceptSnapshotImpl
     */
    @Override
    public List<UUID> getUuidList() {
-      return this.snapshotVersion.get()
-                                 .getUuidList();
+      return this.snapshotVersion.get().getUuidList();
    }
    
 
    @Override
    public Optional<String> getRegularName() {
-     return getLanguageCoordinate().getRegularName(getNid(), getStampCoordinate());
-   }
-
-   @Override
-   public ManifoldCoordinate makeCoordinateAnalog(PremiseType taxonomyType) {
-      return this.manifoldCoordinate.makeCoordinateAnalog(taxonomyType);
-   }
-
-   @Override
-   public StampCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
-      return this.manifoldCoordinate.makeModuleAnalog(modules, add);
-   }
-
-    @Override
-    public StampCoordinate makePathAnalog(ConceptSpecification pathForPosition) {
-        return this.manifoldCoordinate.makePathAnalog(pathForPosition);
-    }
-
-    @Override
-   public PremiseType getTaxonomyPremiseType() {
-      return this.manifoldCoordinate.getTaxonomyPremiseType();
-   }
-
-   @Override
-   public UUID getCoordinateUuid() {
-      return this.manifoldCoordinate.getCoordinateUuid();
-   }
-
-   @Override
-   public StampCoordinate getStampCoordinate() {
-      return this.manifoldCoordinate;
+     return getLanguageCoordinate().getPreferredDescriptionText(getNid(), getLanguageStampFilter());
    }
 
    @Override
    public LanguageCoordinate getLanguageCoordinate() {
-      return this.manifoldCoordinate;
-   }
-
-   @Override
-   public Optional<? extends StampCoordinate> optionalDestinationStampCoordinate() {
-      return this.manifoldCoordinate.optionalDestinationStampCoordinate();
+      return this.manifoldCoordinate.getLanguageCoordinate();
    }
 
    @Override
    public LogicCoordinate getLogicCoordinate() {
-      return this.manifoldCoordinate;
+      return this.manifoldCoordinate.getLogicCoordinate();
    }
-
-   @Override
-   public ConceptSnapshotImpl deepClone() {
-      throw new UnsupportedOperationException();
-   }
-
-    @Override
-    public Optional<LanguageCoordinate> getNextPriorityLanguageCoordinate() {
-        return this.manifoldCoordinate.getNextPriorityLanguageCoordinate();
-    }
-
-    @Override
-    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
-        return this.manifoldCoordinate.getDefinitionDescription(descriptionList, stampCoordinate);
-    }
 
     @Override
     public LatestVersion<DescriptionVersion> getDefinition() {
-        return this.manifoldCoordinate.getDefinitionDescription(this.conceptChronology.getConceptDescriptionList(), manifoldCoordinate);
+        return this.manifoldCoordinate.getLanguageCoordinate().getDefinitionDescription(this.conceptChronology.getConceptDescriptionList(), getLanguageStampFilter());
     }
 
     @Override
@@ -386,7 +301,7 @@ public class ConceptSnapshotImpl
         List<SemanticChronology> descriptionChronologies = this.conceptChronology.getConceptDescriptionList();
         List<DescriptionVersion> versions = new ArrayList<>();
         for (SemanticChronology descriptionChronology: descriptionChronologies) {
-           LatestVersion<DescriptionVersion> latestVersion = descriptionChronology.getLatestVersion(manifoldCoordinate);
+           LatestVersion<DescriptionVersion> latestVersion = descriptionChronology.getLatestVersion(getLanguageStampFilter());
            latestVersion.ifPresent((dv) -> {
                versions.add(dv);
            });
@@ -395,58 +310,18 @@ public class ConceptSnapshotImpl
     }    
 
     @Override
-    public int[] getModulePreferenceListForLanguage() {
-        return this.manifoldCoordinate.getModulePreferenceListForLanguage();
+    public VertexSort getVertexSort() {
+        return this.manifoldCoordinate.getVertexSort();
     }
 
     @Override
-    public List<ConceptSpecification> getModulePreferenceOrderForVersions() {
-        return this.manifoldCoordinate.getModulePreferenceOrderForVersions();
+    public DigraphCoordinate getDigraph() {
+        return this.manifoldCoordinate.getDigraph();
     }
 
     @Override
-    public Set<ConceptSpecification> getModuleSpecifications() {
-        return this.manifoldCoordinate.getModuleSpecifications();
-    }
-
-    @Override
-    public ConceptSpecification getLanguageConcept() {
-        return this.manifoldCoordinate.getLanguageConcept();
-    }
-    
-    @Override
-    public ConceptSpecification[] getDialectAssemblageSpecPreferenceList() {
-        return manifoldCoordinate.getDialectAssemblageSpecPreferenceList();
-    }
-
-    @Override
-    public ConceptSpecification[] getDescriptionTypeSpecPreferenceList() {
-        return manifoldCoordinate.getDescriptionTypeSpecPreferenceList();
-    }
-
-    @Override
-    public ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
-        return manifoldCoordinate.getModuleSpecPreferenceListForLanguage();
-    }
-
-    @Override
-    public Set<ConceptSpecification> getAuthorSpecifications() {
-        return manifoldCoordinate.getAuthorSpecifications();
-    }
-
-    @Override
-    public NidSet getAuthorNids() {
-        return manifoldCoordinate.getAuthorNids();
-    }
-
-    @Override
-    public void putExternal(ByteArrayDataBuffer out) {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public StampCoordinateReadOnly getStampCoordinateReadOnly() {
-        return getStampCoordinate().getStampCoordinateReadOnly();
+    public StampFilter getStampFilter() {
+        return manifoldCoordinate.getStampFilter();
     }
 }
 
