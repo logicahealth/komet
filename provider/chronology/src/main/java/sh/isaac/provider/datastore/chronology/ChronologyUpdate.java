@@ -373,10 +373,16 @@ public class ChronologyUpdate implements StaticIsaacCache {
                     logicalExpression);
         }
 
+        TreeSet<LogicNode> retainedRoots = new TreeSet<>();
+        for (LogicNode relationshipRoot :isomorphicResults.getSharedRelationshipRoots()) {
+            retainedRoots.add(relationshipRoot);
+        }
+
         for (LogicNode relationshipRoot : isomorphicResults.getDeletedRelationshipRoots()) {
-            if (addedRoots.contains(relationshipRoot)) {
+            if (addedRoots.contains(relationshipRoot) || retainedRoots.contains(relationshipRoot)) {
                 continue;
             }
+
             final int activeStampSequence = node.getData()
                     .getStampSequence();
             final int stampSequence = Get.stampService()
@@ -391,6 +397,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
         }
 
     }
+
 
     /**
      * Update isa rel.
