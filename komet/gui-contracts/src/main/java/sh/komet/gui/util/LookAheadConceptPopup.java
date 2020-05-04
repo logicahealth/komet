@@ -411,7 +411,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 	{
 		if (css == null)
 		{
-			css = Get.conceptService().getSnapshot(manifoldCoord.get());
+			css = Get.conceptService().getSnapshot(manifoldCoord.get().toManifoldCoordinateImmutable());
 		}
 		return css.conceptDescriptionText(nid);
 	}

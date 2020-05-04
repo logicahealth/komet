@@ -2,6 +2,7 @@ package sh.isaac.api.coordinate;
 
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.primitive.ImmutableIntList;
+import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -12,10 +13,11 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.util.UUIDUtil;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 
-public interface StampFilter extends TimeBasedAnalogMaker<StampFilter>,
+public interface StampFilter extends StampFilterTemplate, TimeBasedAnalogMaker<StampFilter>,
         StateBasedAnalogMaker<StampFilter> {
 
     /**
@@ -31,7 +33,7 @@ public interface StampFilter extends TimeBasedAnalogMaker<StampFilter>,
         }
         UUIDUtil.addSortedUuids(uuidList, getStampPosition().getPathForPositionNid());
         UUIDUtil.addSortedUuids(uuidList, getModuleNids().toArray());
-        UUIDUtil.addSortedUuids(uuidList, getModulePreferenceOrder().toArray());
+        UUIDUtil.addSortedUuids(uuidList, getModulePriorityOrder().toArray());
         StringBuilder b = new StringBuilder();
         b.append(uuidList.toString());
         b.append(getStampPosition().getTime());
@@ -45,35 +47,19 @@ public interface StampFilter extends TimeBasedAnalogMaker<StampFilter>,
     }
 
     /**
-     * Determine what states should be included in results based on this
-     * stamp coordinate. If current—but inactive—versions are desired,
-     * the allowed states must include {@code Status.INACTIVE}
-     *
-     * @return the set of allowed states for results based on this stamp coordinate.
+     * Create a new Filter ImmutableCoordinate identical to the this coordinate, but with the modules modified.
+     * @param modules the new modules list.
+     * supplied modules should replace the existing modules
+     * @return the new path coordinate
      */
-    StatusSet getAllowedStates();
-
-    ImmutableIntSet getModuleNids();
+    StampFilter makeModuleAnalog(Collection<ConceptSpecification> modules);
 
     /**
-     * Gets the module preference list for versions. Used to adjudicate which component to
-     * return when more than one version is available. For example, if two modules
-     * have versions the same component, which one do you prefer to return?
-     * @return an unmodifiable module preference list for versions.
+     * Create a new Filter ImmutableCoordinate identical to the this coordinate, but with the path for position replaced.
+     * @param pathForPosition the new path for position
+     * @return the new path coordinate
      */
-
-    ImmutableIntList getModulePreferenceOrder();
-
-    /**
-     * Gets the module preference list for versions. Used to adjudicate which component to
-     * return when more than one version is available. For example, if two modules
-     * have versions the same component, which one do you prefer to return?
-     * @return an unmodifiable module preference list for versions.
-     */
-
-    default ImmutableList<ConceptSpecification> getModulePreferenceOrderSpecifications() {
-        return getModulePreferenceOrder().collect(nid -> Get.conceptSpecification(nid));
-    }
+    StampFilter makePathAnalog(ConceptSpecification pathForPosition);
 
     /**
      * Gets the stamp position.
@@ -106,10 +92,10 @@ public interface StampFilter extends TimeBasedAnalogMaker<StampFilter>,
         }
 
         builder.append("\n   module priorities: ");
-        if (this.getModulePreferenceOrder().isEmpty()) {
+        if (this.getModulePriorityOrder().isEmpty()) {
             builder.append("none ");
         } else {
-            builder.append(Get.conceptDescriptionTextList(this.getModulePreferenceOrder().toArray()))
+            builder.append(Get.conceptDescriptionTextList(this.getModulePriorityOrder().toArray()))
                     .append(" ");
         }
 
@@ -133,6 +119,6 @@ public interface StampFilter extends TimeBasedAnalogMaker<StampFilter>,
         } catch (NoSuchElementException e) {
             return new LatestVersion<>();
         }
-
     }
+
 }

@@ -37,7 +37,6 @@ public class PropertySheetStatusSetWrapper implements PropertySheet.Item {
 
     private final SetProperty<Status> statusSetProperty;
     private final String name;
-    private ConceptSpecification propertySpecification = null;
 
     public PropertySheetStatusSetWrapper(String name, SetProperty<Status> statusSetProperty) {
         if (statusSetProperty == null) {
@@ -51,12 +50,6 @@ public class PropertySheetStatusSetWrapper implements PropertySheet.Item {
                                          SetProperty<Status> statusSetProperty) {
         this(manifold.getPreferredDescriptionText(new ConceptProxy(statusSetProperty.getName())),
                 statusSetProperty);
-    }
-    public ConceptSpecification getSpecification() {
-        if (this.propertySpecification == null) {
-            this.propertySpecification = new ConceptProxy(this.statusSetProperty.getName());
-        }
-        return this.propertySpecification;
     }
 
     @Override

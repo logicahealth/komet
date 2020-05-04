@@ -75,8 +75,8 @@ public class Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
               .append(", str3: ").append(str3).append(" ")
               .append(", str4: ").append(str4).append(" ")
               .append(", str5: ").append(str5).append(" ")
-              .append(", nid6: ").append(Get.conceptDescriptionText(nid6))
-              .append(", nid7: ").append(Get.conceptDescriptionText(nid7))
+              .append(", nid6: ").append(Get.getTextForComponent(nid6))
+              .append(", nid7: ").append(Get.getTextForComponent(nid7))
               .append(Get.stampService()
                       .describeStampSequence(this.getStampSequence())).append("}");
       return builder;

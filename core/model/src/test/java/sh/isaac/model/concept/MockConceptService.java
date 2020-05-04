@@ -57,10 +57,9 @@ import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.IntSet;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptService;
-import sh.isaac.api.component.concept.ConceptSnapshotService;
-import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.concept.*;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.StampFilterImmutable;
 
 //~--- classes ----------------------------------------------------------------
@@ -232,7 +231,7 @@ public class MockConceptService
     * @return the sh.isaac.api.component.concept.ConceptSnapshotService
     */
    @Override
-   public ConceptSnapshotService getSnapshot(sh.isaac.api.coordinate.ManifoldCoordinate manifoldCoordinate) {
+   public ConceptSnapshotService getSnapshot(ManifoldCoordinateImmutable manifoldCoordinate) {
       throw new UnsupportedOperationException();
    }
 
@@ -271,5 +270,9 @@ public class MockConceptService
      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
+   @Override
+   public ConceptSnapshot getConceptSnapshot(int conceptNid, ManifoldCoordinate manifoldCoordinate) {
+      return null;
+   }
 }
 

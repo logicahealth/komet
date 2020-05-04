@@ -114,7 +114,7 @@ public interface ConceptBuilder
    ConceptBuilder setLogicalExpressionBuilder(LogicalExpressionBuilder logicalExpressionBuilder);
 
    /**
-    * Sets the primordial UUID from the given spect, adds any additional UUIDs from the given spec, and
+    * Sets the primordial UUID from the given spec, adds any additional UUIDs from the given spec, and
     * adds the description from the spec as an alternate synonym (if it differs from the current preferred term).
     *
     * @param conceptSpec the concept spec

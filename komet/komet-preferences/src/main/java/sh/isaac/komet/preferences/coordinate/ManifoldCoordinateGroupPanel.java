@@ -1,6 +1,5 @@
 package sh.isaac.komet.preferences.coordinate;
 
-import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.komet.preferences.ParentPanel;
@@ -12,11 +11,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 
-import static sh.isaac.komet.preferences.coordinate.LanguageCoordinateGroupPanel.US_ENGLISH_FQN_COORDINATE_KEY;
-import static sh.isaac.komet.preferences.coordinate.LanguageCoordinateGroupPanel.US_ENGLISH_PREFERRED_COORDINATE_KEY;
-import static sh.isaac.komet.preferences.coordinate.LogicCoordinateGroupPanel.EL_PROFILE_LOGIC_COORDINATE_KEY;
 import static sh.isaac.komet.preferences.coordinate.ManifoldCoordinateItemPanel.Keys.MANIFOLD_GROUP_UUID;
-import static sh.isaac.komet.preferences.coordinate.PathGroupPanel.DEVELOPMENT_PATH_COORDINATE_KEY;
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 
 public class ManifoldCoordinateGroupPanel extends ParentPanel {

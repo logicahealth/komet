@@ -1,14 +1,13 @@
 package sh.isaac.api.coordinate;
 
+import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.set.ImmutableSet;
-import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.StaticIsaacCache;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -16,10 +15,8 @@ import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 
 import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
-import java.util.Collection;
-import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 @RunLevel(value = LookupService.SL_L2)
@@ -31,7 +28,7 @@ public final class PathCoordinateImmutable implements PathCoordinate, ImmutableC
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
-    private static final int marshalVersion = 1;
+    private static final int marshalVersion = 2;
 
     public static final StampFilterImmutable getStampFilter(PathCoordinate pathCoordinate) {
         return StampFilterImmutable.make(StatusSet.ACTIVE_AND_INACTIVE,
@@ -41,7 +38,7 @@ public final class PathCoordinateImmutable implements PathCoordinate, ImmutableC
 
     private final int pathConceptNid;
 
-    private final ImmutableIntSet moduleNids;
+    private final ImmutableSet<StampPositionImmutable> pathOrigins;
 
     private final UUID pathCoordinateUuid;
 
@@ -52,9 +49,9 @@ public final class PathCoordinateImmutable implements PathCoordinate, ImmutableC
         // No arg constructor for HK2 managed instance
         // This instance just enables reset functionality...
         this.pathConceptNid = Integer.MAX_VALUE;
-        this.moduleNids = null;
         this.pathCoordinateUuid = null;
         this.pathStampFilter = null;
+        this.pathOrigins = null;
     }
 
     /**
@@ -69,21 +66,33 @@ public final class PathCoordinateImmutable implements PathCoordinate, ImmutableC
     /**
      *
      * @param pathConceptNid the concept that identifies this path
-     * @param moduleNids the module nids to include in the version
-     * computation.  If empty, all modules are allowed.
      */
     private PathCoordinateImmutable(int pathConceptNid,
-                                   ImmutableIntSet moduleNids) {
+                                    ImmutableSet<StampPositionImmutable> pathOrigins) {
         this.pathConceptNid = pathConceptNid;
-        this.moduleNids = moduleNids;
         this.pathCoordinateUuid = PathCoordinate.super.getPathCoordinateUuid();
         this.pathStampFilter = getStampFilter(this);
+        this.pathOrigins = pathOrigins;
     }
 
 
-    private PathCoordinateImmutable(ByteArrayDataBuffer data) {
+    private PathCoordinateImmutable(ByteArrayDataBuffer data, int objectMarshalVersion) {
         this.pathConceptNid = data.getNid();
-        this.moduleNids = IntSets.immutable.of(data.getNidArray());
+        switch (objectMarshalVersion) {
+            case 1:
+                this.pathOrigins = Sets.immutable.empty();
+                break;
+            case marshalVersion:
+                int setSize = data.getInt();
+                MutableSet<StampPositionImmutable> mutableOrigins = Sets.mutable.ofInitialCapacity(setSize);
+                for (int i = 0; i < setSize; i++) {
+                    mutableOrigins.add(StampPositionImmutable.make(data));
+                }
+                this.pathOrigins = mutableOrigins.toImmutable();
+                break;
+            default:
+                throw new UnsupportedOperationException("Unsupported version: " + objectMarshalVersion);
+        }
         this.pathCoordinateUuid = PathCoordinate.super.getPathCoordinateUuid();
         this.pathStampFilter = getStampFilter(this);
     }
@@ -93,63 +102,48 @@ public final class PathCoordinateImmutable implements PathCoordinate, ImmutableC
     public void marshal(ByteArrayDataBuffer out) {
         out.putInt(marshalVersion);
         out.putNid(this.pathConceptNid);
-        out.putNidArray(moduleNids.toArray());
+        out.putInt(this.pathOrigins.size());
+        for (StampPositionImmutable pathOrigin: this.pathOrigins) {
+            pathOrigin.marshal(out);
+        }
     }
 
     @Unmarshaler
     public static PathCoordinateImmutable make(ByteArrayDataBuffer in) {
         int objectMarshalVersion = in.getInt();
-        switch (objectMarshalVersion) {
-            case marshalVersion:
-                return SINGLETONS.computeIfAbsent(new PathCoordinateImmutable(in),
-                        pathCoordinateImmutable -> pathCoordinateImmutable);
-            default:
-                throw new UnsupportedOperationException("Unsupported version: " + objectMarshalVersion);
-        }
+        return SINGLETONS.computeIfAbsent(new PathCoordinateImmutable(in, objectMarshalVersion),
+                pathCoordinateImmutable -> pathCoordinateImmutable);
     }
 
     /**
-     * The module set will be empty (include all modules)
-     * The module priority list will be empty (no module priority)
      * @param pathConceptNid the concept that identifies this path
      */
     public static PathCoordinateImmutable make(int pathConceptNid) {
-        return SINGLETONS.computeIfAbsent(new PathCoordinateImmutable(pathConceptNid, IntSets.immutable.empty()),
+        ImmutableSet<StampPositionImmutable> origins = Get.versionManagmentPathService().getOrigins(pathConceptNid);
+        return SINGLETONS.computeIfAbsent(new PathCoordinateImmutable(pathConceptNid,
+                        origins),
                 pathCoordinateImmutable -> pathCoordinateImmutable);
     }
 
     /**
-     * The module set will be empty (include all modules)
-     * The module priority list will be empty (no module priority)
      * @param pathConcept the concept that identifies this path
      */
     public static PathCoordinateImmutable make(ConceptSpecification pathConcept) {
-        return SINGLETONS.computeIfAbsent(new PathCoordinateImmutable(pathConcept.getNid(), IntSets.immutable.empty()),
-                pathCoordinateImmutable -> pathCoordinateImmutable);
-    }
-    /**
-     * The module priority list will be empty (no module priority)
-     * @param pathConceptNid the concept that identifies this path
-     * @param moduleNids the module nids to include in the version
-     * computation.  If empty, all modules are allowed.
-     */
-    public static PathCoordinateImmutable make(int pathConceptNid,
-                                    ImmutableIntSet moduleNids) {
-        return SINGLETONS.computeIfAbsent(new PathCoordinateImmutable(pathConceptNid, moduleNids),
-                pathCoordinateImmutable -> pathCoordinateImmutable);
-    }
-    /**
-     * Instantiates a new stamp coordinate impl.
-     * @param pathConcept the concept that identifies this path
-     * @param moduleSpecifications the module nids to include in the version
-     * computation.  If empty, all modules are allowed.
-     * priority order that should be used if a version computation returns two
-     * different versions for different modules.
-     */
-    public static PathCoordinateImmutable make(ConceptSpecification pathConcept,
-                                   Collection<ConceptSpecification> moduleSpecifications) {
+        ImmutableSet<StampPositionImmutable> origins = Get.versionManagmentPathService().getOrigins(pathConcept.getNid());
         return SINGLETONS.computeIfAbsent(new PathCoordinateImmutable(pathConcept.getNid(),
-                IntSets.immutable.ofAll(moduleSpecifications.stream().mapToInt(conceptSpecification -> conceptSpecification.getNid()))),
+                        origins),
+                pathCoordinateImmutable -> pathCoordinateImmutable);
+    }
+    public static PathCoordinateImmutable make(int pathConceptNid,
+                                               ImmutableSet<StampPositionImmutable> origins) {
+        return SINGLETONS.computeIfAbsent(new PathCoordinateImmutable(pathConceptNid, origins),
+                pathCoordinateImmutable -> pathCoordinateImmutable);
+    }
+
+
+    public static PathCoordinateImmutable make(ConceptSpecification pathConcept,
+                                               ImmutableSet<StampPositionImmutable> origins) {
+        return SINGLETONS.computeIfAbsent(new PathCoordinateImmutable(pathConcept.getNid(), origins),
                 pathCoordinateImmutable -> pathCoordinateImmutable);
     }
 
@@ -176,17 +170,7 @@ public final class PathCoordinateImmutable implements PathCoordinate, ImmutableC
         if (this.pathConceptNid != other.getPathNidForCoordinate()) {
             return false;
         }
-
-        return this.moduleNids.equals(other.getModuleSpecifications());
-    }
-
-    /**
-     * {@inheritDoc}
-     * @return
-     */
-    @Override
-    public ImmutableSet<ConceptSpecification> getModuleSpecifications() {
-        return moduleNids.collect(nid -> Get.conceptSpecification(nid));
+        return this.getPathOrigins().equals(other.getPathOrigins());
     }
 
     /**
@@ -197,23 +181,12 @@ public final class PathCoordinateImmutable implements PathCoordinate, ImmutableC
         int hash = 7;
 
         hash = 11 * hash + Integer.hashCode(this.pathConceptNid);
-        hash = 11 * hash + Objects.hashCode(this.moduleNids);
+        for (StampPositionImmutable origin: this.getPathOrigins().toList()) {
+            hash = 11 * hash + origin.hashCode();
+        }
         return hash;
     }
 
-
-
-    @Override
-    public PathCoordinateImmutable makeModuleAnalog(Collection<ConceptSpecification> modules) {
-        return new PathCoordinateImmutable(this.pathConceptNid,
-                IntSets.immutable.ofAll(modules.stream().mapToInt(conceptSpecification -> conceptSpecification.getNid())));
-    }
-
-
-    @Override
-    public PathCoordinateImmutable makePathAnalog(ConceptSpecification pathConcept) {
-         return new PathCoordinateImmutable(pathConcept.getNid(), this.moduleNids);
-    }
 
     /**
      * {@inheritDoc}
@@ -223,29 +196,24 @@ public final class PathCoordinateImmutable implements PathCoordinate, ImmutableC
         final StringBuilder builder = new StringBuilder();
 
         builder.append("Path ImmutableCoordinate{").append(Get.conceptDescriptionText(this.pathConceptNid))
-                .append(", modules: ");
+                .append(", Origins: ");
 
-        if (this.moduleNids.isEmpty()) {
-            builder.append("all, ");
+        if (this.pathOrigins.isEmpty()) {
+            builder.append("none ");
         } else {
-            builder.append(Get.conceptDescriptionTextList(this.moduleNids.toArray()))
-                    .append(", ");
+            AtomicInteger count = new AtomicInteger(0);
+            for (StampPositionImmutable origin: this.pathOrigins) {
+                builder.append(origin);
+                if (count.getAndIncrement() < this.pathOrigins.size()) {
+                    builder.append(", ");
+                }
+            }
         }
         return builder.toString();
     }
 
     public String toUserString() {
         return toString();
-    }
-
-
-    /**
-     * {@inheritDoc}
-     * @return
-     */
-    @Override
-    public ImmutableIntSet getModuleNids() {
-        return this.moduleNids;
     }
 
     @Override
@@ -266,5 +234,10 @@ public final class PathCoordinateImmutable implements PathCoordinate, ImmutableC
     @Override
     public final StampFilterImmutable getStampFilter() {
         return this.pathStampFilter;
+    }
+
+    @Override
+    public ImmutableSet<StampPositionImmutable> getPathOrigins() {
+        return pathOrigins;
     }
 }

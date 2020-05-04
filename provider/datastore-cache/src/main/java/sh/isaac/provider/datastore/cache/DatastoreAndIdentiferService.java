@@ -19,10 +19,16 @@ package sh.isaac.provider.datastore.cache;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.model.DataStoreSubService;
 
+import java.util.stream.IntStream;
+
 /**
  *
  * @author kec
  */
 public interface DatastoreAndIdentiferService extends DataStoreSubService, IdentifierService {
-    
+
+    default IntStream getNidsForAssemblageParallel(int assemblageNid) {
+        return getNidsForAssemblage(assemblageNid).parallel();
+    }
+
 }

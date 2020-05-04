@@ -52,6 +52,8 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampPosition;
+import sh.isaac.api.coordinate.StampPositionImmutable;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.transaction.Transaction;
 
@@ -265,11 +267,10 @@ public interface StampService
    default StampSequenceSet getStampsBetweenCoordinates(StampFilter startFilter, StampFilter endFilter) {
       StampSequenceSet matchingStamps = new StampSequenceSet();
 
-      VersionManagmentPathService positionCalc = Get.versionManagmentPathService();
-      StampService stampService = Get.stampService();
+      VersionManagmentPathService pathService = Get.versionManagmentPathService();
       getStampSequences().forEach(stamp -> {
-         if (positionCalc.getRelativePosition(stamp, startFilter) == RelativePosition.AFTER) {
-            RelativePosition relativeToEnd = positionCalc.getRelativePosition(stamp, endFilter);
+         if (pathService.getRelativePosition(stamp, startFilter.getStampPosition()) == RelativePosition.AFTER) {
+            RelativePosition relativeToEnd = pathService.getRelativePosition(stamp, endFilter.getStampPosition());
             if (relativeToEnd == RelativePosition.EQUAL || relativeToEnd == RelativePosition.BEFORE) {
                   matchingStamps.add(stamp);
             }
@@ -322,5 +323,9 @@ public interface StampService
     * or is not associated with a transaction.
     */
    UUID getTransactionIdForStamp(int stampSequence);
+
+   default StampPositionImmutable getStampPosition(int stampSequence) {
+      return StampPositionImmutable.make(getTimeForStamp(stampSequence), getPathNidForStamp(stampSequence));
+   }
 }
 

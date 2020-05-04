@@ -281,7 +281,9 @@ public class LoadTermstoreSemaphore
                             getLog().info("Loading master path semantic at count: " + this.itemCount);
                         } else if (sc.getPrimordialUuid().equals(TermAux.DEVELOPMENT_PATH_SEMANTIC_UUID)) {
                             getLog().info("Loading development path semantic at count: " + this.itemCount);
-                        }
+                         } else if (sc.getPrimordialUuid().equals(TermAux.PRIMORDIAL_PATH_SEMANTIC_UUID)) {
+                            getLog().info("Loading primordial path semantic at count: " + this.itemCount);
+                         }
 
                         Get.assemblageService()
                                 .writeSemanticChronology(sc);

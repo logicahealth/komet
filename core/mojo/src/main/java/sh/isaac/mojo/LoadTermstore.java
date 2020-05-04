@@ -44,6 +44,7 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
@@ -479,8 +480,8 @@ public class LoadTermstore extends AbstractMojo
 								SemanticChronology sc = (SemanticChronology) object;
 								if (mergeLogicGraphs && sc.getAssemblageNid() == statedNid)
 								{
-									final NidSet nids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(sc.getReferencedComponentNid(), statedNid);
-									if (nids.size() > 0)
+									final ImmutableIntSet nids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(sc.getReferencedComponentNid(), statedNid);
+									if (!nids.isEmpty())
 									{
 										// We already loaded a stated logic graph for this concept.  Now the incoming content has another stated
 										// graph for this tree.  If this is for something that involves metadata, merge them.  Otherwise, log a warning.
@@ -489,7 +490,7 @@ public class LoadTermstore extends AbstractMojo
 										boolean foundMetadataModule = false;
 										
 										SemanticChronology existingChronology = null;
-										for (int nid : nids.asArray())
+										for (int nid : nids.toArray())
 										{
 											Optional<? extends SemanticChronology> eco = Get.assemblageService().getOptionalSemanticChronology(nid);
 											int i = 0;

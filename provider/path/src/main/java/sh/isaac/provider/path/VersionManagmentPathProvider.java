@@ -45,6 +45,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.api.set.MutableSet;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
@@ -52,7 +53,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.VersionManagmentPathService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
@@ -90,6 +91,7 @@ public class VersionManagmentPathProvider
 
    /** The path map. */
    ConcurrentHashMap<Integer, StampPathImmutable> pathMap;
+   ConcurrentHashMap<Integer, ImmutableSet<StampBranchImmutable>> branchMap;
 
    //~--- constructors --------------------------------------------------------
 
@@ -120,6 +122,10 @@ public class VersionManagmentPathProvider
       return stampPath.isPresent();
    }
 
+   public ImmutableSet<StampBranchImmutable> getBranches(int pathConceptNid) {
+      return branchMap.computeIfAbsent(pathConceptNid, (pathNid) -> Sets.immutable.empty());
+   }
+
    /**
     * Setup path map.
     */
@@ -129,16 +135,27 @@ public class VersionManagmentPathProvider
       LOG.info("Rebuilding the path map.  Old map size: {}", (this.pathMap == null ? 0 : this.pathMap.size()));
       try {
          ConcurrentHashMap<Integer, StampPathImmutable> newMap = new ConcurrentHashMap<>();
-         
+         ConcurrentHashMap<Integer, ImmutableSet<StampBranchImmutable>> newForkMap = new ConcurrentHashMap<>();
+
          Get.assemblageService()
             .getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid())
             .forEach((pathSemantic) -> {
                         final int pathNid = pathSemantic.getReferencedComponentNid();
                         ImmutableSet<StampPositionImmutable> pathOrigins = getOrigins(pathNid);
                         newMap.put(pathNid, StampPathImmutable.make(pathNid, pathOrigins));
+                        for (StampPositionImmutable pathOrigin: pathOrigins) {
+                           newForkMap.merge(pathOrigin.getPathForPositionNid(),
+                                   Sets.immutable.of(StampBranchImmutable.make(pathNid, pathOrigin.getTime())),
+                                           (ImmutableSet<StampBranchImmutable> v1, ImmutableSet<StampBranchImmutable> v2) -> {
+                                      MutableSet<StampBranchImmutable> forkSet = Sets.mutable.withAll(v1);
+                                      forkSet.addAll(v2.castToSet());
+                                      return forkSet.toImmutable();
+                                   });
+                        }
                      });
          
          this.pathMap = newMap;
+         this.branchMap = newForkMap;
       } finally {
          LOCK.unlock();
       }
@@ -153,35 +170,8 @@ public class VersionManagmentPathProvider
     * @return the relative position
     */
    private RelativePosition traverseOrigins(StampedVersion v1, StampPath path) {
-
-
       return traverseOrigins(v1.getStampSequence(), path);
    }
-   private RelativePosition traverseOrigins(int v1, StampPath path) {
-      StampService stampService = Get.stampService();
-      for (final StampPosition origin: path.getPathOrigins()) {
-         if (origin.getPathConcept().getNid() == stampService.getPathNidForStamp(v1)) {
-            if (stampService.getTimeForStamp(v1) <= origin.getTime()) {
-               return RelativePosition.BEFORE;
-            }
-         }
-      }
-
-      return RelativePosition.UNREACHABLE;
-   }
-   private RelativePosition traverseOrigins(StampFilter v1, StampPath path) {
-      StampService stampService = Get.stampService();
-      for (final StampPosition origin: path.getPathOrigins()) {
-         if (origin.getPathConcept().getNid() == v1.getStampPosition().getPathForPositionNid()) {
-            if (v1.getStampPosition().getTime() <= origin.getTime()) {
-               return RelativePosition.BEFORE;
-            }
-         }
-      }
-
-      return RelativePosition.UNREACHABLE;
-   }
-
    //~--- get methods ---------------------------------------------------------
 
    /**
@@ -221,14 +211,22 @@ public class VersionManagmentPathProvider
     * @return the path origins from db
     */
    private ImmutableSet<StampPositionImmutable> getPathOriginsFromDb(int nid) {
-      return Sets.immutable.fromStream(Get.assemblageService()
+      ImmutableSet<StampPositionImmutable> origins = Sets.immutable.fromStream(Get.assemblageService()
               .getSemanticChronologyStreamForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid())
               .map((pathOrigin) -> {
-                 final long time = ((LongVersion) pathOrigin.getVersionList()
-                         .get(0)).getLongValue();
-
-                 return StampPositionImmutable.make(time, nid);
+                 Nid1_Long2_Version originSemantic = (Nid1_Long2_Version) pathOrigin.getVersionList().get(0);
+                 return StampPositionImmutable.make(originSemantic.getLong2(), originSemantic.getNid1());
               }));
+
+      if (origins.isEmpty() && nid != TermAux.PRIMORDIAL_PATH.getNid()) {
+         // A boot strap issue, only the primordial path should have no origins.
+         // If terminology not completely loaded, content may not yet be ready.
+         if (nid != TermAux.DEVELOPMENT_PATH.getNid() && nid != TermAux.MASTER_PATH.getNid()) {
+            throw new IllegalStateException("Path with no origin: " + Get.getTextForComponent(nid));
+         }
+         return Sets.immutable.with(StampPositionImmutable.make(Long.MAX_VALUE, TermAux.PRIMORDIAL_PATH.getNid()));
+      }
+      return origins;
    }
 
    /**
@@ -240,35 +238,87 @@ public class VersionManagmentPathProvider
    public Collection<? extends StampPathImmutable> getPaths() {
       return Get.assemblageService().getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid()).map((semanticChronicle) -> {
                         int pathId = semanticChronicle.getReferencedComponentNid();
-                       final StampPathImmutable stampPath = StampPathImmutable.make(pathId);
+                        final StampPathImmutable stampPath = StampPathImmutable.make(pathId);
 
                         return stampPath;
                      }).collect(Collectors.toList());
    }
 
+
+
    @Override
-   public RelativePosition getRelativePosition(int stampSequence1, StampFilter v2) {
+   public RelativePosition getRelativePosition(int stamp, StampPosition position) {
       StampService stampService = Get.stampService();
 
-
-      if (stampService.getPathNidForStamp(stampSequence1) == v2.getStampPosition().getPathForPositionNid()) {
-         if (stampService.getTimeForStamp(stampSequence1) < v2.getStampPosition().getTime()) {
+      if (stampService.getPathNidForStamp(stamp) == position.getPathForPositionNid()) {
+         if (stampService.getTimeForStamp(stamp) < position.getTime()) {
             return RelativePosition.BEFORE;
          }
 
-         if (stampService.getTimeForStamp(stampSequence1) > v2.getStampPosition().getTime()) {
+         if (stampService.getTimeForStamp(stamp) > position.getTime()) {
             return RelativePosition.AFTER;
          }
 
          return RelativePosition.EQUAL;
       }
+      // need to see if after on branched path.
 
-      if (traverseOrigins(stampSequence1, getStampPath(v2.getStampPosition().getPathForPositionNid())) == RelativePosition.BEFORE) {
-         return RelativePosition.BEFORE;
+      switch (traverseForks(stamp, position)) {
+         case AFTER:
+            return RelativePosition.AFTER;
       }
 
-      return traverseOrigins(v2, getStampPath(stampService.getPathNidForStamp(stampSequence1)));
+      // before or unreachable.
+      return traverseOrigins(stamp, getStampPath(position.getPathForPositionNid()));
    }
+   private RelativePosition traverseForks(int stamp, StampPosition position) {
+      int stampPathNid = Get.stampService().getPathNidForStamp(stamp);
+      if (stampPathNid == position.getPathForPositionNid()) {
+         throw new IllegalStateException("You must check for relative position on the same path before calling traverseForks: " +
+                 Get.stampService().describeStampSequence(stamp) + " compared to: " + position);
+      }
+
+      for (StampBranchImmutable branch: getBranches(position.getPathForPositionNid())) {
+         switch (traverseForks(stampPathNid, branch)) {
+            case AFTER:
+               return RelativePosition.AFTER;
+         }
+      }
+      return RelativePosition.UNREACHABLE;
+   }
+   private RelativePosition traverseForks(int stampPathNid, StampBranchImmutable stampBranchImmutable) {
+      int pathOfBranchNid = stampBranchImmutable.getPathOfBranchNid();
+      if (pathOfBranchNid == stampPathNid) {
+         return RelativePosition.AFTER;
+      }
+      for (StampBranchImmutable branch: getBranches(stampBranchImmutable.getPathOfBranchNid())) {
+         switch (traverseForks(stampPathNid, branch)) {
+            case AFTER:
+               return RelativePosition.AFTER;
+         }
+      }
+      return RelativePosition.UNREACHABLE;
+   }
+   /**
+    * Is the stamp reachable from the recursive origins of this path?
+    * @param stamp
+    * @param path
+    * @return RelativePosition.BEFORE if reachable, RelativePosition.UNREACHABLE if not.
+    */
+   private RelativePosition traverseOrigins(int stamp, StampPath path) {
+      StampService stampService = Get.stampService();
+      for (final StampPosition origin: path.getPathOrigins()) {
+         if (origin.getPathConcept().getNid() == stampService.getPathNidForStamp(stamp)) {
+            if (stampService.getTimeForStamp(stamp) <= origin.getTime()) {
+               return RelativePosition.BEFORE;
+            }
+         } else {
+            traverseOrigins(stamp, StampPathImmutable.make(origin.getPathConcept().getNid()));
+         }
+      }
+      return RelativePosition.UNREACHABLE;
+   }
+
 
    @Override
    public RelativePosition getRelativePosition(int stampSequence1, int stampSequence2) {
@@ -312,12 +362,8 @@ public class VersionManagmentPathProvider
 
          return RelativePosition.EQUAL;
       }
-
-      if (traverseOrigins(v1, getStampPath(v2.getPathNid())) == RelativePosition.BEFORE) {
-         return RelativePosition.BEFORE;
-      }
-
-      return traverseOrigins(v2, getStampPath(v1.getPathNid()));
+      return getRelativePosition(v1.getStampSequence(),
+              StampPositionImmutable.make(v2.getTime(), v2.getPathNid()));
    }
 
    /**

@@ -99,11 +99,11 @@ public enum ObservableFields
 
    MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE(
       "Module nid preference list for stamp coordinate", "Module nids for version preferences"),
-   
+
    MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE(
-      "Module preference order for stamp coordinate", "Module order"),
-   
-   
+           "Module preference order for stamp coordinate", "Module order"),
+
+
    NEXT_PRIORITY_LANGUAGE_COORDINATE(
       "Next priority language coordinate", "Next coordinate"),
 
@@ -134,6 +134,8 @@ public enum ObservableFields
 
    /** The module nid array for stamp coordinate. */
    MODULE_NID_ARRAY_FOR_STAMP_COORDINATE("Module nid array for stamp coordinate", "Modules for stamp coordinates"),
+
+   MODULE_EXCLUSION_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Module exclusion specification set for stamp coordinate", "Module exclusion set"),
 
    MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Module specification set for stamp coordinate", "Module set"),
 
@@ -269,6 +271,7 @@ public enum ObservableFields
    INT5("Integer 5"),
    INT6("Integer 6"),
    INT7("Integer 7"),
+   LONG2("Long 2"),
    
    CIRCUMSTANCE_PURPOSE_LIST("Action purpose"),
    CIRCUMSTANCE_TIMING("Timing"),

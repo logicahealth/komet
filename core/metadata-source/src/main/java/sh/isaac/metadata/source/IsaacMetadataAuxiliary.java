@@ -118,7 +118,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
     *             the unsupported encoding exception
     */
    public IsaacMetadataAuxiliary() throws NoSuchAlgorithmException, UnsupportedEncodingException, Exception {
-      super(TermAux.DEVELOPMENT_PATH, TermAux.USER, TermAux.CORE_METADATA_MODULE, ConceptProxy.METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.CORE_METADATA_MODULE.getPrimordialUuid());
+      super(PRIMORDIAL_PATH, TermAux.USER, TermAux.CORE_METADATA_MODULE, ConceptProxy.METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.CORE_METADATA_MODULE.getPrimordialUuid());
 
 //J-
       createConcept(TermAux.SOLOR_ROOT);
@@ -144,6 +144,14 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
          popParent();
          createConcept(TermAux.SOLOR_METADATA).addDescription("version:" + AUXILIARY_METADATA_VERSION, TermAux.DEFINITION_DESCRIPTION_TYPE);
          pushParent(current());
+            createConcept(SANDBOX_COMPONENT).setModule(TermAux.KOMET_MODULE);
+            pushParent(current());
+                createConcept(SANDBOX_PATH, TermAux.PATH.getNid()).setModule(TermAux.KOMET_MODULE);
+                createConcept(SANDBOX_MODULE, TermAux.UNSPECIFIED_MODULE.getNid()).setModule(TermAux.KOMET_MODULE);
+                pushParent(current());
+                    createConcept(SANDBOX_PATH_MODULE, TermAux.UNSPECIFIED_MODULE.getNid()).setModule(TermAux.KOMET_MODULE);
+                    popParent();
+                popParent();
             createConcept("Directed graph", "DigraphCoordinate");
             pushParent(current());
                 createConcept(EL_PLUS_PLUS_DIGRAPH)
@@ -192,7 +200,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 popParent();
             createConcept("Module").mergeFromSpec(TermAux.UNSPECIFIED_MODULE);
             pushParent(current());
-               createConcept(TermAux.METADATA_MODULES);
+               createConcept(FOUNDATION_MODULE).setModule(TermAux.KOMET_MODULE);
+               createConcept(DEVELOPMENT_MODULE).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.METADATA_MODULES).setModule(TermAux.KOMET_MODULE);
                pushParent(current());
                   createConcept(TermAux.CORE_METADATA_MODULE);
                   createConcept(TermAux.KOMET_MODULE).setModule(TermAux.KOMET_MODULE);
@@ -243,7 +253,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                popParent();
             createConcept(TermAux.PATH);
             pushParent(current());
-
+               final ConceptBuilder primordialPath = createConcept(PRIMORDIAL_PATH);
                final ConceptBuilder developmentPath = createConcept(TermAux.DEVELOPMENT_PATH);
                final ConceptBuilder masterPath = createConcept(TermAux.MASTER_PATH);
                masterPath.addUuids(UUID.fromString("2faa9260-8fb2-11db-b606-0800200c9a66")); // UUID from WB_AUX_PATH
@@ -465,11 +475,13 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   paths.mergeFromSpec(TermAux.PATH_ASSEMBLAGE);
                   addPath(paths, masterPath, TermAux.MASTER_PATH_SEMANTIC_UUID);
                   addPath(paths, developmentPath, TermAux.DEVELOPMENT_PATH_SEMANTIC_UUID);
+                  addPath(paths, primordialPath, TermAux.PRIMORDIAL_PATH_SEMANTIC_UUID);
 
                   final ConceptBuilder pathOrigins = createConcept("Path origins assemblage");
                   pathOrigins.mergeFromSpec(TermAux.PATH_ORIGIN_ASSEMBLAGE);
 
-                  // addPathOrigin(pathOrigins, developmentPath, masterPath);
+                  addPathOrigin(pathOrigins, masterPath, primordialPath, Long.MAX_VALUE, MASTER_PATH_ORIGIN_SEMANTIC_UUID);
+                  addPathOrigin(pathOrigins, developmentPath, primordialPath, Long.MAX_VALUE, DEVELOPMENT_PATH_ORIGIN_SEMANTIC_UUID);
                   popParent();
                popParent();
             createConcept("Content Metadata");
@@ -579,7 +591,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     createConcept(TermAux.ISO_8601_AFTER);
                     createConcept(TermAux.ISO_8601_PRIOR);
                 popParent();
-                createConcept(TermAux.DISCREATE_MEASURE_SEMANTICS);
+                createConcept(TermAux.DISCRETE_MEASURE_SEMANTICS);
                 pushParent(current());
                     createConcept(TermAux.ITEM_COUNT);
                 popParent();
@@ -955,6 +967,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ALLOWED_STATES_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_NID_ARRAY_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(MODULE_EXCLUSION_SPECIFICATION_SET_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(AUTHOR_SPECIFICATION_SET_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(PATH_FOR_PATH_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(PATH_ORIGIN_LIST_FOR_STAMP_PATH).setModule(TermAux.KOMET_MODULE);
@@ -1063,6 +1076,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ObservableFields.INT5);
                   createConcept(ObservableFields.INT6);
                   createConcept(ObservableFields.INT7);
+                  createConcept(ObservableFields.LONG2);
                   pushParent(current());
                      createConcept(ObservableFields.LOINC_NUMBER);
                      createConcept(ObservableFields.LOINC_COMPONENT);

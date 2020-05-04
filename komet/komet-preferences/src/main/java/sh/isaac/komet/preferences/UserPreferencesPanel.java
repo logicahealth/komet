@@ -115,7 +115,6 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         getItemList().add(this.viewCoordinateKeyWrapper);
         getItemList().add(new PropertySheetItemConceptConstraintWrapper(userConceptWrapper, manifold, "User"));
         getItemList().add(new PropertySheetItemConceptConstraintWrapper(moduleConceptWrapper, manifold, "Module"));
-        getItemList().add(new PropertySheetItemConceptConstraintWrapper(pathConceptWrapper, manifold, "Path"));
 
         login();
     }

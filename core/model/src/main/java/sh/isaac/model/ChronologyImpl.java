@@ -37,18 +37,7 @@
 package sh.isaac.model;
 
 import java.nio.ByteBuffer;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.SortedSet;
-import java.util.TreeSet;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -56,6 +45,9 @@ import java.util.stream.LongStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.set.OpenIntHashSet;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
@@ -63,13 +55,10 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.StampFilter;
-import sh.isaac.api.coordinate.StampPath;
-import sh.isaac.api.dag.Graph;
 import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import static sh.isaac.api.externalizable.ByteArrayDataBuffer.getInt;
@@ -956,65 +945,6 @@ public abstract class ChronologyImpl
 
     }
 
-    /**
-     * Gets the version graph list.
-     *
-     * @return the version graph list
-     */
-    @Override
-    public <V extends Version> List<Graph<V>> getVersionGraphList() {
-        final HashMap<StampPath, TreeSet<V>> versionMap = new HashMap<>();
-
-        getVersionList().<V>forEach(
-                (version) -> {
-                    final StampPath path = Get.versionManagmentPathService()
-                            .getStampPath(version.getPathNid());
-                    TreeSet<V> versionSet = versionMap.get(path);
-
-                    if (versionSet == null) {
-                        versionSet = new TreeSet<>(
-                                (V v1,
-                                        V v2) -> {
-                                    final int comparison = Long.compare(v1.getTime(), v2.getTime());
-
-                                    if (comparison != 0) {
-                                        return comparison;
-                                    }
-
-                                    return Integer.compare(v1.getStampSequence(), v2.getStampSequence());
-                                });
-                        versionMap.put(path, versionSet);
-                    }
-
-                    versionSet.add((V) version);
-                });
-
-        if (versionMap.size() == 1) {
-            // easy case...
-            final List<Graph<V>> results = new ArrayList<>();
-            final Graph<V> graph = new Graph<>();
-
-            results.add(graph);
-            versionMap.entrySet()
-                    .forEach(
-                            (entry) -> {
-                                entry.getValue()
-                                        .forEach(
-                                                (version) -> {
-                                                    if (graph.getRoot() == null) {
-                                                        graph.createRoot(version);
-                                                    } else {
-                                                        graph.getLastAddedNode()
-                                                                .addChild(version);
-                                                    }
-                                                });
-                            });
-            return results;
-        }
-
-        // TODO support for more than one path...
-        throw new UnsupportedOperationException("TODO: Implement version graph for more than one path...");
-    }
 
     /**
      * Gets the version list.
@@ -1133,18 +1063,20 @@ public abstract class ChronologyImpl
     }
 
     @Override
-    public NidSet getRecursiveSemanticNids() {
-        NidSet sequenceSet = Get.assemblageService().getSemanticNidsForComponent(this.getNid());
-        sequenceSet.stream().forEach((semanticSequence) -> addRecursiveSequences(sequenceSet, semanticSequence));
+    public ImmutableIntSet getRecursiveSemanticNids() {
+        ImmutableIntSet semanticNidsForComponent = Get.assemblageService().getSemanticNidsForComponent(this.getNid());
 
-        return sequenceSet;
+        MutableIntSet recursiveSemanticNids = IntSets.mutable.ofAll(semanticNidsForComponent);
+        semanticNidsForComponent.forEach(semanticNid -> addRecursiveSequences(recursiveSemanticNids, semanticNid));
+
+        return recursiveSemanticNids.toImmutable();
     }
 
-    private void addRecursiveSequences(IntSet semanticSequenceSet, int semanticNid) {
-        IntSet sequenceSet = Get.assemblageService().getSemanticNidsForComponent(semanticNid);
-        sequenceSet.stream().forEach((sequence) -> {
-            semanticSequenceSet.add(sequence);
-            addRecursiveSequences(semanticSequenceSet, sequence);
+    private void addRecursiveSequences(MutableIntSet recursiveSemanticNids, int semanticNid) {
+        ImmutableIntSet semanticNidsForComponent = Get.assemblageService().getSemanticNidsForComponent(semanticNid);
+        recursiveSemanticNids.addAll(semanticNidsForComponent);
+        semanticNidsForComponent.forEach((sequence) -> {
+            addRecursiveSequences(recursiveSemanticNids, sequence);
         });
 
     }

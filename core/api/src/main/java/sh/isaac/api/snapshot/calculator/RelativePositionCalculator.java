@@ -43,21 +43,21 @@ package sh.isaac.api.snapshot.calculator;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import org.roaringbitmap.IntConsumer;
-import org.roaringbitmap.RoaringBitmap;
-import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.StaticIsaacCache;
-import sh.isaac.api.Status;
+import sh.isaac.api.*;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.coordinate.StampFilterImmutable;
-import sh.isaac.api.coordinate.StampPosition;
-import sh.isaac.api.coordinate.StatusSet;
+import sh.isaac.api.coordinate.*;
+import sh.isaac.api.dag.Graph;
+import sh.isaac.api.dag.Node;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableChronology;
@@ -65,13 +65,13 @@ import sh.isaac.api.observable.ObservableVersion;
 
 import javax.annotation.PreDestroy;
 import javax.inject.Singleton;
+import java.math.BigInteger;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.ToLongFunction;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -133,7 +133,7 @@ public class RelativePositionCalculator {
    private RelativePositionCalculator(StampFilterImmutable filter) {
       //For the internal callback to populate the cache
       this.filter = filter;
-      this.pathNidSegmentMap = setupPathNidSegmentMap(filter.getStampPosition());
+      this.pathNidSegmentMap = setupPathNidSegmentMap(filter.getStampPosition().toStampPositionImmutable());
       this.allowedStates          = filter.getAllowedStates();
    }
 
@@ -363,10 +363,10 @@ public class RelativePositionCalculator {
     */
 
    // recursively called method
-   private void addOriginsToPathNidSegmentMap(StampPosition destination,
-         ConcurrentHashMap<Integer, Segment> pathNidSegmentMap,
-         AtomicInteger segmentSequence,
-         ConcurrentSkipListSet<Integer> precedingSegments) {
+   private void addOriginsToPathNidSegmentMap(StampPositionImmutable destination,
+                                              ConcurrentHashMap<Integer, Segment> pathNidSegmentMap,
+                                              AtomicInteger segmentSequence,
+                                              ConcurrentSkipListSet<Integer> precedingSegments) {
       final Segment segment = new Segment(
                                   segmentSequence.getAndIncrement(),
                                   destination.getPathConcept().getNid(),
@@ -378,7 +378,7 @@ public class RelativePositionCalculator {
       pathNidSegmentMap.put(destination.getPathForPositionNid(), segment);
       destination.getPathOrigins()
                  .stream()
-                 .forEach((StampPosition origin) -> {
+                 .forEach((StampPositionImmutable origin) -> {
          // Recursive call
                         addOriginsToPathNidSegmentMap(
                             origin,
@@ -452,7 +452,7 @@ public class RelativePositionCalculator {
     * @param stampsForPosition the stamps for position
     * @param stampSequence the stamp sequence
     */
-   private void handleStamp(RoaringBitmap stampsForPosition, int stampSequence, boolean allowUncommitted) {
+   private void handleStamp(MutableIntSet stampsForPosition, int stampSequence, boolean allowUncommitted) {
       if (!allowUncommitted) {
          if (getStampService()
                 .isUncommitted(stampSequence)) {
@@ -472,9 +472,9 @@ public class RelativePositionCalculator {
       // create a list of values so we don't have any
       // concurrent modification issues with removing/adding
       // items to the stampsForPosition.
-      final RoaringBitmap stampsToCompare = stampsForPosition.clone();
+      final ImmutableIntSet stampsToCompare = IntSets.immutable.ofAll(stampsForPosition);
 
-      stampsToCompare.forEach((IntConsumer) prevStamp -> {
+      stampsToCompare.forEach(prevStamp -> {
          switch (fastRelativePosition(stampSequence, prevStamp)) {
             case AFTER:
                stampsForPosition.remove(prevStamp);
@@ -532,7 +532,7 @@ public class RelativePositionCalculator {
     * @param destination the destination
     * @return the open int object hash map
     */
-   private ConcurrentHashMap<Integer, Segment> setupPathNidSegmentMap(StampPosition destination) {
+   private ConcurrentHashMap<Integer, Segment> setupPathNidSegmentMap(StampPositionImmutable destination) {
       final ConcurrentHashMap<Integer, Segment> pathNidSegmentMapToSetup = new ConcurrentHashMap<>();
       final AtomicInteger                 segmentSequence               = new AtomicInteger(0);
 
@@ -573,7 +573,7 @@ public class RelativePositionCalculator {
     */
    public static RelativePositionCalculator getCalculator(StampFilterImmutable filter) {
       return SINGLETONS.computeIfAbsent(filter,
-              digraphCoordinateImmutable -> new RelativePositionCalculator(filter));
+              filterKey -> new RelativePositionCalculator(filter));
    }
 
    /**
@@ -631,7 +631,7 @@ public class RelativePositionCalculator {
     * @return the latest stamp sequences as a sorted set in an array
     */
    public int[] getLatestCommittedStampSequencesAsSet(int[] stampSequences) {
-      RoaringBitmap stampsForPosition = new RoaringBitmap();
+      MutableIntSet stampsForPosition = IntSets.mutable.empty();
       for (int stampToCompare: stampSequences) {
          handleStamp(stampsForPosition, stampToCompare, false);
       }
@@ -650,7 +650,7 @@ public class RelativePositionCalculator {
     */
    public int[] getLatestStampSequencesAsSet(int[] stampSequences) {
 
-      RoaringBitmap stampsForPosition = new RoaringBitmap();
+      MutableIntSet stampsForPosition = IntSets.mutable.empty();
       for (int stampToCompare: stampSequences) {
          handleStamp(stampsForPosition, stampToCompare, true);
       }
@@ -658,10 +658,10 @@ public class RelativePositionCalculator {
       return getResults(stampsForPosition);
    }
 
-   private int[] getResults(RoaringBitmap stampsForPosition) {
-      RoaringBitmap resultList = new RoaringBitmap();
+   private int[] getResults(MutableIntSet stampsForPosition) {
+      MutableIntSet resultList = IntSets.mutable.of();
 
-      stampsForPosition.forEach((IntConsumer) stampSequence -> {
+      stampsForPosition.forEach(stampSequence -> {
          if (isAllowedState(stampSequence)) {
             resultList.add(stampSequence);
          }
@@ -763,7 +763,6 @@ public class RelativePositionCalculator {
       /**
        * Each segment gets it's own sequence which gets greater the further
        * prior to the position of the relative position computer.
-       * TODO if we have a path nid, may not need segment sequence.
        */
       int segmentSequence;
 
@@ -823,14 +822,104 @@ public class RelativePositionCalculator {
       private boolean containsPosition(int pathConceptNid, int moduleConceptNid, long time) {
          if (RelativePositionCalculator.this.filter.getModuleNids().isEmpty() ||
                RelativePositionCalculator.this.filter.getModuleNids().contains(moduleConceptNid)) {
-            if ((this.pathConceptNid == pathConceptNid) && (time != Long.MIN_VALUE)) {
-               return time <= this.endTime;
+            if (RelativePositionCalculator.this.filter.getExcludedModuleNids().isEmpty() ||
+                    !RelativePositionCalculator.this.filter.getExcludedModuleNids().contains(moduleConceptNid)) {
+               if ((this.pathConceptNid == pathConceptNid) && (time != Long.MIN_VALUE)) {
+                  return time <= this.endTime;
+               }
             }
          }
 
          return false;
       }
    }
+
+   public static <V extends Version> List<Graph<V>> getVersionGraphList(Collection<V> versionList) {
+      VersionManagmentPathService pathService = Get.versionManagmentPathService();
+      SortedSet<VersionWithDistance<V>> versionWithDistances = new TreeSet<>();
+      versionList.forEach(v -> versionWithDistances.add(new VersionWithDistance<>(v)));
+
+      final List<Graph<V>> results = new ArrayList<>();
+
+      int loopCheck = 0;
+      while (!versionWithDistances.isEmpty()) {
+         loopCheck++;
+         if (loopCheck > 100) {
+            throw new IllegalStateException("loopCheck = " + loopCheck);
+         }
+         Graph<V> graph = new Graph<>();
+         results.add(graph);
+         Set<Node<V>> leafNodes = new HashSet<>();
+         SortedSet<VersionWithDistance<V>> nodesInTree = new TreeSet<>();
+         for (VersionWithDistance versionWithDistance: versionWithDistances) {
+            if (graph.getRoot() == null) {
+               leafNodes.add(graph.createRoot((V) versionWithDistance.version));
+               nodesInTree.add(versionWithDistance);
+            } else {
+               List<Node<V>> leafList = new ArrayList<>(leafNodes);
+               for (Node<V> leafNode: leafList) {
+                  switch (pathService.getRelativePosition(versionWithDistance.version, leafNode.getData())) {
+                     case AFTER:
+                        Node<V> newLeaf = leafNode.addChild((V) versionWithDistance.version);
+                        nodesInTree.add(versionWithDistance);
+                        leafNodes.remove(leafNode);
+                        leafNodes.add(newLeaf);
+                        break;
+                     case EQUAL:
+                        // TODO handle different modules... ?
+                        throw new IllegalStateException("Version can only be in one module at a time. \n"
+                                + leafNode.getData() + "\n" + versionWithDistance.version);
+                     case BEFORE:
+                        throw new IllegalStateException("Sort order error. \n"
+                                + leafNode.getData() + "\n" + versionWithDistance.version);
+                     case UNREACHABLE:
+                        // if not after by any leaf (unreachable from any leaf), then node will be left in set, and possibly added to next graph.
+                        break;
+                     default:
+                        throw new IllegalStateException("Sort order error. \n"
+                                + leafNode.getData() + "\n" + versionWithDistance.version +
+                                pathService.getRelativePosition(leafNode.getData(), versionWithDistance.version));
+                  }
+               }
+            }
+         }
+         versionWithDistances.removeAll(nodesInTree);
+      }
+      return results;
+   }
+
+
+   private static BigInteger getDistance(StampPosition position) {
+      int pathDistanceFromOrigin = pathDistanceFromOrigin(0, position.toStampPositionImmutable());
+      return BigInteger.valueOf(Long.MAX_VALUE).multiply(BigInteger.valueOf(pathDistanceFromOrigin)).add(BigInteger.valueOf(position.getTime()));
+   }
+
+   private static int pathDistanceFromOrigin(int cumulativeDistance, StampPositionImmutable positionImmutable) {
+      if (positionImmutable.getPathForPositionNid() != TermAux.PRIMORDIAL_PATH.getNid()) {
+         int computedDistance = Integer.MAX_VALUE;
+         for (StampPositionImmutable origin: positionImmutable.getPathOrigins()) {
+            computedDistance = Math.min(computedDistance, pathDistanceFromOrigin(cumulativeDistance + 1, origin));
+         }
+         return computedDistance;
+      }
+      return cumulativeDistance;
+   }
+
+   private static class VersionWithDistance<V extends Version> implements Comparable<VersionWithDistance> {
+      final BigInteger computedDistance;
+      final V version;
+
+      public VersionWithDistance(V version) {
+         this.version = version;
+         this.computedDistance = getDistance(Get.stampService().getStampPosition(version.getStampSequence()));
+      }
+
+      @Override
+      public int compareTo(VersionWithDistance o) {
+         return this.computedDistance.compareTo(o.computedDistance);
+      }
+   }
+
 
    /** 
     * {@inheritDoc}

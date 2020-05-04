@@ -122,7 +122,8 @@ public interface IdentifierService
     * @return
     */
    IntStream getNidsForAssemblage(int assemblageNid);
-   
+
+    IntStream getNidsForAssemblageParallel(int assemblageNid);
    /**
     * TODO: add a method that gets all nids, not just nids for assemblage. 
     * @param assemblageSpecification

@@ -39,6 +39,8 @@ package sh.isaac.provider.logic.csiro.classify.tasks;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.list.primitive.MutableIntList;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
@@ -135,9 +137,9 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 			}
 			else
 			{
-				ArrayList<Integer> path = new ArrayList<>(10);
+				MutableIntList path = IntLists.mutable.empty();
 				path.add(parent);
-				if (hasCycle(path, parent, nid, ts))
+				if (hasCycle(path, parent, nid, ts, 0))
 				{
 					int[] cycle = new int[path.size()];
 					for (int i = 0; i < cycle.length; i++)
@@ -169,9 +171,21 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 	 * @param ts
 	 * @return
 	 */
-	private boolean hasCycle(ArrayList<Integer> path, int nidOnPathToRoot, int startNid, TaxonomySnapshot ts)
+	private boolean hasCycle(MutableIntList path, int nidOnPathToRoot, int startNid, TaxonomySnapshot ts, int recursionDepth)
 	{
+		if (recursionDepth > 200) {
+			StringBuilder sb = new StringBuilder("Recursion depth = " + recursionDepth + "\n");
+			sb.append(Get.conceptDescriptionTextList(path.toArray()));
+			throw new IllegalStateException(sb.toString());
+		}
 		int[] parents = ts.getTaxonomyParentConceptNids(nidOnPathToRoot);
+		if (recursionDepth > 150) {
+			StringBuilder sb = new StringBuilder("Warn: Recursion depth = " + recursionDepth);
+			sb.append("\nnidOnPathToRoot: ").append(nidOnPathToRoot).append(" ").append(Get.conceptDescriptionText(nidOnPathToRoot));
+			sb.append("\npath: ").append(Get.conceptDescriptionTextList(path.toArray()));
+			sb.append("\nparents: ").append(Get.conceptDescriptionTextList(parents));
+			System.out.println(sb.toString());
+		}
 		for (int parent : parents)
 		{
 			if (parent == startNid)
@@ -181,7 +195,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 			}
 			else
 			{
-				return hasCycle(path, parent, startNid, ts);
+				return hasCycle(path, parent, startNid, ts, recursionDepth + 1);
 			}
 		}
 		return false;

@@ -89,10 +89,11 @@ public class Graph<T> {
     *
     * @param rootData the root data
     */
-   public final void createRoot(T rootData) {
+   public final Node<T> createRoot(T rootData) {
       this.root          = new Node<>(rootData, this);
       this.lastAddedNode = this.root;
       this.nodes.add(this.lastAddedNode);
+      return this.root;
    }
 
    //~--- get methods ---------------------------------------------------------

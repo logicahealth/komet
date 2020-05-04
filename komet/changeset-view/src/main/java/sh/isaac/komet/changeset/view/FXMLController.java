@@ -280,6 +280,7 @@ public class FXMLController {
                     case MEASURE_CONSTRAINTS:
                     case MEMBER:
                     case Nid1_Int2:
+                    case Nid1_Long2:
                     case Nid1_Int2_Str3_Str4_Nid5_Nid6:
                     case Nid1_Nid2:
                     case Nid1_Nid2_Int3:

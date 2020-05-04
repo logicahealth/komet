@@ -119,11 +119,13 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         });
     }
     Region spacer = new Region();
+    Region spacer2 = new Region();
 
     {
         HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setHgrow(spacer2, Priority.ALWAYS);
     }
-    ToolBar bottomBar = new ToolBar(revertButton, saveButton, spacer, deleteButton);
+    ToolBar bottomBar = new ToolBar(spacer, revertButton, saveButton, spacer2, deleteButton);
 
     public AbstractPreferences(IsaacPreferences preferencesNode, String groupName, Manifold manifold,
             KometPreferencesController kpc) {
@@ -306,7 +308,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
     }
 
     @Override
-    public final Node getCenterPanel(Manifold manifold) {
+    public Node getCenterPanel(Manifold manifold) {
         if (this.propertySheet == null) {
             makePropertySheet();
         }
@@ -341,9 +343,13 @@ public abstract class AbstractPreferences implements PreferenceGroup {
     }
 
     @Override
-    public final Node getBottomPanel(Manifold manifold) {
+    public Node getBottomPanel(Manifold manifold) {
         if (showRevertAndSave()) {
-            deleteButton.setVisible(showDelete());
+            if (showDelete()) {
+                bottomBar = new ToolBar(deleteButton, spacer, revertButton, saveButton);
+            } else {
+                bottomBar = new ToolBar(spacer, revertButton, saveButton);
+            }
             return this.bottomBar;
         }
         return null;

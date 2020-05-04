@@ -52,6 +52,7 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.LoincVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
+import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.coordinate.PremiseType;
@@ -59,6 +60,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.flags.CountryFlagImages;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
@@ -389,7 +391,7 @@ public abstract class BadgedVersionPaneModel {
                     break;
                 }
 
-                case Nid1_Int2:
+                case Nid1_Int2: {
                     if (isLatestPanel()) {
                         componentType.setText("INT-REF");
                     } else {
@@ -401,7 +403,8 @@ public abstract class BadgedVersionPaneModel {
 
                     switch (Get.identifierService().getObjectTypeForComponent(nid)) {
                         case CONCEPT:
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
+                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                                    + "\n" + intValue);
                             componentText.setImage(new ConceptNode(nid, manifold));
                             componentText.setImageLocation(ContentDisplay.BOTTOM);
                             break;
@@ -421,7 +424,52 @@ public abstract class BadgedVersionPaneModel {
                                     + Get.identifierService().getObjectTypeForComponent(
                                     nid).toString());
                     }
+                }
+                    break;
 
+                case Nid1_Long2: {
+                    if (isLatestPanel()) {
+                        componentType.setText("INT-LONG");
+                    } else {
+                        componentType.setText("");
+                    }
+
+                    int nid = ((Nid1_Long2_Version) semanticVersion).getNid1();
+                    long longValue = ((Nid1_Long2_Version) semanticVersion).getLong2();
+
+                    switch (Get.identifierService().getObjectTypeForComponent(nid)) {
+                        case CONCEPT:
+                            String longText;
+                            if (semanticVersion.getAssemblageNid() == MetaData.PATH_ORIGINS_ASSEMBLAGE____SOLOR.getNid()) {
+                                longText = DateTimeUtil.format(longValue);
+                            } else {
+                                longText = Long.toString(longValue);
+                            }
+                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                                    + "\n" + getManifold().getPreferredDescriptionText(nid)
+                                    + "\n" + longText);
+                            componentText.setImage(new ConceptNode(nid, manifold));
+                            componentText.setImageLocation(ContentDisplay.BOTTOM);
+                            break;
+
+                        case SEMANTIC:
+                            SemanticChronology sc = Get.assemblageService()
+                                    .getSemanticChronology(nid);
+
+                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                                    + "\n" + getManifold().getPreferredDescriptionText(nid)
+                                    + "\n" + longValue + ": References: " + sc.getVersionType().toString());
+                            break;
+
+                        case UNKNOWN:
+                        default:
+                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                                    + "\n" + getManifold().getPreferredDescriptionText(nid)
+                                    + "\n" + longValue + ": References:"
+                                    + Get.identifierService().getObjectTypeForComponent(
+                                    nid).toString());
+                    }
+                }
                     break;
 
                 case LOGIC_GRAPH:

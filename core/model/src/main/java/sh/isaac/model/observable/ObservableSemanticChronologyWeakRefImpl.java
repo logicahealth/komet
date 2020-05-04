@@ -23,6 +23,7 @@ import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.collections.ObservableList;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -31,7 +32,6 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.dag.Graph;
@@ -294,7 +294,7 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
    }
 
    @Override
-   public NidSet getRecursiveSemanticNids() {
+   public ImmutableIntSet getRecursiveSemanticNids() {
       return getChronology().getRecursiveSemanticNids();
    }
 

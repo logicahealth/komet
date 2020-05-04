@@ -431,6 +431,10 @@ public class PostgresIdentifierProvider
     public IntStream getNidsForAssemblage(int assemblageNid) {
         return store.getNidsForAssemblage(assemblageNid);
     }
+    @Override
+    public IntStream getNidsForAssemblageParallel(int assemblageNid) {
+        return store.getNidsForAssemblage(assemblageNid).parallel();
+    }
 
     @Override
     public Optional<UUID> getDataStoreId() {

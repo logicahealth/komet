@@ -19,21 +19,6 @@ public interface PathCoordinateProxy extends PathCoordinate {
     PathCoordinate getPathCoordinate();
 
     @Override
-    default ImmutableIntSet getModuleNids() {
-        return getPathCoordinate().getModuleNids();
-    }
-
-    @Override
-    default PathCoordinate makeModuleAnalog(Collection<ConceptSpecification> modules) {
-        return getPathCoordinate().makeModuleAnalog(modules);
-    }
-
-    @Override
-    default PathCoordinate makePathAnalog(ConceptSpecification pathForPosition) {
-        return getPathCoordinate().makePathAnalog(pathForPosition);
-    }
-
-    @Override
     default ConceptSpecification getPathConceptForCoordinate() {
         return this.getPathCoordinate().getPathConceptForCoordinate();
     }
@@ -49,8 +34,7 @@ public interface PathCoordinateProxy extends PathCoordinate {
     }
 
     @Override
-    default ImmutableSet<ConceptSpecification> getModuleSpecifications() {
-        return this.getPathCoordinate().getModuleSpecifications();
+    default ImmutableSet<StampPositionImmutable> getPathOrigins() {
+        return this.getPathCoordinate().getPathOrigins();
     }
-
 }

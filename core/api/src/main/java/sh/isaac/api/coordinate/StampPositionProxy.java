@@ -16,11 +16,6 @@ public interface StampPositionProxy extends StampPosition {
     }
 
     @Override
-    default ImmutableSet<StampPositionImmutable> getPathOrigins() {
-        return getStampPosition().getPathOrigins();
-    }
-
-    @Override
     default StampPositionImmutable toStampPositionImmutable() {
         return getStampPosition().toStampPositionImmutable();
     }

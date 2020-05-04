@@ -65,22 +65,21 @@ import com.lmax.disruptor.dsl.Disruptor;
 import javafx.concurrent.Task;
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.PostCommitService;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.component.concept.ConceptBuilderService;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptService;
-import sh.isaac.api.component.concept.ConceptSnapshotService;
-import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.concept.*;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.CoordinateFactory;
+import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.datastore.DataStore;
@@ -398,6 +397,8 @@ public class Get
       if (conceptNid >= 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
       }
+
+
       if (Get.identifierService().getObjectTypeForComponent(conceptNid) == IsaacObjectType.SEMANTIC) {
          SemanticChronology sc = Get.assemblageService().getSemanticChronology(conceptNid);
          if (sc.getVersionType() == VersionType.DESCRIPTION) {
@@ -579,7 +580,7 @@ public class Get
       if (conceptSnapshot == null) {
          conceptSnapshot = getService(
              ConceptService.class).getSnapshot(Get.configurationService()
-                   .getGlobalDatastoreConfiguration().getDefaultManifoldCoordinate());
+                   .getGlobalDatastoreConfiguration().getDefaultManifoldCoordinate().getValue());
       }
 
       return conceptSnapshot;
@@ -798,6 +799,14 @@ public class Get
       }
 
       return postCommitService;
+   }
+
+   public static ConceptSnapshot conceptSnapshot(ConceptProxy concept, ManifoldCoordinate manifoldCoordinate) {
+      return Get.conceptService().getConceptSnapshot(concept, manifoldCoordinate);
+   }
+
+   public static ConceptSnapshot conceptSnapshot(int conceptNid, ManifoldCoordinate manifoldCoordinate) {
+      return Get.conceptService().getConceptSnapshot(conceptNid, manifoldCoordinate);
    }
 
    /**
@@ -1037,5 +1046,73 @@ public class Get
    public static TaskCountManager taskCountManager() {
       return new TaskCountManager(permitCount());
    }
+
+   public static String getTextForComponent(int componentNid) {
+      return Get.getTextForComponent(componentNid, Get.defaultCoordinate());
+   }
+
+   public static String getTextForComponent(Chronology component) {
+      return Get.getTextForComponent(component, Get.defaultCoordinate().getStampFilter(),
+              Get.defaultCoordinate().getLanguageCoordinate());
+   }
+
+
+   public static String getTextForComponent(Chronology component, ManifoldCoordinate manifoldCoordinate) {
+      return Get.getTextForComponent(component, manifoldCoordinate.getStampFilter(),
+              manifoldCoordinate.getLanguageCoordinate());
+   }
+
+   public static String getTextForComponent(int componentNid, ManifoldCoordinate manifoldCoordinate) {
+      Optional<? extends Chronology> optionalComponent = Get.identifiedObjectService().getChronology(componentNid);
+      if (optionalComponent.isPresent()) {
+         return Get.getTextForComponent(optionalComponent.get(), manifoldCoordinate.getStampFilter(),
+                 manifoldCoordinate.getLanguageCoordinate());
+      }
+      return "No component for: " + componentNid + " uuids: " + Get.identifierService().getUuidsForNid(componentNid);
+   }
+
+   public static String getTextForComponent(int componentNid, StampFilter stampFilter,
+                                            LanguageCoordinate languageCoordinate) {
+      Optional<? extends Chronology> optionalComponent = Get.identifiedObjectService().getChronology(componentNid);
+      if (optionalComponent.isPresent()) {
+         return Get.getTextForComponent(optionalComponent.get(), stampFilter, languageCoordinate);
+      }
+      return "No component for: " + componentNid + " uuids: " + Get.identifierService().getUuidsForNid(componentNid);
+   }
+
+
+   public static String getTextForComponent(Chronology component, StampFilter stampFilter,
+                                            LanguageCoordinate languageCoordinate) {
+      switch (component.getVersionType()) {
+         case CONCEPT: {
+            Optional<String> latestDescriptionText = languageCoordinate.getPreferredDescriptionText(component.getNid(), stampFilter);
+            if (latestDescriptionText.isPresent()) {
+               return latestDescriptionText.get();
+            }
+            return "No description for concept: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(component.getNid()));
+         }
+         case DESCRIPTION: {
+            LatestVersion<DescriptionVersion> latest = component.getLatestVersion(stampFilter);
+            if (latest.isPresent()) {
+               return latest.get().getText();
+            } else if (!latest.versionList().isEmpty()) {
+               return latest.versionList().get(0).getText();
+            }
+            return "No versions for: " + component.getVersionType() + " " + component.getNid() + " "
+                    + Get.identifierService().getUuidsForNid(component.getNid());
+         }
+
+         default:
+            LatestVersion<Version>  latest = component.getLatestVersion(stampFilter);
+            if (latest.isPresent()) {
+               return latest.get().toUserString();
+            } else if (!latest.versionList().isEmpty()) {
+               return latest.versionList().get(0).toUserString();
+            }
+            return "No versions for: " + component;
+
+      }
+   }
+
 }
 

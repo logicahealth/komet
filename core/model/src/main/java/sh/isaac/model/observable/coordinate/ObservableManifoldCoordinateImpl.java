@@ -172,6 +172,11 @@ public class ObservableManifoldCoordinateImpl
     }
 
     @Override
+    public ManifoldCoordinateImmutable toManifoldCoordinateImmutable() {
+        return this.getValue();
+    }
+
+    @Override
     public ObservableStampFilter getEdgeStampFilter() {
         return this.observableDigraphCoordinate.getEdgeStampFilter();
     }

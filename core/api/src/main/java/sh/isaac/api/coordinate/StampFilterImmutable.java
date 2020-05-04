@@ -47,9 +47,7 @@ import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -59,7 +57,7 @@ import sh.isaac.api.marshal.Unmarshaler;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
 import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
 
@@ -99,6 +97,7 @@ public class StampFilterImmutable
     private final StatusSet allowedStates;
     private final StampPosition stampPosition;
     private final ImmutableIntSet moduleNids;
+    private final ImmutableIntSet excludedModuleNids;
     private final ImmutableIntList modulePreferenceOrder;
 
     private transient RelativePositionCalculator relativePositionCalculator;
@@ -109,6 +108,7 @@ public class StampFilterImmutable
         this.allowedStates = null;
         this.stampPosition = null;
         this.moduleNids = null;
+        this.excludedModuleNids = null;
         this.modulePreferenceOrder = null;
     }
 
@@ -122,11 +122,13 @@ public class StampFilterImmutable
 
     private StampFilterImmutable(StatusSet allowedStates,
                                 StampPosition stampPosition,
-                                ImmutableIntSet moduleNids,
+                                 ImmutableIntSet moduleNids,
+                                 ImmutableIntSet excludedModuleNids,
                                 ImmutableIntList modulePreferenceOrder) {
         this.allowedStates = allowedStates;
         this.stampPosition = stampPosition;
         this.moduleNids = moduleNids;
+        this.excludedModuleNids = excludedModuleNids;
         this.modulePreferenceOrder = modulePreferenceOrder;
     }
 
@@ -137,6 +139,7 @@ public class StampFilterImmutable
         MarshalUtil.marshal(this.allowedStates, out);
         MarshalUtil.marshal(this.stampPosition, out);
         out.putNidArray(moduleNids.toArray());
+        out.putNidArray(excludedModuleNids.toArray());
         out.putNidArray(modulePreferenceOrder.toArray());
     }
 
@@ -148,11 +151,20 @@ public class StampFilterImmutable
                 return SINGLETONS.computeIfAbsent(new StampFilterImmutable(MarshalUtil.unmarshal(in),
                         MarshalUtil.unmarshal(in),
                         IntSets.immutable.of(in.getNidArray()),
+                        IntSets.immutable.of(in.getNidArray()),
                         IntLists.immutable.of(in.getNidArray())),
                         stampFilterImmutable -> stampFilterImmutable);
             default:
                 throw new UnsupportedOperationException("Unsupported version: " + objectMarshalVersion);
         }
+    }
+    public static StampFilterImmutable make(StatusSet allowedStates,
+                                            StampPosition stampPosition,
+                                            ImmutableIntSet moduleNids,
+                                            ImmutableIntSet excludedModuleNids,
+                                            ImmutableIntList modulePreferenceOrder) {
+        return SINGLETONS.computeIfAbsent(new StampFilterImmutable(allowedStates, stampPosition,
+                moduleNids, excludedModuleNids, modulePreferenceOrder), stampFilterImmutable -> stampFilterImmutable);
     }
 
     public static StampFilterImmutable make(StatusSet allowedStates,
@@ -160,7 +172,7 @@ public class StampFilterImmutable
                                             ImmutableIntSet moduleNids,
                                             ImmutableIntList modulePreferenceOrder) {
         return SINGLETONS.computeIfAbsent(new StampFilterImmutable(allowedStates, stampPosition,
-                moduleNids, modulePreferenceOrder), stampFilterImmutable -> stampFilterImmutable);
+                moduleNids, IntSets.immutable.empty(), modulePreferenceOrder), stampFilterImmutable -> stampFilterImmutable);
     }
 
 
@@ -168,7 +180,7 @@ public class StampFilterImmutable
                          StampPosition stampPosition,
                          ImmutableIntSet moduleNids) {
         return SINGLETONS.computeIfAbsent(new StampFilterImmutable(allowedStates, stampPosition,
-                moduleNids, IntLists.immutable.empty()), stampFilterImmutable -> stampFilterImmutable);
+                moduleNids, IntSets.immutable.empty(), IntLists.immutable.empty()), stampFilterImmutable -> stampFilterImmutable);
     }
 
     public static StampFilterImmutable make(StatusSet allowedStates, int path,
@@ -177,7 +189,7 @@ public class StampFilterImmutable
         StampPositionImmutable stampPosition = StampPositionImmutable.make(Long.MAX_VALUE, path);
 
         return SINGLETONS.computeIfAbsent(new StampFilterImmutable(allowedStates,
-                stampPosition, moduleNids, IntLists.immutable.empty()), stampFilterImmutable -> stampFilterImmutable);
+                stampPosition, moduleNids, IntSets.immutable.empty(), IntLists.immutable.empty()), stampFilterImmutable -> stampFilterImmutable);
     }
 
     public static StampFilterImmutable make(StatusSet allowedStates, int path) {
@@ -186,12 +198,14 @@ public class StampFilterImmutable
         return SINGLETONS.computeIfAbsent(new StampFilterImmutable(allowedStates,
                 stampPosition,
                 IntSets.immutable.empty(),
+                IntSets.immutable.empty(),
                 IntLists.immutable.empty()), stampFilterImmutable -> stampFilterImmutable);
     }
 
     public static StampFilterImmutable make(StatusSet allowedStates, StampPosition stampPosition) {
         return SINGLETONS.computeIfAbsent(new StampFilterImmutable(allowedStates,
                 stampPosition,
+                IntSets.immutable.empty(),
                 IntSets.immutable.empty(),
                 IntLists.immutable.empty()), stampFilterImmutable -> stampFilterImmutable);
     }
@@ -212,7 +226,12 @@ public class StampFilterImmutable
     }
 
     @Override
-    public ImmutableIntList getModulePreferenceOrder() {
+    public ImmutableIntSet getExcludedModuleNids() {
+        return this.excludedModuleNids;
+    }
+
+    @Override
+    public ImmutableIntList getModulePriorityOrder() {
         return this.modulePreferenceOrder;
     }
 
@@ -230,7 +249,7 @@ public class StampFilterImmutable
 
     @Override
     public StampFilterImmutable makeCoordinateAnalog(StatusSet statusSet) {
-        return new StampFilterImmutable(statusSet,
+        return make(statusSet,
                 this.stampPosition,
                 this.moduleNids,
                 this.modulePreferenceOrder);
@@ -238,7 +257,7 @@ public class StampFilterImmutable
 
     @Override
     public StampFilterImmutable makeCoordinateAnalog(long stampPositionTime) {
-        return new StampFilterImmutable(this.allowedStates,
+        return make(this.allowedStates,
                 StampPositionImmutable.make(stampPositionTime, this.stampPosition.getPathForPositionNid()),
                 this.moduleNids, this.modulePreferenceOrder);
     }
@@ -255,7 +274,8 @@ public class StampFilterImmutable
         return getAllowedStates().equals(that.getAllowedStates()) &&
                 getStampPosition().equals(that.getStampPosition()) &&
                 getModuleNids().equals(that.getModuleNids()) &&
-                getModulePreferenceOrder().equals(that.getModulePreferenceOrder());
+                getExcludedModuleNids().equals(that.getExcludedModuleNids()) &&
+                getModulePriorityOrder().equals(that.getModulePriorityOrder());
     }
 
     @Override
@@ -263,12 +283,34 @@ public class StampFilterImmutable
         return Objects.hash(getAllowedStates(),
                 getStampPosition(),
                 getModuleNids(),
-                getModulePreferenceOrder());
+                getExcludedModuleNids(),
+                getModulePriorityOrder());
     }
 
     @Override
     public int getPathNidForFilter() {
         return this.stampPosition.getPathForPositionNid();
+    }
+
+
+    @Override
+    public StampFilterImmutable makeModuleAnalog(Collection<ConceptSpecification> modules) {
+        ImmutableIntSet moduleNidSet = IntSets.immutable.ofAll(modules.stream().mapToInt(conceptSpecification -> conceptSpecification.getNid()));
+        return make(this.allowedStates,
+                this.stampPosition,
+                moduleNidSet, this.excludedModuleNids, IntLists.immutable.empty());
+    }
+
+    @Override
+    public StampFilterImmutable makePathAnalog(ConceptSpecification pathForPosition) {
+        return make(this.allowedStates,
+                StampPositionImmutable.make(this.stampPosition.getTime(), pathForPosition.getNid()),
+                this.moduleNids, this.excludedModuleNids, this.modulePreferenceOrder);
+    }
+
+    @Override
+    public StampFilterTemplateImmutable toStampFilterTemplateImmutable() {
+        return StampFilterTemplateImmutable.make(this.allowedStates, this.moduleNids, this.excludedModuleNids, this.modulePreferenceOrder);
     }
 }
 

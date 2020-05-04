@@ -8,6 +8,7 @@ package sh.isaac.solor.rf2.utility;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -75,13 +76,13 @@ public class RF2ExportHelper {
 
         for(int identifierAssemblageNid : identifierNidPriority){
 
-            NidSet identifierNidSet = Get.assemblageService()
+            ImmutableIntSet identifierNidSet = Get.assemblageService()
                     .getSemanticNidsForComponentFromAssemblage(version.getNid(), identifierAssemblageNid);
 
-            if(!identifierNidSet.isEmpty() && identifierNidSet.findFirst().isPresent()){
+            if(!identifierNidSet.isEmpty()){
 
                 StringVersion identifierString = (StringVersion) Get.assemblageService()
-                        .getSemanticChronology(identifierNidSet.findFirst().getAsInt()).getVersionList().get(0);
+                        .getSemanticChronology(identifierNidSet.intIterator().next()).getVersionList().get(0);
 
 
                 if(identifierAssemblageNid == TermAux.SNOMED_IDENTIFIER.getNid()){

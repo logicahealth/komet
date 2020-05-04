@@ -322,7 +322,10 @@ public class IdentifierProvider
     public IntStream getNidsForAssemblage(int assemblageNid) {
         return store.getNidsForAssemblage(assemblageNid);
     }
-
+    @Override
+    public IntStream getNidsForAssemblageParallel(int assemblageNid) {
+        return store.getNidsForAssemblageParallel(assemblageNid);
+    }
     @Override
     public Optional<UUID> getDataStoreId() {
         return store.getDataStoreId();

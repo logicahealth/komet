@@ -40,11 +40,11 @@ package sh.isaac.provider.datastore.chronology;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.ProgressTracker;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.StampFilter;
@@ -127,7 +127,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    @Override
    public List<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid) {
       List<LatestVersion<V>> results = new ArrayList<>();
-      for (int semanticNid : this.semanticProvider.getSemanticNidsForComponent(componentNid).asArray()) {
+      for (int semanticNid : this.semanticProvider.getSemanticNidsForComponent(componentNid).toArray()) {
          SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(semanticNid);
          if (semanticChronology.getVersionType() == VersionType.DESCRIPTION) {
             results.add(this.getLatestSemanticVersion(semanticChronology));
@@ -177,11 +177,11 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
       return new VersionStreamWrapper<>(getLatestSemanticVersionStreamUnwrapped(semanticSequenceStream, progressTrackers));
    }
 
-   private List<LatestVersion<V>> getLatestSemanticVersionList(NidSet semanticNidSet,
-           ProgressTracker... progressTrackers) {
+   private List<LatestVersion<V>> getLatestSemanticVersionList(ImmutableIntSet semanticNidSet,
+                                                               ProgressTracker... progressTrackers) {
 
       List<LatestVersion<V>> results = new ArrayList<>(semanticNidSet.size());
-      for (int semanticNid : semanticNidSet.asArray()) {
+      for (int semanticNid : semanticNidSet.toArray()) {
          final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(semanticNid);
          results.add(getLatestSemanticVersion(sc));
          for (ProgressTracker tracker: progressTrackers) {
@@ -198,8 +198,8 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
     * @param progressTrackers the progress trackers
     * @return the latest semantic versions
     */
-   private List<LatestVersion<V>> getLatestSemanticVersions(NidSet semanticNidSet,
-           ProgressTracker... progressTrackers) {
+   private List<LatestVersion<V>> getLatestSemanticVersions(ImmutableIntSet semanticNidSet,
+                                                            ProgressTracker... progressTrackers) {
       Arrays.stream(progressTrackers)
               .forEach((tracker) -> {
                  tracker.addToTotalWork(semanticNidSet.size());
@@ -241,7 +241,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    @Override
    public VersionStream<V> getLatestSemanticVersionsFromAssemblage(int assemblageConceptNid,
            ProgressTracker... progressTrackers) {
-      return getLatestSemanticVersionStream(this.semanticProvider.getSemanticNidsFromAssemblage(assemblageConceptNid).stream(),
+      return getLatestSemanticVersionStream(Arrays.stream(this.semanticProvider.getSemanticNidsFromAssemblage(assemblageConceptNid).toArray()),
               progressTrackers);
    }
 

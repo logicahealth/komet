@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Spliterator;
+import java.util.Spliterators;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ConcurrentSkipListSet;
@@ -234,6 +235,13 @@ public class SpinedIntIntMap {
 
         return StreamSupport.intStream(streamSupplier, streamSupplier.get()
                 .characteristics(), false);
+    }
+
+    public IntStream parallelValueStream() {
+        final Supplier<? extends Spliterator.OfInt> streamSupplier = this.getValueSpliterator();
+
+        return StreamSupport.intStream(streamSupplier, streamSupplier.get()
+                .characteristics(), true).filter(value -> value != Integer.MAX_VALUE);
     }
 
     public IntStream valueStream() {

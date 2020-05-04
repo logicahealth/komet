@@ -231,7 +231,6 @@ public final class StampPositionImmutable
         return sb.toString();
     }
 
-    @Override
     public ImmutableSet<StampPositionImmutable> getPathOrigins() {
         if (this.stampPath == null) {
             this.stampPath = StampPathImmutable.make(getPathForPositionNid());

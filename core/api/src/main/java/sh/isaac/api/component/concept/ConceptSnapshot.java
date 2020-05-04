@@ -44,6 +44,8 @@ package sh.isaac.api.component.concept;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.Get;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -188,9 +190,9 @@ public interface ConceptSnapshot
     * TODO: consider creation and return of a SemanticSnapshot, rather than a version. 
     */
    default <V extends SemanticVersion> List<LatestVersion<V>> getLatestSemanticVersionsFromAssemblage(int assemblageConceptNid) {
-       NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(getNid(), assemblageConceptNid);
+       ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(getNid(), assemblageConceptNid);
        List<LatestVersion<V>> semanticList = new ArrayList<>(semanticNids.size());
-       for (int semanticNid: semanticNids.asArray()) {
+       for (int semanticNid: semanticNids.toArray()) {
            SemanticChronology chronology = Get.assemblageService().getSemanticChronology(semanticNid);
            LatestVersion<V> latestVersion = chronology.getLatestVersion(this.getStampFilter());
            if (latestVersion.isPresent()) {
@@ -209,8 +211,8 @@ public interface ConceptSnapshot
     * TODO: consider creation and return of a SemanticSnapshot, rather than a version. 
     */
    default <V extends SemanticVersion> LatestVersion<V> getFirstSemanticVersionFromAssemblage(int assemblageConceptNid) {
-       NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(getNid(), assemblageConceptNid);
-       for (int semanticNid: semanticNids.asArray()) {
+       ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(getNid(), assemblageConceptNid);
+       for (int semanticNid: semanticNids.toArray()) {
            SemanticChronology chronology = Get.assemblageService().getSemanticChronology(semanticNid);
            LatestVersion<V> latestVersion = chronology.getLatestVersion(this.getStampFilter());
            if (latestVersion.isPresent()) {

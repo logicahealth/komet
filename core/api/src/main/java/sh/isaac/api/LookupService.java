@@ -56,6 +56,13 @@ import java.util.function.BiConsumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.factory.Sets;
+import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.list.primitive.MutableIntList;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
+import org.eclipse.collections.impl.list.mutable.FastList;
 import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
@@ -236,6 +243,17 @@ public class LookupService {
     * Start all core isaac services, blocking until started (or failed).
     */
    public static void startupIsaac() {
+      // Service provider hack since parallel threads where not finding the factories on startup.
+      // See org.eclipse.collections.api.factory.ServiceLoaderUtils; "Check that eclipse-collections.jar is on the classpath"
+      IntSets.mutable.empty();
+      IntSets.immutable.empty();
+      IntLists.mutable.empty();
+      IntLists.mutable.empty();
+      Lists.mutable.empty();
+      Lists.immutable.empty();
+      Sets.mutable.empty();
+      Sets.immutable.empty();
+
       try {
          // So Fortify does not complain about Locale dependent comparison
          // when the application uses .equals or

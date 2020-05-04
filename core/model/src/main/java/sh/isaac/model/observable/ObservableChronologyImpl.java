@@ -67,6 +67,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
@@ -292,9 +295,7 @@ public abstract class ObservableChronologyImpl
          final ObservableList<ObservableSemanticChronology> semanticList = FXCollections.observableArrayList();
 
          Get.assemblageService()
-            .getSemanticNidsForComponent(getNid())
-            .stream()
-            .forEach((semanticSequence) -> semanticList.add(ocs.getObservableSemanticChronology(semanticSequence)));
+            .getSemanticNidsForComponent(getNid()).forEach((semanticNid) -> semanticList.add(ocs.getObservableSemanticChronology(semanticNid)));
          this.semanticListProperty = new SimpleListProperty(
              this,
              ObservableFields.SEMANTIC_LIST_FOR_CHRONICLE.toExternalString(),
@@ -519,14 +520,13 @@ public abstract class ObservableChronologyImpl
       this.chronicledObjectLocal = chronology;
 
       if (this.semanticListProperty != null) {
-         NidSet updatedSemanticNidSet = Get.assemblageService()
-                                                         .getSemanticNidsForComponent(chronology.getNid());
+         MutableIntSet updatedSemanticNidSet = IntSets.mutable.ofAll(Get.assemblageService()
+                                                         .getSemanticNidsForComponent(chronology.getNid()));
 
          this.semanticListProperty.forEach((semantic) -> {
                 updatedSemanticNidSet.remove(semantic.getNid());
              });
-         updatedSemanticNidSet.stream()
-                                 .forEach(
+         updatedSemanticNidSet.forEach(
                                      (semanticNid) -> {
                                         this.semanticListProperty.add(Get.observableChronologyService()
                                                .getObservableSemanticChronology(semanticNid));
@@ -807,7 +807,7 @@ public abstract class ObservableChronologyImpl
    }
    
       @Override
-   public NidSet getRecursiveSemanticNids() {
+   public ImmutableIntSet getRecursiveSemanticNids() {
       return chronicledObjectLocal.getRecursiveSemanticNids();
    }
 

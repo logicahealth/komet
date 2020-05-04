@@ -4,7 +4,7 @@ import org.eclipse.collections.api.list.primitive.ImmutableIntList;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
-public interface StampFilterProxy extends StampFilter {
+public interface StampFilterProxy extends StampFilter, StampFilterTemplateProxy {
 
     StampFilter getStampFilter();
 
@@ -24,8 +24,8 @@ public interface StampFilterProxy extends StampFilter {
     }
 
     @Override
-    default ImmutableIntList getModulePreferenceOrder() {
-        return getStampFilter().getModulePreferenceOrder();
+    default ImmutableIntList getModulePriorityOrder() {
+        return getStampFilter().getModulePriorityOrder();
     }
 
     @Override
@@ -47,4 +47,5 @@ public interface StampFilterProxy extends StampFilter {
     default StampFilter makeCoordinateAnalog(long stampPositionTime) {
         return getStampFilter().makeCoordinateAnalog(stampPositionTime);
     }
+
 }

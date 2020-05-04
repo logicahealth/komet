@@ -193,10 +193,13 @@ public class SemanticChronologyImpl
       case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
          return new Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(chronology, stampSequence, bb);
 
-      case Nid1_Int2:
-         return new Nid1_Int2_VersionImpl(chronology, stampSequence, bb);
+         case Nid1_Int2:
+            return new Nid1_Int2_VersionImpl(chronology, stampSequence, bb);
 
-      case Nid1_Int2_Str3_Str4_Nid5_Nid6:
+         case Nid1_Long2:
+            return new Nid1_Long2_VersionImpl(chronology, stampSequence, bb);
+
+         case Nid1_Int2_Str3_Str4_Nid5_Nid6:
          return new Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl(chronology, stampSequence, bb);
 
       case Nid1_Nid2_Int3:
@@ -387,10 +390,13 @@ public class SemanticChronologyImpl
       case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
          return (M) new Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl((SemanticChronology) this, stampSequence);
 
-      case Nid1_Int2:
-         return (M) new Nid1_Int2_VersionImpl((SemanticChronology) this, stampSequence);
+         case Nid1_Int2:
+            return (M) new Nid1_Int2_VersionImpl((SemanticChronology) this, stampSequence);
 
-      case Nid1_Int2_Str3_Str4_Nid5_Nid6:
+         case Nid1_Long2:
+            return (M) new Nid1_Long2_VersionImpl((SemanticChronology) this, stampSequence);
+
+         case Nid1_Int2_Str3_Str4_Nid5_Nid6:
          return (M) new Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl((SemanticChronology) this, stampSequence);
 
       case Nid1_Nid2_Int3:

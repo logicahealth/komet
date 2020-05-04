@@ -70,11 +70,11 @@ public class Rf2RelationshipImpl
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
-              .append("{typeNid: ").append(Get.conceptDescriptionText(typeNid))
-              .append(", destinationNid: ").append(Get.conceptDescriptionText(destinationNid))
+              .append("{typeNid: ").append(Get.getTextForComponent(typeNid))
+              .append(", destinationNid: ").append(Get.getTextForComponent(destinationNid))
               .append(", relationshipGroup: ").append(relationshipGroup)
-              .append(", characteristicNid: ").append(Get.conceptDescriptionText(characteristicNid))
-              .append(", modifierNid: ").append(Get.conceptDescriptionText(modifierNid))
+              .append(", characteristicNid: ").append(Get.getTextForComponent(characteristicNid))
+              .append(", modifierNid: ").append(Get.getTextForComponent(modifierNid))
               .append(Get.stampService()
                       .describeStampSequence(this.getStampSequence())).append("}");
       return builder;

@@ -310,6 +310,10 @@ public class CellHelper {
                     processNid1_Int2(assemblageNameText, referencedComponentText, (Nid1_Int2_Version) semanticVersion);
                     break;
 
+                case Nid1_Long2:
+                    processNid1_Long2(assemblageNameText, referencedComponentText, (Nid1_Long2_Version) semanticVersion);
+                    break;
+
                 case Nid1_Int2_Str3_Str4_Nid5_Nid6:
                     processNid1_Int2_Str3_Str4_Nid5_Nid6(assemblageNameText, referencedComponentText, (Nid1_Int2_Str3_Str4_Nid5_Nid6_Version) semanticVersion);
                     break;
@@ -495,6 +499,15 @@ public class CellHelper {
         String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
                 "\n" +
                 brittleVersion.getInt2() +
+                " ";
+        Text defaultText = new Text(buff);
+        addTextToCell(assemblageNameText, defaultText, referencedComponentText);
+    }
+    private void processNid1_Long2(Text assemblageNameText, Text referencedComponentText, Nid1_Long2_Version brittleVersion) {
+
+        String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
+                "\n" +
+                brittleVersion.getLong2() +
                 " ";
         Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);

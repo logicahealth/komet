@@ -41,12 +41,16 @@ public class PropertySheetConceptSetWrapper implements PropertySheet.Item {
     private final ListChangeListener<ConceptSpecification> listChangedListener = c -> this.handleListChange(c);
 
     public PropertySheetConceptSetWrapper(Manifold manifold, SetProperty<ConceptSpecification> conceptSetProperty) {
+        this(manifold.getPreferredDescriptionText(new ConceptProxy(conceptSetProperty.getName())), conceptSetProperty);
+    }
+
+    public PropertySheetConceptSetWrapper(String name, SetProperty<ConceptSpecification> conceptSetProperty) {
         this.conceptSetProperty = conceptSetProperty;
-        this.name = manifold.getPreferredDescriptionText(new ConceptProxy(conceptSetProperty.getName()));
+        this.name = name;
         ObservableList<ConceptSpecification> list = FXCollections.observableArrayList();
         list.addAll(conceptSetProperty.getValue());
         list.addListener(this.listChangedListener);
-        this.conceptListProperty = new SimpleListProperty<>(conceptSetProperty.getBean(), 
+        this.conceptListProperty = new SimpleListProperty<>(conceptSetProperty.getBean(),
                 conceptSetProperty.getName(), list);
     }
 

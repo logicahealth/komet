@@ -40,6 +40,9 @@ import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.*;
@@ -50,7 +53,10 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.ChronologyChangeListener;
+import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
@@ -316,8 +322,12 @@ public class ChronologyProvider
 
     @Override
     public ConceptChronologyImpl getConceptChronology(int conceptId) {
+        Object possibleConcept = nidToChronologyCache.getIfPresent(conceptId);
+        if (possibleConcept != null && !(possibleConcept instanceof ConceptChronologyImpl)) {
+            throw new IllegalStateException("Concept cache cannot contain: " + possibleConcept);
+        }
 
-        ConceptChronologyImpl chronology = (ConceptChronologyImpl) nidToChronologyCache.getIfPresent(conceptId);
+        ConceptChronologyImpl chronology = (ConceptChronologyImpl) possibleConcept;
         if (chronology == null) {
             Optional<ByteArrayDataBuffer> optionalByteBuffer = store.getChronologyVersionData(conceptId);
 
@@ -456,8 +466,8 @@ public class ChronologyProvider
         IdentifierService identifierService = ModelGet.identifierService();
 
         List<SemanticChronology> results = new ArrayList<>();
-        int[] semanticNids = getSemanticNidsForComponent(componentNid).asArray();
-        for (int semanticNid : semanticNids) {
+        ImmutableIntSet semanticNids = getSemanticNidsForComponent(componentNid);
+        semanticNids.forEach(semanticNid -> {
             int assemblageNid = identifierService.getAssemblageNid(semanticNid).getAsInt();
             VersionType versionType = getVersionTypeForAssemblage(assemblageNid);
             if (versionType == VersionType.DESCRIPTION) {
@@ -470,7 +480,7 @@ public class ChronologyProvider
                     LOG.error(e);
                 }
             }
-        }
+        });
         return results;
     }
 
@@ -571,7 +581,7 @@ public class ChronologyProvider
 
     @Override
     public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid) {
-        return getSemanticNidsForComponent(componentNid).parallelStream()
+        return Arrays.stream(getSemanticNidsForComponent(componentNid).toArray())
                 .mapToObj((int semanticNid) -> { 
                 try {
                   return (C) getSemanticChronology(semanticNid);
@@ -589,9 +599,9 @@ public class ChronologyProvider
     @Override
     public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
           Set<Integer> assemblageConceptNids) {
-       final NidSet semanticSequences = getSemanticNidsForComponentFromAssemblages(componentNid, assemblageConceptNids);
+       final ImmutableIntSet semanticSequences = getSemanticNidsForComponentFromAssemblages(componentNid, assemblageConceptNids);
 
-       return semanticSequences.parallelStream().mapToObj((int semanticNid) -> {
+       return Arrays.stream(semanticSequences.toArray()).parallel().mapToObj((int semanticNid) -> {
            try {
              return (C) getSemanticChronology(semanticNid);
           } catch (NoSuchElementException e) {
@@ -604,9 +614,9 @@ public class ChronologyProvider
     public <C extends SemanticChronology> Stream<C> getSemanticChronologyStream(int assemblageConceptNid) {
         switch (getObjectTypeForAssemblage(assemblageConceptNid)) {
             case SEMANTIC:
-                final NidSet semanticSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
+                final ImmutableIntSet semanticSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
 
-                return semanticSequences.parallelStream()
+                return Arrays.stream(semanticSequences.toArray()).parallel()
                         .mapToObj((int semanticNid) -> 
                         {
                              try {
@@ -618,8 +628,8 @@ public class ChronologyProvider
 
             case UNKNOWN:
                 // perhaps not initialized...
-                final NidSet elementSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
-                return (Stream<C>) elementSequences.parallelStream().mapToObj((nid) -> getChronology(nid))
+                final ImmutableIntSet elementSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
+                return (Stream<C>) Arrays.stream(elementSequences.toArray()).parallel().mapToObj((nid) -> getChronology(nid))
                         .filter((optionalObject) -> optionalObject.isPresent())
                         .map((optionalObject) -> optionalObject.get());
         }
@@ -637,8 +647,8 @@ public class ChronologyProvider
                 return (Stream<C>) getSemanticChronologyStream(assemblageConceptNid);
             case UNKNOWN:
                 // perhaps not initialized...
-                final NidSet elementSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
-                return (Stream<C>) elementSequences.parallelStream().mapToObj((nid) -> getChronology(nid))
+                final ImmutableIntSet elementSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
+                return (Stream<C>) Arrays.stream(elementSequences.toArray()).parallel().mapToObj((nid) -> getChronology(nid))
                         .filter((optionalObject) -> optionalObject.isPresent())
                         .map((optionalObject) -> optionalObject.get());
 
@@ -677,19 +687,17 @@ public class ChronologyProvider
     }
 
     @Override
-    public NidSet getSemanticNidsForComponent(int componentNid) {
-        int[] semanticNids = store.getSemanticNidsForComponent(componentNid);
-
-        return NidSet.of(semanticNids);
+    public ImmutableIntSet getSemanticNidsForComponent(int componentNid) {
+        return IntSets.immutable.of(store.getSemanticNidsForComponent(componentNid));
     }
 
     @Override
-    public NidSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageNid) {
+    public ImmutableIntSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageNid) {
        return getSemanticNidsForComponentFromAssemblages(componentNid, Collections.singleton(assemblageNid));
     }
     
     @Override
-    public NidSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids) {
+    public ImmutableIntSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids) {
        if (componentNid >= 0) {
           throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + componentNid);
        }
@@ -704,25 +712,31 @@ public class ChronologyProvider
           }
        }
        IdentifierService identifierService = ModelGet.identifierService();
-       NidSet semanticNids = new NidSet();
+
+       MutableIntSet semanticNids = IntSets.mutable.empty();
        for (int semanticNid: store.getSemanticNidsForComponent(componentNid)) {
           if (assemblageConceptNids.contains(identifierService.getAssemblageNid(semanticNid).getAsInt())) {
              semanticNids.add(semanticNid);
           }
        }
-       return semanticNids;
+       return semanticNids.toImmutable();
     }
 
     @Override
-    public NidSet getSemanticNidsFromAssemblage(int assemblageNid) {
-        return NidSet.of(ModelGet.identifierService()
+    public ImmutableIntSet getSemanticNidsFromAssemblage(int assemblageNid) {
+        return IntSets.immutable.ofAll(ModelGet.identifierService()
                 .getNidsForAssemblage(assemblageNid)
                 .filter(nid -> hasSemantic(nid)));
     }
 
+    private static final ConcurrentReferenceHashMap<ManifoldCoordinateImmutable, ConceptSnapshotService> CONCEPT_SNAPSHOTS =
+            new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
+                    ConcurrentReferenceHashMap.ReferenceType.WEAK);
+
     @Override
-    public ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate) {
-        return new ConceptSnapshotProvider(manifoldCoordinate);
+    public ConceptSnapshotService getSnapshot(ManifoldCoordinateImmutable manifoldCoordinate) {
+        return CONCEPT_SNAPSHOTS.computeIfAbsent(manifoldCoordinate,
+                manifoldCoordinateImmutable -> new ConceptSnapshotProvider(manifoldCoordinate));
     }
 
     @Override
@@ -780,10 +794,10 @@ public class ChronologyProvider
      * The Class ConceptSnapshotProvider.
      */
     public class ConceptSnapshotProvider implements ConceptSnapshotService {
-
         final ManifoldCoordinate manifoldCoordinate;
         final LanguageCoordinate regNameCoord;
         final StampFilterImmutable stampFilterImmutable;
+        final UUID listenerUuid = UUID.randomUUID();
 
         /**
          * Instantiates a new concept snapshot provider.
@@ -817,18 +831,29 @@ public class ChronologyProvider
         }
 
         @Override
-        public LatestVersion<DescriptionVersion> getDescriptionOptional(int conceptId) {
-            if (conceptId >= 0) {
-                throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptId);
+        public String conceptDescriptionText(int conceptNid) {
+            Optional<String> description = this.manifoldCoordinate.getLanguageCoordinate().getPreferredDescriptionText(conceptNid, this.manifoldCoordinate.getLanguageStampFilter());
+            if (description.isPresent()) {
+                return description.get();
             }
+            description = this.manifoldCoordinate.getLanguageCoordinate().getFullyQualifiedNameText(conceptNid, this.manifoldCoordinate.getLanguageStampFilter());
+            if (description.isPresent()) {
+                return description.get();
+            }
+            return this.manifoldCoordinate.getLanguageCoordinate().getAnyName(conceptNid, this.manifoldCoordinate.getLanguageStampFilter());
+        }
 
-            LatestVersion<DescriptionVersion> lv = this.manifoldCoordinate.getDescription(conceptId);
-            if (lv.isAbsent()) {
-               //Use a coordinate that will return anything
-               return regNameCoord.getDescription(Get.assemblageService().getDescriptionsForComponent(conceptId), this.manifoldCoordinate.getLanguageStampFilter());
+        @Override
+        public LatestVersion<DescriptionVersion> getDescriptionOptional(int conceptNid) {
+            if (conceptNid >= 0) {
+                throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
             }
-            else {
-               return lv;
+            LatestVersion<DescriptionVersion> lv = this.manifoldCoordinate.getDescription(conceptNid);
+            if (lv.isAbsent()) {
+                //Use a coordinate that will return anything
+                return regNameCoord.getDescription(Get.assemblageService().getDescriptionsForComponent(conceptNid), this.manifoldCoordinate.getLanguageStampFilter());
+            } else {
+                return lv;
             }
         }
 
@@ -843,6 +868,9 @@ public class ChronologyProvider
         return (SingleAssemblageSnapshot<V>) new SingleAssemblageSnapshotProvider(assemblageConceptNid, 
                 (SemanticSnapshotService<V>) getSnapshot(versionType, stampFilter));
     }
-    
-    
+
+    @Override
+    public ConceptSnapshot getConceptSnapshot(int conceptNid, ManifoldCoordinate manifoldCoordinate) {
+        return new ConceptSnapshotImpl(getConceptChronology(conceptNid), manifoldCoordinate);
+    }
 }

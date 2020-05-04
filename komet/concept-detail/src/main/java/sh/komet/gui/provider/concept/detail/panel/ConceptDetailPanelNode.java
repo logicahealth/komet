@@ -61,6 +61,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import sh.isaac.MetaData;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
@@ -329,19 +331,20 @@ public class ConceptDetailPanelNode
         if (optionalFocus.isPresent()) {
             ConceptSpecification focusedConceptSpec = optionalFocus.get();
             ConceptChronology focusedConcept = Get.concept(focusedConceptSpec);
-            NidSet recursiveSemantics = focusedConcept.getRecursiveSemanticNids();
+            ImmutableIntSet recursiveSemantics = focusedConcept.getRecursiveSemanticNids();
 
             final Runnable runnable = () -> {
                 resetConceptFromFocus();
             };
             if (commitRecord.getConceptsInCommit()
                     .contains(optionalFocus.get().getNid())) {
-                Platform.runLater(
-                        runnable);
-            } else if (!recursiveSemantics.and(commitRecord.getSemanticNidsInCommit())
-                    .isEmpty()) {
-                Platform.runLater(
-                        runnable);
+                Platform.runLater(runnable);
+            } else {
+                MutableIntSet semanticSet = recursiveSemantics.toSet();
+                semanticSet.retainAll(commitRecord.getSemanticNidsInCommit().asArray());
+                if (!semanticSet.isEmpty()) {
+                    Platform.runLater(runnable);
+                }
             }
         }
     }

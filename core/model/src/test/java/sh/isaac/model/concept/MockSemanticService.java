@@ -55,6 +55,7 @@ import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.glassfish.hk2.api.Rank;
 
 import org.jvnet.hk2.annotations.Service;
@@ -202,7 +203,7 @@ public class MockSemanticService
     * @return the semantic sequences for component
     */
    @Override
-   public NidSet getSemanticNidsForComponent(int componentNid) {
+   public ImmutableIntSet getSemanticNidsForComponent(int componentNid) {
       throw new UnsupportedOperationException();
    }
 
@@ -214,8 +215,8 @@ public class MockSemanticService
     * @return the semantic sequences for component from assemblage
     */
    @Override
-   public NidSet getSemanticNidsForComponentFromAssemblage(int componentNid,
-         int assemblageConceptNid) {
+   public ImmutableIntSet getSemanticNidsForComponentFromAssemblage(int componentNid,
+                                                                    int assemblageConceptNid) {
       throw new UnsupportedOperationException();
    }
 
@@ -227,7 +228,7 @@ public class MockSemanticService
     * @return the semantic sequences from assemblage
     */
    @Override
-   public NidSet getSemanticNidsFromAssemblage(int assemblageConceptNid) {
+   public ImmutableIntSet getSemanticNidsFromAssemblage(int assemblageConceptNid) {
       throw new UnsupportedOperationException();
    }
 
@@ -306,7 +307,7 @@ public class MockSemanticService
    }
 
    @Override
-   public NidSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids) {
+   public ImmutableIntSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids) {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 

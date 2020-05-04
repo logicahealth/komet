@@ -47,6 +47,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -109,6 +110,13 @@ public interface LanguageCoordinate {
            List<SemanticChronology> descriptionList,
            StampFilter stampFilter);
 
+    default Optional<String> getDescriptionText(ConceptSpecification conceptSpecification, StampFilter stampFilter) {
+        return this.getDescriptionText(conceptSpecification.getNid(), stampFilter);
+    }
+
+    default Optional<String> getDescriptionText(int componentNid, StampFilter stampFilter) {
+        return toLanguageCoordinateImmutable().getDescriptionText(componentNid, stampFilter);
+    }
    /**
     * Return the latestDescription according to the type and dialect preferences of this {@code LanguageCoordinate}.
     * or a nested {@code LanguageCoordinate}
@@ -122,9 +130,9 @@ public interface LanguageCoordinate {
    }
 
    default OptionalInt getAcceptabilityNid(int descriptionNid, int dialectAssemblageNid, StampFilter stampFilter) {
-       NidSet acceptabilityChronologyNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(descriptionNid, dialectAssemblageNid);
+       ImmutableIntSet acceptabilityChronologyNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(descriptionNid, dialectAssemblageNid);
        
-       for (int acceptabilityChronologyNid: acceptabilityChronologyNids.asArray()) {
+       for (int acceptabilityChronologyNid: acceptabilityChronologyNids.toArray()) {
            SemanticChronology acceptabilityChronology = Get.assemblageService().getSemanticChronology(acceptabilityChronologyNid);
                LatestVersion<ComponentNidVersion> latestAcceptability = acceptabilityChronology.getLatestVersion(stampFilter);
                if (latestAcceptability.isPresent()) {
@@ -332,7 +340,7 @@ public interface LanguageCoordinate {
     * @param stampCoordinate the stamp coordinate
     * @return the regular name text
     */
-   default Optional<String> getFullyQualifiedName(int componentNid, StampFilter stampCoordinate) {
+   default Optional<String> getFullyQualifiedNameText(int componentNid, StampFilter stampCoordinate) {
       switch (Get.identifierService().getObjectTypeForComponent(componentNid)) {
          case CONCEPT:
             LatestVersion<DescriptionVersion> latestDescription

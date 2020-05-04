@@ -31,6 +31,7 @@ import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionGroup;
 import org.controlsfx.control.action.ActionUtils;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.MetaData;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
@@ -160,7 +161,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
     }
 
     public void addIsaNodeAction() {
-        addIsaNodeAction(MetaData.METADATA____SOLOR);
+        addIsaNodeAction(MetaData.MODEL_CONCEPT____SOLOR);
     }
 
     public void addNecessarySetAction() {
@@ -222,9 +223,9 @@ public class AddEditLogicalExpressionNodeMenuItems {
 
     public void addRoleWithRestrictionsAction(ConceptSpecification roleType, ConceptSpecification assemblageWithRestrictions) {
         ActionGroup newRoleGroup = new ActionGroup("Add " + manifold.getPreferredDescriptionText(roleType) + "...");
-        NidSet semanticNids = Get.assemblageService().getSemanticNidsFromAssemblage(assemblageWithRestrictions.getNid());
+        ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsFromAssemblage(assemblageWithRestrictions.getNid());
         SemanticSnapshotService<SemanticVersion> snapshot = Get.assemblageService().getSnapshot(SemanticVersion.class, manifold.getStampFilter());
-        for (int semanticNid : semanticNids.asArray()) {
+        for (int semanticNid : semanticNids.toArray()) {
             LatestVersion<SemanticVersion> latestMembership = snapshot.getLatestSemanticVersion(semanticNid);
             if (latestMembership.isPresent() && latestMembership.get().isActive()) {
                 int restrictionNid = latestMembership.get().getReferencedComponentNid();

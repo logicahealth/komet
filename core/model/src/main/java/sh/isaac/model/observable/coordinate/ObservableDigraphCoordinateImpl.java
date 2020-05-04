@@ -66,7 +66,7 @@ public class ObservableDigraphCoordinateImpl
         this.digraphIdentifierConceptsProperty = new SimpleEqualityBasedSetProperty<>(this,
                 ObservableFields.DIGRAPH_SPECIFICATION_SET.toExternalString(),
                 FXCollections.observableSet(immutableCoordinate.getDigraphIdentifierConceptNids()
-                        .collect(nid -> Get.conceptSpecification(nid)).castToSet()));
+                        .collect(nid -> Get.conceptSpecification(nid)).toSet()));
 
         addListeners();
     }
@@ -80,7 +80,7 @@ public class ObservableDigraphCoordinateImpl
         this.vertexStampFilterObservable.setValue(newValue.getVertexStampFilter());
         this.languageStampFilterObservable.setValue(newValue.getLanguageStampFilter());
         this.digraphIdentifierConceptsProperty.setAll(newValue.getDigraphIdentifierConceptNids()
-                .collect(nid -> Get.conceptSpecification(nid)).castToSet());
+                .collect(nid -> Get.conceptSpecification(nid)).toSet());
     }
 
     @Override

@@ -41,19 +41,24 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
-import javafx.beans.property.SimpleSetProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.SetChangeListener;
+import org.eclipse.collections.api.factory.Sets;
+import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PathCoordinateImmutable;
+import sh.isaac.api.coordinate.StampPositionImmutable;
 import sh.isaac.api.observable.coordinate.ObservablePathCoordinate;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.SimpleEqualityBasedListProperty;
 import sh.isaac.model.observable.SimpleEqualityBasedObjectProperty;
 import sh.isaac.model.observable.SimpleEqualityBasedSetProperty;
 
@@ -74,16 +79,16 @@ public class ObservablePathCoordinateImpl
    /** The path concept property. */
    final ObjectProperty<ConceptSpecification> pathConceptProperty;
 
-   /** The module specifications property. */
-   final SimpleEqualityBasedSetProperty<ConceptSpecification> moduleSpecificationsProperty;
+    final SimpleEqualityBasedSetProperty<StampPositionImmutable> pathOriginsProperty;
 
+    final SimpleEqualityBasedListProperty<StampPositionImmutable> pathOriginsAsList;
 
 
    //~--- constructors --------------------------------------------------------
 
     private ObservablePathCoordinateImpl(int pathConceptNid,
-                                        ImmutableIntSet moduleNids) {
-        this(PathCoordinateImmutable.make(pathConceptNid, moduleNids));
+                                         ImmutableSet<StampPositionImmutable> origins) {
+        this(PathCoordinateImmutable.make(pathConceptNid, origins));
     }
 
     private ObservablePathCoordinateImpl(PathCoordinateImmutable pathCoordinateImmutable) {
@@ -92,9 +97,13 @@ public class ObservablePathCoordinateImpl
                 ObservableFields.PATH_FOR_PATH_COORDINATE.toExternalString(),
                 pathCoordinateImmutable.getPathForCoordinate());
 
-        this.moduleSpecificationsProperty = new SimpleEqualityBasedSetProperty<>(this,
-                ObservableFields.MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE.toExternalString(),
-                FXCollections.observableSet(pathCoordinateImmutable.getModuleNids().collect(nid -> Get.conceptSpecification(nid)).castToSet()));
+        this.pathOriginsProperty = new SimpleEqualityBasedSetProperty<>(this,
+                ObservableFields.PATH_ORIGIN_LIST_FOR_STAMP_PATH.toExternalString(),
+                FXCollections.observableSet(pathCoordinateImmutable.getPathOrigins().toSet()));
+
+        this.pathOriginsAsList = new SimpleEqualityBasedListProperty<>(this,
+                ObservableFields.PATH_ORIGIN_LIST_FOR_STAMP_PATH.toExternalString(),
+                FXCollections.observableList(pathCoordinateImmutable.getPathOrigins().toList()));
 
         addListeners();
     }
@@ -102,35 +111,42 @@ public class ObservablePathCoordinateImpl
     @Override
     protected void addListeners() {
         this.pathConceptProperty.addListener(this::pathConceptChanged);
-        this.moduleSpecificationsProperty.addListener(this::moduleSetChanged);
+        this.pathOriginsProperty.addListener(this::pathOriginsSetChanged);
+        this.pathOriginsAsList.addListener(this::pathOriginsListChanged);
     }
 
     @Override
     protected void removeListeners() {
         this.pathConceptProperty.removeListener(this::pathConceptChanged);
-        this.moduleSpecificationsProperty.removeListener(this::moduleSetChanged);
+        this.pathOriginsProperty.removeListener(this::pathOriginsSetChanged);
     }
 
     @Override
     protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends PathCoordinateImmutable> observable, PathCoordinateImmutable oldValue, PathCoordinateImmutable newValue) {
-        pathConceptProperty.setValue(Get.conceptSpecification(newValue.getPathNidForCoordinate()));
-        moduleSpecificationsProperty.setValue(FXCollections.observableSet(newValue.getModuleNids().collect(nid -> Get.conceptSpecification(nid)).castToSet()));
+        this.pathConceptProperty.setValue(Get.conceptSpecification(newValue.getPathNidForCoordinate()));
+        this.pathOriginsProperty.setValue(FXCollections.observableSet(newValue.getPathOrigins().toSet()));
+        this.pathOriginsAsList.setValue(FXCollections.observableList(newValue.getPathOrigins().toList()));
     }
 
     public static ObservablePathCoordinateImpl make(PathCoordinateImmutable pathCoordinateImmutable) {
         return new ObservablePathCoordinateImpl(pathCoordinateImmutable);
     }
 
-
-    private void moduleSetChanged(SetChangeListener.Change<? extends ConceptSpecification> c) {
+    private void pathOriginsSetChanged(SetChangeListener.Change<? extends StampPositionImmutable> c) {
         this.setValue(PathCoordinateImmutable.make(getPathConceptForCoordinate().getNid(),
-                IntSets.immutable.of(c.getSet().stream().mapToInt(value -> value.getNid()).toArray())));
+                Sets.immutable.withAll(c.getSet())));
+    }
+
+    private void pathOriginsListChanged(ListChangeListener.Change<? extends StampPositionImmutable> c) {
+        this.setValue(PathCoordinateImmutable.make(getPathConceptForCoordinate().getNid(),
+                Sets.immutable.withAll(c.getList())));
     }
 
     private void pathConceptChanged(ObservableValue<? extends ConceptSpecification> observablePathConcept,
                                     ConceptSpecification oldPathConcept,
                                     ConceptSpecification newPathConcept) {
-        this.setValue(PathCoordinateImmutable.make(newPathConcept.getNid(), getModuleNids()));
+        this.setValue(PathCoordinateImmutable.make(newPathConcept.getNid(),
+                getPathOrigins()));
     }
 
     @Override
@@ -175,8 +191,13 @@ public class ObservablePathCoordinateImpl
    }
 
     @Override
-    public SetProperty<ConceptSpecification> moduleSpecificationsProperty() {
-        return this.moduleSpecificationsProperty;
+    public SetProperty<StampPositionImmutable> pathOriginsProperty() {
+        return this.pathOriginsProperty;
+    }
+
+    @Override
+    public ListProperty<StampPositionImmutable> pathOriginsAsListProperty() {
+        return this.pathOriginsAsList;
     }
 }
 

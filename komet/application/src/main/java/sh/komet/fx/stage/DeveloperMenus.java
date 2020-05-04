@@ -20,6 +20,7 @@ import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
@@ -258,8 +259,8 @@ public class DeveloperMenus implements MenuProvider {
     }
 
     protected void processRecords(ConceptProxy debugProxy) throws InterruptedException, ExecutionException, NoSuchElementException {
-        NidSet relNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(debugProxy.getNid(), MetaData.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE____SOLOR.getNid());
-        TransformationGroup transformationGroup = new TransformationGroup(debugProxy.getNid(), relNids.asArray(), PremiseType.INFERRED);
+        ImmutableIntSet relNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(debugProxy.getNid(), MetaData.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE____SOLOR.getNid());
+        TransformationGroup transformationGroup = new TransformationGroup(debugProxy.getNid(), relNids.toArray(), PremiseType.INFERRED);
         List<TransformationGroup> transformationRecords = new ArrayList<>();
         transformationRecords.add(transformationGroup);
         Semaphore writeSemaphore = new Semaphore(1);

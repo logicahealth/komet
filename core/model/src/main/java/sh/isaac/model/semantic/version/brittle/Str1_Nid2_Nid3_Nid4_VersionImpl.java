@@ -43,9 +43,9 @@ public class Str1_Nid2_Nid3_Nid4_VersionImpl
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
               .append("{Str1: ").append(str1).append(" ")
-              .append(", nid2: ").append(Get.conceptDescriptionText(nid2))
-              .append(", Nid3: ").append(Get.conceptDescriptionText(nid3))
-              .append(", Nid4: ").append(Get.conceptDescriptionText(nid4))
+              .append(", nid2: ").append(Get.getTextForComponent(nid2))
+              .append(", Nid3: ").append(Get.getTextForComponent(nid3))
+              .append(", Nid4: ").append(Get.getTextForComponent(nid4))
               .append(Get.stampService()
                       .describeStampSequence(this.getStampSequence())).append("}");
       return builder;

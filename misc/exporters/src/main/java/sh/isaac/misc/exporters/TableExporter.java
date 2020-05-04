@@ -249,6 +249,7 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 					//These could be supported dynamically, with the mocking info available in the 'brittle' types.  but don't care right now.
 					case MEASURE_CONSTRAINTS:
 					case Nid1_Int2:
+					case Nid1_Long2:
 					case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
 					case Nid1_Int2_Str3_Str4_Nid5_Nid6:
 					case Nid1_Nid2:

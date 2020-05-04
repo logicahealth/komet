@@ -187,6 +187,8 @@ public class ObservableSemanticChronologyImpl
             return (OV) new Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl((Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl) semanticVersion, this);
          case Nid1_Int2:
             return (OV) new Observable_Nid1_Int2_VersionImpl((Nid1_Int2_VersionImpl) semanticVersion, this);
+         case Nid1_Long2:
+            return (OV) new Observable_Nid1_Long2_VersionImpl((Nid1_Long2_VersionImpl) semanticVersion, this);
          case Nid1_Int2_Str3_Str4_Nid5_Nid6:
             return (OV) new Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl((Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl) semanticVersion, this);
          case Nid1_Nid2:

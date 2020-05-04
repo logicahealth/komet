@@ -106,14 +106,6 @@ public interface StampPosition
 
    StampPositionImmutable toStampPositionImmutable();
 
-   /**
-    * Gets the path origins.
-    *
-    * @return The origins of this path.
-    */
-   ImmutableSet<StampPositionImmutable> getPathOrigins();
-
-
    default String toUserString() {
       final StringBuilder sb = new StringBuilder();
 

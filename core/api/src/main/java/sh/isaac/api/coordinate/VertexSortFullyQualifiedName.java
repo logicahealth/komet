@@ -34,7 +34,7 @@ public class VertexSortFullyQualifiedName extends VertexSortAbstract implements 
     }
 
     protected static String getFullyQualifiedName(int vertexConceptNid, LanguageCoordinate languageCoordinate, StampFilter stampFilter) {
-        Optional<String> optionalName = languageCoordinate.getFullyQualifiedName(vertexConceptNid, stampFilter);
+        Optional<String> optionalName = languageCoordinate.getFullyQualifiedNameText(vertexConceptNid, stampFilter);
         if (optionalName.isPresent()) {
             return optionalName.get();
         }

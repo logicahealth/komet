@@ -18,6 +18,7 @@ package sh.komet.gui.control.property;
 
 import java.time.LocalDateTime;
 import sh.isaac.api.ComponentProxy;
+import sh.komet.gui.control.*;
 import sh.komet.gui.control.component.ComponentListEditor;
 import sh.komet.gui.control.component.PropertySheetComponentListWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
@@ -54,16 +55,6 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.model.statement.MeasureImpl;
 import sh.isaac.model.statement.ResultImpl;
-import sh.komet.gui.control.PropertySheetBooleanWrapper;
-import sh.komet.gui.control.PropertySheetItemDateTimeWrapper;
-import sh.komet.gui.control.PropertySheetItemIntegerWrapper;
-import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
-import sh.komet.gui.control.PropertySheetItemStringListWrapper;
-import sh.komet.gui.control.PropertySheetPasswordWrapper;
-import sh.komet.gui.control.PropertySheetStampPrecedenceWrapper;
-import sh.komet.gui.control.PropertySheetStatusSetWrapper;
-import sh.komet.gui.control.PropertySheetStatusWrapper;
-import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.circumstance.CircumstanceEditor;
 import sh.komet.gui.control.circumstance.PropertySheetCircumstanceWrapper;
 import sh.komet.gui.control.concept.AssemblageListEditor;
@@ -79,6 +70,8 @@ import sh.komet.gui.control.concept.PropertySheetItemConceptWrapperNoSearch;
 import sh.komet.gui.control.list.ListEditor;
 import sh.komet.gui.control.list.PropertySheetListWrapper;
 import sh.komet.gui.control.measure.MeasureEditor;
+import sh.komet.gui.control.position.PositionEditor;
+import sh.komet.gui.control.position.PositionListEditor;
 import sh.komet.gui.control.result.PropertySheetResultWrapper;
 import sh.komet.gui.control.result.ResultEditor;
 import sh.komet.gui.control.versiontype.PropertySheetItemVersionTypeWrapper;
@@ -95,6 +88,9 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
     Manifold manifoldForDisplay;
 
     public PropertyEditorFactory(Manifold manifoldForDisplay) {
+        if (manifoldForDisplay == null) {
+            throw new NullPointerException("manifoldForDisplay cannot be null");
+        }
         this.manifoldForDisplay = manifoldForDisplay;
     }
 
@@ -186,6 +182,14 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             return editor;
         } else if (propertySheetItem instanceof PropertySheetImageWrapper) {
             return new ImageSourceEditor(((PropertySheetImageWrapper)propertySheetItem).imageDataProperty());
+        } else if (propertySheetItem instanceof PropertySheetPositionWrapper) {
+            PropertySheetPositionWrapper positionWrapper = (PropertySheetPositionWrapper) propertySheetItem;
+            PositionEditor positionEditor = new PositionEditor(manifoldForDisplay, positionWrapper.getObservableStampPosition());
+            positionEditor.setValue(positionWrapper.getValue());
+            return positionEditor;
+        } else if (propertySheetItem instanceof PropertySheetPositionListWrapper) {
+            PropertySheetPositionListWrapper positionListWrapper = (PropertySheetPositionListWrapper) propertySheetItem;
+            return new PositionListEditor(this.manifoldForDisplay, positionListWrapper.getValue());
         }
         
         

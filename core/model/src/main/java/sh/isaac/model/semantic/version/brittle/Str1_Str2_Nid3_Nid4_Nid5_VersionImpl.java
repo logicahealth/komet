@@ -209,9 +209,9 @@ public class Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       builder.append(" ")
               .append("{Str1: ").append(str1).append(" ")
               .append(", Str2: ").append(str2).append(" ")
-              .append(", Nid3: ").append(Get.conceptDescriptionText(nid3))
-              .append(", Nid4: ").append(Get.conceptDescriptionText(nid4))
-              .append(", Nid5: ").append(Get.conceptDescriptionText(nid5))
+              .append(", Nid3: ").append(Get.getTextForComponent(nid3))
+              .append(", Nid4: ").append(Get.getTextForComponent(nid4))
+              .append(", Nid5: ").append(Get.getTextForComponent(nid5))
               .append(Get.stampService()
                       .describeStampSequence(this.getStampSequence())).append("}");
       return builder;

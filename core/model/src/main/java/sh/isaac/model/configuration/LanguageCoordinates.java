@@ -46,6 +46,8 @@ import java.util.HashSet;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Locale;
+import java.util.stream.IntStream;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.ConceptProxy;
@@ -55,6 +57,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
@@ -260,8 +263,9 @@ public class LanguageCoordinates {
       HashMap<ConceptSpecification, HashSet<ConceptSpecification>> equivalentTypes = new HashMap<>();
       
       //Collect the mappings from core types -> non core types
-      Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid()).forEach(sc -> 
-      {
+      IntStream nids = Get.identifierService().getNidsForAssemblage(DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid());
+      nids.forEach(nid -> {
+         SemanticChronology sc = Get.assemblageService().getSemanticChronology(nid);
          DynamicVersion dv = (DynamicVersion)sc.getLatestVersion(filter).get();
          ConceptProxy coreType = new ConceptProxy(Get.identifierService().getNidForUuids(((DynamicUUID)dv.getData(0)).getDataUUID()));
          HashSet<ConceptSpecification> mapped = equivalentTypes.get(coreType);
@@ -271,7 +275,7 @@ public class LanguageCoordinates {
          }
          mapped.add(new ConceptProxy(sc.getReferencedComponentNid()));
       });
-      
+
       if (equivalentTypes.isEmpty()) {
          //this method is a noop
          LOG.trace("Expanded description types call is a noop in {}ms", System.currentTimeMillis() - time);

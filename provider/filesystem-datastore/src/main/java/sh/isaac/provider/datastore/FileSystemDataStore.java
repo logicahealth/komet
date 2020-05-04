@@ -874,7 +874,14 @@ public class FileSystemDataStore
       return getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).valueStream();
    }
 
-   /** 
+    @Override
+    public IntStream getNidsForAssemblageParallel(int assemblageNid)
+    {
+        return getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).parallelValueStream();
+    }
+
+
+    /**
     * {@inheritDoc}
     */
    @Override

@@ -1,8 +1,6 @@
 package sh.isaac.komet.batch.action;
 
 import javafx.beans.property.SimpleObjectProperty;
-import org.eclipse.collections.api.list.primitive.ImmutableIntList;
-import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -104,7 +102,7 @@ public class PromoteComponentAction extends ActionItem {
         StampFilterImmutable promotionFilter = StampFilterImmutable.make(stampFilter.getAllowedStates(),
                 StampPositionImmutable.make(stampFilter.getTime(), promotionPathProperty.get()),
                 stampFilter.getModuleNids(),
-                stampFilter.getModulePreferenceOrder());
+                stampFilter.getModulePriorityOrder());
         cache.put(PromoteKeys.PROMOTION_STAMP_FILTER, promotionFilter);
 
         EditCoordinateImmutable promotionPathEditCoordinate = EditCoordinateImmutable.make(editCoordinate.getAuthorNid(), editCoordinate.getModuleNid(), promotionPathProperty.get().getNid());

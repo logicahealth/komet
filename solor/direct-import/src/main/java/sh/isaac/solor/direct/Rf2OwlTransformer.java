@@ -1,5 +1,6 @@
 package sh.isaac.solor.direct;
 
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
@@ -46,9 +47,9 @@ public class Rf2OwlTransformer extends TimedTaskWithProgressTracker<Void> implem
             updateMessage("Transforming stated OWL expressions...");
             Get.conceptService().getConceptNidStream(conceptAssemblageNid).forEach((conceptNid) -> {
 
-                NidSet owlNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, owlAssemblageNid);
+                ImmutableIntSet owlNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, owlAssemblageNid);
 
-                TransformationGroup tg = new TransformationGroup(conceptNid, owlNids.asArray(), PremiseType.STATED);
+                TransformationGroup tg = new TransformationGroup(conceptNid, owlNids.toArray(), PremiseType.STATED);
                 statedTransformList.add(tg);
 
                 if (statedTransformList.size() == transformSize) {

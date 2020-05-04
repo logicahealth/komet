@@ -549,11 +549,11 @@ public class TaxonomyRecord {
                                        RelativePositionCalculator vertexComputer,
                                        VertexSort sort,
                                        DigraphCoordinateImmutable digraph) {
-        final RoaringBitmap conceptSequencesForTypeSet = new RoaringBitmap();
+        final MutableIntSet conceptNidsForTypeSet = IntSets.mutable.empty();
 
         this.conceptNidRecordMap.forEachKeyValue((int possibleParentNid,
                 TypeStampTaxonomyRecords stampRecords) -> {
-            final RoaringBitmap stampsForConceptIntStream = new RoaringBitmap();
+            final MutableIntSet stampsForConceptIntStream = IntSets.mutable.empty();
 
             stampRecords.forEach((record) -> {
                 // collect the stamps associated with a particular type of relationship, so we can
@@ -572,11 +572,11 @@ public class TaxonomyRecord {
                 // the concept nids that meet the criterion of this destination stamp coordinate.
                 TaxonomyRecordPrimitive targetConceptRecord = new TaxonomyRecordPrimitive(taxonomyDataProvider.apply(possibleParentNid));
                 if (targetConceptRecord.conceptSatisfiesFilter(possibleParentNid, vertexComputer)) {
-                    conceptSequencesForTypeSet.add(possibleParentNid);
+                    conceptNidsForTypeSet.add(possibleParentNid);
                 }
             }
         });
-        return sort.sortVertexes(conceptSequencesForTypeSet.toArray(), digraph);
+        return sort.sortVertexes(conceptNidsForTypeSet.toArray(), digraph);
     }
 
     /**

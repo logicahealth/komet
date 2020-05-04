@@ -156,8 +156,7 @@ public class ComponentNidVersionImpl
    public String toString() {
       final StringBuilder sb = new StringBuilder();
       sb.append("{rc: ");
-      
-      sb.append(Get.conceptDescriptionText(this.getReferencedComponentNid()));
+      sb.append(Get.getTextForComponent(this.getReferencedComponentNid()));
       sb.append(" Component Nid: ");
 
       switch (Get.identifierService().getObjectTypeForComponent(this.componentNid)) {

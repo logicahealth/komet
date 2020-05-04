@@ -56,6 +56,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.task.OptionalWaitTask;
@@ -252,17 +253,27 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                 cnsi.setComponentNid((Integer) this.parameters[0]);
                 version = cnsi;
                 break;
-            
+
             case Nid1_Int2:
                 final Nid1_Int2_Version nid1int2
                         = (Nid1_Int2_Version) semanticChronicle.createMutableVersion(finalStamp);
-                
+
                 nid1int2.setNid1((Integer) this.parameters[0]);
                 nid1int2.setInt2((Integer) this.parameters[1]);
                 version = nid1int2;
-                
+
                 break;
-            
+
+            case Nid1_Long2:
+                final Nid1_Long2_Version nid1long2
+                        = (Nid1_Long2_Version) semanticChronicle.createMutableVersion(finalStamp);
+
+                nid1long2.setNid1((Integer) this.parameters[0]);
+                nid1long2.setLong2((Long) this.parameters[1]);
+                version = nid1long2;
+
+                break;
+
             case LONG:
                 final LongVersionImpl lsi = (LongVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
                 version = lsi;
@@ -547,6 +558,12 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                 {
                     UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]);
                     setPrimordialUuid(UuidFactory.getUuidForNidIntSemantic(namespace, assemblageUuid, refCompUuid, componentUuid, (Integer) parameters[1], consumer));
+                    break;
+                }
+                case Nid1_Long2:
+                {
+                    UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]);
+                    setPrimordialUuid(UuidFactory.getUuidForNidLongSemantic(namespace, assemblageUuid, refCompUuid, componentUuid, (Long) parameters[1], consumer));
                     break;
                 }
                 case STRING:

@@ -347,6 +347,7 @@ public class TaxonomyRecordPrimitive {
          // followed by a variable number of type, stamp, flag records
          final int length = taxonomyData[index];
          if (recordConceptNid == conceptNid) {
+            // TODO see if containsConceptNidViaTypeWithAllowedStatus can be computed from TaxonomyRecordPrimitive
             final TypeStampTaxonomyRecords records = new TypeStampTaxonomyRecords(taxonomyData, index);
             return records.containsConceptNidViaTypeWithAllowedStatus(conceptNid, TaxonomyFlag.CONCEPT_STATUS.bits, calculator);
          }

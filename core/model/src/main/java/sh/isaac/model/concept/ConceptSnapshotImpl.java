@@ -42,7 +42,6 @@ package sh.isaac.model.concept;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -50,7 +49,6 @@ import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.CommitStates;
@@ -59,9 +57,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.*;
-import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.identity.StampedVersion;
-import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 
 //~--- classes ----------------------------------------------------------------
@@ -171,7 +167,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public String getFullyQualifiedName() {
-      return getLanguageCoordinate().getFullyQualifiedName(getNid(), getLanguageStampFilter()).orElse("No FQN description for: " + getNid());
+      return getLanguageCoordinate().getFullyQualifiedNameText(getNid(), getLanguageStampFilter()).orElse("No FQN description for: " + getNid());
    }
 
    /**
@@ -322,6 +318,31 @@ public class ConceptSnapshotImpl
     @Override
     public StampFilter getStampFilter() {
         return manifoldCoordinate.getStampFilter();
+    }
+
+    @Override
+    public int hashCode() {
+        return this.conceptChronology.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+       if (this == obj) {
+           return true;
+       }
+       if (obj == null) {
+           return false;
+       }
+       if (obj instanceof ConceptSpecification) {
+           ConceptSpecification other = (ConceptSpecification) obj;
+           return this.getNid() == other.getNid();
+       }
+        return false;
+    }
+
+    @Override
+    public ManifoldCoordinateImmutable toManifoldCoordinateImmutable() {
+        return this.manifoldCoordinate.toManifoldCoordinateImmutable();
     }
 }
 

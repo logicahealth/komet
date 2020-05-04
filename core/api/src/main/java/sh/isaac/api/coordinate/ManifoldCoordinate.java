@@ -41,9 +41,9 @@ package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -82,6 +82,8 @@ public interface ManifoldCoordinate {
         return sb.toString();
     }
 
+    ManifoldCoordinateImmutable toManifoldCoordinateImmutable();
+
     default UUID getManifoldCoordinateUuid() {
         return getManifoldCoordinateUuid(this);
     }
@@ -115,6 +117,7 @@ public interface ManifoldCoordinate {
         return this.getLanguageCoordinate().getDescription(concept.getNid(), this.getLanguageStampFilter());
     }
     default Optional<String> getDescriptionText(int conceptNid) {
+        getLanguageCoordinate().getDescriptionText(conceptNid, this.getLanguageStampFilter());
         LatestVersion<DescriptionVersion> latestVersion = getDescription(conceptNid);
         if (latestVersion.isPresent()) {
             return Optional.of(latestVersion.get().getText());
@@ -124,11 +127,7 @@ public interface ManifoldCoordinate {
 
 
     default Optional<String> getDescriptionText(ConceptSpecification concept) {
-        LatestVersion<DescriptionVersion> latestVersion = getDescription(concept);
-        if (latestVersion.isPresent()) {
-            return Optional.of(latestVersion.get().getText());
-        }
-        return Optional.empty();
+        return getDescriptionText(concept.getNid());
     }
 
     default LatestVersion<DescriptionVersion> getDescription(
@@ -158,7 +157,7 @@ public interface ManifoldCoordinate {
     LanguageCoordinate getLanguageCoordinate();
 
     default Optional<String> getFullyQualifiedName(int nid, StampFilter filter) {
-        return this.getLanguageCoordinate().getFullyQualifiedName(nid, filter);
+        return this.getLanguageCoordinate().getFullyQualifiedNameText(nid, filter);
     }
 
     default Optional<LogicalExpression> getStatedLogicalExpression(int conceptNid) {
@@ -195,7 +194,7 @@ public interface ManifoldCoordinate {
 
 
     default Optional<String> getFullyQualifiedName(int nid) {
-        return this.getLanguageCoordinate().getFullyQualifiedName(nid, this.getStampFilter());
+        return this.getLanguageCoordinate().getFullyQualifiedNameText(nid, this.getStampFilter());
     }
     /**
      * Sort the vertex concept nids with respect to settings from the
@@ -206,8 +205,11 @@ public interface ManifoldCoordinate {
     default int[] sortVertexes(int[] vertexConceptNids) {
         return getVertexSort().sortVertexes(vertexConceptNids, getDigraph().toDigraphImmutable());
     }
+
     default String getVertexLabel(int vertexConceptNid) {
-        return getVertexSort().getVertexLabel(vertexConceptNid, getDigraph().getLanguageCoordinate(), getDigraph().getLanguageStampFilter());
+        return getVertexSort().getVertexLabel(vertexConceptNid,
+                getDigraph().getLanguageCoordinate().toLanguageCoordinateImmutable(),
+                getDigraph().getLanguageStampFilter().toStampFilterImmutable());
     }
 
     default String getVertexLabel(ConceptSpecification vertexConcept) {
@@ -253,9 +255,9 @@ public interface ManifoldCoordinate {
 
 
     default OptionalInt getAcceptabilityNid(int descriptionNid, int dialectAssemblageNid) {
-        NidSet acceptabilityChronologyNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(descriptionNid, dialectAssemblageNid);
+        ImmutableIntSet acceptabilityChronologyNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(descriptionNid, dialectAssemblageNid);
 
-        for (int acceptabilityChronologyNid: acceptabilityChronologyNids.asArray()) {
+        for (int acceptabilityChronologyNid: acceptabilityChronologyNids.toArray()) {
             SemanticChronology acceptabilityChronology = Get.assemblageService().getSemanticChronology(acceptabilityChronologyNid);
             LatestVersion<ComponentNidVersion> latestAcceptability = acceptabilityChronology.getLatestVersion(getLanguageStampFilter());
             if (latestAcceptability.isPresent()) {

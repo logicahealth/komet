@@ -110,6 +110,7 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
             case CONCEPT:
             case DESCRIPTION:
             case Nid1_Int2:
+            case Nid1_Long2:
             case IMAGE:
             case DYNAMIC:
                 return true;

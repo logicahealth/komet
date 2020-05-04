@@ -178,7 +178,7 @@ public class Nid1_Int2_VersionImpl
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
-              .append("{Concept: ").append(Get.conceptDescriptionText(nid1))
+              .append("{Component: ").append(Get.getTextForComponent(nid1))
               .append(", Int: ").append(int2).append(" ")
               .append(Get.stampService()
                       .describeStampSequence(this.getStampSequence())).append("}");

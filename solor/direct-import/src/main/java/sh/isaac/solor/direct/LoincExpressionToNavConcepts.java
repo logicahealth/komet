@@ -23,6 +23,9 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.StringTokenizer;
 import java.util.UUID;
+
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
@@ -82,8 +85,8 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
     private final TaxonomyService taxonomyService;
     private final long commitTime = System.currentTimeMillis();
 
-    private final NidSet components = new NidSet();
-    private final NidSet systems = new NidSet();
+    private final MutableIntSet components = IntSets.mutable.empty();
+    private final MutableIntSet systems = IntSets.mutable.empty();
     private final ManifoldCoordinate manifold;
     private final Transaction transaction;
 
@@ -634,14 +637,14 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
             }
             
             
-            for (int systemNid : systems.asArray()) {
+            for (int systemNid : systems.toArray()) {
                 Optional<? extends Chronology> c = Get.identifiedObjectService().getChronology(systemNid);
                 if (c.isPresent() && c.get().isLatestVersionActive()) {
                     addInheresInConcept(transaction, systemNid, builderService, stamp);
                 }
                 
             }
-            for (int componentNid : components.asArray()) {
+            for (int componentNid : components.toArray()) {
                 Optional<? extends Chronology> c = Get.identifiedObjectService().getChronology(componentNid);
                 if (c.isPresent() && c.get().isLatestVersionActive()) { 
                     addObservesComponent(transaction, componentNid, builderService, stamp);

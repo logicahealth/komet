@@ -54,6 +54,7 @@ import sh.isaac.api.collections.IntSet;
 
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.StampFilterImmutable;
 
 //~--- interfaces -------------------------------------------------------------
@@ -202,9 +203,15 @@ public interface ConceptService
     * @param manifoldCoordinate the stamp coordinate
     * @return the ConceptSnapshotService
     */
-   ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate);
-   
-   /**
+   ConceptSnapshotService getSnapshot(ManifoldCoordinateImmutable manifoldCoordinate);
+
+    default ConceptSnapshot getConceptSnapshot(ConceptSpecification concept, ManifoldCoordinate manifoldCoordinate) {
+        return getConceptSnapshot(concept.getNid(), manifoldCoordinate);
+    }
+
+    ConceptSnapshot getConceptSnapshot(int conceptNid, ManifoldCoordinate manifoldCoordinate);
+
+    /**
     * Return the UUID that was generated for this datastore when the concept store was first created.  
     * @return
     */

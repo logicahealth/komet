@@ -135,7 +135,6 @@ public class ChronologyUpdate implements StaticIsaacCache {
                 ChronologyUpdate::merge);
     }
 
-    private static ConceptProxy amebicEncephalitis = new ConceptProxy("Granulomatous amebic encephalitis (disorder)",UUID.fromString("8202f7c4-8390-3c72-96fa-a34d3d21c032"));
     public static void handleTaxonomyUpdate(SemanticChronology logicGraphChronology) {
         initCheck();
         int referencedComponentNid = logicGraphChronology.getReferencedComponentNid();
@@ -159,9 +158,6 @@ public class ChronologyUpdate implements StaticIsaacCache {
             taxonomyFlags = TaxonomyFlag.INFERRED;
         } else {
             taxonomyFlags = TaxonomyFlag.STATED;
-            if (referencedComponentNid == amebicEncephalitis.getNid()) {
-                LOG.info("Processing stated update: " + versionGraphList);
-            }
         }
 
 

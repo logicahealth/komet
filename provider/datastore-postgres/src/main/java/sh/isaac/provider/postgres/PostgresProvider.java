@@ -923,6 +923,11 @@ public class PostgresProvider
     }
 
     @Override // DataStoreSubService:DataStore
+    public IntStream getNidsForAssemblageParallel(int assemblageNid) {
+        return getNidsForAssemblage(assemblageNid).parallel();
+    }
+
+    @Override // DataStoreSubService:DataStore
     public boolean implementsSequenceStore() {
         return false;
     }

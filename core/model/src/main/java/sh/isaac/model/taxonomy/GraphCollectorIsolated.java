@@ -90,14 +90,6 @@ public class GraphCollectorIsolated
      */
     @Override
     public void accept(HashTreeBuilderIsolated graphBuilder, int originNid) {
-        if (originNid == TermAux.SOLOR_ROOT.getNid()) {
-            System.out.println("Found 2a: " + TermAux.SOLOR_ROOT.getFullyQualifiedName());
-        }
-
-        if (originNid == TermAux.SOLOR_METADATA.getNid()) {
-            System.out.println("Found 2b: " + TermAux.SOLOR_METADATA.getFullyQualifiedName());
-        }
-
         final int[] taxonomyData = this.taxonomyDataProvider.apply(originNid);
 
         if (taxonomyData == null) {
@@ -109,7 +101,9 @@ public class GraphCollectorIsolated
             if (Get.configurationService().isVerboseDebugEnabled() && this.watchList.contains(originNid)) {
                 System.out.println("Found watch: " + isaacPrimitiveTaxonomyRecord);
             }
+
             final TaxonomyRecord taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.getTaxonomyRecordUnpacked();
+            // TODO implement getConceptNidsForType on TaxonomyRecordPrimitive
             final int[] destinationConceptNids = taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
                     this.taxonomyDataProvider, this.taxonomyFlags, this.edgeComputer,
                     this.vertexComputer, this.sort, this.digraph);

@@ -10,7 +10,7 @@
     <artifactId>komet-preferences</artifactId>
     <packaging>jar</packaging>
 
-    <name>ISAAC’s KOMET: Preferences</name>
+    <name>ISAAC’s KOMET: KOMET preferences</name>
     <description>
         User configurable preferences from within KOMET. 
     </description>

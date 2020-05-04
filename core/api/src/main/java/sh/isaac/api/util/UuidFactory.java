@@ -193,9 +193,12 @@ public class UuidFactory {
    public static UUID getUuidForNidIntSemantic(UUID namespace, UUID assemblage, UUID refComp, UUID uuidForNid, int value, BiConsumer<String, UUID> consumer) {
       return UuidT5Generator.get(namespace, createUuidTextSeed(assemblage.toString(), refComp.toString(), uuidForNid.toString(), Integer.toString(value)), consumer);
    }
+   public static UUID getUuidForNidLongSemantic(UUID namespace, UUID assemblage, UUID refComp, UUID uuidForNid, Long value, BiConsumer<String, UUID> consumer) {
+      return UuidT5Generator.get(namespace, createUuidTextSeed(assemblage.toString(), refComp.toString(), uuidForNid.toString(), Long.toString(value)), consumer);
+   }
 
    /**
-    * 
+    *
     * @param namespace
     * @param concept
     * @param caseSignificance

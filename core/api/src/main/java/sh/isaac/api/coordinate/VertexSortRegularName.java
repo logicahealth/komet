@@ -38,7 +38,7 @@ public class VertexSortRegularName extends VertexSortAbstract implements Marshal
         if (optionalName.isPresent()) {
             return optionalName.get();
         }
-        optionalName = languageCoordinate.getFullyQualifiedName(vertexConceptNid, stampFilter);
+        optionalName = languageCoordinate.getFullyQualifiedNameText(vertexConceptNid, stampFilter);
         if (optionalName.isPresent()) {
             return optionalName.get();
         }

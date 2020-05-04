@@ -110,7 +110,23 @@ public class SemanticBuilderProvider<C extends SemanticChronology>
                                    new Object[] { componentNid, intValue });
    }
 
-    @Override
+   @Override
+   public SemanticBuilder<C> getComponentLongSemanticBuilder(int componentNid, long longValue, IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent, int assemblageConceptNid) {
+      return new SemanticBuilderImpl(referencedComponent,
+              assemblageConceptNid,
+              VersionType.Nid1_Long2,
+              new Object[] { componentNid, longValue });
+   }
+
+   @Override
+   public SemanticBuilder<C> getComponentLongSemanticBuilder(int componentNid, long longValue, int referencedComponentNid, int assemblageConceptNid) {
+      return new SemanticBuilderImpl(referencedComponentNid,
+              assemblageConceptNid,
+              VersionType.Nid1_Long2,
+              new Object[] { componentNid, longValue });
+   }
+
+   @Override
     public SemanticBuilder<C> getComponentIntSemanticBuilder(int componentNid, int intValue, int referencedComponent, int assemblageConceptNid) {
        return new SemanticBuilderImpl(referencedComponent,
                                    assemblageConceptNid,

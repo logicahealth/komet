@@ -139,7 +139,7 @@ public class CompositeSearchResult implements CompositeQueryResult {
     @Override
     public String getContainingConceptText() {
         ConceptChronology cc = getContainingConcept();
-        return Get.conceptService().getSnapshot(manifoldCoord).conceptDescriptionText(cc.getNid());
+        return Get.conceptService().getSnapshot(manifoldCoord.toManifoldCoordinateImmutable()).conceptDescriptionText(cc.getNid());
     }
 
     /**
@@ -305,6 +305,7 @@ public class CompositeSearchResult implements CompositeQueryResult {
                     strings.add("Measure Constraint with nid of " + version.getNid());
                     break;
                 case Nid1_Int2:
+                case Nid1_Long2:
                 case Nid1_Int2_Str3_Str4_Nid5_Nid6:
                 case Nid1_Nid2:
                 case Nid1_Nid2_Int3:

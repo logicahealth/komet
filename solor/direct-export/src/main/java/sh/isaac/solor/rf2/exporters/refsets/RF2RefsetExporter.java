@@ -9,18 +9,7 @@ import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.LongVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.component.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Int3_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Str3_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Str2_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Version;
+import sh.isaac.api.component.semantic.version.brittle.*;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
@@ -106,6 +95,11 @@ public class RF2RefsetExporter extends RF2AbstractExporter {
                 super.outputToWrite
                         .append("\t" + this.rf2ExportHelper.getIdString(((Nid1_Int2_Version)sv).getNid1()) + "\t")
                         .append(((Nid1_Int2_Version)sv).getInt2());
+                break;
+            case Nid1_Long2:
+                super.outputToWrite
+                        .append("\t" + this.rf2ExportHelper.getIdString(((Nid1_Long2_Version)sv).getNid1()) + "\t")
+                        .append(((Nid1_Long2_Version)sv).getLong2());
                 break;
             case Nid1_Nid2:
                 super.outputToWrite

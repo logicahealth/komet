@@ -51,12 +51,13 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
+
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.Get;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Status;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -247,7 +248,7 @@ public interface Chronology
     * merged onto commonly visible downstream paths.
     */
    default <V extends Version> List<Graph<V>> getVersionGraphList() {
-      throw new UnsupportedOperationException();
+       return RelativePositionCalculator.getVersionGraphList(this.getVersionList());
    }
 
    /**
@@ -304,7 +305,7 @@ public interface Chronology
    
    VersionType getVersionType();
    
-   NidSet getRecursiveSemanticNids();
+   ImmutableIntSet getRecursiveSemanticNids();
 
     /**
      * Returns a mutable version for editing. Will return an existing uncommitted version if the

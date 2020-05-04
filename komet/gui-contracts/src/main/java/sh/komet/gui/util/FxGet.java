@@ -22,23 +22,30 @@ import javafx.collections.*;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.controlsfx.control.PropertySheet;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
+import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.util.NaturalOrder;
+import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.concept.ConceptSnapshotImpl;
 import sh.komet.gui.contract.*;
 import sh.komet.gui.contract.preferences.KometPreferences;
 import sh.komet.gui.contract.preferences.PersonaChangeListener;
@@ -57,6 +64,7 @@ import javax.inject.Singleton;
 import java.io.File;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Consumer;
 
 import static sh.komet.gui.contract.preferences.GraphConfigurationItem.DEFINING_ACTIVE;
 
@@ -215,16 +223,16 @@ public class FxGet implements StaticIsaacCache {
 
         if (optionalSemanticConceptNid.isPresent()) {
             int semanticConceptNid = optionalSemanticConceptNid.getAsInt();
-            NidSet semanticTypeOfFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(semanticConceptNid, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE.getNid());
-            for (int nid : semanticTypeOfFields.asArray()) { // one member, "Concept field": 1
+            ImmutableIntSet semanticTypeOfFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(semanticConceptNid, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE.getNid());
+            for (int nid : semanticTypeOfFields.toArray()) { // one member, "Concept field": 1
                 SemanticChronology semanticTypeField = Get.assemblageService().getSemanticChronology(nid);
                 LatestVersion<Version> latestSemanticTypeField = semanticTypeField.getLatestVersion(manifold.getStampFilter());
                 Nid1_Int2_Version latestSemanticTypeFieldVersion = (Nid1_Int2_Version) latestSemanticTypeField.get();
                 fieldIndexToFieldDataType.put(latestSemanticTypeFieldVersion.getInt2(), Get.concept(latestSemanticTypeFieldVersion.getNid1()));
             }
 
-            NidSet assemblageSemanticFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(assemblageConcept.getNid(), MetaData.SEMANTIC_FIELDS_ASSEMBLAGE____SOLOR.getNid());
-            for (int nid : assemblageSemanticFields.asArray()) {
+            ImmutableIntSet assemblageSemanticFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(assemblageConcept.getNid(), MetaData.SEMANTIC_FIELDS_ASSEMBLAGE____SOLOR.getNid());
+            for (int nid : assemblageSemanticFields.toArray()) {
                 SemanticChronology semanticField = Get.assemblageService().getSemanticChronology(nid);
                 LatestVersion<Version> latestSemanticField = semanticField.getLatestVersion(manifold.getStampFilter());
                 Nid1_Int2_Version latestSemanticFieldVersion = (Nid1_Int2_Version) latestSemanticField.get();
@@ -408,8 +416,8 @@ public class FxGet implements StaticIsaacCache {
 
 
     public static <T extends ExplorationNode> Optional<NodeFactory<T>> nodeFactory(ConceptSpecification nodeSpecConcept) {
-        NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(nodeSpecConcept.getNid(), TermAux.PROVIDER_CLASS_ASSEMBLAGE.getNid());
-        for (int nid: semanticNids.asArray()) {
+        ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(nodeSpecConcept.getNid(), TermAux.PROVIDER_CLASS_ASSEMBLAGE.getNid());
+        for (int nid: semanticNids.toArray()) {
             SemanticChronology chronology = Get.assemblageService().getSemanticChronology(nid);
             LatestVersion<StringVersion> optionalProviderClassStr = chronology.getLatestVersion(FxGet.manifold(Manifold.ManifoldGroup.KOMET).getStampFilter());
             if (optionalProviderClassStr.isPresent()) {
@@ -480,5 +488,32 @@ public class FxGet implements StaticIsaacCache {
         File actionDirectory = new File(FxGet.solorDirectory(), "action files");
         actionDirectory.mkdirs();
         return actionDirectory;
+    }
+
+    public static ObservableList<ConceptSnapshot> activeConceptMembers(ConceptSpecification assemblage,
+                                                                       ManifoldCoordinate manifoldCoordinate) {
+        return activeConceptMembers(assemblage.getNid(), manifoldCoordinate);
+    }
+
+    public static ObservableList<ConceptSnapshot> activeConceptMembers(int assemblageNid,
+                                                                       ManifoldCoordinate manifoldCoordinate) {
+        if (manifoldCoordinate == null) {
+            throw new NullPointerException("manifoldCoordinate cannot be null");
+        }
+        ObservableList<ConceptSnapshot> activeConceptMemberList = FXCollections.observableArrayList();
+        SingleAssemblageSnapshot<SemanticVersion> snapshot = Get.assemblageService().getSingleAssemblageSnapshot(assemblageNid, SemanticVersion.class, manifoldCoordinate.getStampFilter());
+
+        snapshot.getLatestSemanticVersionsFromAssemblage().forEach(new Consumer<LatestVersion<SemanticVersion>>() {
+            @Override
+            public void accept(LatestVersion<SemanticVersion> semanticVersionLatestVersion) {
+                if (semanticVersionLatestVersion.isPresent() && semanticVersionLatestVersion.get().isActive()) {
+                    activeConceptMemberList.add(Get.conceptSnapshot(semanticVersionLatestVersion.get().getReferencedComponentNid(),
+                            manifoldCoordinate));
+                }
+            }
+        });
+        activeConceptMemberList.sort((o1, o2) -> NaturalOrder.compareStrings(o1.getPreferredDescriptionText().get(),
+                o2.getPreferredDescriptionText().get()));
+        return activeConceptMemberList;
     }
 }

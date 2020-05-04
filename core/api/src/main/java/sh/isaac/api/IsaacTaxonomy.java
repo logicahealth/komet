@@ -494,7 +494,15 @@ public class IsaacTaxonomy {
        
       this.semanticBuilders.add(pathMemberBuilder);
    }
-   
+
+   protected final void addPathOrigin(ConceptBuilder pathOriginAssemblageConcept, ConceptBuilder pathConcept, ConceptBuilder origin, long originTime, UUID semanticUuid) {
+      SemanticBuilder<? extends SemanticChronology> originElementBuilder =  Get.semanticBuilderService()
+              .getComponentLongSemanticBuilder(origin.getNid(), originTime, pathConcept.getNid(), pathOriginAssemblageConcept.getNid());
+      originElementBuilder.setPrimordialUuid(semanticUuid);
+      this.semanticBuilders.add(originElementBuilder);
+   }
+
+
    /**
     * Creates the concept.
     *

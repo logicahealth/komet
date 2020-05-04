@@ -19,6 +19,8 @@ package sh.isaac.solor.direct;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
+
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.bootstrap.TermAux;
@@ -65,8 +67,8 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
          
          updateMessage("Transforming stated logical definitions...");
          Get.conceptService().getConceptNidStream(conceptAssemblageNid).forEach((conceptNid) -> {
-             NidSet relNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, statedRelationshipAssemblageNid);
-               statedTransformList.add(new TransformationGroup(conceptNid, relNids.asArray(), PremiseType.STATED));
+             ImmutableIntSet relNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, statedRelationshipAssemblageNid);
+               statedTransformList.add(new TransformationGroup(conceptNid, relNids.toArray(), PremiseType.STATED));
                if (statedTransformList.size() == transformSize) {
                   List<TransformationGroup> listForTask = new ArrayList<>(statedTransformList);
                   LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(listForTask, writeSemaphore, this.importType, getStartTime());
@@ -88,8 +90,8 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
          List<TransformationGroup> inferredTransformList = new ArrayList<>();
          
          Get.conceptService().getConceptNidStream(conceptAssemblageNid).forEach((conceptNid) -> {
-             NidSet relNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, inferredRelationshipAssemblageNid);
-               inferredTransformList.add(new TransformationGroup(conceptNid, relNids.asArray(), PremiseType.INFERRED));
+             ImmutableIntSet relNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, inferredRelationshipAssemblageNid);
+               inferredTransformList.add(new TransformationGroup(conceptNid, relNids.toArray(), PremiseType.INFERRED));
                if (inferredTransformList.size() == transformSize) {
                   List<TransformationGroup> listForTask = new ArrayList<>(inferredTransformList);
                   LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(listForTask, writeSemaphore, this.importType, getStartTime());

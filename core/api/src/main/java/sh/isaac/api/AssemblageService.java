@@ -47,6 +47,7 @@ import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
@@ -164,7 +165,7 @@ public interface AssemblageService
     * @param componentNid the component nid
     * @return the SemanticChronology nids for component
     */
-   NidSet getSemanticNidsForComponent(int componentNid);
+   ImmutableIntSet getSemanticNidsForComponent(int componentNid);
 
    /**
     * Gets the SemanticChronology nids for component from assemblage.
@@ -173,7 +174,7 @@ public interface AssemblageService
     * @param assemblageConceptNids The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
     * @return the SemanticChronology nids for component from assemblage
     */
-   NidSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids);
+   ImmutableIntSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids);
    
    /**
     * Gets the SemanticChronology nids for component from assemblage.
@@ -182,7 +183,7 @@ public interface AssemblageService
     * @param assemblageConceptNid the assemblage nid
     * @return the SemanticChronology nids for component from assemblage
     */
-   NidSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageConceptNid);
+   ImmutableIntSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageConceptNid);
 
 
    /**
@@ -191,7 +192,7 @@ public interface AssemblageService
     * @param assemblageConceptNid the assemblage nid
     * @return the SemanticChronology nids from assemblage
     */
-   NidSet getSemanticNidsFromAssemblage(int assemblageConceptNid);
+   ImmutableIntSet getSemanticNidsFromAssemblage(int assemblageConceptNid);
 
    /**
     * Gets the SemanticChronology for component.
@@ -203,11 +204,9 @@ public interface AssemblageService
    <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid);
 
    default <C extends SemanticChronology> List<C> getSemanticChronologiesForComponent(int componentNid) {
-       NidSet ids = getSemanticNidsForComponent(componentNid);
+       ImmutableIntSet ids = getSemanticNidsForComponent(componentNid);
        List<C> results = new ArrayList<>(ids.size());
-       for (int nid: ids.asArray()) {
-           results.add((C) getSemanticChronology(nid));
-       }
+       ids.forEach(nid -> results.add((C) getSemanticChronology(nid)));
        return results;
    }
    /**
@@ -223,11 +222,9 @@ public interface AssemblageService
 
     default <C extends SemanticChronology> List<C> getSemanticChronologiesForComponentFromAssemblages(int componentNid,
                                                                                                       Set<Integer> assemblageConceptNids) {
-        NidSet ids = getSemanticNidsForComponentFromAssemblages(componentNid, assemblageConceptNids);
+        ImmutableIntSet ids = getSemanticNidsForComponentFromAssemblages(componentNid, assemblageConceptNids);
         List<C> results = new ArrayList<>(ids.size());
-        for (int nid: ids.asArray()) {
-            results.add((C) getSemanticChronology(nid));
-        }
+        ids.forEach(nid -> results.add((C) getSemanticChronology(nid)));
         return results;
     }
     default <C extends SemanticChronology> List<C> getSemanticChronologiesForComponentFromAssemblage(int componentNid, int assemblageConceptNid) {
@@ -359,11 +356,11 @@ public interface AssemblageService
     * @return the OptionalInt for the nid of the concepts that defines the semantics of this assemblage.
      */
     default OptionalInt getSemanticTypeConceptForAssemblage(int assemblageConceptNid, StampFilter stampFilter) {
-        NidSet assemblageSemanticType = getSemanticNidsForComponentFromAssemblage(assemblageConceptNid, TermAux.SEMANTIC_TYPE.getNid());
+        ImmutableIntSet assemblageSemanticType = getSemanticNidsForComponentFromAssemblage(assemblageConceptNid, TermAux.SEMANTIC_TYPE.getNid());
         if (assemblageSemanticType.isEmpty()) {
             return OptionalInt.empty();
         }
-        SemanticChronology typeSemantic = getSemanticChronology(assemblageSemanticType.asArray()[0]);
+        SemanticChronology typeSemantic = getSemanticChronology(assemblageSemanticType.intIterator().next());
         LatestVersion<ComponentNidVersion> latestVersion = typeSemantic.getLatestVersion(stampFilter);
         if (latestVersion.isPresent()) {
             return OptionalInt.of(latestVersion.get().getComponentNid());
@@ -372,11 +369,12 @@ public interface AssemblageService
     }
     
     default OptionalInt getPropertyIndexForSemanticField(int semanticFieldConceptNid, int assemblageConceptNid, StampFilter stampFilter) {
-        NidSet propertyIndexes = getSemanticNidsForComponentFromAssemblage(assemblageConceptNid, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS.getNid());
+        ImmutableIntSet propertyIndexes = getSemanticNidsForComponentFromAssemblage(assemblageConceptNid, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS.getNid());
         if (propertyIndexes.isEmpty()) {
             return OptionalInt.empty();
         }
-        for (int semanticNid: propertyIndexes.asArray()) {
+
+        for (int semanticNid: propertyIndexes.toArray()) {
             SemanticChronology typeSemanticChronology = getSemanticChronology(semanticNid);
             LatestVersion<Nid1_Int2_Version> latestVersion = typeSemanticChronology.getLatestVersion(stampFilter);
             if (latestVersion.isPresent() && latestVersion.get().getNid1() == semanticFieldConceptNid) {

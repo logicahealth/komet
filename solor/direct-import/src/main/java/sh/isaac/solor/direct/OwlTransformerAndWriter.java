@@ -1,5 +1,6 @@
 package sh.isaac.solor.direct;
 
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.MetaData;
 import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
@@ -218,14 +219,13 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
         }
 
         // See if a semantic already exists in this assemblage referencing this concept...
-        NidSet graphNidsForComponent = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, graphAssemblageNid);
+        ImmutableIntSet graphNidsForComponent = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, graphAssemblageNid);
         if (!graphNidsForComponent.isEmpty()) {
 //            LOG.info("Existing graph found for: " + Get.conceptDescriptionText(conceptNid));
             if (graphNidsForComponent.size() != 1) {
                 throw new IllegalStateException("To many graphs for component: " + Get.conceptDescriptionText(conceptNid));
             }
-            OptionalInt optionalGraphNid = graphNidsForComponent.findFirst();
-            SemanticChronology existingGraph = Get.assemblageService().getSemanticChronology(optionalGraphNid.getAsInt());
+            SemanticChronology existingGraph = Get.assemblageService().getSemanticChronology(graphNidsForComponent.intIterator().next());
             LatestVersion<LogicGraphVersionImpl> latest = existingGraph.getLatestVersion(stampFilter);
             if (latest.isPresent()) {
                 LogicGraphVersionImpl logicGraphLatest = latest.get();

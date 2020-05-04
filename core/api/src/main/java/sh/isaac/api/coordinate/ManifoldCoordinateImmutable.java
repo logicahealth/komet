@@ -146,6 +146,11 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
     }
 
     @Override
+    public ManifoldCoordinateImmutable toManifoldCoordinateImmutable() {
+        return this;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ManifoldCoordinateImmutable)) return false;

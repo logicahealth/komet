@@ -168,6 +168,9 @@ public class DynamicUsageDescriptionImpl
       }
 
       if (StringUtils.isEmpty(this.semanticUsageDescription)) {
+         for (SemanticChronology descriptionSemantic: assemblageConcept.getConceptDescriptionList()) {
+            System.out.println(descriptionSemantic.toString());
+         }
          throw new RuntimeException(
              "The Assemblage concept: " + assemblageConcept +
              " is not correctly assembled for use as an Assemblage for " +
@@ -637,6 +640,7 @@ public class DynamicUsageDescriptionImpl
       case LOINC_RECORD:
       case MEASURE_CONSTRAINTS:
       case Nid1_Int2:
+      case Nid1_Long2:
       case Nid1_Int2_Str3_Str4_Nid5_Nid6:
       case Nid1_Nid2:
       case Nid1_Nid2_Int3:

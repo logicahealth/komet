@@ -210,10 +210,7 @@ public class MultiParentGraphItemImpl
 
     private void updateDescription() {
         if (this.nid != Integer.MAX_VALUE) {
-            Optional<String> latestDescriptionText = graphView.getManifold()
-                    .getDescriptionText(nid);
-            latestDescriptionText.ifPresentOrElse((descriptionText) -> this.conceptDescriptionText = descriptionText,
-                    () -> this.conceptDescriptionText = "no description for " + nid);
+            this.conceptDescriptionText = graphView.getManifold().getVertexLabel(nid);
         } else {
             this.conceptDescriptionText = "hidden root";
         }

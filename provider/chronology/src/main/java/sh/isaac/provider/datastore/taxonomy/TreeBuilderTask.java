@@ -164,24 +164,16 @@ public class TreeBuilderTask
       if (stopRequested) {
          throw new CancellationException("Stop requested during compute");
       }
-      conceptNidStream = Get.identifierService()
-                                            .getNidsForAssemblage(conceptAssemblageNid);
-      HashTreeBuilderIsolated graphBuilder     = (HashTreeBuilderIsolated) conceptNidStream.filter(
-                                             (conceptNid) -> {
-                                                if (conceptNid == TermAux.SOLOR_METADATA.getNid()) {
-                                                   System.out.println("Found 1: " + TermAux.SOLOR_METADATA.getFullyQualifiedName());
-                                                }
+      conceptNidStream = Get.identifierService().getNidsForAssemblage(conceptAssemblageNid);
 
+      HashTreeBuilderIsolated graphBuilder = conceptNidStream.filter((conceptNid) -> {
                completedUnitOfWork();
                return true;
-            })
-                                                         .collect(
-                                                               () -> new HashTreeBuilderIsolated(this.digraph.getVertexStampFilter(),
-                                                                       this.digraph.toUserString(),
-                                                                     this.digraph.getPremiseType(),
-                                                                           this.conceptAssemblageNid),
-                                                                     collector,
-                                                                     collector);
+            }).collect(() -> new HashTreeBuilderIsolated(this.digraph.getVertexStampFilter(),
+                                                         this.digraph.toUserString(),
+                                                         this.digraph.getPremiseType(),
+                                                         this.conceptAssemblageNid),
+                                                         collector, collector);
 
       message = "searching for redundancies and cycles";
 

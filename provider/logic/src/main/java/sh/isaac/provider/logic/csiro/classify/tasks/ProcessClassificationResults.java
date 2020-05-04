@@ -43,6 +43,7 @@ import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
@@ -228,9 +229,9 @@ public class ProcessClassificationResults
      * @param semanticService the semantic service
      * @throws IllegalStateException the illegal state exception
      */
-    private void testForProperSetSize(NidSet inferredSemanticSequences,
+    private void testForProperSetSize(ImmutableIntSet inferredSemanticSequences,
             int conceptNid,
-            NidSet statedSemanticSequences,
+                                      ImmutableIntSet statedSemanticSequences,
             AssemblageService semanticService)
             throws IllegalStateException {
         if (inferredSemanticSequences.size() > 1) {
@@ -260,7 +261,7 @@ public class ProcessClassificationResults
                                 .getConceptChronology(conceptNid)
                                 .toUserString())
                         .append("\n");
-                statedSemanticSequences.stream().forEach((semanticSequence) -> {
+                statedSemanticSequences.forEach((semanticSequence) -> {
                     builder.append("Found stated definition: ")
                             .append(semanticService.getSemanticChronology(semanticSequence))
                             .append("\n");
@@ -292,10 +293,10 @@ public class ProcessClassificationResults
                     LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
                 }
 
-                final NidSet inferredSemanticNids
+                final ImmutableIntSet inferredSemanticNids
                         = assemblageService.getSemanticNidsForComponentFromAssemblage(conceptNid,
                                 this.inputData.getLogicCoordinate().getInferredAssemblageNid());
-                final NidSet statedSemanticNids
+                final ImmutableIntSet statedSemanticNids
                         = assemblageService.getSemanticNidsForComponentFromAssemblage(conceptNid,
                                 this.inputData.getLogicCoordinate().getStatedAssemblageNid());
 
@@ -306,11 +307,10 @@ public class ProcessClassificationResults
 
                 // SemanticChronology<LogicGraphSemantic> statedChronology = (SemanticChronology<LogicGraphSemantic>) 
                 // assemblageService.getSemanticChronology(statedSemanticNids.stream().findFirst().getAsInt());
-                OptionalInt statedSemanticNidOptional = statedSemanticNids.findFirst();
-                if (statedSemanticNidOptional.isPresent()) {
+                if (!statedSemanticNids.isEmpty()) {
 
                     final SemanticChronology rawStatedChronology
-                            = assemblageService.getSemanticChronology(statedSemanticNidOptional.getAsInt());
+                            = assemblageService.getSemanticChronology(statedSemanticNids.intIterator().next());
                     final LatestVersion<LogicGraphVersion> latestStatedDefinitionOptional
                             = ((SemanticChronology) rawStatedChronology).getLatestVersion(this.inputData.getStampFilter());
 
@@ -375,9 +375,7 @@ public class ProcessClassificationResults
                                 }
                             } else {
                                 final SemanticChronology inferredChronology
-                                        = assemblageService.getSemanticChronology(inferredSemanticNids.stream()
-                                                .findFirst()
-                                                .getAsInt());
+                                        = assemblageService.getSemanticChronology(inferredSemanticNids.intIterator().next());
 
                                 // check to see if changed from old...
                                 final LatestVersion<LogicGraphVersion> latestDefinitionOptional

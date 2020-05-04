@@ -1736,7 +1736,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 	 */
 	private void prepareSCTMaps() throws SQLException
 	{
-		Get.assemblageService().getSemanticNidsFromAssemblage(MetaData.SCTID____SOLOR.getNid()).stream().forEach(semantic -> {
+		Get.assemblageService().getSemanticNidsFromAssemblage(MetaData.SCTID____SOLOR.getNid()).forEach(semantic -> {
 			final LatestVersion<StringVersion> lv = ((SemanticChronology) Get.assemblageService().getSemanticChronology(semantic))
 					.getLatestVersion(Coordinates.Filter.DevelopmentLatest());
 			final StringVersion ss = lv.get();

@@ -1,5 +1,6 @@
 package sh.isaac.api.coordinate;
 
+import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.api.LanguageCoordinateService;
@@ -193,11 +194,11 @@ public class Coordinates {
     public static class Path {
 
         public static PathCoordinateImmutable Master() {
-            return PathCoordinateImmutable.make(TermAux.MASTER_PATH);
+            return PathCoordinateImmutable.make(TermAux.MASTER_PATH, Sets.immutable.of(StampPositionImmutable.make(Long.MAX_VALUE, TermAux.PRIMORDIAL_PATH.getNid())));
         }
 
         public static PathCoordinateImmutable Development() {
-            return PathCoordinateImmutable.make(TermAux.DEVELOPMENT_PATH);
+            return PathCoordinateImmutable.make(TermAux.DEVELOPMENT_PATH, Sets.immutable.of(StampPositionImmutable.make(Long.MAX_VALUE, TermAux.PRIMORDIAL_PATH.getNid())));
         }
 
     }

@@ -65,8 +65,8 @@ public class Nid1_Nid2_VersionImpl
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
-              .append("{Nid1: ").append(Get.conceptDescriptionText(nid1))
-              .append(", Nid2: ").append(Get.conceptDescriptionText(nid2))
+              .append("{Nid1: ").append(Get.getTextForComponent(nid1))
+              .append(", Nid2: ").append(Get.getTextForComponent(nid2))
               .append(Get.stampService()
                       .describeStampSequence(this.getStampSequence())).append("}");
       return builder;

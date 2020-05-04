@@ -54,7 +54,6 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
@@ -403,7 +402,7 @@ public class Frills
          //iterate the children, find one that has a FQN than ends with "Edit (SOLOR)"
          int[] termTypeChildren = Get.taxonomyService().getSnapshotNoTree(ManifoldCoordinateImmutable.makeStated(stamp, fqnCoord)).getTaxonomyChildConceptNids(termTypeConcept);
          for (int nid : termTypeChildren) {
-            String fqn = fqnCoord.getFullyQualifiedName(nid, stamp).orElseGet(() -> "");
+            String fqn = fqnCoord.getFullyQualifiedNameText(nid, stamp).orElseGet(() -> "");
             int index = fqn.indexOf("Edit (" + ConceptProxy.METADATA_SEMANTIC_TAG + ")"); 
             if (index > 0) {
                LOG.debug("Returning existing default edit module nid of {} for {}", Get.conceptDescriptionText(nid), Get.conceptDescriptionText(moduleAgain));
@@ -413,7 +412,7 @@ public class Frills
          
          //We didn't find one... need to create it.
          LOG.debug("Creating edit module concept for terminology type {}", Get.conceptDescriptionText(termTypeConcept));
-         String termTypeFQN = fqnCoord.getFullyQualifiedName(termTypeConcept, stamp).get();
+         String termTypeFQN = fqnCoord.getFullyQualifiedNameText(termTypeConcept, stamp).get();
          termTypeFQN = SemanticTags.stripSemanticTagIfPresent(termTypeFQN);
          if (termTypeFQN.endsWith(" modules")) {  //Common pattern
             termTypeFQN = termTypeFQN.substring(0, termTypeFQN.length() - " modules".length());
@@ -459,7 +458,7 @@ public class Frills
 
             stampToUse = StampFilterImmutable.make(stampToUse.getAllowedStates(), stampToUse.getStampPosition(),
                     moduleNids.toImmutable(),
-                    stampToUse.getModulePreferenceOrder());
+                    stampToUse.getModulePriorityOrder());
          }
          if (stampFilter.getStampPosition().getTime() != Long.MAX_VALUE)
          {
@@ -688,7 +687,7 @@ public class Frills
 
       final StampFilter newStampCoordinate = StampFilterImmutable.make(existingStampFilter.getAllowedStates(),
               existingStampFilter.getStampPosition(), moduleSet.toImmutable(),
-              existingStampFilter.getModulePreferenceOrder());
+              existingStampFilter.getModulePriorityOrder());
 
       return newStampCoordinate;
    }
@@ -1930,13 +1929,13 @@ public class Frills
     */
    public static Stream<SemanticChronology> getSemanticForComponentFromAssemblagesFilteredBySemanticType(int componentNid,
          Set<Integer> allowedAssemblageNids, Set<VersionType> typesToExclude) {
-      NidSet semanticSequences = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(componentNid, allowedAssemblageNids);
+      ImmutableIntSet semanticSequences = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(componentNid, allowedAssemblageNids);
       if (typesToExclude == null || typesToExclude.isEmpty()) {
-         return semanticSequences.stream().mapToObj((int semanticSequence) -> Get.assemblageService().getSemanticChronology(semanticSequence));
+         return Arrays.stream(semanticSequences.toArray()).mapToObj((int semanticSequence) -> Get.assemblageService().getSemanticChronology(semanticSequence));
       } else {
          final ArrayList<SemanticChronology> filteredList = new ArrayList<>();
-         for (PrimitiveIterator.OfInt it = semanticSequences.getIntIterator(); it.hasNext();) {
-            SemanticChronology chronology = Get.assemblageService().getSemanticChronology(it.nextInt());
+         semanticSequences.forEach(semanticNid -> {
+            SemanticChronology chronology = Get.assemblageService().getSemanticChronology(semanticNid);
             boolean exclude = false;
             for (VersionType type : typesToExclude) {
                if (chronology.getVersionType() == type) {
@@ -1948,7 +1947,8 @@ public class Frills
             if (!exclude) {
                filteredList.add(chronology);
             }
-         }
+
+         });
 
          return filteredList.stream();
       }
@@ -2383,7 +2383,7 @@ public class Frills
 
    /**
     * Returns true if the passed in concept is the root solor concept {@link MetaData#SOLOR_CONCEPT____SOLOR}, 
-    * the metadata root concept {@link MetaData#METADATA____SOLOR}, or some child of the that tree (at any point in history)
+    * the metadata root concept {@link MetaData#MODEL_CONCEPT____SOLOR}, or some child of the that tree (at any point in history)
     * 
     * Note, this method doesn't perform great, so it should be used for one-offs, not batch processing.  See the lucene description 
     * indexer for an example of doing this in batch. 
@@ -2392,8 +2392,8 @@ public class Frills
     */
    public static boolean isMetadata(int conceptNid)
    {
-      return (conceptNid == MetaData.SOLOR_CONCEPT____SOLOR.getNid() || conceptNid == MetaData.METADATA____SOLOR.getNid() || 
-            Get.taxonomyService().wasEverKindOf(conceptNid, MetaData.METADATA____SOLOR.getNid()));
+      return (conceptNid == MetaData.SOLOR_CONCEPT____SOLOR.getNid() || conceptNid == MetaData.MODEL_CONCEPT____SOLOR.getNid() ||
+            Get.taxonomyService().wasEverKindOf(conceptNid, MetaData.MODEL_CONCEPT____SOLOR.getNid()));
    }
 }
 

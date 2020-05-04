@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.testing.hk2testng.HK2;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -68,10 +69,10 @@ public class BugDemo
 		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(MetaData.ACTION_PURPOSE____SOLOR.getNid(),
 				new HashSet<>(Arrays.asList(new Integer[] { MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() }))).forEach(descriptionChronology -> {
 					// read back nested semantics on each one.
-					NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
+					ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
 
 					// Try to read each semantic...
-					for (int nestedNid : semanticNids.asArray())
+					for (int nestedNid : semanticNids.toArray())
 					{
 						// We fail here, trying to read the nested semantic that describes the extended description type.
 						Assert.assertNotNull(Get.assemblageService().getSemanticChronology(nestedNid));
@@ -105,10 +106,10 @@ public class BugDemo
 		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(MetaData.ACTION_PURPOSE____SOLOR.getNid(),
 				new HashSet<>(Arrays.asList(new Integer[] { MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() }))).forEach(descriptionChronology -> {
 					// read back nested semantics on each one.
-					NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
+					ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
 
 					// Try to read each semantic...
-					for (int nestedNid : semanticNids.asArray())
+					for (int nestedNid : semanticNids.toArray())
 					{
 						// We fail here, trying to read the nested semantic that describes the extended description type.
 						Assert.assertNotNull(Get.assemblageService().getSemanticChronology(nestedNid));
@@ -170,10 +171,10 @@ public class BugDemo
 		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(MetaData.ACTION_PURPOSE____SOLOR.getNid(),
 				new HashSet<>(Arrays.asList(new Integer[] { MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() }))).forEach(descriptionChronology -> {
 					// read back nested semantics on each one.
-					NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
+					ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
 
 					// Try to read each semantic...
-					for (int nestedNid : semanticNids.asArray())
+					for (int nestedNid : semanticNids.toArray())
 					{
 						// We fail here, trying to read the nested semantic that describes the extended description type.
 						Assert.assertNotNull(Get.assemblageService().getSemanticChronology(nestedNid));

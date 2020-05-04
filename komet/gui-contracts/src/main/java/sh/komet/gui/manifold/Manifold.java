@@ -348,7 +348,7 @@ public class Manifold
     public ConceptSnapshotService getConceptSnapshotService() {
         if (conceptSnapshotProperty.getValue() == null) {
             conceptSnapshotProperty.set(Get.conceptService()
-                    .getSnapshot(observableManifoldCoordinate));
+                    .getSnapshot(observableManifoldCoordinate.getValue()));
         }
         return conceptSnapshotProperty.get();
     }
@@ -544,6 +544,11 @@ public class Manifold
     @Override
     public void setValue(ManifoldCoordinateImmutable value) {
         this.observableManifoldCoordinate.setValue(value);
+    }
+
+    @Override
+    public ManifoldCoordinateImmutable toManifoldCoordinateImmutable() {
+        return this.observableManifoldCoordinate.getValue();
     }
 }
 

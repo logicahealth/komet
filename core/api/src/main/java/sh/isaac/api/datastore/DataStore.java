@@ -193,7 +193,10 @@ public interface DataStore
     * @return the stream of nids in the assemblage
     */
    IntStream getNidsForAssemblage(int assemblageNid);
-   
+
+   default IntStream getNidsForAssemblageParallel(int assemblageNid) {
+      return getNidsForAssemblage(assemblageNid).parallel();
+   }
    /**
     * @return true, if this implementation also implements {@link SequenceStore}
     */

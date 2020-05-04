@@ -120,7 +120,7 @@ public class PreferencesTreeItem extends TreeItem<PreferenceGroup>  {
                 preferencesSheet.setTreeItem(preferencesTreeItem);
                 return Optional.of(preferencesTreeItem);
             } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
-                PreferencesTreeItem.LOG.error(ex.getLocalizedMessage(), ex);
+                PreferencesTreeItem.LOG.error("PropertySheetClass: " + optionalPropertySheetClass + " " + ex.getLocalizedMessage(), ex);
             }
         } else {
             preferences.put(PROPERTY_SHEET_CLASS, "sh.isaac.komet.preferences.RootPreferences");

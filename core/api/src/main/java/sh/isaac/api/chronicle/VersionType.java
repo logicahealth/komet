@@ -98,6 +98,7 @@ public enum VersionType {
 
    // Ideally, all of the below would be represented as dynamic semantics,
    // but quick, removable implementation for now. 
+   Nid1_Long2((byte) (Byte.MAX_VALUE - 14), "Component Long", "C1_Long2"),
 
    MEASURE_CONSTRAINTS((byte) (Byte.MAX_VALUE - 13), "Measure constraints", "Measure constraints"),
 
@@ -250,6 +251,12 @@ public enum VersionType {
          
    // Ideally, all of the below would be represented as dynamic semantics, 
    // but quick, removable implementation for now. 
+      case Byte.MAX_VALUE - 14:
+         return Nid1_Long2;
+
+      case Byte.MAX_VALUE - 13:
+         return MEASURE_CONSTRAINTS;
+
       case Byte.MAX_VALUE - 12:
          return Str1_Nid2_Nid3_Nid4;
 
