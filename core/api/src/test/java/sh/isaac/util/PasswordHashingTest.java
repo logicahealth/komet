@@ -40,6 +40,7 @@
 package sh.isaac.util;
 
 import java.util.Arrays;
+import org.apache.commons.text.RandomStringGenerator;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -238,6 +239,28 @@ public class PasswordHashingTest {
 
       Assert.assertTrue(PasswordHasher.check(password, passwordHash));
       Assert.assertFalse(PasswordHasher.check("fred".toCharArray(), passwordHash));
+   }
+
+    @Test
+    public void hashTestFive() throws Exception
+    {
+        final char[] password = "[\\]^_`]][".toCharArray();
+        final String passwordHash = PasswordHasher.getSaltedHash(password);
+
+        Assert.assertTrue(PasswordHasher.check(password, passwordHash));
+        Assert.assertFalse(PasswordHasher.check("".toCharArray(), passwordHash));
+    }
+
+    @Test
+   public void hashTestSix() throws Exception {
+       
+       for (int i = 0; i < 25; i++) {
+          char[] password =   new RandomStringGenerator.Builder().withinRange('A', 'z').build().generate(8).toCharArray();
+          final String passwordHash = PasswordHasher.getSaltedHash(password);
+    
+          Assert.assertTrue("Failed for password '" + new String(password) + "'", PasswordHasher.check(password, passwordHash));
+          Assert.assertFalse(PasswordHasher.check("".toCharArray(), passwordHash));
+       }
    }
 }
 
