@@ -69,7 +69,7 @@ public class DefaultCoordinateProvider {
    private final ObservableLogicCoordinate observableLogicCoordinate;
 
    /** The observable stamp coordinate. */
-   private final ObservablePathCoordinate observablePathCoordinate;
+   private final ObservableStampPath observableStampPath;
 
    /** The observable stamp position. */
    private final ObservableStampPositionImpl observableStampPosition;
@@ -82,13 +82,13 @@ public class DefaultCoordinateProvider {
    public DefaultCoordinateProvider() {
       this.observableEditCoordinate =
               new ObservableEditCoordinateImpl(EditCoordinates.getDefaultUserSolorOverlay());
-      this.observablePathCoordinate = ObservablePathCoordinateImpl.make(Coordinates.Path.Development());
+      this.observableStampPath = ObservableStampPathImpl.make(Coordinates.Path.Development());
       this.observableLogicCoordinate = new ObservableLogicCoordinateImpl(Coordinates.Logic.ElPlusPlus());
       this.observableLanguageCoordinate = new ObservableLanguageCoordinateImpl(
               Coordinates.Language.UsEnglishFullyQualifiedName());
       this.observableStampPosition = new ObservableStampPositionImpl(Coordinates.Position.LatestOnDevelopment());
       this.observableManifoldCoordinate = new ObservableManifoldCoordinateImpl(
-              ManifoldCoordinateImmutable.makeInferred(this.observablePathCoordinate.getStampFilter(),
+              ManifoldCoordinateImmutable.makeInferred(this.observableStampPath.getStampFilter(),
                       this.observableLanguageCoordinate,
                       this.observableLogicCoordinate));
    }
@@ -216,8 +216,8 @@ public class DefaultCoordinateProvider {
     *
     * @return the default stamp coordinate
     */
-   public ObservablePathCoordinate getDefaultStampCoordinate() {
-      return this.observablePathCoordinate;
+   public ObservableStampPath getDefaultStampCoordinate() {
+      return this.observableStampPath;
    }
 
    /**

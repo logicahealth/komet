@@ -20,6 +20,7 @@ import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
+import sh.komet.gui.util.PersonaChangeListeners;
 
 import java.util.HashSet;
 import java.util.List;
@@ -167,7 +168,7 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
         getPreferencesNode().putBoolean(Keys.ENABLE_RIGHT_PANE, this.enableRightPaneProperty.get());
         getPreferencesNode().putConceptList(Keys.RIGHT_PANE_OPTIONS, this.rightPaneOptionsProperty);
         getPreferencesNode().putConceptList(Keys.RIGHT_PANE_DEFAULTS, this.rightPaneDefaultsProperty);
-        FxGet.firePersonaChanged(this, true);
+        PersonaChangeListeners.firePersonaChanged(this, true);
     }
     @Override
     protected void revertFields(){
@@ -192,7 +193,7 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
                         MetaData.SIMPLE_SEARCH_PANEL____SOLOR)));
         this.rightPaneOptionsProperty.setAll(getPreferencesNode().getConceptList(Keys.RIGHT_PANE_OPTIONS,
                 List.of(standardTabFactoryList)));
-        FxGet.firePersonaChanged(this, true);
+        PersonaChangeListeners.firePersonaChanged(this, true);
     }
 
     @Override
@@ -202,7 +203,7 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
 
     @Override
     protected void deleteSelf(ActionEvent event) {
-        FxGet.firePersonaChanged(this, false);
+        PersonaChangeListeners.firePersonaChanged(this, false);
         super.deleteSelf(event);
     }
 

@@ -172,7 +172,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
 StatusSet allowedStates,
                          StampPosition stampPosition,
                          ImmutableIntSet authorNids,
-                         PathCoordinate pathCoordinate
+                         StampPath stampPath
  */
         StampFilterImmutable stampFilter = StampFilterImmutable.make(StatusSet.ACTIVE_ONLY, stampPosition,
                 IntSets.immutable.empty(), IntLists.immutable.empty());

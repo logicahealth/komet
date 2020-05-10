@@ -387,8 +387,8 @@ public class FLWORQueryController
                 
                 for (LetItemKey key : this.letPropertySheet.getLetItemObjectMap().keySet()) {
                     Object value = this.letPropertySheet.getLetItemObjectMap().get(key);
-                    if (value instanceof ObservablePathCoordinate) {
-                        value = ((ObservablePathCoordinate) value).getPathCoordinate();
+                    if (value instanceof ObservableStampPath) {
+                        value = ((ObservableStampPath) value).getPathCoordinate();
                     } else if (value instanceof ObservableLanguageCoordinate) {
                         value = ((ObservableLanguageCoordinate) value).getLanguageCoordinate();
                     } else if (value instanceof ObservableLogicCoordinate) {

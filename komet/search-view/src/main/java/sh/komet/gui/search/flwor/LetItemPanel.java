@@ -31,7 +31,7 @@ import sh.isaac.api.observable.ObservableConceptProxy;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
-import sh.isaac.api.observable.coordinate.ObservablePathCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampPath;
 import sh.isaac.api.query.LetItemKey;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
@@ -80,8 +80,8 @@ public class LetItemPanel {
             this.letListView.getItems().set(this.letListView.getItems().indexOf(letItemKey), letItemKey);
             this.letListView.getSelectionModel().select(letItemKey);
         });
-        if (letItem instanceof ObservablePathCoordinate) {
-            setupStampCoordinate((ObservablePathCoordinate) letItem);
+        if (letItem instanceof ObservableStampPath) {
+            setupStampCoordinate((ObservableStampPath) letItem);
         }
         if (letItem instanceof ObservableLanguageCoordinate) {
             setupLanguageCoordinate((ObservableLanguageCoordinate) letItem);
@@ -137,7 +137,7 @@ public class LetItemPanel {
         this.sheet.getItems().add(new PropertySheetConceptListWrapper(manifold, languageCoordinateItem.descriptionTypePreferenceListProperty()));
     }
     
-    private void setupStampCoordinate(ObservablePathCoordinate stampCoordinateItem) {
+    private void setupStampCoordinate(ObservableStampPath stampCoordinateItem) {
 //        this.sheet.getItems().add(new PropertySheetStatusSetWrapper(manifold, stampCoordinateItem.allowedStatesProperty()));
 //        ObservableStampPosition stampPosition = stampCoordinateItem.stampPositionProperty().get();
 //        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(manifold, "Path",

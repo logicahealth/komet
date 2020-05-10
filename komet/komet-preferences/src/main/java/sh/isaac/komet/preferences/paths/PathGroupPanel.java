@@ -95,6 +95,8 @@ public class PathGroupPanel extends ParentPanel implements ChronologyChangeListe
     }
 
     private void createPath(ActionEvent action) {
+        // Paths should always be created in sandbox module on foundation path?
+        // Maybe can also be retired in sandbox module on foundation path?
         setupButtonsForNew();
     }
 

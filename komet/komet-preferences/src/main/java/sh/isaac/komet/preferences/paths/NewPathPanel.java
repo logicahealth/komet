@@ -10,9 +10,8 @@ import org.controlsfx.control.PropertySheet;
 import org.eclipse.collections.api.factory.Sets;
 import sh.isaac.MetaData;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.coordinate.PathCoordinateImmutable;
-import sh.isaac.api.coordinate.StampPositionImmutable;
-import sh.isaac.model.observable.coordinate.ObservablePathCoordinateImpl;
+import sh.isaac.api.coordinate.StampPathImmutable;
+import sh.isaac.model.observable.coordinate.ObservableStampPathImpl;
 import sh.komet.gui.control.PropertySheetPositionListWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
@@ -32,11 +31,11 @@ public class NewPathPanel {
     private final SimpleStringProperty nameProperty
             = new SimpleStringProperty(this, MetaData.PATH_COORDINATE_NAME____SOLOR.toExternalString());
 
-    private final ObservablePathCoordinateImpl pathCoordinateItem;
+    private final ObservableStampPathImpl pathCoordinateItem;
 
     public NewPathPanel(Manifold manifold) {
         this.manifold = manifold;
-        this.pathCoordinateItem = ObservablePathCoordinateImpl.make(PathCoordinateImmutable.make(TermAux.UNINITIALIZED_COMPONENT_ID, Sets.immutable.empty()));
+        this.pathCoordinateItem = ObservableStampPathImpl.make(StampPathImmutable.make(TermAux.UNINITIALIZED_COMPONENT_ID, Sets.immutable.empty()));
         this.nameProperty.set("");
         this.itemList.add(new PropertySheetTextWrapper("Path name", nameProperty));
         this.itemList.add(new PropertySheetPositionListWrapper("Origins", pathCoordinateItem.pathOriginsAsListProperty()));

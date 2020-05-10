@@ -21,7 +21,7 @@ import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.UserConfigurationInternalImpl.ConfigurationOption;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.coordinate.*;
-import sh.isaac.api.observable.coordinate.ObservablePathCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampPath;
 
 /**
  * This class provides the ability for the users to customize and persist changes to various default values.
@@ -88,7 +88,7 @@ public interface UserConfiguration
 	 * @return the stamp coordinate as configured by the current user
 	 * Any changes made within the returned value will not be automatically persisted.
 	 */
-	public ObservablePathCoordinate getPathCoordinate();
+	public ObservableStampPath getPathCoordinate();
 
 	/**
 	 * Enable a key/value store mechanism to store arbitrary objects.  This enables add-on modules

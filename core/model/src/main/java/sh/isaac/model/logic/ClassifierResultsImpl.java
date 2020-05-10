@@ -7,9 +7,6 @@ import sh.isaac.api.collections.IntArrayWrapper;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.api.observable.coordinate.ObservablePathCoordinate;
 
 import java.time.Instant;
 import java.util.*;

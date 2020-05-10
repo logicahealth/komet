@@ -45,18 +45,16 @@ import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.PathCoordinateImmutable;
-import sh.isaac.api.coordinate.PathCoordinateProxy;
-import sh.isaac.api.coordinate.StampPositionImmutable;
+import sh.isaac.api.coordinate.*;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
- * The ObservablePathCoordinate implementation.
+ * The ObservableStampPath implementation.
  *
  * @author kec
  */
-public interface ObservablePathCoordinate extends ObservableCoordinate<PathCoordinateImmutable>, PathCoordinateProxy {
+public interface ObservableStampPath extends ObservableCoordinate<StampPathImmutable>, StampPathProxy {
 
    /**
     *

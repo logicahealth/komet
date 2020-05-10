@@ -42,6 +42,7 @@ package sh.isaac.api.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Arrays;
+import java.util.UUID;
 
 import org.eclipse.collections.api.set.ImmutableSet;
 import sh.isaac.api.Get;
@@ -62,6 +63,10 @@ public interface StampPath
     * @return the nid of the concept that defines this STAMP path.
     */
    int getPathConceptNid();
+
+   default UUID getPathCoordinateUuid() {
+      return Get.identifierService().getUuidPrimordialForNid(getPathConceptNid());
+   }
 
    default ConceptSpecification getPathConcept() {
       return Get.conceptSpecification(getPathConceptNid());
@@ -90,5 +95,13 @@ public interface StampPath
    ImmutableSet<StampPositionImmutable> getPathOrigins();
 
    StampPathImmutable toStampPathImmutable();
+
+   /**
+    *
+    * @return a StampFilterImmutable representing the latest on this path, with no author constraints.
+    */
+   default StampFilterImmutable getStampFilter() {
+      return StampPathImmutable.getStampFilter(this);
+   }
 }
 

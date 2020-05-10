@@ -193,12 +193,12 @@ public class Coordinates {
 
     public static class Path {
 
-        public static PathCoordinateImmutable Master() {
-            return PathCoordinateImmutable.make(TermAux.MASTER_PATH, Sets.immutable.of(StampPositionImmutable.make(Long.MAX_VALUE, TermAux.PRIMORDIAL_PATH.getNid())));
+        public static StampPathImmutable Master() {
+            return StampPathImmutable.make(TermAux.MASTER_PATH, Sets.immutable.of(StampPositionImmutable.make(Long.MAX_VALUE, TermAux.PRIMORDIAL_PATH.getNid())));
         }
 
-        public static PathCoordinateImmutable Development() {
-            return PathCoordinateImmutable.make(TermAux.DEVELOPMENT_PATH, Sets.immutable.of(StampPositionImmutable.make(Long.MAX_VALUE, TermAux.PRIMORDIAL_PATH.getNid())));
+        public static StampPathImmutable Development() {
+            return StampPathImmutable.make(TermAux.DEVELOPMENT_PATH, Sets.immutable.of(StampPositionImmutable.make(Long.MAX_VALUE, TermAux.PRIMORDIAL_PATH.getNid())));
         }
 
     }

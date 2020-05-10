@@ -58,11 +58,7 @@
             <ToolBar prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: transparent;" GridPane.columnIndex="2" />
             <MenuButton maxHeight="28.0" maxWidth="28.0" minHeight="28.0" minWidth="28.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="28.0" style="-fx-background-color: transparent;">
               <items>
-                  <Menu mnemonicParsing="false" text="Path">
-                    <items>
-                      <MenuItem mnemonicParsing="false" text="Action 1" />
-                    </items>
-                  </Menu>
+                  <Menu fx:id="pathMenu" mnemonicParsing="false" text="Path" />
                   <Menu mnemonicParsing="false" text="Language">
                      <items>
                         <MenuItem mnemonicParsing="false" text="Action 1" />

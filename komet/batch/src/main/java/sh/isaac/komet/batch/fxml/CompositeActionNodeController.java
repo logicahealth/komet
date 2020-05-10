@@ -17,9 +17,10 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.StampPathImmutable;
 import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.isaac.api.observable.coordinate.ObservablePathCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampPath;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.batch.ActionCell;
@@ -118,7 +119,9 @@ public class CompositeActionNodeController implements VersionChangeListener {
 
         listChoiceBox.setItems(FxGet.componentListKeys());
         viewKeyChoiceBox.getItems().setAll(FxGet.pathCoordinates().keySet());
-        FxGet.pathCoordinates().addListener((MapChangeListener<UuidStringKey, ObservablePathCoordinate>) change -> {
+
+
+        FxGet.pathCoordinates().addListener((MapChangeListener<UuidStringKey, StampPathImmutable>) change -> {
             viewKeyChoiceBox.getItems().setAll(FxGet.pathCoordinates().keySet());
         });
 
@@ -270,7 +273,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
                             "Without the stamp coordinate, a promotion determination cannot be made. ");
             return;
         }
-        ObservablePathCoordinate pathCoordinate = FxGet.pathCoordinates().get(stampKey);
+        StampPathImmutable stampPathImmutable = FxGet.pathCoordinates().get(stampKey);
         EditCoordinate editCoordinate = FxGet.editCoordinate();
         if (listKey != null) {
             try {
@@ -292,7 +295,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
                 CompositeAction compositeAction = getCompositeAction();
                 ComponentList componentList = FxGet.componentList(listKey);
                 compositeAction.apply(componentList.listSize(), componentList.getComponentStream(), this.transaction,
-                        pathCoordinate.getStampFilter(), editCoordinate, this);
+                        stampPathImmutable.getStampFilter(), editCoordinate, this);
             } catch (IOException e) {
                 FxGet.dialogs().showErrorDialog(e);
             }

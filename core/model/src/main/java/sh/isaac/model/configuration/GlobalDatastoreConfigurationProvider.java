@@ -143,7 +143,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ObservablePathCoordinate getDefaultStampCoordinate()
+	public ObservableStampPath getDefaultStampCoordinate()
 	{
 		initCheckCoords();
 		return this.defaultCoordinateProvider.getDefaultStampCoordinate();

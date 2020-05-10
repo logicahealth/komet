@@ -48,7 +48,7 @@ import static sh.isaac.komet.batch.action.PromoteComponentActionFactory.PROMOTE_
 public class PromoteComponentAction extends ActionItem {
     public static final int marshalVersion = 1;
     private enum PromoteKeys {
-        PROMOTION_STAMP_FILTER,
+        PROMOTION_PATH,
         PROMOTION_EDIT_COORDINATE
     }
     // origin path
@@ -103,7 +103,7 @@ public class PromoteComponentAction extends ActionItem {
                 StampPositionImmutable.make(stampFilter.getTime(), promotionPathProperty.get()),
                 stampFilter.getModuleNids(),
                 stampFilter.getModulePriorityOrder());
-        cache.put(PromoteKeys.PROMOTION_STAMP_FILTER, promotionFilter);
+        cache.put(PromoteKeys.PROMOTION_PATH, promotionFilter);
 
         EditCoordinateImmutable promotionPathEditCoordinate = EditCoordinateImmutable.make(editCoordinate.getAuthorNid(), editCoordinate.getModuleNid(), promotionPathProperty.get().getNid());
         cache.put(PromoteKeys.PROMOTION_EDIT_COORDINATE, promotionPathEditCoordinate);
@@ -120,9 +120,9 @@ public class PromoteComponentAction extends ActionItem {
             return;
         }
         // See if the latest on the promotion path is different...
-        PathCoordinate promotionPathCoordinate = (PathCoordinate) cache.get(PromoteKeys.PROMOTION_STAMP_FILTER);
+        StampPath promotionPath = (StampPath) cache.get(PromoteKeys.PROMOTION_PATH);
         EditCoordinate promotionPathEditCoordinate = (EditCoordinate) cache.get(PromoteKeys.PROMOTION_EDIT_COORDINATE);
-        LatestVersion<Version> promotionPathVersion = chronology.getLatestVersion(promotionPathCoordinate.getStampFilter());
+        LatestVersion<Version> promotionPathVersion = chronology.getLatestVersion(promotionPath.getStampFilter());
         if (promotionPathVersion.isPresent()) {
             // need to compare and see if different...
             LOG.info("Test for promotion: \n" + latestVersion.get() + "\n" + promotionPathVersion.get());

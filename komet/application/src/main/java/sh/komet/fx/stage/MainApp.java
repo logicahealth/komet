@@ -82,6 +82,7 @@ import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
+import sh.komet.gui.util.PersonaChangeListeners;
 
 
 import java.lang.management.ManagementFactory;
@@ -144,7 +145,7 @@ public class MainApp
                 .getStylesheets()
                 .add(MainApp.class.getResource("/user.css").toString());
         stage.show();
-        FxGet.addPersonaChangeListener(this);
+        PersonaChangeListeners.addPersonaChangeListener(this);
     }
 
     public void replacePrimaryStage(Stage primaryStage) {

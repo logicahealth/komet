@@ -71,7 +71,7 @@ public class UserConfigurationImpl implements UserConfiguration
 	private ObservableEditCoordinate editCoordinate;
 	private ObservableLanguageCoordinateImpl languageCoordinate;
 	private ObservableLogicCoordinate logicCoordinate;
-	private ObservablePathCoordinate pathCoordinate;
+	private ObservableStampPath pathCoordinate;
 	private ObservableManifoldCoordinate manifoldCoordinate;
 	
 	private Optional<UUID> userConcept;
@@ -189,7 +189,7 @@ public class UserConfigurationImpl implements UserConfiguration
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ObservablePathCoordinate getPathCoordinate()
+	public ObservableStampPath getPathCoordinate()
 	{
 		return pathCoordinate;
 	}

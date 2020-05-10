@@ -38,6 +38,7 @@ package sh.komet.fx.stage;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
+import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -82,6 +83,7 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
+import sh.komet.gui.util.UuidStringKey;
 
 import java.io.File;
 import java.net.URL;
@@ -145,6 +147,10 @@ public class KometStageController
     private GridPane topGridPane;                      // Value injected by FXMLLoader
     @FXML                                                                          // fx:id="classifierMenuButton"
     private MenuButton classifierMenuButton;             // Value injected by FXMLLoader
+
+    @FXML
+    private Menu pathMenu;
+
     private WindowPreferencesItem windowPreferencesItem;
     private IsaacPreferences preferencesNode;
     private Stage stage;
@@ -194,7 +200,6 @@ public class KometStageController
         Platform.runLater(() -> {
             statusMessage.setText(status);
         });
-
     }
 
     @FXML
@@ -260,6 +265,12 @@ public class KometStageController
         this.centerTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
         this.rightTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
 
+        pathMenu.getItems().clear();
+        // TODO, handle updates.
+        for (UuidStringKey key: FxGet.pathCoordinates().keySet()) {
+            MenuItem item = new MenuItem(key.getString());
+            this.pathMenu.getItems().add(item);
+        }
     }
 
     private List<MenuItem> getTaskMenuItems() {

@@ -3,12 +3,14 @@ package sh.isaac.api.coordinate;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
@@ -62,11 +64,19 @@ public final class StampPathImmutable implements StampPath, ImmutableCoordinate 
         this.pathOrigins = mutableOrigins.toImmutable();
     }
 
+    public static StampPathImmutable make(ConceptSpecification pathConcept, ImmutableSet<StampPositionImmutable> pathOrigins) {
+        return make(pathConcept.getNid(), pathOrigins);
+    }
+
     public static StampPathImmutable make(int pathConceptNid, ImmutableSet<StampPositionImmutable> pathOrigins) {
         return SINGLETONS.computeIfAbsent(pathConceptNid,
                 pathNid -> new StampPathImmutable(pathConceptNid, pathOrigins));
     }
 
+
+    public static StampPathImmutable make(ConceptSpecification pathConcept) {
+        return make(pathConcept.getNid());
+    }
     public static StampPathImmutable make(int pathConceptNid) {
         return SINGLETONS.computeIfAbsent(pathConceptNid,
                 pathNid -> {
@@ -125,5 +135,12 @@ public final class StampPathImmutable implements StampPath, ImmutableCoordinate 
     @Override
     public int hashCode() {
         return Objects.hash(getPathConceptNid(), getPathOrigins());
+    }
+
+
+    public static final StampFilterImmutable getStampFilter(StampPath stampPath) {
+        return StampFilterImmutable.make(StatusSet.ACTIVE_AND_INACTIVE,
+                StampPositionImmutable.make(Long.MAX_VALUE, stampPath.getPathConcept()),
+                IntSets.immutable.empty());
     }
 }

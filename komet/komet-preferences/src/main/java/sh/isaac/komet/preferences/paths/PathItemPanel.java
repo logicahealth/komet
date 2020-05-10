@@ -13,10 +13,10 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import sh.isaac.api.component.concept.ConceptSnapshot;
-import sh.isaac.api.coordinate.PathCoordinateImmutable;
+import sh.isaac.api.coordinate.StampPathImmutable;
 import sh.isaac.api.coordinate.StampPositionImmutable;
 import sh.isaac.api.util.time.DateTimeUtil;
-import sh.isaac.model.observable.coordinate.ObservablePathCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableStampPathImpl;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.contract.preferences.PreferencesTreeItem;
 import sh.komet.gui.manifold.Manifold;
@@ -27,7 +27,7 @@ public class PathItemPanel implements PreferenceGroup {
     private PreferencesTreeItem preferencesTreeItem;
     private final ConceptSnapshot pathConcept;
     private final String pathNameString;
-    private final ObservablePathCoordinateImpl observablePathCoordinate;
+    private final ObservableStampPathImpl observablePathCoordinate;
     final GridPane pathGridPane = new GridPane();
     final ListView<StampPositionImmutable> positionListView = new ListView<>();
     {
@@ -51,7 +51,7 @@ public class PathItemPanel implements PreferenceGroup {
 
     public PathItemPanel(ConceptSnapshot pathConcept) {
         this.pathConcept = pathConcept;
-        this.observablePathCoordinate = ObservablePathCoordinateImpl.make(PathCoordinateImmutable.make(pathConcept));
+        this.observablePathCoordinate = ObservableStampPathImpl.make(StampPathImmutable.make(pathConcept));
         this.positionListView.setItems(observablePathCoordinate.pathOriginsAsListProperty());
         this.pathNameString = pathConcept.getPreferredDescriptionText().get();
         Label pathNameLabel = new Label("Path name");

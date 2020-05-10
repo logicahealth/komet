@@ -1,22 +1,5 @@
 package sh.isaac.komet.preferences.coordinate;
 
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.coordinate.PathCoordinateImmutable;
-import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.observable.coordinate.ObservableStampPosition;
-import sh.komet.gui.contract.preferences.PreferenceGroup;
-import sh.komet.gui.control.PropertySheetItemDateTimeWrapper;
-import sh.komet.gui.control.PropertySheetStampPrecedenceWrapper;
-import sh.komet.gui.control.PropertySheetStatusSetWrapper;
-import sh.komet.gui.control.PropertySheetTextWrapper;
-import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
-import sh.komet.gui.control.concept.PropertySheetConceptSetWrapper;
-import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.util.FxGet;
-
-import java.util.prefs.BackingStoreException;
-
 public class FilterItemPanel {
 
     /*
@@ -62,7 +45,7 @@ public class FilterItemPanel {
         revertbuffer.trimToSize();
         byte[] data = getPreferencesNode().getByteArray(PathItemPanel.Keys.PATH_COORDINATE_DATA, revertbuffer.getData());
         ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(data);
-        PathCoordinateImmutable pathCoordinate = PathCoordinateImmutable.make(buffer);
+        StampPathImmutable pathCoordinate = StampPathImmutable.make(buffer);
         if (!pathCoordinate.getStampCoordinateUuid().equals(this.pathCoordinateItem.getStampCoordinateUuid())) {
             this.pathCoordinateItem.allowedStatesProperty().getValue().clear();
             this.pathCoordinateItem.allowedStatesProperty().getValue().addAll(pathCoordinate.getAllowedStates());

@@ -32,7 +32,6 @@ import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -40,12 +39,11 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampPathImmutable;
 import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.util.NaturalOrder;
-import sh.isaac.model.concept.ConceptChronologyImpl;
-import sh.isaac.model.concept.ConceptSnapshotImpl;
 import sh.komet.gui.contract.*;
 import sh.komet.gui.contract.preferences.KometPreferences;
 import sh.komet.gui.contract.preferences.PersonaChangeListener;
@@ -91,13 +89,16 @@ public class FxGet implements StaticIsaacCache {
     private static final List<GuiSearcher> SEARCHER_LIST = new ArrayList<>();
     // TODO make SEARCHER_LIST behave like a normal lookup service. 
     private static final List<GuiConceptBuilder> BUILDER_LIST = new ArrayList<>();
-    
+
     private static final SimpleStringProperty CONFIGURATION_NAME_PROPERTY = new SimpleStringProperty(null, MetaData.CONFIGURATION_NAME____SOLOR.toExternalString(), "viewer");
     private static final ObservableMap<UuidStringKey, GraphAmalgamWithManifold> GRAPH_CONFIGURATIONS = FXCollections.observableHashMap();
     private static final ObservableList<UuidStringKey> GRAPH_CONFIGURATION_KEY_LIST = FXCollections.observableArrayList();
-    private static ObservableSet<PersonaChangeListener> PERSONA_CHANGE_LISTENERS = FXCollections.observableSet(new HashSet<>());
 
     static {
+
+
+
+        // TODO: will this listener go away as part of garbage collection?
         GRAPH_CONFIGURATIONS.addListener((MapChangeListener.Change<? extends UuidStringKey, ? extends TaxonomySnapshot> change) -> {
             if (change.wasAdded()) {
                 GRAPH_CONFIGURATION_KEY_LIST.add(change.getKey());
@@ -106,6 +107,7 @@ public class FxGet implements StaticIsaacCache {
                 GRAPH_CONFIGURATION_KEY_LIST.remove(change.getKey());
             }
         });
+
     }
 
     public static List<GuiSearcher> searchers() {
@@ -186,7 +188,6 @@ public class FxGet implements StaticIsaacCache {
         Platform.runLater(() -> {
             GRAPH_CONFIGURATIONS.clear();
             GRAPH_CONFIGURATION_KEY_LIST.clear();
-            PERSONA_CHANGE_LISTENERS.clear();
         });
         
     }
@@ -316,51 +317,68 @@ public class FxGet implements StaticIsaacCache {
         return EditCoordinate.get();
     }
 
-    private static ObservableMap<UuidStringKey, ObservablePathCoordinate>    STAMP_COORDINATES = FXCollections.observableMap(new TreeMap<>());
+    private static ObservableMap<UuidStringKey, StampPathImmutable> PATHS = FXCollections.observableMap(new TreeMap<>());
     private static ObservableMap<UuidStringKey, ObservableLanguageCoordinate> LANGUAGE_COORDINATES = FXCollections.observableMap(new TreeMap<>());
     private static ObservableMap<UuidStringKey, ObservableLogicCoordinate>    LOGIC_COORDINATES = FXCollections.observableMap(new TreeMap<>());
     private static ObservableMap<UuidStringKey, ObservableManifoldCoordinate> MANIFOLD_COORDINATES = FXCollections.observableMap(new TreeMap<>());
-    private static final ObservableList<UuidStringKey> STAMP_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
+    private static final ObservableList<UuidStringKey> PATH_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
     private static final ObservableList<UuidStringKey> LANGUAGE_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
     private static final ObservableList<UuidStringKey> LOGIC_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
     private static final ObservableList<UuidStringKey> MANIFOLD_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
-    static {
-        STAMP_COORDINATES.addListener((MapChangeListener.Change<? extends UuidStringKey, ? extends ObservablePathCoordinate> change) -> {
-            if (change.wasAdded()) {
-                STAMP_COORDINATE_KEY_LIST.add(change.getKey());
-            }
-            if (change.wasRemoved()) {
-                STAMP_COORDINATE_KEY_LIST.remove(change.getKey());
-            }
-        });
-        LANGUAGE_COORDINATES.addListener((MapChangeListener.Change<? extends UuidStringKey, ? extends ObservableLanguageCoordinate> change) -> {
-            if (change.wasAdded()) {
-                LANGUAGE_COORDINATE_KEY_LIST.add(change.getKey());
-            }
-            if (change.wasRemoved()) {
-                LANGUAGE_COORDINATE_KEY_LIST.remove(change.getKey());
-            }
-        });
-        LOGIC_COORDINATES.addListener((MapChangeListener.Change<? extends UuidStringKey, ? extends ObservableLogicCoordinate> change) -> {
-            if (change.wasAdded()) {
-                LOGIC_COORDINATE_KEY_LIST.add(change.getKey());
-            }
-            if (change.wasRemoved()) {
-                LOGIC_COORDINATE_KEY_LIST.remove(change.getKey());
-            }
-        });
-        MANIFOLD_COORDINATES.addListener((MapChangeListener.Change<? extends UuidStringKey, ? extends ObservableManifoldCoordinate> change) -> {
-            if (change.wasAdded()) {
-                MANIFOLD_COORDINATE_KEY_LIST.add(change.getKey());
-            }
-            if (change.wasRemoved()) {
-                MANIFOLD_COORDINATE_KEY_LIST.remove(change.getKey());
-            }
-        });
+
+    private static void pathChangeListener(MapChangeListener.Change<? extends UuidStringKey, ? extends StampPathImmutable> change) {
+        if (change.wasAdded()) {
+            PATH_COORDINATE_KEY_LIST.add(change.getKey());
+        }
+        if (change.wasRemoved()) {
+            PATH_COORDINATE_KEY_LIST.remove(change.getKey());
+        }
     }
 
-    public static ObservableMap<UuidStringKey, ObservablePathCoordinate> pathCoordinates() {
-        return STAMP_COORDINATES;
+    private static void languageChangeListener(MapChangeListener.Change<? extends UuidStringKey, ? extends ObservableLanguageCoordinate> change) {
+        if (change.wasAdded()) {
+            LANGUAGE_COORDINATE_KEY_LIST.add(change.getKey());
+        }
+        if (change.wasRemoved()) {
+            LANGUAGE_COORDINATE_KEY_LIST.remove(change.getKey());
+        }
+    }
+
+    private static void logicChangeListener(MapChangeListener.Change<? extends UuidStringKey, ? extends ObservableLogicCoordinate> change) {
+        if (change.wasAdded()) {
+            LOGIC_COORDINATE_KEY_LIST.add(change.getKey());
+        }
+        if (change.wasRemoved()) {
+            LOGIC_COORDINATE_KEY_LIST.remove(change.getKey());
+        }
+    }
+    private static void manifoldChangeListener(MapChangeListener.Change<? extends UuidStringKey, ? extends ObservableManifoldCoordinate> change) {
+        if (change.wasAdded()) {
+            MANIFOLD_COORDINATE_KEY_LIST.add(change.getKey());
+        }
+        if (change.wasRemoved()) {
+            MANIFOLD_COORDINATE_KEY_LIST.remove(change.getKey());
+        }
+    }
+    static {
+        PATHS.addListener(FxGet::pathChangeListener);
+        LANGUAGE_COORDINATES.addListener(FxGet::languageChangeListener);
+        LOGIC_COORDINATES.addListener(FxGet::logicChangeListener);
+        MANIFOLD_COORDINATES.addListener(FxGet::manifoldChangeListener);
+    }
+
+    public static ObservableMap<UuidStringKey, StampPathImmutable> pathCoordinates() {
+        if (PATHS.isEmpty()) {
+            //TODO add commit listener, and update when new semantic or a commit.
+            Get.identifierService().getNidsForAssemblage(TermAux.PATH_ASSEMBLAGE).forEach(semanticNid -> {
+                SemanticChronology pathConceptSemantic = Get.assemblageService().getSemanticChronology(semanticNid);
+                StampPathImmutable path = StampPathImmutable.make(pathConceptSemantic.getReferencedComponentNid());
+                String pathDescription = Get.defaultCoordinate().getPreferredDescriptionText(path.getPathConceptNid());
+                UuidStringKey pathKey = new UuidStringKey(path.getPathCoordinateUuid(), pathDescription);
+                PATHS.put(pathKey, path);
+            });
+        }
+        return PATHS;
     }
     public static ObservableMap<UuidStringKey, ObservableLanguageCoordinate> languageCoordinates() {
         return LANGUAGE_COORDINATES;
@@ -371,8 +389,8 @@ public class FxGet implements StaticIsaacCache {
     public static ObservableMap<UuidStringKey, ObservableManifoldCoordinate> manifoldCoordinates() {
         return MANIFOLD_COORDINATES;
     }
-    public static ObservableList<UuidStringKey> stampCoordinateKeys() {
-        return STAMP_COORDINATE_KEY_LIST;
+    public static ObservableList<UuidStringKey> pathCoordinateKeys() {
+        return PATH_COORDINATE_KEY_LIST;
     }
     public static ObservableList<UuidStringKey> languageCoordinateKeys() {
         return LANGUAGE_COORDINATE_KEY_LIST;
@@ -464,18 +482,6 @@ public class FxGet implements StaticIsaacCache {
                 (o1, o2) -> {
                     return NaturalOrder.compareStrings(o1.getString(), o2.getString());
                 });
-    }
-
-    public static void addPersonaChangeListener(PersonaChangeListener listener) {
-        PERSONA_CHANGE_LISTENERS.add(listener);
-    }
-    public static void removePersonaChangeListener(PersonaChangeListener listener) {
-        PERSONA_CHANGE_LISTENERS.remove(listener);
-    }
-    public static void firePersonaChanged(PersonaItem personaItem, boolean active) {
-        for (PersonaChangeListener personaChangeListener: PERSONA_CHANGE_LISTENERS) {
-            personaChangeListener.personaChanged(personaItem, active);
-        }
     }
 
     public static File solorDirectory() {

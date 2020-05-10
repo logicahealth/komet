@@ -24,11 +24,10 @@ import sh.isaac.api.observable.ObservableConceptProxy;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
-import sh.isaac.api.observable.coordinate.ObservablePathCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampPath;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
-import sh.isaac.model.observable.coordinate.ObservablePathCoordinateImpl;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
@@ -331,7 +330,7 @@ public class LetPropertySheet {
 
         LetItemKey newLetItem = new LetItemKey(createUniqueKey("STAMP"));
         throw new UnsupportedOperationException();
-//        ObservablePathCoordinate stampCoordinate = this.manifoldForDisplay.getStampCoordinate().deepClone();
+//        ObservableStampPath stampCoordinate = this.manifoldForDisplay.getStampCoordinate().deepClone();
 //        addStampFilter(newLetItem, stampCoordinate);
     }
 
@@ -377,7 +376,7 @@ public class LetPropertySheet {
 
     public void addLogicCoordinate(LetItemKey newLetItem, LogicCoordinate newLogicCoordinate) {
         ObservableLogicCoordinate logicCoordinate;
-        if (newLogicCoordinate instanceof ObservablePathCoordinate) {
+        if (newLogicCoordinate instanceof ObservableStampPath) {
             logicCoordinate = (ObservableLogicCoordinate) newLogicCoordinate;
         } else {
             logicCoordinate = new ObservableLogicCoordinateImpl(newLogicCoordinate.toLogicCoordinateImmutable());
@@ -395,11 +394,11 @@ public class LetPropertySheet {
 
     public void addStampFilter(LetItemKey newLetItem, StampFilter newStampFilter) {
         throw new UnsupportedOperationException();
-//        ObservablePathCoordinate stampCoordinate;
-//        if (newStampFilter instanceof ObservablePathCoordinate) {
-//            stampCoordinate = (ObservablePathCoordinate) newStampFilter;
+//        ObservableStampPath stampCoordinate;
+//        if (newStampFilter instanceof ObservableStampPath) {
+//            stampCoordinate = (ObservableStampPath) newStampFilter;
 //        } else {
-//            stampCoordinate = new ObservablePathCoordinateImpl(newStampFilter);
+//            stampCoordinate = new ObservableStampPathImpl(newStampFilter);
 //        }
 //        this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
 //        this.letItemObjectMap.put(newLetItem, stampCoordinate);
