@@ -49,10 +49,17 @@ public class DefaultMultiParentGraphItemDisplayPolicies implements MultiParentGr
    @Override
    public Node computeGraphic(MultiParentGraphItem item) {
         if (item.isRoot()) {
+            if (item.getConceptNid() == TermAux.PRIMORDIAL_PATH.getNid()) {
+                return Iconography.SOURCE_BRANCH.getIconographic();
+            }
             return Iconography.TAXONOMY_ROOT_ICON.getIconographic();
         } 
        
        if (item.getTypeNid() != TermAux.IS_A.getNid()) {
+           // TODO get dynamic icons from Assemblages.
+           if (item.getTypeNid() == TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid()) {
+               return Iconography.SOURCE_BRANCH.getIconographic();
+           }
           return Iconography.ALERT_CONFIRM.getIconographic();
        } 
        

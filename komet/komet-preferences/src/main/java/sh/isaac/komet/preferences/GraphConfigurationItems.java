@@ -22,6 +22,7 @@ import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.manifold.Manifold;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
 
@@ -97,6 +98,20 @@ public class GraphConfigurationItems extends ParentPanel  {
                 childPreferences.putBoolean(INCLUDE_DEFINING_TAXONOMY, true);
                 childPreferences.putArray(MANIFOLD_COORDINATE_KEY, STATED_GRAPH_NAVIGATION_ACTIVE_FQN_NODES_MANIFOLD_KEY.toStringArray());
                 childPreferences = addChild(STATED_ALL.getUuid().toString(), GraphConfigurationItemPanel.class);
+                new GraphConfigurationItemPanel(childPreferences, manifold, kpc);
+            }
+
+            // Path tree
+            {
+                IsaacPreferences childPreferences = getPreferencesNode().node(PATH_TREE.getUuid().toString());
+                childPreferences.put(GROUP_NAME, PATH_TREE.getString());
+                childPreferences.put(ITEM_NAME, PATH_TREE.getString());
+                childPreferences.putConceptList(ROOTS, List.of(TermAux.PRIMORDIAL_PATH));
+                childPreferences.putConceptList(TREES, Arrays.asList(TermAux.PATH_ORIGIN_ASSEMBLAGE));
+                childPreferences.putConceptList(INVERSE_TREES, new ArrayList<>());
+                childPreferences.putBoolean(INCLUDE_DEFINING_TAXONOMY, false);
+                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES_MANIFOLD_KEY.toStringArray());
+                childPreferences = addChild(PATH_TREE.getUuid().toString(), GraphConfigurationItemPanel.class);
                 new GraphConfigurationItemPanel(childPreferences, manifold, kpc);
             }
 

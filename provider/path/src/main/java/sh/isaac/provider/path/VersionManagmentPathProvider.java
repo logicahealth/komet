@@ -122,6 +122,7 @@ public class VersionManagmentPathProvider
       return stampPath.isPresent();
    }
 
+   @Override
    public ImmutableSet<StampBranchImmutable> getBranches(int pathConceptNid) {
       return branchMap.computeIfAbsent(pathConceptNid, (pathNid) -> Sets.immutable.empty());
    }

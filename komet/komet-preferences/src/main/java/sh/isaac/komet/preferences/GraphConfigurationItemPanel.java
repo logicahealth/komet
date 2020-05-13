@@ -31,6 +31,7 @@ import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.tree.TaxonomySnapshotFromComponentNidAssemblage;
 import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.INCLUDE_DEFINING_TAXONOMY;
@@ -38,6 +39,7 @@ import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.INVERS
 import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.ROOTS;
 import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.TREES;
 
+import sh.isaac.api.tree.TaxonomySnapshotFromPathOrigins;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.GraphConfigurationItem;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
@@ -137,14 +139,23 @@ public class GraphConfigurationItemPanel extends AbstractPreferences implements 
             // TODO add support for other types of assemblage...
             amalgam.reset();
             for (ConceptSpecification proxy: treeListProperty.get()) {
-                SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifold().getStampFilter());
-                TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifold());
-                amalgam.getTaxonomies().add(taxonomySnapshot);
+                if (proxy.getNid() == TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid()) {
+                    TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromPathOrigins(getManifold());
+                    amalgam.getTaxonomies().add(taxonomySnapshot);
+                } else {
+                    SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifold().getStampFilter());
+                    TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifold());
+                    amalgam.getTaxonomies().add(taxonomySnapshot);
+                }
             }
             for (ConceptSpecification proxy: inverseTreeListProperty.get()) {
-                SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifold().getStampFilter());
-                TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifold());
-                amalgam.getInverseTaxonomies().add(taxonomySnapshot);
+                if (proxy.getNid() == TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid()) {
+
+                } else {
+                    SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifold().getStampFilter());
+                    TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifold());
+                    amalgam.getInverseTaxonomies().add(taxonomySnapshot);
+                }
             }
             for (ConceptSpecification proxy: taxonomyRootListProperty) {
                 amalgam.getTaxonomyRoots().add(proxy);

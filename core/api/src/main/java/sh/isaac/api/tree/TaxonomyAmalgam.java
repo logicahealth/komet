@@ -46,9 +46,6 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
     final boolean includeDefiningTaxonomy;
 
     public TaxonomyAmalgam(ManifoldCoordinate manifoldCoordinate, boolean includeDefiningTaxonomy) {
-        if (includeDefiningTaxonomy == false) {
-            throw new IllegalStateException();
-        }
         this.manifoldCoordinate = manifoldCoordinate;
         this.includeDefiningTaxonomy = includeDefiningTaxonomy;
         this.definingTaxonomy = new DefiningTaxonomy();

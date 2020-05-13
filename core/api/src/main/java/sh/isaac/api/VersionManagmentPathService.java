@@ -69,6 +69,13 @@ public interface VersionManagmentPathService {
     */
    boolean exists(int pathConceptId);
 
+   /**
+    *
+    * @param pathConceptNid
+    * @return the branches originating on this path.
+    */
+   ImmutableSet<StampBranchImmutable> getBranches(int pathConceptNid);
+
    //~--- get methods ---------------------------------------------------------
 
    /**
