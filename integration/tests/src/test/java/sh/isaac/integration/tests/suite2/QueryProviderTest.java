@@ -68,7 +68,7 @@ public class QueryProviderTest {
 		File db = new File("target/suite2");
 		RecursiveDelete.delete(db);
 		db.mkdirs();
-		System.setProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY, db.getCanonicalPath());
+		Get.configurationService().setDataStoreFolderPath(db.toPath());
 		Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 		LookupService.startupIsaac();
 

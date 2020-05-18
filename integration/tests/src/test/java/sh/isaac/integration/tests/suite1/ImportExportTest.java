@@ -257,7 +257,7 @@ public class ImportExportTest {
                      });
          writer.close();
          LOG.info("exported components: " + exportStats);
-         Assert.assertEquals(exportStats, this.importStats);
+         Assert.assertEquals(this.importStats, exportStats);
 
          final BinaryDataReaderService reader = Get.binaryDataReader(Paths.get("target",
                                                                                "data",
