@@ -98,6 +98,9 @@ public interface CommitService
     */
    void addChangeListener(ChronologyChangeListener changeListener);
 
+   void addCommitListener(CommitListener commitListener);
+   void removeCommitListener(CommitListener commitListener);
+
    Task<Void> addUncommitted(Transaction transaction, Version version);
 
    /**

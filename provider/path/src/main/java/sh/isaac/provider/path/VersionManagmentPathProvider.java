@@ -52,6 +52,8 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.VersionManagmentPathService;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.commit.CommitListener;
+import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
 import sh.isaac.api.coordinate.*;
@@ -63,6 +65,7 @@ import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -80,12 +83,14 @@ import java.util.stream.Collectors;
 @Service(name = "Path Provider")
 @RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class VersionManagmentPathProvider
-         implements VersionManagmentPathService {
+         implements VersionManagmentPathService, CommitListener {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    /** The Constant LOCK. */
    private static final Lock LOCK = new ReentrantLock();
+
+   private final UUID providerUuid = UUID.randomUUID();
 
    //~--- fields --------------------------------------------------------------
 
@@ -162,18 +167,7 @@ public class VersionManagmentPathProvider
       }
       LOG.info("Finished rebuilding the path map.  New map size: {}", this.pathMap.size());
    }
-
-   /**
-    * Traverse origins.
-    *
-    * @param v1 the v 1
-    * @param path the path
-    * @return the relative position
-    */
-   private RelativePosition traverseOrigins(StampedVersion v1, StampPath path) {
-      return traverseOrigins(v1.getStampSequence(), path);
-   }
-   //~--- get methods ---------------------------------------------------------
+    //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the from disk.
@@ -222,8 +216,11 @@ public class VersionManagmentPathProvider
       if (origins.isEmpty() && nid != TermAux.PRIMORDIAL_PATH.getNid()) {
          // A boot strap issue, only the primordial path should have no origins.
          // If terminology not completely loaded, content may not yet be ready.
-         if (nid != TermAux.DEVELOPMENT_PATH.getNid() && nid != TermAux.MASTER_PATH.getNid()) {
+         if (nid != TermAux.SANDBOX_PATH.getNid() && nid != TermAux.MASTER_PATH.getNid() && nid != TermAux.DEVELOPMENT_PATH.getNid()) {
             throw new IllegalStateException("Path with no origin: " + Get.getTextForComponent(nid));
+         }
+         if (nid == TermAux.DEVELOPMENT_PATH.getNid()) {
+            return Sets.immutable.with(StampPositionImmutable.make(Long.MAX_VALUE, TermAux.SANDBOX_PATH.getNid()));
          }
          return Sets.immutable.with(StampPositionImmutable.make(Long.MAX_VALUE, TermAux.PRIMORDIAL_PATH.getNid()));
       }
@@ -404,6 +401,7 @@ public class VersionManagmentPathProvider
       try {
          LOG.info("VersionManagementPathProvider starts");
          setupPathMap();
+         Get.commitService().addCommitListener(this);
       } finally {
          progressTask.finished();
       }
@@ -415,7 +413,18 @@ public class VersionManagmentPathProvider
    @PreDestroy
    private void stopMe() {
       LOG.info("VersionManagementPathProvider stops");
+      Get.commitService().removeCommitListener(this);
       this.pathMap = null;
+   }
+
+   @Override
+   public UUID getListenerUuid() {
+      return providerUuid;
+   }
+
+   @Override
+   public void handleCommit(CommitRecord commitRecord) {
+      setupPathMap();
    }
 }
 

@@ -16,10 +16,17 @@
  */
 package sh.komet.gui.control.property;
 
+import sh.komet.gui.manifold.Manifold;
+
 /**
  *
  * @author kec
  */
-public enum WindowProperties {
-    NAME_PREFIX, NAME_SUFFIX;
+public interface WindowProperties {
+    enum Keys {
+        NAME_PREFIX, NAME_SUFFIX;
+    }
+
+    Manifold getManifold();
+
 }

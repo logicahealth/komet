@@ -146,7 +146,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
          pushParent(current());
             createConcept(SANDBOX_COMPONENT).setModule(TermAux.KOMET_MODULE);
             pushParent(current());
-                createConcept(SANDBOX_PATH, TermAux.PATH.getNid()).setModule(TermAux.KOMET_MODULE);
+                final ConceptBuilder sandboxPath = createConcept(SANDBOX_PATH, TermAux.PATH.getNid());
+                sandboxPath.setModule(TermAux.KOMET_MODULE);
                 createConcept(SANDBOX_MODULE, TermAux.UNSPECIFIED_MODULE.getNid()).setModule(TermAux.KOMET_MODULE);
                 pushParent(current());
                     createConcept(SANDBOX_PATH_MODULE, TermAux.UNSPECIFIED_MODULE.getNid()).setModule(TermAux.KOMET_MODULE);
@@ -476,12 +477,14 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   addPath(paths, masterPath, TermAux.MASTER_PATH_SEMANTIC_UUID);
                   addPath(paths, developmentPath, TermAux.DEVELOPMENT_PATH_SEMANTIC_UUID);
                   addPath(paths, primordialPath, TermAux.PRIMORDIAL_PATH_SEMANTIC_UUID);
+                  addPath(paths, sandboxPath, TermAux.SANDBOX_PATH_SEMANTIC_UUID);
 
                   final ConceptBuilder pathOrigins = createConcept("Path origins assemblage");
                   pathOrigins.mergeFromSpec(TermAux.PATH_ORIGIN_ASSEMBLAGE);
 
                   addPathOrigin(pathOrigins, masterPath, primordialPath, Long.MAX_VALUE, MASTER_PATH_ORIGIN_SEMANTIC_UUID);
-                  addPathOrigin(pathOrigins, developmentPath, primordialPath, Long.MAX_VALUE, DEVELOPMENT_PATH_ORIGIN_SEMANTIC_UUID);
+                  addPathOrigin(pathOrigins, sandboxPath, primordialPath, Long.MAX_VALUE, SANDBOX_PATH_ORIGIN_SEMANTIC_UUID);
+                  addPathOrigin(pathOrigins, developmentPath, sandboxPath, Long.MAX_VALUE, DEVELOPMENT_PATH_ORIGIN_SEMANTIC_UUID);
                   popParent();
                popParent();
             createConcept("Content Metadata");

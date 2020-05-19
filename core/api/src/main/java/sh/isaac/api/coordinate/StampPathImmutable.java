@@ -9,6 +9,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.StaticIsaacCache;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -69,6 +70,9 @@ public final class StampPathImmutable implements StampPath, ImmutableCoordinate 
     }
 
     public static StampPathImmutable make(int pathConceptNid, ImmutableSet<StampPositionImmutable> pathOrigins) {
+        if (pathConceptNid == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()) {
+            return new StampPathImmutable(pathConceptNid, pathOrigins);
+        }
         return SINGLETONS.computeIfAbsent(pathConceptNid,
                 pathNid -> new StampPathImmutable(pathConceptNid, pathOrigins));
     }
@@ -78,6 +82,9 @@ public final class StampPathImmutable implements StampPath, ImmutableCoordinate 
         return make(pathConcept.getNid());
     }
     public static StampPathImmutable make(int pathConceptNid) {
+        if (pathConceptNid == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()) {
+            return new StampPathImmutable(pathConceptNid, Sets.immutable.empty());
+        }
         return SINGLETONS.computeIfAbsent(pathConceptNid,
                 pathNid -> {
                     ImmutableSet<StampPositionImmutable> pathOrigins = Get.versionManagmentPathService().getOrigins(pathNid);
@@ -91,6 +98,9 @@ public final class StampPathImmutable implements StampPath, ImmutableCoordinate 
         switch (objectMarshalVersion) {
             case marshalVersion:
                 StampPathImmutable stampPath = new StampPathImmutable(in);
+                if (stampPath.pathConceptNid == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()) {
+                    return stampPath;
+                }
                 return SINGLETONS.computeIfAbsent(stampPath.getPathConceptNid(),
                         pathNid -> stampPath);
             default:
@@ -143,4 +153,14 @@ public final class StampPathImmutable implements StampPath, ImmutableCoordinate 
                 StampPositionImmutable.make(Long.MAX_VALUE, stampPath.getPathConcept()),
                 IntSets.immutable.empty());
     }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder();
+        sb.append("StampPathImmutable:{");
+        sb.append(Get.conceptDescriptionText(this.pathConceptNid));
+        sb.append(" Origins: ").append(this.pathOrigins).append("}");
+        return sb.toString();
+    }
+
 }

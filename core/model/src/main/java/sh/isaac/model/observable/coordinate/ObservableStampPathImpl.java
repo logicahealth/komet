@@ -94,7 +94,7 @@ public class ObservableStampPathImpl
         super(stampPathImmutable);
         this.pathConceptProperty = new SimpleEqualityBasedObjectProperty(this,
                 ObservableFields.PATH_FOR_PATH_COORDINATE.toExternalString(),
-                stampPathImmutable);
+                stampPathImmutable.getPathConcept());
 
         this.pathOriginsProperty = new SimpleEqualityBasedSetProperty<>(this,
                 ObservableFields.PATH_ORIGIN_LIST_FOR_STAMP_PATH.toExternalString(),

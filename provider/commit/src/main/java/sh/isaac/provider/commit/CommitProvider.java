@@ -164,6 +164,8 @@ public class CommitProvider
      */
     ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners = new ConcurrentSkipListSet<>();
 
+    ConcurrentSkipListSet<WeakReference<CommitListener>> commitListeners = new ConcurrentSkipListSet<>();
+
     /**
      * The checkers.
      */
@@ -711,6 +713,15 @@ public class CommitProvider
 
             if (listener == null) {
                 this.changeListeners.remove(listenerRef);
+            } else {
+                listener.handleCommit(commitRecord);
+            }
+        });
+        this.commitListeners.forEach((listenerRef) -> {
+            final CommitListener listener = listenerRef.get();
+
+            if (listener == null) {
+                this.commitListeners.remove(listenerRef);
             } else {
                 listener.handleCommit(commitRecord);
             }
@@ -1287,43 +1298,18 @@ public class CommitProvider
 
     //~--- inner classes -------------------------------------------------------
 
-    /**
-     * The Class ChangeListenerReference.
-     */
-    private static class ChangeListenerReference
-            extends WeakReference<ChronologyChangeListener>
-            implements Comparable<ChangeListenerReference> {
+    private static class CommitListenerReference <T extends CommitListener> extends WeakReference<T>
+            implements Comparable<CommitListenerReference> {
 
         /**
          * The listener uuid.
          */
         UUID listenerUuid;
 
-        //~--- constructors -----------------------------------------------------
-
-        /**
-         * Instantiates a new change listener reference.
-         *
-         * @param referent the referent
-         */
-        public ChangeListenerReference(ChronologyChangeListener referent) {
+        public CommitListenerReference(T referent) {
             super(referent);
             this.listenerUuid = referent.getListenerUuid();
         }
-
-        /**
-         * Instantiates a new change listener reference.
-         *
-         * @param referent the referent
-         * @param q        the q
-         */
-        public ChangeListenerReference(ChronologyChangeListener referent,
-                                       ReferenceQueue<? super ChronologyChangeListener> q) {
-            super(referent, q);
-            this.listenerUuid = referent.getListenerUuid();
-        }
-
-        //~--- methods ----------------------------------------------------------
 
         /**
          * Compare to.
@@ -1332,7 +1318,7 @@ public class CommitProvider
          * @return the int
          */
         @Override
-        public int compareTo(ChangeListenerReference o) {
+        public int compareTo(CommitListenerReference o) {
             return this.listenerUuid.compareTo(o.listenerUuid);
         }
 
@@ -1352,9 +1338,9 @@ public class CommitProvider
                 return false;
             }
 
-            final ChangeListenerReference other = (ChangeListenerReference) obj;
+            final UUID otherUUID = ((CommitListenerReference) obj).listenerUuid;
 
-            return Objects.equals(this.listenerUuid, other.listenerUuid);
+            return this.listenerUuid.equals(otherUUID);
         }
 
         /**
@@ -1369,6 +1355,26 @@ public class CommitProvider
             hash = 67 * hash + Objects.hashCode(this.listenerUuid);
             return hash;
         }
+    }
+    /**
+     * The Class ChangeListenerReference.
+     */
+    private static class ChangeListenerReference
+            extends CommitListenerReference<ChronologyChangeListener> {
+
+        //~--- constructors -----------------------------------------------------
+
+        /**
+         * Instantiates a new change listener reference.
+         *
+         * @param referent the referent
+         */
+        public ChangeListenerReference(ChronologyChangeListener referent) {
+            super(referent);
+        }
+
+        //~--- methods ----------------------------------------------------------
+
     }
 
     public ConcurrentSkipListSet<ChangeChecker> getCheckers() {
@@ -1418,5 +1424,15 @@ public class CommitProvider
             return addUncommitted(transaction, (ConceptChronology) version.getChronology());
         }
         return addUncommitted(transaction, (SemanticChronology) version.getChronology());
+    }
+
+    @Override
+    public void addCommitListener(CommitListener commitListener) {
+        this.commitListeners.add(new CommitListenerReference<>(commitListener));
+    }
+
+    @Override
+    public void removeCommitListener(CommitListener commitListener) {
+        this.commitListeners.remove(new CommitListenerReference<>(commitListener));
     }
 }

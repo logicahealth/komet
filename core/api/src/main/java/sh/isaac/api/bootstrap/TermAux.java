@@ -75,8 +75,10 @@ public class TermAux implements StaticIsaacCache {
    public static UUID MASTER_PATH_SEMANTIC_UUID = UUID.fromString("79a92f9e-cd93-5537-984c-c9aa4532e59d");
    public static UUID DEVELOPMENT_PATH_SEMANTIC_UUID = UUID.fromString("f02874c5-186b-53c4-9054-f819975a9814");
    public static UUID PRIMORDIAL_PATH_SEMANTIC_UUID = UUID.fromString("786afd5d-9f6b-52cb-8d71-f2e0564b621d");
+   public static UUID SANDBOX_PATH_SEMANTIC_UUID = UUID.fromString("3aee7ff3-8718-5342-b831-2974a8cf1734");
    public static UUID MASTER_PATH_ORIGIN_SEMANTIC_UUID = UUID.fromString("1063412d-207c-57bd-abd9-60b31691507d");
-   public static UUID DEVELOPMENT_PATH_ORIGIN_SEMANTIC_UUID = UUID.fromString("126e5d77-bd9a-53e8-9260-76aba9613288");
+    public static UUID DEVELOPMENT_PATH_ORIGIN_SEMANTIC_UUID = UUID.fromString("126e5d77-bd9a-53e8-9260-76aba9613288");
+    public static UUID SANDBOX_PATH_ORIGIN_SEMANTIC_UUID = UUID.fromString("a0781163-f0b8-5e25-9090-d4648bb227d6");
 
 
    //SNOMED CT universally unique identifier (core metadata concept)
@@ -541,8 +543,6 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptProxy DEVELOPMENT_MODULE = new ConceptProxy("Development module", "Development module", UUID.fromString("529a7069-bd33-59e6-b2ce-537fa874360a"));
 
     /*
-public static ConceptProxy SPEC91 = new ConceptProxy("", "", UUID.fromString("3aee7ff3-8718-5342-b831-2974a8cf1734"));
-public static ConceptProxy SPEC92 = new ConceptProxy("", "", UUID.fromString("a0781163-f0b8-5e25-9090-d4648bb227d6"));
 public static ConceptProxy SPEC93 = new ConceptProxy("", "", UUID.fromString("c5650ec0-fd0c-5bf6-a977-7aae8ec8c573"));
 public static ConceptProxy SPEC94 = new ConceptProxy("", "", UUID.fromString("b1dbb86b-e283-549e-ba94-5cb7dc3190c1"));
 public static ConceptProxy SPEC95 = new ConceptProxy("", "", UUID.fromString("4f473e84-5f44-5ece-9fdd-cf6cec19b488"));

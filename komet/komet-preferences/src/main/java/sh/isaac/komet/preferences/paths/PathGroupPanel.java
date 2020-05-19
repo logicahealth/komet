@@ -6,30 +6,47 @@ import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
+import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.commit.ChronologyChangeListener;
-import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.commit.*;
+import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.EditCoordinateImmutable;
+import sh.isaac.api.coordinate.StampPositionImmutable;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.api.task.OptionalWaitTask;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.preferences.ParentPanel;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 
+import static sh.isaac.api.logic.LogicalExpressionBuilder.*;
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 
-public class PathGroupPanel extends ParentPanel implements ChronologyChangeListener {
+public class PathGroupPanel extends ParentPanel implements CommitListener {
 
     ObservableList<ConceptSnapshot> pathConcepts;
     private transient UUID listenerUuid = UUID.randomUUID();
     private transient BorderPane centerPane = new BorderPane();
+    private transient NewPathPanel newPathPanel;
     Button addButton = new Button("Add path...");
     {
         addButton.setOnAction(this::addPath);
@@ -52,26 +69,16 @@ public class PathGroupPanel extends ParentPanel implements ChronologyChangeListe
     public PathGroupPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "Paths"), manifold, kpc);
         this.pathConcepts = FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, manifold);
-        Get.commitService().addChangeListener(this);
+        Get.commitService().addCommitListener(this);
         Platform.runLater(() -> refreshChildren());
-    }
-
-    @Override
-    public void handleChange(ConceptChronology cc) {
-        // ignore
-    }
-
-    @Override
-    public void handleChange(SemanticChronology sc) {
-        // ignore
     }
 
     @Override
     public void handleCommit(CommitRecord commitRecord) {
         Platform.runLater(() -> {
             this.pathConcepts = FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, getManifold());
+            refreshChildren();
         });
-        refreshChildren();
     }
 
     private void refreshChildren() {
@@ -97,6 +104,42 @@ public class PathGroupPanel extends ParentPanel implements ChronologyChangeListe
     private void createPath(ActionEvent action) {
         // Paths should always be created in sandbox module on foundation path?
         // Maybe can also be retired in sandbox module on foundation path?
+
+        List<IdentifiedComponentBuilder> builders = new ArrayList<>();
+        EditCoordinate editCoordinate = EditCoordinateImmutable.make(TermAux.USER,
+                TermAux.SANDBOX_MODULE, TermAux.SANDBOX_PATH);
+
+        // 1. Create new concept/description, in sandbox module
+        LogicalExpressionBuilder expressionBuilder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+
+        NecessarySet(And(ConceptAssertion(TermAux.SANDBOX_PATH.getNid(), expressionBuilder)));
+        final LogicalExpression logicalExpression = expressionBuilder.build();
+
+        ConceptBuilder conceptBuilder = Get.conceptBuilderService()
+                .getDefaultConceptBuilder(newPathPanel.getNewPathName(),
+                        "Path", logicalExpression,
+                        TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getAssemblageNid());
+        builders.add(conceptBuilder);
+        int conceptNid = conceptBuilder.getNid();
+
+        // 2. Add to path refset in sandbox module
+        SemanticBuilder<? extends SemanticChronology> pathMemberBuilder = Get.semanticBuilderService()
+                .getMembershipSemanticBuilder(conceptNid,
+                        TermAux.PATH_ASSEMBLAGE.getNid());
+        builders.add(pathMemberBuilder);
+        // 3. Add origins in sandbox module
+        for (StampPositionImmutable origin: newPathPanel.getNewPathCoordinate().getPathOrigins()) {
+            SemanticBuilder<? extends SemanticChronology> originElementBuilder =  Get.semanticBuilderService()
+                    .getComponentLongSemanticBuilder(origin.getPathForPositionNid(), origin.getTime(),
+                            conceptNid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid());
+            builders.add(originElementBuilder);
+        }
+        Transaction transaction = Get.commitService().newTransaction(Optional.of("Path from preference panel"), ChangeCheckerMode.INACTIVE);
+        builders.forEach(identifiedComponentBuilder -> {
+            final List<Chronology> builtObjects = new ArrayList<>();
+            identifiedComponentBuilder.build(transaction, editCoordinate, builtObjects);
+        });
+        transaction.commit();
         setupButtonsForNew();
     }
 
@@ -111,7 +154,7 @@ public class PathGroupPanel extends ParentPanel implements ChronologyChangeListe
         setupButtonsForNew();
     }
     private void addPath(ActionEvent action) {
-       NewPathPanel newPathPanel = new NewPathPanel(this.getManifold());
+       newPathPanel = new NewPathPanel(this.getManifold());
        centerPane.setCenter(newPathPanel.getEditor());
        addButton.setVisible(false);
        cancelButton.setVisible(true);

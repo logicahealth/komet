@@ -1,6 +1,7 @@
 package sh.komet.gui.control.position;
 
 import com.jfoenix.controls.*;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
@@ -198,6 +199,13 @@ public class PositionListEditor implements PropertyEditor<ObservableList<StampPo
         setViewItems(value);
         this.pathConceptComboBox.setItems(FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, this.manifold));
         this.pathConceptComboBox.getSelectionModel().select(Get.conceptSnapshot(TermAux.DEVELOPMENT_PATH, this.manifold));
+        this.positionListView.getItems().addListener(new ListChangeListener<PositionWrapper>() {
+            @Override
+            public void onChanged(Change<? extends PositionWrapper> c) {
+                    System.out.println("Changed: " + c);
+                }
+        });
+
     }
 
 
@@ -218,6 +226,7 @@ public class PositionListEditor implements PropertyEditor<ObservableList<StampPo
     }
 
     protected void setViewItems(ObservableList<StampPositionImmutable> value) {
+        this.positionListView.getItems().clear();
         for (StampPositionImmutable item: value) {
             this.positionListView.getItems().add(new PositionWrapper(item));
         }

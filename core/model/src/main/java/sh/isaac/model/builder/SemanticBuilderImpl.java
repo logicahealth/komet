@@ -79,6 +79,7 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.model.ModelGet;
+import sh.isaac.model.semantic.version.brittle.Nid1_Long2_VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -409,22 +410,30 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
         switch (this.semanticType) {
             case COMPONENT_NID:
                 final ComponentNidVersionImpl cnsi
-                        = (ComponentNidVersionImpl) semanticChronology.createMutableVersion(transaction, this.state,
+                        = semanticChronology.createMutableVersion(transaction, this.state,
                                 editCoordinate, getModule());
                 version = cnsi;
                 cnsi.setComponentNid((Integer) this.parameters[0]);
                 break;
             
             case LONG:
-                final LongVersionImpl lsi = (LongVersionImpl) semanticChronology.createMutableVersion(transaction, this.state,
+                final LongVersionImpl lsi = semanticChronology.createMutableVersion(transaction, this.state,
                         editCoordinate, getModule());
                 version = lsi;
                 lsi.setLongValue((Long) this.parameters[0]);
                 break;
+
+            case Nid1_Long2:
+                final Nid1_Long2_VersionImpl nid1_long2_version = semanticChronology.createMutableVersion(transaction, this.state,
+                        editCoordinate, getModule());
+                version = nid1_long2_version;
+                nid1_long2_version.setNid1((Integer) this.parameters[0]);
+                nid1_long2_version.setLong2((Long) this.parameters[1]);
+                break;
             
             case LOGIC_GRAPH:
                 final LogicGraphVersionImpl lgsi
-                        = (LogicGraphVersionImpl) semanticChronology.createMutableVersion(transaction, this.state,
+                        = semanticChronology.createMutableVersion(transaction, this.state,
                                 editCoordinate, getModule());
                 version = lgsi;
                 lgsi.setGraphData(((LogicalExpression) this.parameters[0]).getData(DataTarget.INTERNAL));
@@ -436,7 +445,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                 break;
             
             case STRING:
-                final StringVersionImpl ssi = (StringVersionImpl) semanticChronology.createMutableVersion(transaction, this.state,
+                final StringVersionImpl ssi = semanticChronology.createMutableVersion(transaction, this.state,
                         editCoordinate, getModule());
                 version = ssi;
                 ssi.setString((String) this.parameters[0]);
@@ -444,7 +453,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             
             case DESCRIPTION: {
                 final DescriptionVersionImpl dsi
-                        = (DescriptionVersionImpl) semanticChronology.createMutableVersion(transaction, this.state,
+                        = semanticChronology.createMutableVersion(transaction, this.state,
                                 editCoordinate, getModule());
                 version = dsi;
                 dsi.setCaseSignificanceConceptNid((Integer) this.parameters[0]);
@@ -455,7 +464,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             }
             
             case DYNAMIC: {
-                final DynamicImpl dsi = (DynamicImpl) semanticChronology.createMutableVersion(transaction, this.state,
+                final DynamicImpl dsi = semanticChronology.createMutableVersion(transaction, this.state,
                         editCoordinate, getModule());
                 
                 if ((this.parameters != null) && (this.parameters.length > 0)) {

@@ -72,15 +72,15 @@ public class ConceptCorrelationView {
                                                     EventHandler<WindowEvent> closeRequestHandler) {
         ConceptCorrelationView correlationView = new ConceptCorrelationView(manifold, "temp");
         Stage stage = correlationView.stage;
-        stage.getProperties().put(WindowProperties.NAME_PREFIX, "");
-        stage.getProperties().put(WindowProperties.NAME_SUFFIX, " correlation");
-        stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
+        stage.getProperties().put(WindowProperties.Keys.NAME_PREFIX, "");
+        stage.getProperties().put(WindowProperties.Keys.NAME_SUFFIX, " correlation");
+        stage.setTitle(stage.getProperties().get(WindowProperties.Keys.NAME_PREFIX) +
                         FxGet.configurationName() +
-                        stage.getProperties().get(WindowProperties.NAME_SUFFIX));
+                        stage.getProperties().get(WindowProperties.Keys.NAME_SUFFIX));
         FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
-        stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
+        stage.setTitle(stage.getProperties().get(WindowProperties.Keys.NAME_PREFIX) +
                         newValue +
-                        stage.getProperties().get(WindowProperties.NAME_SUFFIX));
+                        stage.getProperties().get(WindowProperties.Keys.NAME_SUFFIX));
              
         });
         
