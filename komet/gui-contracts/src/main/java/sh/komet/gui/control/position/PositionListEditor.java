@@ -22,7 +22,7 @@ import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.datetimepicker.PickADate;
 import sh.komet.gui.control.datetimepicker.TimePicker;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 import java.time.*;
@@ -38,7 +38,7 @@ public class PositionListEditor implements PropertyEditor<ObservableList<StampPo
     AnchorPane anchorPane = new AnchorPane();
     PickADate datePicker = new PickADate();
     TimePicker timePicker = new TimePicker();
-    Manifold manifold;
+    ViewProperties viewProperties;
     ListView<PositionWrapper> positionListView = new ListView<>();
     {
         datePicker.setPrefWidth(152);
@@ -93,7 +93,7 @@ public class PositionListEditor implements PropertyEditor<ObservableList<StampPo
                 super.updateItem(item, empty);
                 if (!empty) {
                     this.setText(DateTimeUtil.format(item.position.getTime(), EASY_TO_READ_DATE_TIME_FORMAT) + "\non path: " +
-                            manifold.getPreferredDescriptionText(item.position.getPathConcept()));
+                            viewProperties.getPreferredDescriptionText(item.position.getPathConcept()));
                 } else {
                     this.setText("");
                 }
@@ -193,12 +193,12 @@ public class PositionListEditor implements PropertyEditor<ObservableList<StampPo
         dialogLayout.setActions(cancelButton, changeButton);
     }
 
-    public PositionListEditor(Manifold manifold, ObservableList<StampPositionImmutable> value) {
-        this.manifold = manifold;
+    public PositionListEditor(ViewProperties viewProperties, ObservableList<StampPositionImmutable> value) {
+        this.viewProperties = viewProperties;
         this.value = value;
         setViewItems(value);
-        this.pathConceptComboBox.setItems(FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, this.manifold));
-        this.pathConceptComboBox.getSelectionModel().select(Get.conceptSnapshot(TermAux.DEVELOPMENT_PATH, this.manifold));
+        this.pathConceptComboBox.setItems(FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, this.viewProperties));
+        this.pathConceptComboBox.getSelectionModel().select(Get.conceptSnapshot(TermAux.DEVELOPMENT_PATH, this.viewProperties.getManifoldCoordinate()));
         this.positionListView.getItems().addListener(new ListChangeListener<PositionWrapper>() {
             @Override
             public void onChanged(Change<? extends PositionWrapper> c) {
@@ -219,7 +219,7 @@ public class PositionListEditor implements PropertyEditor<ObservableList<StampPo
         }
         this.datePicker.setValue(wrapper.position.getTimeAsInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         this.timePicker.setValue(wrapper.position.getTimeAsInstant().atZone(ZoneId.systemDefault()).toLocalTime());
-        this.pathConceptComboBox.getSelectionModel().select(Get.conceptSnapshot(wrapper.position.getPathForPositionNid(), this.manifold));
+        this.pathConceptComboBox.getSelectionModel().select(Get.conceptSnapshot(wrapper.position.getPathForPositionNid(), this.viewProperties.getManifoldCoordinate()));
         this.dialog = new JFXDialog(this.rootStack, dialogLayout, JFXDialog.DialogTransition.CENTER, true);
 
         this.dialog.show();

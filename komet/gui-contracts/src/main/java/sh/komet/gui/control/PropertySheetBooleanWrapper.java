@@ -21,8 +21,7 @@ import javafx.beans.property.BooleanProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -38,9 +37,9 @@ public class PropertySheetBooleanWrapper implements PropertySheet.Item {
       this.booleanProperty = booleanProperty;
    }
 
-   public PropertySheetBooleanWrapper(Manifold manifold,
+   public PropertySheetBooleanWrapper(ViewProperties viewProperties,
                                       BooleanProperty booleanProperty) {
-      this(manifold.getPreferredDescriptionText(new ConceptProxy(booleanProperty.getName())),
+      this(viewProperties.getPreferredDescriptionText(new ConceptProxy(booleanProperty.getName())),
               booleanProperty);
    }
 

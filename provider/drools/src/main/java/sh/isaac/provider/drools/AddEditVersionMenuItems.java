@@ -28,6 +28,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
@@ -39,21 +40,17 @@ import sh.komet.gui.util.FxGet;
 public class AddEditVersionMenuItems {
 
     final List<MenuItem> menuItems = new ArrayList<>();
-    final Manifold manifold;
+    final ViewProperties viewProperties;
     final ObservableCategorizedVersion categorizedVersion;
     final Consumer<PropertySheetMenuItem> propertySheetConsumer;
     final HashMap<String, PropertySheetMenuItem> propertySheetMenuItems = new HashMap<>();
 
-    public AddEditVersionMenuItems(Manifold manifold,
+    public AddEditVersionMenuItems(ViewProperties viewProperties,
                                    ObservableCategorizedVersion categorizedVersion,
                                    Consumer<PropertySheetMenuItem> propertySheetConsumer) {
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
         this.categorizedVersion = categorizedVersion;
         this.propertySheetConsumer = propertySheetConsumer;
-    }
-
-    public Manifold getManifold() {
-        return manifold;
     }
 
     public List<MenuItem> getMenuItems() {
@@ -80,7 +77,7 @@ public class AddEditVersionMenuItems {
         if (propertySheetMenuItems.containsKey(menuText)) {
             return propertySheetMenuItems.get(menuText);
         }
-        PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion);
+        PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(viewProperties, categorizedVersion);
         propertySheetMenuItems.put(menuText, propertySheetMenuItem);
         MenuItem menuItem = new MenuItemWithText(menuText);
         menuItem.setOnAction((event) -> {

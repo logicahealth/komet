@@ -4,7 +4,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,30 +22,30 @@ import sh.komet.gui.util.FxGet;
 @Deprecated
 public class PropertySheetItemConceptNidWrapper implements ConceptSpecification, PropertySheet.Item {
 
-   private final Manifold manifoldForDisplay;
+   private final ViewProperties viewProperties;
    private final String name;
    private final SimpleObjectProperty<ConceptForControlWrapper> observableWrapper;
    private final IntegerProperty conceptNidProperty;
    private final NidSet allowedValues = new NidSet();
    
-   public PropertySheetItemConceptNidWrapper(Manifold manifoldForDisplay,
+   public PropertySheetItemConceptNidWrapper(ViewProperties viewProperties,
                                              IntegerProperty conceptNidProperty, int... allowedValues) {
-      this(manifoldForDisplay, manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(conceptNidProperty.getName())), conceptNidProperty, allowedValues);
+      this(viewProperties, viewProperties.getPreferredDescriptionText(new ConceptProxy(conceptNidProperty.getName())), conceptNidProperty, allowedValues);
    }
 
 
-   public PropertySheetItemConceptNidWrapper(Manifold manifoldForDisplay, String name,
+   public PropertySheetItemConceptNidWrapper(ViewProperties viewProperties, String name,
                                              IntegerProperty conceptNidProperty, int... allowedValues) {
-      this.manifoldForDisplay = manifoldForDisplay;
+      this.viewProperties = viewProperties;
       this.name = name;
       this.conceptNidProperty = conceptNidProperty;
       if (allowedValues.length > 0 && conceptNidProperty.get() == 0) {
           this.conceptNidProperty.set(allowedValues[0]);
       }
       this.allowedValues.addAll(allowedValues);
-      this.observableWrapper = new SimpleObjectProperty<>(new ConceptForControlWrapper(manifoldForDisplay, conceptNidProperty.get()));
+      this.observableWrapper = new SimpleObjectProperty<>(new ConceptForControlWrapper(viewProperties, conceptNidProperty.get()));
       this.conceptNidProperty.addListener((observable, oldValue, newValue) -> {
-          this.observableWrapper.setValue(new ConceptForControlWrapper(manifoldForDisplay, newValue.intValue()));
+          this.observableWrapper.setValue(new ConceptForControlWrapper(viewProperties, newValue.intValue()));
       });
    }
    
@@ -53,12 +53,12 @@ public class PropertySheetItemConceptNidWrapper implements ConceptSpecification,
 
    @Override
    public String getFullyQualifiedName() {
-      return this.manifoldForDisplay.getFullyQualifiedDescriptionText(conceptNidProperty.get());
+      return this.viewProperties.getFullyQualifiedDescriptionText(conceptNidProperty.get());
    }
 
    @Override
    public Optional<String> getRegularName() {
-      return Optional.of(manifoldForDisplay.getPreferredDescriptionText(conceptNidProperty.get()));
+      return Optional.of(viewProperties.getPreferredDescriptionText(conceptNidProperty.get()));
    }
 
    @Override
@@ -102,7 +102,7 @@ public class PropertySheetItemConceptNidWrapper implements ConceptSpecification,
          this.conceptNidProperty.setValue(((ConceptForControlWrapper) value).getNid());         
       } catch (RuntimeException ex) {
          FxGet.statusMessageService().reportStatus(ex.getMessage());
-         this.observableWrapper.setValue(new ConceptForControlWrapper(manifoldForDisplay, this.conceptNidProperty.get()));
+         this.observableWrapper.setValue(new ConceptForControlWrapper(viewProperties, this.conceptNidProperty.get()));
       }
    }
    public void setDefaultValue(ConceptSpecification value) {
@@ -111,7 +111,7 @@ public class PropertySheetItemConceptNidWrapper implements ConceptSpecification,
          this.conceptNidProperty.setValue(value.getNid());         
       } catch (RuntimeException ex) {
          FxGet.statusMessageService().reportStatus(ex.getMessage());
-         this.observableWrapper.setValue(new ConceptForControlWrapper(manifoldForDisplay, this.conceptNidProperty.get()));
+         this.observableWrapper.setValue(new ConceptForControlWrapper(viewProperties, this.conceptNidProperty.get()));
       }
    }
 
@@ -127,6 +127,6 @@ public class PropertySheetItemConceptNidWrapper implements ConceptSpecification,
    @Override
    public String toString() {
       return "Property sheet item for "
-              + manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(conceptNidProperty.getName()));
+              + viewProperties.getPreferredDescriptionText(new ConceptProxy(conceptNidProperty.getName()));
    }
 }

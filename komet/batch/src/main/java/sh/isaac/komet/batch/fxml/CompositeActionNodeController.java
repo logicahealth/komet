@@ -20,7 +20,6 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampPathImmutable;
 import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.isaac.api.observable.coordinate.ObservableStampPath;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.batch.ActionCell;
@@ -28,10 +27,10 @@ import sh.isaac.komet.batch.VersionChangeListener;
 import sh.isaac.komet.batch.action.ActionFactory;
 import sh.isaac.komet.batch.action.ActionItem;
 import sh.isaac.komet.batch.action.CompositeAction;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ComponentList;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
-import sh.komet.gui.util.UuidStringKey;
+import sh.isaac.api.util.UuidStringKey;
 
 import java.io.File;
 import java.io.IOException;
@@ -96,7 +95,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
     @FXML
     private TextField actionNameField;
 
-    private Manifold manifold;
+    private ViewProperties viewProperties;
 
     private Transaction transaction;
 
@@ -148,14 +147,14 @@ public class CompositeActionNodeController implements VersionChangeListener {
             }
         });
 
-        actionListView.setCellFactory(param -> new ActionCell(actionListView, manifold));
+        actionListView.setCellFactory(param -> new ActionCell(actionListView, viewProperties));
 
         List<ActionFactory> factories = Get.services(ActionFactory.class);
         factories.sort((o1, o2) -> o1.getActionName().compareTo(o2.getActionName()));
         for (ActionFactory factory: factories) {
             MenuItem factoryItem = new MenuItem(factory.getActionName(), factory.getActionIcon());
             factoryItem.setOnAction(event -> {
-                addAction(factory.makeActionItem(manifold));
+                addAction(factory.makeActionItem(viewProperties));
             });
             addActionMenuButton.getItems().add(factoryItem);
         }
@@ -168,7 +167,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/ActionNode.fxml"));
             Object root = loader.load();
             ActionNodeController actionNodeController = loader.getController();
-            actionNodeController.setAction(manifold, actionItem);
+            actionNodeController.setAction(viewProperties, actionItem);
             actionListView.getItems().add(actionNodeController);
         } catch (IOException e) {
             FxGet.dialogs().showErrorDialog(e);
@@ -202,7 +201,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/ActionNode.fxml"));
                     Object root = loader.load();
                     ActionNodeController actionNodeController = loader.getController();
-                    actionNodeController.setAction(manifold, actionItem);
+                    actionNodeController.setAction(viewProperties, actionItem);
                     actionListView.getItems().add(actionNodeController);
                 }
             } catch (IOException e) {
@@ -281,9 +280,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/ListViewNode.fxml"));
                 Node root = loader.load();
                 this.listViewController = loader.getController();
-                Manifold listManifold = Manifold.get(Manifold.ManifoldGroup.LIST);
-
-                this.listViewController.setManifold(listManifold);
+                this.listViewController.setViewProperties(viewProperties, viewProperties.getActivityFeed(ViewProperties.LIST));
                 this.listViewController.nameProperty().setValue(this.actionNameField.getText() + " " + DateTimeUtil.nowWithZone());
 
                 AnchorPane.setTopAnchor(root, 1.0);
@@ -368,7 +365,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
         cancelButton.setDisable(true);
     }
 
-    public void setManifold(Manifold manifold) {
-        this.manifold = manifold;
+    public void setViewProperties(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
     }
 }

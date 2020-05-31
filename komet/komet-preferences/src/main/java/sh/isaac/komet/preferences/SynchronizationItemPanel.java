@@ -54,7 +54,7 @@ import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetItemStringListWrapper;
 import sh.komet.gui.control.PropertySheetPasswordWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -146,10 +146,10 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
         });
     }
     
-    public SynchronizationItemPanel(IsaacPreferences preferencesNode, Manifold manifold,
-            KometPreferencesController kpc) {
-        super(getEquivalentUserPreferenceNode(preferencesNode), preferencesNode.get(GROUP_NAME, "Change sets"), 
-                manifold, kpc);
+    public SynchronizationItemPanel(IsaacPreferences preferencesNode, ViewProperties viewProperties,
+                                    KometPreferencesController kpc) {
+        super(getEquivalentUserPreferenceNode(preferencesNode), preferencesNode.get(GROUP_NAME, "Change sets"),
+                viewProperties, kpc);
         nameProperty.set(groupNameProperty().get());
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
@@ -157,12 +157,12 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
         folderOptions = new String[] {"changesets", "preferences"};
         revertFields();
         save();
-        getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(manifold, activeProperty));
-        getItemList().add(new PropertySheetTextWrapper(manifold, gitUserName));
-        getItemList().add(new PropertySheetPasswordWrapper(manifold, gitPassword));
-        getItemList().add(new PropertySheetTextWrapper(manifold, gitUrl));
-        getItemList().add(new PropertySheetItemStringListWrapper(manifold, localFolder, 
+        getItemList().add(new PropertySheetTextWrapper(viewProperties, nameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, activeProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties, gitUserName));
+        getItemList().add(new PropertySheetPasswordWrapper(viewProperties, gitPassword));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties, gitUrl));
+        getItemList().add(new PropertySheetItemStringListWrapper(viewProperties, localFolder,
                 Arrays.asList(folderOptions)));
         setupSyncButtons();
         localFolder.addListener((observable, oldValue, newValue) -> {
@@ -247,7 +247,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
     }
 
     @Override
-    public Node getTopPanel(Manifold manifold) {
+    public Node getTopPanel(ViewProperties viewProperties) {
 
 
         ToolBar topBar = new ToolBar(initializeButton, pushButton, pullButton);

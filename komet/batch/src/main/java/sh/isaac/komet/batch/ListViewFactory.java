@@ -7,6 +7,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.batch.iconography.PluginIcons;
 import sh.komet.gui.contract.ExplorationNodeFactory;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -24,8 +26,8 @@ public class ListViewFactory implements ExplorationNodeFactory<ListViewNode> {
     }
 
     @Override
-    public ListViewNode createNode(Manifold manifold, IsaacPreferences nodePreferences) {
-        return new ListViewNode(manifold, nodePreferences);
+    public ListViewNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences nodePreferences) {
+        return new ListViewNode(viewProperties, nodePreferences);
     }
 
     @Override
@@ -39,8 +41,8 @@ public class ListViewFactory implements ExplorationNodeFactory<ListViewNode> {
     }
 
     @Override
-    public Manifold.ManifoldGroup[] getDefaultManifoldGroups() {
-        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.LIST};
+    public String[] getDefaultActivityFeed() {
+        return new String[] {ViewProperties.LIST};
     }
 
     @Override

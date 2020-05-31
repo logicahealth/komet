@@ -24,7 +24,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 /**
@@ -37,8 +38,8 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 public class AssemblageViewProviderFactory  implements ExplorationNodeFactory {
 
    @Override
-   public AssemblageViewProvider createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      AssemblageViewProvider assemblageViewProvider = new AssemblageViewProvider(manifold);
+   public AssemblageViewProvider createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+      AssemblageViewProvider assemblageViewProvider = new AssemblageViewProvider(viewProperties, activityFeed, preferencesNode);
       return assemblageViewProvider;
    }
 
@@ -54,10 +55,11 @@ public class AssemblageViewProviderFactory  implements ExplorationNodeFactory {
 
    /**
     * {@inheritDoc}
+    * @return
     */
    @Override
-   public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
+   public String[] getDefaultActivityFeed() {
+      return new String[] {ViewProperties.UNLINKED};
    }
 
    @Override

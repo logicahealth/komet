@@ -196,8 +196,8 @@ public class CoordinateFactoryProvider
      */
     @Override
     public ManifoldCoordinate createInferredManifoldCoordinate(StampFilter stampFilter,
-                                                               LanguageCoordinate languageCoordinate,
-                                                               LogicCoordinate logicCoordinate) {
+                                                                                         LanguageCoordinate languageCoordinate,
+                                                                                         LogicCoordinate logicCoordinate) {
         return ManifoldCoordinateImmutable.makeInferred(stampFilter, languageCoordinate, logicCoordinate);
     }
 
@@ -328,8 +328,8 @@ public class CoordinateFactoryProvider
      */
     @Override
     public ManifoldCoordinate createStatedManifoldCoordinate(StampFilter stampFilter,
-                                                             LanguageCoordinate languageCoordinate,
-                                                             LogicCoordinate logicCoordinate) {
+                                                                                       LanguageCoordinate languageCoordinate,
+                                                                                       LogicCoordinate logicCoordinate) {
         return ManifoldCoordinateImmutable.makeStated(stampFilter, languageCoordinate, logicCoordinate);
     }
 

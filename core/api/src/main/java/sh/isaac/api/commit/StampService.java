@@ -42,17 +42,14 @@ package sh.isaac.api.commit;
 //~--- JDK imports ------------------------------------------------------------
 
 import javafx.concurrent.Task;
-import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.VersionManagmentPathService;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
-import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPositionImmutable;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.transaction.Transaction;

@@ -16,7 +16,6 @@
  */
 package sh.komet.gui.control.axiom;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -34,9 +33,9 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.drag.drop.IsaacClipboard;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 
 /**
@@ -47,22 +46,22 @@ public class ConceptNode extends Label {
 
     private final int conceptNid;
     private final Button openConceptButton = new Button("", Iconography.LINK_EXTERNAL.getIconographic());
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     private PremiseType premiseType = PremiseType.INFERRED;
 
-    public ConceptNode(int conceptNid, Manifold manifold) {
+    public ConceptNode(int conceptNid, ViewProperties viewProperties) {
         this.conceptNid = conceptNid;
-        this.manifold = manifold;
-        this.setText(manifold.getPreferredDescriptionText(conceptNid));
+        this.viewProperties = viewProperties;
+        this.setText(viewProperties.getPreferredDescriptionText(conceptNid));
 
         HBox controlBox;
-        LatestVersion<Version> latest = manifold.getStampFilter().latestConceptVersion(conceptNid);
+        LatestVersion<Version> latest = viewProperties.getManifoldCoordinate().getStampFilter().latestConceptVersion(conceptNid);
         if (latest.isPresent()) {
             controlBox = new HBox(openConceptButton, AxiomView.computeGraphic(conceptNid, false,
-                    latest.get().getStatus(), manifold, premiseType));
+                    latest.get().getStatus(), viewProperties, premiseType));
         } else {
             controlBox = new HBox(openConceptButton, AxiomView.computeGraphic(conceptNid, false,
-                    Status.PRIMORDIAL, manifold, premiseType));
+                    Status.PRIMORDIAL, viewProperties, premiseType));
         }
         ;
 
@@ -81,16 +80,16 @@ public class ConceptNode extends Label {
 
     private void showPopup(int conceptNid, MouseEvent mouseEvent) {
 
-        Optional<LogicalExpression> expression = manifold.getLogicalExpression(conceptNid, premiseType);
+        Optional<LogicalExpression> expression = viewProperties.getManifoldCoordinate().getLogicalExpression(conceptNid, premiseType);
         if (!expression.isPresent()) {
             premiseType = PremiseType.STATED;
-            expression = manifold.getLogicalExpression(conceptNid, premiseType);
+            expression = viewProperties.getManifoldCoordinate().getLogicalExpression(conceptNid, premiseType);
         }
         if (expression.isPresent()) {
             PopOver popover = new PopOver();
             popover.setContentNode(AxiomView.createWithCommitPanel(expression.get(),
                     premiseType,
-                    manifold));
+                    viewProperties));
             popover.setCloseButtonEnabled(true);
             popover.setHeaderAlwaysVisible(false);
             popover.setTitle("");

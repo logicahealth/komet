@@ -39,7 +39,7 @@ import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.window.WindowsPanel;
 import sh.komet.gui.contract.preferences.*;
 import sh.komet.gui.contract.preferences.WindowPreferencesItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -66,7 +66,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
 
     private KometPreferencesController kpc;
     private Stage preferencesStage;
-    private Manifold manifold;
+    private ViewProperties viewProperties;
 
     public KometPreferencesImpl() {
 
@@ -107,20 +107,20 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     }
 
     @Override
-    public void loadPreferences(Manifold manifold) {
-        this.manifold = manifold; 
+    public void loadPreferences() {
+        this.viewProperties = FxGet.preferenceViewProperties();
         IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
-        setupPreferencesController(manifold, preferences);
+        setupPreferencesController(viewProperties, preferences);
     }
 
-    private void setupPreferencesController(Manifold manifold, IsaacPreferences preferences) {
+    private void setupPreferencesController(ViewProperties viewProperties, IsaacPreferences preferences) {
         if (kpc == null) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/preferences/KometPreferences.fxml"));
                 Parent root = loader.load();
                 this.kpc = loader.getController();
-                this.kpc.setManifold(manifold);
-                Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, manifold, kpc);
+                this.kpc.setViewProperties(viewProperties);
+                Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, viewProperties, kpc);
                 setupRoot(treeRoot);
 
                 root.setId(UUID.randomUUID()
@@ -176,7 +176,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
         Get.preferencesService().reloadConfigurationPreferences();
 
         IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
-        Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, manifold, kpc);
+        Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, viewProperties, kpc);
         setupRoot(treeRoot);
     }
 
@@ -248,9 +248,9 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     }
 
     @Override
-    public Stage showPreferences(Manifold manifold) {
+    public Stage showPreferences() {
         IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
-        setupPreferencesController(manifold, preferences);
+        setupPreferencesController(viewProperties, preferences);
         preferencesStage.show();
         preferencesStage.setAlwaysOnTop(true);
         return preferencesStage;

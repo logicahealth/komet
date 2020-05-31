@@ -17,9 +17,12 @@
 package sh.isaac.komet.preferences;
 
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.util.FxGet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,67 +41,97 @@ import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 public class GraphConfigurationItems extends ParentPanel  {
 
 
-    public GraphConfigurationItems(IsaacPreferences preferencesNode, Manifold manifold,
+    public GraphConfigurationItems(IsaacPreferences preferencesNode, ViewProperties viewProperties,
                                    KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "View configurations"),
-                manifold, kpc);
+                viewProperties, kpc);
         if (!initialized()) {
-            // Add four defaults: defining all, defining active only, defining active only FQN, stated all...
+            // Add four defaults: inferred Preferred, inferred FQN, stated FQN, stated Preferred...
 
-            // Defining all
+            // inferred Preferred
             {
-                IsaacPreferences childPreferences = getPreferencesNode().node(DEFINING_ALL.getUuid().toString());
-                childPreferences.put(GROUP_NAME, DEFINING_ALL.getString());
-                childPreferences.put(ITEM_NAME, DEFINING_ALL.getString());
+                IsaacPreferences childPreferences = getPreferencesNode().node(INFERRED_PREFERRED.getUuid().toString());
+                childPreferences.put(GROUP_NAME, INFERRED_PREFERRED.getString());
+                childPreferences.put(ITEM_NAME, INFERRED_PREFERRED.getString());
                 childPreferences.putConceptList(ROOTS, List.of(TermAux.SOLOR_ROOT));
                 childPreferences.putConceptList(TREES, new ArrayList<>());
                 childPreferences.putConceptList(INVERSE_TREES, new ArrayList<>());
                 childPreferences.putBoolean(INCLUDE_DEFINING_TAXONOMY, true);
-                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, INFERRED_GRAPH_NAVIGATION_ANY_NODE_MANIFOLD_KEY.toStringArray());
-                childPreferences = addChild(DEFINING_ALL.getUuid().toString(), GraphConfigurationItemPanel.class);
-                new GraphConfigurationItemPanel(childPreferences, manifold, kpc);
+                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, INFERRED_PREFERRED.toStringArray());
+                childPreferences = addChild(INFERRED_PREFERRED.getUuid().toString(), GraphConfigurationItemPanel.class);
+                FxGet.manifoldCoordinates().put(INFERRED_PREFERRED,
+                        new ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable.make(
+                                VertexSortPreferredName.SINGLETON,
+                                Coordinates.Digraph.DevelopmentInferred(),
+                                Coordinates.Filter.DevelopmentLatest()
+                        ))
+                );
+                new GraphConfigurationItemPanel(childPreferences, viewProperties, kpc);
             }
 
-            // Defining active only
+            // inferred FQN,
             {
-                IsaacPreferences childPreferences = getPreferencesNode().node(DEFINING_ACTIVE.getUuid().toString());
-                childPreferences.put(GROUP_NAME, DEFINING_ACTIVE.getString());
-                childPreferences.put(ITEM_NAME, DEFINING_ACTIVE.getString());
+                IsaacPreferences childPreferences = getPreferencesNode().node(INFERRED_FQN.getUuid().toString());
+                childPreferences.put(GROUP_NAME, INFERRED_FQN.getString());
+                childPreferences.put(ITEM_NAME, INFERRED_FQN.getString());
                 childPreferences.putConceptList(ROOTS, List.of(TermAux.SOLOR_ROOT));
                 childPreferences.putConceptList(TREES, new ArrayList<>());
                 childPreferences.putConceptList(INVERSE_TREES, new ArrayList<>());
                 childPreferences.putBoolean(INCLUDE_DEFINING_TAXONOMY, true);
-                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES_MANIFOLD_KEY.toStringArray());
-                childPreferences = addChild(DEFINING_ACTIVE.getUuid().toString(), GraphConfigurationItemPanel.class);
-                new GraphConfigurationItemPanel(childPreferences, manifold, kpc);
+                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, INFERRED_FQN.toStringArray());
+                childPreferences = addChild(INFERRED_FQN.getUuid().toString(), GraphConfigurationItemPanel.class);
+                FxGet.manifoldCoordinates().put(INFERRED_FQN,
+                        new ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable.make(
+                                VertexSortPreferredName.SINGLETON,
+                                Coordinates.Digraph.DevelopmentInferred(),
+                                Coordinates.Filter.DevelopmentLatest()
+                        ))
+                );
+                new GraphConfigurationItemPanel(childPreferences, viewProperties, kpc);
             }
 
-            // Defining active only FQN...
+            // Stated FQN...
             {
-                IsaacPreferences childPreferences = getPreferencesNode().node(DEFINING_ACTIVE_FQN.getUuid().toString());
-                childPreferences.put(GROUP_NAME, DEFINING_ACTIVE_FQN.getString());
-                childPreferences.put(ITEM_NAME, DEFINING_ACTIVE_FQN.getString());
+                IsaacPreferences childPreferences = getPreferencesNode().node(STATED_FQN.getUuid().toString());
+                childPreferences.put(GROUP_NAME, STATED_FQN.getString());
+                childPreferences.put(ITEM_NAME, STATED_FQN.getString());
                 childPreferences.putConceptList(ROOTS, List.of(TermAux.SOLOR_ROOT));
                 childPreferences.putConceptList(TREES, new ArrayList<>());
                 childPreferences.putConceptList(INVERSE_TREES, new ArrayList<>());
                 childPreferences.putBoolean(INCLUDE_DEFINING_TAXONOMY, true);
-                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, INFERRED_GRAPH_NAVIGATION_ACTIVE_FQN_NODES_MANIFOLD_KEY.toStringArray());
-                childPreferences = addChild(DEFINING_ACTIVE_FQN.getUuid().toString(), GraphConfigurationItemPanel.class);
-                new GraphConfigurationItemPanel(childPreferences, manifold, kpc);
+                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, STATED_FQN.toStringArray());
+                childPreferences = addChild(STATED_FQN.getUuid().toString(), GraphConfigurationItemPanel.class);
+                FxGet.manifoldCoordinates().put(STATED_FQN,
+                        new ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable.make(
+                                VertexSortFullyQualifiedName.SINGLETON,
+                                Coordinates.Digraph.DevelopmentStated(),
+                                Coordinates.Filter.DevelopmentLatest()
+                        ))
+                );
+
+
+                new GraphConfigurationItemPanel(childPreferences, viewProperties, kpc);
             }
 
-            // Stated, nodes of all status
+            // Stated, Preferred
             {
-                IsaacPreferences childPreferences = getPreferencesNode().node(STATED_ALL.getUuid().toString());
-                childPreferences.put(GROUP_NAME, STATED_ALL.getString());
-                childPreferences.put(ITEM_NAME, STATED_ALL.getString());
+                IsaacPreferences childPreferences = getPreferencesNode().node(STATED_PREFERRED.getUuid().toString());
+                childPreferences.put(GROUP_NAME, STATED_PREFERRED.getString());
+                childPreferences.put(ITEM_NAME, STATED_PREFERRED.getString());
                 childPreferences.putConceptList(ROOTS, List.of(TermAux.SOLOR_ROOT));
                 childPreferences.putConceptList(TREES, new ArrayList<>());
                 childPreferences.putConceptList(INVERSE_TREES, new ArrayList<>());
                 childPreferences.putBoolean(INCLUDE_DEFINING_TAXONOMY, true);
-                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, STATED_GRAPH_NAVIGATION_ACTIVE_FQN_NODES_MANIFOLD_KEY.toStringArray());
-                childPreferences = addChild(STATED_ALL.getUuid().toString(), GraphConfigurationItemPanel.class);
-                new GraphConfigurationItemPanel(childPreferences, manifold, kpc);
+                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, STATED_PREFERRED.toStringArray());
+                childPreferences = addChild(STATED_PREFERRED.getUuid().toString(), GraphConfigurationItemPanel.class);
+                FxGet.manifoldCoordinates().put(STATED_PREFERRED,
+                        new ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable.make(
+                                VertexSortPreferredName.SINGLETON,
+                                Coordinates.Digraph.DevelopmentStated(),
+                                Coordinates.Filter.DevelopmentLatest()
+                        ))
+                );
+                new GraphConfigurationItemPanel(childPreferences, viewProperties, kpc);
             }
 
             // Path tree
@@ -110,9 +143,16 @@ public class GraphConfigurationItems extends ParentPanel  {
                 childPreferences.putConceptList(TREES, Arrays.asList(TermAux.PATH_ORIGIN_ASSEMBLAGE));
                 childPreferences.putConceptList(INVERSE_TREES, new ArrayList<>());
                 childPreferences.putBoolean(INCLUDE_DEFINING_TAXONOMY, false);
-                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES_MANIFOLD_KEY.toStringArray());
+                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, PATH_TREE.toStringArray());
                 childPreferences = addChild(PATH_TREE.getUuid().toString(), GraphConfigurationItemPanel.class);
-                new GraphConfigurationItemPanel(childPreferences, manifold, kpc);
+                FxGet.manifoldCoordinates().put(PATH_TREE,
+                        new ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable.make(
+                                VertexSortPreferredName.SINGLETON,
+                                Coordinates.Digraph.DevelopmentStated(),
+                                Coordinates.Filter.DevelopmentLatest()
+                        ))
+                );
+                new GraphConfigurationItemPanel(childPreferences, viewProperties, kpc);
             }
 
             save();

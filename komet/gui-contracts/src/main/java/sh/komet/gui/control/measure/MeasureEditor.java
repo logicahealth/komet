@@ -43,7 +43,7 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.statement.MeasureImpl;
 import sh.komet.gui.action.ConceptAction;
 import sh.komet.gui.control.concept.ConceptLabel;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.style.StyleClasses;
 import tornadofx.control.DateTimePicker;
 
@@ -66,12 +66,12 @@ public class MeasureEditor implements PropertyEditor<MeasureImpl> {
     private final UpperBoundToggle includeUpperBound = new UpperBoundToggle();
     private final LowerBoundToggle includeLowerBound = new LowerBoundToggle();
     private final ConceptLabel measureSemantic;
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
 
-    public MeasureEditor(Manifold manifold) {
-        this.manifold = manifold;
+    public MeasureEditor(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
         this.measureEditorPane.getStyleClass().add(StyleClasses.MEASURE.toString());
-        this.measureSemantic = new ConceptLabel(manifold,
+        this.measureSemantic = new ConceptLabel(viewProperties,
                 ConceptLabel::setPreferredText, (label) -> {
                     ConceptAction iso8601 = new ConceptAction(TermAux.ISO_8601, this::handleMeasureSemanticChange);
                     ConceptAction iso8601After = new ConceptAction(TermAux.ISO_8601_AFTER, this::handleMeasureSemanticChange);

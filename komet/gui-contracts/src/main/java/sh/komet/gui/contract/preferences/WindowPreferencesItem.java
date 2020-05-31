@@ -6,6 +6,7 @@ import javafx.stage.Stage;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.Collection;
 import java.util.List;
@@ -36,5 +37,11 @@ public interface WindowPreferencesItem {
     SimpleIntegerProperty centerTabSelectionProperty();
     SimpleIntegerProperty rightTabSelectionProperty();
     SimpleObjectProperty<double[]> dividerPositionsProperty();
+
+    /**
+     *
+     * @return the primary ViewProperties for this window.
+     */
+    ViewProperties getViewPropertiesForWindow();
 
 }

@@ -39,7 +39,7 @@ import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.property.PropertySheetItem;
 import sh.komet.gui.control.property.PropertySheetPurpose;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
 
@@ -63,14 +63,14 @@ public class DescriptionDialectEditor implements PropertyEditor<ObservableDescri
                     this,
                     ObservableFields.DESCRIPTION_DIALECT.toExternalString(),
                     null);
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     
     private final PropertyEditorFactory propertyEditorFactory;
     private final List<Item> wrappedProperties = new ArrayList<>();
 
-    public DescriptionDialectEditor(UUID conceptUuid, Manifold manifold) {
-        this.manifold = manifold;
-        this.propertyEditorFactory = new PropertyEditorFactory(manifold);
+    public DescriptionDialectEditor(UUID conceptUuid, ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
+        this.propertyEditorFactory = new PropertyEditorFactory(viewProperties);
         this.editorGridPane.maxWidthProperty().set(Double.MAX_VALUE);
         if (conceptUuid != null) {
             setupWithConceptUuid(conceptUuid);
@@ -90,8 +90,8 @@ public class DescriptionDialectEditor implements PropertyEditor<ObservableDescri
         setupProperties();
     }
 
-    public DescriptionDialectEditor(Manifold manifold) {
-        this(null, manifold);
+    public DescriptionDialectEditor(ViewProperties viewProperties) {
+        this(null, viewProperties);
     }
 
     @Override
@@ -206,7 +206,7 @@ public class DescriptionDialectEditor implements PropertyEditor<ObservableDescri
     }
 
     private PropertySheetItem createPropertyItem(Property<?> property) {
-        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, manifold, PropertySheetPurpose.DESCRIPTION_DIALECT);
+        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, viewProperties, PropertySheetPurpose.DESCRIPTION_DIALECT);
         wrappedProperties.add(wrappedProperty);
         return wrappedProperty;
     }

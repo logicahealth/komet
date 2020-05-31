@@ -1,7 +1,7 @@
 package sh.isaac.komet.batch.action;
 
 import org.jvnet.hk2.annotations.Service;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import javax.inject.Singleton;
 
@@ -16,7 +16,7 @@ public class PromoteComponentActionFactory implements ActionFactory {
     }
 
     @Override
-    public ActionItem makeActionItem(Manifold manifoldForDisplay) {
+    public ActionItem makeActionItem(ViewProperties manifoldForDisplay) {
         PromoteComponentAction action = new PromoteComponentAction();
         action.setupForGui(manifoldForDisplay);
         return action;

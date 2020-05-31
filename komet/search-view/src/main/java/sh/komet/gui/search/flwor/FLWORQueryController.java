@@ -55,10 +55,7 @@ package sh.komet.gui.search.flwor;
 * limitations under the License.
  */
 
-import javafx.beans.property.ReadOnlyObjectWrapper;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
@@ -97,14 +94,14 @@ import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.api.util.time.DurationUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.action.ConceptAction;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
-import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
@@ -123,19 +120,20 @@ import java.util.*;
 //~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
-public class FLWORQueryController
-        implements ExplorationNode {
+public class FLWORQueryController extends ExplorationNodeAbstract {
 
     private static final Logger LOG = LogManager.getLogger();
     private static final String CLAUSE = "clause";
     public static final boolean OUTPUT_CSS_STYLE_INFO = false;
 
     //~--- fields --------------------------------------------------------------
-    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("FLWOR query view");
-    private final SimpleStringProperty titleProperty = new SimpleStringProperty(FLWORQueryViewFactory.MENU_TEXT);
+    {
+        toolTipProperty.setValue("FLWOR query view");
+        super.getTitle().setValue(FLWORQueryViewFactory.MENU_TEXT);
+        menuIconProperty.setValue(Iconography.FLWOR_SEARCH.getIconographic());
+    }
     private final SimpleStringProperty titleNodeProperty = new SimpleStringProperty(FLWORQueryViewFactory.MENU_TEXT);
-    private final SimpleObjectProperty<Node> iconProperty = new SimpleObjectProperty<>(
-            Iconography.FLWOR_SEARCH.getIconographic());
+
     @FXML  // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
     @FXML  // URL location of the FXML file that was given to the FXMLLoader
@@ -243,10 +241,8 @@ public class FLWORQueryController
 
     @FXML
     private ContextMenu resultTableContextMenu;
-    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.FLWOR_SEARCH.getIconographic());
 
     private ClauseTreeItem root;
-    private Manifold manifold;
     private LetPropertySheet letPropertySheet;
     private ForPanel forPropertySheet;
     private ControllerForReturnSpecification returnSpecificationController;
@@ -267,12 +263,13 @@ public class FLWORQueryController
     //~--- methods -------------------------------------------------------------
 
     @Override
+    public Node getMenuIconGraphic() {
+        return Iconography.FLWOR_SEARCH.getIconographic();
+    }
+
+    @Override
     public void savePreferences() {
         throw new UnsupportedOperationException();
-    }
-    @Override
-    public SimpleObjectProperty getMenuIconProperty() {
-        return menuIconProperty;
     }
 
     public Query getQuery() {
@@ -351,7 +348,7 @@ public class FLWORQueryController
         File selectedFile = fileChooser.showOpenDialog(spacerLabel.getScene().getWindow());
         if (selectedFile != null) {
             try (FileReader reader = new FileReader(selectedFile)) {
-                setManifold(this.manifold);
+                setViewProperties(this.viewProperties);
                 setQuery(null);
                 throw new UnsupportedOperationException();
                 /*Unmarshaller unmarshaller = Jaxb.createUnmarshaller();
@@ -634,7 +631,7 @@ public class FLWORQueryController
         clause.setEnclosingQuery(query);
 
         treeItem.getChildren()
-                .add(new ClauseTreeItem(new QueryClause(clause, manifold, this.forPropertySheet,
+                .add(new ClauseTreeItem(new QueryClause(clause, viewProperties, this.forPropertySheet,
                         joinProperties, letPropertySheet)));
 
     }
@@ -649,7 +646,7 @@ public class FLWORQueryController
 
         treeItem.getParent()
                 .getChildren()
-                .add(new ClauseTreeItem(new QueryClause(clause, manifold, this.forPropertySheet,
+                .add(new ClauseTreeItem(new QueryClause(clause, viewProperties, this.forPropertySheet,
                         joinProperties, letPropertySheet)));
 
     }
@@ -669,7 +666,7 @@ public class FLWORQueryController
         clause.setEnclosingQuery(query);
 
 
-        treeItem.setValue(new QueryClause(clause, manifold, this.forPropertySheet,
+        treeItem.setValue(new QueryClause(clause, viewProperties, this.forPropertySheet,
                 joinProperties, letPropertySheet));
         
         if (originalClause instanceof ParentClause && clause instanceof ParentClause) {
@@ -839,15 +836,10 @@ public class FLWORQueryController
     @Override
     public Optional<Node> getTitleNode() {
         Label titleLabel = new Label();
-        titleLabel.graphicProperty().bind(iconProperty);
+        titleLabel.graphicProperty().bind(menuIconProperty);
         titleLabel.textProperty().bind(titleNodeProperty);
-        titleProperty.set("");
+        super.getTitle().set("");
         return Optional.of(titleLabel);
-    }
-
-    @Override
-    public Manifold getManifold() {
-        return this.manifold;
     }
 
     void setQuery(Query query) {
@@ -870,7 +862,7 @@ public class FLWORQueryController
                 forPropertySheet.getForAssemblagesProperty().add(assemblageSpec);
             }
             this.query.setForSetSpecification(forPropertySheet.getForSetSpecification());
-            QueryClause rootQueryClause = new QueryClause(this.query.getRoot(), this.manifold,
+            QueryClause rootQueryClause = new QueryClause(this.query.getRoot(), this.viewProperties,
                     this.forPropertySheet,
                     this.joinProperties,
                     this.letPropertySheet);
@@ -889,7 +881,7 @@ public class FLWORQueryController
 
     private void addChildren(Clause parent, ClauseTreeItem parentTreeItem) {
         for (Clause child : parent.getChildren()) {
-            QueryClause childQueryClause = new QueryClause(child, this.manifold,
+            QueryClause childQueryClause = new QueryClause(child, this.viewProperties,
                     this.forPropertySheet,
                     this.joinProperties,
                     this.letPropertySheet);
@@ -900,9 +892,9 @@ public class FLWORQueryController
     }
 
     //~--- set methods ---------------------------------------------------------
-    public void setManifold(Manifold manifold) throws IOException {
-        this.manifold = manifold;
-        this.letPropertySheet = new LetPropertySheet(this.manifold, this);
+    public void setViewProperties(ViewProperties viewProperties) throws IOException {
+        this.viewProperties = viewProperties;
+        this.letPropertySheet = new LetPropertySheet(this.viewProperties, this);
         returnStampCoordinateColumn.setCellValueFactory((param) -> {
             return param.getValue().stampCoordinateKeyProperty();
         });
@@ -928,15 +920,15 @@ public class FLWORQueryController
         });
         orderSortColumn.setCellFactory(ChoiceBoxTableCell.forTableColumn(TableColumn.SortType.values()));
 
-        this.forPropertySheet = new ForPanel(manifold);
+        this.forPropertySheet = new ForPanel(viewProperties);
         this.query = new Query(forPropertySheet.getForSetSpecification());
-        this.root = new ClauseTreeItem(new QueryClause(Clause.getRootClause(), manifold, this.forPropertySheet,
+        this.root = new ClauseTreeItem(new QueryClause(Clause.getRootClause(), viewProperties, this.forPropertySheet,
                 joinProperties, letPropertySheet));
 
         this.root.getValue().getClause().setEnclosingQuery(this.query);
 
         this.root.getChildren()
-                .add(new ClauseTreeItem(new QueryClause(new DescriptionLuceneMatch(this.query), manifold, this.forPropertySheet,
+                .add(new ClauseTreeItem(new QueryClause(new DescriptionLuceneMatch(this.query), viewProperties, this.forPropertySheet,
                         joinProperties, letPropertySheet)));
         this.root.getValue().getClause().setEnclosingQuery(this.query);
         this.root.setExpanded(true);
@@ -990,7 +982,7 @@ public class FLWORQueryController
                 this.joinProperties,
                 this.orderAddRowButton.getItems(),
                 this.resultTable,
-                this.manifold);
+                this.viewProperties);
         this.orderTable.setItems(this.sortSpecificationController.getSpecificationRows());
 
         this.returnSpecificationController = new ControllerForReturnSpecification(
@@ -1001,7 +993,7 @@ public class FLWORQueryController
                 this.joinProperties,
                 this.returnAddRowButton.getItems(),
                 this.resultTable,
-                this.manifold);
+                this.viewProperties);
         this.returnSpecificationController.addReturnSpecificationListener(this::returnSpecificationListener);
         this.returnTable.setItems(this.returnSpecificationController.getReturnSpecificationRows());
 
@@ -1035,17 +1027,6 @@ public class FLWORQueryController
         flowrAccordian.setExpandedPane(wherePane);
         return anchorPane;
     }
-
-    @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return titleProperty;
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return toolTipProperty;
-    }
-
     void setLetItemsController(LetItemsController letItemsController) {
         this.letItemsController = letItemsController;
         this.letPropertySheet.setLetItemsController(letItemsController);
@@ -1138,6 +1119,10 @@ public class FLWORQueryController
     @Override
     public void close() {
         // nothing to do...
+    }
+    @Override
+    public ActivityFeed getActivityFeed() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

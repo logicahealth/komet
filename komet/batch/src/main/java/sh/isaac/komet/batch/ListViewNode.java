@@ -1,40 +1,35 @@
 package sh.isaac.komet.batch;
 
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.batch.fxml.ListViewNodeController;
 import sh.isaac.komet.batch.iconography.PluginIcons;
-import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 
 import java.io.IOException;
 import java.util.Optional;
 
-public class ListViewNode implements ExplorationNode {
-    public enum Keys {
-        MANIFOLD_GROUP_NAME,
-    }
+public class ListViewNode extends ExplorationNodeAbstract {
 
-    final Manifold manifold;
     final SimpleStringProperty toolTip = new SimpleStringProperty("List view to create batches of content for processing, export, or similar uses.");
     final AnchorPane root;
     final ListViewNodeController controller;
     private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(PluginIcons.SCRIPT_ICON.getStyledIconographic());
 
-    public ListViewNode(Manifold manifold, IsaacPreferences preferences) {
+    public ListViewNode(ViewProperties viewProperties, IsaacPreferences preferences) {
+        super(viewProperties);
         try {
             // The manifold group specified in the preferences takes precedence.
-            manifold = Manifold.get(preferences.get(Keys.MANIFOLD_GROUP_NAME, manifold.getGroupName()));
-            this.manifold = manifold;
+            this.viewProperties = viewProperties;
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/ListViewNode.fxml"));
             this.root = loader.load();
             this.controller = loader.getController();
-            this.controller.setManifold(manifold);
+            this.controller.setViewProperties(this.viewProperties, this.viewProperties.getActivityFeed(ViewProperties.LIST));
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -43,13 +38,13 @@ public class ListViewNode implements ExplorationNode {
     }
 
     @Override
-    public void savePreferences() {
-        throw new UnsupportedOperationException();
+    public Node getMenuIconGraphic() {
+        return PluginIcons.SCRIPT_ICON.getStyledIconographic();
     }
 
     @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return controller.nameProperty();
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -58,23 +53,8 @@ public class ListViewNode implements ExplorationNode {
     }
 
     @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return toolTip;
-    }
-
-    @Override
-    public Manifold getManifold() {
-        return manifold;
-    }
-
-    @Override
     public Node getNode() {
         return root;
-    }
-
-    @Override
-    public SimpleObjectProperty getMenuIconProperty() {
-        return menuIconProperty;
     }
 
     @Override
@@ -86,4 +66,10 @@ public class ListViewNode implements ExplorationNode {
     public boolean canClose() {
         return true;
     }
+
+    @Override
+    public ActivityFeed getActivityFeed() {
+        throw new UnsupportedOperationException();
+    }
+
 }

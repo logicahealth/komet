@@ -43,50 +43,54 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 //~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
-import sh.isaac.api.ComponentProxy;
-import sh.isaac.api.Status;
+import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
-import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
+import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.DetailNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.interfaces.DetailNodeAbstract;
+import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.gui.style.StyleClasses;
+import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
 /**
  *
  * @author kec
  */
-public class ConceptDetailTreeTableNode
-        implements DetailNode, Supplier<List<MenuItem>> {
+public class ConceptDetailTreeTableNode extends DetailNodeAbstract implements Supplier<List<MenuItem>> {
 
-    private final BorderPane conceptDetailPane = new BorderPane();
-    private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
-    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
-    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.CONCEPT_TABLE.getIconographic());
-    private final SimpleObjectProperty<Manifold> manifoldProperty = new SimpleObjectProperty<>();
-    private final SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty(0);
-    private ManifoldLinkedConceptLabel titleLabel = null;
+    {
+        titleProperty.setValue("empty");
+        toolTipProperty.setValue("empty");
+        menuIconProperty.setValue(Iconography.CONCEPT_TABLE.getIconographic());
+    }
     private final ConceptLabelToolbar conceptLabelToolbar;
 
     //~--- constructors --------------------------------------------------------
-    public ConceptDetailTreeTableNode(Manifold conceptDetailManifold) {
+    public ConceptDetailTreeTableNode(ViewProperties viewProperties, ActivityFeed activityFeed) {
+        super(viewProperties, activityFeed);
         try {
-            this.manifoldProperty.set(conceptDetailManifold);
 
-            conceptDetailManifold.manifoldSelectionProperty().addListener(this::updateTitleListener);
-            this.conceptLabelToolbar = ConceptLabelToolbar.make(this.manifoldProperty, this.selectionIndexProperty,
-                    this, Optional.of(true));
+            activityFeed.feedSelectionProperty().addListener(this::updateTitleListener);
+            this.conceptLabelToolbar = ConceptLabelToolbar.make(this.viewProperties,
+                    this.identifiedObjectFocusProperty,
+                    ConceptLabelWithDragAndDrop::setPreferredText,
+                    this.selectionIndexProperty,
+                    () -> this.unlinkFromActivityFeed(),
+                    this.activityFeedProperty,
+                    Optional.of(true));
             conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
             conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
 
@@ -97,7 +101,7 @@ public class ConceptDetailTreeTableNode
 
             ConceptDetailTreeTableController conceptDetailController = loader.getController();
 
-            conceptDetailController.setManifoldProperty(this.manifoldProperty);
+            conceptDetailController.setViewProperties(this.viewProperties, activityFeed);
             updateTitle();
             conceptDetailPane.setCenter(conceptDetailController.getConceptDetailRootPane());
         } catch (IOException ex) {
@@ -105,8 +109,22 @@ public class ConceptDetailTreeTableNode
         }
     }
 
+    @Override
+    protected void setFocus(IdentifiedObject component) {
+        FxGet.dialogs().showInformationDialog("Not implemented", "ConceptDetailTreeTableNode does not implement setFocus");
+    }
+
+    @Override
+    public Node getMenuIconGraphic() {
+        return Iconography.CONCEPT_TABLE.getIconographic();
+    }
+
     private Optional<ConceptChronology> getOptionalFocusedConcept() {
-        return this.manifoldProperty.get().getOptionalFocusedConcept(this.selectionIndexProperty.get());
+        Optional<IdentifiedObject> optionalComponent = this.getIdentifiedObjectFocus();
+        if (optionalComponent.isPresent()) {
+            return Optional.of(Get.concept(optionalComponent.get().getNid()));
+        }
+        return Optional.empty();
     }
 
     @Override
@@ -114,7 +132,7 @@ public class ConceptDetailTreeTableNode
         throw new UnsupportedOperationException();
     }
 
-    private void updateTitleListener(ListChangeListener.Change<? extends ComponentProxy> c) {
+    private void updateTitleListener(ListChangeListener.Change<? extends IdentifiedObject> c) {
         updateTitle();
     }
 
@@ -127,24 +145,14 @@ public class ConceptDetailTreeTableNode
         } else {
             //TODO handle list properly...
 
-            titleProperty.set(this.manifoldProperty.get().getPreferredDescriptionText(optionalConcept.get()));
+            titleProperty.set(this.viewProperties.getPreferredDescriptionText(optionalConcept.get()));
             toolTipProperty.set(
                     "concept details for: "
-                            + this.manifoldProperty.get().getFullyQualifiedDescriptionText(
+                            + this.viewProperties.getFullyQualifiedDescriptionText(
                             optionalConcept.get()));
         }
     }
     //~--- get methods ---------------------------------------------------------
-
-    @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return this.titleProperty;
-    }
-
-    @Override
-    public SimpleObjectProperty getMenuIconProperty() {
-        return menuIconProperty;
-    }
 
     @Override
     public Node getNode() {
@@ -152,31 +160,10 @@ public class ConceptDetailTreeTableNode
     }
 
     @Override
-    public Optional<Node> getTitleNode() {
-        if (titleLabel == null) {
-            this.titleLabel = new ManifoldLinkedConceptLabel(this.manifoldProperty, this.selectionIndexProperty,
-                    ManifoldLinkedConceptLabel::setPreferredText, this);
-            this.titleLabel.setGraphic(Iconography.CONCEPT_TABLE.getIconographic());
-            this.titleProperty.set("");
-        }
-        return Optional.of(titleLabel);
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return this.toolTipProperty;
-    }
-
-    @Override
     public List<MenuItem> get() {
         List<MenuItem> assemblageMenuList = new ArrayList<>();
         // No extra menu items added yet. 
         return assemblageMenuList;
-    }
-
-    @Override
-    public Manifold getManifold() {
-        return this.manifoldProperty.get();
     }
 
     @Override

@@ -108,7 +108,7 @@ public interface DynamicUtility {
    /**
     * Creates the dynamic Array String data.
     *
-    * @param value the value
+    * @param values the values
     * @return the dynamic Array
     */
    public DynamicArray<DynamicString> createDynamicStringArrayData(String ... values);
@@ -253,6 +253,7 @@ public interface DynamicUtility {
          throw new IllegalArgumentException(
              "The Assemblage concept: " + dsud.getDynamicName() + " specifies " + dsud.getColumnInfo().length +
              " columns of data, while the provided data contains " + data.length +
+             " " + Arrays.toString(data) +
              " columns.  The data size array must not exeed the definition." +
              " (the data column count may be less, if the missing columns are defined as optional)");
       }

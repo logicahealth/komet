@@ -7,6 +7,7 @@ import java.util.concurrent.CountDownLatch;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Service;
 import javafx.concurrent.Task;
@@ -23,7 +24,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
 
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -40,10 +41,10 @@ public class SimpleSearchService extends Service<NidSet> {
     protected static final Logger LOG = LogManager.getLogger();
 
     private final SimpleStringProperty luceneQuery = new SimpleStringProperty();
-    private final SimpleListProperty<Integer> parentNids = new SimpleListProperty<>();
+    private final SimpleListProperty<Integer> parentNids = new SimpleListProperty<>(FXCollections.observableArrayList());
     private final Query query;
     private final DescriptionLuceneMatch descriptionLuceneMatch;
-    private Manifold manifold;
+    private ViewProperties viewProperties;
     private final double PROGRESS_MAX_VALUE = 100;
     private final double PROGRESS_INCREMENT_VALUE = 33.333; //Hard Coded based on Current Filter Algorithm (3 parts)
     private double PROGRESS_CURRENT = 0;
@@ -66,7 +67,7 @@ public class SimpleSearchService extends Service<NidSet> {
                 if (!getLuceneQuery().isEmpty()) {
 
                     final NidSet filteredValues = new NidSet();
-                    TaxonomySnapshot taxonomySnapshot = Get.taxonomyService().getSnapshot(getManifold());
+                    TaxonomySnapshot taxonomySnapshot = Get.taxonomyService().getSnapshot(getViewProperties().getManifoldCoordinate());
 
                     runLuceneDescriptionQuery(results);
                     NidSet allowedConceptNids = findAllKindOfConcepts(results, taxonomySnapshot);
@@ -117,7 +118,7 @@ public class SimpleSearchService extends Service<NidSet> {
                                         searchComplete.countDown();
                                     }
                                 }),
-                                null, null, true, manifold, false, null,
+                                null, null, true, viewProperties.getManifoldCoordinate(), false, null,
                                 null, 10);
 
                         searchComplete.await();
@@ -211,13 +212,13 @@ public class SimpleSearchService extends Service<NidSet> {
             }
 
             protected void handleDescription(SemanticChronology semanticChronology, NidSet allowedConceptNids, TaxonomySnapshot taxonomySnapshot, NidSet filteredValues) {
-                LatestVersion<DescriptionVersion> description = semanticChronology.getLatestVersion(getManifold().getStampFilter());
+                LatestVersion<DescriptionVersion> description = semanticChronology.getLatestVersion(getViewProperties().getStampFilter());
                 if (!description.isPresent()) {
                     return;
                 }
                 DescriptionVersion descriptionVersion = description.get();
                 int conceptNid = descriptionVersion.getReferencedComponentNid();
-                if (!Get.conceptActiveService().isConceptActive(conceptNid, manifold.getStampFilter().toStampFilterImmutable())) {
+                if (!Get.conceptActiveService().isConceptActive(conceptNid, viewProperties.getStampFilter().toStampFilterImmutable())) {
                     return;
                 }
                 if (!getParentNids().isEmpty()) {
@@ -256,12 +257,12 @@ public class SimpleSearchService extends Service<NidSet> {
         return luceneQuery;
     }
 
-    private Manifold getManifold() {
-        return this.manifold;
+    private ViewProperties getViewProperties() {
+        return this.viewProperties;
     }
 
-    public void setManifold(Manifold manifold) {
-        this.manifold = manifold;
+    public void setViewProperties(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
     }
 
     private String getLuceneQuery() {

@@ -22,7 +22,7 @@ import org.controlsfx.control.PropertySheet;
 import sh.isaac.model.statement.ParticipantImpl;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -30,7 +30,7 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class ParticipantPropertySheet {
     
-    protected final Manifold manifold;
+    protected final ViewProperties viewProperties;
     
     
     private final PropertySheet propertySheet = new PropertySheet();
@@ -41,9 +41,9 @@ public class ParticipantPropertySheet {
         
     }
 
-    public ParticipantPropertySheet(Manifold manifold) {
-        this.manifold = manifold;
-        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifold));
+    public ParticipantPropertySheet(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.viewProperties));
     }
     
     public PropertySheet getPropertySheet() {
@@ -61,7 +61,7 @@ public class ParticipantPropertySheet {
     private List<PropertySheet.Item> getProperties(ParticipantImpl participant) {
        ArrayList<PropertySheet.Item> itemList = new ArrayList<>();
        
-       itemList.add(new PropertySheetItemConceptWrapper(manifold, participant.participantRoleProperty()));
+       itemList.add(new PropertySheetItemConceptWrapper(viewProperties, participant.participantRoleProperty()));
        // TODO add UUID editor...
 
        return itemList;

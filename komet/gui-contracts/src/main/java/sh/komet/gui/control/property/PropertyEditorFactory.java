@@ -85,13 +85,13 @@ import sh.komet.gui.time.KometDateTimePicker;
  */
 public class PropertyEditorFactory implements Callback<PropertySheet.Item, PropertyEditor<?>> {
 
-    Manifold manifoldForDisplay;
+    ViewProperties viewProperties;
 
-    public PropertyEditorFactory(Manifold manifoldForDisplay) {
-        if (manifoldForDisplay == null) {
+    public PropertyEditorFactory(ViewProperties viewProperties) {
+        if (viewProperties == null) {
             throw new NullPointerException("manifoldForDisplay cannot be null");
         }
-        this.manifoldForDisplay = manifoldForDisplay;
+        this.viewProperties = viewProperties;
     }
 
     @Override
@@ -99,9 +99,9 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
         if (propertySheetItem instanceof PropertySheetItemConceptNidWrapper) {
             return createCustomChoiceEditor((PropertySheetItemConceptNidWrapper) propertySheetItem);
         } else if (propertySheetItem instanceof PropertySheetItemConceptConstraintWrapper) {
-            return new PropertySheetItemConceptWrapperEditor(manifoldForDisplay);
+            return new PropertySheetItemConceptWrapperEditor(viewProperties);
         } else if (propertySheetItem instanceof PropertySheetItemConceptWrapper) {
-            return new ConceptSpecificationEditor((PropertySheetItemConceptWrapper) propertySheetItem, manifoldForDisplay);
+            return new ConceptSpecificationEditor((PropertySheetItemConceptWrapper) propertySheetItem, viewProperties);
         } else if (propertySheetItem instanceof PropertySheetItemConceptWrapperNoSearch) {
             PropertySheetItemConceptWrapperNoSearch propertySheetItemNoSearch = 
                     (PropertySheetItemConceptWrapperNoSearch) propertySheetItem;
@@ -120,18 +120,18 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             return Editors.createNumericEditor(wrappedItem);
         } else if (propertySheetItem instanceof PropertySheetMeasureWrapper) {
             PropertySheetMeasureWrapper measureWrapper = (PropertySheetMeasureWrapper) propertySheetItem;
-            MeasureEditor measureEditor = new MeasureEditor(manifoldForDisplay);
+            MeasureEditor measureEditor = new MeasureEditor(viewProperties);
             measureEditor.setValue((MeasureImpl) measureWrapper.getValue());
             return measureEditor;
         } else if (propertySheetItem instanceof PropertySheetCircumstanceWrapper) {
             PropertySheetCircumstanceWrapper circumstanceWrapper = (PropertySheetCircumstanceWrapper) propertySheetItem;
-            return new CircumstanceEditor(circumstanceWrapper.getObservableValue().get(), manifoldForDisplay);
+            return new CircumstanceEditor(circumstanceWrapper.getObservableValue().get(), viewProperties);
         } else if (propertySheetItem instanceof PropertySheetResultWrapper) {
             PropertySheetResultWrapper resultWrapper = (PropertySheetResultWrapper) propertySheetItem;
-            return new ResultEditor((ObservableValue<ResultImpl>) resultWrapper.getObservableValue().get(), manifoldForDisplay);
+            return new ResultEditor((ObservableValue<ResultImpl>) resultWrapper.getObservableValue().get(), viewProperties);
         } else if (propertySheetItem instanceof PropertySheetListWrapper) {
             PropertySheetListWrapper listWrapper = (PropertySheetListWrapper) propertySheetItem;
-            ListEditor listEditor = new ListEditor(this.manifoldForDisplay, listWrapper.getNewObjectSupplier(), listWrapper.getNewEditorSupplier());
+            ListEditor listEditor = new ListEditor(this.viewProperties, listWrapper.getNewObjectSupplier(), listWrapper.getNewEditorSupplier());
             listEditor.setValue((ObservableList) listWrapper.getValue());
             return listEditor;
         } else if (propertySheetItem instanceof PropertySheetItem) {
@@ -184,12 +184,12 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             return new ImageSourceEditor(((PropertySheetImageWrapper)propertySheetItem).imageDataProperty());
         } else if (propertySheetItem instanceof PropertySheetPositionWrapper) {
             PropertySheetPositionWrapper positionWrapper = (PropertySheetPositionWrapper) propertySheetItem;
-            PositionEditor positionEditor = new PositionEditor(manifoldForDisplay, positionWrapper.getObservableStampPosition());
+            PositionEditor positionEditor = new PositionEditor(viewProperties, positionWrapper.getObservableStampPosition());
             positionEditor.setValue(positionWrapper.getValue());
             return positionEditor;
         } else if (propertySheetItem instanceof PropertySheetPositionListWrapper) {
             PropertySheetPositionListWrapper positionListWrapper = (PropertySheetPositionListWrapper) propertySheetItem;
-            return new PositionListEditor(this.manifoldForDisplay, positionListWrapper.getValue());
+            return new PositionListEditor(this.viewProperties, positionListWrapper.getValue());
         }
         
         
@@ -232,7 +232,7 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                 Collection<ConceptForControlWrapper> collection = new ArrayList<>();
                 for (Object allowedValue : item.getAllowedValues()) {
                     ConceptSpecification allowedConcept = (ConceptSpecification) allowedValue;
-                    collection.add(new ConceptForControlWrapper(manifoldForDisplay, allowedConcept.getNid()));
+                    collection.add(new ConceptForControlWrapper(viewProperties, allowedConcept.getNid()));
                 }
                 PropertyEditor editor = Editors.createChoiceEditor(item, collection);
                 ComboBox editorControl = (ComboBox) editor.getEditor();
@@ -247,7 +247,7 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                 Object currentValue = item.getValue();
 
                 if (currentValue == null) {
-                    editor.setValue(new ConceptForControlWrapper(manifoldForDisplay, defaultConcept.getNid()));
+                    editor.setValue(new ConceptForControlWrapper(viewProperties, defaultConcept.getNid()));
                 } else {
                     ConceptSpecification currentConcept;
                     if (currentValue instanceof ConceptSpecification) {
@@ -255,7 +255,7 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                     } else {
                         currentConcept = Get.conceptSpecification((Integer) currentValue);
                     }
-                    editor.setValue(new ConceptForControlWrapper(manifoldForDisplay, currentConcept.getNid()));
+                    editor.setValue(new ConceptForControlWrapper(viewProperties, currentConcept.getNid()));
                 }
                 return editor;
             }
@@ -297,10 +297,10 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
     private PropertyEditor<?> createCustomChoiceEditor(PropertySheetItemConceptNidWrapper propertySheetItem) {
         if (!propertySheetItem.getAllowedValues().isEmpty()) {
             Collection<ConceptForControlWrapper> collection = new ArrayList<>();
-            propertySheetItem.getAllowedValues().stream().forEach((nid) -> collection.add(new ConceptForControlWrapper(manifoldForDisplay, nid)));
+            propertySheetItem.getAllowedValues().stream().forEach((nid) -> collection.add(new ConceptForControlWrapper(viewProperties, nid)));
             return Editors.createChoiceEditor(propertySheetItem, collection);
         } else {
-            ConceptLabel conceptLabel = new ConceptLabel(manifoldForDisplay, ConceptLabel::setPreferredText, (label) -> {
+            ConceptLabel conceptLabel = new ConceptLabel(viewProperties, ConceptLabel::setPreferredText, (label) -> {
                 List<MenuItem> labelMenu = new ArrayList<>();
 
                 for (Manifold.ManifoldGroup manifoldGroup : Manifold.ManifoldGroup.values()) {
@@ -309,7 +309,7 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                     Collection<ComponentProxy> groupHistory = Manifold.get(manifoldGroup).getHistoryRecords();
                     for (ComponentProxy record : groupHistory) {
                         MenuItem conceptItem = new MenuItemWithText(
-                                manifoldForDisplay.getPreferredDescriptionText(record.getNid())
+                                viewProperties.getPreferredDescriptionText(record.getNid())
                         );
                         conceptItem.setOnAction((ActionEvent event) -> {
                             label.setValue(record.getNid());
@@ -325,25 +325,25 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
     }
 
     private PropertyEditor<?> createConceptListEditor(PropertySheetConceptListWrapper propertySheetConceptListWrapper) {
-        ConceptListEditor editor = new ConceptListEditor(manifoldForDisplay);
+        ConceptListEditor editor = new ConceptListEditor(viewProperties);
         editor.setValue(propertySheetConceptListWrapper.getValue());
         return editor;
     }
 
     private PropertyEditor<?> createComponentListEditor(PropertySheetComponentListWrapper propertySheetComponentListWrapper) {
-        ComponentListEditor editor = new ComponentListEditor(manifoldForDisplay);
+        ComponentListEditor editor = new ComponentListEditor(viewProperties);
         editor.setValue(propertySheetComponentListWrapper.getValue());
         return editor;
     }
 
     private PropertyEditor<?> createAssemblageListEditor(PropertySheetItemAssemblageListWrapper propertySheetConceptListWrapper) {
-        AssemblageListEditor editor = new AssemblageListEditor(manifoldForDisplay);
+        AssemblageListEditor editor = new AssemblageListEditor(viewProperties);
         editor.setValue(propertySheetConceptListWrapper.getValue());
         return editor;
     }
 
     private PropertyEditor<?> createConceptListEditor(PropertySheetConceptSetWrapper propertySheetConceptSetWrapper) {
-        ConceptListEditor editor = new ConceptListEditor(manifoldForDisplay);
+        ConceptListEditor editor = new ConceptListEditor(viewProperties);
         editor.setValue(propertySheetConceptSetWrapper.getValue());
         return editor;
     }

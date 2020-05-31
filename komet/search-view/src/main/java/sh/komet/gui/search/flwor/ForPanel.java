@@ -27,7 +27,7 @@ import sh.isaac.api.query.ForSet;
 import static sh.isaac.model.observable.ObservableFields.ASSEMBLAGE_LIST_FOR_QUERY;
 import sh.komet.gui.control.concept.PropertySheetItemAssemblageListWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -40,12 +40,12 @@ public class ForPanel {
             new SimpleListProperty(this, 
                     ASSEMBLAGE_LIST_FOR_QUERY.toExternalString(), FXCollections.observableArrayList());
 
-    final Manifold manifold;
+    final ViewProperties viewProperties;
     
-    public ForPanel(Manifold manifold) {
-        this.manifold = manifold;
-        this.sheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
-        this.sheet.getItems().add(new PropertySheetItemAssemblageListWrapper(manifold, forAssemblagesProperty));
+    public ForPanel(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
+        this.sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties));
+        this.sheet.getItems().add(new PropertySheetItemAssemblageListWrapper(viewProperties, forAssemblagesProperty));
         this.sheet.setMode(PropertySheet.Mode.NAME);
         this.sheet.setModeSwitcherVisible(false);
         this.sheet.setSearchBoxVisible(false);

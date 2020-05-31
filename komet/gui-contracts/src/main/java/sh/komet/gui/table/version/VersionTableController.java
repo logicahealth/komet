@@ -7,13 +7,14 @@ import javafx.scene.control.*;
 import javafx.scene.input.*;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.api.Get;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.komet.gui.cell.CellHelper;
 import sh.komet.gui.cell.table.*;
 import sh.komet.gui.clipboard.ClipboardHelper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.net.URL;
 import java.util.*;
@@ -50,7 +51,7 @@ public class VersionTableController {
     private TableColumn<ObservableChronology, ObservableVersion> moduleColumn;
     @FXML  // fx:id="pathColumn"
     private TableColumn<ObservableChronology, ObservableVersion> pathColumn;
-    private Manifold manifold;
+    private ViewProperties viewProperties;
     private KometTableCellValueFactory valueFactory;
     private final ContextMenu copyPasteMenu = new ContextMenu();
     private final MenuItem copySelectedItems = new MenuItem("Copy selected items");
@@ -104,8 +105,8 @@ public class VersionTableController {
         });
 
         generalColumn.setComparator((o1, o2) -> {
-            return CellHelper.getTextForComponent(this.getManifold(), o1)
-                    .compareTo(CellHelper.getTextForComponent(this.getManifold(), o2));
+            return CellHelper.getTextForComponent(this.viewProperties, o1)
+                    .compareTo(CellHelper.getTextForComponent(this.viewProperties, o2));
         });
 
         listTable.setOnKeyPressed(event -> {
@@ -156,21 +157,21 @@ public class VersionTableController {
         return assemblageDetailRootPane;
     }
 
-    public Manifold getManifold() {
-        return manifold;
+    public ManifoldCoordinate getManifold() {
+        return viewProperties.getManifoldCoordinate();
     }
 
     //~--- set methods ---------------------------------------------------------
-    public void setManifold(Manifold manifold) {
+    public void setViewProperties(ViewProperties viewProperties) {
 
-        this.manifold = manifold;
-        this.valueFactory = new KometTableCellValueFactory(this.manifold);
+        this.viewProperties = viewProperties;
+        this.valueFactory = new KometTableCellValueFactory(this.viewProperties);
 
         whatColumn.setCellValueFactory(this.valueFactory::getCellValue);
-        whatColumn.setCellFactory(tableColumn -> new TableWhatCell(this.manifold));
+        whatColumn.setCellFactory(tableColumn -> new TableWhatCell(this.viewProperties));
 
         generalColumn.setCellValueFactory(this.valueFactory::getCellValue);
-        generalColumn.setCellFactory(tableColumn -> new TableGeneralCell(this.manifold));
+        generalColumn.setCellFactory(tableColumn -> new TableGeneralCell(this.viewProperties));
 
         statusColumn.setCellValueFactory(this.valueFactory::getCellValue);
         statusColumn.setCellFactory(tableColumn -> new TableStatusCell());
@@ -180,23 +181,23 @@ public class VersionTableController {
         timeColumn.setCellFactory(tableColumn -> new TableTimeCell());
 
         modulePathColumn.setCellValueFactory(this.valueFactory::getCellValue);
-        modulePathColumn.setCellFactory(tableColumn -> new TableModulePathCell(this.manifold));
+        modulePathColumn.setCellFactory(tableColumn -> new TableModulePathCell(this.viewProperties));
 
         authorTimeColumn.setCellValueFactory(this.valueFactory::getCellValue);
-        authorTimeColumn.setCellFactory(tableColumn -> new TableAuthorTimeCell(this.manifold));
+        authorTimeColumn.setCellFactory(tableColumn -> new TableAuthorTimeCell(this.viewProperties));
 
         authorColumn.setVisible(false);
         authorColumn.setCellValueFactory(this.valueFactory::getCellValue);
-        authorColumn.setCellFactory(tableColumn -> new TableConceptCell(this.manifold, ObservableVersion::getAuthorNid));
+        authorColumn.setCellFactory(tableColumn -> new TableConceptCell(this.viewProperties, ObservableVersion::getAuthorNid));
 
 
         moduleColumn.setVisible(false);
         moduleColumn.setCellValueFactory(this.valueFactory::getCellValue);
-        moduleColumn.setCellFactory(tableColumn -> new TableConceptCell(this.manifold, ObservableVersion::getModuleNid));
+        moduleColumn.setCellFactory(tableColumn -> new TableConceptCell(this.viewProperties, ObservableVersion::getModuleNid));
 
         pathColumn.setVisible(false);
         pathColumn.setCellValueFactory(this.valueFactory::getCellValue);
-        pathColumn.setCellFactory(tableColumn -> new TableConceptCell(this.manifold, ObservableVersion::getPathNid));
+        pathColumn.setCellFactory(tableColumn -> new TableConceptCell(this.viewProperties, ObservableVersion::getPathNid));
 
     }
 

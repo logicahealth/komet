@@ -54,10 +54,10 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Edge;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.util.NaturalOrder;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.isaac.api.TaxonomySnapshot;
 
 //~--- classes ----------------------------------------------------------------
@@ -210,7 +210,7 @@ public class MultiParentGraphItemImpl
 
     private void updateDescription() {
         if (this.nid != Integer.MAX_VALUE) {
-            this.conceptDescriptionText = graphView.getManifold().getVertexLabel(nid);
+            this.conceptDescriptionText = graphView.getManifoldCoordinate().getVertexLabel(nid);
         } else {
             this.conceptDescriptionText = "hidden root";
         }
@@ -239,7 +239,7 @@ public class MultiParentGraphItemImpl
                     for (Edge childLink : childLinks) {
                         ConceptChronology childChronology = Get.concept(childLink.getDestinationNid());
                         MultiParentGraphItemImpl childItem = new MultiParentGraphItemImpl(childChronology, graphView, childLink.getTypeNid(), null);
-                        Manifold manifold = graphView.getManifold();
+                        ManifoldCoordinate manifold = graphView.getManifoldCoordinate();
                         childItem.setDefined(childChronology.isSufficientlyDefined(manifold.getStampFilter(), manifold.getLogicCoordinate()));
                         childItem.toString();
                         childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childLink.getDestinationNid()).length > 1);

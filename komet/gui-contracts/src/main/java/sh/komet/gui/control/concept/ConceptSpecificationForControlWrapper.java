@@ -22,7 +22,8 @@ import java.util.UUID;
 
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -31,15 +32,15 @@ import sh.komet.gui.manifold.Manifold;
 public class ConceptSpecificationForControlWrapper
         implements ConceptSpecification {
 
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     private final ConceptSpecification spec;
 
     //~--- constructors --------------------------------------------------------
-    public ConceptSpecificationForControlWrapper(ConceptSpecification spec, Manifold manifold) {
+    public ConceptSpecificationForControlWrapper(ConceptSpecification spec, ViewProperties viewProperties) {
         if (spec == null) {
             spec = MetaData.UNINITIALIZED_COMPONENT____SOLOR;
         }
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
         this.spec = spec;
     }
 
@@ -54,8 +55,8 @@ public class ConceptSpecificationForControlWrapper
 
         return "unspecified";
     }
-    public Manifold getManifold() {
-        return manifold;
+    public ManifoldCoordinate getManifoldCoordinate() {
+        return viewProperties.getManifoldCoordinate();
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -73,12 +74,12 @@ public class ConceptSpecificationForControlWrapper
 
     @Override
     public String getFullyQualifiedName() {
-        return this.manifold.getFullyQualifiedDescriptionText(this.spec);
+        return this.viewProperties.getFullyQualifiedDescriptionText(this.spec);
     }
 
     @Override
     public Optional<String> getRegularName() {
-        return Optional.of(this.manifold.getPreferredDescriptionText(this.spec));
+        return Optional.of(this.viewProperties.getPreferredDescriptionText(this.spec));
     }
 
     @Override

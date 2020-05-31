@@ -218,7 +218,7 @@ public interface ManifoldCoordinate {
 
     default String getPreferredDescriptionText(int conceptNid) {
         try {
-            return VertexSortRegularName.getRegularName(conceptNid, getLanguageCoordinate(), getDigraph().getLanguageStampFilter());
+            return VertexSortPreferredName.getRegularName(conceptNid, getLanguageCoordinate(), getDigraph().getLanguageStampFilter());
         } catch (NoSuchElementException ex) {
             return ex.getLocalizedMessage();
         }

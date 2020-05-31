@@ -22,14 +22,15 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.util.UUIDUtil;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DropHelper;
 import sh.komet.gui.interfaces.ComponentList;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.GraphAmalgamWithManifold;
 import sh.komet.gui.row.DragAndDropRowFactory;
 import sh.komet.gui.table.version.VersionTable;
 import sh.komet.gui.util.FxGet;
-import sh.komet.gui.util.UuidStringKey;
+import sh.isaac.api.util.UuidStringKey;
 
 import java.io.*;
 import java.net.URL;
@@ -60,12 +61,12 @@ public class ListViewNodeController implements ComponentList {
 
     private VersionTable versionTable;
 
-    private Manifold manifold;
+    private ViewProperties viewProperties;
 
     private DropHelper dropHelper;
 
     private final UUID listId = UUID.randomUUID();
-    private Manifold listManifold;
+    private ActivityFeed activityFeed;
 
     @FXML
     void initialize() {
@@ -73,24 +74,26 @@ public class ListViewNodeController implements ComponentList {
         assert batchBorderPane != null : "fx:id=\"batchBorderPane\" was not injected: check your FXML file 'ListViewNode.fxml'.";
         this.listName.setText("Unamed List");
         FxGet.addComponentList(this);
-        this.listManifold = Manifold.get(Manifold.ManifoldGroup.LIST);
-
-        this.viewChoiceBox.setItems(FxGet.graphConfigurationKeys());
-        this.viewChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            GraphAmalgamWithManifold graphAmalgamWithManifold = FxGet.graphConfiguration(newValue);
-            this.manifold = graphAmalgamWithManifold.getManifold();
-            this.versionTable = new VersionTable(this.manifold);
-            this.versionTable.setManifold(this.manifold);
-        });
-        this.viewChoiceBox.getSelectionModel().select(FxGet.defaultViewKey());
     }
 
     public ObservableList<ObservableChronology> getItemList() {
         return this.versionTable.getRootNode().getItems();
     }
 
-    public void setManifold(Manifold manifoldToIgnore) {
-        this.versionTable = new VersionTable(this.manifold);
+    public void setViewProperties(ViewProperties viewProperties, ActivityFeed activityFeed) {
+        this.viewProperties = viewProperties;
+        this.activityFeed = activityFeed;
+
+        this.viewChoiceBox.setItems(FxGet.graphConfigurationKeys());
+        this.viewChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            //TODO viewChoiceBox may be obsolete
+            GraphAmalgamWithManifold graphAmalgamWithManifold = FxGet.graphConfiguration(newValue);
+            this.versionTable = new VersionTable(this.viewProperties);
+            this.versionTable.setViewProperties(this.viewProperties);
+        });
+
+        this.viewChoiceBox.getSelectionModel().select(FxGet.defaultViewKey());
+        this.versionTable = new VersionTable(this.viewProperties);
         this.versionTable.getRootNode().getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         this.versionTable.getRootNode().getSelectionModel().getSelectedItems().addListener(this::selectionChanged);
 
@@ -116,22 +119,22 @@ public class ListViewNodeController implements ComponentList {
                 //nothing to do
             } else {
                 for (ObservableChronology remitem : c.getRemoved()) {
-                    manifold.manifoldSelectionProperty().remove(new ComponentProxy(remitem.getNid(), remitem.toUserString()));
+                    this.activityFeed.feedSelectionProperty().remove(new ComponentProxy(remitem.getNid(), remitem.toUserString()));
                 }
                 for (ObservableChronology additem : c.getAddedSubList()) {
-                    manifold.manifoldSelectionProperty().add(new ComponentProxy(additem.getNid(), additem.toUserString()));
+                    this.activityFeed.feedSelectionProperty().add(new ComponentProxy(additem.getNid(), additem.toUserString()));
                 }
             }
         }
         // Check to make sure lists are equal in size/properly synchronized.
-        if (manifold.manifoldSelectionProperty().get().size() != c.getList().size()) {
+        if (this.activityFeed.feedSelectionProperty().get().size() != c.getList().size()) {
             // lists are out of sync, reset with fresh list.
             ComponentProxy[] selectedItems = new ComponentProxy[c.getList().size()];
             for (int i = 0; i < selectedItems.length; i++) {
                 ObservableChronology component = c.getList().get(i);
                 selectedItems[i] = new ComponentProxy(component.getNid(), component.toUserString());
             }
-            manifold.manifoldSelectionProperty().setAll(selectedItems);
+            this.activityFeed.feedSelectionProperty().setAll(selectedItems);
         }
     }
 

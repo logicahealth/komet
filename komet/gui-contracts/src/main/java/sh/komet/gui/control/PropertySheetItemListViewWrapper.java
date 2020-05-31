@@ -5,7 +5,7 @@ import javafx.beans.property.SimpleListProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.*;
 import org.controlsfx.control.PropertySheet;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.Optional;
 
@@ -15,14 +15,14 @@ public class PropertySheetItemListViewWrapper implements PropertySheet.Item {
     private final String name;
     private SimpleListProperty<ConceptForControlWrapper> simpleListProperty;
     private ListChangeListener<ConceptForControlWrapper> listChangeListener;
-    private final Manifold manifoldForDisplay;
+    private final ViewProperties viewProperties;
 
 
     public PropertySheetItemListViewWrapper(ObservableIntegerArray observableIntegerArray, String name,
-                                            Manifold manifoldForDisplay, int[] conceptList) {
+                                            ViewProperties viewProperties, int[] conceptList) {
         this.observableIntegerArray = observableIntegerArray;
         this.name = name;
-        this.manifoldForDisplay = manifoldForDisplay;
+        this.viewProperties = viewProperties;
         createListViewObservableList(conceptList);
     }
 
@@ -31,7 +31,7 @@ public class PropertySheetItemListViewWrapper implements PropertySheet.Item {
         ObservableList<ConceptForControlWrapper> conceptWrapperList = FXCollections.observableArrayList();
         for(int i = 0; i < iArray.length; i++){
             ConceptForControlWrapper tempWrapper = new ConceptForControlWrapper
-                    (manifoldForDisplay, iArray[i]);
+                    (viewProperties, iArray[i]);
             conceptWrapperList.add(tempWrapper);
         }
         this.simpleListProperty = new SimpleListProperty<>(conceptWrapperList);

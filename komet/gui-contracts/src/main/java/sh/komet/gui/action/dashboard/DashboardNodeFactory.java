@@ -24,7 +24,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 /**
@@ -38,8 +39,8 @@ public class DashboardNodeFactory
    public static final String MENU_TEXT  = "System Dashboard";
 
     @Override
-    public DashboardView createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      DashboardView dashboard = new DashboardView(manifold);
+    public DashboardView createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+      DashboardView dashboard = new DashboardView(viewProperties);
       return dashboard;
     }
 
@@ -55,10 +56,11 @@ public class DashboardNodeFactory
 
    /** 
     * {@inheritDoc}
+    * @return
     */
    @Override
-   public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
+   public String[] getDefaultActivityFeed() {
+      return new String[] {ViewProperties.UNLINKED};
    }
 
     @Override

@@ -52,11 +52,8 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.commit.ChangeCheckerMode;
-import sh.isaac.api.commit.ChronologyChangeListener;
-import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
@@ -581,12 +578,14 @@ public class ChronologyProvider
 
     @Override
     public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid) {
-        return Arrays.stream(getSemanticNidsForComponent(componentNid).toArray())
+        // TODO: when I make the stream parallel, there are some tests for the dynamic assemblages that fail.
+        // I wonder if they are making incorrect ordering assumptions, or similar.
+        return IntStream.of(store.getSemanticNidsForComponent(componentNid))
                 .mapToObj((int semanticNid) -> { 
                 try {
                   return (C) getSemanticChronology(semanticNid);
                } catch (NoSuchElementException e) {
-                  return null; // This will happen if a nid was mapped, but the object wasn't stored.
+                  return null; // This will happen if a nid was assigned to a uuid, but the object wasn't stored.
                }
             }).filter(obj -> obj != null); // remove the nulls
     }
@@ -734,8 +733,8 @@ public class ChronologyProvider
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
     @Override
-    public ConceptSnapshotService getSnapshot(ManifoldCoordinateImmutable manifoldCoordinate) {
-        return CONCEPT_SNAPSHOTS.computeIfAbsent(manifoldCoordinate,
+    public ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate) {
+        return CONCEPT_SNAPSHOTS.computeIfAbsent(manifoldCoordinate.toManifoldCoordinateImmutable(),
                 manifoldCoordinateImmutable -> new ConceptSnapshotProvider(manifoldCoordinate));
     }
 

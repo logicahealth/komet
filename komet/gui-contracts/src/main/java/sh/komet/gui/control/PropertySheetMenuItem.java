@@ -70,8 +70,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.EditInFlight;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 import sh.isaac.model.observable.CommitAwareConceptSpecificationProperty;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
@@ -92,14 +92,14 @@ public class PropertySheetMenuItem
     private final ArrayList<ChangeListener<CommitStates>> completionListeners = new ArrayList<>();
     Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap;
     ObservableVersion observableVersion;
-    Manifold manifold;
+    ViewProperties viewProperties;
 
     //~--- constructors --------------------------------------------------------
-    public PropertySheetMenuItem(Manifold manifold,
+    public PropertySheetMenuItem(ViewProperties viewProperties,
                                  ObservableCategorizedVersion categorizedVersion) {
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
         this.observableVersion = categorizedVersion;
-        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties));
         this.propertySheet.setMode(PropertySheet.Mode.NAME);
         this.propertySheet.setSearchBoxVisible(false);
         this.propertySheet.setModeSwitcherVisible(false);
@@ -159,7 +159,7 @@ public class PropertySheetMenuItem
                         .populatePropertySheetEditors(this);
             });
         }
-        this.manifold.addEditInFlight(this);
+        this.viewProperties.addEditInFlight(this);
     }
 
     private Item addItem(Item item) {
@@ -187,7 +187,7 @@ public class PropertySheetMenuItem
             throw new IllegalStateException("No property for: " + propertyConceptSpecification);
         }
         PropertySheetItemConceptWrapper item = new PropertySheetItemConceptWrapper(
-                manifold,
+                viewProperties,
                 nameForProperty,
                 conceptProperty);
         item.setSpecification(propertyConceptSpecification);
@@ -232,7 +232,7 @@ public class PropertySheetMenuItem
             int assemblageNid = observableVersion.getAssemblageNid();
             OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
                     propertyConceptSpecification.getNid(),
-                    assemblageNid, manifold.getStampFilter());
+                    assemblageNid, viewProperties.getManifoldCoordinate().getStampFilter());
             if (propertyIndex.isPresent()) {
                 property = observableVersion.getProperties().get(propertyIndex.getAsInt());
             }

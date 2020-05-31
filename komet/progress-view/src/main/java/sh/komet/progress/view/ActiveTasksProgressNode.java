@@ -7,13 +7,15 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
 import sh.isaac.api.Get;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.Optional;
 
@@ -22,7 +24,7 @@ public class ActiveTasksProgressNode extends TaskProgressNode {
     private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(progressIcon);
 
     final RotateTransition rotation;
-    public ActiveTasksProgressNode(Manifold manifold) {
+    public ActiveTasksProgressNode(ViewProperties manifold) {
         super(manifold);
         ActiveTasks activeTasks = Get.activeTasks();
         activeTasks.addListener(this::taskListener);
@@ -40,6 +42,11 @@ public class ActiveTasksProgressNode extends TaskProgressNode {
             rotation.play();
         }
      }
+
+    @Override
+    public Node getMenuIconGraphic() {
+        return Iconography.SPINNER0.getIconographic();
+    }
 
     @Override
     public void savePreferences() {
@@ -93,13 +100,13 @@ public class ActiveTasksProgressNode extends TaskProgressNode {
         }
     }
     @Override
-    public SimpleObjectProperty getMenuIconProperty() {
-        return menuIconProperty;
+    public void close() {
+        // nothing to do...
     }
 
     @Override
-    public void close() {
-        // nothing to do...
+    public ActivityFeed getActivityFeed() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

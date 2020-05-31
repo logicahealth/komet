@@ -16,7 +16,7 @@ import sh.isaac.model.observable.coordinate.ObservableStampPathImpl;
 import sh.komet.gui.control.PropertySheetPositionListWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.time.ZonedDateTime;
 
@@ -29,7 +29,7 @@ public class NewPathPanel {
             makePropertySheet();
         });
     }
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
 
     private final BorderPane propertySheetBorderPane = new BorderPane();
 
@@ -38,8 +38,8 @@ public class NewPathPanel {
 
     private final ObservableStampPathImpl pathCoordinateItem;
 
-    public NewPathPanel(Manifold manifold) {
-        this.manifold = manifold;
+    public NewPathPanel(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
         ZonedDateTime nowInMinutes = ZonedDateTime.parse(ZonedDateTime.now().format(EASY_TO_READ_DATE_TIME_FORMAT),
                 EASY_TO_READ_DATE_TIME_FORMAT);
 
@@ -57,7 +57,7 @@ public class NewPathPanel {
         sheet.setMode(PropertySheet.Mode.NAME);
         sheet.setSearchBoxVisible(false);
         sheet.setModeSwitcherVisible(false);
-        sheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
+        sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties));
         sheet.getItems().addAll(this.itemList);
         this.propertySheetBorderPane.setCenter(sheet);
     }

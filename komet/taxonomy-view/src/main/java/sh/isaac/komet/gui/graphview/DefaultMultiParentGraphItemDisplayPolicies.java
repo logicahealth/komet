@@ -23,11 +23,10 @@ import javafx.scene.Node;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.coordinate.StatusSet;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.manifold.Manifold;
 
 import java.util.EnumSet;
 
@@ -39,10 +38,10 @@ import java.util.EnumSet;
  *
  */
 public class DefaultMultiParentGraphItemDisplayPolicies implements MultiParentGraphItemDisplayPolicies {
-   private final Manifold manifold;
+   private final ObservableManifoldCoordinate observableManifoldCoordinate;
 
-   public DefaultMultiParentGraphItemDisplayPolicies(Manifold manifold) {
-      this.manifold = manifold;
+   public DefaultMultiParentGraphItemDisplayPolicies(ObservableManifoldCoordinate observableManifoldCoordinate) {
+      this.observableManifoldCoordinate = observableManifoldCoordinate;
    }
    
    
@@ -85,7 +84,7 @@ public class DefaultMultiParentGraphItemDisplayPolicies implements MultiParentGr
    @Override
    public boolean shouldDisplay(MultiParentGraphItem treeItem) {
       int conceptNid = treeItem.getConceptNid();
-       StampFilterImmutable vertexStampFilter = manifold.getVertexStampFilter().toStampFilterImmutable();
+       StampFilterImmutable vertexStampFilter = observableManifoldCoordinate.getVertexStampFilter().toStampFilterImmutable();
        StatusSet allowedStates = vertexStampFilter.getAllowedStates();
        EnumSet<Status> states = Get.conceptActiveService().getConceptStates(conceptNid, vertexStampFilter);
        for (Status state: states) {

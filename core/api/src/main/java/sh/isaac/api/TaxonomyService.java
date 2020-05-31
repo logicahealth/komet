@@ -52,8 +52,6 @@ import java.util.stream.IntStream;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.DigraphCoordinate;
-import sh.isaac.api.coordinate.DigraphCoordinateImmutable;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -141,7 +139,7 @@ public interface TaxonomyService
    TaxonomySnapshot getSnapshotNoTree(ManifoldCoordinate mc);
 
     /**
-     * Calls {@link #getSnapshot(ManifoldCoordinate)} with a manifold constructed from the provided path, 
+     * Calls {@link #getSnapshot(ManifoldCoordinate)} with a manifold constructed from the provided path,
      * modules, and states.  Uses {@link PremiseType#STATED} and a time of MAX_VALUE.  Language is set to the 
      * system default.
      * @param pathNid

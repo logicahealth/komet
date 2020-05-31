@@ -31,7 +31,6 @@ import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.tree.TaxonomySnapshotFromComponentNidAssemblage;
 import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.INCLUDE_DEFINING_TAXONOMY;
@@ -46,10 +45,10 @@ import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.manifold.GraphAmalgamWithManifold;
 import sh.komet.gui.util.FxGet;
-import sh.komet.gui.util.UuidStringKey;
+import sh.isaac.api.util.UuidStringKey;
 
 /**
  *
@@ -84,11 +83,11 @@ public class GraphConfigurationItemPanel extends AbstractPreferences implements 
     private final UuidStringKey graphConfigurationKey;
 
 
-    public GraphConfigurationItemPanel(IsaacPreferences preferencesNode, Manifold manifold,
+    public GraphConfigurationItemPanel(IsaacPreferences preferencesNode, ViewProperties viewProperties,
                                        KometPreferencesController kpc) {
         super(preferencesNode,
                 getGroupName(preferencesNode, "View configuration"),
-                manifold, kpc);
+                viewProperties, kpc);
         nameProperty.set(groupNameProperty().get());
         this.graphConfigurationKey = new UuidStringKey(UUID.fromString(preferencesNode.name()), nameProperty.getValue());
         nameProperty.addListener((observable, oldValue, newValue) -> {
@@ -96,16 +95,16 @@ public class GraphConfigurationItemPanel extends AbstractPreferences implements 
             this.graphConfigurationKey.updateString(newValue);
         });
 
-        getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(manifold, includeDefiningTaxonomyProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties, nameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, includeDefiningTaxonomyProperty));
 
         this.manifoldCoordinateKeyWrapper = new PropertySheetItemObjectListWrapper("Manifold coordinate",
                 manifoldCoordinateKeyProperty, FxGet.manifoldCoordinateKeys());
         getItemList().add(manifoldCoordinateKeyWrapper);
 
-        getItemList().add(new PropertySheetConceptListWrapper(manifold, taxonomyRootListProperty));
-        getItemList().add(new PropertySheetConceptListWrapper(manifold, treeListProperty));
-        getItemList().add(new PropertySheetConceptListWrapper(manifold, inverseTreeListProperty));
+        getItemList().add(new PropertySheetConceptListWrapper(viewProperties, taxonomyRootListProperty));
+        getItemList().add(new PropertySheetConceptListWrapper(viewProperties, treeListProperty));
+        getItemList().add(new PropertySheetConceptListWrapper(viewProperties, inverseTreeListProperty));
         revertFields();
         save();
 
@@ -133,18 +132,18 @@ public class GraphConfigurationItemPanel extends AbstractPreferences implements 
             if (amalgam == null) {
                 UuidStringKey manifoldCoordinateKey = this.manifoldCoordinateKeyProperty.getValue();
                 amalgam = new GraphAmalgamWithManifold(FxGet.manifoldCoordinates().get(manifoldCoordinateKey),
-                        this.includeDefiningTaxonomyProperty.get(), FxGet.manifoldForManifoldCoordinate(manifoldCoordinateKey));
+                        this.includeDefiningTaxonomyProperty.get());
                 FxGet.addGraphConfiguration(graphConfigurationKey, amalgam);
             }
             // TODO add support for other types of assemblage...
             amalgam.reset();
             for (ConceptSpecification proxy: treeListProperty.get()) {
                 if (proxy.getNid() == TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid()) {
-                    TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromPathOrigins(getManifold());
+                    TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromPathOrigins(getManifoldCoordinate());
                     amalgam.getTaxonomies().add(taxonomySnapshot);
                 } else {
-                    SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifold().getStampFilter());
-                    TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifold());
+                    SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifoldCoordinate().getStampFilter());
+                    TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifoldCoordinate());
                     amalgam.getTaxonomies().add(taxonomySnapshot);
                 }
             }
@@ -152,8 +151,8 @@ public class GraphConfigurationItemPanel extends AbstractPreferences implements 
                 if (proxy.getNid() == TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid()) {
 
                 } else {
-                    SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifold().getStampFilter());
-                    TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifold());
+                    SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifoldCoordinate().getStampFilter());
+                    TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifoldCoordinate());
                     amalgam.getInverseTaxonomies().add(taxonomySnapshot);
                 }
             }

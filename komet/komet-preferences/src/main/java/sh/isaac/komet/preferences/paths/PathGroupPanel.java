@@ -6,15 +6,12 @@ import javafx.event.ActionEvent;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
-import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.*;
 import sh.isaac.api.component.concept.ConceptBuilder;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -24,12 +21,11 @@ import sh.isaac.api.coordinate.StampPositionImmutable;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.preferences.ParentPanel;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 import java.util.ArrayList;
@@ -66,9 +62,9 @@ public class PathGroupPanel extends ParentPanel implements CommitListener {
 
     ToolBar bottomToolbar = new ToolBar(filler, cancelButton, createButton);
 
-    public PathGroupPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Paths"), manifold, kpc);
-        this.pathConcepts = FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, manifold);
+    public PathGroupPanel(IsaacPreferences preferencesNode, ViewProperties viewProperties, KometPreferencesController kpc) {
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Paths"), viewProperties, kpc);
+        this.pathConcepts = FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, viewProperties);
         Get.commitService().addCommitListener(this);
         Platform.runLater(() -> refreshChildren());
     }
@@ -76,7 +72,7 @@ public class PathGroupPanel extends ParentPanel implements CommitListener {
     @Override
     public void handleCommit(CommitRecord commitRecord) {
         Platform.runLater(() -> {
-            this.pathConcepts = FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, getManifold());
+            this.pathConcepts = FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, getViewProperties());
             refreshChildren();
         });
     }
@@ -97,7 +93,7 @@ public class PathGroupPanel extends ParentPanel implements CommitListener {
         return this.listenerUuid;
     }
 
-    public Node getCenterPanel(Manifold manifold) {
+    public Node getCenterPanel(ViewProperties viewProperties) {
          return this.centerPane;
     }
 
@@ -154,7 +150,7 @@ public class PathGroupPanel extends ParentPanel implements CommitListener {
         setupButtonsForNew();
     }
     private void addPath(ActionEvent action) {
-       newPathPanel = new NewPathPanel(this.getManifold());
+       newPathPanel = new NewPathPanel(FxGet.preferenceViewProperties());
        centerPane.setCenter(newPathPanel.getEditor());
        addButton.setVisible(false);
        cancelButton.setVisible(true);
@@ -163,10 +159,10 @@ public class PathGroupPanel extends ParentPanel implements CommitListener {
     }
 
     @Override
-    public Node getTopPanel(Manifold manifold) {
+    public Node getTopPanel(ViewProperties viewProperties) {
         return topToolbar;
     }
-    public Node getBottomPanel(Manifold manifold) {
+    public Node getBottomPanel(ViewProperties viewProperties) {
         return bottomToolbar;
     }
 

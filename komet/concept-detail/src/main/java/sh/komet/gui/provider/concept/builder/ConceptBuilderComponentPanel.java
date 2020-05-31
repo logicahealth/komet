@@ -69,7 +69,7 @@ import sh.isaac.model.observable.version.brittle.Observable_Nid1_Int2_VersionImp
 import sh.komet.gui.control.concept.NewConceptVersionEditor;
 import sh.komet.gui.control.description.dialect.DescriptionDialectEditor;
 import sh.komet.gui.control.axiom.AxiomView;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.style.PseudoClasses;
 import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
 import sh.komet.gui.style.StyleClasses;
@@ -102,7 +102,7 @@ public class ConceptBuilderComponentPanel
     protected int wrappingWidth = 300;
     protected final CheckBox revertCheckBox = new CheckBox();
     private final ObservableVersion observableVersion;
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     protected int rows;
     protected final boolean independentCommit;
     protected NewConceptVersionEditor conceptEditor = null;
@@ -116,11 +116,11 @@ public class ConceptBuilderComponentPanel
     }
 
     //~--- constructors --------------------------------------------------------
-    public ConceptBuilderComponentPanel(Manifold manifold,
+    public ConceptBuilderComponentPanel(ViewProperties viewProperties,
                                         ObservableVersion observableVersion, boolean independentCommit, StringProperty conceptText) {
         this.conceptText = conceptText;
         this.independentCommit = independentCommit;
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
         this.observableVersion = observableVersion;
         this.getChildren()
                 .add(gridpane);
@@ -156,10 +156,10 @@ public class ConceptBuilderComponentPanel
     protected final void setupConcept(ObservableConceptVersionImpl conceptVersion) {
         componentType.setText(" CON");
         componentText.setText(
-                "\n" + conceptVersion.getStatus() + " in " + getManifold().getPreferredDescriptionText(
-                conceptVersion.getModuleNid()) + " on " + getManifold().getPreferredDescriptionText(
+                "\n" + conceptVersion.getStatus() + " in " + getViewProperties().getPreferredDescriptionText(
+                conceptVersion.getModuleNid()) + " on " + getViewProperties().getPreferredDescriptionText(
                 conceptVersion.getPathNid()));
-        conceptEditor = new NewConceptVersionEditor(manifold);
+        conceptEditor = new NewConceptVersionEditor(viewProperties);
         conceptEditor.setValue(conceptVersion);
         this.editorPane = conceptEditor.getEditor();
     }
@@ -171,12 +171,12 @@ public class ConceptBuilderComponentPanel
         badges.add(statedLabel);
         componentType.setText(" EL++");
 
-        this.logicDetailTree = AxiomView.create(logicGraphVersion, premiseType, manifold);
+        this.logicDetailTree = AxiomView.create(logicGraphVersion, premiseType, viewProperties);
         this.editorPane = this.logicDetailTree;
     }
 
     protected final void setupDescription(ObservableDescriptionDialect descriptionDialect) {
-        DescriptionDialectEditor editor = new DescriptionDialectEditor(this.manifold);
+        DescriptionDialectEditor editor = new DescriptionDialectEditor(this.viewProperties);
         editor.setValue(descriptionDialect);
         this.editorPane = editor.getEditor();
         componentText.setText(descriptionDialect.getDescription().getText());
@@ -198,7 +198,7 @@ public class ConceptBuilderComponentPanel
         } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
             componentType.setText(" DEF");
         } else {
-            componentType.setText(getManifold().getPreferredDescriptionText(descriptionType));
+            componentType.setText(getViewProperties().getPreferredDescriptionText(descriptionType));
         }
     }
 
@@ -556,8 +556,8 @@ public class ConceptBuilderComponentPanel
     /**
      * @return the manifold
      */
-    public Manifold getManifold() {
-        return manifold;
+    public ViewProperties getViewProperties() {
+        return viewProperties;
     }
 
     public int getRows() {

@@ -31,7 +31,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
-import sh.komet.gui.manifold.Manifold;
 
 /**
  *
@@ -53,7 +52,7 @@ public class PropertySheetItem implements PropertySheet.Item {
     
     private final Property theProperty;
     
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     
     private final String name;
     
@@ -63,21 +62,21 @@ public class PropertySheetItem implements PropertySheet.Item {
     
     private PropertySheetPurpose propertySheetPurpose = PropertySheetPurpose.UNSPECIFIED;
     
-    public PropertySheetItem(Property theProperty, Manifold manifold) {
-        this(null, theProperty, manifold);
+    public PropertySheetItem(Property theProperty, ViewProperties viewProperties) {
+        this(null, theProperty, viewProperties);
     }
 
-    public PropertySheetItem(Object defaultValue, Property theProperty, Manifold manifold, PropertySheetPurpose propertySheetPurpose) {
-        this(defaultValue, theProperty, manifold);
+    public PropertySheetItem(Object defaultValue, Property theProperty, ViewProperties viewProperties, PropertySheetPurpose propertySheetPurpose) {
+        this(defaultValue, theProperty, viewProperties);
         this.propertySheetPurpose = propertySheetPurpose;
     }
     
-    public PropertySheetItem(Object defaultValue, Property theProperty, Manifold manifold) {
+    public PropertySheetItem(Object defaultValue, Property theProperty, ViewProperties viewProperties) {
         this.defaultValue = defaultValue;
         this.theProperty = theProperty;
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
         this.specificationForProperty = new ConceptProxy(theProperty.getName());
-        this.name = manifold.getPreferredDescriptionText(this.specificationForProperty);
+        this.name = viewProperties.getPreferredDescriptionText(this.specificationForProperty);
         if (defaultValue instanceof Boolean) {
             this.editorType = EditorType.BOOLEAN;
         } else if (theProperty instanceof StringProperty) {

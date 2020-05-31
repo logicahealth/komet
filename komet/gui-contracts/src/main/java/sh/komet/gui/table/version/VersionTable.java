@@ -5,7 +5,7 @@ import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.TableView;
 import sh.isaac.api.observable.ObservableChronology;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.io.IOException;
 import java.net.URL;
@@ -14,21 +14,21 @@ public class VersionTable {
     final VersionTableController controller;
     final TableView<ObservableChronology> tableView;
 
-    public VersionTable(Manifold manifold) {
+    public VersionTable(ViewProperties viewProperties) {
         try {
             URL resource = VersionTableController.class.getResource("VersionTable.fxml");
             FXMLLoader loader = new FXMLLoader(resource);
             loader.load();
             this.controller = loader.getController();
             this.tableView = loader.getRoot();
-            this.controller.setManifold(manifold);
+            this.controller.setViewProperties(viewProperties);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void setManifold(Manifold manifold) {
-        controller.setManifold(manifold);
+    public void setViewProperties(ViewProperties viewProperties) {
+        controller.setViewProperties(viewProperties);
     }
 
     public VersionTableController getController() {

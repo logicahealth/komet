@@ -38,7 +38,6 @@ package sh.komet.fx.stage;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -55,17 +54,17 @@ import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.NaturalOrder;
-import sh.isaac.convert.mojo.turtle.TurtleImportHK2Direct;
+//import sh.isaac.convert.mojo.turtle.TurtleImportHK2Direct;
 import sh.isaac.komet.gui.exporter.ExportView;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.preferences.window.WindowPreferencePanel;
@@ -74,16 +73,17 @@ import sh.komet.gui.contract.StatusMessageConsumer;
 import sh.komet.gui.contract.preferences.PersonaItem;
 import sh.komet.gui.contract.preferences.TabSpecification;
 import sh.komet.gui.contract.preferences.WindowPreferencesItem;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.importation.ArtifactImporter;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
-import sh.komet.gui.util.UuidStringKey;
+import sh.isaac.api.util.UuidStringKey;
 
 import java.io.File;
 import java.net.URL;
@@ -155,6 +155,7 @@ public class KometStageController
     private IsaacPreferences preferencesNode;
     private Stage stage;
     private List<MenuButton> newTabMenuButtons = new ArrayList<>(5);
+    private ViewProperties viewProperties;
 
 
     private final ImageView vanityImage = new ImageView();
@@ -225,24 +226,6 @@ public class KometStageController
         assert classifierMenuButton != null :
                 "fx:id=\"classifierMenuButton\" was not injected: check your FXML file 'KometStageScene.fxml'.";
 
-        for (ManifoldGroup mg : ManifoldGroup.values()) {
-            Manifold manifold = FxGet.manifold(mg);
-            manifold.manifoldSelectionProperty().addListener(this::printSelectionDetails);
-
-            manifold.manifoldSelectionProperty()
-                    .addListener((ListChangeListener.Change<? extends ComponentProxy> c) -> {
-                        StringBuilder buff = new StringBuilder();
-                        for (int index = 0; index < c.getList().size(); index++) {
-                            buff.append(Get.conceptDescriptionText(c.getList().get(index).getNid()));
-                            if (index < c.getList().size() - 1) {
-                                buff.append("; ");
-                            }
-                        }
-                        FxGet.statusMessageService()
-                                .reportSceneStatus(statusMessage.getScene(),
-                                        mg.getGroupName() + " selected: " + buff.toString());
-                    });
-        }
 
         leftHBox.getChildren()
                 .add(createWrappedTabPane(this.newTabMenuButtons, this.leftTabPane));
@@ -278,12 +261,12 @@ public class KometStageController
 
         MenuItem selectiveImport = new MenuItemWithText("Selective import and transform");
         selectiveImport.setOnAction((ActionEvent event) -> {
-            ImportView.show(FxGet.manifold(ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE));
+            ImportView.show(this.viewProperties);
         });
         items.add(selectiveImport);
 
         MenuItem selectiveExport = new MenuItemWithText("Selective export");
-        selectiveExport.setOnAction(event -> ExportView.show(FxGet.manifold(ManifoldGroup.UNLINKED)));
+        selectiveExport.setOnAction(event -> ExportView.show(this.viewProperties));
         items.add(selectiveExport);
 
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
@@ -342,11 +325,12 @@ public class KometStageController
                     Get.executor().execute(() -> {
                         try {
                             Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
-                            TurtleImportHK2Direct timd = new TurtleImportHK2Direct(transaction);
-                            timd.configure(null, beer.toPath(), "0.8", null);
-                            timd.convertContent(transaction, update -> {
-                            }, (work, totalWork) -> {
-                            });
+                            //TODO turn Turtle import back on...
+                            //TurtleImportHK2Direct timd = new TurtleImportHK2Direct(transaction);
+                            //timd.configure(null, beer.toPath(), "0.8", null);
+                            //timd.convertContent(transaction, update -> {
+                            //}, (work, totalWork) -> {
+                            //});
                             transaction.commit("Beer has arrived!");
                             Get.indexDescriptionService().refreshQueryEngine();
                             Platform.runLater(() -> {
@@ -383,7 +367,9 @@ public class KometStageController
         Tab tab = new Tab(factory.getMenuText());
         tab.setTooltip(new Tooltip(""));
 
-        ExplorationNode node = factory.createNode(FxGet.manifold(factory.getDefaultManifoldGroups()[0]), tabPreferences);
+        ExplorationNode node = factory.createNode(this.viewProperties,
+                this.viewProperties.getActivityFeed(factory.getDefaultActivityFeed()[0]),
+                tabPreferences);
         tab.setOnCloseRequest(event1 -> {
             if (!node.canClose()) {
                 event1.consume();
@@ -406,13 +392,7 @@ public class KometStageController
         tabPane.getTabs()
                 .add(tab);
         tabPane.getSelectionModel().select(tab);
-        if (node instanceof DetailNode) {
-            node.getManifold().manifoldSelectionProperty().addListener((observable, oldValue, newValue) -> {
-                if (((DetailNode) node).selectInTabOnChange()) {
-                    tabPane.getSelectionModel().select(tab);
-                }
-            });
-        }
+        node.setNodeSelectionMethod(() -> tabPane.getSelectionModel().select(tab));
         // TODO Modify skin to look for drag handling methods...
     }
 
@@ -421,10 +401,32 @@ public class KometStageController
      */
     public void setWindowPreferenceItem(WindowPreferencesItem windowPreferencesItem, Stage stage) throws BackingStoreException {
         this.windowPreferencesItem = windowPreferencesItem;
+        this.viewProperties = windowPreferencesItem.getViewPropertiesForWindow();
         this.preferencesNode = windowPreferencesItem.getPreferenceNode();
         this.stage = stage;
         this.stage.getScene().getProperties().put(WindowPreferencePanel.Keys.WINDOW_UUID_STR, windowPreferencesItem.getPreferenceNode().name());
         this.stage.getScene().getProperties().put(WINDOW_PREFERENCE_ABSOLUTE_PATH, windowPreferencesItem.getPreferenceNode().absolutePath());
+
+        for (ActivityFeed activityFeed : viewProperties.getActivityFeeds()) {
+            activityFeed.feedSelectionProperty().addListener(this::printSelectionDetails);
+
+            activityFeed.feedSelectionProperty()
+                    .addListener((ListChangeListener.Change<? extends IdentifiedObject> c) -> {
+                        StringBuilder buff = new StringBuilder();
+                        for (int index = 0; index < c.getList().size(); index++) {
+                            buff.append(Get.conceptDescriptionText(c.getList().get(index).getNid()));
+                            if (index < c.getList().size() - 1) {
+                                buff.append("; ");
+                            }
+                        }
+                        FxGet.statusMessageService()
+                                .reportSceneStatus(statusMessage.getScene(),
+                                        activityFeed.getFeedName() + " selected: " + buff.toString());
+                    });
+        }
+
+
+
         if (windowPreferencesItem.getPersonaItem() != null) {
             PersonaItem personaItem = windowPreferencesItem.getPersonaItem();
             for (int paneIndex = 0; paneIndex < newTabMenuButtons.size(); paneIndex++) {
@@ -493,7 +495,8 @@ public class KometStageController
                     String factoryClassName = optionalFactoryClass.get();
                     Class factoryClass = Class.forName(factoryClassName);
                     NodeFactory factory = (NodeFactory) factoryClass.getDeclaredConstructor().newInstance();
-                    ExplorationNode en = factory.createNode(FxGet.manifold(factory.getDefaultManifoldGroups()[0]), childNode);
+                    ExplorationNode en = factory.createNode(this.viewProperties,
+                            this.viewProperties.getActivityFeed(factory.getDefaultActivityFeed()[0]), childNode);
                     Tab tab = new Tab();
 
                     tab.setGraphic(en.getMenuIconProperty().getValue());
@@ -503,20 +506,11 @@ public class KometStageController
                     tab.setTooltip(new Tooltip(""));
                     tab.getTooltip().textProperty().bind(en.getToolTip());
 
-                    if (en instanceof DetailNode) {
-                        DetailNode dt = (DetailNode) en;
-                        //TODO this is broken by design, if more than one tab requests focus on change...
-                        dt.getManifold().manifoldSelectionProperty().addListener((observable, oldValue, newValue) -> {
-                            if (dt.selectInTabOnChange()) {
-                                leftTabPane.getSelectionModel().select(tab);
-                            }
-                        });
-                    }
-
                     int tabIndex = childNode.getInt(Keys.TAB_PANE_INDEX, 0);
                     int indexInTab = childNode.getInt(Keys.INDEX_IN_TAB_PANE, 0);
-
-                    tabPanes.get(tabIndex).getTabs().add(indexInTab, tab);
+                    TabPane tabPane = tabPanes.get(tabIndex);
+                    tabPane.getTabs().add(indexInTab, tab);
+                    en.setNodeSelectionMethod(() -> tabPane.getSelectionModel().select(tab));
 
                 } catch (Exception ex) {
                     FxGet.dialogs().showErrorDialog(ex.getLocalizedMessage(), ex);
@@ -585,7 +579,9 @@ public class KometStageController
     }
 
     public void saveSettings() throws BackingStoreException {
+        FxGet.sync();
         preferencesNode.sync();
+
     }
 
     @SuppressWarnings("unchecked")
@@ -607,7 +603,7 @@ public class KometStageController
         return wrapped;
     }
 
-    private void printSelectionDetails(ListChangeListener.Change<? extends ComponentProxy> c) {
+    private void printSelectionDetails(ListChangeListener.Change<? extends IdentifiedObject> c) {
         Get.executor().submit(() -> {
             if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
                 StringBuffer buff = new StringBuffer();

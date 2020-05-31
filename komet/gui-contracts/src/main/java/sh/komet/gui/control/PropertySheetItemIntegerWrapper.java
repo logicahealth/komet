@@ -22,7 +22,7 @@ import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -42,9 +42,9 @@ public class PropertySheetItemIntegerWrapper implements PropertySheet.Item {
       this.integerProperty = integerProperty;
    }
 
-   public PropertySheetItemIntegerWrapper(Manifold manifold,
+   public PropertySheetItemIntegerWrapper(ViewProperties viewProperties,
                                           IntegerProperty integerProperty) {
-      this(manifold.getPreferredDescriptionText(new ConceptProxy(integerProperty.getName())),
+      this(viewProperties.getPreferredDescriptionText(new ConceptProxy(integerProperty.getName())),
               integerProperty);
    }
     public ConceptSpecification getSpecification() {

@@ -53,7 +53,7 @@ public class ShowConceptInGraphTask extends TimedTaskWithProgressTracker<Void> {
             // await() init() completion.
             LOG.debug("Looking for concept {} in tree", Get.conceptDescriptionText(Get.identifierService().getNidForUuids(conceptUUID)));
             FxGet.statusMessageService().reportStatus("Expanding taxonomy to: " + 
-                            multiParentGraphView.getManifold().getPreferredDescriptionText(Get.identifierService().getNidForUuids(conceptUUID)));
+                            multiParentGraphView.getManifoldCoordinate().getPreferredDescriptionText(Get.identifierService().getNidForUuids(conceptUUID)));
 
             final ArrayList<UUID> pathToRoot = new ArrayList<>();
 
@@ -91,7 +91,7 @@ public class ShowConceptInGraphTask extends TimedTaskWithProgressTracker<Void> {
                 if (!found) {
                     if (concept.getNid() != TermAux.SOLOR_ROOT.getNid()) {
                         FxGet.statusMessageService().reportStatus("No parents for concept: " + 
-                            multiParentGraphView.getManifold().getPreferredDescriptionText(concept));
+                            multiParentGraphView.getManifoldCoordinate().getPreferredDescriptionText(concept));
                     }
                     break;
                 }

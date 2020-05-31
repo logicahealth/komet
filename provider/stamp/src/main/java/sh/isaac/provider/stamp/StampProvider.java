@@ -63,7 +63,6 @@ import sh.isaac.provider.commit.TransactionImpl;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;

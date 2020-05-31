@@ -22,7 +22,7 @@ import org.controlsfx.control.PropertySheet;
 import sh.isaac.model.statement.RepetitionImpl;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -30,7 +30,7 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class RepetitionPropertySheet {
     
-    protected final Manifold manifold;
+    protected final ViewProperties viewProperties;
     
     
     private final PropertySheet propertySheet = new PropertySheet();
@@ -41,9 +41,9 @@ public class RepetitionPropertySheet {
         
     }
 
-    public RepetitionPropertySheet(Manifold manifold) {
-        this.manifold = manifold;
-        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifold));
+    public RepetitionPropertySheet(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.viewProperties));
     }
     
     public PropertySheet getPropertySheet() {
@@ -61,10 +61,10 @@ public class RepetitionPropertySheet {
     private List<PropertySheet.Item> getProperties(RepetitionImpl circumstance) {
        ArrayList<PropertySheet.Item> itemList = new ArrayList<>();
        
-       itemList.add(new PropertySheetMeasureWrapper(manifold, circumstance.periodStartProperty()));
-       itemList.add(new PropertySheetMeasureWrapper(manifold, circumstance.periodDurationProperty()));
-       itemList.add(new PropertySheetMeasureWrapper(manifold, circumstance.eventFrequencyProperty()));
-       itemList.add(new PropertySheetMeasureWrapper(manifold, circumstance.eventDurationProperty()));
+       itemList.add(new PropertySheetMeasureWrapper(viewProperties, circumstance.periodStartProperty()));
+       itemList.add(new PropertySheetMeasureWrapper(viewProperties, circumstance.periodDurationProperty()));
+       itemList.add(new PropertySheetMeasureWrapper(viewProperties, circumstance.eventFrequencyProperty()));
+       itemList.add(new PropertySheetMeasureWrapper(viewProperties, circumstance.eventDurationProperty()));
        
        return itemList;
     }

@@ -1,9 +1,6 @@
 package sh.komet.gui.provider.classification;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
@@ -21,8 +18,9 @@ import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
@@ -35,22 +33,25 @@ import java.util.List;
 import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 
-public class ClassificationResultsNode implements ExplorationNode {
+public class ClassificationResultsNode extends ExplorationNodeAbstract {
     public enum Keys {
         SELECTION_DEFAULT_TEXT
     }
 
     private final BorderPane classificationResultsPane = new BorderPane();
-    private final SimpleStringProperty titleProperty = new SimpleStringProperty("Classifier results");
-    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Classifier results from unselected instant...");
-    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.INFERRED.getIconographic());
-    private final Manifold classificationResultsManifold;
+    {
+        titleProperty.setValue("Classifier results");
+        toolTipProperty.setValue("Classifier results from unselected instant...");
+        menuIconProperty.setValue(Iconography.INFERRED.getIconographic());
+    }
     private final ComboBox<ClassifierResults> resultChoices = new ComboBox<>();
     private final IsaacPreferences nodePreferences;
+    private final ActivityFeed activityFeed;
 
     //~--- constructors --------------------------------------------------------
-    public ClassificationResultsNode(Manifold classificationResultsManifold, IsaacPreferences nodePreferences) {
-        this.classificationResultsManifold = classificationResultsManifold;
+    public ClassificationResultsNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences nodePreferences) {
+        super(viewProperties);
+        this.activityFeed = activityFeed;
         this.nodePreferences = nodePreferences;
         this.classificationResultsPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         this.classificationResultsPane.setCenter(new Label("Classification results"));
@@ -88,6 +89,11 @@ public class ClassificationResultsNode implements ExplorationNode {
         });
     }
 
+    @Override
+    public Node getMenuIconGraphic() {
+        return Iconography.INFERRED.getIconographic();
+    }
+
     private void setupClassificationResults() {
         ClassifierResults currentSelection = resultChoices.getSelectionModel().getSelectedItem();
         List<ClassifierResults> classifierResults = new ArrayList<>();
@@ -123,7 +129,7 @@ public class ClassificationResultsNode implements ExplorationNode {
                 DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy; hh:mm a zzz");
                 sb.append(FORMATTER.format(item.getCommitTime().atZone(ZoneOffset.systemDefault())));
                 sb.append(" to the ");
-                sb.append(classificationResultsManifold.getPreferredDescriptionText(item.getEditCoordinate().getModuleNid()));
+                sb.append(viewProperties.getPreferredDescriptionText(item.getEditCoordinate().getModuleNid()));
                 setText(sb.toString());
             } else {
                 setText(null);
@@ -154,23 +160,8 @@ public class ClassificationResultsNode implements ExplorationNode {
     }
 
     @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return titleProperty;
-    }
-
-    @Override
     public Optional<Node> getTitleNode() {
         return Optional.empty();
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return toolTipProperty;
-    }
-
-    @Override
-    public Manifold getManifold() {
-        return null;
     }
 
     @Override
@@ -179,13 +170,13 @@ public class ClassificationResultsNode implements ExplorationNode {
     }
 
     @Override
-    public ObjectProperty<Node> getMenuIconProperty() {
-        return menuIconProperty;
+    public void close() {
+        // nothing to do...
     }
 
     @Override
-    public void close() {
-        // nothing to do...
+    public ActivityFeed getActivityFeed() {
+        return this.activityFeed;
     }
 
     @Override

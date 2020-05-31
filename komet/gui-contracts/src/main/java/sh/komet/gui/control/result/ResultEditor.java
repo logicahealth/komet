@@ -28,7 +28,7 @@ import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.model.statement.MeasureImpl;
 import sh.isaac.model.statement.ResultImpl;
 import sh.komet.gui.control.measure.MeasureEditor;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -39,16 +39,16 @@ public class ResultEditor implements PropertyEditor<ResultImpl> {
     private final SimpleObjectProperty<ResultImpl> editObservable; 
     private final CheckBox normalRangeCheck = new CheckBox("include normal range");
     private final ToolBar editorToolbar;
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     private final MeasureEditor resultEditor;
     
-    public ResultEditor(ObservableValue<ResultImpl> editObservable, Manifold manifold) {
-        this.manifold = manifold;
+    public ResultEditor(ObservableValue<ResultImpl> editObservable, ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
         this.editObservable = (SimpleObjectProperty<ResultImpl>) editObservable;
         this.normalRangeCheck.setOnAction(this::toggleNormalRange);
         this.editorToolbar = new ToolBar(normalRangeCheck);
         this.editorPane.setTop(editorToolbar);
-        this.resultEditor =  new MeasureEditor(manifold);
+        this.resultEditor =  new MeasureEditor(viewProperties);
         this.resultEditor.setValue((MeasureImpl) editObservable.getValue().getMeasure());
     }
     
@@ -60,9 +60,9 @@ public class ResultEditor implements PropertyEditor<ResultImpl> {
     private void setupEditor() {
         if (normalRangeCheck.isSelected()) {
             if (!editObservable.getValue().getNormalRange().isPresent()) {
-                editObservable.getValue().setNormalRange(new MeasureImpl(manifold));
+                editObservable.getValue().setNormalRange(new MeasureImpl(viewProperties.getManifoldCoordinate()));
             }
-            MeasureEditor normalRangeEditor = new MeasureEditor(manifold);
+            MeasureEditor normalRangeEditor = new MeasureEditor(viewProperties);
             normalRangeEditor.setValue((MeasureImpl) editObservable.getValue().getNormalRange().get());
             VBox vbox = new VBox(8); // spacing = 8
             vbox.getChildren().addAll(resultEditor.getEditor(), normalRangeEditor.getEditor());

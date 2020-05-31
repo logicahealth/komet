@@ -2,12 +2,10 @@ package sh.isaac.komet.preferences.coordinate;
 
 import javafx.beans.property.SimpleStringProperty;
 import sh.isaac.MetaData;
-import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinateImmutable;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
@@ -18,9 +16,9 @@ import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
-import sh.komet.gui.util.UuidStringKey;
+import sh.isaac.api.util.UuidStringKey;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -40,10 +38,10 @@ public class LanguageCoordinateItemPanel extends AbstractPreferences {
     private final UuidStringKey itemKey;
 
 
-    public LanguageCoordinateItemPanel(LanguageCoordinate languageCoordinate, String coordinateName, IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
-        super(preferencesNode, coordinateName, manifold, kpc);
+    public LanguageCoordinateItemPanel(LanguageCoordinate languageCoordinate, String coordinateName, IsaacPreferences preferencesNode, ViewProperties viewProperties, KometPreferencesController kpc) {
+        super(preferencesNode, coordinateName, viewProperties, kpc);
          this.languageCoordinateItem = new ObservableLanguageCoordinateImpl(languageCoordinate.toLanguageCoordinateImmutable());
-        setup(manifold);
+        setup(viewProperties);
         this.itemKey = new UuidStringKey(UUID.fromString(preferencesNode.name()), nameProperty.get());
         FxGet.languageCoordinates().put(itemKey, languageCoordinateItem);
     }
@@ -52,11 +50,11 @@ public class LanguageCoordinateItemPanel extends AbstractPreferences {
     /**
      * Constructure used via reflection when reading preferences.
      * @param preferencesNode
-     * @param manifold
+     * @param viewProperties
      * @param kpc
      */
-    public LanguageCoordinateItemPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME).get(), manifold, kpc);
+    public LanguageCoordinateItemPanel(IsaacPreferences preferencesNode, ViewProperties viewProperties, KometPreferencesController kpc) {
+        super(preferencesNode, preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME).get(), viewProperties, kpc);
         Optional<byte[]> optionalBytes = preferencesNode.getByteArray(Keys.LANGUAGE_COORDINATE_DATA);
         if (optionalBytes.isPresent()) {
             ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(optionalBytes.get());
@@ -67,15 +65,15 @@ public class LanguageCoordinateItemPanel extends AbstractPreferences {
             LanguageCoordinateImmutable languageCoordinate = Coordinates.Language.UsEnglishPreferredName();
             this.languageCoordinateItem = new ObservableLanguageCoordinateImpl(languageCoordinate);
         }
-        setup(manifold);
+        setup(viewProperties);
         this.itemKey = new UuidStringKey(UUID.fromString(preferencesNode.name()), nameProperty.get());
         FxGet.languageCoordinates().put(itemKey, languageCoordinateItem);
     }
 
-    private void setup(Manifold manifold) {
+    private void setup(ViewProperties viewProperties) {
 
         nameProperty.set(groupNameProperty().get());
-        getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties, nameProperty));
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
             FxGet.languageCoordinates().remove(itemKey);
@@ -84,10 +82,10 @@ public class LanguageCoordinateItemPanel extends AbstractPreferences {
 
         });
 
-        getItemList().add(new PropertySheetItemConceptWrapper(manifold, languageCoordinateItem.languageConceptProperty(),
+        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties, languageCoordinateItem.languageConceptProperty(),
                 TermAux.ENGLISH_LANGUAGE.getNid(),TermAux.SPANISH_LANGUAGE.getNid()));
-        getItemList().add(new PropertySheetConceptListWrapper(manifold, languageCoordinateItem.dialectAssemblagePreferenceListProperty()));
-        getItemList().add(new PropertySheetConceptListWrapper(manifold, languageCoordinateItem.descriptionTypePreferenceListProperty()));
+        getItemList().add(new PropertySheetConceptListWrapper(viewProperties, languageCoordinateItem.dialectAssemblagePreferenceListProperty()));
+        getItemList().add(new PropertySheetConceptListWrapper(viewProperties, languageCoordinateItem.descriptionTypePreferenceListProperty()));
         revert();
         save();
     }

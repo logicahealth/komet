@@ -23,10 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -35,17 +32,20 @@ import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.util.number.NumberUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
-import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.interfaces.DetailNodeAbstract;
+import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.gui.search.SearchToolbar;
 import sh.komet.gui.util.FxGet;
 
@@ -54,42 +54,50 @@ import static sh.komet.gui.style.StyleClasses.ASSEMBLAGE_DETAIL;
 /**
  * @author kec
  */
-public class AssemblageViewProvider implements ExplorationNode, Supplier<List<MenuItem>> {
+public class AssemblageViewProvider extends DetailNodeAbstract implements Supplier<List<MenuItem>> {
     protected static final Logger LOG = LogManager.getLogger();
 
     private final BorderPane assemblageDetailPane = new BorderPane();
-    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("listing of assemblage members");
-    private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty assemblage view");
-    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.PAPERCLIP.getIconographic());
+    {
+        toolTipProperty.setValue("listing of assemblage members");
+        titleProperty.setValue("empty assemblage view");
+        menuIconProperty.setValue(Iconography.PAPERCLIP.getIconographic());
+    }
     private final ConceptLabelToolbar conceptLabelToolbar;
     private final SearchToolbar searchToolbar;
     private final AssemblageDetailController assemblageDetailController;
 
-    private final SimpleObjectProperty<Manifold> manifoldProperty = new SimpleObjectProperty<>();
-    private final SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty(0);
-    private final AssemblageMenuProvider assemblageMenuProvider = new AssemblageMenuProvider(this.manifoldProperty);
-    private final ListChangeListener<ComponentProxy> selectionChangedListener = c -> this.selectionChanged(c);
+    private final AssemblageMenuProvider assemblageMenuProvider;
 
-    public AssemblageViewProvider(Manifold manifold) {
+    public AssemblageViewProvider(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+        super(viewProperties, activityFeed);
         try {
-            if (!manifold.getGroupName().equals(ManifoldGroup.UNLINKED.getGroupName())) {
-                FxGet.dialogs().showErrorDialog(new IllegalStateException("Manifold for assemblage must be unlinked..."));
+            if (activityFeed.isLinked()) {
+                FxGet.dialogs().showErrorDialog(new IllegalStateException("Activity feed for assemblage must be unlinked... Found " +
+                        activityFeed.getFeedName()));
             }
-            this.manifoldProperty.set(manifold);
+            this.activityFeedProperty.set(activityFeed);
 
             this.assemblageDetailPane.getStyleClass().setAll(ASSEMBLAGE_DETAIL.toString());
-            this.conceptLabelToolbar = ConceptLabelToolbar.make(manifoldProperty, selectionIndexProperty, this, Optional.empty());
+            this.conceptLabelToolbar = ConceptLabelToolbar.make(this.viewProperties,
+                    this.identifiedObjectFocusProperty,
+                    ConceptLabelWithDragAndDrop::setPreferredText,
+                    this.selectionIndexProperty,
+                    () -> this.unlinkFromActivityFeed(),
+                    this.activityFeedProperty,
+                    Optional.of(true));
+            this.assemblageMenuProvider = new AssemblageMenuProvider(this.viewProperties, this.getActivityFeed());
+
             this.assemblageDetailPane.setTop(conceptLabelToolbar.getToolbarNode());
 
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/sh/komet/assemblage/view/AssemblageDetail.fxml"));
             BorderPane rootPane = loader.load();
             this.assemblageDetailController = loader.getController();
-            this.assemblageDetailController.setManifoldProperty(manifoldProperty);
-            manifold.manifoldSelectionProperty().addListener(this.selectionChangedListener);
-            manifoldProperty.addListener((observable, oldValue, newValue) -> {
-                oldValue.manifoldSelectionProperty().removeListener(this.selectionChangedListener);
-                newValue.manifoldSelectionProperty().addListener(this.selectionChangedListener);
+            this.assemblageDetailController.setViewProperties(this.viewProperties, this.activityFeedProperty);
+            this.activityFeedProperty.addListener((observable, oldValue, newValue) -> {
+                oldValue.feedSelectionProperty().removeListener(this::selectionChanged);
+                newValue.feedSelectionProperty().addListener(this::selectionChanged);
             });
             assemblageDetailPane.setCenter(assemblageDetailController.getAssemblageDetailRootPane());
 
@@ -122,19 +130,33 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
         }
     }
 
+    @Override
+    protected void setFocus(IdentifiedObject component) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean selectInTabOnChange() {
+        return false;
+    }
+
+    @Override
+    public Node getMenuIconGraphic() {
+        return Iconography.PAPERCLIP.getIconographic();
+    }
 
     @Override
     public void savePreferences() {
         throw new UnsupportedOperationException();
     }
 
-    private void selectionChanged(ListChangeListener.Change<? extends ComponentProxy> c) {
+    private void selectionChanged(ListChangeListener.Change<? extends IdentifiedObject> c) {
         ConceptSpecification focus = TermAux.UNINITIALIZED_COMPONENT_ID;
         if (!c.getList().isEmpty()) {
             focus = Get.concept(c.getList().get(0).getNid());
         }
-        titleProperty.set(manifoldProperty.get().getPreferredDescriptionText(focus));
-        toolTipProperty.set("View of all " + manifoldProperty.get().getPreferredDescriptionText(focus) + " assemblage members");
+        titleProperty.set(viewProperties.getPreferredDescriptionText(focus));
+        toolTipProperty.set("View of all " + viewProperties.getPreferredDescriptionText(focus) + " assemblage members");
         int count = (int) Get.identifierService().getNidsForAssemblage(focus.getNid()).count();
         this.conceptLabelToolbar.getRightInfoLabel().setText(NumberUtil.formatWithGrouping(count) + " elements");
     }
@@ -145,33 +167,8 @@ public class AssemblageViewProvider implements ExplorationNode, Supplier<List<Me
     }
 
     @Override
-    public SimpleObjectProperty getMenuIconProperty() {
-        return menuIconProperty;
-    }
-
-    @Override
-    public Manifold getManifold() {
-        return this.manifoldProperty.get();
-    }
-
-    @Override
     public Node getNode() {
         return assemblageDetailPane;
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return toolTipProperty;
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return titleProperty;
-    }
-
-    @Override
-    public Optional<Node> getTitleNode() {
-        return Optional.empty();
     }
 
     @Override

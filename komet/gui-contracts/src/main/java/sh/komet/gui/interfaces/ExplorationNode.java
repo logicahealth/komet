@@ -19,10 +19,13 @@ package sh.komet.gui.interfaces;
 import java.util.Optional;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.scene.Scene;
 import org.jvnet.hk2.annotations.Contract;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.scene.Node;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  * ExplorationNode: A node that enables traversal (a taxonomy view) of content
@@ -63,12 +66,20 @@ public interface ExplorationNode {
     * 
     * @return the Manifold associated with this DetailNode.
     */
-   Manifold getManifold();
+   ViewProperties getViewProperties();
+
+   ActivityFeed getActivityFeed();
+
+   SimpleObjectProperty<ActivityFeed> activityFeedProperty();
 
    /**
     * @return The node to be displayed
     */
    Node getNode();
+
+   default Scene getScene() {
+      return getNode().getScene();
+   }
    
    
    ObjectProperty<Node> getMenuIconProperty();
@@ -83,8 +94,16 @@ public interface ExplorationNode {
     */
    boolean canClose();
 
+   void setNodeSelectionMethod(Runnable nodeSelectionMethod);
+
    /**
     * Save preferences for this node to the preferences provider.
     */
    void savePreferences();
+
+   Node getMenuIconGraphic();
+
+   default Node getTitleIconGraphic() {
+      return getMenuIconGraphic();
+   }
 }

@@ -8,7 +8,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.komet.gui.interfaces.ComponentList;
-import sh.komet.gui.util.UuidStringKey;
+import sh.isaac.api.util.UuidStringKey;
 
 import java.util.Optional;
 import java.util.UUID;

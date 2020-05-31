@@ -16,7 +16,6 @@
  */
 package sh.komet.gui.control.concept;
 
-import java.util.Collection;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
@@ -34,14 +33,16 @@ import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.property.editor.PropertyEditor;
-import sh.isaac.api.ComponentProxy;
+import org.eclipse.collections.api.list.ImmutableList;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.komet.gui.contract.ConceptSearchNodeFactory;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
@@ -53,19 +54,19 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
 
     private final SimpleObjectProperty<ConceptSpecification> conceptSpecificationValue;
     private final MenuButton menuButton = new MenuButton();
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     private ReadOnlyObjectProperty<ConceptSpecification> findSelectedConceptSpecification;
     private PopOver popOver;
     private final MenuItem findItem = new MenuItemWithText("Find");
     FixedWidthMenuSeperator fixedWidthFindSeperator = new FixedWidthMenuSeperator();
     FixedWidthMenuSeperator fixedWidthManifoldSeperator = new FixedWidthMenuSeperator();
 
-    public ConceptSpecificationEditor(PropertySheetItemConceptWrapper wrapper, Manifold manifold) {
-        this.manifold = manifold;
+    public ConceptSpecificationEditor(PropertySheetItemConceptWrapper wrapper, ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
         this.conceptSpecificationValue = (SimpleObjectProperty<ConceptSpecification>) wrapper.getObservableValue().get();
         this.conceptSpecificationValue.addListener(this::setButtonText);
         if (wrapper.getValue() != null) {
-            this.menuButton.setText(manifold.getPreferredDescriptionText(wrapper.getValue()));
+            this.menuButton.setText(viewProperties.getPreferredDescriptionText(wrapper.getValue()));
         } else {
             this.menuButton.setText("Empty");
         }
@@ -88,12 +89,12 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         });
         this.menuButton.armedProperty().addListener((observable, oldValue, armed) -> {
             if (armed) {
-                addMenuItems(wrapper, manifold);
+                addMenuItems(wrapper, viewProperties);
             }
         });
     }
 
-    protected final void addMenuItems(PropertySheetItemConceptWrapper wrapper, Manifold manifold1) {
+    protected final void addMenuItems(PropertySheetItemConceptWrapper wrapper, ViewProperties manifold1) {
         this.menuButton.getItems().clear();
         for (ConceptSpecification allowedValue : wrapper.getAllowedValues()) {
             ConceptMenuItem menuItem = new ConceptMenuItem(allowedValue, manifold1);
@@ -107,16 +108,15 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         }
         if (wrapper.allowHistory()) {
             this.menuButton.getItems().add(fixedWidthManifoldSeperator);
-            for (Manifold.ManifoldGroup manifoldGroup : Manifold.ManifoldGroup.values()) {
-                Collection<ComponentProxy> groupHistory = Manifold.get(manifoldGroup).getHistoryRecords();
-                if (!groupHistory.isEmpty()) {
-                    Menu manifoldHistory = new Menu(manifoldGroup.getGroupName());
-                    this.menuButton.getItems().add(manifoldHistory);
-                    for (ComponentProxy record : groupHistory) {
-                        ConceptMenuItem conceptItem = new ConceptMenuItem(Get.conceptSpecification(record.getNid()),
-                                this.manifold);
-                        conceptItem.setOnAction(this::handleAction);
-                        manifoldHistory.getItems().add(conceptItem);
+            for (ActivityFeed activityFeed: this.viewProperties.getActivityFeeds()) {
+                if (!activityFeed.feedHistoryProperty().isEmpty()) {
+                    Menu activityFeedHistory = new Menu(activityFeed.getFeedName());
+                    this.menuButton.getItems().add(activityFeedHistory);
+                    for (ImmutableList<? extends IdentifiedObject> record : activityFeed.feedHistoryProperty()) {
+
+                        ConceptListMenuItem conceptListMenuItem = new ConceptListMenuItem(record, this.viewProperties);
+                        conceptListMenuItem.setOnAction(this::handleAction);
+                        activityFeedHistory.getItems().add(conceptListMenuItem);
                     }
                 }
             }
@@ -139,15 +139,16 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
     }
 
     private void handleAction(ActionEvent event) {
-        if (event.getSource() instanceof ConceptMenuItem) {
-            ConceptMenuItem menuItem = (ConceptMenuItem) event.getSource();
-            this.conceptSpecificationValue.set(menuItem.getSpec());
-            this.menuButton.setText(manifold.getPreferredDescriptionText(menuItem));
+        if (event.getSource() instanceof ConceptListMenuItem) {
+            ConceptListMenuItem menuItem = (ConceptListMenuItem) event.getSource();
+            ConceptSpecification spec = Get.conceptSpecification(menuItem.getIdentifiedObjects().get(0).getNid());
+            this.conceptSpecificationValue.set(spec);
+            this.menuButton.setText(viewProperties.getPreferredDescriptionText(spec));
         }
     }
     
     private void setButtonText(ObservableValue<? extends ConceptSpecification> observable, ConceptSpecification oldValue, ConceptSpecification newValue) {
-        menuButton.setText(manifold.getPreferredDescriptionText(conceptSpecificationValue.get()));
+        menuButton.setText(viewProperties.getPreferredDescriptionText(conceptSpecificationValue.get()));
     }
     private void showFindPopup(ActionEvent event) {
         this.popOver = new PopOver();
@@ -158,8 +159,7 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         this.popOver.setTitle("");
         this.popOver.setArrowLocation(PopOver.ArrowLocation.LEFT_TOP);
         ConceptSearchNodeFactory searchNodeFactory = Get.service(ConceptSearchNodeFactory.class);
-        Manifold manifoldClone = Manifold.get(Manifold.ManifoldGroup.UNLINKED);
-        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifoldClone, null);
+        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(this.viewProperties, this.viewProperties.getUnlinkedActivityFeed() , null);
         Node searchNode = searchExplorationNode.getNode();
         this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();
         BorderPane searchBorder = new BorderPane(searchNode);
@@ -181,7 +181,7 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         if (this.findSelectedConceptSpecification.get() != null) {
             ConceptSpecification selectedConcept = this.findSelectedConceptSpecification.get();
             selectedConcept = new ConceptProxy(selectedConcept);
-            ConceptSpecificationForControlWrapper newConceptSpec = new ConceptSpecificationForControlWrapper(selectedConcept, manifold);
+            ConceptSpecificationForControlWrapper newConceptSpec = new ConceptSpecificationForControlWrapper(selectedConcept, viewProperties);
             this.conceptSpecificationValue.set(newConceptSpec);
         }
     }

@@ -1,6 +1,5 @@
 package sh.komet.assemblage.view;
 
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import org.apache.logging.log4j.LogManager;
@@ -9,7 +8,8 @@ import org.apache.mahout.math.Arrays;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.VersionType;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.menu.MenuItemWithText;
 
 import java.util.ArrayList;
@@ -20,10 +20,12 @@ import java.util.function.Supplier;
 public class AssemblageMenuProvider implements Supplier<List<MenuItem>> {
     protected static final Logger LOG = LogManager.getLogger();
 
-    private final SimpleObjectProperty<Manifold> manifoldProperty;
+    private final ViewProperties viewProperties;
+    private final ActivityFeed activityFeed;
 
-    public AssemblageMenuProvider(SimpleObjectProperty<Manifold> manifoldProperty) {
-        this.manifoldProperty = manifoldProperty;
+    public AssemblageMenuProvider(ViewProperties viewProperties, ActivityFeed activityFeed) {
+        this.viewProperties = viewProperties;
+        this.activityFeed = activityFeed;
     }
 
     @Override
@@ -47,16 +49,16 @@ public class AssemblageMenuProvider implements Supplier<List<MenuItem>> {
         LOG.debug("Assemblage nid count: " + assembalgeNids.length + "\n" + Arrays.toString(assembalgeNids));
 
         for (int assemblageNid : Get.assemblageService().getAssemblageConceptNids()) {
-            MenuItem menu = new MenuItemWithText(this.manifoldProperty.get().getPreferredDescriptionText(assemblageNid));
+            MenuItem menu = new MenuItemWithText(this.viewProperties.getPreferredDescriptionText(assemblageNid));
             menu.setOnAction((event) -> {
-                this.manifoldProperty.get().manifoldSelectionProperty().get().setAll(new ComponentProxy(Get.concept(assemblageNid)));
+                this.activityFeed.feedSelectionProperty().setAll(new ComponentProxy(Get.concept(assemblageNid)));
             });
             assemblagesMenu.getItems().add(menu);
-            String preferredDescText = this.manifoldProperty.get().getPreferredDescriptionText(assemblageNid);
+            String preferredDescText = this.viewProperties.getPreferredDescriptionText(assemblageNid);
             LOG.debug("Assemblage name <" + assemblageNid + ">: " + preferredDescText);
             MenuItem menu2 = new MenuItemWithText(preferredDescText);
             menu2.setOnAction((event) -> {
-                this.manifoldProperty.get().manifoldSelectionProperty().get().setAll(new ComponentProxy(Get.concept(assemblageNid)));
+                this.activityFeed.feedSelectionProperty().setAll(new ComponentProxy(Get.concept(assemblageNid)));
             });
             VersionType versionType = Get.assemblageService().getVersionTypeForAssemblage(assemblageNid);
             versionTypeMenuMap.get(versionType).getItems().add(menu2);

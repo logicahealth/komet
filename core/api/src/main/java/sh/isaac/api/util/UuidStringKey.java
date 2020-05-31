@@ -1,10 +1,9 @@
-package sh.komet.gui.util;
+package sh.isaac.api.util;
 
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.Marshalable;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
-import sh.isaac.api.util.NaturalOrder;
 
 import java.util.UUID;
 
@@ -22,6 +21,11 @@ public class UuidStringKey implements Comparable<UuidStringKey>, Marshalable {
         this.uuid = UUID.fromString(data[0]);
         this.string = data[1];
     }
+
+    public UuidStringKey(String externalString) {
+        this(externalString.split("@", 2));
+    }
+
     @Override
     @Marshaler
     public void marshal(ByteArrayDataBuffer out) {
@@ -78,6 +82,10 @@ public class UuidStringKey implements Comparable<UuidStringKey>, Marshalable {
     @Override
     public String toString() {
         return string;
+    }
+
+    public String toExternalString() {
+         return this.uuid.toString() + "@" + this.string;
     }
 
     public void updateString(String string) {

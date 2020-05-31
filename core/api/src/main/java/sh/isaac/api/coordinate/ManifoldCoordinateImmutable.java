@@ -3,7 +3,6 @@ package sh.isaac.api.coordinate;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.MarshalUtil;
@@ -11,7 +10,6 @@ import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 
 import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
 import java.util.Objects;
 
 @Service
@@ -24,9 +22,9 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
-    public static final VertexSort DEFAULT_DISPLAY_AND_SORT = VertexSortRegularName.SINGLETON;
-    public static final VertexSort DISPLAY_PREFERRED_AND_SORT = VertexSortRegularName.SINGLETON;
-    public static final VertexSort DISPLAY_PREFERRED_AND_NO_SORT = VertexSortRegularNameNoSort.SINGLETON;
+    public static final VertexSort DEFAULT_DISPLAY_AND_SORT = VertexSortPreferredName.SINGLETON;
+    public static final VertexSort DISPLAY_PREFERRED_AND_SORT = VertexSortPreferredName.SINGLETON;
+    public static final VertexSort DISPLAY_PREFERRED_AND_NO_SORT = VertexSortPreferredNameNoSort.SINGLETON;
     public static final VertexSort DISPLAY_FQN_AND_SORT =  VertexSortFullyQualifiedName.SINGLETON;
     public static final VertexSort DISPLAY_FQN_AND_NO_SORT =VertexSortFullyQualifiedNameNoSort.SINGLETON;
 
@@ -109,8 +107,8 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         }
     }
     public static ManifoldCoordinateImmutable make(VertexSort vertexSort,
-                                                   DigraphCoordinate digraphCoordinate,
-                                                   StampFilter stampFilter) {
+                                                                    DigraphCoordinate digraphCoordinate,
+                                                                    StampFilter stampFilter) {
          return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(vertexSort,
                          digraphCoordinate.toDigraphImmutable(), stampFilter.toStampFilterImmutable()),
                         manifoldCoordinateImmutable -> manifoldCoordinateImmutable);

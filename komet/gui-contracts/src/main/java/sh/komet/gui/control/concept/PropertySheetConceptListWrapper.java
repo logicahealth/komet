@@ -23,7 +23,7 @@ import javafx.collections.ObservableList;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -34,15 +34,15 @@ public class PropertySheetConceptListWrapper implements PropertySheet.Item {
     private final ListProperty<ConceptSpecification> conceptListProperty;
     private final String name;
 
-    public PropertySheetConceptListWrapper(Manifold manifold, ListProperty<ConceptSpecification> conceptListProperty) {
-        if (manifold == null) {
+    public PropertySheetConceptListWrapper(ViewProperties viewProperties, ListProperty<ConceptSpecification> conceptListProperty) {
+        if (viewProperties == null) {
             throw new NullPointerException("Manifold cannot be null");
         }
         if (conceptListProperty == null) {
             throw new NullPointerException("conceptListProperty cannot be null");
         }
         this.conceptListProperty = conceptListProperty;
-        this.name = manifold.getPreferredDescriptionText(new ConceptProxy(conceptListProperty.getName()));
+        this.name = viewProperties.getPreferredDescriptionText(new ConceptProxy(conceptListProperty.getName()));
     }
 
 

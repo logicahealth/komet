@@ -55,6 +55,7 @@ import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
@@ -69,8 +70,8 @@ import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.control.StampControl;
 import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.control.axiom.ConceptNode;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.control.text.StackLabelText;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
@@ -146,7 +147,7 @@ public abstract class BadgedVersionPaneModel {
 
 
     private final ObservableCategorizedVersion categorizedVersion;
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     private final HashMap<String, AtomicBoolean> disclosureStateMap;
     private final AtomicBoolean disclosureBoolean;
     private final OpenIntIntHashMap stampOrderHashMap;
@@ -189,11 +190,11 @@ public abstract class BadgedVersionPaneModel {
 
     }
 
-    protected BadgedVersionPaneModel(Manifold manifold,
+    protected BadgedVersionPaneModel(ViewProperties viewProperties,
                                      ObservableCategorizedVersion categorizedVersion,
                                      OpenIntIntHashMap stampOrderHashMap,
                                      HashMap<String, AtomicBoolean> disclosureStateMap) {
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
         this.disclosureStateMap = disclosureStateMap;
         this.stampOrderHashMap = stampOrderHashMap;
         this.categorizedVersion = categorizedVersion;
@@ -202,12 +203,12 @@ public abstract class BadgedVersionPaneModel {
         if (stampOrderHashMap.containsKey(stampSequence)) {
             this.stampControl.setStampedVersion(
                     stampSequence,
-                    manifold,
+                    viewProperties,
                     stampOrderHashMap.get(stampSequence));
         } else {
             this.stampControl.setStampedVersion(
                     stampSequence,
-                    manifold,
+                    viewProperties,
                     -1);
         }
         if (this.isInactive.get()) {
@@ -297,14 +298,14 @@ public abstract class BadgedVersionPaneModel {
         if (isLatestPanel()) {
             componentType.setText("CON");
             componentText.setText(
-                    "\n" + conceptVersion.getStatus() + " in " + getManifold().getPreferredDescriptionText(
-                            conceptVersion.getModuleNid()) + " on " + getManifold().getPreferredDescriptionText(
+                    "\n" + conceptVersion.getStatus() + " in " + getManifoldCoordinate().getPreferredDescriptionText(
+                            conceptVersion.getModuleNid()) + " on " + getManifoldCoordinate().getPreferredDescriptionText(
                             conceptVersion.getPathNid()));
         } else {
             componentType.setText("");
             componentText.setText(
-                    conceptVersion.getStatus() + " in " + getManifold().getPreferredDescriptionText(
-                            conceptVersion.getModuleNid()) + " on " + getManifold().getPreferredDescriptionText(
+                    conceptVersion.getStatus() + " in " + getManifoldCoordinate().getPreferredDescriptionText(
+                            conceptVersion.getModuleNid()) + " on " + getManifoldCoordinate().getPreferredDescriptionText(
                             conceptVersion.getPathNid()));
         }
     }
@@ -315,13 +316,13 @@ public abstract class BadgedVersionPaneModel {
         if (isLatestPanel()) {
             componentType.setText("EL++");
 
-            if (getManifold().getLogicCoordinate()
+            if (getManifoldCoordinate().getLogicCoordinate()
                     .getInferredAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
                 premiseType = PremiseType.INFERRED;
                 Label formLabel = new Label("", Iconography.INFERRED.getIconographic());
                 formLabel.setTooltip(new Tooltip("Inferred form"));
                 badges.add(formLabel);
-            } else if (getManifold().getLogicCoordinate()
+            } else if (getManifoldCoordinate().getLogicCoordinate()
                     .getStatedAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
                 premiseType = PremiseType.STATED;
                 Label formLabel = new Label("", Iconography.STATED.getIconographic());
@@ -333,7 +334,7 @@ public abstract class BadgedVersionPaneModel {
         }
 
         LogicalExpression expression = logicGraphVersion.getLogicalExpression();
-        Pane logicDetailPanel = AxiomView.createWithCommitPanel(expression, premiseType, manifold);
+        Pane logicDetailPanel = AxiomView.createWithCommitPanel(expression, premiseType, viewProperties);
         BorderPane.setAlignment(logicDetailPanel, Pos.TOP_LEFT);
         primaryPane.setCenter(logicDetailPanel);
     }
@@ -355,7 +356,7 @@ public abstract class BadgedVersionPaneModel {
                         componentType.setText("");
                     }
 
-                    componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\n" + ((StringVersion) semanticVersion).getString());
+                    componentText.setText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\n" + ((StringVersion) semanticVersion).getString());
                     break;
 
                 case COMPONENT_NID: {
@@ -369,8 +370,8 @@ public abstract class BadgedVersionPaneModel {
 
                     switch (Get.identifierService().getObjectTypeForComponent(nid)) {
                         case CONCEPT:
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
-                            componentText.setImage(new ConceptNode(nid, manifold));
+                            componentText.setText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
+                            componentText.setImage(new ConceptNode(nid, viewProperties));
                             componentText.setImageLocation(ContentDisplay.BOTTOM);
                             break;
 
@@ -378,12 +379,12 @@ public abstract class BadgedVersionPaneModel {
                             SemanticChronology sc = Get.assemblageService()
                                     .getSemanticChronology(nid);
 
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences: " + sc.getVersionType().toString());
+                            componentText.setText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences: " + sc.getVersionType().toString());
                             break;
 
                         case UNKNOWN:
                         default:
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences:"
+                            componentText.setText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences:"
                                     + Get.identifierService().getObjectTypeForComponent(
                                     nid).toString());
                     }
@@ -403,9 +404,9 @@ public abstract class BadgedVersionPaneModel {
 
                     switch (Get.identifierService().getObjectTypeForComponent(nid)) {
                         case CONCEPT:
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                            componentText.setText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
                                     + "\n" + intValue);
-                            componentText.setImage(new ConceptNode(nid, manifold));
+                            componentText.setImage(new ConceptNode(nid, viewProperties));
                             componentText.setImageLocation(ContentDisplay.BOTTOM);
                             break;
 
@@ -413,13 +414,13 @@ public abstract class BadgedVersionPaneModel {
                             SemanticChronology sc = Get.assemblageService()
                                     .getSemanticChronology(nid);
 
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                            componentText.setText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
                                     + "\n" + intValue + ": References: " + sc.getVersionType().toString());
                             break;
 
                         case UNKNOWN:
                         default:
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                            componentText.setText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
                                     + "\n" + intValue + ": References:"
                                     + Get.identifierService().getObjectTypeForComponent(
                                     nid).toString());
@@ -445,10 +446,10 @@ public abstract class BadgedVersionPaneModel {
                             } else {
                                 longText = Long.toString(longValue);
                             }
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
-                                    + "\n" + getManifold().getPreferredDescriptionText(nid)
+                            componentText.setText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                                    + "\n" + getManifoldCoordinate().getPreferredDescriptionText(nid)
                                     + "\n" + longText);
-                            componentText.setImage(new ConceptNode(nid, manifold));
+                            componentText.setImage(new ConceptNode(nid, viewProperties));
                             componentText.setImageLocation(ContentDisplay.BOTTOM);
                             break;
 
@@ -456,15 +457,15 @@ public abstract class BadgedVersionPaneModel {
                             SemanticChronology sc = Get.assemblageService()
                                     .getSemanticChronology(nid);
 
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
-                                    + "\n" + getManifold().getPreferredDescriptionText(nid)
+                            componentText.setText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                                    + "\n" + getManifoldCoordinate().getPreferredDescriptionText(nid)
                                     + "\n" + longValue + ": References: " + sc.getVersionType().toString());
                             break;
 
                         case UNKNOWN:
                         default:
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
-                                    + "\n" + getManifold().getPreferredDescriptionText(nid)
+                            componentText.setText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                                    + "\n" + getManifoldCoordinate().getPreferredDescriptionText(nid)
                                     + "\n" + longValue + ": References:"
                                     + Get.identifierService().getObjectTypeForComponent(
                                     nid).toString());
@@ -499,7 +500,7 @@ public abstract class BadgedVersionPaneModel {
                     } else {
                         componentType.setText("");
                     }
-                    componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember");
+                    componentText.setText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember");
                     break;
 
                 case LOINC_RECORD: {
@@ -509,7 +510,7 @@ public abstract class BadgedVersionPaneModel {
                         componentType.setText("");
                     }
                     StringBuilder sb = new StringBuilder();
-                    sb.append(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
+                    sb.append(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
                     LoincVersion lv = (LoincVersion) semanticVersion;
                     sb.append("\nstatus: ");
                     sb.append(lv.getLoincStatus());
@@ -541,7 +542,7 @@ public abstract class BadgedVersionPaneModel {
                         componentType.setText("");
                     }
                     StringBuilder sb = new StringBuilder();
-                    sb.append(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
+                    sb.append(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
                     DynamicVersion dv = (DynamicVersion) semanticVersion;
                     DynamicUsageDescription dud = DynamicUsageDescriptionImpl.read(version.getAssemblageNid());
                     for (DynamicColumnInfo dci : dud.getColumnInfo()) {
@@ -602,7 +603,7 @@ public abstract class BadgedVersionPaneModel {
             componentType.setText("");
         }
 
-        Tooltip tooltip = new Tooltip(manifold.getPreferredDescriptionText(description.getCaseSignificanceConceptNid()));
+        Tooltip tooltip = new Tooltip(viewProperties.getPreferredDescriptionText(description.getCaseSignificanceConceptNid()));
 
         if (description.getCaseSignificanceConceptNid() == TermAux.DESCRIPTION_CASE_SENSITIVE.getNid()) {
             Node icon = Iconography.CASE_SENSITIVE.getIconographic();
@@ -633,19 +634,19 @@ public abstract class BadgedVersionPaneModel {
         } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
             componentType.setText(" DEF");
         } else {
-            componentType.setText(getManifold().getPreferredDescriptionText(descriptionType));
+            componentType.setText(getManifoldCoordinate().getPreferredDescriptionText(descriptionType));
         }
     }
 
     private void addAcceptabilityBadge(DescriptionVersion description, int dialogAssembblageNid, ImageView countryBadge) throws NoSuchElementException {
-        OptionalInt optAcceptabilityNid = manifold.getAcceptabilityNid(description.getNid(), dialogAssembblageNid);
+        OptionalInt optAcceptabilityNid = viewProperties.getManifoldCoordinate().getAcceptabilityNid(description.getNid(), dialogAssembblageNid);
         if (optAcceptabilityNid.isPresent()) {
             int acceptabilityNid = optAcceptabilityNid.getAsInt();
             if (acceptabilityNid == MetaData.PREFERRED____SOLOR.getNid()) {
                 StringBuilder toolTipText = new StringBuilder();
-                toolTipText.append(manifold.getPreferredDescriptionText(acceptabilityNid));
+                toolTipText.append(viewProperties.getPreferredDescriptionText(acceptabilityNid));
                 toolTipText.append(" in ");
-                toolTipText.append(manifold.getPreferredDescriptionText(dialogAssembblageNid));
+                toolTipText.append(viewProperties.getPreferredDescriptionText(dialogAssembblageNid));
                 Tooltip acceptabilityTooltip = new Tooltip(toolTipText.toString());
                 Tooltip.install(countryBadge, acceptabilityTooltip);
                 badges.add(countryBadge);
@@ -750,7 +751,7 @@ public abstract class BadgedVersionPaneModel {
     }
 
     public final List<MenuItem> getEditMenuItems() {
-        return FxGet.rulesDrivenKometService().getEditVersionMenuItems(manifold, this.categorizedVersion, (propertySheetMenuItem) -> {
+        return FxGet.rulesDrivenKometService().getEditVersionMenuItems(viewProperties, this.categorizedVersion, (propertySheetMenuItem) -> {
             addEditingPropertySheet(propertySheetMenuItem);
         });
     }
@@ -776,7 +777,7 @@ public abstract class BadgedVersionPaneModel {
     }
 
     public final List<MenuItem> getAttachmentMenuItems() {
-        return FxGet.rulesDrivenKometService().getAddAttachmentMenuItems(manifold, this.categorizedVersion,
+        return FxGet.rulesDrivenKometService().getAddAttachmentMenuItems(viewProperties, this.categorizedVersion,
                 (propertySheetMenuItem, assemblageSpecification) -> {
                     addNewAttachmentPropertySheet(propertySheetMenuItem, assemblageSpecification);
                 });
@@ -787,9 +788,9 @@ public abstract class BadgedVersionPaneModel {
 
         ObservableVersion observableVersion = propertySheetMenuItem.getVersionInFlight();
         observableVersion.putUserObject(PROPERTY_SHEET_ATTACHMENT, propertySheetMenuItem);
-        CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(manifold.getStampFilter());
+        CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(viewProperties.getManifoldCoordinate().getStampFilter());
 
-        ComponentPaneModel componentPane = new ComponentPaneModel(getManifold(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap, getDisclosureStateMap());
+        ComponentPaneModel componentPane = new ComponentPaneModel(getViewProperties(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap, getDisclosureStateMap());
         extensionPaneModels.add(componentPane);
         this.expandControl.setExpandAction(ExpandAction.SHOW_CHILDREN);
         propertySheetMenuItem.addCompletionListener((observable, oldValue, newValue) -> {
@@ -801,8 +802,12 @@ public abstract class BadgedVersionPaneModel {
     /**
      * @return the manifold
      */
-    public Manifold getManifold() {
-        return manifold;
+    public ManifoldCoordinate getManifoldCoordinate() {
+        return viewProperties.getManifoldCoordinate();
+    }
+
+    public ViewProperties getViewProperties() {
+        return viewProperties;
     }
 
     public ObservableCategorizedVersion getCategorizedVersion() {

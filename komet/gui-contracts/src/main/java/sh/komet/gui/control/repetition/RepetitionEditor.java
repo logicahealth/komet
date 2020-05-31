@@ -21,7 +21,7 @@ import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.statement.Repetition;
 import sh.isaac.model.statement.RepetitionImpl;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -31,9 +31,9 @@ public class RepetitionEditor implements PropertyEditor<Repetition>{
 
     private final RepetitionPropertySheet repPropertySheet;
     private RepetitionImpl repetition;
-    public RepetitionEditor(Manifold manifold) {
-        repPropertySheet = new RepetitionPropertySheet(manifold);
-        repPropertySheet.getPropertySheet().setPropertyEditorFactory(new PropertyEditorFactory(manifold));
+    public RepetitionEditor(ViewProperties viewProperties) {
+        repPropertySheet = new RepetitionPropertySheet(viewProperties);
+        repPropertySheet.getPropertySheet().setPropertyEditorFactory(new PropertyEditorFactory(viewProperties));
     }
 
     @Override

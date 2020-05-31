@@ -4,8 +4,10 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.komet.preferences.ParentPanel;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.util.UuidStringKey;
+import sh.komet.gui.util.FxGet;
+import sh.isaac.api.util.UuidStringKey;
 
 import java.util.Arrays;
 import java.util.Optional;
@@ -28,8 +30,8 @@ public class ManifoldCoordinateGroupPanel extends ParentPanel {
             Manifold.ManifoldGroup.STATED_GRAPH_NAVIGATION_ANY_NODE.getGroupUuid(),
             Manifold.ManifoldGroup.STATED_GRAPH_NAVIGATION_ANY_NODE.getGroupName());
 
-    public ManifoldCoordinateGroupPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Manifold"), manifold, kpc);
+    public ManifoldCoordinateGroupPanel(IsaacPreferences preferencesNode, ViewProperties viewProperties, KometPreferencesController kpc) {
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Manifold"), viewProperties, kpc);
         if (!initialized()) {
             // add each default manifold...
 
@@ -82,9 +84,7 @@ public class ManifoldCoordinateGroupPanel extends ParentPanel {
 
                 IsaacPreferences manifoldPreferences = addChildPanel(group.getGroupUuid(), Optional.of(group.getGroupName()));
                 manifoldPreferences.putUuid(MANIFOLD_GROUP_UUID, group.getGroupUuid());
-                Manifold manifoldForChild = Manifold.get(group);
-
-                ManifoldCoordinateItemPanel manifoldCoordinateItemPanel = new ManifoldCoordinateItemPanel(manifoldPreferences, manifoldForChild, kpc);
+                ManifoldCoordinateItemPanel manifoldCoordinateItemPanel = new ManifoldCoordinateItemPanel(manifoldPreferences, FxGet.preferenceViewProperties(), kpc);
             }
             save();
         }

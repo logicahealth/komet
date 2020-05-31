@@ -17,6 +17,8 @@
 package sh.komet.gui.provider.concept.comparison;
 
 import java.util.EnumSet;
+import java.util.UUID;
+
 import javafx.event.ActionEvent;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
@@ -27,7 +29,8 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
@@ -58,8 +61,12 @@ public class ConceptCorrelationViewMenuProvider implements MenuProvider {
     private void newCorelationView(ActionEvent event) {
         MenuItem eventMenu = (MenuItem) event.getSource();
         IsaacPreferences parentPreferences = (IsaacPreferences) eventMenu.getProperties().get(MenuProvider.PARENT_PREFERENCES);
-        Manifold statementManifold = FxGet.manifold(Manifold.ManifoldGroup.CORRELATION);
-        ConceptCorrelationController conceptCorrelationController = ConceptCorrelationView.show(statementManifold,
+        IsaacPreferences correlationPreferences = parentPreferences.node(UUID.randomUUID().toString());
+        ViewProperties correlationViewProperties = FxGet.newDefaultViewProperties();
+        ActivityFeed correlationViewFeed = correlationViewProperties.getActivityFeed(ViewProperties.CORRELATION);
+        ConceptCorrelationController conceptCorrelationController = ConceptCorrelationView.show(correlationViewProperties,
+                correlationViewFeed,
+                correlationPreferences,
                 MenuProvider::handleCloseRequest);
         MenuProvider.WINDOW_COUNT.incrementAndGet();
     }

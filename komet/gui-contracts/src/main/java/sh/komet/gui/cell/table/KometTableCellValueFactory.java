@@ -6,15 +6,15 @@ import javafx.scene.control.TableColumn;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 public class KometTableCellValueFactory {
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
 
     //~--- constructors --------------------------------------------------------
 
-    public KometTableCellValueFactory(Manifold manifold) {
-        this.manifold = manifold;
+    public KometTableCellValueFactory(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -22,7 +22,7 @@ public class KometTableCellValueFactory {
     public ObservableValue<ObservableVersion> getCellValue(
             TableColumn.CellDataFeatures<ObservableChronology,
                     ObservableVersion> param) {
-        LatestVersion<ObservableVersion> version = param.getValue().getLatestObservableVersion(this.manifold.getStampFilter());
+        LatestVersion<ObservableVersion> version = param.getValue().getLatestObservableVersion(this.viewProperties.getManifoldCoordinate().getStampFilter());
         if (version.isPresent()) {
             return new SimpleObjectProperty<>(version.get());
         }

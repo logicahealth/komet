@@ -7,6 +7,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.batch.iconography.PluginIcons;
 import sh.komet.gui.contract.ExplorationNodeFactory;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.manifold.Manifold;
 
 import javax.inject.Singleton;
@@ -18,8 +20,8 @@ public class TransactionViewFactory implements ExplorationNodeFactory<Transactio
     public static final String TRANSACTION_VIEW = "Transaction View";
 
     @Override
-    public TransactionViewNode createNode(Manifold manifold, IsaacPreferences nodePreferences) {
-        return new TransactionViewNode(manifold, nodePreferences);
+    public TransactionViewNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences nodePreferences) {
+        return new TransactionViewNode(viewProperties, nodePreferences);
     }
 
     @Override
@@ -33,8 +35,8 @@ public class TransactionViewFactory implements ExplorationNodeFactory<Transactio
     }
 
     @Override
-    public Manifold.ManifoldGroup[] getDefaultManifoldGroups() {
-        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.LIST};
+    public String[] getDefaultActivityFeed() {
+        return new String[] {ViewProperties.LIST};
     }
 
     @Override

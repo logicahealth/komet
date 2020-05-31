@@ -36,7 +36,7 @@ import sh.komet.gui.control.PropertyEditorType;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -60,23 +60,23 @@ public class LogicActionPanel extends AbstractPreferences implements LogicItem {
     private final SimpleObjectProperty<ConceptSpecification> roleTypeProperty
             = new SimpleObjectProperty(this, ObservableFields.ROLE_TYPE_TO_ADD.toExternalString());
 
-    public LogicActionPanel(IsaacPreferences preferencesNode, Manifold manifold,
-            KometPreferencesController kpc) {
+    public LogicActionPanel(IsaacPreferences preferencesNode, ViewProperties viewProperties,
+                            KometPreferencesController kpc) {
         super(preferencesNode,
                 preferencesNode.get(Keys.ACTION_NAME, "logic action " + preferencesNode.name()),
-                manifold, kpc);
+                viewProperties, kpc);
         actionNameProperty.set(groupNameProperty().get());
         actionNameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
         });
         revertFields();
         save();
-        getItemList().add(new PropertySheetTextWrapper(manifold, actionNameProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties, actionNameProperty));
 
-        PropertySheetItemConceptWrapper roleTypeWrapper = new PropertySheetItemConceptWrapper(manifold, roleTypeProperty);
+        PropertySheetItemConceptWrapper roleTypeWrapper = new PropertySheetItemConceptWrapper(viewProperties, roleTypeProperty);
         getItemList().add(roleTypeWrapper);
         
-        PropertySheetItemConceptWrapper assemblageForConstraintWrapper = new PropertySheetItemConceptWrapper(manifold, assemblageForConstraintProperty);
+        PropertySheetItemConceptWrapper assemblageForConstraintWrapper = new PropertySheetItemConceptWrapper(viewProperties, assemblageForConstraintProperty);
         getItemList().add(assemblageForConstraintWrapper);
     }
 

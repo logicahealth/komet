@@ -15,7 +15,7 @@ import sh.isaac.api.marshal.Unmarshaler;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.VersionChangeListener;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -68,7 +68,7 @@ public class PromoteComponentAction extends ActionItem {
     }
 
     @Override
-    public void setupItemForGui(Manifold manifoldForDisplay) {
+    public void setupItemForGui(ViewProperties manifoldForDisplay) {
         getPropertySheet().getItems().add(new PropertySheetItemConceptWrapper(manifoldForDisplay, "Source path",
                 sourcePathProperty, TermAux.DEVELOPMENT_PATH, TermAux.MASTER_PATH));
 

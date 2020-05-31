@@ -37,8 +37,8 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
     private final ImmutableIntSet digraphConceptNids;
     private final TaxonomySnapshot digraphSnapshot;
 
-    private static ManifoldCoordinateImmutable toDefaultManifold(DigraphCoordinateImmutable digraphCoordinateImmutable) {
-        return ManifoldCoordinateImmutable.make(VertexSortRegularName.SINGLETON, digraphCoordinateImmutable, digraphCoordinateImmutable.getEdgeStampFilter());
+    private static ManifoldCoordinate toDefaultManifold(DigraphCoordinateImmutable digraphCoordinateImmutable) {
+        return ManifoldCoordinateImmutable.make(VertexSortPreferredName.SINGLETON, digraphCoordinateImmutable, digraphCoordinateImmutable.getEdgeStampFilter());
     }
 
     private DigraphCoordinateImmutable() {
@@ -213,7 +213,7 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
         out.putUTF(this.premiseType.name());
         MarshalUtil.marshal(this.languageCoordinate, out);
         MarshalUtil.marshal(this.logicCoordinate, out);
-        out.putIntArray(this.digraphConceptNids.toArray());
+        out.putNidArray(this.digraphConceptNids.toArray());
     }
 
     @Unmarshaler

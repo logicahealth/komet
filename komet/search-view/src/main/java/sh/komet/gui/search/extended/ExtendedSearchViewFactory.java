@@ -47,7 +47,8 @@ import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.contract.ConceptSearchNodeFactory;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
@@ -63,8 +64,6 @@ import sh.komet.gui.interfaces.ConceptExplorationNode;
 @PerLookup
 public class ExtendedSearchViewFactory implements ConceptSearchNodeFactory {
 
-    private ExtendedSearchViewController esvc_;
-    private Manifold manifold_;
     protected static final Logger LOG = LogManager.getLogger();
 
     public ExtendedSearchViewFactory() throws IOException {
@@ -91,20 +90,20 @@ public class ExtendedSearchViewFactory implements ConceptSearchNodeFactory {
 
     /**
      * {@inheritDoc}
+     * @return
      */
     @Override
-    public ManifoldGroup[] getDefaultManifoldGroups() {
-        return new ManifoldGroup[]{ManifoldGroup.SEARCH};
+    public String[] getDefaultActivityFeed() {
+        return new String[] {ViewProperties.SEARCH};
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public ConceptExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-        manifold_ = manifold;
-        esvc_ = ExtendedSearchViewController.init(manifold_);
-        ExtendedSearchConceptExplorationNode conceptExplorationNode = new ExtendedSearchConceptExplorationNode(esvc_, manifold_);
+    public ConceptExplorationNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+        ExtendedSearchViewController extendedSearchViewController = ExtendedSearchViewController.init(viewProperties, activityFeed);
+        ExtendedSearchConceptExplorationNode conceptExplorationNode = new ExtendedSearchConceptExplorationNode(extendedSearchViewController, viewProperties);
         return conceptExplorationNode;
     }
 

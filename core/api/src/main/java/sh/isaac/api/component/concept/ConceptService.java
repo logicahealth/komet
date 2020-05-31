@@ -52,9 +52,8 @@ import java.util.stream.Stream;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.collections.IntSet;
 
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilterImmutable;
 
 //~--- interfaces -------------------------------------------------------------
@@ -203,7 +202,7 @@ public interface ConceptService
     * @param manifoldCoordinate the stamp coordinate
     * @return the ConceptSnapshotService
     */
-   ConceptSnapshotService getSnapshot(ManifoldCoordinateImmutable manifoldCoordinate);
+   ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate);
 
     default ConceptSnapshot getConceptSnapshot(ConceptSpecification concept, ManifoldCoordinate manifoldCoordinate) {
         return getConceptSnapshot(concept.getNid(), manifoldCoordinate);

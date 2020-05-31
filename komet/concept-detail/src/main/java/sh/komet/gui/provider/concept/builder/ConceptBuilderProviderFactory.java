@@ -25,8 +25,9 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.DetailNode;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 /**
@@ -43,8 +44,8 @@ public class ConceptBuilderProviderFactory implements DetailNodeFactory {
     }
 
     @Override
-    public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      return new ConceptBuilderNode(manifold);
+    public DetailNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+      return new ConceptBuilderNode(viewProperties);
     }
 
     @Override
@@ -59,10 +60,11 @@ public class ConceptBuilderProviderFactory implements DetailNodeFactory {
 
     /** 
      * {@inheritDoc}
+     * @return
      */
     @Override
-    public ManifoldGroup[] getDefaultManifoldGroups() {
-        return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
+    public String[] getDefaultActivityFeed() {
+        return new String[] {ViewProperties.UNLINKED};
     }
 
     @Override

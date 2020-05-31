@@ -23,7 +23,7 @@ import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.property.PropertySheetItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -40,19 +40,19 @@ public class VersionEditor<V extends ObservableVersionImpl> implements PropertyE
          
     }
     private V observableVersion;
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
 
-    public VersionEditor(V observableVersion, Manifold manifold) {
+    public VersionEditor(V observableVersion, ViewProperties viewProperties) {
         this.observableVersion = observableVersion;
-        this.manifold = manifold;
-        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
+        this.viewProperties = viewProperties;
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties));
         if (observableVersion != null) {
             setupProperties();
         }
     }
 
-    public VersionEditor(Manifold manifold) {
-        this(null, manifold);
+    public VersionEditor(ViewProperties viewProperties) {
+        this(null, viewProperties);
     }
 
     @Override
@@ -78,7 +78,7 @@ public class VersionEditor<V extends ObservableVersionImpl> implements PropertyE
     private void setupProperties() {
         propertySheet.getItems().clear();
         for (Property<?> property: this.observableVersion.getEditableProperties()) {
-            propertySheet.getItems().add(new PropertySheetItem(property.getValue(), property, manifold));
+            propertySheet.getItems().add(new PropertySheetItem(property.getValue(), property, viewProperties));
         }
         FxGet.rulesDrivenKometService().populateWrappedProperties(propertySheet.getItems());
     }

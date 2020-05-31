@@ -19,25 +19,25 @@ package sh.komet.gui.cell.table;
 import javafx.scene.control.TableRow;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
  * @author kec
  */
 public class TableModulePathCell extends KometTableCell {
-   private final Manifold manifold;
+   private final ViewProperties viewProperties;
 
-   public TableModulePathCell(Manifold manifold) {
-      this.manifold = manifold;
+   public TableModulePathCell(ViewProperties viewProperties) {
+      this.viewProperties = viewProperties;
       getStyleClass().add("komet-version-module-path-cell");
       getStyleClass().add("isaac-version");
    }
 
    @Override
    protected void updateItem(TableRow<ObservableChronology> row, ObservableVersion cellValue) {
-        setText(manifold.getPreferredDescriptionText(cellValue.getModuleNid()) + "\n" +
-                manifold.getPreferredDescriptionText(cellValue.getPathNid())
+        setText(viewProperties.getPreferredDescriptionText(cellValue.getModuleNid()) + "\n" +
+                viewProperties.getPreferredDescriptionText(cellValue.getPathNid())
         );
    }
    

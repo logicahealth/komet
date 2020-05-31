@@ -30,7 +30,7 @@ import sh.isaac.model.statement.CircumstanceImpl;
 import sh.isaac.model.statement.PerformanceCircumstanceImpl;
 import sh.isaac.model.statement.RequestCircumstanceImpl;
 import sh.isaac.model.statement.UnstructuredCircumstanceImpl;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -45,10 +45,10 @@ public class CircumstanceEditor implements PropertyEditor<CircumstanceImpl> {
     private final ToolBar circumstanceToolbar;
     private final Button createButton;
     private final Button cancelButton;
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     
-    public CircumstanceEditor(ObservableValue<? extends Object> observable, Manifold manifold) {
-        this.manifold = manifold;
+    public CircumstanceEditor(ObservableValue<? extends Object> observable, ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
         this.circumstanceProperty = (SimpleObjectProperty<CircumstanceImpl>) observable;
         this.circumstanceChoice = new ChoiceBox();
         this.circumstanceChoice.getItems().addAll("Request", "Performance", "Unstructured");
@@ -81,24 +81,24 @@ public class CircumstanceEditor implements PropertyEditor<CircumstanceImpl> {
         this.circumstanceToolbar.getItems().add(new Label(selectedType));
         switch (selectedType) {
             case "Request":
-                RequestCircumstanceImpl requestCircumstance = new RequestCircumstanceImpl(manifold);
-                RequestPropertySheet requestPropertySheet = new RequestPropertySheet(manifold);
+                RequestCircumstanceImpl requestCircumstance = new RequestCircumstanceImpl(viewProperties.getManifoldCoordinate());
+                RequestPropertySheet requestPropertySheet = new RequestPropertySheet(viewProperties);
                 requestPropertySheet.setCircumstance(requestCircumstance);
                 setValue(requestCircumstance);
                 this.editorPane.setCenter(requestPropertySheet.getPropertySheet());
                 break;
                 
             case "Performance":
-                PerformanceCircumstanceImpl performanceCircumstance = new PerformanceCircumstanceImpl(manifold);
-                PerformancePropertySheet performancePropertySheet = new PerformancePropertySheet(manifold);
+                PerformanceCircumstanceImpl performanceCircumstance = new PerformanceCircumstanceImpl(viewProperties.getManifoldCoordinate());
+                PerformancePropertySheet performancePropertySheet = new PerformancePropertySheet(viewProperties);
                 performancePropertySheet.setCircumstance(performanceCircumstance);
                 setValue(performanceCircumstance);
                 this.editorPane.setCenter(performancePropertySheet.getPropertySheet());
                 break;
                 
             case "Unstructured":
-                UnstructuredCircumstanceImpl unstructuredCircumstance = new UnstructuredCircumstanceImpl(manifold);
-                UnstructuredPropertySheet unstructuredPropertySheet = new UnstructuredPropertySheet(this.manifold);
+                UnstructuredCircumstanceImpl unstructuredCircumstance = new UnstructuredCircumstanceImpl(viewProperties.getManifoldCoordinate());
+                UnstructuredPropertySheet unstructuredPropertySheet = new UnstructuredPropertySheet(this.viewProperties);
                 unstructuredPropertySheet.setCircumstance(unstructuredCircumstance);
                 setValue(unstructuredCircumstance);
                 this.editorPane.setCenter(unstructuredPropertySheet.getPropertySheet());

@@ -19,7 +19,7 @@ package sh.komet.gui.cell.table;
 import javafx.scene.control.TableRow;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.function.ToIntFunction;
 
@@ -28,18 +28,18 @@ import java.util.function.ToIntFunction;
  * @author kec
  */
 public class TableConceptCell extends KometTableCell {
-   private final Manifold manifold;
+   private final ViewProperties viewProperties;
    private final ToIntFunction<ObservableVersion> conceptNidGetter;
 
    protected TableConceptCell() {
        throw new UnsupportedOperationException(
                "Manifold must be set. No arg constructor not allowed");
    }
-   public TableConceptCell(Manifold manifold, ToIntFunction<ObservableVersion> conceptNidGetter) {
-      if (manifold == null) {
+   public TableConceptCell(ViewProperties viewProperties, ToIntFunction<ObservableVersion> conceptNidGetter) {
+      if (viewProperties == null) {
          throw new IllegalArgumentException("manifold cannot be null");
       }
-      this.manifold = manifold;
+      this.viewProperties = viewProperties;
       this.conceptNidGetter = conceptNidGetter;
       getStyleClass().add("komet-version-concept-cell");
       getStyleClass().add("isaac-version");
@@ -48,7 +48,7 @@ public class TableConceptCell extends KometTableCell {
    @Override
    protected void updateItem(TableRow<ObservableChronology> row, ObservableVersion cellValue) {
        if (cellValue!= null) {
-           setText(manifold.getPreferredDescriptionText(conceptNidGetter.applyAsInt(cellValue)));
+           setText(viewProperties.getPreferredDescriptionText(conceptNidGetter.applyAsInt(cellValue)));
        }
          
    }

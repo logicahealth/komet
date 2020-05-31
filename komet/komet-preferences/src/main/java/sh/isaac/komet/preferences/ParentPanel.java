@@ -34,7 +34,7 @@ import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.PreferencesTreeItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
@@ -47,8 +47,8 @@ public abstract class ParentPanel extends AbstractPreferences {
     Stack<PreferencesTreeItem> childrenToAdd = new Stack<>();
     
     public ParentPanel(IsaacPreferences preferencesNode, String groupName,
-                       Manifold manifold, KometPreferencesController kpc) {
-        super(preferencesNode, groupName, manifold, kpc);
+                       ViewProperties viewProperties, KometPreferencesController kpc) {
+        super(preferencesNode, groupName, viewProperties, kpc);
     }
 
     @Override
@@ -76,7 +76,7 @@ public abstract class ParentPanel extends AbstractPreferences {
         }
         addChild(childUuid.toString(), getChildClass());
         Optional<PreferencesTreeItem> optionalActionItem = PreferencesTreeItem.from(preferencesNode,
-                getManifold(), kpc);
+                getViewProperties(), kpc);
         if (optionalActionItem.isPresent()) {
             PreferencesTreeItem actionItem = optionalActionItem.get();
             if (getTreeItem() == null) {
@@ -94,7 +94,7 @@ public abstract class ParentPanel extends AbstractPreferences {
     abstract protected Class getChildClass();
     
     @Override
-    public Node getTopPanel(Manifold manifold) {
+    public Node getTopPanel(ViewProperties viewProperties) {
         Button addButton = new Button("Add");
         addButton.setOnAction(this::newChild);
         ToolBar toolbar = new ToolBar(addButton);

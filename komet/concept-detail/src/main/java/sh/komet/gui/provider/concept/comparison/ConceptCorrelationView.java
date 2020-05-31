@@ -24,8 +24,9 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import sh.komet.gui.control.property.WindowProperties;
-import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.preferences.IsaacPreferences;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -36,19 +37,21 @@ public class ConceptCorrelationView {
 
 
     final Stage stage;
-    final Manifold manifold;
+    final ViewProperties viewProperties;
     final ConceptCorrelationController controller;
     
-    protected ConceptCorrelationView(Manifold manifold, String title) {
+    protected ConceptCorrelationView(ViewProperties viewProperties,
+                                     ActivityFeed activityFeed,
+                                     IsaacPreferences preferences, String title) {
         try {
-            this.manifold = manifold;
+            this.viewProperties = viewProperties;
             this.stage = new Stage();
             //stage.initModality(Modality.NONE);
             //stage.setAlwaysOnTop(false);
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/provider/concept/comparison/ConceptComparison.fxml"));
             AnchorPane root = loader.load();
             this.controller = loader.getController();
-            this.controller.setManifold(manifold);
+            this.controller.setViewProperties(viewProperties);
             
             
             //create scene with set width, height and color
@@ -68,19 +71,21 @@ public class ConceptCorrelationView {
     }
 
 
-    public static ConceptCorrelationController show(Manifold manifold,
+    public static ConceptCorrelationController show(ViewProperties viewProperties,
+                                                    ActivityFeed activityFeed,
+                                                    IsaacPreferences preferences,
                                                     EventHandler<WindowEvent> closeRequestHandler) {
-        ConceptCorrelationView correlationView = new ConceptCorrelationView(manifold, "temp");
+        ConceptCorrelationView correlationView = new ConceptCorrelationView(viewProperties, activityFeed, preferences, "temp");
         Stage stage = correlationView.stage;
-        stage.getProperties().put(WindowProperties.Keys.NAME_PREFIX, "");
-        stage.getProperties().put(WindowProperties.Keys.NAME_SUFFIX, " correlation");
-        stage.setTitle(stage.getProperties().get(WindowProperties.Keys.NAME_PREFIX) +
+        stage.getProperties().put(ViewProperties.Keys.NAME_PREFIX, "");
+        stage.getProperties().put(ViewProperties.Keys.NAME_SUFFIX, " correlation");
+        stage.setTitle(stage.getProperties().get(ViewProperties.Keys.NAME_PREFIX) +
                         FxGet.configurationName() +
-                        stage.getProperties().get(WindowProperties.Keys.NAME_SUFFIX));
+                        stage.getProperties().get(ViewProperties.Keys.NAME_SUFFIX));
         FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
-        stage.setTitle(stage.getProperties().get(WindowProperties.Keys.NAME_PREFIX) +
+        stage.setTitle(stage.getProperties().get(ViewProperties.Keys.NAME_PREFIX) +
                         newValue +
-                        stage.getProperties().get(WindowProperties.Keys.NAME_SUFFIX));
+                        stage.getProperties().get(ViewProperties.Keys.NAME_SUFFIX));
              
         });
         

@@ -7,6 +7,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
 
@@ -23,8 +25,8 @@ import javax.inject.Singleton;
 public class ImportSpecificationFactory implements ExplorationNodeFactory {
 
     @Override
-    public Manifold.ManifoldGroup[] getDefaultManifoldGroups() {
-        return new Manifold.ManifoldGroup[]{Manifold.ManifoldGroup.UNLINKED};
+    public String[] getDefaultActivityFeed() {
+        return new String[] {ViewProperties.UNLINKED};
     }
 
     @Override
@@ -33,8 +35,8 @@ public class ImportSpecificationFactory implements ExplorationNodeFactory {
     }
 
     @Override
-    public ExplorationNode createNode(Manifold manifold, IsaacPreferences nodePreferences) {
-        return new ImportSpecificationNode(manifold);
+    public ExplorationNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences nodePreferences) {
+        return new ImportSpecificationNode(viewProperties);
     }
 
     @Override

@@ -49,9 +49,9 @@ import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.SessionProperty;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
-import sh.komet.gui.util.UuidStringKey;
+import sh.isaac.api.util.UuidStringKey;
 
 /**
  *
@@ -90,17 +90,17 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
      private final PropertySheetItemObjectListWrapper<UuidStringKey> viewCoordinateKeyWrapper;
 
     
-    public UserPreferencesPanel(IsaacPreferences preferencesNode, Manifold manifold,
+    public UserPreferencesPanel(IsaacPreferences preferencesNode, ViewProperties viewProperties,
                                 KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "User"), manifold, 
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "User"), viewProperties,
                 kpc);
-        this.userConceptWrapper = new PropertySheetItemConceptWrapper(manifold, userConceptProperty);
+        this.userConceptWrapper = new PropertySheetItemConceptWrapper(viewProperties, userConceptProperty);
         this.userConceptWrapper.setAllowedValues(userConceptOptions);
         
-        this.moduleConceptWrapper = new PropertySheetItemConceptWrapper(manifold, moduleConceptProperty);
+        this.moduleConceptWrapper = new PropertySheetItemConceptWrapper(viewProperties, moduleConceptProperty);
         this.moduleConceptWrapper.setAllowedValues(moduleConceptOptions);
         
-        this.pathConceptWrapper = new PropertySheetItemConceptWrapper(manifold, pathConceptProperty);
+        this.pathConceptWrapper = new PropertySheetItemConceptWrapper(viewProperties, pathConceptProperty);
         this.pathConceptWrapper.setAllowedValues(pathConceptOptions);
 
         this.viewCoordinateKeyWrapper = new PropertySheetItemObjectListWrapper("Default view",
@@ -113,8 +113,8 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         }
 
         getItemList().add(this.viewCoordinateKeyWrapper);
-        getItemList().add(new PropertySheetItemConceptConstraintWrapper(userConceptWrapper, manifold, "User"));
-        getItemList().add(new PropertySheetItemConceptConstraintWrapper(moduleConceptWrapper, manifold, "Module"));
+        getItemList().add(new PropertySheetItemConceptConstraintWrapper(userConceptWrapper, viewProperties, "User"));
+        getItemList().add(new PropertySheetItemConceptConstraintWrapper(moduleConceptWrapper, viewProperties, "Module"));
 
         login();
     }

@@ -128,7 +128,7 @@ import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
 import sh.komet.gui.contract.DialogService;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
-import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
+import sh.komet.gui.control.concept.ActivityLinkedConceptLabel;
 import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
@@ -168,7 +168,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	ViewFocus viewFocus_;
 	int viewFocusNid_;
 	private Manifold manifoldConcept_;
-	private ManifoldLinkedConceptLabel titleLabel = null;
+	private ActivityLinkedConceptLabel titleLabel = null;
 	private final SimpleStringProperty titleProperty = new SimpleStringProperty("-");
 	private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("-");
 
@@ -691,7 +691,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	{
 		//disable refresh, as the bindings mucking causes many refresh calls
 		noRefresh_.getAndIncrement();
-		titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
+		titleLabel = new ActivityLinkedConceptLabel(manifoldConcept_, ActivityLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
 		titleProperty.set(manifoldConcept_.getRegularName(componentNid).orElse(manifoldConcept_.getFullySpecifiedDescriptionText(componentNid)));
 		viewFocus_ = ViewFocus.REFERENCED_COMPONENT;
 		viewFocusNid_ = componentNid;
@@ -712,7 +712,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 		}
 		else {
 			manifoldConcept_ = manifold;
-			titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
+			titleLabel = new ActivityLinkedConceptLabel(manifoldConcept_, ActivityLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
 			titleLabel.setGraphic(Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic());
 		}
 		titleProperty.set(manifoldConcept_.getRegularName(assemblageConceptNid).orElse(manifoldConcept_.getFullySpecifiedDescriptionText(assemblageConceptNid)));
@@ -1795,7 +1795,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode)
 	{
 		manifoldConcept_= manifold;
-		titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
+		titleLabel = new ActivityLinkedConceptLabel(manifoldConcept_, ActivityLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
 		titleLabel.setGraphic(Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic());
 
 		if (manifold.getFocusedConcept().isPresent())

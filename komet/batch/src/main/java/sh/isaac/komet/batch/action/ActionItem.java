@@ -10,7 +10,7 @@ import sh.isaac.api.marshal.Marshalable;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.VersionChangeListener;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,7 +27,7 @@ public abstract class ActionItem implements Marshalable {
         return this.propertySheet;
     }
 
-    public void setupForGui(Manifold manifold) {
+    public void setupForGui(ViewProperties manifold) {
         // TODO make property sheet transparent so background list row striping shows through properly...
         this.propertySheet = new PropertySheet();
         this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
@@ -36,7 +36,7 @@ public abstract class ActionItem implements Marshalable {
         setupItemForGui(manifold);
     }
 
-    protected abstract void setupItemForGui(Manifold manifold);
+    protected abstract void setupItemForGui(ViewProperties manifold);
 
     /**
      * Called once before calling the apply methods, so that an action can setup and cache any objects

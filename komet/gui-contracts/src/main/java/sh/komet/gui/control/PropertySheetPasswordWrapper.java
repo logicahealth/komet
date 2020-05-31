@@ -21,8 +21,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -38,9 +37,9 @@ public class PropertySheetPasswordWrapper implements PropertySheet.Item {
       this.textProperty = textProperty;
    }
 
-   public PropertySheetPasswordWrapper(Manifold manifold,
+   public PropertySheetPasswordWrapper(ViewProperties viewProperties,
                                        StringProperty textProperty) {
-      this(manifold.getPreferredDescriptionText(new ConceptProxy(textProperty.getName())),
+      this(viewProperties.getPreferredDescriptionText(new ConceptProxy(textProperty.getName())),
               textProperty);
    }
 

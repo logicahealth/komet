@@ -25,30 +25,30 @@ import javafx.beans.property.Property;
 import javafx.beans.property.StringProperty;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.Status;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
  * @author kec
  */
 public class PropertyToPropertySheetItem {
-    public static List<PropertySheet.Item> getItems(List<Property<?>> properties, Manifold manifold) {
+    public static List<PropertySheet.Item> getItems(List<Property<?>> properties, ViewProperties viewProperties) {
         ArrayList<PropertySheet.Item> items = new ArrayList<>();
         
         for (Property<?> property: properties) {
             try {
                 if (property instanceof StringProperty) {
-                    items.add(new PropertySheetTextWrapper(manifold, (StringProperty) property));
+                    items.add(new PropertySheetTextWrapper(viewProperties, (StringProperty) property));
                 } else if (property instanceof IntegerProperty) {
                     String lowerCaseName = property.getName().toLowerCase();
                     if (lowerCaseName.contains("nid") || lowerCaseName.contains("component")) {
-                        items.add(new PropertySheetItemConceptNidWrapper(manifold,
+                        items.add(new PropertySheetItemConceptNidWrapper(viewProperties,
                                 (IntegerProperty) property));
                     }
                     
                 } else if (property instanceof ObjectProperty) {
                     if (((ObjectProperty<Object>) property).getValue() instanceof Status) {
-                        items.add(new PropertySheetStatusWrapper(manifold,
+                        items.add(new PropertySheetStatusWrapper(viewProperties,
                                 (ObjectProperty<Status>) property));
                     }
                 }

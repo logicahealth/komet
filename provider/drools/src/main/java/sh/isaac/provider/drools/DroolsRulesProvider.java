@@ -51,7 +51,7 @@ import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.komet.gui.contract.RulesDrivenKometService;
 import sh.komet.gui.control.PropertySheetMenuItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -138,13 +138,13 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     }
     
     @Override
-    public List<Action> getEditLogicalExpressionNodeMenuItems(Manifold manifold,
+    public List<Action> getEditLogicalExpressionNodeMenuItems(ViewProperties viewProperties,
                                                               LogicNode nodeToEdit,
                                                               LogicalExpression expressionContiningNode,
                                                               Consumer<LogicalExpression> expressionUpdater,
                                                               MouseEvent mouseEvent) {
         AddEditLogicalExpressionNodeMenuItems executionItem
-                = new AddEditLogicalExpressionNodeMenuItems(manifold, nodeToEdit,
+                = new AddEditLogicalExpressionNodeMenuItems(viewProperties, nodeToEdit,
                         expressionContiningNode, expressionUpdater, mouseEvent);
         this.staticSession.execute(executionItem);
         executionItem.sortActionItems();
@@ -152,9 +152,9 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     }
     
     @Override
-    public List<MenuItem> getEditVersionMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
+    public List<MenuItem> getEditVersionMenuItems(ViewProperties viewProperties, ObservableCategorizedVersion categorizedVersion,
                                                   Consumer<PropertySheetMenuItem> propertySheetConsumer) {
-        AddEditVersionMenuItems executionItem = new AddEditVersionMenuItems(manifold, categorizedVersion, propertySheetConsumer);
+        AddEditVersionMenuItems executionItem = new AddEditVersionMenuItems(viewProperties, categorizedVersion, propertySheetConsumer);
         this.staticSession.execute(executionItem);
         if (this.dynamicSession != null) {
             this.dynamicSession.execute(executionItem);
@@ -163,9 +163,9 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     }
     
     @Override
-    public List<MenuItem> getAddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
+    public List<MenuItem> getAddAttachmentMenuItems(ViewProperties viewProperties, ObservableCategorizedVersion categorizedVersion,
                                                     BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
-        AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifold, categorizedVersion, newAttachmentConsumer);
+        AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(viewProperties, categorizedVersion, newAttachmentConsumer);
         this.staticSession.execute(executionItem);
         if (this.dynamicSession != null) {
             this.dynamicSession.execute(executionItem);

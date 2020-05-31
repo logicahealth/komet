@@ -23,9 +23,10 @@ import javafx.application.Platform;
 import sh.isaac.api.Get;
 import sh.isaac.api.Edge;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.task.TaskCountManager;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.komet.gui.util.FxGet;
 
@@ -48,7 +49,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
         this.childrenLoadedLatch = childrenLoadedLatch;
         this.treeItemImpl = treeItemImpl;
         this.parentName = treeItemImpl.getGraphView()
-                .getManifold().getPreferredDescriptionText(treeItemImpl.getValue());
+                .getManifoldCoordinate().getPreferredDescriptionText(treeItemImpl.getValue());
         updateTitle("Fetching children for: " + this.parentName);
         Get.activeTasks().add(this);
         LOG.debug("###Starting Adding children for: " + treeItemImpl.getValue().getNid()
@@ -78,7 +79,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                 // Gather the children
                 ConcurrentSkipListSet<MultiParentGraphItemImpl> childrenToAdd = new ConcurrentSkipListSet<>();
                 TaxonomySnapshot taxonomySnapshot = treeItemImpl.getGraphView().getTaxonomySnapshot();
-                Manifold manifold = treeItemImpl.getGraphView().getManifold();
+                ManifoldCoordinate manifold = treeItemImpl.getGraphView().getManifoldCoordinate();
                 Collection<Edge>  children = (Collection<Edge>) taxonomySnapshot.getTaxonomyChildLinks(conceptChronology.getNid());
                 addToTotalWork(children.size() + 1);
 

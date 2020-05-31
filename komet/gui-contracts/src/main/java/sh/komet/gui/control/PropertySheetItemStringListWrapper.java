@@ -22,7 +22,7 @@ import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -41,8 +41,8 @@ public class PropertySheetItemStringListWrapper implements PropertySheet.Item {
       this.allowedValues = allowedValues;
    }
 
-   public PropertySheetItemStringListWrapper(Manifold manifold, StringProperty stringSelectionProperty, List<String> allowedValues) {
-      this.name = manifold.getPreferredDescriptionText(new ConceptProxy(stringSelectionProperty.getName()));
+   public PropertySheetItemStringListWrapper(ViewProperties viewProperties, StringProperty stringSelectionProperty, List<String> allowedValues) {
+      this.name = viewProperties.getPreferredDescriptionText(new ConceptProxy(stringSelectionProperty.getName()));
       this.stringSelectionProperty = stringSelectionProperty;
       this.allowedValues = allowedValues;
    }

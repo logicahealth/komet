@@ -25,6 +25,7 @@ import javafx.collections.ObservableList;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.ConceptProxy;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.manifold.Manifold;
 
 /**
@@ -36,12 +37,12 @@ public class PropertySheetListWrapper<T> implements PropertySheet.Item {
     private final SimpleListProperty<T> wrappedProperty;
     private final String name;
     private final Supplier<T> newObjectSupplier;
-    private final Function<Manifold,PropertyEditor<T>> newEditorSupplier;
+    private final Function<ViewProperties,PropertyEditor<T>> newEditorSupplier;
 
-    public PropertySheetListWrapper(Manifold manifold, SimpleListProperty<T> wrappedProperty,
-                                    Supplier<T> newObjectSupplier, Function<Manifold,PropertyEditor<T>> newEditorSupplier) {
+    public PropertySheetListWrapper(ViewProperties viewProperties, SimpleListProperty<T> wrappedProperty,
+                                    Supplier<T> newObjectSupplier, Function<ViewProperties,PropertyEditor<T>> newEditorSupplier) {
         this.wrappedProperty = wrappedProperty;
-        this.name = manifold.getPreferredDescriptionText(new ConceptProxy(wrappedProperty.getName()));
+        this.name = viewProperties.getPreferredDescriptionText(new ConceptProxy(wrappedProperty.getName()));
         this.newObjectSupplier = newObjectSupplier;
         this.newEditorSupplier = newEditorSupplier;
     }
@@ -50,7 +51,7 @@ public class PropertySheetListWrapper<T> implements PropertySheet.Item {
         return newObjectSupplier;
     }
 
-    public Function<Manifold, PropertyEditor<T>> getNewEditorSupplier() {
+    public Function<ViewProperties, PropertyEditor<T>> getNewEditorSupplier() {
         return newEditorSupplier;
     }
 

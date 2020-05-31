@@ -56,6 +56,7 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.transaction.Transaction;
@@ -65,7 +66,7 @@ import sh.komet.gui.cell.CellHelper;
 import sh.komet.gui.control.FixedSizePane;
 import sh.komet.gui.control.PropertyToPropertySheetItem;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
@@ -84,7 +85,7 @@ public class TreeTableGeneralCell
     private static final Logger LOG = LogManager.getLogger();
 
     //~--- fields --------------------------------------------------------------
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     private final Button editButton = new Button("", Iconography.EDIT_PENCIL.getIconographic());
     private final GridPane textAndEditGrid = new GridPane();
     private final BorderPane editPanel = new BorderPane();
@@ -95,8 +96,8 @@ public class TreeTableGeneralCell
     private final CellHelper cellHelper = new CellHelper(this);
 
     //~--- constructors --------------------------------------------------------
-    public TreeTableGeneralCell(Manifold manifold) {
-        this.manifold = manifold;
+    public TreeTableGeneralCell(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
         getStyleClass().add("komet-version-general-cell");
         getStyleClass().add("isaac-version");
         editButton.getStyleClass()
@@ -144,8 +145,8 @@ public class TreeTableGeneralCell
         return VersionType.UNKNOWN;
     }
     @Override
-    public Manifold getManifold() {
-        return manifold;
+    public ManifoldCoordinate getManifoldCoordinate() {
+        return viewProperties.getManifoldCoordinate();
     }
 
     public void initializeConceptBuilder() {
@@ -199,8 +200,8 @@ public class TreeTableGeneralCell
                     propertySheet.setMode(PropertySheet.Mode.NAME);
                     propertySheet.setSearchBoxVisible(false);
                     propertySheet.setModeSwitcherVisible(false);
-                    propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifold));
-                    propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifold));
+                    propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.viewProperties));
+                    propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.viewProperties));
 
                     editPanel.setTop(toolBar);
                     editPanel.setCenter(propertySheet);
@@ -211,6 +212,11 @@ public class TreeTableGeneralCell
             editPanel.getChildren().clear();
             editButton.setVisible(true);
         }
+    }
+
+    @Override
+    public ViewProperties getViewProperties() {
+        return this.viewProperties;
     }
 
     @Override

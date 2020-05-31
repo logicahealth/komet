@@ -42,7 +42,7 @@ import sh.isaac.api.util.DescriptionToToken;
 public class DocBook {
 
     public static String getInlineEntry(ConceptSpecification concept,
-            ManifoldCoordinate manifold) {
+                                        ManifoldCoordinate manifold) {
         boolean defined = isDefined(concept.getNid(), manifold);
         boolean multiParent = isMultiparent(concept.getNid(), manifold);
         String conceptChar;
@@ -99,7 +99,7 @@ public class DocBook {
     }
     
     private static String makeGlossentry(ConceptSpecification concept,
-            ManifoldCoordinate manifold, String definitionSvg) {
+                                         ManifoldCoordinate manifold, String definitionSvg) {
         StringBuilder builder = new StringBuilder();
         builder.append("<glossentry xml:id=\"ge_solor_");
         builder.append(DescriptionToToken.get(manifold.getPreferredDescriptionText(concept)));
@@ -136,11 +136,11 @@ public class DocBook {
     }
 
     public static String getGlossentry(int conceptNid,
-            ManifoldCoordinate manifold, String svgString) {
+                                       ManifoldCoordinate manifold, String svgString) {
         return getGlossentry(Get.concept(conceptNid), manifold, svgString);
     }
     public static String getGlossentry(ConceptSpecification concept,
-            ManifoldCoordinate manifold, String svgString) {
+                                       ManifoldCoordinate manifold, String svgString) {
         StringBuilder builder = new StringBuilder();
             builder.append("\n          <row><entry/><entry>");
             builder.append(svgString);
@@ -150,7 +150,7 @@ public class DocBook {
     }
 
     public static String getGlossentry(ConceptSpecification concept,
-            ManifoldCoordinate manifold) {
+                                       ManifoldCoordinate manifold) {
         StringBuilder builder = new StringBuilder();
         addInferredDefinition(builder, Get.concept(concept), manifold);
         return makeGlossentry(concept, manifold, builder.toString());

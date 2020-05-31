@@ -32,7 +32,7 @@ import sh.komet.gui.contract.preferences.ConfigurationPreference;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -53,9 +53,9 @@ public class ConfigurationPreferencePanel extends AbstractPreferences implements
     private final SimpleStringProperty datastoreLocationProperty
             = new SimpleStringProperty(this, MetaData.DATASTORE_LOCATION____SOLOR.toExternalString());
 
-    public ConfigurationPreferencePanel(IsaacPreferences preferencesNode, Manifold manifold,
+    public ConfigurationPreferencePanel(IsaacPreferences preferencesNode, ViewProperties viewProperties,
                                         KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "KOMET"), manifold, 
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "KOMET"), viewProperties,
                 kpc);
         this.nameProperty.set(groupNameProperty().get());
         this.enableEdit.setValue(preferencesNode.getBoolean(this.enableEdit.getName(), true));
@@ -65,9 +65,9 @@ public class ConfigurationPreferencePanel extends AbstractPreferences implements
         nameProperty.addListener((observable, oldValue, newValue) -> {
             FxGet.setConfigurationName(newValue);
         });
-        getItemList().add(new PropertySheetTextWrapper(manifold, this.nameProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(manifold, this.enableEdit));
-        getItemList().add(new PropertySheetTextWrapper(manifold, this.datastoreLocationProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties, this.nameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, this.enableEdit));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties, this.datastoreLocationProperty));
     }
 
     @Override

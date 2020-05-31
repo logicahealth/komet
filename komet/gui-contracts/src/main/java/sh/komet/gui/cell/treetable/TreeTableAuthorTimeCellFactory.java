@@ -20,7 +20,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeTableColumn;
 import javafx.util.Callback;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -29,19 +29,19 @@ import sh.komet.gui.manifold.Manifold;
 public class TreeTableAuthorTimeCellFactory  
          implements Callback<TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion>,
                              TreeTableAuthorTimeCell> {
-   private final Manifold manifold;
+   private final ViewProperties viewProperties;
 
    //~--- constructors --------------------------------------------------------
 
-   public TreeTableAuthorTimeCellFactory(Manifold manifold) {
-      this.manifold = manifold;
+   public TreeTableAuthorTimeCellFactory(ViewProperties viewProperties) {
+      this.viewProperties = viewProperties;
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
    public TreeTableAuthorTimeCell call(TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> param) {
-      return new TreeTableAuthorTimeCell(this.manifold);
+      return new TreeTableAuthorTimeCell(this.viewProperties);
    }
 
    //~--- get methods ---------------------------------------------------------

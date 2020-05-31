@@ -366,7 +366,7 @@ public class TaxonomyProvider
     @Override
     public TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, Set<Status> allowedStates, boolean computeTree) {
 
-        ManifoldCoordinateImmutable statedManifold = ManifoldCoordinateImmutable.makeStated(StampFilterImmutable.make(StatusSet.of(allowedStates), pathNid, modules),
+        ManifoldCoordinate statedManifold = ManifoldCoordinateImmutable.makeStated(StampFilterImmutable.make(StatusSet.of(allowedStates), pathNid, modules),
                 Coordinates.Language.UsEnglishPreferredName());
 
         return computeTree ?

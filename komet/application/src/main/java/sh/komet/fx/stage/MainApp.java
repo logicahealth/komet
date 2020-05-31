@@ -55,10 +55,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.factory.Sets;
-import org.eclipse.collections.impl.factory.primitive.IntLists;
-import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.api.MultiException;
 //import org.scenicview.ScenicView;
 import sh.isaac.api.ApplicationStates;
@@ -78,7 +74,7 @@ import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.PersonaChangeListener;
 import sh.komet.gui.contract.preferences.PersonaItem;
 import sh.komet.gui.contract.preferences.WindowPreferencesItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
@@ -380,12 +376,12 @@ public class MainApp
     }
 
     private void newStatement(ActionEvent event) {
-        Manifold statementManifold = FxGet.manifold(ManifoldGroup.CLINICAL_STATEMENT);
+        ViewProperties statementManifold = FxGet.newDefaultViewProperties();
         StatementViewController statementController = StatementView.show(statementManifold,
                 MenuProvider::handleCloseRequest);
 
-        statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold));
-        statementController.getClinicalStatement().setManifold(statementManifold);
+        statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold.getManifoldCoordinate()));
+        statementController.getClinicalStatement().setManifold(statementManifold.getManifoldCoordinate());
         MenuProvider.WINDOW_COUNT.incrementAndGet();
     }
 
@@ -432,7 +428,7 @@ public class MainApp
     }
 
     private void handlePrefs(ActionEvent event) {
-        Stage prefStage = FxGet.kometPreferences().showPreferences(FxGet.manifold(ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE));
+        Stage prefStage = FxGet.kometPreferences().showPreferences();
     }
 
     private void handleAbout(ActionEvent event) {
@@ -471,6 +467,7 @@ public class MainApp
     }
 
     protected void shutdown() {
+        FxGet.sync();
         for (Transaction transaction: Get.commitService().getPendingTransactionList()) {
             transaction.cancel();
         }

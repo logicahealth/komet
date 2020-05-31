@@ -35,7 +35,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.model.observable.version.*;
 import sh.komet.gui.control.PropertySheetMenuItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
@@ -51,14 +51,14 @@ public class AddAttachmentMenuItems {
     private static final Logger LOG = LogManager.getLogger();
 
     final List<MenuItem> menuItems = new ArrayList<>();
-    final Manifold manifold;
+    final ViewProperties viewProperties;
     final ObservableCategorizedVersion categorizedVersion;
     final BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer;
     final HashMap<String, PropertySheetMenuItem> propertySheetMenuItems = new HashMap<>();
 
-    public AddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
+    public AddAttachmentMenuItems(ViewProperties viewProperties, ObservableCategorizedVersion categorizedVersion,
                                   BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
         this.categorizedVersion = categorizedVersion;
         this.newAttachmentConsumer = newAttachmentConsumer;
     }
@@ -83,7 +83,7 @@ public class AddAttachmentMenuItems {
         if (propertySheetMenuItems.containsKey(menuText)) {
             return propertySheetMenuItems.get(menuText);
         }
-        PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion);
+        PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(viewProperties, categorizedVersion);
         propertySheetMenuItems.put(menuText, propertySheetMenuItem);
         MenuItem menuItem = new MenuItemWithText(menuText);
         menuItem.setOnAction((event) -> {
@@ -103,7 +103,7 @@ public class AddAttachmentMenuItems {
     }
 
     protected ObservableVersion makeNewVersion(ConceptSpecification assemblageSpecification) throws NoSuchElementException, InterruptedException, IllegalStateException, ExecutionException {
-        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageSpecification, manifold.getStampFilter());
+        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageSpecification, viewProperties.getManifoldCoordinate().getStampFilter());
         if (optionalSemanticConceptNid.isPresent()) {
             int semanticTypeNid = optionalSemanticConceptNid.getAsInt();
             if (semanticTypeNid == MetaData.CONCEPT_SEMANTIC____SOLOR.getNid()

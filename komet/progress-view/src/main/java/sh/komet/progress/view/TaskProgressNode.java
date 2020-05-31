@@ -40,15 +40,17 @@ package sh.komet.progress.view;
 
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringPropertyBase;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import javafx.geometry.Bounds;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
-import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -56,20 +58,19 @@ import sh.komet.gui.manifold.Manifold;
  * @author kec
  */
 public abstract class TaskProgressNode
-        implements ExplorationNode {
+        extends ExplorationNodeAbstract {
 
    final TaskProgressView<Task<?>> taskProgressView = new TaskProgressView<>();
    final SimpleStringProperty activeTasksTooltip = new SimpleStringProperty("No tasks...");
    final SimpleStringProperty title = new SimpleStringProperty(TaskProgressNodeFactory.TITLE_BASE);
    final SimpleStringProperty titledNodeTitle = new SimpleStringProperty(TaskProgressNodeFactory.TITLE_BASE);
    final AnchorPane anchorPane = new AnchorPane();
-   final Manifold manifold;
    final ScrollPane scrollPane;
    protected Label titleLabel = null;
 
    //~--- constructors --------------------------------------------------------
-   public TaskProgressNode(Manifold manifold) {
-       this.manifold = manifold;
+   public TaskProgressNode(ViewProperties viewProperties) {
+       super(viewProperties);
 
       scrollPane = new ScrollPane(taskProgressView);
       scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
@@ -98,24 +99,10 @@ public abstract class TaskProgressNode
 
 
    //~--- get methods ---------------------------------------------------------
-
-   @Override
-   public Manifold getManifold() {
-      return this.manifold;
-   }
-
    @Override
    public Node getNode() {
       return taskProgressView;
    }
 
-   @Override
-   public ReadOnlyProperty<String> getTitle() {
-      return title;
-   }
 
-   @Override
-   public ReadOnlyProperty<String> getToolTip() {
-      return activeTasksTooltip;
-   }
 }

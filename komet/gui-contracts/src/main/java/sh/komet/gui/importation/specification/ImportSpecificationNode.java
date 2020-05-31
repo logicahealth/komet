@@ -3,10 +3,12 @@ package sh.komet.gui.importation.specification;
 import javafx.beans.property.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -15,48 +17,37 @@ import java.util.Optional;
  * 2019-05-01
  * aks8m - https://github.com/aks8m
  */
-public class ImportSpecificationNode implements ExplorationNode {
+public class ImportSpecificationNode extends ExplorationNodeAbstract {
 
-    private final Manifold manifold;
-
-    private final SimpleStringProperty titleProperty = new SimpleStringProperty("Import Specification Builder");
-    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Import Specification Builder");
+    {
+        titleProperty.setValue("Import Specification Builder");
+        toolTipProperty.setValue("Import Specification Builder");
+        menuIconProperty.setValue(Iconography.ICON_IMPORT.getIconographic());
+    }
     private final SimpleBooleanProperty closeExplorationNodeProperty = new SimpleBooleanProperty(false);
-    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.ICON_IMPORT.getIconographic());
 
     private final BorderPane borderPane;
 
-    public ImportSpecificationNode(Manifold manifold) {
+    public ImportSpecificationNode(ViewProperties viewProperties) {
+        super(viewProperties);
         try {
-            this.manifold = manifold;
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ImportSpecificationPanel.fxml"));
             this.borderPane = loader.load();
             ImportSpecificationController importSpecificationController = loader.getController();
-            importSpecificationController.setManifold(manifold);
+            importSpecificationController.setViewProperties(viewProperties);
             importSpecificationController.setCloseExplorationNodeProperty(this.closeExplorationNodeProperty);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-
     @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return this.titleProperty;
+    public Node getMenuIconGraphic() {
+        return Iconography.ICON_IMPORT.getIconographic();
     }
 
     @Override
     public Optional<Node> getTitleNode() {
         return Optional.empty();
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return this.toolTipProperty;
-    }
-
-    @Override
-    public Manifold getManifold() {
-        return this.manifold;
     }
 
     @Override
@@ -70,6 +61,11 @@ public class ImportSpecificationNode implements ExplorationNode {
     }
 
     @Override
+    public ActivityFeed getActivityFeed() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public boolean canClose() {
         return true;
     }
@@ -77,10 +73,5 @@ public class ImportSpecificationNode implements ExplorationNode {
     @Override
     public void savePreferences() {
 
-    }
-
-    @Override
-    public ObjectProperty<Node> getMenuIconProperty() {
-        return menuIconProperty;
     }
 }

@@ -21,7 +21,7 @@ import org.controlsfx.control.PropertySheet;
 import sh.isaac.model.statement.CircumstanceImpl;
 import sh.isaac.model.statement.UnstructuredCircumstanceImpl;
 import sh.komet.gui.control.PropertySheetTextWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -29,14 +29,14 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class UnstructuredPropertySheet extends CircumstancePropertySheet {
 
-    public UnstructuredPropertySheet(Manifold manifold) {
-        super(manifold);
+    public UnstructuredPropertySheet(ViewProperties viewProperties) {
+        super(viewProperties);
     }
 
     @Override
     protected void getSubclassProperties(CircumstanceImpl circumstance, List<PropertySheet.Item> itemList) {
         UnstructuredCircumstanceImpl unstructuredCircumstance = (UnstructuredCircumstanceImpl) circumstance;
-        itemList.add(new PropertySheetTextWrapper(manifold, unstructuredCircumstance.unstructuredTextProperty()));
+        itemList.add(new PropertySheetTextWrapper(viewProperties, unstructuredCircumstance.unstructuredTextProperty()));
     }
     
 }

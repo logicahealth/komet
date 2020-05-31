@@ -19,7 +19,7 @@ import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.model.observable.coordinate.ObservableStampPathImpl;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.contract.preferences.PreferencesTreeItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import static sh.isaac.api.util.time.DateTimeUtil.EASY_TO_READ_DATE_TIME_FORMAT;
 
@@ -72,27 +72,27 @@ public class PathItemPanel implements PreferenceGroup {
     }
 
     @Override
-    public Node getCenterPanel(Manifold manifold) {
+    public Node getCenterPanel(ViewProperties viewProperties) {
         return pathGridPane;
     }
 
     @Override
-    public Node getRightPanel(Manifold manifold) {
+    public Node getRightPanel(ViewProperties viewProperties) {
         return null;
     }
 
     @Override
-    public Node getTopPanel(Manifold manifold) {
+    public Node getTopPanel(ViewProperties viewProperties) {
         return new ToolBar();
     }
 
     @Override
-    public Node getBottomPanel(Manifold manifold) {
+    public Node getBottomPanel(ViewProperties viewProperties) {
         return new ToolBar();
     }
 
     @Override
-    public Node getLeftPanel(Manifold manifold) {
+    public Node getLeftPanel(ViewProperties viewProperties) {
         return null;
     }
 

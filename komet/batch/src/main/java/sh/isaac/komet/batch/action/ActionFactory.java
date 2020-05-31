@@ -2,7 +2,7 @@ package sh.isaac.komet.batch.action;
 
 import javafx.scene.Node;
 import org.jvnet.hk2.annotations.Contract;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 @Contract
 public interface ActionFactory {
@@ -13,5 +13,5 @@ public interface ActionFactory {
 
     String getActionName();
 
-    ActionItem makeActionItem(Manifold manifoldForDisplay);
+    ActionItem makeActionItem(ViewProperties manifoldForDisplay);
 }

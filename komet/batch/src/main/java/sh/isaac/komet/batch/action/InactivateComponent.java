@@ -15,7 +15,7 @@ import sh.isaac.api.marshal.Unmarshaler;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.VersionChangeListener;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -37,7 +37,7 @@ public class InactivateComponent extends ActionItem {
     }
 
     @Override
-    protected void setupItemForGui(Manifold manifoldForDisplay) {
+    protected void setupItemForGui(ViewProperties manifoldForDisplay) {
         getPropertySheet().getItems().add(new PropertySheetItemConceptWrapper(manifoldForDisplay, "Inactivate",
                 conceptToInactivateProperty,
                 new ConceptProxy("Disease (disorder)", UUID.fromString("ab4e618b-b954-3d56-a44b-f0f29d6f59d3")),

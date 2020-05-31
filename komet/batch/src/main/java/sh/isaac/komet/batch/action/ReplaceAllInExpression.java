@@ -21,7 +21,7 @@ import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.VersionChangeListener;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.List;
 import java.util.UUID;
@@ -78,7 +78,7 @@ public class ReplaceAllInExpression extends ActionItem {
     }
 
     @Override
-    public void setupItemForGui(Manifold manifoldForDisplay) {
+    public void setupItemForGui(ViewProperties manifoldForDisplay) {
         getPropertySheet().getItems().add(new PropertySheetItemConceptWrapper(manifoldForDisplay, "Search in",
                 expressionAssemblageProperty, TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE));
 

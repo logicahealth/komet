@@ -12,7 +12,7 @@ import sh.isaac.api.marshal.Unmarshaler;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.VersionChangeListener;
-import sh.komet.gui.util.UuidStringKey;
+import sh.isaac.api.util.UuidStringKey;
 
 import java.util.ArrayList;
 import java.util.Collections;

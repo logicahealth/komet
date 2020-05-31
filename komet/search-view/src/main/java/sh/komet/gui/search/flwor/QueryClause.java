@@ -49,7 +49,7 @@ import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapperNoSearch;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 //~--- inner classes -------------------------------------------------------
@@ -57,7 +57,7 @@ public class QueryClause {
 
     SimpleObjectProperty<Clause> clauseProperty;
     SimpleStringProperty clauseName;
-    Manifold manifold;
+    ViewProperties viewProperties;
     SimpleObjectProperty<ConceptSpecification> forSpecProperty = new SimpleObjectProperty<>(this, MetaData.FOR_ASSEMBLAGE____SOLOR.toExternalString());
     //SimpleObjectProperty<LetItemKey> stampKeyProperty = new SimpleObjectProperty<>(this, MetaData.STAMP_COORDINATE____SOLOR.toExternalString());
     ObservableList<JoinProperty> joinProperties;
@@ -69,16 +69,16 @@ public class QueryClause {
     List<Property<?>> clauseSpecificProperties = new ArrayList();
 
     //~--- constructors -----------------------------------------------------
-    protected QueryClause(Clause clause, Manifold manifold, ForPanel forPropertySheet, ObservableList<JoinProperty> joinProperties,
+    protected QueryClause(Clause clause, ViewProperties viewProperties, ForPanel forPropertySheet, ObservableList<JoinProperty> joinProperties,
                           LetPropertySheet letPropertySheet) {
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
         this.forPropertySheet = forPropertySheet;
         this.letPropertySheet = letPropertySheet;
         this.clauseProperty = new SimpleObjectProperty<>(this, "clauseProperty", clause);
-        this.clauseName = new SimpleStringProperty(this, clause.getClauseConcept().toExternalString(), manifold.getPreferredDescriptionText(clause.getClauseConcept()));
+        this.clauseName = new SimpleStringProperty(this, clause.getClauseConcept().toExternalString(), viewProperties.getPreferredDescriptionText(clause.getClauseConcept()));
         this.clauseProperty.addListener(
                 (javafx.beans.value.ObservableValue<? extends sh.isaac.api.query.Clause> ov, sh.isaac.api.query.Clause oldClause, sh.isaac.api.query.Clause newClause)
-                -> this.clauseName.setValue(manifold.getPreferredDescriptionText(newClause.getClauseConcept())));
+                -> this.clauseName.setValue(viewProperties.getPreferredDescriptionText(newClause.getClauseConcept())));
         this.joinProperties = joinProperties;
     }
 
@@ -91,7 +91,7 @@ public class QueryClause {
         clausePropertySheet.getStyleClass().setAll("clause-properties");
         clausePropertySheet.setSearchBoxVisible(false);
         clausePropertySheet.setModeSwitcherVisible(false);
-        clausePropertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
+        clausePropertySheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties));
         switch (this.clauseProperty.get().getClauseSemantic()) {
             case AND:
                 return new Label("and");
@@ -125,7 +125,7 @@ public class QueryClause {
             case DESCRIPTION_LUCENE_MATCH: {
                 DescriptionLuceneMatch descriptionLuceneMatch = (DescriptionLuceneMatch) clauseProperty.get();
 
-                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "For each",
+                clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(viewProperties, "For each",
                         forSpecProperty, forPropertySheet.getForAssemblagesProperty()));
                 forSpecProperty.addListener((observable, oldValue, newValue) -> {
                     try {
@@ -141,7 +141,7 @@ public class QueryClause {
                     descriptionLuceneMatch.let(descriptionLuceneMatch.getQueryStringKey(), newValue);
                 });
 
-                clausePropertySheet.getItems().add(new PropertySheetTextWrapper(manifold, queryText));
+                clausePropertySheet.getItems().add(new PropertySheetTextWrapper(viewProperties, queryText));
                 return clausePropertySheet;
             }
             case DESCRIPTION_REGEX_MATCH:
@@ -232,9 +232,9 @@ public class QueryClause {
         if (count > 0) {
             suffix = " " + count;
         }
-        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "join" + suffix,
+        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(viewProperties, "join" + suffix,
                 joinSpec.firstAssemblageProperty(), forPropertySheet.getForAssemblagesProperty()));
-        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, "with",
+        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(viewProperties, "with",
                 joinSpec.secondAssemblageProperty(), forPropertySheet.getForAssemblagesProperty()));
         // need field list here
         clausePropertySheet.getItems().add(new PropertySheetItemObjectListWrapper("where",
@@ -296,7 +296,7 @@ public class QueryClause {
             letPropertySheet.getLetItemObjectMap().put(queryKeyProperty.get(), newValue);
         });
 
-        clausePropertySheet.getItems().add(new PropertySheetTextWrapper(manifold,
+        clausePropertySheet.getItems().add(new PropertySheetTextWrapper(viewProperties,
                 queryStringProperty));
 
         SimpleBooleanProperty regexProperty = new SimpleBooleanProperty(this, MetaData.QUERY_STRING_IS_REGEX____SOLOR.toExternalString(), queryStringClause.isRegex());
@@ -311,7 +311,7 @@ public class QueryClause {
 
     protected PropertySheet setupAssemblageForIteration(String keyName) {
         AssemblageForIterationClause assemblageForIterationClause = (AssemblageForIterationClause) clauseProperty.get();
-        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(manifold, keyName,
+        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapperNoSearch(viewProperties, keyName,
                 forSpecProperty, forPropertySheet.getForAssemblagesProperty()));
 
         if (assemblageForIterationClause.getAssemblageForIteration() == null || assemblageForIterationClause.getAssemblageForIteration().equals(TermAux.UNINITIALIZED_COMPONENT_ID)) {
@@ -364,7 +364,7 @@ public class QueryClause {
         SimpleBooleanProperty booleanProperty = new SimpleBooleanProperty(this, MetaData.BOOLEAN_FIELD____SOLOR.toExternalString());
         booleanProperty.set((Boolean) letPropertySheet.getLetItemObjectMap().get(undirectedTaxonomyKey));
         this.clauseSpecificProperties.add(booleanProperty);
-        this.clausePropertySheet.getItems().add(new PropertySheetBooleanWrapper(this.manifold, booleanProperty));
+        this.clausePropertySheet.getItems().add(new PropertySheetBooleanWrapper(this.viewProperties, booleanProperty));
         return clausePropertySheet;
     }
 
@@ -385,7 +385,7 @@ public class QueryClause {
         SimpleIntegerProperty integerProperty = new SimpleIntegerProperty(this, MetaData.INTEGER_FIELD____SOLOR.toExternalString());
         this.clauseSpecificProperties.add(integerProperty);
         integerProperty.set((Integer) letPropertySheet.getLetItemObjectMap().get(taxonomyDistanceKey));
-        this.clausePropertySheet.getItems().add(new PropertySheetItemIntegerWrapper(this.manifold, integerProperty));
+        this.clausePropertySheet.getItems().add(new PropertySheetItemIntegerWrapper(this.viewProperties, integerProperty));
         return clausePropertySheet;
     }
 
@@ -426,7 +426,7 @@ public class QueryClause {
 
         conceptSpecificationKeyProperty.set(conceptKey);
 
-        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapper(manifold,
+        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties,
                 "concept", conceptSpecProperty));
         conceptSpecProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -472,7 +472,7 @@ public class QueryClause {
 
         conceptSpecificationKeyProperty.set(referencedComponentKey);
 
-        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapper(manifold,
+        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties,
                 "concept", conceptSpecProperty));
         conceptSpecProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {

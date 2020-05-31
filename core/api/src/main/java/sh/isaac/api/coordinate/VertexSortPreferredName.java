@@ -8,15 +8,15 @@ import sh.isaac.api.marshal.Unmarshaler;
 import java.util.Optional;
 import java.util.UUID;
 
-public class VertexSortRegularName extends VertexSortAbstract implements Marshalable {
+public class VertexSortPreferredName extends VertexSortAbstract implements Marshalable {
 
     private static final int marshalVersion = 1;
 
     private static final UUID VERTEX_SORT_UUID = UUID.fromString("7a6203a8-6ed1-11ea-bc55-0242ac130003");
 
-    public static final VertexSortRegularName SINGLETON = new VertexSortRegularName();
+    public static final VertexSortPreferredName SINGLETON = new VertexSortPreferredName();
 
-    private VertexSortRegularName() {
+    private VertexSortPreferredName() {
     }
 
     @Override

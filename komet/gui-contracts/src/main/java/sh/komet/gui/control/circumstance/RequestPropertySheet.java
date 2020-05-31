@@ -25,8 +25,8 @@ import sh.isaac.model.statement.RepetitionImpl;
 import sh.isaac.model.statement.RequestCircumstanceImpl;
 import sh.komet.gui.control.list.PropertySheetListWrapper;
 import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.control.repetition.RepetitionEditor;
-import sh.komet.gui.manifold.Manifold;
 
 /**
  *
@@ -34,8 +34,8 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class RequestPropertySheet extends CircumstancePropertySheet {
 
-    public RequestPropertySheet(Manifold manifold) {
-        super(manifold);
+    public RequestPropertySheet(ViewProperties viewProperties) {
+        super(viewProperties);
     }
 
     @Override
@@ -48,18 +48,18 @@ public class RequestPropertySheet extends CircumstancePropertySheet {
         
         // TODO SimpleObjectProperty<LogicalExpression> priorityProperty()
 
-        itemList.add(new PropertySheetListWrapper<>(manifold, request.repetitionsProperty(), 
+        itemList.add(new PropertySheetListWrapper<>(viewProperties, request.repetitionsProperty(),
             this::newRepetition, 
             this::newPropertyEditor));
 
-        itemList.add(new PropertySheetMeasureWrapper(manifold, request.requestedMeasureProperty()));
+        itemList.add(new PropertySheetMeasureWrapper(viewProperties, request.requestedMeasureProperty()));
     }
     
     Repetition newRepetition() {
         return new RepetitionImpl();
     }
     
-    PropertyEditor<Repetition> newPropertyEditor(Manifold manifold) {
-        return new RepetitionEditor(manifold);
+    PropertyEditor<Repetition> newPropertyEditor(ViewProperties viewProperties) {
+        return new RepetitionEditor(viewProperties);
     }
 }

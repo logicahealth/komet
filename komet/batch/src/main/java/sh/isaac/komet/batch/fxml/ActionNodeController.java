@@ -12,7 +12,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.komet.batch.ActionCell;
 import sh.isaac.komet.batch.action.ActionItem;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -38,7 +38,7 @@ public class ActionNodeController {
     @FXML
     private BorderPane actionBorderPane;
 
-    private Manifold manifold;
+    private ViewProperties manifold;
 
     private PropertySheetItemConceptWrapper conceptWrapper;
 
@@ -82,7 +82,7 @@ public class ActionNodeController {
         return actionItem;
     }
 
-    public void setAction(Manifold manifold, ActionItem actionItem) {
+    public void setAction(ViewProperties manifold, ActionItem actionItem) {
         actionItem.setupForGui(manifold);
         this.actionTitle.setText(actionItem.getTitle());
         this.actionItem = actionItem;

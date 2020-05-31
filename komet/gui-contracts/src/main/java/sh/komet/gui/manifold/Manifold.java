@@ -61,22 +61,17 @@ import javafx.collections.ObservableSet;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 
-import org.eclipse.collections.api.set.ImmutableSet;
 import sh.isaac.MetaData;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
-import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.*;
-import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.EditInFlight;
 
 //~--- classes ----------------------------------------------------------------
@@ -309,9 +304,9 @@ public class Manifold
 
 
     private static Manifold newManifold(String name,
-                                        UUID manifoldUuid,
-                                        ObservableManifoldCoordinate observableManifoldCoordinate,
-                                        ObservableEditCoordinate editCoordinate) {
+                                              UUID manifoldUuid,
+                                              ObservableManifoldCoordinate observableManifoldCoordinate,
+                                              ObservableEditCoordinate editCoordinate) {
         Manifold manifold = new Manifold(name, manifoldUuid, observableManifoldCoordinate, editCoordinate);
         if (manifold.getLanguageCoordinate() == null) {
             throw new NullPointerException("Manifold.getLanguageCoordinate() cannot be null.");

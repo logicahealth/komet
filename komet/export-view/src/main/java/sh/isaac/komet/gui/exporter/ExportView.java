@@ -5,7 +5,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.io.IOException;
 
@@ -17,7 +17,7 @@ public class ExportView {
     final Stage stage;
     ExportViewController exportController;
 
-    public ExportView(Manifold manifold){
+    public ExportView(ViewProperties manifold){
         try {
             this.stage = new Stage();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/ExportView.fxml"));
@@ -42,7 +42,7 @@ public class ExportView {
         }
     }
 
-    public static void show(Manifold manifold) {
+    public static void show(ViewProperties manifold) {
         ExportView exportView = new ExportView(manifold);
         exportView.stage.centerOnScreen();
         exportView.stage.show();

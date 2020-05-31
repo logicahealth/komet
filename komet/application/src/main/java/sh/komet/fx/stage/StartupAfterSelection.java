@@ -26,7 +26,6 @@ import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.KometPreferences;
 import sh.komet.gui.contract.preferences.WindowPreferencesItem;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
 import java.io.IOException;
@@ -130,8 +129,9 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
         @Override
         protected Void call() throws Exception {
             try {
+                FxGet.load();
                 kometPreferences = FxGet.kometPreferences();
-                kometPreferences.loadPreferences(FxGet.manifold(Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE));
+                kometPreferences.loadPreferences();
 
 
                 if (Get.metadataService()

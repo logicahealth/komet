@@ -29,6 +29,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.util.Callback;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -46,9 +47,9 @@ public class ListEditor<T extends Object>
     private final ListView listView = new ListView();
     private final Supplier<T> newObjectSupplier;
     private final Function<Manifold,PropertyEditor<T>> newEditorSupplier;
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     
-    public ListEditor(Manifold manifold, Supplier<T> newObjectSupplier, Function<Manifold,PropertyEditor<T>> newEditorSupplier) {
+    public ListEditor(ViewProperties viewProperties, Supplier<T> newObjectSupplier, Function<Manifold,PropertyEditor<T>> newEditorSupplier) {
         this.editorPane.setCenter(listView);
 
         this.newObjectSupplier = newObjectSupplier;
@@ -60,7 +61,7 @@ public class ListEditor<T extends Object>
             this.editorPane.setTop(editorToolbar);
             this.newItem.setOnAction(this::newItem);
         }
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
         editorPane.getStylesheets()
                 .remove(FxGet.fxConfiguration().getUserCSSURL().toString());
         editorPane.getStylesheets()
@@ -69,7 +70,7 @@ public class ListEditor<T extends Object>
         listView.setCellFactory(new Callback<ListView<T>, ListCell<T>>() {
             @Override
             public ListEditorCell<T> call(ListView<T> listView) {
-                return new ListEditorCell(listView, ListEditor.this.newEditorSupplier, newObjectSupplier, ListEditor.this.manifold);
+                return new ListEditorCell(listView, ListEditor.this.newEditorSupplier, newObjectSupplier, ListEditor.this.viewProperties);
             }
         });
     }

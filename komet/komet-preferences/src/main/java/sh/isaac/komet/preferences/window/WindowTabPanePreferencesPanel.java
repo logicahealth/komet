@@ -3,7 +3,7 @@ package sh.isaac.komet.preferences.window;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.isaac.komet.preferences.ParentPanel;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.prefs.BackingStoreException;
 
@@ -15,9 +15,9 @@ public class WindowTabPanePreferencesPanel extends ParentPanel {
     }
 
     public WindowTabPanePreferencesPanel(IsaacPreferences preferencesNode,
-                                          Manifold manifold,
+                                         ViewProperties viewProperties,
                                          KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Window tab configurations"), manifold, kpc);
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Window tab configurations"), viewProperties, kpc);
     }
 
     @Override

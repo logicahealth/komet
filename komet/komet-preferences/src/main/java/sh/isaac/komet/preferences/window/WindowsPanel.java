@@ -9,7 +9,7 @@ import sh.isaac.komet.preferences.ParentPanel;
 import sh.isaac.komet.preferences.personas.PersonaItemPanel;
 import sh.komet.gui.contract.preferences.WindowsParentPreferences;
 import sh.komet.gui.contract.preferences.WindowPreferencesItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -20,14 +20,14 @@ import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 public class WindowsPanel extends ParentPanel implements WindowsParentPreferences {
 
     public WindowsPanel(IsaacPreferences preferencesNode,
-                        Manifold manifold,
+                        ViewProperties viewProperties,
                         KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Window configurations"), manifold, kpc);
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Window configurations"), viewProperties, kpc);
         if (!initialized()) {
             IsaacPreferences windowPreferences = addChild(UUID.randomUUID().toString(), WindowPreferencePanel.class);
 
 
-            WindowPreferencesItem windowPreferencesItem = PersonaItemPanel.createNewDefaultWindowPreferences(windowPreferences, manifold, kpc);
+            WindowPreferencesItem windowPreferencesItem = PersonaItemPanel.createNewDefaultWindowPreferences(windowPreferences, viewProperties, kpc);
             windowPreferencesItem.save();
         }
         revert();
@@ -44,7 +44,7 @@ public class WindowsPanel extends ParentPanel implements WindowsParentPreference
 
     }
 
-    public Node getTopPanel(Manifold manifold) {
+    public Node getTopPanel(ViewProperties viewProperties) {
         return new ToolBar(new Label("Window preferences"));
     }
 

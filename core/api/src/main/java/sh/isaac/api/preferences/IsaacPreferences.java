@@ -27,7 +27,9 @@ import java.util.prefs.PreferenceChangeListener;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.util.PasswordHasher;
+import sh.isaac.api.util.UuidStringKey;
 
 /**
  *
@@ -556,6 +558,23 @@ public interface IsaacPreferences {
      */
     byte[] getByteArray(String key, byte[] defaultValue);
 
+    default <T extends Object> T getObject(UUID key) {
+        return getObject(key.toString());
+    }
+    default <T extends Object> T getObject(String key) {
+        Optional<byte[]> optionalBytes = getByteArray(key);
+        if (optionalBytes.isPresent()) {
+            return MarshalUtil.fromBytes(optionalBytes.get());
+        }
+        throw new IllegalStateException("No data for key");
+    }
+    default void putObject(UUID key, Object object) {
+        putObject(key.toString(), object);
+    }
+    default void putObject(String key, Object object) {
+        putByteArray(key, MarshalUtil.toBytes(object));
+    }
+
     default Optional<byte[]> getByteArray(String key) {
         Optional<String> optionalValue = get(key);
         if (optionalValue.isPresent()) {
@@ -1019,6 +1038,21 @@ public interface IsaacPreferences {
         put(key, builder.toString());
     }
 
+    default void putUuidStringKeyList(Enum key, List<? extends UuidStringKey> list) {
+        putUuidStringKeyList(enumToGeneralKey(key), list);
+    }
+
+    default void putUuidStringKeyList(String key, List<? extends UuidStringKey> list) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            builder.append(list.get(i).toExternalString());
+            if (i < list.size() - 1) {
+                builder.append("|!%|");
+            }
+        }
+        put(key, builder.toString());
+    }
+
     default void putConceptList(Enum key, List<? extends ConceptSpecification> list) {
         putConceptList(enumToGeneralKey(key), list);
     }
@@ -1046,6 +1080,19 @@ public interface IsaacPreferences {
             }
         }
         put(key, builder.toString());
+    }
+
+    default List<UuidStringKey> getUuidStringKeyList(Enum key) {
+        return getUuidStringKeyList(enumToGeneralKey(key));
+    }
+
+    default List<UuidStringKey> getUuidStringKeyList(String key) {
+        List<String> list = getList(key);
+        List<UuidStringKey> uuidStringKeys = new ArrayList<>(list.size());
+        for (String externalString: list) {
+            uuidStringKeys.add(new UuidStringKey(externalString));
+        }
+        return uuidStringKeys;
     }
 
     default List<ComponentProxy> getComponentList(Enum key) {

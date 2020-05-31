@@ -29,7 +29,7 @@ import sh.isaac.komet.preferences.paths.PathGroupPanel;
 import sh.isaac.komet.preferences.personas.PersonasPanel;
 import sh.isaac.komet.preferences.window.WindowsPanel;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -37,9 +37,9 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class RootPreferences extends AbstractPreferences {
 
-    public RootPreferences(IsaacPreferences preferencesNode, Manifold manifold,
-            KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Root"), manifold, 
+    public RootPreferences(IsaacPreferences preferencesNode, ViewProperties viewProperties,
+                           KometPreferencesController kpc) {
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Root"), viewProperties,
                 kpc);
         if (!initialized()) {
             // Add children nodes and reflection classes for children

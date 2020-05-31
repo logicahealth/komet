@@ -44,11 +44,8 @@ package sh.isaac.api;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import java.util.Collection;
-
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.Tree;
 

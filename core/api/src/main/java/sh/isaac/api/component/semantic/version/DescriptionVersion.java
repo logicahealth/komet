@@ -39,15 +39,10 @@
 
 package sh.isaac.api.component.semantic.version;
 
-import org.eclipse.collections.api.set.primitive.IntSet;
-import org.eclipse.collections.impl.factory.primitive.IntIntMaps;
-import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.coordinate.StampFilter;
-import sh.isaac.api.coordinate.VertexSortRegularName;
+import sh.isaac.api.coordinate.VertexSortPreferredName;
 
 /**
  * Describes the referenced component in a way appropriate for the type and
@@ -93,7 +88,7 @@ public interface DescriptionVersion
       } else if (nid == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
           return "Definition";
       } else {
-          return VertexSortRegularName.getRegularName(nid, Get.defaultCoordinate().getLanguageCoordinate(),
+          return VertexSortPreferredName.getRegularName(nid, Get.defaultCoordinate().getLanguageCoordinate(),
                   Get.defaultCoordinate().getStampFilter());
       }
    }

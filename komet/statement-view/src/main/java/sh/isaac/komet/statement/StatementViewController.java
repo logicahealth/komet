@@ -25,7 +25,7 @@ import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.model.statement.ClinicalStatementImpl;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 public class StatementViewController {
@@ -42,7 +42,7 @@ public class StatementViewController {
     @FXML // fx:id="rootPane"
     private AnchorPane rootPane; // Value injected by FXMLLoader
     
-    private Manifold manifold;
+    private ViewProperties viewProperties;
     
     SimpleObjectProperty<ClinicalStatementImpl> clinicalStatement = new SimpleObjectProperty<>();
     
@@ -57,9 +57,9 @@ public class StatementViewController {
         });
     }
 
-    public void setManifold(Manifold manifold) {
-        this.manifold = manifold;
-        statementPropertySheet = new StatementPropertySheet(this.manifold);
+    public void setViewProperties(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
+        statementPropertySheet = new StatementPropertySheet(this.viewProperties);
         borderPane.setCenter(statementPropertySheet.getPropertySheet());
     }
 

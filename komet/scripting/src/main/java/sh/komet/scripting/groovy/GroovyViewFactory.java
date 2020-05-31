@@ -24,8 +24,9 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 /**
@@ -37,8 +38,8 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 public class GroovyViewFactory implements ExplorationNodeFactory {
 
     @Override
-    public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      GroovyViewProvider GroovyViewProvider = new GroovyViewProvider(manifold);
+    public ExplorationNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+      GroovyViewProvider GroovyViewProvider = new GroovyViewProvider(viewProperties);
       return GroovyViewProvider;
     }
 
@@ -54,10 +55,11 @@ public class GroovyViewFactory implements ExplorationNodeFactory {
 
    /** 
     * {@inheritDoc}
+    * @return
     */
    @Override
-   public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
+   public String[] getDefaultActivityFeed() {
+      return new String[] {ViewProperties.UNLINKED};
    }
 
     @Override

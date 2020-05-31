@@ -38,20 +38,22 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampPathImmutable;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.util.NaturalOrder;
+import sh.isaac.api.util.UuidStringKey;
+import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.komet.gui.contract.*;
 import sh.komet.gui.contract.preferences.KometPreferences;
-import sh.komet.gui.contract.preferences.PersonaChangeListener;
-import sh.komet.gui.contract.preferences.PersonaItem;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.PropertySheetItem;
 import sh.komet.gui.control.property.SessionProperty;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ComponentList;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold;
@@ -64,7 +66,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-import static sh.komet.gui.contract.preferences.GraphConfigurationItem.DEFINING_ACTIVE;
+import static sh.komet.gui.contract.preferences.GraphConfigurationItem.STATED_PREFERRED;
 
 /**
  *
@@ -77,9 +79,21 @@ public class FxGet implements StaticIsaacCache {
     private static final HashMap<UuidStringKey, Manifold> MANIFOLD_FOR_MANIFOLD_COORDINATE = new HashMap<>();
 
 
+    private static ObservableMap<UuidStringKey, StampPathImmutable> PATHS;
+    private static ObservableMap<UuidStringKey, ObservableLanguageCoordinate> LANGUAGE_COORDINATES;
+    private static ObservableMap<UuidStringKey, ObservableLogicCoordinate>    LOGIC_COORDINATES;
+    private static ObservableMap<UuidStringKey, ObservableManifoldCoordinate> MANIFOLD_COORDINATES;
+    private static ObservableMap<UuidStringKey, GraphAmalgamWithManifold> GRAPH_CONFIGURATIONS;
+    private static ObservableList<UuidStringKey> PATH_COORDINATE_KEY_LIST;
+    private static ObservableList<UuidStringKey> LANGUAGE_COORDINATE_KEY_LIST;
+    private static ObservableList<UuidStringKey> LOGIC_COORDINATE_KEY_LIST;
+    private static ObservableList<UuidStringKey> MANIFOLD_COORDINATE_KEY_LIST;
+    private static ObservableList<UuidStringKey> GRAPH_CONFIGURATION_KEY_LIST;
+
     private static final ConcurrentHashMap<UuidStringKey, ComponentList> componentListMap = new ConcurrentHashMap();
 
     private static final ObservableList<UuidStringKey> componentListKeys = FXCollections.observableArrayList(new ArrayList<>());
+    public static final String VIEWER = "viewer";
 
     private static DialogService DIALOG_SERVICE = null;
     private static RulesDrivenKometService RULES_DRIVEN_KOMET_SERVICE = null;
@@ -90,25 +104,9 @@ public class FxGet implements StaticIsaacCache {
     // TODO make SEARCHER_LIST behave like a normal lookup service. 
     private static final List<GuiConceptBuilder> BUILDER_LIST = new ArrayList<>();
 
-    private static final SimpleStringProperty CONFIGURATION_NAME_PROPERTY = new SimpleStringProperty(null, MetaData.CONFIGURATION_NAME____SOLOR.toExternalString(), "viewer");
-    private static final ObservableMap<UuidStringKey, GraphAmalgamWithManifold> GRAPH_CONFIGURATIONS = FXCollections.observableHashMap();
-    private static final ObservableList<UuidStringKey> GRAPH_CONFIGURATION_KEY_LIST = FXCollections.observableArrayList();
+    private static final SimpleStringProperty CONFIGURATION_NAME_PROPERTY = new SimpleStringProperty(null, MetaData.CONFIGURATION_NAME____SOLOR.toExternalString(), VIEWER);
 
-    static {
-
-
-
-        // TODO: will this listener go away as part of garbage collection?
-        GRAPH_CONFIGURATIONS.addListener((MapChangeListener.Change<? extends UuidStringKey, ? extends TaxonomySnapshot> change) -> {
-            if (change.wasAdded()) {
-                GRAPH_CONFIGURATION_KEY_LIST.add(change.getKey());
-            }
-            if (change.wasRemoved()) {            
-                GRAPH_CONFIGURATION_KEY_LIST.remove(change.getKey());
-            }
-        });
-
-    }
+    private static ViewProperties preferenceViewProperties;
 
     public static List<GuiSearcher> searchers() {
         return SEARCHER_LIST;
@@ -164,7 +162,7 @@ public class FxGet implements StaticIsaacCache {
 
     private static final SimpleObjectProperty<UuidStringKey> defaultViewKeyProperty = new SimpleObjectProperty<>(null,
             TermAux.VIEW_COORDINATE_KEY.toExternalString(),
-            DEFINING_ACTIVE);
+            STATED_PREFERRED);
 
     public static UuidStringKey defaultViewKey() {
         return defaultViewKeyProperty.get();
@@ -185,11 +183,21 @@ public class FxGet implements StaticIsaacCache {
         RULES_DRIVEN_KOMET_SERVICE = null;
         STATUS_MESSAGE_PROVIDER = null;
         FX_CONFIGURATION = null;
-        Platform.runLater(() -> {
-            GRAPH_CONFIGURATIONS.clear();
-            GRAPH_CONFIGURATION_KEY_LIST.clear();
-        });
-        
+
+        PATHS = null;
+        PATH_COORDINATE_KEY_LIST = null;
+
+        LANGUAGE_COORDINATES = null;
+        LANGUAGE_COORDINATE_KEY_LIST = null;
+
+        LOGIC_COORDINATES = null;
+        LOGIC_COORDINATE_KEY_LIST = null;
+
+        MANIFOLD_COORDINATES = null;
+        MANIFOLD_COORDINATE_KEY_LIST = null;
+
+        GRAPH_CONFIGURATIONS = null;
+        GRAPH_CONFIGURATION_KEY_LIST = null;
     }
 
     public static PreferencesService preferenceService() {
@@ -208,26 +216,109 @@ public class FxGet implements StaticIsaacCache {
         return preferenceService().getConfigurationPreferences().node(c);
     }
 
-    public static List<PropertySheet.Item> constraintPropertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, Manifold manifold) {
-        return propertyItemsForAssemblageSemantic(assemblageConcept, manifold, true);
+    private enum Keys {
+        CONFIGURATION_NAME,
+        PATH_COORDINATE_KEY_LIST,
+        LANGUAGE_COORDINATE_KEY_LIST,
+        LOGIC_COORDINATE_KEY_LIST,
+        GRAPH_CONFIGURATION_KEY_LIST,
+        MANIFOLD_COORDINATE_KEY_LIST,
+
+    }
+    public static void load() {
+
+        PATHS = FXCollections.observableMap(new TreeMap<>());
+        PATH_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
+
+        LANGUAGE_COORDINATES = FXCollections.observableMap(new TreeMap<>());
+        LANGUAGE_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
+
+        LOGIC_COORDINATES = FXCollections.observableMap(new TreeMap<>());
+        LOGIC_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
+
+        MANIFOLD_COORDINATES = FXCollections.observableMap(new TreeMap<>());
+        MANIFOLD_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
+
+        GRAPH_CONFIGURATIONS = FXCollections.observableHashMap();
+        GRAPH_CONFIGURATION_KEY_LIST = FXCollections.observableArrayList();
+
+        PATHS.addListener(FxGet::pathChangeListener);
+        LANGUAGE_COORDINATES.addListener(FxGet::languageChangeListener);
+        LOGIC_COORDINATES.addListener(FxGet::logicChangeListener);
+        MANIFOLD_COORDINATES.addListener(FxGet::manifoldChangeListener);
+        GRAPH_CONFIGURATIONS.addListener(FxGet::graphChangeListener);
+
+        IsaacPreferences fxGetPreferences = preferenceService().getConfigurationPreferences().node(FxGet.class);
+        CONFIGURATION_NAME_PROPERTY.setValue(fxGetPreferences.get(Keys.CONFIGURATION_NAME, VIEWER));
+        List<UuidStringKey> pathCoordinateKeys = fxGetPreferences.getUuidStringKeyList(Keys.PATH_COORDINATE_KEY_LIST);
+        for (UuidStringKey key: pathCoordinateKeys) {
+            PATHS.put(key, fxGetPreferences.getObject(key.getUuid()));
+        }
+
+        List<UuidStringKey> languageCoordinateKeys = fxGetPreferences.getUuidStringKeyList(Keys.LANGUAGE_COORDINATE_KEY_LIST);
+        for (UuidStringKey key: languageCoordinateKeys) {
+            LANGUAGE_COORDINATES.put(key, new ObservableLanguageCoordinateImpl(fxGetPreferences.getObject(key.getUuid())));
+        }
+
+        List<UuidStringKey> logicCoordinateKeys = fxGetPreferences.getUuidStringKeyList(Keys.LOGIC_COORDINATE_KEY_LIST);
+        for (UuidStringKey key: logicCoordinateKeys) {
+            LOGIC_COORDINATES.put(key, new ObservableLogicCoordinateImpl(fxGetPreferences.getObject(key.getUuid())));
+        }
+
+        List<UuidStringKey> manifoldCoordinateKeys = fxGetPreferences.getUuidStringKeyList(Keys.MANIFOLD_COORDINATE_KEY_LIST);
+        for (UuidStringKey key: manifoldCoordinateKeys) {
+            MANIFOLD_COORDINATES.put(key, new ObservableManifoldCoordinateImpl(fxGetPreferences.getObject(key.getUuid())));
+        }
     }
 
-    public static List<PropertySheet.Item> propertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, Manifold manifold) {
-        return propertyItemsForAssemblageSemantic(assemblageConcept, manifold, false);
+    public static void sync() {
+        IsaacPreferences fxGetPreferences = preferenceService().getConfigurationPreferences().node(FxGet.class);
+
+        fxGetPreferences.put(Keys.CONFIGURATION_NAME, CONFIGURATION_NAME_PROPERTY.getValue());
+        fxGetPreferences.putUuidStringKeyList(Keys.PATH_COORDINATE_KEY_LIST, PATH_COORDINATE_KEY_LIST);
+        for (Map.Entry<UuidStringKey, StampPathImmutable> entry: PATHS.entrySet()) {
+            fxGetPreferences.putObject(entry.getKey().getUuid(), entry.getValue());
+        }
+
+        fxGetPreferences.putUuidStringKeyList(Keys.LANGUAGE_COORDINATE_KEY_LIST, LANGUAGE_COORDINATE_KEY_LIST);
+        for (Map.Entry<UuidStringKey, ObservableLanguageCoordinate> entry: LANGUAGE_COORDINATES.entrySet()) {
+            ObservableLanguageCoordinate value = entry.getValue();
+            fxGetPreferences.putObject(entry.getKey().getUuid(), value.getValue());
+        }
+
+        fxGetPreferences.putUuidStringKeyList(Keys.LOGIC_COORDINATE_KEY_LIST, LOGIC_COORDINATE_KEY_LIST);
+        for (Map.Entry<UuidStringKey, ObservableLogicCoordinate> entry: LOGIC_COORDINATES.entrySet()) {
+            ObservableLogicCoordinate value = entry.getValue();
+            fxGetPreferences.putObject(entry.getKey().getUuid(), value.getValue());
+        }
+
+        fxGetPreferences.putUuidStringKeyList(Keys.MANIFOLD_COORDINATE_KEY_LIST, MANIFOLD_COORDINATE_KEY_LIST);
+        for (Map.Entry<UuidStringKey, ObservableManifoldCoordinate> entry: MANIFOLD_COORDINATES.entrySet()) {
+            ObservableManifoldCoordinate value = entry.getValue();
+            fxGetPreferences.putObject(entry.getKey().getUuid(), value.getValue());
+        }
     }
 
-    private static List<PropertySheet.Item> propertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, Manifold manifold, boolean forConstraints) {
+    public static List<PropertySheet.Item> constraintPropertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, ViewProperties viewProperties) {
+        return propertyItemsForAssemblageSemantic(assemblageConcept, viewProperties, true);
+    }
+
+    public static List<PropertySheet.Item> propertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, ViewProperties viewProperties) {
+        return propertyItemsForAssemblageSemantic(assemblageConcept, viewProperties, false);
+    }
+
+    private static List<PropertySheet.Item> propertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, ViewProperties viewProperties, boolean forConstraints) {
         TreeMap<Integer, ConceptSpecification> fieldIndexToFieldConcept = new TreeMap<>();
         TreeMap<Integer, ConceptSpecification> fieldIndexToFieldDataType = new TreeMap<>();
         List<PropertySheet.Item> items = new ArrayList();
-        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageConcept, manifold.getStampFilter());
+        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageConcept, viewProperties.getManifoldCoordinate().getStampFilter());
 
         if (optionalSemanticConceptNid.isPresent()) {
             int semanticConceptNid = optionalSemanticConceptNid.getAsInt();
             ImmutableIntSet semanticTypeOfFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(semanticConceptNid, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE.getNid());
             for (int nid : semanticTypeOfFields.toArray()) { // one member, "Concept field": 1
                 SemanticChronology semanticTypeField = Get.assemblageService().getSemanticChronology(nid);
-                LatestVersion<Version> latestSemanticTypeField = semanticTypeField.getLatestVersion(manifold.getStampFilter());
+                LatestVersion<Version> latestSemanticTypeField = semanticTypeField.getLatestVersion(viewProperties.getManifoldCoordinate().getStampFilter());
                 Nid1_Int2_Version latestSemanticTypeFieldVersion = (Nid1_Int2_Version) latestSemanticTypeField.get();
                 fieldIndexToFieldDataType.put(latestSemanticTypeFieldVersion.getInt2(), Get.concept(latestSemanticTypeFieldVersion.getNid1()));
             }
@@ -235,7 +326,7 @@ public class FxGet implements StaticIsaacCache {
             ImmutableIntSet assemblageSemanticFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(assemblageConcept.getNid(), MetaData.SEMANTIC_FIELDS_ASSEMBLAGE____SOLOR.getNid());
             for (int nid : assemblageSemanticFields.toArray()) {
                 SemanticChronology semanticField = Get.assemblageService().getSemanticChronology(nid);
-                LatestVersion<Version> latestSemanticField = semanticField.getLatestVersion(manifold.getStampFilter());
+                LatestVersion<Version> latestSemanticField = semanticField.getLatestVersion(viewProperties.getManifoldCoordinate().getStampFilter());
                 Nid1_Int2_Version latestSemanticFieldVersion = (Nid1_Int2_Version) latestSemanticField.get();
                 fieldIndexToFieldConcept.put(latestSemanticFieldVersion.getInt2(), Get.concept(latestSemanticFieldVersion.getNid1()));
             }
@@ -250,51 +341,51 @@ public class FxGet implements StaticIsaacCache {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
                 if (forConstraints) {
                     items.add(new PropertySheetItemConceptConstraintWrapper(
-                            new PropertySheetItemConceptWrapper(manifold, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()), manifold, manifold.getPreferredDescriptionText(fieldConcept)));
+                            new PropertySheetItemConceptWrapper(viewProperties, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()), viewProperties, viewProperties.getPreferredDescriptionText(fieldConcept)));
                 } else {
-                    items.add(new PropertySheetItemConceptWrapper(manifold, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()));
+                    items.add(new PropertySheetItemConceptWrapper(viewProperties, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()));
                 }
 
             } else if (fieldDataType.getNid() == MetaData.CONCEPT_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
                 if (forConstraints) {
                     items.add(new PropertySheetItemConceptConstraintWrapper(
-                            new PropertySheetItemConceptWrapper(manifold, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()), manifold, manifold.getPreferredDescriptionText(fieldConcept)));
+                            new PropertySheetItemConceptWrapper(viewProperties, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()), viewProperties, viewProperties.getPreferredDescriptionText(fieldConcept)));
                 } else {
-                    items.add(new PropertySheetItemConceptWrapper(manifold, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()));
+                    items.add(new PropertySheetItemConceptWrapper(viewProperties, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()));
                 }
             } else if (fieldDataType.getNid() == MetaData.BOOLEAN_FIELD____SOLOR.getNid()) {
                 SimpleBooleanProperty property = new SimpleBooleanProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));
+                items.add(new PropertySheetItem(property, viewProperties));
             } else if (fieldDataType.getNid() == MetaData.ARRAY_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));
+                items.add(new PropertySheetItem(property, viewProperties));
             } else if (fieldDataType.getNid() == MetaData.BYTE_ARRAY_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));
+                items.add(new PropertySheetItem(property, viewProperties));
             } else if (fieldDataType.getNid() == MetaData.DOUBLE_FIELD____SOLOR.getNid()) {
                 SimpleDoubleProperty property = new SimpleDoubleProperty(null, fieldConcept.toExternalString());
             } else if (fieldDataType.getNid() == MetaData.FLOAT_FIELD____SOLOR.getNid()) {
                 SimpleFloatProperty property = new SimpleFloatProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));
+                items.add(new PropertySheetItem(property, viewProperties));
             } else if (fieldDataType.getNid() == MetaData.INTEGER_FIELD____SOLOR.getNid()) {
                 SimpleIntegerProperty property = new SimpleIntegerProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));
+                items.add(new PropertySheetItem(property, viewProperties));
             } else if (fieldDataType.getNid() == MetaData.LOGICAL_EXPRESSION_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));
+                items.add(new PropertySheetItem(property, viewProperties));
             } else if (fieldDataType.getNid() == MetaData.LONG_FIELD____SOLOR.getNid()) {
                 SimpleLongProperty property = new SimpleLongProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));
+                items.add(new PropertySheetItem(property, viewProperties));
             } else if (fieldDataType.getNid() == MetaData.STRING_FIELD____SOLOR.getNid()) {
                 SimpleStringProperty property = new SimpleStringProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));
+                items.add(new PropertySheetItem(property, viewProperties));
             } else if (fieldDataType.getNid() == MetaData.POLYMORPHIC_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));
+                items.add(new PropertySheetItem(property, viewProperties));
             } else if (fieldDataType.getNid() == MetaData.UUID_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, manifold));
+                items.add(new PropertySheetItem(property, viewProperties));
             }
         }
         return items;
@@ -316,15 +407,6 @@ public class FxGet implements StaticIsaacCache {
     public static ObservableEditCoordinate editCoordinate() {
         return EditCoordinate.get();
     }
-
-    private static ObservableMap<UuidStringKey, StampPathImmutable> PATHS = FXCollections.observableMap(new TreeMap<>());
-    private static ObservableMap<UuidStringKey, ObservableLanguageCoordinate> LANGUAGE_COORDINATES = FXCollections.observableMap(new TreeMap<>());
-    private static ObservableMap<UuidStringKey, ObservableLogicCoordinate>    LOGIC_COORDINATES = FXCollections.observableMap(new TreeMap<>());
-    private static ObservableMap<UuidStringKey, ObservableManifoldCoordinate> MANIFOLD_COORDINATES = FXCollections.observableMap(new TreeMap<>());
-    private static final ObservableList<UuidStringKey> PATH_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
-    private static final ObservableList<UuidStringKey> LANGUAGE_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
-    private static final ObservableList<UuidStringKey> LOGIC_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
-    private static final ObservableList<UuidStringKey> MANIFOLD_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
 
     private static void pathChangeListener(MapChangeListener.Change<? extends UuidStringKey, ? extends StampPathImmutable> change) {
         if (change.wasAdded()) {
@@ -360,11 +442,13 @@ public class FxGet implements StaticIsaacCache {
             MANIFOLD_COORDINATE_KEY_LIST.remove(change.getKey());
         }
     }
-    static {
-        PATHS.addListener(FxGet::pathChangeListener);
-        LANGUAGE_COORDINATES.addListener(FxGet::languageChangeListener);
-        LOGIC_COORDINATES.addListener(FxGet::logicChangeListener);
-        MANIFOLD_COORDINATES.addListener(FxGet::manifoldChangeListener);
+    private static void graphChangeListener(MapChangeListener.Change<? extends UuidStringKey, ? extends TaxonomySnapshot> change) {
+        if (change.wasAdded()) {
+            GRAPH_CONFIGURATION_KEY_LIST.add(change.getKey());
+        }
+        if (change.wasRemoved()) {
+            GRAPH_CONFIGURATION_KEY_LIST.remove(change.getKey());
+        }
     }
 
     public static ObservableMap<UuidStringKey, StampPathImmutable> pathCoordinates() {
@@ -497,24 +581,25 @@ public class FxGet implements StaticIsaacCache {
     }
 
     public static ObservableList<ConceptSnapshot> activeConceptMembers(ConceptSpecification assemblage,
-                                                                       ManifoldCoordinate manifoldCoordinate) {
+                                                                       ViewProperties manifoldCoordinate) {
         return activeConceptMembers(assemblage.getNid(), manifoldCoordinate);
     }
 
     public static ObservableList<ConceptSnapshot> activeConceptMembers(int assemblageNid,
-                                                                       ManifoldCoordinate manifoldCoordinate) {
-        if (manifoldCoordinate == null) {
+                                                                       ViewProperties viewProperties) {
+        if (viewProperties == null) {
             throw new NullPointerException("manifoldCoordinate cannot be null");
         }
         ObservableList<ConceptSnapshot> activeConceptMemberList = FXCollections.observableArrayList();
-        SingleAssemblageSnapshot<SemanticVersion> snapshot = Get.assemblageService().getSingleAssemblageSnapshot(assemblageNid, SemanticVersion.class, manifoldCoordinate.getStampFilter());
+        SingleAssemblageSnapshot<SemanticVersion> snapshot =
+                Get.assemblageService().getSingleAssemblageSnapshot(assemblageNid, SemanticVersion.class, viewProperties.getManifoldCoordinate().getStampFilter());
 
         snapshot.getLatestSemanticVersionsFromAssemblage().forEach(new Consumer<LatestVersion<SemanticVersion>>() {
             @Override
             public void accept(LatestVersion<SemanticVersion> semanticVersionLatestVersion) {
                 if (semanticVersionLatestVersion.isPresent() && semanticVersionLatestVersion.get().isActive()) {
                     activeConceptMemberList.add(Get.conceptSnapshot(semanticVersionLatestVersion.get().getReferencedComponentNid(),
-                            manifoldCoordinate));
+                            viewProperties.getManifoldCoordinate()));
                 }
             }
         });
@@ -522,4 +607,19 @@ public class FxGet implements StaticIsaacCache {
                 o2.getPreferredDescriptionText().get()));
         return activeConceptMemberList;
     }
+
+
+    public static ViewProperties preferenceViewProperties() {
+        if (preferenceViewProperties == null) {
+            preferenceViewProperties = ViewProperties.make(UUID.fromString("1db21f81-c884-4dd7-8bf5-2befc955c887"), "Preferences view",
+                    new ObservableManifoldCoordinateImpl(Coordinates.Manifold.DevelopmentInferredRegularNameSort()));
+        }
+        return preferenceViewProperties;
+    }
+
+    public static ViewProperties newDefaultViewProperties() {
+        return ViewProperties.make(UUID.randomUUID(), "Default view",
+                new ObservableManifoldCoordinateImpl(Coordinates.Manifold.DevelopmentInferredRegularNameSort()));
+    }
+
 }

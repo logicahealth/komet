@@ -36,7 +36,6 @@ import sh.isaac.api.component.semantic.version.*;
 import sh.isaac.api.component.semantic.version.dynamic.*;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.Coordinates;
-import sh.isaac.api.coordinate.LanguageCoordinateImmutable;
 import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;

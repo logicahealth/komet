@@ -30,7 +30,7 @@ import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.control.PropertySheetMenuItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -38,17 +38,17 @@ import sh.komet.gui.manifold.Manifold;
  */
 @Contract
 public interface RulesDrivenKometService extends BusinessRulesService {
-   List<Action> getEditLogicalExpressionNodeMenuItems(Manifold manifold,
+   List<Action> getEditLogicalExpressionNodeMenuItems(ViewProperties viewProperties,
                                                       LogicNode nodeToEdit,
                                                       LogicalExpression expressionContiningNode,
                                                       Consumer<LogicalExpression> expressionUpdater,
                                                       MouseEvent mouseEvent);
    
-   List<MenuItem> getEditVersionMenuItems(Manifold manifold,
+   List<MenuItem> getEditVersionMenuItems(ViewProperties viewProperties,
                                           ObservableCategorizedVersion categorizedVersion,
                                           Consumer<PropertySheetMenuItem> propertySheetConsumer);
    
-   List<MenuItem> getAddAttachmentMenuItems(Manifold manifold,
+   List<MenuItem> getAddAttachmentMenuItems(ViewProperties viewProperties,
                                             ObservableCategorizedVersion categorizedVersion,
                                             BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer);
    

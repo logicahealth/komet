@@ -19,7 +19,7 @@ package sh.komet.gui.contract.preferences;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import sh.isaac.api.preferences.IsaacPreferences;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.List;
 
@@ -37,38 +37,38 @@ public interface PreferenceGroup {
 
     /**
      * 
-     * @param manifold
+     * @param viewProperties
      * @return property sheet for editing properties in this group.
      */
-    Node getCenterPanel(Manifold manifold);
+    Node getCenterPanel(ViewProperties viewProperties);
 
     /**
      * 
-     * @param manifold
+     * @param viewProperties
      * @return possibly null panel
      */
-    Node getRightPanel(Manifold manifold);
+    Node getRightPanel(ViewProperties viewProperties);
     
     /**
      * 
-     * @param manifold
+     * @param viewProperties
      * @return possibly null panel
      */
-    Node getTopPanel(Manifold manifold);
+    Node getTopPanel(ViewProperties viewProperties);
     
     /**
      * 
-     * @param manifold
+     * @param viewProperties
      * @return possibly null panel
      */
-    Node getBottomPanel(Manifold manifold);
+    Node getBottomPanel(ViewProperties viewProperties);
     
     /**
      * 
-     * @param manifold
+     * @param viewProperties
      * @return possibly null panel
      */
-    Node getLeftPanel(Manifold manifold);
+    Node getLeftPanel(ViewProperties viewProperties);
     
     /**
      * 
