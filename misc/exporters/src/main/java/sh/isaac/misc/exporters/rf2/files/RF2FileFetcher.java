@@ -2,9 +2,13 @@ package sh.isaac.misc.exporters.rf2.files;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import org.apache.commons.lang3.ArrayUtils;
 
 public class RF2FileFetcher
 {
@@ -20,6 +24,24 @@ public class RF2FileFetcher
 		this.versionDate = versionDate;
 	}
 	
+	/**
+	 * Just write the provided text to a text file.
+	 * @param fileName 
+	 * @param content 
+	 * @throws IOException 
+	 */
+	public void writeTextFile(String fileName, String content) throws IOException
+	{
+		Path temp = rootFolder.toPath().resolve(fileName);
+		temp.getParent().toFile().mkdirs();
+		Files.writeString(temp, content, StandardCharsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.TRUNCATE_EXISTING, StandardOpenOption.CREATE);
+	}
+	
+	public int getOpenFileCount()
+	{
+		return openFiles.size();
+	}
+	
 	public void closeAll() throws IOException
 	{
 		for (RF2File file : openFiles.values())
@@ -29,10 +51,11 @@ public class RF2FileFetcher
 	}
 	
 	/**
-	 * Gets the cached file, or creates as necessary, one of these standard type files.
+	 * Gets the cached file, or creates as necessary, one of these standard type files.  Cannot be used for {@link StandardFiles#CustomRefset}
+	 * or {@link StandardFiles#CustomTextFile}
 	 * @param releaseType
 	 * @param fileKey
-	 * @return the file, if the fileKey is known or creatable from {@link StandardFiles}
+	 * @return the file, if the fileKey is known or creatable from {@link StandardFiles} (the key being the name of the enum value)
 	 */
 	public RF2File getFile(RF2ReleaseType releaseType, String fileKey)
 	{
@@ -53,20 +76,18 @@ public class RF2FileFetcher
 						case RefsetDescriptor:
 						case Simple:
 						case SimpleMap:
-							return createRefsetFile(sf.subfolder, releaseType, sf.name(), Optional.empty(), sf.additionalColTypes, sf.additionalColNames );
+							return new DERFile(rootFolder, sf.subfolder, String.valueOf(sf.additionalColTypes) + "Refset", Optional.of(fileKey), Optional.empty(), 
+									releaseType, namespace, versionDate, sf.getAllColNames());
 						case Concept:
-							return new SCTFile(rootFolder, sf.name(), releaseType, Optional.empty(), namespace, versionDate, 
-									new String[] {"id", "effectiveTime", "active", "moduleId", "definitionStatusId"});
 						case Identifier:
-							return new SCTFile(rootFolder, sf.name(), releaseType, Optional.empty(), namespace, versionDate, 
-									new String[] {"identifierSchemeId", "alternateIdentifier", "effectiveTime", "active", "moduleId", "referencedComponentId"});
 						case OWLExpression:
-							return new SCTFile(rootFolder, "sRefset", Optional.of(sf.name()), releaseType, Optional.empty(), namespace, versionDate, 
-									new String[] {"id", "effectiveTime", "active", "moduleId", "refsetId", "referencedComponentId", "owlExpression"});
 						case StatedRelationship:
 						case Relationship:
-							return new SCTFile(rootFolder, sf.name(), releaseType, Optional.empty(), namespace, versionDate, 
-									new String[] {"id", "effectiveTime", "active", "moduleId", "sourceId", "destinationId", "relationshipGroup", "typeId", "characteristicTypeId", "modifierId"});
+							return new SCTFile(rootFolder, sf.name(), releaseType, Optional.empty(), namespace, versionDate, sf.getAllColNames());
+						case CustomRefset:
+							throw new RuntimeException("Call getCustomRefsetFile");
+						case CustomTextFile:
+							throw new RuntimeException("Call getDescriptionFile or getTextDefinitionFile");
 						default :
 							throw new RuntimeException("oops");
 					}
@@ -86,24 +107,13 @@ public class RF2FileFetcher
 		{
 			throw new RuntimeException("oops");
 		}
-		ArrayList<String> colNames = new ArrayList<>(6 + additionalColTypes.length);
-		colNames.add("id");
-		colNames.add("effectiveTime");
-		colNames.add("active");
-		colNames.add("moduleId");
-		colNames.add("refsetId");
-		colNames.add("referencedComponentId");
-		for (String s : additionalColNames)
-		{
-			colNames.add(s);
-		}
-		
 		return new DERFile(rootFolder, subfolder, String.valueOf(additionalColTypes) + "Refset", Optional.of(fileKey), languageCode, releaseType, namespace, versionDate, 
-				colNames.toArray(new String[colNames.size()]));
+				ArrayUtils.addAll(StandardFiles.CustomRefset.getAllColNames(), additionalColNames));
 	}
 	
 	/**
 	 * After the initial create, you get get it again by calling {@link #getFile(RF2ReleaseType, String)} with the refsetName as the fileKey
+	 * This method supports {@link StandardFiles#CustomRefset}
 	 * @param releaseType
 	 * @param refsetName
 	 * @param additionalColTypes
@@ -140,11 +150,23 @@ public class RF2FileFetcher
 		});
 	}
 	
+	/**
+	 * supports {@link StandardFiles#CustomTextFile}
+	 * @param releaseType
+	 * @param languageCode
+	 * @return
+	 */
 	public RF2File getDescriptionFile(RF2ReleaseType releaseType, String languageCode)
 	{
 		return getTextFile(releaseType, "Description", languageCode);
 	}
 	
+	/**
+	 * supports {@link StandardFiles#CustomTextFile}
+	 * @param releaseType
+	 * @param languageCode
+	 * @return
+	 */
 	public RF2File getTextDefinitionFile(RF2ReleaseType releaseType, String languageCode)
 	{
 		return getTextFile(releaseType, "TextDefinition", languageCode);
@@ -157,7 +179,7 @@ public class RF2FileFetcher
 			try
 			{
 				return new SCTFile(rootFolder, fileType, releaseType, Optional.of(languageCode), namespace, versionDate, 
-						new String[] {"id", "effectiveTime", "active", "moduleId", "conceptId", "languageCode", "typeId", "term", "caseSignificanceId"});
+						StandardFiles.CustomTextFile.getAllColNames());
 			}
 			catch (IOException e)
 			{
@@ -171,6 +193,4 @@ public class RF2FileFetcher
 	{
 		return "FileFetcher namespace: " + namespace + ", rootFolder: " + rootFolder.getAbsolutePath() + ", versionDate: " + versionDate;
 	}
-	
-	
 }

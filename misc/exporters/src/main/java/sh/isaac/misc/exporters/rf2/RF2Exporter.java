@@ -173,6 +173,11 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 				}
 			});
 			
+			if (ff.getOpenFileCount() == 0)
+			{
+				log.info("Didn't export any content?");
+				ff.writeTextFile("readme.txt", "No content was found to export with the provided criteria");
+			}
 			
 			//Need to close prior to zip
 			ff.closeAll();
