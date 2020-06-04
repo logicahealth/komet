@@ -464,8 +464,14 @@ public abstract class LuceneIndexer implements IndexBuilderService
 		if ((terms.size() > 0) && !searchString.endsWith(" "))
 		{
 			final String last = terms.remove(terms.size() - 1);
+			BooleanQuery.Builder nested = new BooleanQuery.Builder();
 
-			bq.add(new PrefixQuery((new Term(field, last))), Occur.MUST);
+			//If the last term does not end with a space, we allow it to be treated as an exact query, 
+			//or a prefix query.
+			nested.add(new PrefixQuery((new Term(field, last))), Occur.SHOULD);
+			nested.add(new TermQuery((new Term(field, last))), Occur.SHOULD);
+			
+			bq.add(nested.build(), Occur.MUST);
 		}
 
 		terms.stream().forEach((s) -> {
