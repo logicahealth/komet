@@ -276,23 +276,23 @@ public class DescriptionIndexer extends LuceneIndexer
 			Integer sizeLimit,
 			Long targetGeneration) {
 		
-		String queryLocal = query.trim();
-		if (!queryLocal.startsWith("/") && !queryLocal.endsWith("/")) {
-			//don't activate this block, if it is a regexp.
-			if (!prefixSearch && SemanticTags.containsSemanticTag(query)) {
+		//don't trim trailing spaces on a prefix search, they tell us to not do a wildcard for the previous term.
+		String queryLocal = prefixSearch ? query.stripLeading() : query.trim();
+		
+		if (!prefixSearch && !queryLocal.startsWith("/") && !queryLocal.endsWith("/")) {
+			//don't activate this block, if it is a regexp, or if it is a prefix search
+			if (SemanticTags.containsSemanticTag(query)) {
 				//If they include a semantic tag, adjust their query so that the tag is not treated like a lucene grouping rule.
 				//Note, grouping rules are still allowed, so long as they aren't at the very end of the query (so they don't look like a semantic tag)
 				queryLocal = SemanticTags.stripSemanticTagIfPresent(queryLocal) + " \\(" + SemanticTags.findSemanticTagIfPresent(queryLocal).get() + "\\)";
 			}
 			
-			if (!prefixSearch) {
-				//If they include a [ or ], we want to auto escape them, unless they are a valid range query, which would be 
-				// [xx TO yy] 
-				//Also applies to {}
-				queryLocal = handleBrackets(queryLocal, '[', ']');
-				queryLocal = handleBrackets(queryLocal, '{', '}');
-				queryLocal = handleUnsupportedEscapeChars(queryLocal);
-			}
+			//If they include a [ or ], we want to auto escape them, unless they are a valid range query, which would be 
+			// [xx TO yy] 
+			//Also applies to {}
+			queryLocal = handleBrackets(queryLocal, '[', ']');
+			queryLocal = handleBrackets(queryLocal, '{', '}');
+			queryLocal = handleUnsupportedEscapeChars(queryLocal);
 		}
 		
 		Query q = buildTokenizedStringQuery(queryLocal, FIELD_INDEXED_STRING_VALUE, prefixSearch, metadataOnly, false);
@@ -349,6 +349,8 @@ public class DescriptionIndexer extends LuceneIndexer
 			//A coordinate for best-effort readback of descriptions
 			StampCoordinate sc = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultStampCoordinate().makeCoordinateAnalog(Status.makeAnyStateSet());
 			
+			final String normalizedQueryLocal = queryLocal.toLowerCase(Locale.ENGLISH).trim();
+			
 			// normalize the scores between 0 and 1
 			for (final SearchResult sr : results) {
 				//This cast is safe, per the docs of the internal search
@@ -364,15 +366,15 @@ public class DescriptionIndexer extends LuceneIndexer
 						if (dv.isPresent()) {
 							float adjustValue = 0f;
 							String matchingString = dv.get().getText().toLowerCase(Locale.ENGLISH);
-							String localQuery = queryLocal.toLowerCase(Locale.ENGLISH);
+							
 
-							if (matchingString.equals(localQuery)) {
+							if (matchingString.equals(normalizedQueryLocal)) {
 								// "exact match, bump by 2"
 								adjustValue = 2.0f;
 							}
-							else if (matchingString.startsWith(localQuery)) {
+							else if (matchingString.startsWith(normalizedQueryLocal)) {
 								// "add 1, plus a bit more boost based on the length of the matches (shorter matches get more boost)"
-								adjustValue = 1.0f + (1.0f - ((float) (matchingString.length() - localQuery.length()) / (float) matchingString.length()));
+								adjustValue = 1.0f + (1.0f - ((float) (matchingString.length() - normalizedQueryLocal.length()) / (float) matchingString.length()));
 							}
 
 							if (adjustValue > 0f) {
