@@ -36,7 +36,7 @@ public class ConceptDetailListLinkedPanelProviderFactory extends ConceptDetailPa
     @Override
     public String[] getDefaultActivityFeed() {
         return new String[] {ViewProperties.LIST, ViewProperties.UNLINKED,
-                ViewProperties.NAVIGATION, ViewProperties.SEARCH};
+                ViewProperties.NAVIGATION, ViewProperties.SEARCH, ViewProperties.CONCEPT_BUILDER};
     }
 
 }

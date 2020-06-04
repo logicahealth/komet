@@ -1,6 +1,7 @@
 package sh.isaac.komet.batch.fxml;
 
 import javafx.application.Platform;
+import javafx.beans.property.StringProperty;
 import javafx.collections.MapChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -363,6 +364,10 @@ public class CompositeActionNodeController implements VersionChangeListener {
         applyButton.setDisable(false);
         commitButton.setDisable(true);
         cancelButton.setDisable(true);
+    }
+
+    public StringProperty getActionNameProperty() {
+        return actionNameField.textProperty();
     }
 
     public void setViewProperties(ViewProperties viewProperties) {

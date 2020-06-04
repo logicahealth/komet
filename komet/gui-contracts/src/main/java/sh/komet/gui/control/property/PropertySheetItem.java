@@ -29,6 +29,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 
@@ -127,6 +128,24 @@ public class PropertySheetItem implements PropertySheet.Item {
         this.setValue(defaultValue);
     }
 
+    /**
+     * Sets the default value if the current default is null, or an integer that == 0,
+     * or == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()
+     * @param defaultValue
+     */
+    public void setDefaultValueIfUnknown(Object defaultValue) {
+        if (this.defaultValue ==  null) {
+            this.defaultValue = defaultValue;
+            this.setValue(defaultValue);
+        } else if (this.defaultValue instanceof Integer) {
+            int defaultInt = (Integer) this.defaultValue;
+            if (defaultInt == 0 ||
+                defaultInt == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()) {
+                this.defaultValue = defaultValue;
+                this.setValue(defaultValue);
+            }
+        }
+    }
     
     @Override
    public Class<?> getType() {

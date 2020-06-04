@@ -15,6 +15,11 @@ import sh.komet.gui.control.property.ViewProperties;
 import java.util.Optional;
 
 public class CompletedTasksProgressNode extends TaskProgressNode {
+    {
+        titleProperty.setValue("Completed tasks");
+        toolTipProperty.setValue("Information about completed tasks. ");
+        menuIconProperty.setValue(Iconography.CHECKERED_FLAG.getIconographic());
+    }
 
     public CompletedTasksProgressNode(ViewProperties viewProperties) {
         super(viewProperties);

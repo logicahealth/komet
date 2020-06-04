@@ -360,6 +360,10 @@ public class StampProvider
             return "{Stamp≤CANCELED≥}";
         }
 
+        if (stampSequence == Integer.MAX_VALUE) {
+            return "{Stamp≤UNCOMMITTED Observable Version≥}";
+        }
+
         final StringBuilder sb = new StringBuilder();
 
         sb.append("{Stamp≤");
@@ -410,6 +414,9 @@ public class StampProvider
     public String describeStampSequenceForTooltip(int stampSequence, ManifoldCoordinate manifoldCoordinate) {
         if (stampSequence == -1) {
             return "CANCELED";
+        }
+        if (stampSequence == Integer.MAX_VALUE) {
+            return "Uncommitted from observable with no stamped version";
         }
 
         final StringBuilder sb = new StringBuilder();

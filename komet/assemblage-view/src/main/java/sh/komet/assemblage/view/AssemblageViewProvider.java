@@ -18,12 +18,10 @@ package sh.komet.assemblage.view;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import javafx.application.Platform;
-import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -40,12 +38,9 @@ import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.util.number.NumberUtil;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.concept.ConceptLabelToolbar;
-import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.DetailNodeAbstract;
-import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.gui.search.SearchToolbar;
 import sh.komet.gui.util.FxGet;
 
@@ -57,49 +52,32 @@ import static sh.komet.gui.style.StyleClasses.ASSEMBLAGE_DETAIL;
 public class AssemblageViewProvider extends DetailNodeAbstract implements Supplier<List<MenuItem>> {
     protected static final Logger LOG = LogManager.getLogger();
 
-    private final BorderPane assemblageDetailPane = new BorderPane();
     {
         toolTipProperty.setValue("listing of assemblage members");
         titleProperty.setValue("empty assemblage view");
         menuIconProperty.setValue(Iconography.PAPERCLIP.getIconographic());
     }
-    private final ConceptLabelToolbar conceptLabelToolbar;
     private final SearchToolbar searchToolbar;
     private final AssemblageDetailController assemblageDetailController;
 
     private final AssemblageMenuProvider assemblageMenuProvider;
 
     public AssemblageViewProvider(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
-        super(viewProperties, activityFeed);
+        super(viewProperties, activityFeed, preferencesNode);
         try {
             if (activityFeed.isLinked()) {
                 FxGet.dialogs().showErrorDialog(new IllegalStateException("Activity feed for assemblage must be unlinked... Found " +
                         activityFeed.getFeedName()));
             }
-            this.activityFeedProperty.set(activityFeed);
 
-            this.assemblageDetailPane.getStyleClass().setAll(ASSEMBLAGE_DETAIL.toString());
-            this.conceptLabelToolbar = ConceptLabelToolbar.make(this.viewProperties,
-                    this.identifiedObjectFocusProperty,
-                    ConceptLabelWithDragAndDrop::setPreferredText,
-                    this.selectionIndexProperty,
-                    () -> this.unlinkFromActivityFeed(),
-                    this.activityFeedProperty,
-                    Optional.of(true));
+            this.detailPane.getStyleClass().setAll(ASSEMBLAGE_DETAIL.toString());
             this.assemblageMenuProvider = new AssemblageMenuProvider(this.viewProperties, this.getActivityFeed());
-
-            this.assemblageDetailPane.setTop(conceptLabelToolbar.getToolbarNode());
-
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/sh/komet/assemblage/view/AssemblageDetail.fxml"));
             BorderPane rootPane = loader.load();
             this.assemblageDetailController = loader.getController();
-            this.assemblageDetailController.setViewProperties(this.viewProperties, this.activityFeedProperty);
-            this.activityFeedProperty.addListener((observable, oldValue, newValue) -> {
-                oldValue.feedSelectionProperty().removeListener(this::selectionChanged);
-                newValue.feedSelectionProperty().addListener(this::selectionChanged);
-            });
-            assemblageDetailPane.setCenter(assemblageDetailController.getAssemblageDetailRootPane());
+            this.assemblageDetailController.setViewProperties(this.viewProperties);
+            this.detailPane.setCenter(assemblageDetailController.getAssemblageDetailRootPane());
 
             this.searchToolbar = new SearchToolbar();
             this.searchToolbar.setSearchConsumer(this::search);
@@ -120,8 +98,6 @@ public class AssemblageViewProvider extends DetailNodeAbstract implements Suppli
                     FxGet.statusMessageService().reportStatus("Scrolling to selected index: " + selectedIndex);
                     Platform.runLater(() -> this.assemblageDetailController.getAssemblageExtensionTreeTable()
                             .scrollTo(selectedIndex));
-
-
                 }
             });
             rootPane.setTop(searchToolbar.getSearchToolbar());
@@ -131,8 +107,15 @@ public class AssemblageViewProvider extends DetailNodeAbstract implements Suppli
     }
 
     @Override
-    protected void setFocus(IdentifiedObject component) {
-        throw new UnsupportedOperationException();
+    public void updateFocusedObject(IdentifiedObject component) {
+        ConceptSpecification focus = TermAux.UNINITIALIZED_COMPONENT_ID;
+        if (component != null) {
+            int count = (int) Get.identifierService().getNidsForAssemblage(focus.getNid()).count();
+            toolTipProperty.set("View of all " + count + " " + viewProperties.getPreferredDescriptionText(focus) + " assemblage elements");
+            this.conceptLabelToolbar.getRightInfoLabel().setText(NumberUtil.formatWithGrouping(count) + " ");
+            focus = Get.concept(component.getNid());
+            this.assemblageDetailController.updateFocus(component, count);
+        }
     }
 
     @Override
@@ -147,18 +130,7 @@ public class AssemblageViewProvider extends DetailNodeAbstract implements Suppli
 
     @Override
     public void savePreferences() {
-        throw new UnsupportedOperationException();
-    }
-
-    private void selectionChanged(ListChangeListener.Change<? extends IdentifiedObject> c) {
-        ConceptSpecification focus = TermAux.UNINITIALIZED_COMPONENT_ID;
-        if (!c.getList().isEmpty()) {
-            focus = Get.concept(c.getList().get(0).getNid());
-        }
-        titleProperty.set(viewProperties.getPreferredDescriptionText(focus));
-        toolTipProperty.set("View of all " + viewProperties.getPreferredDescriptionText(focus) + " assemblage members");
-        int count = (int) Get.identifierService().getNidsForAssemblage(focus.getNid()).count();
-        this.conceptLabelToolbar.getRightInfoLabel().setText(NumberUtil.formatWithGrouping(count) + " elements");
+        // TODO save more preferences.
     }
 
     private void search(String searchString) {
@@ -168,7 +140,7 @@ public class AssemblageViewProvider extends DetailNodeAbstract implements Suppli
 
     @Override
     public Node getNode() {
-        return assemblageDetailPane;
+        return detailPane;
     }
 
     @Override

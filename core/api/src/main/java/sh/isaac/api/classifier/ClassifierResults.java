@@ -52,6 +52,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static sh.isaac.api.util.time.DateTimeUtil.TEXT_FORMAT_WITH_ZONE;
+
 /**
  * The Class ClassifierResults.
  *
@@ -120,8 +122,8 @@ public interface ClassifierResults {
 
    default String getDefaultText() {
       StringBuilder sb = new StringBuilder();
-      sb.append(DateTimeUtil.textFormatWithZone(getCommitTime().atZone(ZoneOffset.systemDefault())));
-      sb.append(" to the ");
+      sb.append(TEXT_FORMAT_WITH_ZONE.format(getCommitTime().atZone(ZoneOffset.systemDefault())));
+      sb.append(" written to the ");
       sb.append(Get.conceptDescriptionText(getEditCoordinate().getModuleNid()));
       return sb.toString();
    }

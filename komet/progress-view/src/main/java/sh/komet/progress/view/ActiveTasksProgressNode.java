@@ -20,8 +20,13 @@ import sh.komet.gui.control.property.ViewProperties;
 import java.util.Optional;
 
 public class ActiveTasksProgressNode extends TaskProgressNode {
+    {
+        titleProperty.setValue("Tasks");
+        toolTipProperty.setValue("Information about active tasks. ");
+        menuIconProperty.setValue(Iconography.SPINNER0.getIconographic());
+    }
+
     final Node progressIcon = Iconography.SPINNER0.getIconographic();
-    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(progressIcon);
 
     final RotateTransition rotation;
     public ActiveTasksProgressNode(ViewProperties manifold) {

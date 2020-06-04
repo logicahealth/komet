@@ -392,7 +392,10 @@ public class Get
     * @see ConceptSnapshotService#conceptDescriptionText(int)
     */
    public static String conceptDescriptionText(int conceptNid) {
-      if (conceptNid >= 0) {
+      if (conceptNid == 0) {
+         return "Uninitialized Component, nid == 0";
+      }
+      if (conceptNid > 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
       }
 

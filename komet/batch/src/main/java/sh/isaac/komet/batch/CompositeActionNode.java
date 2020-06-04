@@ -1,6 +1,5 @@
 package sh.isaac.komet.batch;
 
-import javafx.beans.property.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
@@ -8,7 +7,6 @@ import sh.isaac.komet.batch.fxml.CompositeActionNodeController;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 
 import java.io.IOException;
@@ -19,9 +17,11 @@ import static sh.isaac.komet.batch.CompositeActionFactory.ACTION_VIEW;
 
 public class CompositeActionNode extends ExplorationNodeAbstract {
 
+    public static final String ACTION_VIEW_TO_CREATE_COMPOSITE_ACTIONS = "Action view to create composite actions";
+
     {
         titleProperty.setValue(ACTION_VIEW);
-        toolTipProperty.setValue("Action view to create composite actions");
+        toolTipProperty.setValue(ACTION_VIEW_TO_CREATE_COMPOSITE_ACTIONS);
         menuIconProperty.setValue(Iconography.EDIT_PENCIL.getStyledIconographic());
     }
 
@@ -36,6 +36,15 @@ public class CompositeActionNode extends ExplorationNodeAbstract {
             this.root = loader.load();
             this.controller = loader.getController();
             this.controller.setViewProperties(manifold);
+
+            this.controller.getActionNameProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue.isBlank()) {
+                    titleProperty.setValue(ACTION_VIEW);
+                    toolTipProperty.setValue(ACTION_VIEW_TO_CREATE_COMPOSITE_ACTIONS);
+                } else {
+                    titleProperty.setValue(newValue);
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);

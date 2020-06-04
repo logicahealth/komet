@@ -117,7 +117,9 @@ public class ConceptBuilderComponentPanel
 
     //~--- constructors --------------------------------------------------------
     public ConceptBuilderComponentPanel(ViewProperties viewProperties,
-                                        ObservableVersion observableVersion, boolean independentCommit, StringProperty conceptText) {
+                                        ObservableVersion observableVersion,
+                                        boolean independentCommit,
+                                        StringProperty conceptText) {
         this.conceptText = conceptText;
         this.independentCommit = independentCommit;
         this.viewProperties = viewProperties;

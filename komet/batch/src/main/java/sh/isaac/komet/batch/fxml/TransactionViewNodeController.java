@@ -31,6 +31,8 @@ import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static sh.isaac.komet.batch.TransactionViewFactory.TRANSACTION_VIEW;
+
 public class TransactionViewNodeController implements ComponentList {
 
     @FXML
@@ -79,6 +81,11 @@ public class TransactionViewNodeController implements ComponentList {
 
         transactionChoice.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             refreshList();
+            if (newValue.getTransactionName().isEmpty()) {
+                nameProperty.setValue(TRANSACTION_VIEW);
+            } else {
+                nameProperty.setValue(newValue.getTransactionName() + " transaction");
+            }
         });
     }
 

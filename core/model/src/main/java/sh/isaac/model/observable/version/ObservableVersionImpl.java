@@ -796,8 +796,10 @@ public abstract class ObservableVersionImpl
         if (this.stampSequenceProperty != null) {
             return this.stampSequenceProperty.get();
         }
-
-        return this.stampedVersionProperty.get().getStampSequence();
+        if (this.stampedVersionProperty != null && this.stampedVersionProperty.get() != null) {
+            return this.stampedVersionProperty.get().getStampSequence();
+        }
+        return Integer.MAX_VALUE;
     }
 
     public VersionImpl getStampedVersion() {

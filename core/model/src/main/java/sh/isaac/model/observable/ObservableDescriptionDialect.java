@@ -260,4 +260,12 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     public <V extends Version> V setupAnalog(int stampSequence) {
         throw new UnsupportedOperationException();
     }
+
+    @Override
+    public String toString() {
+        return "ObservableDescriptionDialect{" +
+                "descriptionProperty=" + descriptionProperty.get() +
+                ", dialectProperty=" + dialectProperty.get() +
+                '}';
+    }
 }

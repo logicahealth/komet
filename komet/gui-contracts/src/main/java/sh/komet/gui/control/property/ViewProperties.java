@@ -66,10 +66,11 @@ public class ViewProperties {
     public static final String CLASSIFICATION = "classification";
     public static final String CORRELATION = "correlation";
     public static final String LIST = "list";
+    public static final String CONCEPT_BUILDER = "concept builder";
     public static final String FLWOR = "flwor";
 
     public static final ImmutableList<String> ACTIVITY_FEED_NAMES =
-            Lists.immutable.of(ANY, UNLINKED, SEARCH, NAVIGATION, CLASSIFICATION, CORRELATION, LIST, FLWOR);
+            Lists.immutable.of(ANY, UNLINKED, SEARCH, NAVIGATION, CLASSIFICATION, CORRELATION, LIST, FLWOR, CONCEPT_BUILDER);
 
     public enum Keys {
         NAME_PREFIX, NAME_SUFFIX,
@@ -89,6 +90,7 @@ public class ViewProperties {
         ICONOGRAPHIC_SUPPLIER.put(ANY, () -> new Label("*"));
         ICONOGRAPHIC_SUPPLIER.put(CLASSIFICATION, () -> Iconography.INFERRED.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(LIST, () -> Iconography.LIST.getIconographic());
+        ICONOGRAPHIC_SUPPLIER.put(CONCEPT_BUILDER, () -> Iconography.NEW_CONCEPT.getIconographic());
     }
     public static Optional<Node> getOptionalGraphicForActivityFeed(String activityFeedName) {
         String[] nameParts = activityFeedName.split(":");
@@ -121,6 +123,7 @@ public class ViewProperties {
         activityFeedMap.put(CLASSIFICATION, ActivityFeed.createActivityFeed(this, CLASSIFICATION));
         activityFeedMap.put(CORRELATION, ActivityFeed.createActivityFeed(this, CORRELATION));
         activityFeedMap.put(LIST, ActivityFeed.createActivityFeed(this, LIST));
+        activityFeedMap.put(CONCEPT_BUILDER, ActivityFeed.createActivityFeed(this, CONCEPT_BUILDER));
         activityFeedMap.put(ANY, ActivityFeed.createActivityFeed(this, ANY));
         linkAny();
         SINGLETONS.put(viewUuid, this);

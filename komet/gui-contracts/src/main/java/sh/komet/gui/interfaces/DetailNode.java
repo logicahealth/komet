@@ -29,11 +29,12 @@ import java.util.Optional;
  * @author kec
  */
 @Contract
-public interface DetailNode<T extends IdentifiedObject> extends ExplorationNode
+public interface DetailNode extends ExplorationNode
 {
-   void setIdentifiedObjectFocus(T identifiedObject);
-   Optional<T> getIdentifiedObjectFocus();
-   SimpleObjectProperty<T> identifiedObjectFocusProperty();
+   void setFocusedObject(IdentifiedObject identifiedObject);
+
+   Optional<IdentifiedObject> getFocusedObject();
+   SimpleObjectProperty<IdentifiedObject> focusedObjectProperty();
 
    SimpleIntegerProperty selectionIndexProperty();
    default int getSelectionIndex() {

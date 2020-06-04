@@ -49,6 +49,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.AnchorPane;
+import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 

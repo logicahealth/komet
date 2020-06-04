@@ -34,7 +34,7 @@ when
    $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR.getNid());
 then
    $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
-   $propertySheetItem.setDefaultValue(MetaData.ENGLISH_LANGUAGE____SOLOR);
+   $propertySheetItem.setDefaultValueIfUnknown(MetaData.ENGLISH_LANGUAGE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.ENGLISH_LANGUAGE____SOLOR);
    
    $propertySheetItem.getAllowedValues().add(MetaData.SPANISH_LANGUAGE____SOLOR);
@@ -54,7 +54,7 @@ when
    $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.DESCRIPTION_TYPE_FOR_DESCRIPTION____SOLOR.getNid());
 then
    $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
-   $propertySheetItem.setDefaultValue(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
+   $propertySheetItem.setDefaultValueIfUnknown(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR);
@@ -66,7 +66,7 @@ when
    $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR.getNid());
 then
    $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
-   $propertySheetItem.setDefaultValue(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
+   $propertySheetItem.setDefaultValueIfUnknown(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_CASE_SENSITIVE____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE____SOLOR);
@@ -79,7 +79,7 @@ when
    $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.STATUS_FOR_VERSION____SOLOR.getNid());
 then
    $propertySheetItem.setEditorType(EditorType.OBJECT_CHOICE_BOX);
-   $propertySheetItem.setDefaultValue(Status.ACTIVE);
+   $propertySheetItem.setDefaultValueIfUnknown(Status.ACTIVE);
    $propertySheetItem.getAllowedValues().add(Status.ACTIVE);
    $propertySheetItem.getAllowedValues().add(Status.INACTIVE);
    $propertySheetItem.getAllowedValues().add(Status.WITHDRAWN);
@@ -100,7 +100,7 @@ when
    getPropertySheetPurpose() == PropertySheetPurpose.DESCRIPTION_DIALECT);
 then
    $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
-   $propertySheetItem.setDefaultValue(MetaData.US_ENGLISH_DIALECT____SOLOR);
+   $propertySheetItem.setDefaultValueIfUnknown(MetaData.US_ENGLISH_DIALECT____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.US_ENGLISH_DIALECT____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.US_NURSING_DIALECT____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.GB_ENGLISH_DIALECT____SOLOR);
@@ -115,7 +115,7 @@ when
    getPropertySheetPurpose() == PropertySheetPurpose.DESCRIPTION_DIALECT);
 then
    $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
-   $propertySheetItem.setDefaultValue(MetaData.PREFERRED____SOLOR);
+   $propertySheetItem.setDefaultValueIfUnknown(MetaData.PREFERRED____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.PREFERRED____SOLOR);
    $propertySheetItem.getAllowedValues().add(MetaData.ACCEPTABLE____SOLOR);
 end
@@ -126,7 +126,7 @@ when
    $propertySheetItem : PropertySheetItem(getSpecification().getNid() == TermAux.SEMANTIC_TYPE.getNid()); 
 then
    $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
-   $propertySheetItem.setDefaultValue(TermAux.MEMBERSHIP_SEMANTIC);
+   $propertySheetItem.setDefaultValueIfUnknown(TermAux.MEMBERSHIP_SEMANTIC);
    $propertySheetItem.getAllowedValues().add(TermAux.MEMBERSHIP_SEMANTIC);
    $propertySheetItem.getAllowedValues().add(TermAux.CONCEPT_SEMANTIC);
    $propertySheetItem.getAllowedValues().add(TermAux.COMPONENT_SEMANTIC);

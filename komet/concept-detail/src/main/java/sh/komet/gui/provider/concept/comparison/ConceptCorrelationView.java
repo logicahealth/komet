@@ -51,7 +51,7 @@ public class ConceptCorrelationView {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/provider/concept/comparison/ConceptComparison.fxml"));
             AnchorPane root = loader.load();
             this.controller = loader.getController();
-            this.controller.setViewProperties(viewProperties);
+            this.controller.setViewProperties(viewProperties, preferences);
             
             
             //create scene with set width, height and color

@@ -28,6 +28,7 @@ import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
 import sh.komet.gui.interfaces.ExplorationNodeAbstract;
+import sh.komet.gui.search.simple.SimpleSearchViewFactory;
 
 /**
  *
@@ -35,9 +36,14 @@ import sh.komet.gui.interfaces.ExplorationNodeAbstract;
  */
 public class ExtendedSearchConceptExplorationNode extends ExplorationNodeAbstract implements ConceptExplorationNode {
 
+    {
+        titleProperty.setValue("Extended search");
+        toolTipProperty.setValue("Extended search panel. ");
+        menuIconProperty.setValue(Iconography.TARGET.getIconographic());
+    }
+
     private final ExtendedSearchViewController controller;
     private final SimpleObjectProperty<ConceptSpecification> conceptSpecification = new SimpleObjectProperty<>();
-    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.TARGET.getIconographic());
 
     public ExtendedSearchConceptExplorationNode(ExtendedSearchViewController controller, ViewProperties viewProperties) {
         super(viewProperties);

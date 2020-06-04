@@ -22,27 +22,22 @@ import java.util.Optional;
 import java.util.function.Supplier;
 
 import javafx.beans.property.*;
-import javafx.collections.ListChangeListener;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.BorderPane;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.DetailNodeAbstract;
-import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.gui.style.StyleClasses;
 
 /**
@@ -64,8 +59,8 @@ public class ExpressionView extends DetailNodeAbstract implements Supplier<List<
     private final SimpleObjectProperty<IdentifiedObject> identifiedObjectFocusProperty = new SimpleObjectProperty<>();
 
     //~--- constructors --------------------------------------------------------
-    public ExpressionView(ViewProperties viewProperties, String activityGroupName) {
-        super(viewProperties, viewProperties.getActivityFeed(activityGroupName));
+    public ExpressionView(ViewProperties viewProperties, String activityGroupName, IsaacPreferences preferences) {
+        super(viewProperties, viewProperties.getActivityFeed(activityGroupName), preferences);
         this.conceptLabelToolbar = ConceptLabelToolbar.make(this.viewProperties,
                 this.identifiedObjectFocusProperty,
                 ConceptLabelWithDragAndDrop::setPreferredText,
@@ -73,8 +68,8 @@ public class ExpressionView extends DetailNodeAbstract implements Supplier<List<
                 () -> this.unlinkFromActivityFeed(),
                 this.activityFeedProperty,
                 Optional.of(true));
-        conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
-        conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
+        detailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
+        detailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         expressionProperty().addListener((observable, oldValue, newValue) -> {
             getLogicDetail();
         });
@@ -99,7 +94,7 @@ public class ExpressionView extends DetailNodeAbstract implements Supplier<List<
     }
 
     @Override
-    protected void setFocus(IdentifiedObject component) {
+    public void updateFocusedObject(IdentifiedObject component) {
         setExpression((LogicalExpression) component);
     }
 
@@ -110,11 +105,11 @@ public class ExpressionView extends DetailNodeAbstract implements Supplier<List<
     private void getLogicDetail() {
         SplitPane splitPane = new SplitPane();
         splitPane.setOrientation(Orientation.VERTICAL);
-        conceptDetailPane.setCenter(splitPane);
+        detailPane.setCenter(splitPane);
         if (expressionProperty.get() != null) {
             splitPane.getItems().add(AxiomView.createWithCommitPanel(expressionProperty.get(), PremiseType.STATED, this.viewProperties));
         } else {
-            conceptDetailPane.setCenter(new Label("No stated form"));
+            detailPane.setCenter(new Label("No stated form"));
         }
     }
 
@@ -137,7 +132,7 @@ public class ExpressionView extends DetailNodeAbstract implements Supplier<List<
      */
     @Override
     public Node getNode() {
-        return conceptDetailPane;
+        return detailPane;
     }
 
 

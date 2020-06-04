@@ -35,7 +35,7 @@ public class ConceptDetailTaxonomyLinkedPanelProviderFactory extends ConceptDeta
     @Override
     public String[] getDefaultActivityFeed() {
         return new String[] {ViewProperties.NAVIGATION,
-                ViewProperties.UNLINKED, ViewProperties.SEARCH};
+                ViewProperties.UNLINKED, ViewProperties.SEARCH, ViewProperties.CONCEPT_BUILDER};
     }
 
 }

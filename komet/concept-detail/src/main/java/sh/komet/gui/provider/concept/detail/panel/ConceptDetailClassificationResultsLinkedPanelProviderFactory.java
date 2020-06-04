@@ -36,6 +36,6 @@ public class ConceptDetailClassificationResultsLinkedPanelProviderFactory extend
     @Override
     public String[] getDefaultActivityFeed() {
         return new String[] {ViewProperties.CLASSIFICATION, ViewProperties.UNLINKED,
-                ViewProperties.NAVIGATION, ViewProperties.SEARCH};
+                ViewProperties.NAVIGATION, ViewProperties.SEARCH, ViewProperties.CONCEPT_BUILDER};
     }
 }

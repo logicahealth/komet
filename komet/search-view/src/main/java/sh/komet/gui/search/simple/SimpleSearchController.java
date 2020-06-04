@@ -82,15 +82,16 @@ import sh.komet.gui.contract.GuiSearcher;
  * @author kec
  */
 public class SimpleSearchController extends ExplorationNodeAbstract implements GuiSearcher, ConceptExplorationNode {
+
+    {
+        titleProperty.setValue(SimpleSearchViewFactory.MENU_TEXT);
+        toolTipProperty.setValue("Simple Search Panel. ");
+        menuIconProperty.setValue(Iconography.SIMPLE_SEARCH.getIconographic());
+    }
+
     private static final KeyCodeCombination keyCodeCopy = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
     private static final Logger              LOG               = LogManager.getLogger();
-    private final SimpleStringProperty       titleProperty     =
-            new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
-    private final SimpleStringProperty       titleNodeProperty =
-            new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
-    private final SimpleStringProperty                     toolTipText       = new SimpleStringProperty("Simple Search Panel");
-    private final SimpleObjectProperty<Node> iconProperty      =
-            new SimpleObjectProperty<>(Iconography.SIMPLE_SEARCH.getIconographic());
+
     private final SimpleSearchService                         searchService        = new SimpleSearchService();
     private final SimpleListProperty<Integer> draggedTaxonomyConceptsForFilteringListProperty =
             new SimpleListProperty<>(FXCollections.observableArrayList());
@@ -439,8 +440,8 @@ public class SimpleSearchController extends ExplorationNodeAbstract implements G
     public Optional<Node> getTitleNode() {
         Label titleLabel = new Label();
 
-        titleLabel.graphicProperty().bind(iconProperty);
-        titleLabel.textProperty().bind(titleNodeProperty);
+        titleLabel.graphicProperty().bind(menuIconProperty);
+        titleLabel.textProperty().bind(titleProperty);
         titleProperty.set("");
 
         return Optional.of(titleLabel);

@@ -43,24 +43,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 //~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
-import javafx.scene.layout.BorderPane;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.DetailNodeAbstract;
-import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
@@ -76,42 +71,35 @@ public class ConceptDetailTreeTableNode extends DetailNodeAbstract implements Su
         toolTipProperty.setValue("empty");
         menuIconProperty.setValue(Iconography.CONCEPT_TABLE.getIconographic());
     }
-    private final ConceptLabelToolbar conceptLabelToolbar;
+
+    ConceptDetailTreeTableController conceptDetailController;
 
     //~--- constructors --------------------------------------------------------
-    public ConceptDetailTreeTableNode(ViewProperties viewProperties, ActivityFeed activityFeed) {
-        super(viewProperties, activityFeed);
+    public ConceptDetailTreeTableNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferences) {
+        super(viewProperties, activityFeed, preferences);
         try {
 
-            activityFeed.feedSelectionProperty().addListener(this::updateTitleListener);
-            this.conceptLabelToolbar = ConceptLabelToolbar.make(this.viewProperties,
-                    this.identifiedObjectFocusProperty,
-                    ConceptLabelWithDragAndDrop::setPreferredText,
-                    this.selectionIndexProperty,
-                    () -> this.unlinkFromActivityFeed(),
-                    this.activityFeedProperty,
-                    Optional.of(true));
-            conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
-            conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
+            detailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
 
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/sh/komet/gui/provider/concept/detail/ConceptDetail.fxml"));
 
             loader.load();
 
-            ConceptDetailTreeTableController conceptDetailController = loader.getController();
+            this.conceptDetailController = loader.getController();
 
-            conceptDetailController.setViewProperties(this.viewProperties, activityFeed);
+            conceptDetailController.setViewProperties(this.viewProperties);
             updateTitle();
-            conceptDetailPane.setCenter(conceptDetailController.getConceptDetailRootPane());
+            detailPane.setCenter(conceptDetailController.getConceptDetailRootPane());
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
     }
 
     @Override
-    protected void setFocus(IdentifiedObject component) {
-        FxGet.dialogs().showInformationDialog("Not implemented", "ConceptDetailTreeTableNode does not implement setFocus");
+    public void updateFocusedObject(IdentifiedObject component) {
+        updateTitle();
+        this.conceptDetailController.updateFocusedObject(component);
     }
 
     @Override
@@ -120,7 +108,7 @@ public class ConceptDetailTreeTableNode extends DetailNodeAbstract implements Su
     }
 
     private Optional<ConceptChronology> getOptionalFocusedConcept() {
-        Optional<IdentifiedObject> optionalComponent = this.getIdentifiedObjectFocus();
+        Optional<IdentifiedObject> optionalComponent = this.getFocusedObject();
         if (optionalComponent.isPresent()) {
             return Optional.of(Get.concept(optionalComponent.get().getNid()));
         }
@@ -132,10 +120,6 @@ public class ConceptDetailTreeTableNode extends DetailNodeAbstract implements Su
         throw new UnsupportedOperationException();
     }
 
-    private void updateTitleListener(ListChangeListener.Change<? extends IdentifiedObject> c) {
-        updateTitle();
-    }
-
     private void updateTitle() {
         Optional<ConceptChronology> optionalConcept = getOptionalFocusedConcept();
         if (optionalConcept.isEmpty()) {
@@ -143,8 +127,6 @@ public class ConceptDetailTreeTableNode extends DetailNodeAbstract implements Su
             toolTipProperty.set(
                     "concept details for: empty");
         } else {
-            //TODO handle list properly...
-
             titleProperty.set(this.viewProperties.getPreferredDescriptionText(optionalConcept.get()));
             toolTipProperty.set(
                     "concept details for: "
@@ -156,7 +138,7 @@ public class ConceptDetailTreeTableNode extends DetailNodeAbstract implements Su
 
     @Override
     public Node getNode() {
-        return conceptDetailPane;
+        return detailPane;
     }
 
     @Override

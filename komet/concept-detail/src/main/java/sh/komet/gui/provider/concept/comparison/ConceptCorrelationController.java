@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.provider.concept.comparison;
 
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.model.logic.IsomorphicResultsFromPathHash;
 import java.net.URL;
@@ -107,15 +108,15 @@ public class ConceptCorrelationController {
         algorithmChoiceBox.getSelectionModel().select("Bottom up");
     }
 
-    public void setViewProperties(ViewProperties viewProperties) {
+    public void setViewProperties(ViewProperties viewProperties, IsaacPreferences preferences) {
         this.viewProperties = viewProperties;
-        this.referenceExpressionView = new ExpressionView(viewProperties, ViewProperties.CORRELATION);
+        this.referenceExpressionView = new ExpressionView(viewProperties, ViewProperties.CORRELATION, preferences);
         this.referenceBorderPane.setCenter(this.referenceExpressionView.getNode());
 
-        this.correlationExpressionView = new ExpressionView(viewProperties, ViewProperties.CORRELATION);
+        this.correlationExpressionView = new ExpressionView(viewProperties, ViewProperties.CORRELATION, preferences);
         this.correlationBorderPane.setCenter(this.correlationExpressionView.getNode());
 
-        this.comparisonExpressionView = new ExpressionView(viewProperties, ViewProperties.CORRELATION);
+        this.comparisonExpressionView = new ExpressionView(viewProperties, ViewProperties.CORRELATION, preferences);
         this.comparisonBorderPane.setCenter(this.comparisonExpressionView.getNode());
 
     }

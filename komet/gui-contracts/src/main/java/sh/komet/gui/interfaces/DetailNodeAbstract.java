@@ -10,8 +10,10 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
+import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
@@ -20,15 +22,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public abstract class DetailNodeAbstract extends ExplorationNodeAbstract implements DetailNode<IdentifiedObject> {
+public abstract class DetailNodeAbstract extends ExplorationNodeAbstract implements DetailNode {
     public enum Keys {
         ACTIVITY_FEED_NAME,
         ACTIVITY_SELECTION_INDEX,
         DETAIL_NODE_INSTANCE
     }
 
-    protected final SimpleObjectProperty<IdentifiedObject> identifiedObjectFocusProperty = new SimpleObjectProperty<>();
+    protected final SimpleObjectProperty<IdentifiedObject> focusedObjectProperty = new SimpleObjectProperty<>();
     protected final SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty(0);
+
     /**
      * Not that if you don't declare a listener as final in this way, and just use method references, or
      * a direct lambda expression, you will not be able to remove the listener, since each reference will create
@@ -36,13 +39,16 @@ public abstract class DetailNodeAbstract extends ExplorationNodeAbstract impleme
      * https://stackoverflow.com/questions/42146360/how-do-i-remove-lambda-expressions-method-handles-that-are-used-as-listeners
      */
     private final ListChangeListener<? super IdentifiedObject> selectionChangedListener = this::selectionChanged;
+    protected final ConceptLabelToolbar conceptLabelToolbar;
+    protected final IsaacPreferences preferences;
 
-    protected final BorderPane conceptDetailPane = new BorderPane();
+    protected final BorderPane detailPane = new BorderPane();
 
-    public DetailNodeAbstract(ViewProperties viewProperties, ActivityFeed activityFeed) {
+    public DetailNodeAbstract(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferences) {
         super(viewProperties, activityFeed);
-        conceptDetailPane.getProperties().put(Keys.DETAIL_NODE_INSTANCE, this);
-        this.conceptDetailPane.sceneProperty().addListener((observable, oldValue, newValue) -> {
+        this.preferences = preferences;
+        this.detailPane.getProperties().put(Keys.DETAIL_NODE_INSTANCE, this);
+        this.detailPane.sceneProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == null) {
                 // would happen if tab closed. Removing the listener.
                 this.activityFeedProperty.get().feedSelectionProperty().removeListener(getSelectionChangedListener());
@@ -54,20 +60,40 @@ public abstract class DetailNodeAbstract extends ExplorationNodeAbstract impleme
         if (this.getActivityFeed().isLinked()) {
             this.getActivityFeed().feedSelectionProperty().addListener(getSelectionChangedListener());
         }
-        Platform.runLater(() -> updateMenuGraphic());
+        this.conceptLabelToolbar = ConceptLabelToolbar.make(this.viewProperties,
+                this.focusedObjectProperty,
+                ConceptLabelWithDragAndDrop::setPreferredText,
+                this.selectionIndexProperty,
+                () -> unlinkFromActivityFeed(),
+                this.activityFeedProperty,
+                Optional.of(false));
+        this.detailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
 
+        Platform.runLater(() -> updateMenuGraphic());
+        this.focusedObjectProperty.addListener(this::focusedObjectChanged);
     }
 
+    public void focusedObjectChanged(ObservableValue<? extends IdentifiedObject> observable, IdentifiedObject oldValue, IdentifiedObject newValue) {
+        if (newValue != null) {
+            this.titleProperty.set(this.viewProperties.getPreferredDescriptionText(newValue.getNid()));
+        } else {
+            this.titleProperty.set(ConceptLabelWithDragAndDrop.EMPTY_TEXT);
+        }
+        updateFocusedObject(newValue);
+    }
+
+    public abstract void updateFocusedObject(IdentifiedObject newValue);
+
     private void activityFeedChanged(ObservableValue<? extends ActivityFeed> observable, ActivityFeed oldValue, ActivityFeed newValue) {
-            if (oldValue != null) {
-                oldValue.feedSelectionProperty().removeListener(getSelectionChangedListener());
-            }
-            if (newValue.isLinked()) {
-                this.selectionListChanged((ObservableList<? extends IdentifiedObject>) newValue.feedSelectionProperty());
-                newValue.feedSelectionProperty().addListener(getSelectionChangedListener());
-            }
-            updateMenuGraphic();
-            savePreferences();
+        if (oldValue != null) {
+            oldValue.feedSelectionProperty().removeListener(getSelectionChangedListener());
+        }
+        if (newValue.isLinked()) {
+            this.selectionListChanged((ObservableList<? extends IdentifiedObject>) newValue.feedSelectionProperty());
+            newValue.feedSelectionProperty().addListener(getSelectionChangedListener());
+        }
+        updateMenuGraphic();
+        savePreferences();
     }
 
     /**
@@ -89,7 +115,7 @@ public abstract class DetailNodeAbstract extends ExplorationNodeAbstract impleme
 
     @Override
     public final ListChangeListener<? super IdentifiedObject> getSelectionChangedListener() {
-        return (ListChangeListener<? super IdentifiedObject>) this.selectionChangedListener;
+        return this.selectionChangedListener;
     }
 
     private void selectionChanged(ListChangeListener.Change<? extends IdentifiedObject> c) {
@@ -114,21 +140,19 @@ public abstract class DetailNodeAbstract extends ExplorationNodeAbstract impleme
         }
 
         newFocus.ifPresentOrElse(identifiedObject -> {
-            this.identifiedObjectFocusProperty.set(identifiedObject);
-            this.titleProperty.set(this.viewProperties.getPreferredDescriptionText(identifiedObject.getNid()));
+            this.focusedObjectProperty.set(identifiedObject);
             Platform.runLater(() -> {
-                this.setFocus(identifiedObject);
+                this.focusedObjectProperty.set(identifiedObject);
             });
         }, () -> {
             this.titleProperty.set(ConceptLabelWithDragAndDrop.EMPTY_TEXT);
             Platform.runLater(() -> {
-                this.setFocus(null);
-            });
+                this.focusedObjectProperty.set(null);
+             });
         });
         if (selectInTabOnChange()) {
             Platform.runLater(this.getNodeSelectionMethod());
         }
-
     }
 
     private void setSelectionIndex() {
@@ -139,10 +163,8 @@ public abstract class DetailNodeAbstract extends ExplorationNodeAbstract impleme
         this.selectionIndexProperty.set(myIndex);
     }
 
-    protected abstract void setFocus(IdentifiedObject component);
-
     protected void getEquivalentNodesInWindow(Parent parent, List equivalentNodes) {
-        for (Node child: parent.getChildrenUnmodifiable()) {
+        for (Node child : parent.getChildrenUnmodifiable()) {
             if (child.getProperties().containsKey(Keys.DETAIL_NODE_INSTANCE)) {
                 DetailNodeAbstract possiblyEquivalentNode = (DetailNodeAbstract) child.getProperties().get(Keys.DETAIL_NODE_INSTANCE);
                 if (possiblyEquivalentNode.getActivityFeed().getFullyQualifiedActivityFeedName().equals(getActivityFeed().getFullyQualifiedActivityFeedName())) {
@@ -177,7 +199,7 @@ public abstract class DetailNodeAbstract extends ExplorationNodeAbstract impleme
     public final Optional<Node> getTitleNode() {
         if (titleLabel == null) {
             this.titleLabel = new ConceptLabelWithDragAndDrop(getViewProperties(),
-                    (SimpleObjectProperty<IdentifiedObject>) identifiedObjectFocusProperty(),
+                    focusedObjectProperty(),
                     ConceptLabelWithDragAndDrop::setPreferredText,
                     selectionIndexProperty(),
                     () -> unlinkFromActivityFeed());
@@ -192,19 +214,20 @@ public abstract class DetailNodeAbstract extends ExplorationNodeAbstract impleme
     public final ActivityFeed getActivityFeed() {
         return this.activityFeedProperty.get();
     }
+
     @Override
-    public final void setIdentifiedObjectFocus(IdentifiedObject identifiedObject) {
-        this.identifiedObjectFocusProperty.setValue(identifiedObject);
+    public final void setFocusedObject(IdentifiedObject identifiedObject) {
+        this.focusedObjectProperty.setValue(identifiedObject);
     }
 
     @Override
-    public final Optional<IdentifiedObject> getIdentifiedObjectFocus() {
-        return Optional.ofNullable(identifiedObjectFocusProperty.get());
+    public final Optional<IdentifiedObject> getFocusedObject() {
+        return Optional.ofNullable(focusedObjectProperty.get());
     }
 
     @Override
-    public final SimpleObjectProperty<IdentifiedObject> identifiedObjectFocusProperty() {
-        return identifiedObjectFocusProperty;
+    public final SimpleObjectProperty<IdentifiedObject> focusedObjectProperty() {
+        return focusedObjectProperty;
     }
 
 }

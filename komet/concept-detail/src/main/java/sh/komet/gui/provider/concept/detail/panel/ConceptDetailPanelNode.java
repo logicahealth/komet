@@ -42,18 +42,14 @@ import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.application.Platform;
-import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.util.Duration;
@@ -84,19 +80,15 @@ import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.model.observable.ObservableDescriptionDialect;
 import sh.komet.gui.control.ExpandControl;
 import sh.komet.gui.control.StampControl;
 import sh.komet.gui.control.badged.ComponentPaneModel;
-import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.control.toggle.OnOffToggleSwitch;
-import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.DetailNodeAbstract;
-import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.gui.provider.concept.builder.ConceptBuilderComponentPanel;
 import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
@@ -121,7 +113,7 @@ import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
  * @author kec
  */
 public class ConceptDetailPanelNode extends DetailNodeAbstract
-implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List<MenuItem>> {
+implements ChronologyChangeListener, Supplier<List<MenuItem>> {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -138,7 +130,7 @@ implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List
     }
 
     private final VBox componentPanelBox = new VBox(8);
-    private final GridPane versionBrancheGrid = new GridPane();
+    private final GridPane versionBranchGrid = new GridPane();
     private final GridPane toolGrid = new GridPane();
     private final ExpandControl expandControl = new ExpandControl();
     private final OnOffToggleSwitch historySwitch = new OnOffToggleSwitch();
@@ -149,8 +141,6 @@ implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List
     private final ArrayList<Integer> sortedStampSequences = new ArrayList<>();
     private final List<ComponentPaneModel> componentPaneModels = new ArrayList<>();
     private final ScrollPane scrollPane;
-    private final ConceptLabelToolbar conceptLabelToolbar;
-    private final IsaacPreferences preferences;
 
 
     private final ObservableList<ObservableDescriptionDialect> newDescriptions = FXCollections.observableArrayList();
@@ -162,33 +152,23 @@ implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List
 
     //~--- constructors --------------------------------------------------------
     public ConceptDetailPanelNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferences) {
-        super(viewProperties, activityFeed);
-        this.activityFeedProperty.set(activityFeed);
-        this.preferences = preferences;
+        super(viewProperties, activityFeed, preferences);
 
         this.historySwitch.setSelected(false); // add to pref...
         updateManifoldHistoryStates();
-        this.conceptLabelToolbar = ConceptLabelToolbar.make(this.viewProperties,
-                this.identifiedObjectFocusProperty,
-                ConceptLabelWithDragAndDrop::setPreferredText,
-                this.selectionIndexProperty,
-                () -> unlinkFromActivityFeed(),
-                this.activityFeedProperty,
-                Optional.of(true));
-        this.conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
-        this.conceptDetailPane.getStyleClass()
+        this.detailPane.getStyleClass()
                 .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         this.scrollPane = new ScrollPane(componentPanelBox);
         this.scrollPane.setFitToWidth(true);
         this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        this.conceptDetailPane.setCenter(this.scrollPane);
-        this.versionBrancheGrid.add(versionGraphToggle, 0, 0);
+        this.detailPane.setCenter(this.scrollPane);
+        this.versionBranchGrid.add(versionGraphToggle, 0, 0);
         this.versionGraphToggle.getStyleClass()
                 .setAll(StyleClasses.VERSION_GRAPH_TOGGLE.toString());
         this.versionGraphToggle.selectedProperty()
                 .addListener(this::toggleVersionGraph);
-        this.conceptDetailPane.setLeft(versionBrancheGrid);
+        this.detailPane.setLeft(versionBranchGrid);
         this.componentPanelBox.getStyleClass()
                 .add(StyleClasses.COMPONENT_DETAIL_BACKGROUND.toString());
         this.componentPanelBox.setFillWidth(true);
@@ -222,7 +202,7 @@ implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List
 
     @Override
     public void savePreferences() {
-        Optional<IdentifiedObject> optionalFocus = this.getIdentifiedObjectFocus();
+        Optional<IdentifiedObject> optionalFocus = this.getFocusedObject();
         if (optionalFocus.isPresent()) {
             this.preferences.putInt(Keys.ACTIVITY_SELECTION_INDEX, this.selectionIndexProperty.getValue());
         }
@@ -242,7 +222,7 @@ implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List
 
     @Override
     public Node getNode() {
-        return this.conceptDetailPane;
+        return this.detailPane;
     }
 
     @Override
@@ -252,7 +232,7 @@ implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List
 
     @Override
     public void handleCommit(CommitRecord commitRecord) {
-        Optional<IdentifiedObject> optionalFocus = this.getIdentifiedObjectFocus();
+        Optional<IdentifiedObject> optionalFocus = this.getFocusedObject();
         if (optionalFocus.isPresent()) {
             ConceptChronology focusedConcept = Get.concept(optionalFocus.get().getNid());
             ImmutableIntSet recursiveSemantics = focusedConcept.getRecursiveSemanticNids();
@@ -372,7 +352,7 @@ implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List
         populateVersionBranchGrid();
         componentPanelBox.getChildren().add(toolGrid);
 
-        Optional<IdentifiedObject> focusedConceptSpec = this.getIdentifiedObjectFocus();
+        Optional<IdentifiedObject> focusedConceptSpec = this.getFocusedObject();
 
         if (focusedConceptSpec.isPresent()) {
             ConceptChronology newValue = Get.concept(focusedConceptSpec.get().getNid());
@@ -513,7 +493,7 @@ implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List
     }
 
     private void newDescription(Event event) {
-        Optional<IdentifiedObject> optionalFocus = this.getIdentifiedObjectFocus();
+        Optional<IdentifiedObject> optionalFocus = this.getFocusedObject();
         if (optionalFocus.isPresent()) {
             ObservableDescriptionDialect newDescriptionDialect
                     = new ObservableDescriptionDialect(optionalFocus.get().getPrimordialUuid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
@@ -540,7 +520,7 @@ implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List
                                         .add(ft);
                             }
                         });
-        versionBrancheGrid.getChildren()
+        versionBranchGrid.getChildren()
                 .forEach(
                         (child) -> {
                             if (versionGraphToggle != child) {
@@ -563,9 +543,9 @@ implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List
     }
 
     private void populateVersionBranchGrid() {
-        versionBrancheGrid.getChildren()
+        versionBranchGrid.getChildren()
                 .clear();
-        versionBrancheGrid.add(versionGraphToggle, 0, 0);
+        versionBranchGrid.add(versionGraphToggle, 0, 0);
 
         if (versionGraphToggle.isSelected()) {
             for (int stampOrder = 0; stampOrder < sortedStampSequences.size(); stampOrder++) {
@@ -574,7 +554,7 @@ implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List
                 stampControl.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !Get.stampService().isStampActive(stampSequence));
 
                 stampControl.setStampedVersion(stampSequence, this.viewProperties, stampOrder + 1);
-                versionBrancheGrid.add(stampControl, 0, stampOrder + 2);
+                versionBranchGrid.add(stampControl, 0, stampOrder + 2);
             }
         }
     }
@@ -635,8 +615,8 @@ implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List
     }
 
     private void resetConceptFromFocus() {
-        if (getIdentifiedObjectFocus().isPresent()) {
-            setConcept(Get.concept(getIdentifiedObjectFocus().get().getNid()));
+        if (getFocusedObject().isPresent()) {
+            setConcept(Get.concept(getFocusedObject().get().getNid()));
         } else {
             setConcept((ConceptSpecification) null);
         }
@@ -676,7 +656,7 @@ implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List
 
 
     @Override
-    protected void setFocus(IdentifiedObject component) {
+    public void updateFocusedObject(IdentifiedObject component) {
         Platform.runLater(() -> setConcept(component));
     }
 
@@ -690,7 +670,6 @@ implements DetailNode<IdentifiedObject>, ChronologyChangeListener, Supplier<List
 
         clearComponents();
 
-        this.identifiedObjectFocusProperty.set(component);
         this.stampOrderHashMap.clear();
         this.componentPaneModels.clear();
 

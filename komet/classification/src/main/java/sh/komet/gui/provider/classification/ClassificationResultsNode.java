@@ -33,15 +33,22 @@ import java.util.List;
 import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 
+import static sh.isaac.api.util.time.DateTimeUtil.*;
+
 public class ClassificationResultsNode extends ExplorationNodeAbstract {
     public enum Keys {
         SELECTION_DEFAULT_TEXT
     }
 
     private final BorderPane classificationResultsPane = new BorderPane();
+
+    public static final String CLASSIFIER_RESULTS = "Classifier results";
+
+    public static final String CLASSIFIER_RESULTS_FROM_UNSELECTED_INSTANT = "Classifier results from unselected instant...";
+
     {
-        titleProperty.setValue("Classifier results");
-        toolTipProperty.setValue("Classifier results from unselected instant...");
+        titleProperty.setValue(CLASSIFIER_RESULTS);
+        toolTipProperty.setValue(CLASSIFIER_RESULTS_FROM_UNSELECTED_INSTANT);
         menuIconProperty.setValue(Iconography.INFERRED.getIconographic());
     }
     private final ComboBox<ClassifierResults> resultChoices = new ComboBox<>();
@@ -82,11 +89,7 @@ public class ClassificationResultsNode extends ExplorationNodeAbstract {
         }
 
         resultChoices.setButtonCell(new ClassifierResultsListCell());
-        resultChoices.setCellFactory(new Callback<ListView<ClassifierResults>, ListCell<ClassifierResults>>() {
-            @Override public ListCell<ClassifierResults> call(ListView<ClassifierResults> p) {
-                return new ClassifierResultsListCell();
-            }
-        });
+        resultChoices.setCellFactory(p -> new ClassifierResultsListCell());
     }
 
     @Override
@@ -125,12 +128,7 @@ public class ClassificationResultsNode extends ExplorationNodeAbstract {
         @Override protected void updateItem(ClassifierResults item, boolean empty) {
             super.updateItem(item, empty);
             if (!empty && item != null) {
-                StringBuilder sb = new StringBuilder();
-                DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy; hh:mm a zzz");
-                sb.append(FORMATTER.format(item.getCommitTime().atZone(ZoneOffset.systemDefault())));
-                sb.append(" to the ");
-                sb.append(viewProperties.getPreferredDescriptionText(item.getEditCoordinate().getModuleNid()));
-                setText(sb.toString());
+                 setText(item.getDefaultText());
             } else {
                 setText(null);
             }
@@ -139,8 +137,14 @@ public class ClassificationResultsNode extends ExplorationNodeAbstract {
 
     private void layoutResults(ClassifierResults classifierResult) {
         try {
-            if (classifierResult != null) {
+            if (classifierResult == null) {
+                titleProperty.setValue(CLASSIFIER_RESULTS);
+                toolTipProperty.setValue(CLASSIFIER_RESULTS_FROM_UNSELECTED_INSTANT);
+            } else {
                 String classifierResultDefaultText = classifierResult.getDefaultText();
+                toolTipProperty.setValue("Classifier results generated " + classifierResultDefaultText);
+                titleProperty.setValue(" ∴ " + MIN_FORMATTER.format(classifierResult.getCommitTime().atZone(ZoneOffset.systemDefault())));
+
                 nodePreferences.put(Keys.SELECTION_DEFAULT_TEXT, classifierResultDefaultText);
                 nodePreferences.sync();
             }

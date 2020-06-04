@@ -45,7 +45,7 @@ public class ConceptDetailTreeTableProviderFactory implements DetailNodeFactory 
 
    @Override
    public DetailNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
-      return new ConceptDetailTreeTableNode(viewProperties, activityFeed);
+      return new ConceptDetailTreeTableNode(viewProperties, activityFeed, preferencesNode);
    }
    @Override
    public String getMenuText() {

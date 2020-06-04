@@ -878,6 +878,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                        "sh.komet.gui.provider.concept.detail.panel.ConceptDetailListLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                .getPreferredDescriptionBuilder().setDescriptionText("Concept details - list").setModule(TermAux.KOMET_MODULE);
 
+       createConcept("Concept details new-concept-linked panel")
+               .addStringSemantic(UUID.fromString("c5650ec0-fd0c-5bf6-a977-7aae8ec8c573"),
+                       "sh.komet.gui.provider.concept.detail.panel.ConceptDetailNewConceptLinkedProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+               .getPreferredDescriptionBuilder().setDescriptionText("Concept details - new concept").setModule(TermAux.KOMET_MODULE);
+
 
        createConcept("Concept details taxonomy-linked panel").addStringSemantic(UUID.fromString("4155e905-57fb-5805-b9cd-55cfcf538e33"), "sh.komet.gui.provider.concept.detail.panel.ConceptDetailTaxonomyLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                             .getPreferredDescriptionBuilder().setDescriptionText("Concept details - taxonomy").setModule(TermAux.KOMET_MODULE);

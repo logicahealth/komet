@@ -20,8 +20,6 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
 import javafx.beans.property.*;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.ListChangeListener;
 import javafx.event.Event;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
@@ -40,7 +38,6 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.identity.IdentifiedObject;
@@ -55,9 +52,7 @@ import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.DetailNodeAbstract;
-import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
@@ -79,7 +74,7 @@ public class LogicDetailNode extends DetailNodeAbstract {
 
     //~--- constructors --------------------------------------------------------
     public LogicDetailNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
-        super(viewProperties, activityFeed);
+        super(viewProperties, activityFeed, preferencesNode);
         this.conceptLabelToolbar = ConceptLabelToolbar.make(this.viewProperties,
                 this.identifiedObjectFocusProperty,
                 ConceptLabelWithDragAndDrop::setPreferredText,
@@ -87,8 +82,8 @@ public class LogicDetailNode extends DetailNodeAbstract {
                 () -> this.unlinkFromActivityFeed(),
                 this.activityFeedProperty,
                 Optional.of(true));
-        conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
-        conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
+        detailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
+        detailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         getLogicDetail();
     }
 
@@ -103,7 +98,7 @@ public class LogicDetailNode extends DetailNodeAbstract {
     }
 
     @Override
-    protected void setFocus(IdentifiedObject component) {
+    public void updateFocusedObject(IdentifiedObject component) {
         getLogicDetail();
         ConceptChronology newValue = Get.concept(component.getNid());
         if (titleLabel == null) {
@@ -123,16 +118,16 @@ public class LogicDetailNode extends DetailNodeAbstract {
 
 
     private void cancelEdit(Event event) {
-        Optional<IdentifiedObject> optionalFocus = this.getIdentifiedObjectFocus();
+        Optional<IdentifiedObject> optionalFocus = this.getFocusedObject();
         if (optionalFocus.isPresent()) {
-            setFocus(Get.concept(optionalFocus.get().getNid()));
+            setFocusedObject(Get.concept(optionalFocus.get().getNid()));
         } else {
-            setFocus(null);
+            setFocusedObject(null);
         }
     }
     
     private void commitEdit(Event event) {
-        Optional<IdentifiedObject> optionalFocus = this.getIdentifiedObjectFocus();
+        Optional<IdentifiedObject> optionalFocus = this.getFocusedObject();
         if (optionalFocus.isPresent()) {
             LatestVersion<LogicGraphVersion> latestVersion = getViewProperties().getManifoldCoordinate().getStatedLogicGraphVersion(optionalFocus.get().getNid());
             if (latestVersion.isPresent()) {
@@ -154,28 +149,28 @@ public class LogicDetailNode extends DetailNodeAbstract {
             }
         }
         if (optionalFocus.isPresent()) {
-            setFocus(Get.concept(optionalFocus.get().getNid()));
+            setFocusedObject(Get.concept(optionalFocus.get().getNid()));
         } else {
-            setFocus(null);
+            setFocusedObject(null);
         }
     }
 
     private Node getLogicDetail() {
-        Optional<IdentifiedObject> optionalFocus = this.getIdentifiedObjectFocus();
+        Optional<IdentifiedObject> optionalFocus = this.getFocusedObject();
         if (optionalFocus.isPresent()) {
             Optional<LogicalExpression> statedExpression = this.viewProperties.getManifoldCoordinate().getStatedLogicalExpression(optionalFocus.get().getNid());
             getLogicDetail(statedExpression);
         } else {
-            conceptDetailPane.setCenter(new Label("Empty"));
+            detailPane.setCenter(new Label("Empty"));
         }
 
-        return conceptDetailPane;
+        return detailPane;
     }
 
     private void getLogicDetail(Optional<LogicalExpression> statedExpression) {
         SplitPane splitPane = new SplitPane();
         splitPane.setOrientation(Orientation.VERTICAL);
-        conceptDetailPane.setCenter(splitPane);
+        detailPane.setCenter(splitPane);
         if (statedExpression.isPresent()) {
             
             if (statedExpression.get().isUncommitted()) {
@@ -199,18 +194,18 @@ public class LogicDetailNode extends DetailNodeAbstract {
                 splitPane.getItems().add(AxiomView.createWithCommitPanel(statedExpression.get(), PremiseType.STATED, this.viewProperties));
             }
         } else {
-            conceptDetailPane.setCenter(new Label("No stated form"));
+            detailPane.setCenter(new Label("No stated form"));
         }
-        if (this.getIdentifiedObjectFocus().isPresent()) {
+        if (this.getFocusedObject().isPresent()) {
             Optional<LogicalExpression> inferredExpression = this.viewProperties.getManifoldCoordinate().getInferredLogicalExpression(
-                    this.getIdentifiedObjectFocus().get().getNid());
+                    this.getFocusedObject().get().getNid());
             if (inferredExpression.isPresent()) {
                 splitPane.getItems().add(AxiomView.create(inferredExpression.get(), PremiseType.INFERRED, this.viewProperties));
             } else {
-                conceptDetailPane.setCenter(new Label("No inferred form"));
+                detailPane.setCenter(new Label("No inferred form"));
             }
         } else {
-            conceptDetailPane.setCenter(new Label("No focused concept"));
+            detailPane.setCenter(new Label("No focused concept"));
         }
     }
 
@@ -288,7 +283,7 @@ Root[0]➞[41]
      */
     @Override
     public Node getNode() {
-        return conceptDetailPane;
+        return detailPane;
     }
 
     @Override

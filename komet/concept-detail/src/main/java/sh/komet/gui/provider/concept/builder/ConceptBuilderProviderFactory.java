@@ -25,6 +25,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
+import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.DetailNode;
@@ -36,16 +37,11 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
  */
 @Service(name = "Logic Detail Provider")
 @Singleton
-public class ConceptBuilderProviderFactory implements DetailNodeFactory {
+public class ConceptBuilderProviderFactory implements ExplorationNodeFactory {
 
     @Override
-    public DetailType getSupportedType() {
-        return DetailType.Builder;
-    }
-
-    @Override
-    public DetailNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
-      return new ConceptBuilderNode(viewProperties);
+    public ConceptBuilderNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+      return new ConceptBuilderNode(viewProperties, preferencesNode);
     }
 
     @Override

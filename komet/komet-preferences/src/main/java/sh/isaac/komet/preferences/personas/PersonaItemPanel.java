@@ -61,6 +61,7 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
             MetaData.CONCEPT_DETAILS_SEARCH_LINKED_PANEL____SOLOR,
             MetaData.CONCEPT_DETAILS_TAXONOMY_LINKED_PANEL____SOLOR,
             MetaData.CONCEPT_DETAILS_LIST_VIEW_LINKED_PANEL____SOLOR,
+            MetaData.CONCEPT_DETAILS_NEW_CONCEPT_LINKED_PANEL____SOLOR,
             MetaData.CONCEPT_DETAILS_CLASSIFICATION_RESULTS_LINKED_PANEL____SOLOR,
             MetaData.CONCEPT_DETAILS_TREE_TABLE____SOLOR,
             MetaData.SIMPLE_SEARCH_PANEL____SOLOR,

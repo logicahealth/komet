@@ -126,6 +126,8 @@ public class MainApp
         LOG.info("Startup memory info: "
                 + ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().toString());
 
+        printMemoryInfo();
+
         SvgImageLoaderFactory.install();
 
 
@@ -142,6 +144,15 @@ public class MainApp
                 .add(MainApp.class.getResource("/user.css").toString());
         stage.show();
         PersonaChangeListeners.addPersonaChangeListener(this);
+    }
+
+    protected void printMemoryInfo() {
+        int mb = 1024*1024;
+        Runtime runtime = Runtime.getRuntime();
+        System.out.println("** Used Memory:  " + ((runtime.totalMemory() - runtime.freeMemory()) / mb) + " mb");
+        System.out.println("** Free Memory:  " + (runtime.freeMemory() / mb) + " mb");
+        System.out.println("** Total Memory: " + (runtime.totalMemory() / mb) + " mb");
+        System.out.println("** Max Memory:   " + (runtime.maxMemory() / mb) + " mb");
     }
 
     public void replacePrimaryStage(Stage primaryStage) {
@@ -434,6 +445,8 @@ public class MainApp
     private void handleAbout(ActionEvent event) {
         event.consume();
         System.out.println("Handle about...");
+        printMemoryInfo();
+
         //create stage which has set stage style transparent
         final Stage stage = new Stage(StageStyle.TRANSPARENT);
 

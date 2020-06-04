@@ -17,12 +17,14 @@ import java.util.Optional;
 import static sh.isaac.komet.batch.TransactionViewFactory.TRANSACTION_VIEW;
 
 public class TransactionViewNode extends ExplorationNodeAbstract {
+    {
+        titleProperty.setValue(TRANSACTION_VIEW);
+        toolTipProperty.setValue("List view to create batches of content for processing, export, or similar uses.");
+        menuIconProperty.setValue(PluginIcons.SCRIPT_ICON.getStyledIconographic());
+    }
 
-    final SimpleStringProperty title = new SimpleStringProperty(TRANSACTION_VIEW);
-    final SimpleStringProperty toolTip = new SimpleStringProperty("View of items in a transaction.");
     final AnchorPane root;
     final TransactionViewNodeController controller;
-    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(PluginIcons.SCRIPT_ICON.getStyledIconographic());
 
     public TransactionViewNode(ViewProperties viewProperties, IsaacPreferences preferences) {
         super(viewProperties);
@@ -33,6 +35,9 @@ public class TransactionViewNode extends ExplorationNodeAbstract {
             this.root = loader.load();
             this.controller = loader.getController();
             this.controller.setViewProperties(viewProperties);
+            this.controller.nameProperty().addListener((observable, oldValue, newValue) -> {
+                titleProperty.setValue(newValue);
+            });
 
         } catch (IOException e) {
             e.printStackTrace();
