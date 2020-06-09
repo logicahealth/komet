@@ -18,21 +18,21 @@ package sh.isaac.misc.exporters.rf2.files;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Optional;
 
 /**
  * 
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
-public class SCTFile extends RF2File
+public class LogFile extends RF2File
 {
-	public SCTFile(File rootFolder, String contentType, RF2ReleaseType releaseType, Optional<String> languageCode, String namespace, String versionDate, String ...colNames) throws IOException
+	/**
+	 * @param rootFolder
+	 * @param releaseType - may be null, to place a file in the root folder
+	 * @param fileName
+	 * @throws IOException
+	 */
+	public LogFile(File rootFolder, RF2ReleaseType releaseType, String fileName) throws IOException
 	{
-		super(rootFolder, "Terminology", "sct2", contentType, Optional.empty(), languageCode, releaseType, namespace, versionDate, colNames);
-	}
-	
-	public SCTFile(File rootFolder, String contentType, Optional<String> contentSubType, RF2ReleaseType releaseType, Optional<String> languageCode, String namespace, String versionDate, String ...colNames) throws IOException
-	{
-		super(rootFolder, "Terminology", "sct2", contentType, contentSubType, languageCode, releaseType, namespace, versionDate, colNames);
+		super(rootFolder, releaseType, fileName);
 	}
 }

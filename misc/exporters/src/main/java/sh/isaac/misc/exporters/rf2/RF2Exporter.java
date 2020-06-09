@@ -1,3 +1,19 @@
+/*
+ * Copyright 2020 Mind Computing Inc, Sagebits LLC
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package sh.isaac.misc.exporters.rf2;
 
 import java.io.File;
@@ -8,12 +24,14 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import sh.isaac.MetaData;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -22,7 +40,9 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.Zip;
@@ -35,10 +55,13 @@ import sh.isaac.misc.exporters.rf2.files.StandardFiles;
 import sh.isaac.model.configuration.LogicCoordinates;
 import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.utility.Frills;
+import sh.isaac.utility.LanguageMap;
 
 public class RF2Exporter extends TimedTaskWithProgressTracker<File> 
 {
 	Logger log = LogManager.getLogger(RF2Exporter.class);
+	
+	private final String ERROR_FILE_NAME = "Errors";
 	
 	final File outputFolder;
 	final File packageFolder;
@@ -124,6 +147,19 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 					{
 						List<ConceptVersion> allVersions = cc.getVersionList();
 						
+						Iterator<ConceptVersion> it = allVersions.iterator();
+						while (it.hasNext())
+						{
+							ConceptVersion cv = it.next();
+							if (!coordinate.getModuleNids().contains(cv.getModuleNid()) 
+									|| coordinate.getStampPosition().getPathNid() != cv.getPathNid()
+									|| coordinate.getStampPosition().getTime() <= cv.getTime())
+							{
+								//we don't write this one.
+								it.remove();
+							}
+						}
+						
 						allVersions.sort(new Comparator<Version>()
 						{
 							@Override
@@ -136,32 +172,26 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 						String next = null;
 						for (int i = 0; i < allVersions.size(); i++)
 						{
-							if (coordinate.getModuleNids().contains(allVersions.get(i).getModuleNid()) 
-									&& coordinate.getStampPosition().getPathNid() == allVersions.get(i).getPathNid()
-									&& coordinate.getStampPosition().getTime() > allVersions.get(i).getTime())
+							//In RF2, we can only write one version per unique day, so in the event some item is modified
+							//more than once in a day, only export the newest edit.
+							if ((i + 1) < allVersions.size())
 							{
-								//In RF2, we can only write one version per unique day, so in the event some item is modified
-								//more than once in a day, only export the newest edit.
-								if ((i + 1) < allVersions.size())
+								String current = next == null ? effectiveTimeFormat.format(Instant.ofEpochMilli(allVersions.get(i).getTime())) : next;
+								next = effectiveTimeFormat.format(Instant.ofEpochMilli(allVersions.get(i + 1).getTime()));
+								if (current.equals(next))
 								{
-									//TODO [1] this is wrong, it needs to take into account the filter above
-									String current = next == null ? effectiveTimeFormat.format(Instant.ofEpochMilli(allVersions.get(i).getTime())) : next;
-									next = effectiveTimeFormat.format(Instant.ofEpochMilli(allVersions.get(i + 1).getTime()));
-									if (current.equals(next))
-									{
-										continue;
-									}
+									continue;
 								}
-								if (makeFull)
+							}
+							if (makeFull)
+							{
+								writeConcept(RF2ReleaseType.Full, allVersions.get(i));
+							}
+							if (makeDelta)
+							{
+								if (allVersions.get(i).getTime() > deltaChangedAfter)
 								{
-									writeConcept(RF2ReleaseType.Full, allVersions.get(i));
-								}
-								if (makeDelta)
-								{
-									if (allVersions.get(i).getTime() > deltaChangedAfter)
-									{
-										writeConcept(RF2ReleaseType.Delta, allVersions.get(i));
-									}
+									writeConcept(RF2ReleaseType.Delta, allVersions.get(i));
 								}
 							}
 						}
@@ -169,7 +199,96 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 				}
 				catch (Exception e)
 				{
-					throw new RuntimeException(e);
+					log.error("Error writing concept " + cc + ":  ", e);
+					try
+					{
+						ff.getLogFile(null, ERROR_FILE_NAME).writeLine("Error writing concept " + cc);
+					}
+					catch (IOException e1)
+					{
+						log.error("additional error while writin to rf2 error file", e1);
+					}
+				}
+			});
+			
+			log.debug("Writing concepts to RF2 structure");
+			Get.assemblageService().getSemanticChronologyStream().parallel().forEach(sc ->
+			{
+				try
+				{
+					if (makeSnapshot)
+					{
+						LatestVersion<SemanticVersion> lv = sc.getLatestVersion(coordinate);
+						if (lv.isPresent())
+						{
+							writeSemantic(RF2ReleaseType.Snapshot, lv.get());
+						}
+					}
+					if (makeFull || makeDelta)
+					{
+						List<SemanticVersion> allVersions = sc.getVersionList();
+						
+						Iterator<SemanticVersion> it = allVersions.iterator();
+						while (it.hasNext())
+						{
+							SemanticVersion cv = it.next();
+							if (!coordinate.getModuleNids().contains(cv.getModuleNid()) 
+									|| coordinate.getStampPosition().getPathNid() != cv.getPathNid()
+									|| coordinate.getStampPosition().getTime() <= cv.getTime())
+							{
+								//we don't write this one.
+								it.remove();
+							}
+						}
+						
+						allVersions.sort(new Comparator<Version>()
+						{
+							@Override
+							public int compare(Version o1, Version o2)
+							{
+								return Long.compare(o1.getTime(), o2.getTime());
+							}
+						});
+						
+						String next = null;
+						for (int i = 0; i < allVersions.size(); i++)
+						{
+							//In RF2, we can only write one version per unique day, so in the event some item is modified
+							//more than once in a day, only export the newest edit.
+							if ((i + 1) < allVersions.size())
+							{
+								String current = next == null ? effectiveTimeFormat.format(Instant.ofEpochMilli(allVersions.get(i).getTime())) : next;
+								next = effectiveTimeFormat.format(Instant.ofEpochMilli(allVersions.get(i + 1).getTime()));
+								if (current.equals(next))
+								{
+									continue;
+								}
+							}
+							if (makeFull)
+							{
+								writeSemantic(RF2ReleaseType.Full, allVersions.get(i));
+							}
+							if (makeDelta)
+							{
+								if (allVersions.get(i).getTime() > deltaChangedAfter)
+								{
+									writeSemantic(RF2ReleaseType.Delta, allVersions.get(i));
+								}
+							}
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					log.error("Error writing semantic " + sc + ":  ", e);
+					try
+					{
+						ff.getLogFile(null, ERROR_FILE_NAME).writeLine("Error writing semantic " +sc);
+					}
+					catch (IOException e1)
+					{
+						log.error("additional error while writin to rf2 error file", e1);
+					}
 				}
 			});
 			
@@ -193,24 +312,104 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 	}
 
 
+	private void writeSemantic(RF2ReleaseType releaseType, SemanticVersion semanticVersion) throws IOException
+	{
+		switch (semanticVersion.getSemanticType())
+		{
+			case COMPONENT_NID:
+				//TODO[1] implement
+				break;
+			case DESCRIPTION:
+				DescriptionVersion dv = (DescriptionVersion)semanticVersion;
+				String descSCTID = getCachedSCTID(dv.getNid());
+				String refConceptSCTID = getSCTID(semanticVersion.getReferencedComponentNid(), releaseType);
+				String typeId = getSCTID(dv.getDescriptionTypeConceptNid(), releaseType);
+				String caseSigId = getCachedSCTID(dv.getCaseSignificanceConceptNid());
+				String languageCode = LanguageMap.conceptNidToIso639(dv.getLanguageConceptNid());
+				RF2File descFile;
+				if (dv.getDescriptionTypeConceptNid() == MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid())
+				{
+					descFile = ff.getTextDefinitionFile(releaseType, languageCode);
+				}
+				else 
+				{
+					descFile = ff.getDescriptionFile(releaseType, languageCode);
+				}
+				
+				descFile.writeRow(new String[] {
+						descSCTID,
+						effectiveTimeFormat.format(Instant.ofEpochMilli(semanticVersion.getTime())),
+						getActive(semanticVersion.getStatus()), 
+						getModuleId(semanticVersion.getModuleNid()), 
+						refConceptSCTID,
+						languageCode,
+						typeId,
+						dv.getText(),
+						caseSigId
+				});
+				
+				break;
+			case DYNAMIC:
+				//TODO[1] implement
+				break;
+			case LOGIC_GRAPH:
+				//TODO[1] implement
+				break;
+			case LONG:
+				//TODO[1] implement
+				break;
+			case MEMBER:
+				//TODO[1] implement
+				break;
+			case RF2_RELATIONSHIP:
+				//TODO[1] implement
+				break;
+			case STRING:
+				//TODO[1] implement
+				break;
+			case MEASURE_CONSTRAINTS:
+			case IMAGE:
+			case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
+			case Nid1_Int2:
+			case Nid1_Int2_Str3_Str4_Nid5_Nid6:
+			case Nid1_Nid2:
+			case Nid1_Nid2_Int3:
+			case Nid1_Nid2_Str3:
+			case Nid1_Str2:
+			case Str1_Nid2_Nid3_Nid4:
+			case Str1_Str2:
+			case Str1_Str2_Nid3_Nid4:
+			case Str1_Str2_Nid3_Nid4_Nid5:
+			case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
+			case CONCEPT:
+			case UNKNOWN:
+			default :
+				log.debug("Unsupported semantic type being ignored by RF2 export");
+				break;
+			
+		}
+	}
+
 	private void writeConcept(RF2ReleaseType releaseType, ConceptVersion cv) throws IOException
 	{
 		RF2File file = ff.getFile(releaseType, StandardFiles.Concept.name());
 		
+		Optional<Long> sctid = Frills.getSctId(cv.getNid(), coordinate);
+
+		if (sctid.isEmpty())
+		{
+			ff.getLogFile(releaseType, ERROR_FILE_NAME).writeLine("No SCTID available on concept " + cv.getPrimordialUuid());
+		}
+		
+		String id = sctid.isPresent() ? sctid.get().toString() : cv.getPrimordialUuid().toString();
+		
 		file.writeRow(new String[] {
-				Frills.getSctId(cv.getNid(), coordinate)
-					.orElseGet(() -> 
-					{
-						//TODO [1] create a mechanism to return / log RF2 creation errors with the RF2
-						log.warn("No SCTID available on conept " + cv.getPrimordialUuid());
-						return 0l;
-					}) + "",
+				id,
 				effectiveTimeFormat.format(Instant.ofEpochMilli(cv.getTime())),
 				getActive(cv.getStatus()), 
 				getModuleId(cv.getModuleNid()), 
 				getDefinitionStatusId(cv)
 				});
-		
 	}
 
 
@@ -241,15 +440,29 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 	{
 		return sctidConstants.computeIfAbsent(nid, nidAgain -> 
 		{
-			return Frills.getSctId(nid, null).orElseGet(() ->
-			{
-				//TODO [1] proper handling of this
-				log.error("Missing constant SCTID on {}", Get.identifiedObjectService().getChronology(nid));
-				return 0l;
-				
-			}).toString();
+			return getSCTID(nid, null);
 		});
 	}
+	
+	private String getSCTID(final int nid, RF2ReleaseType rf2ReleaseType)
+	{
+		Optional<Long> sctid = Frills.getSctId(nid, coordinate);
+		if (sctid.isEmpty())
+		{
+			UUID uuid = Get.identifierService().getUuidPrimordialForNid(nid);
+			try
+			{
+				ff.getLogFile(rf2ReleaseType, ERROR_FILE_NAME).writeLine("No SCTID available on concept " + uuid);
+			}
+			catch (IOException e)
+			{
+				log.error("Unexpected error writing error to log", e);
+			}
+			return uuid.toString();
+		}
+		return sctid.get().toString();
+	}
+
 
 
 	private String getActive(Status status)
