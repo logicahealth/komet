@@ -243,7 +243,7 @@ public class CoordinateFactoryProvider
      * @return the stamp coordinate
      */
     @Override
-    public StampCoordinate createStampCoordinate(ConceptSpecification stampPath, StampPrecedence precedence, List<ConceptSpecification> moduleSpecificationList, java.util.List modulePriorityList, EnumSet<Status> allowedStateSet, CharSequence dateTimeText) {
+    public StampCoordinate createStampCoordinate(ConceptSpecification stampPath, StampPrecedence precedence, List<ConceptSpecification> moduleSpecificationList, List<ConceptSpecification> modulePriorityList, EnumSet<Status> allowedStateSet, CharSequence dateTimeText) {
         final StampPositionImpl stampPosition = new StampPositionImpl(
                 LocalDateTime.parse(dateTimeText).toEpochSecond(ZoneOffset.UTC),
                 stampPath.getNid());
