@@ -15,7 +15,7 @@ import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
-
+import sh.isaac.utility.LanguageMap;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.TemporalAccessor;
@@ -91,8 +91,8 @@ public class SRFDescriptionWriter extends TimedTaskWithProgressTracker<Void> {
 
                 int authorNid = identifierService.getNidForUuids(UUID.fromString(descriptionRecord[SRF_AUTHOR_INDEX]));
                 int pathNid = identifierService.getNidForUuids(UUID.fromString(descriptionRecord[SRF_PATH_INDEX]));
-                int descriptionAssemblageNid = LanguageCoordinates.iso639toDescriptionAssemblageNid(descriptionRecord[SRF_LANGUAGE_CODE_INDEX]);
-                int languageNid = LanguageCoordinates.iso639toConceptNid(descriptionRecord[SRF_LANGUAGE_CODE_INDEX]);
+                int descriptionAssemblageNid = LanguageMap.iso639toDescriptionAssemblageNid(descriptionRecord[SRF_LANGUAGE_CODE_INDEX]);
+                int languageNid = LanguageMap.iso639toConceptNid(descriptionRecord[SRF_LANGUAGE_CODE_INDEX]);
                 UUID descriptionUuid = UUID.fromString(descriptionRecord[SRF_ID_INDEX]);
                 UUID moduleUuid = UUID.fromString(descriptionRecord[SRF_MODULE_INDEX]);
                 UUID caseSignificanceUuid = UUID.fromString(descriptionRecord[SRF_CASE_SIGNIFICANCE_ID_INDEX]);

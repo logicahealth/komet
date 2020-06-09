@@ -29,7 +29,7 @@ import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
-
+import sh.isaac.utility.LanguageMap;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.List;
@@ -114,8 +114,8 @@ id	effectiveTime	active	moduleId	conceptId	languageCode	typeId	term	caseSignific
             UUID descriptionUuid, moduleUuid, caseSignificanceUuid, descriptionTypeUuid;
             TemporalAccessor accessor;
 
-            descriptionAssemblageNid = LanguageCoordinates.iso639toDescriptionAssemblageNid(descriptionRecord[RF2_LANGUGE_CODE_INDEX]);
-            languageNid = LanguageCoordinates.iso639toConceptNid(descriptionRecord[RF2_LANGUGE_CODE_INDEX]);
+            descriptionAssemblageNid = LanguageMap.iso639toDescriptionAssemblageNid(descriptionRecord[RF2_LANGUGE_CODE_INDEX]);
+            languageNid = LanguageMap.iso639toConceptNid(descriptionRecord[RF2_LANGUGE_CODE_INDEX]);
             descriptionUuid = UuidT3Generator.fromSNOMED(descriptionRecord[RF2_DESCRIPITON_SCT_ID_INDEX]);
             moduleUuid = UuidT3Generator.fromSNOMED(descriptionRecord[RF2_MODULE_SCTID_INDEX]);
             caseSignificanceUuid = UuidT3Generator.fromSNOMED(descriptionRecord[RF2_CASE_SIGNIFICANCE_INDEX]);

@@ -39,12 +39,7 @@
 
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.List;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -52,8 +47,6 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface LanguageCoordinateService.
@@ -77,24 +70,6 @@ public interface LanguageCoordinateService {
     * @return true, if successful
     */
    boolean conceptIdToCaseSignificance(int id);
-
-   /**
-    * Concept conceptNid to iso 639.
-    *
-    * @param conceptNid concept nid 
-    * @return ISO 639 language code
-    */
-   String conceptIdToIso639(int conceptNid);
-
-   /**
-    * Iso 639 to concept nid.
-    *
-    * @param iso639text the iso 639 text
-    * @return the int
-    */
-   int iso639toConceptNid(String iso639text);
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the acceptable concept nid.
