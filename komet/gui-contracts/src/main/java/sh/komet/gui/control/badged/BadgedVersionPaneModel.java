@@ -788,7 +788,7 @@ public abstract class BadgedVersionPaneModel {
 
         ObservableVersion observableVersion = propertySheetMenuItem.getVersionInFlight();
         observableVersion.putUserObject(PROPERTY_SHEET_ATTACHMENT, propertySheetMenuItem);
-        CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(viewProperties.getManifoldCoordinate().getStampFilter());
+        CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(viewProperties.getManifoldCoordinate().getVertexStampFilter());
 
         ComponentPaneModel componentPane = new ComponentPaneModel(getViewProperties(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap, getDisclosureStateMap());
         extensionPaneModels.add(componentPane);

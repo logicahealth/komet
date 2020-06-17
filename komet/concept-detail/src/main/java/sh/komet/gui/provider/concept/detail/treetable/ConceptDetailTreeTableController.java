@@ -204,7 +204,7 @@ public class ConceptDetailTreeTableController {
                  .getObservableConceptChronology(component.getNid());
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions
                  = observableConceptChronology.getCategorizedVersions(
-                 this.viewProperties.getManifoldCoordinate().getStampFilter());
+                 this.viewProperties.getManifoldCoordinate().getVertexStampFilter());
 
          TreeItem<ObservableCategorizedVersion> assemblageRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
          addChildren(assemblageRoot, observableConceptChronology.getObservableSemanticList().sorted(), true);
@@ -216,7 +216,7 @@ public class ConceptDetailTreeTableController {
                             ObservableList<ObservableSemanticChronology> children, boolean addSemantics) {
       for (ObservableSemanticChronology child : children) {
          TreeItem<ObservableCategorizedVersion> parentToAddTo = parent;
-         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(getManifold().getStampFilter());
+         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(getManifold().getVertexStampFilter());
 
          if (categorizedVersions.getLatestVersion()
                  .isPresent()) {

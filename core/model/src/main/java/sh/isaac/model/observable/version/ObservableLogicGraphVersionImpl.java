@@ -66,7 +66,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableLogicGraphVersion;
 import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.observable.CommitAwareObjectProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;

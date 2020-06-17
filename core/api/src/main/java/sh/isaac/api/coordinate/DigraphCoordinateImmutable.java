@@ -26,8 +26,9 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
-    private static final int marshalVersion = 1;
+    private static final int marshalVersion = 2;
 
+    private final VertexSort vertexSort;
     private final StampFilterImmutable vertexStampFilter;
     private final StampFilterImmutable edgeStampFilter;
     private final StampFilterImmutable languageStampFilter;
@@ -38,12 +39,13 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
     private final TaxonomySnapshot digraphSnapshot;
 
     private static ManifoldCoordinate toDefaultManifold(DigraphCoordinateImmutable digraphCoordinateImmutable) {
-        return ManifoldCoordinateImmutable.make(VertexSortPreferredName.SINGLETON, digraphCoordinateImmutable, digraphCoordinateImmutable.getEdgeStampFilter());
+        return ManifoldCoordinateImmutable.make(digraphCoordinateImmutable);
     }
 
     private DigraphCoordinateImmutable() {
         // No arg constructor for HK2 managed instance
         // This instance just enables reset functionality...
+        this.vertexSort = null;
         this.vertexStampFilter = null;
         this.edgeStampFilter = null;
         this.languageStampFilter = null;
@@ -72,13 +74,15 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
      * @param logicCoordinate
      * @param digraphConceptNids
      */
-    private DigraphCoordinateImmutable(StampFilterImmutable vertexStampFilter,
+    private DigraphCoordinateImmutable(VertexSort vertexSort,
+                                       StampFilterImmutable vertexStampFilter,
                                       StampFilterImmutable edgeStampFilter,
                                       StampFilterImmutable languageStampFilter,
                                       PremiseType premiseType,
                                       LanguageCoordinateImmutable languageCoordinate,
                                       LogicCoordinateImmutable logicCoordinate,
                                       ImmutableIntSet digraphConceptNids) {
+        this.vertexSort = vertexSort;
         this.vertexStampFilter = vertexStampFilter;
         this.edgeStampFilter = edgeStampFilter;
         this.languageStampFilter = languageStampFilter;
@@ -88,14 +92,15 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
         this.digraphConceptNids = digraphConceptNids;
         this.digraphSnapshot = Get.taxonomyService().getSnapshot(toDefaultManifold(this));
     }
-    public static DigraphCoordinateImmutable make(StampFilterImmutable vertexStampFilter,
+    public static DigraphCoordinateImmutable make(VertexSort vertexSort,
+                                                  StampFilterImmutable vertexStampFilter,
                                                   StampFilterImmutable edgeStampFilter,
                                                   StampFilterImmutable languageStampFilter,
                                                   PremiseType premiseType,
                                                   LanguageCoordinateImmutable languageCoordinate,
                                                   LogicCoordinateImmutable logicCoordinate,
                                                   ImmutableIntSet digraphConceptNids) {
-        return SINGLETONS.computeIfAbsent(new DigraphCoordinateImmutable(vertexStampFilter, edgeStampFilter, languageStampFilter,
+        return SINGLETONS.computeIfAbsent(new DigraphCoordinateImmutable(vertexSort, vertexStampFilter, edgeStampFilter, languageStampFilter,
                         premiseType, languageCoordinate, logicCoordinate, digraphConceptNids),
                 digraphCoordinateImmutable -> digraphCoordinateImmutable);
     }
@@ -113,7 +118,7 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
                                       LanguageCoordinateImmutable languageCoordinate,
                                       LogicCoordinateImmutable logicCoordinate,
                                       ImmutableIntSet digraphConceptNids) {
-        this(stampFilter, stampFilter, stampFilter, premiseType, languageCoordinate, logicCoordinate, digraphConceptNids);
+        this(VertexSortPreferredName.SINGLETON, stampFilter, stampFilter, stampFilter, premiseType, languageCoordinate, logicCoordinate, digraphConceptNids);
     }
     public static DigraphCoordinateImmutable make(StampFilterImmutable stampFilter,
                                                   PremiseType premiseType,
@@ -168,7 +173,12 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
                 digraphCoordinateImmutable -> digraphCoordinateImmutable);
     }
 
-    private DigraphCoordinateImmutable(ByteArrayDataBuffer in) {
+    private DigraphCoordinateImmutable(ByteArrayDataBuffer in, int objectMarshalVersion) {
+        if (objectMarshalVersion > 1) {
+            this.vertexSort = MarshalUtil.unmarshal(in);
+        } else {
+            this.vertexSort = VertexSortFullyQualifiedName.SINGLETON;
+        }
         this.vertexStampFilter = MarshalUtil.unmarshal(in);
         this.edgeStampFilter = MarshalUtil.unmarshal(in);
         this.languageStampFilter  = MarshalUtil.unmarshal(in);
@@ -207,6 +217,7 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
     @Marshaler
     public void marshal(ByteArrayDataBuffer out) {
         out.putInt(marshalVersion);
+        MarshalUtil.marshal(this.vertexSort, out);
         MarshalUtil.marshal(this.vertexStampFilter, out);
         MarshalUtil.marshal(this.edgeStampFilter, out);
         MarshalUtil.marshal(this.languageStampFilter, out);
@@ -220,8 +231,9 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
     public static DigraphCoordinateImmutable make(ByteArrayDataBuffer in) {
         int objectMarshalVersion = in.getInt();
         switch (objectMarshalVersion) {
+            case 1:
             case marshalVersion:
-                return SINGLETONS.computeIfAbsent(new DigraphCoordinateImmutable(in),
+                return SINGLETONS.computeIfAbsent(new DigraphCoordinateImmutable(in, objectMarshalVersion),
                         digraphCoordinateImmutable -> digraphCoordinateImmutable);
             default:
                 throw new UnsupportedOperationException("Unsupported version: " + objectMarshalVersion);
@@ -270,7 +282,7 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
 
     @Override
     public int[] getChildNids(int parentNid) {
-        return this.digraphSnapshot.getTaxonomyChildConceptNids(parentNid);
+        return this.vertexSort.sortVertexes(this.digraphSnapshot.getTaxonomyChildConceptNids(parentNid), this);
     }
 
     @Override
@@ -309,6 +321,11 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
     }
 
     @Override
+    public VertexSort getVertexSort() {
+        return this.vertexSort;
+    }
+
+    @Override
     public DigraphCoordinateImmutable toDigraphImmutable() {
         return this;
     }
@@ -334,7 +351,10 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
 
     @Override
     public String toString() {
-        return "DigraphCoordinateImmutable{" + this.premiseType + ",\n  edge filter: " + this.edgeStampFilter + ", \n vertex filter: " + this.vertexStampFilter
+        return "DigraphCoordinateImmutable{" + this.premiseType +
+                ",\n  vertex sort: " + this.vertexSort.getVertexSortName() +
+                ",\n  edge filter: " + this.edgeStampFilter +
+                ", \n vertex filter: " + this.vertexStampFilter
                 + ", \n lang filter: " + this.languageStampFilter + ", \n" +
                 this.languageCoordinate + ", \n" + this.logicCoordinate +
                 ", \n digraph id concepts: " + this.digraphConceptNids + ",\n uuid=" + getDigraphCoordinateUuid() + '}';

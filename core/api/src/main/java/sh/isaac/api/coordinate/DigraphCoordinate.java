@@ -33,6 +33,7 @@ public interface DigraphCoordinate {
         for (int nid: digraphCoordinate.getDigraphIdentifierConceptNids().toArray()) {
             UUIDUtil.addSortedUuids(uuidList, nid);
         }
+        uuidList.add(digraphCoordinate.getVertexSort().getVertexSortUUID());
         uuidList.add(digraphCoordinate.getVertexStampFilter().getStampFilterUuid());
         uuidList.add(digraphCoordinate.getEdgeStampFilter().getStampFilterUuid());
         uuidList.add(digraphCoordinate.getLanguageStampFilter().getStampFilterUuid());
@@ -95,6 +96,13 @@ public interface DigraphCoordinate {
         return getChildEdges(child.getNid());
     }
     //---------------------------
+
+    VertexSort getVertexSort();
+
+    default int[] sortVertexes(int[] vertexConceptNids) {
+        return getVertexSort().sortVertexes(vertexConceptNids, toDigraphImmutable());
+    }
+
     /**
      * In most cases, this coordinate will be the same object that is returned by {@link #getEdgeStampFilter()},
      * But, it may be a different, depending on the construction - for example, a use case like returning inactive
@@ -203,6 +211,7 @@ public interface DigraphCoordinate {
         sb.append("\n\nEdge filter:\n").append(getEdgeStampFilter().toUserString());
         sb.append("\n\nVertex filter:\n").append(getVertexStampFilter().toUserString());
         sb.append("\n\nLanguage filter:\n").append(getLanguageStampFilter().toUserString());
+        sb.append("\n\nVertex sort:\n").append(getVertexSort().getVertexSortName());
         return sb.toString();
     }
 

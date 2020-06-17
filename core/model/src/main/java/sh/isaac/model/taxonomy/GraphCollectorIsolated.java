@@ -114,12 +114,12 @@ public class GraphCollectorIsolated
                  isaacPrimitiveTaxonomyRecord.containsStampOfTypeWithFlags(this.ISA_CONCEPT_NID, this.taxonomyFlags) &&
                  isaacPrimitiveTaxonomyRecord.isConceptActive(originNid, this.vertexComputer)) {
             // again for steping through with the debugger. Remove when issues resolved.
-             LOG.info("Found concept with no parents: " + Get.conceptDescriptionText(originNid) + " <" + originNid + ">");
-             final int[] destinationConceptNids2 = taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
-                    this.taxonomyDataProvider, this.taxonomyFlags, this.edgeComputer,
-                    this.vertexComputer, this.sort, this.digraph);
-             LOG.info("Second try equals: " + Arrays.equals(destinationConceptNids, destinationConceptNids2));
-             LOG.info("Second try: " + Arrays.toString(destinationConceptNids2));
+             //LOG.info("Found concept with no parents: " + Get.conceptDescriptionText(originNid) + " <" + originNid + ">");
+//             final int[] destinationConceptNids2 = taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
+//                    this.taxonomyDataProvider, this.taxonomyFlags, this.edgeComputer,
+//                    this.vertexComputer, this.sort, this.digraph);
+//             LOG.info("Second try equals: " + Arrays.equals(destinationConceptNids, destinationConceptNids2));
+//             LOG.info("Second try: " + Arrays.toString(destinationConceptNids2));
          }
 //         int parentCount = 0;
             for (int destinationNid: destinationConceptNids) {

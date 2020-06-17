@@ -403,7 +403,7 @@ public class Get
       if (Get.identifierService().getObjectTypeForComponent(conceptNid) == IsaacObjectType.SEMANTIC) {
          SemanticChronology sc = Get.assemblageService().getSemanticChronology(conceptNid);
          if (sc.getVersionType() == VersionType.DESCRIPTION) {
-            LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate().getStampFilter());
+            LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate().getLanguageStampFilter());
             if (latestDescription.isPresent()) {
                return "Desc: " + latestDescription.get().getText();
             }
@@ -810,7 +810,15 @@ public class Get
       return Get.conceptService().getConceptSnapshot(conceptNid, manifoldCoordinate);
    }
 
-   /**
+    public static ConceptChronology[] conceptList(int[] conceptNidList) {
+       ConceptChronology[] results = new ConceptChronology[conceptNidList.length];
+       for (int i = 0; i < results.length; i++) {
+          results[i] = concept(conceptNidList[i]);
+       }
+       return results;
+    }
+
+    /**
     * Reset.
     */
    @Override
@@ -1053,20 +1061,20 @@ public class Get
    }
 
    public static String getTextForComponent(Chronology component) {
-      return Get.getTextForComponent(component, Get.defaultCoordinate().getStampFilter(),
+      return Get.getTextForComponent(component, Get.defaultCoordinate().getLanguageStampFilter(),
               Get.defaultCoordinate().getLanguageCoordinate());
    }
 
 
    public static String getTextForComponent(Chronology component, ManifoldCoordinate manifoldCoordinate) {
-      return Get.getTextForComponent(component, manifoldCoordinate.getStampFilter(),
+      return Get.getTextForComponent(component, manifoldCoordinate.getLanguageStampFilter(),
               manifoldCoordinate.getLanguageCoordinate());
    }
 
    public static String getTextForComponent(int componentNid, ManifoldCoordinate manifoldCoordinate) {
       Optional<? extends Chronology> optionalComponent = Get.identifiedObjectService().getChronology(componentNid);
       if (optionalComponent.isPresent()) {
-         return Get.getTextForComponent(optionalComponent.get(), manifoldCoordinate.getStampFilter(),
+         return Get.getTextForComponent(optionalComponent.get(), manifoldCoordinate.getLanguageStampFilter(),
                  manifoldCoordinate.getLanguageCoordinate());
       }
       return "No component for: " + componentNid + " uuids: " + Get.identifierService().getUuidsForNid(componentNid);

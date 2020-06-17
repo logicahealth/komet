@@ -27,6 +27,7 @@ import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampPath;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateBase;
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.manifold.Manifold;

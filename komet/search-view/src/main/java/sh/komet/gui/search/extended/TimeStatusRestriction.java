@@ -73,7 +73,7 @@ public class TimeStatusRestriction {
                     //We will return true, if there is any version which meets all present criteria.
                     try {
                         SemanticChronology sc = Get.assemblageService().getSemanticChronology(nid);
-                        LatestVersion<Version> latest = sc.getLatestVersion(manifold.getStampFilter());
+                        LatestVersion<Version> latest = sc.getLatestVersion(manifold.getVertexStampFilter());
                         if (latest.isPresent()) {
                             Version v = latest.get();
                             if ((allowedStatus == null || allowedStatus.contains(v.getStatus()))
@@ -81,12 +81,11 @@ public class TimeStatusRestriction {
                                     && (beforeTime == null || v.getTime() < beforeTime)) {
                                 if (sc.getVersionType() == VersionType.DESCRIPTION) {
                                     ConceptChronology concept = Get.concept(sc.getReferencedComponentNid());
-                                    LatestVersion<Version> latestConcept = concept.getLatestVersion(manifold.getStampFilter());
+                                    LatestVersion<Version> latestConcept = concept.getLatestVersion(manifold.getVertexStampFilter());
                                     if (latestConcept.isPresent()) {
                                         if (allowedStatus == null || allowedStatus.contains(latestConcept.get().getStatus())) {
                                             return true;
                                         }
-
                                     }
                                     return false;
                                 }

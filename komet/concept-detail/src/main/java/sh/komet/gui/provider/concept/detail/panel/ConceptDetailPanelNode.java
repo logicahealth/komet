@@ -257,7 +257,7 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         if (ComponentPaneModel.isSemanticTypeSupported(observableChronology.getVersionType())) {
             CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
                     = observableChronology.getCategorizedVersions(
-                            this.viewProperties.getManifoldCoordinate().getStampFilter());
+                            this.viewProperties.getManifoldCoordinate().getVertexStampFilter());
 
             if (oscCategorizedVersions.getLatestVersion()
                     .isPresent()) {
@@ -422,7 +422,7 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
                                 } else {
                                     LatestVersion<SemanticVersion> latest
                                             = semanticChronology.getLatestVersion(
-                                            this.viewProperties.getManifoldCoordinate().getStampFilter());
+                                            this.viewProperties.getManifoldCoordinate().getVertexStampFilter());
 
                                     if (latest.isPresent()) {
                                         return latest.get()

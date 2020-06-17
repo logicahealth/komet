@@ -61,7 +61,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableLongVersion;
 import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.observable.CommitAwareLongProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareLongProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.semantic.version.LongVersionImpl;

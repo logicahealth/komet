@@ -152,7 +152,7 @@ public enum ObservableFields
    PATH_ORIGIN_LIST_FOR_STAMP_PATH("Path origin list for stamp path", "Path origin"),
 
    /** The time for stamp position. */
-   TIME_FOR_STAMP_POSITION("Time for stamp position", "Time for stamp"),
+   TIME_FOR_STAMP_POSITION("Position on path", "Path position"),
 
    /** The path nid for stamp position. */
    PATH_NID_FOR_STAMP_POSITION("Path nid for stamp position", "Path for stamp position"),
@@ -179,6 +179,9 @@ public enum ObservableFields
 
    VERTEX_SORT_PROPERTY("Vertex sort for manifold", "Vertex sort"),
    DIGRAPH_PROPERTY("Digraph for manifold", "Digraph"),
+   EDGE_FILTER_FOR_DIGRAPH("Edge STAMP filter for digraph", "Edge filter"),
+   VERTEX_FILTER_FOR_DIGRAPH("Vertex STAMP filter for digraph", "Vertex filter"),
+   LANGUAGE_FILTER_FOR_DIGRAPH("Language STAMP filter for digraph", "Language filter"),
    STAMP_FILTER_FOR_PATH("Filter filter for manifold", "Filter filter"),
 
    /** The uuid for taxonomy coordinate. */

@@ -103,7 +103,7 @@ public class AddAttachmentMenuItems {
     }
 
     protected ObservableVersion makeNewVersion(ConceptSpecification assemblageSpecification) throws NoSuchElementException, InterruptedException, IllegalStateException, ExecutionException {
-        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageSpecification, viewProperties.getManifoldCoordinate().getStampFilter());
+        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageSpecification, viewProperties.getManifoldCoordinate().getVertexStampFilter());
         if (optionalSemanticConceptNid.isPresent()) {
             int semanticTypeNid = optionalSemanticConceptNid.getAsInt();
             if (semanticTypeNid == MetaData.CONCEPT_SEMANTIC____SOLOR.getNid()

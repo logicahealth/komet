@@ -805,7 +805,7 @@ public class ChronologyProvider
          */
         public ConceptSnapshotProvider(ManifoldCoordinate manifoldCoordinate) {
             this.manifoldCoordinate = manifoldCoordinate;
-            this.stampFilterImmutable = manifoldCoordinate.getStampFilter().toStampFilterImmutable();
+            this.stampFilterImmutable = manifoldCoordinate.getVertexStampFilter().toStampFilterImmutable();
             this.regNameCoord = Coordinates.Language.AnyLanguageRegularName();
         }
 

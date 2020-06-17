@@ -59,7 +59,7 @@ import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.ObservableRf2Relationship;
 import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;

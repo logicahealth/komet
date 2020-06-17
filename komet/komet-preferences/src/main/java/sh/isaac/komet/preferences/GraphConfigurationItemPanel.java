@@ -61,8 +61,7 @@ public class GraphConfigurationItemPanel extends AbstractPreferences implements 
         TREES,
         INVERSE_TREES,
         INCLUDE_DEFINING_TAXONOMY,
-        ROOTS,
-        MANIFOLD_COORDINATE_KEY
+        ROOTS
     };
 
     private final SimpleStringProperty nameProperty
@@ -76,9 +75,6 @@ public class GraphConfigurationItemPanel extends AbstractPreferences implements 
             new SimpleListProperty<>(this, MetaData.INVERSE_TREE_LIST____SOLOR.toExternalString(), FXCollections.observableArrayList());
     private final SimpleBooleanProperty includeDefiningTaxonomyProperty = 
             new SimpleBooleanProperty(this, MetaData.INCLUDE_DEFINING_TAXONOMY____SOLOR.toExternalString());
-
-    private final SimpleObjectProperty<UuidStringKey> manifoldCoordinateKeyProperty = new SimpleObjectProperty<>(this, TermAux.MANIFOLD_COORDINATE_KEY.toExternalString());
-    private final PropertySheetItemObjectListWrapper<UuidStringKey> manifoldCoordinateKeyWrapper;
 
     private final UuidStringKey graphConfigurationKey;
 
@@ -97,10 +93,6 @@ public class GraphConfigurationItemPanel extends AbstractPreferences implements 
 
         getItemList().add(new PropertySheetTextWrapper(viewProperties, nameProperty));
         getItemList().add(new PropertySheetBooleanWrapper(viewProperties, includeDefiningTaxonomyProperty));
-
-        this.manifoldCoordinateKeyWrapper = new PropertySheetItemObjectListWrapper("Manifold coordinate",
-                manifoldCoordinateKeyProperty, FxGet.manifoldCoordinateKeys());
-        getItemList().add(manifoldCoordinateKeyWrapper);
 
         getItemList().add(new PropertySheetConceptListWrapper(viewProperties, taxonomyRootListProperty));
         getItemList().add(new PropertySheetConceptListWrapper(viewProperties, treeListProperty));
@@ -126,40 +118,6 @@ public class GraphConfigurationItemPanel extends AbstractPreferences implements 
 
         getPreferencesNode().putBoolean(INCLUDE_DEFINING_TAXONOMY, this.includeDefiningTaxonomyProperty.get());
 
-        if (this.manifoldCoordinateKeyProperty.getValue() != null) {
-            // see if already exists
-            GraphAmalgamWithManifold amalgam = FxGet.graphConfiguration(graphConfigurationKey);
-            if (amalgam == null) {
-                UuidStringKey manifoldCoordinateKey = this.manifoldCoordinateKeyProperty.getValue();
-                amalgam = new GraphAmalgamWithManifold(FxGet.manifoldCoordinates().get(manifoldCoordinateKey),
-                        this.includeDefiningTaxonomyProperty.get());
-                FxGet.addGraphConfiguration(graphConfigurationKey, amalgam);
-            }
-            // TODO add support for other types of assemblage...
-            amalgam.reset();
-            for (ConceptSpecification proxy: treeListProperty.get()) {
-                if (proxy.getNid() == TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid()) {
-                    TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromPathOrigins(getManifoldCoordinate());
-                    amalgam.getTaxonomies().add(taxonomySnapshot);
-                } else {
-                    SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifoldCoordinate().getStampFilter());
-                    TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifoldCoordinate());
-                    amalgam.getTaxonomies().add(taxonomySnapshot);
-                }
-            }
-            for (ConceptSpecification proxy: inverseTreeListProperty.get()) {
-                if (proxy.getNid() == TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid()) {
-
-                } else {
-                    SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage = Get.assemblageService().getSingleAssemblageSnapshot(proxy.getNid(), ComponentNidVersion.class, getManifoldCoordinate().getStampFilter());
-                    TaxonomySnapshot taxonomySnapshot = new TaxonomySnapshotFromComponentNidAssemblage(treeAssemblage, getManifoldCoordinate());
-                    amalgam.getInverseTaxonomies().add(taxonomySnapshot);
-                }
-            }
-            for (ConceptSpecification proxy: taxonomyRootListProperty) {
-                amalgam.getTaxonomyRoots().add(proxy);
-            }
-         }
     }
 
     @Override 
@@ -170,10 +128,6 @@ public class GraphConfigurationItemPanel extends AbstractPreferences implements 
         this.inverseTreeListProperty.setAll(getPreferencesNode().getConceptList(INVERSE_TREES));
         this.treeListProperty.setAll(getPreferencesNode().getConceptList(TREES));
 
-        if (getPreferencesNode().hasKey(Keys.MANIFOLD_COORDINATE_KEY)) {
-            this.manifoldCoordinateKeyProperty.setValue(new UuidStringKey(getPreferencesNode().getArray(Keys.MANIFOLD_COORDINATE_KEY)));
-            this.manifoldCoordinateKeyWrapper.setValue(this.manifoldCoordinateKeyProperty.get());
-        }
         this.includeDefiningTaxonomyProperty.set(getPreferencesNode().getBoolean(INCLUDE_DEFINING_TAXONOMY, true));
     }
     

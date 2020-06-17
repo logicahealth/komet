@@ -26,6 +26,8 @@ import org.controlsfx.control.action.Action;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.BusinessRulesService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.EditCoordinateImmutable;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
@@ -54,5 +56,7 @@ public interface RulesDrivenKometService extends BusinessRulesService {
    
    void populatePropertySheetEditors(PropertySheetMenuItem propertySheetMenuItem);
    
-   void populateWrappedProperties(List<PropertySheet.Item> items);
+   void populateWrappedProperties(List<PropertySheet.Item> items,
+                                  ManifoldCoordinateImmutable manifoldCoordinate,
+                                  EditCoordinateImmutable editCoordinate);
 }

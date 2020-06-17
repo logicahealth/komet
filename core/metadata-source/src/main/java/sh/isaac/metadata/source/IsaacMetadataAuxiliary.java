@@ -963,6 +963,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(MODULE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(NEXT_PRIORITY_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DIGRAPH_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
@@ -992,7 +993,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(VERTEX_SORT_PROPERTY).setModule(TermAux.KOMET_MODULE);
                   createConcept(DIGRAPH_PROPERTY).setModule(TermAux.KOMET_MODULE);
-                  createConcept(STAMP_FILTER_FOR_PATH).setModule(TermAux.KOMET_MODULE);
+                  createConcept(EDGE_FILTER_FOR_DIGRAPH).setModule(TermAux.KOMET_MODULE);
+                  createConcept(VERTEX_FILTER_FOR_DIGRAPH).setModule(TermAux.KOMET_MODULE);
+                  createConcept(LANGUAGE_FILTER_FOR_DIGRAPH).setModule(TermAux.KOMET_MODULE);
+
+               createConcept(STAMP_FILTER_FOR_PATH).setModule(TermAux.KOMET_MODULE);
                   popParent();
                createConcept(DESCRIPTION_DIALECT);
                createConcept("Description/dialect properties");

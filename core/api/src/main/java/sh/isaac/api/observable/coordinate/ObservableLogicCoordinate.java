@@ -42,6 +42,7 @@ package sh.isaac.api.observable.coordinate;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 import sh.isaac.api.coordinate.LogicCoordinate;
@@ -57,7 +58,22 @@ import sh.isaac.api.coordinate.LogicCoordinateProxy;
  */
 public interface ObservableLogicCoordinate
         extends LogicCoordinateProxy, ObservableCoordinate<LogicCoordinateImmutable> {
-    
+
+   default Property<?>[] getBaseProperties() {
+      return new Property<?>[] {
+              classifierProperty(),
+              conceptAssemblageProperty(),
+              descriptionLogicProfileProperty(),
+              inferredAssemblageProperty(),
+              statedAssemblageProperty(),
+              digraphIdentityProperty()
+      };
+   }
+
+   default ObservableCoordinate<?>[] getCompositeCoordinates() {
+      return new ObservableCoordinate<?>[]{};
+   }
+
     /**
      * 
      * @return the logic coordinate that this observable wraps. 
@@ -104,7 +120,7 @@ public interface ObservableLogicCoordinate
     *
     * @return the digraph identity property.
     */
-   ObjectProperty<ConceptSpecification> getDigraphIdentityProperty();
+   ObjectProperty<ConceptSpecification> digraphIdentityProperty();
 
 
 }

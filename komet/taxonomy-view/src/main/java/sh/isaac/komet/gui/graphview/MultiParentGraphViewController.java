@@ -50,7 +50,7 @@ import sh.isaac.api.util.UuidStringKey;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
-import static sh.komet.gui.contract.preferences.GraphConfigurationItem.INFERRED_PREFERRED;
+import static sh.komet.gui.contract.preferences.GraphConfigurationItem.PREMISE_DAG;
 import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
 
 public class MultiParentGraphViewController implements RefreshListener {
@@ -93,7 +93,7 @@ public class MultiParentGraphViewController implements RefreshListener {
     private IsaacPreferences nodePreferences;
     private final SimpleObjectProperty<UuidStringKey> viewCoordinateKeyProperty = new SimpleObjectProperty<>(this,
             TermAux.VIEW_COORDINATE_KEY.toExternalString(),
-            INFERRED_PREFERRED);
+            PREMISE_DAG);
 
     private MultiParentGraphItemImpl rootTreeItem;
     private TreeView<ConceptChronology> treeView;

@@ -122,7 +122,7 @@ public class AssemblageDetailController {
            ObservableList<? extends ObservableChronology> children, boolean addSemantics) {
       for (ObservableChronology child : children) {
          TreeItem<ObservableCategorizedVersion> parentToAddTo = parent;
-         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(viewProperties.getManifoldCoordinate().getStampFilter());
+         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(viewProperties.getManifoldCoordinate().getVertexStampFilter());
 
          if (categorizedVersions.getLatestVersion()
                  .isPresent()) {
@@ -172,7 +172,7 @@ public class AssemblageDetailController {
                        .getObservableConceptChronology(focusObject.getNid());
                CategorizedVersions<ObservableCategorizedVersion> categorizedVersions
                        = observableConceptChronology.getCategorizedVersions(
-                       viewProperties.getManifoldCoordinate().getStampFilter());
+                       viewProperties.getManifoldCoordinate().getVertexStampFilter());
 
                TreeItem<ObservableCategorizedVersion> assemblageRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
                ObservableList<ObservableChronology> children = FXCollections.observableArrayList();

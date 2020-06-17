@@ -43,6 +43,7 @@ package sh.isaac.api.observable.coordinate;
 
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SetProperty;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.*;
@@ -55,6 +56,19 @@ import sh.isaac.api.coordinate.*;
  * @author kec
  */
 public interface ObservableStampPath extends ObservableCoordinate<StampPathImmutable>, StampPathProxy {
+
+   default Property<?>[] getBaseProperties() {
+      return new Property<?>[] {
+              pathConceptProperty(),
+              pathOriginsProperty(),
+      };
+   }
+
+   default ObservableCoordinate<?>[] getCompositeCoordinates() {
+      return new ObservableCoordinate<?>[]{
+
+      };
+   }
 
    /**
     *
@@ -73,7 +87,7 @@ public interface ObservableStampPath extends ObservableCoordinate<StampPathImmut
     * @return path origins as a list, as a convenience for interface elements based on
     * lists rather than on sets. Backed by the underlying set representation.
     */
-   ListProperty<StampPositionImmutable> pathOriginsAsListProperty();
+   ListProperty<StampPositionImmutable> pathOriginsAsListPropertyProperty();
 
 }
 

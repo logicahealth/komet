@@ -214,10 +214,10 @@ public class Coordinates {
 
     public static class Manifold {
         public static final ManifoldCoordinateImmutable DevelopmentInferredRegularNameSort() {
-            return ManifoldCoordinateImmutable.make(VertexSortPreferredName.SINGLETON, Digraph.DevelopmentInferred(), Coordinates.Filter.DevelopmentLatest());
+            return ManifoldCoordinateImmutable.make(Digraph.DevelopmentInferred());
         }
         public static final ManifoldCoordinateImmutable DevelopmentStatedRegularNameSort() {
-            return ManifoldCoordinateImmutable.make(VertexSortPreferredName.SINGLETON, Digraph.DevelopmentStated(), Coordinates.Filter.DevelopmentLatest());
+            return ManifoldCoordinateImmutable.make(Digraph.DevelopmentStated());
         }
     }
 

@@ -66,11 +66,10 @@ import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.VersionImpl;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
-import sh.isaac.model.observable.CommitAwareLongProperty;
-import sh.isaac.model.observable.CommitAwareObjectProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareLongProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableFields;
-import static sh.isaac.model.observable.ObservableFields.NATIVE_ID_FOR_COMPONENT;
 
 //~--- classes ----------------------------------------------------------------
 /**

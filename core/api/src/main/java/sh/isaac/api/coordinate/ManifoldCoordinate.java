@@ -42,6 +42,7 @@ package sh.isaac.api.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -51,8 +52,11 @@ import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.util.time.DateTimeUtil;
 
+import java.lang.reflect.Array;
 import java.util.*;
+import java.util.function.Function;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -60,14 +64,12 @@ import java.util.*;
  * The Interface ManifoldCoordinate.
  *
  * @author kec
+ * TODO consider deprecation/deletion and switch to diagraph coordinate.
  */
 public interface ManifoldCoordinate {
 
     static UUID getManifoldCoordinateUuid(ManifoldCoordinate manifoldCoordinate) {
         ArrayList<UUID> uuidList = new ArrayList<>();
-        uuidList.add(manifoldCoordinate.getStampFilter().getStampFilterUuid());
-        uuidList.add(manifoldCoordinate.getLanguageCoordinate().getLanguageCoordinateUuid());
-        uuidList.add(manifoldCoordinate.getLogicCoordinate().getLogicCoordinateUuid());
         uuidList.add(manifoldCoordinate.getDigraph().getDigraphCoordinateUuid());
         uuidList.add(manifoldCoordinate.getVertexSort().getVertexSortUUID());
         StringBuilder sb = new StringBuilder(uuidList.toString());
@@ -76,9 +78,7 @@ public interface ManifoldCoordinate {
 
     default String toUserString() {
         StringBuilder sb = new StringBuilder("Manifold coordinate: ");
-        sb.append("\nFilter filter: ").append(getStampFilter().toUserString());
         sb.append("\nDigraph coordinate: ").append(getDigraph().toUserString());
-        sb.append("\nVertex sort: ").append(getVertexSort().getVertexSortName());
         return sb.toString();
     }
 
@@ -86,14 +86,6 @@ public interface ManifoldCoordinate {
 
     default UUID getManifoldCoordinateUuid() {
         return getManifoldCoordinateUuid(this);
-    }
-
-    /**
-     * In most cases all stamp filters will be the same.
-     * @return the edge stamp filter services as the default stamp filter.
-     */
-    default StampFilter getStampFilter() {
-        return getEdgeStampFilter();
     }
 
     /**
@@ -148,13 +140,20 @@ public interface ManifoldCoordinate {
     default DigraphCoordinateImmutable toDigraphImmutable() {
         return getDigraph().toDigraphImmutable();
     }
+
     DigraphCoordinate getDigraph();
 
-    VertexSort getVertexSort();
+    default VertexSort getVertexSort() {
+        return getDigraph().getVertexSort();
+    }
 
-    LogicCoordinate getLogicCoordinate();
+    default LogicCoordinate getLogicCoordinate() {
+        return getDigraph().getLogicCoordinate();
+    }
 
-    LanguageCoordinate getLanguageCoordinate();
+    default LanguageCoordinate getLanguageCoordinate() {
+        return getDigraph().getLanguageCoordinate();
+    }
 
     default Optional<String> getFullyQualifiedName(int nid, StampFilter filter) {
         return this.getLanguageCoordinate().getFullyQualifiedNameText(nid, filter);
@@ -194,7 +193,7 @@ public interface ManifoldCoordinate {
 
 
     default Optional<String> getFullyQualifiedName(int nid) {
-        return this.getLanguageCoordinate().getFullyQualifiedNameText(nid, this.getStampFilter());
+        return this.getLanguageCoordinate().getFullyQualifiedNameText(nid, this.getLanguageStampFilter());
     }
     /**
      * Sort the vertex concept nids with respect to settings from the
@@ -294,6 +293,55 @@ public interface ManifoldCoordinate {
 
     default Optional<LogicalExpression> getInferredLogicalExpression(int conceptNid) {
         return getLogicCoordinate().getLogicalExpression(conceptNid, PremiseType.INFERRED, this.getEdgeStampFilter());
+    }
+
+    default String toFqnConceptString(Object object) {
+        return toConceptString(object, this::getFullyQualifiedDescriptionText);
+    }
+
+    default String toPreferredConceptString(Object object) {
+        return toConceptString(object, this::getPreferredDescriptionText);
+    }
+
+    default String toConceptString(Object object, Function<ConceptSpecification,String> toString) {
+        if (object == null) {
+            return "null";
+        }
+        StringBuilder sb = new StringBuilder();
+        if (object instanceof ConceptSpecification) {
+            ConceptSpecification conceptSpecification = (ConceptSpecification) object;
+            sb.append(toString.apply(conceptSpecification));
+        } else if (object instanceof Collection) {
+            Collection collection = (Collection) object;
+            return toConceptString(collection.toArray(), toString);
+        } else if (object.getClass().isArray()) {
+            Object[] a = (Object[]) object;
+            int iMax = a.length - 1;
+            if (iMax == -1) {
+                sb.append("[]");
+            } else {
+                sb.append('[');
+                for (int i = 0; ; i++) {
+                    sb.append(toConceptString(a[i], toString));
+                    if (i == iMax)
+                        return sb.append(']').toString();
+                    sb.append(", ");
+                }
+            }
+        } else if (object instanceof String) {
+            String string = (String) object;
+            if (string.indexOf(ConceptProxy.FIELD_SEPARATOR) > -1) {
+                ConceptProxy conceptProxy = new ConceptProxy(string);
+                sb.append(toConceptString(conceptProxy, toString));
+            } else {
+                sb.append(string);
+            }
+        } else if (object instanceof Long) {
+            sb.append(DateTimeUtil.format((Long) object));
+        } else {
+            sb.append(object.toString());
+        }
+        return sb.toString();
     }
 
 }

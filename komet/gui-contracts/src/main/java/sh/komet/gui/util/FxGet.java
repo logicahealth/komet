@@ -16,7 +16,6 @@
  */
 package sh.komet.gui.util;
 
-import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.*;
 import org.apache.shiro.SecurityUtils;
@@ -66,7 +65,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
 
-import static sh.komet.gui.contract.preferences.GraphConfigurationItem.STATED_PREFERRED;
+import static sh.komet.gui.contract.preferences.GraphConfigurationItem.PREMISE_DAG;
 
 /**
  *
@@ -162,7 +161,7 @@ public class FxGet implements StaticIsaacCache {
 
     private static final SimpleObjectProperty<UuidStringKey> defaultViewKeyProperty = new SimpleObjectProperty<>(null,
             TermAux.VIEW_COORDINATE_KEY.toExternalString(),
-            STATED_PREFERRED);
+            PREMISE_DAG);
 
     public static UuidStringKey defaultViewKey() {
         return defaultViewKeyProperty.get();
@@ -311,14 +310,14 @@ public class FxGet implements StaticIsaacCache {
         TreeMap<Integer, ConceptSpecification> fieldIndexToFieldConcept = new TreeMap<>();
         TreeMap<Integer, ConceptSpecification> fieldIndexToFieldDataType = new TreeMap<>();
         List<PropertySheet.Item> items = new ArrayList();
-        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageConcept, viewProperties.getManifoldCoordinate().getStampFilter());
+        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageConcept, viewProperties.getManifoldCoordinate().getVertexStampFilter());
 
         if (optionalSemanticConceptNid.isPresent()) {
             int semanticConceptNid = optionalSemanticConceptNid.getAsInt();
             ImmutableIntSet semanticTypeOfFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(semanticConceptNid, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE.getNid());
             for (int nid : semanticTypeOfFields.toArray()) { // one member, "Concept field": 1
                 SemanticChronology semanticTypeField = Get.assemblageService().getSemanticChronology(nid);
-                LatestVersion<Version> latestSemanticTypeField = semanticTypeField.getLatestVersion(viewProperties.getManifoldCoordinate().getStampFilter());
+                LatestVersion<Version> latestSemanticTypeField = semanticTypeField.getLatestVersion(viewProperties.getManifoldCoordinate().getVertexStampFilter());
                 Nid1_Int2_Version latestSemanticTypeFieldVersion = (Nid1_Int2_Version) latestSemanticTypeField.get();
                 fieldIndexToFieldDataType.put(latestSemanticTypeFieldVersion.getInt2(), Get.concept(latestSemanticTypeFieldVersion.getNid1()));
             }
@@ -326,7 +325,7 @@ public class FxGet implements StaticIsaacCache {
             ImmutableIntSet assemblageSemanticFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(assemblageConcept.getNid(), MetaData.SEMANTIC_FIELDS_ASSEMBLAGE____SOLOR.getNid());
             for (int nid : assemblageSemanticFields.toArray()) {
                 SemanticChronology semanticField = Get.assemblageService().getSemanticChronology(nid);
-                LatestVersion<Version> latestSemanticField = semanticField.getLatestVersion(viewProperties.getManifoldCoordinate().getStampFilter());
+                LatestVersion<Version> latestSemanticField = semanticField.getLatestVersion(viewProperties.getManifoldCoordinate().getVertexStampFilter());
                 Nid1_Int2_Version latestSemanticFieldVersion = (Nid1_Int2_Version) latestSemanticField.get();
                 fieldIndexToFieldConcept.put(latestSemanticFieldVersion.getInt2(), Get.concept(latestSemanticFieldVersion.getNid1()));
             }
@@ -521,7 +520,7 @@ public class FxGet implements StaticIsaacCache {
         ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(nodeSpecConcept.getNid(), TermAux.PROVIDER_CLASS_ASSEMBLAGE.getNid());
         for (int nid: semanticNids.toArray()) {
             SemanticChronology chronology = Get.assemblageService().getSemanticChronology(nid);
-            LatestVersion<StringVersion> optionalProviderClassStr = chronology.getLatestVersion(FxGet.manifold(Manifold.ManifoldGroup.KOMET).getStampFilter());
+            LatestVersion<StringVersion> optionalProviderClassStr = chronology.getLatestVersion(FxGet.manifold(Manifold.ManifoldGroup.KOMET).getVertexStampFilter());
             if (optionalProviderClassStr.isPresent()) {
                 StringVersion providerClassString = optionalProviderClassStr.get();
                 try {
@@ -592,7 +591,7 @@ public class FxGet implements StaticIsaacCache {
         }
         ObservableList<ConceptSnapshot> activeConceptMemberList = FXCollections.observableArrayList();
         SingleAssemblageSnapshot<SemanticVersion> snapshot =
-                Get.assemblageService().getSingleAssemblageSnapshot(assemblageNid, SemanticVersion.class, viewProperties.getManifoldCoordinate().getStampFilter());
+                Get.assemblageService().getSingleAssemblageSnapshot(assemblageNid, SemanticVersion.class, viewProperties.getManifoldCoordinate().getVertexStampFilter());
 
         snapshot.getLatestSemanticVersionsFromAssemblage().forEach(new Consumer<LatestVersion<SemanticVersion>>() {
             @Override
@@ -612,14 +611,16 @@ public class FxGet implements StaticIsaacCache {
     public static ViewProperties preferenceViewProperties() {
         if (preferenceViewProperties == null) {
             preferenceViewProperties = ViewProperties.make(UUID.fromString("1db21f81-c884-4dd7-8bf5-2befc955c887"), "Preferences view",
-                    new ObservableManifoldCoordinateImpl(Coordinates.Manifold.DevelopmentInferredRegularNameSort()));
+                    new ObservableManifoldCoordinateImpl(Coordinates.Manifold.DevelopmentInferredRegularNameSort()),
+                    editCoordinate());
         }
         return preferenceViewProperties;
     }
 
     public static ViewProperties newDefaultViewProperties() {
         return ViewProperties.make(UUID.randomUUID(), "Default view",
-                new ObservableManifoldCoordinateImpl(Coordinates.Manifold.DevelopmentInferredRegularNameSort()));
+                new ObservableManifoldCoordinateImpl(Coordinates.Manifold.DevelopmentInferredRegularNameSort()),
+                editCoordinate());
     }
 
 }

@@ -43,6 +43,7 @@ package sh.isaac.api.observable.coordinate;
 
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 import sh.isaac.api.coordinate.StampPosition;
@@ -58,6 +59,20 @@ import sh.isaac.api.coordinate.StampPositionProxy;
  */
 public interface ObservableStampPosition
         extends StampPositionProxy, ObservableCoordinate<StampPositionImmutable> {
+
+    default Property<?>[] getBaseProperties() {
+        return new Property<?>[] {
+                pathConceptProperty(),
+                timeProperty(),
+        };
+    }
+
+    default ObservableCoordinate<?>[] getCompositeCoordinates() {
+        return new ObservableCoordinate<?>[]{
+
+        };
+    }
+
    /**
     * Filter path nid property.
     *

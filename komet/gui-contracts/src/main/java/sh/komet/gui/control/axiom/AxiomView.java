@@ -418,7 +418,7 @@ public class AxiomView {
                     titleLabel.setText(viewProperties.getPreferredDescriptionText(conceptNode.getConceptNid()));
 
 
-                    LatestVersion<Version> latest = viewProperties.getManifoldCoordinate().getStampFilter().latestConceptVersion(conceptNode.getConceptNid());
+                    LatestVersion<Version> latest = viewProperties.getManifoldCoordinate().getVertexStampFilter().latestConceptVersion(conceptNode.getConceptNid());
                     if (latest.isPresent()) {
                         Status latestStatus = latest.get().getStatus();
                         titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false,
@@ -638,7 +638,7 @@ public class AxiomView {
 
                     ConceptChronology cc = Get.concept(expression.getConceptBeingDefinedNid());
 
-                    LatestVersion<Version> latest = cc.getLatestVersion(viewProperties.getManifoldCoordinate().getStampFilter());
+                    LatestVersion<Version> latest = cc.getLatestVersion(viewProperties.getManifoldCoordinate().getVertexStampFilter());
                     if (latest.isPresent()) {
                         titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
                                 latest.get().getStatus(), viewProperties, premiseType));

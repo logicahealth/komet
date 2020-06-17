@@ -89,7 +89,7 @@ public interface DescriptionVersion
           return "Definition";
       } else {
           return VertexSortPreferredName.getRegularName(nid, Get.defaultCoordinate().getLanguageCoordinate(),
-                  Get.defaultCoordinate().getStampFilter());
+                  Get.defaultCoordinate().getLanguageStampFilter());
       }
    }
 

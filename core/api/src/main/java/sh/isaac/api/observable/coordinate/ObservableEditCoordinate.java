@@ -44,6 +44,7 @@ package sh.isaac.api.observable.coordinate;
 import javafx.beans.property.IntegerProperty;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.EditCoordinateImmutable;
@@ -83,5 +84,19 @@ public interface ObservableEditCoordinate
    default EditCoordinateImmutable toEditCoordinateImmutable() {
       return this.getValue();
    }
+
+
+   default Property<?>[] getBaseProperties() {
+      return new Property<?>[] {
+              authorProperty(),
+              moduleProperty(),
+              pathProperty()
+      };
+   }
+
+   default ObservableCoordinate<?>[] getCompositeCoordinates() {
+      return new ObservableCoordinate<?>[]{};
+   }
+
 }
 

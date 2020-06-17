@@ -1,4 +1,4 @@
-package sh.isaac.model.observable;
+package sh.isaac.model.observable.equalitybased;
 
 import javafx.beans.property.SimpleListProperty;
 import javafx.collections.ObservableList;

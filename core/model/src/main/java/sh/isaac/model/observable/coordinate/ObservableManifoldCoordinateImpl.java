@@ -43,7 +43,10 @@ package sh.isaac.model.observable.coordinate;
 
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.SetChangeListener;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.model.observable.ObservableFields;
@@ -61,19 +64,14 @@ public class ObservableManifoldCoordinateImpl
         extends ObservableCoordinateImpl<ManifoldCoordinateImmutable>
          implements ObservableManifoldCoordinate {
 
-    /**
-     *
-     * The vertexSort property.
-     */
-    private final SimpleObjectProperty<VertexSort> vertexSortProperty;
-
-    /**
-     *
-     * The digraph coordinate property.
-     */
-    private final SimpleObjectProperty<DigraphCoordinateImmutable> digraphCoordinateImmutableProperty;
-
     private final ObservableDigraphCoordinateImpl observableDigraphCoordinate;
+    /**
+     * Note that if you don't declare a listener as final in this way, and just use method references, or
+     * a direct lambda expression, you will not be able to remove the listener, since each method reference will create
+     * a new object, and they won't compare equal using object identity.
+     * https://stackoverflow.com/questions/42146360/how-do-i-remove-lambda-expressions-method-handles-that-are-used-as-listeners
+     */
+    private final ChangeListener<DigraphCoordinateImmutable> digraphListener = this::digraphChanged;
 
    //~--- constructors --------------------------------------------------------
 
@@ -83,57 +81,37 @@ public class ObservableManifoldCoordinateImpl
     * @param manifoldCoordinate the taxonomy coordinate
     */
    public ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable manifoldCoordinate) {
-       super(manifoldCoordinate);
-       this.vertexSortProperty = new SimpleObjectProperty<>(this,
-               ObservableFields.VERTEX_SORT_PROPERTY.toExternalString(),
-               manifoldCoordinate.getVertexSort());
-
+       super(manifoldCoordinate, "Manifold");
        this.observableDigraphCoordinate = new ObservableDigraphCoordinateImpl(manifoldCoordinate.toDigraphImmutable());
-       this.digraphCoordinateImmutableProperty = observableDigraphCoordinate.baseCoordinateProperty();
-        addListeners();
+       addListeners();
    }
 
     @Override
     protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends ManifoldCoordinateImmutable> observable, ManifoldCoordinateImmutable oldValue, ManifoldCoordinateImmutable newValue) {
-        this.vertexSortProperty.setValue(newValue.getVertexSort());
-        this.digraphCoordinateImmutableProperty.setValue(newValue.toDigraphImmutable());
+        this.observableDigraphCoordinate.baseCoordinateProperty().setValue(newValue.toDigraphImmutable());
     }
 
     @Override
     protected void addListeners() {
-        this.vertexSortProperty.addListener(this::vertexSortChanged);
-        this.digraphCoordinateImmutableProperty.addListener(this::digraphChanged);
+        this.observableDigraphCoordinate.baseCoordinateProperty().addListener(this.digraphListener);
     }
 
     @Override
     protected void removeListeners() {
-        this.vertexSortProperty.removeListener(this::vertexSortChanged);
-        this.digraphCoordinateImmutableProperty.removeListener(this::digraphChanged);
+        this.observableDigraphCoordinate.baseCoordinateProperty().removeListener(this.digraphListener);
     }
 
     //~--- methods -------------------------------------------------------------
    private void digraphChanged(ObservableValue<? extends DigraphCoordinateImmutable> observable,
                                DigraphCoordinateImmutable oldValue,
                                DigraphCoordinateImmutable newValue) {
-       this.setValue(ManifoldCoordinateImmutable.make(getVertexSort(), newValue, getStampFilter()));
-       this.digraphCoordinateImmutableProperty.set(newValue);
+       this.setValue(ManifoldCoordinateImmutable.make(newValue));
+       this.observableDigraphCoordinate.baseCoordinateProperty().set(newValue);
    }
-
-    private void vertexSortChanged(ObservableValue<? extends VertexSort> observable,
-                                   VertexSort oldValue,
-                                   VertexSort newValue) {
-        this.setValue(ManifoldCoordinateImmutable.make(newValue, getDigraph(), getStampFilter()));
-    }
-
-
-    @Override
-    public ObjectProperty<VertexSort> vertexSortProperty() {
-        return vertexSortProperty;
-    }
 
     @Override
     public ObjectProperty<DigraphCoordinateImmutable> digraphCoordinateImmutableProperty() {
-        return digraphCoordinateImmutableProperty;
+        return observableDigraphCoordinate.baseCoordinateProperty();
     }
 
     @Override
@@ -152,18 +130,8 @@ public class ObservableManifoldCoordinateImpl
     }
 
     @Override
-    public VertexSort getVertexSort() {
-        return vertexSortProperty.get();
-    }
-
-    @Override
-    public ObservableStampFilter getStampFilter() {
-        return this.observableDigraphCoordinate.getEdgeStampFilter();
-    }
-
-    @Override
     public ObservableStampFilter getLanguageStampFilter() {
-        return this.observableDigraphCoordinate.getVertexStampFilter();
+        return this.observableDigraphCoordinate.getLanguageStampFilter();
     }
 
     @Override

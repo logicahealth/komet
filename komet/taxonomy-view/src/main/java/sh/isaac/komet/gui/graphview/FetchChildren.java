@@ -90,7 +90,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                         try {
                             ConceptChronology childChronology = Get.concept(childLink.getDestinationNid());
                             MultiParentGraphItemImpl childItem = new MultiParentGraphItemImpl(childChronology, treeItemImpl.getGraphView(), childLink.getTypeNid(), null);
-                            childItem.setDefined(childChronology.isSufficientlyDefined(manifold.getStampFilter(), manifold.getLogicCoordinate()));
+                            childItem.setDefined(childChronology.isSufficientlyDefined(manifold.getVertexStampFilter(), manifold.getLogicCoordinate()));
                             childItem.toString();
                             childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childLink.getDestinationNid()).length > 1);
                             childItem.isLeaf();

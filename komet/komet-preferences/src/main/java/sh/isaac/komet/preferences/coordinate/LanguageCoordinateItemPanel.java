@@ -119,7 +119,7 @@ public class LanguageCoordinateItemPanel extends AbstractPreferences {
 
             this.languageCoordinateItem.descriptionTypePreferenceListProperty().setAll(languageCoordinate.getDescriptionTypeSpecPreferenceList());
 
-            this.languageCoordinateItem.modulePreferenceListForLanguage().setAll(languageCoordinate.getModuleSpecPreferenceListForLanguage());
+            this.languageCoordinateItem.modulePreferenceListForLanguageProperty().setAll(languageCoordinate.getModuleSpecPreferenceListForLanguage());
 
             // TODO: handle next priority language coordinate.
             //LanguageCoordinate nextPriorityLanguageCoordinate = null;

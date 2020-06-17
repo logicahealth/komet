@@ -52,7 +52,7 @@ public class PathItemPanel implements PreferenceGroup {
     public PathItemPanel(ConceptSnapshot pathConcept) {
         this.pathConcept = pathConcept;
         this.observablePathCoordinate = ObservableStampPathImpl.make(StampPathImmutable.make(pathConcept));
-        this.positionListView.setItems(observablePathCoordinate.pathOriginsAsListProperty());
+        this.positionListView.setItems(observablePathCoordinate.pathOriginsAsListPropertyProperty());
         this.pathNameString = pathConcept.getPreferredDescriptionText().get();
         Label pathNameLabel = new Label("Path name");
         pathNameLabel.setPadding(new Insets(5, 20, 5, 10));

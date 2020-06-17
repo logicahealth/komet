@@ -31,7 +31,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 
 /**
  *

@@ -45,6 +45,8 @@ import sh.isaac.api.BusinessRulesService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.EditCoordinateImmutable;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
@@ -66,6 +68,9 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
      */
     private static final Logger LOG = LogManager.getLogger();
     public static final String KOMET_SESSION = "komet-session";
+    public static final String MANIFOLD_COORDINATE = "manifoldCoordinate";
+    public static final String EDIT_COORDINATE = "editCoordinate";
+
     private final KieServices kieServices = KieServices.Factory.get();;
     private KieContainer classPathContainer;
     private StatelessKieSession staticSession;
@@ -103,7 +108,6 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
         } finally {
             progressTask.finished();
         }
-        
     }
 
 
@@ -183,7 +187,12 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     }
     
     @Override
-    public void populateWrappedProperties(List<PropertySheet.Item> items) {
+    public void populateWrappedProperties(List<PropertySheet.Item> items,
+                                          ManifoldCoordinateImmutable manifoldCoordinate,
+                                          EditCoordinateImmutable editCoordinate) {
+
+        this.staticSession.setGlobal(MANIFOLD_COORDINATE, manifoldCoordinate);
+        this.staticSession.setGlobal(EDIT_COORDINATE, editCoordinate);
         this.staticSession.execute(items);
     }
 

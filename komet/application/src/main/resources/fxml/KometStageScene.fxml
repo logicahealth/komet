@@ -56,24 +56,17 @@
             </MenuButton>
             <Button fx:id="vanityBox" alignment="TOP_LEFT" focusTraversable="false" onAction="#handleRefreshUserCss" styleClass="vanityBox" GridPane.columnIndex="1" />
             <ToolBar prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: transparent;" GridPane.columnIndex="2" />
-            <MenuButton maxHeight="28.0" maxWidth="28.0" minHeight="28.0" minWidth="28.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="28.0" style="-fx-background-color: transparent;">
+            <MenuButton fx:id="viewPropertiesButton" maxHeight="28.0" maxWidth="28.0" minHeight="28.0" minWidth="28.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="28.0" style="-fx-background-color: transparent;">
               <items>
-                  <Menu fx:id="pathMenu" mnemonicParsing="false" text="Path" />
-                  <Menu mnemonicParsing="false" text="Language">
-                     <items>
-                        <MenuItem mnemonicParsing="false" text="Action 1" />
-                     </items>
-                  </Menu>
-                  <Menu mnemonicParsing="false" text="Logic">
+                  <Menu fx:id="windowCoordinates" mnemonicParsing="false" text="Window coordinates">
                     <items>
                       <MenuItem mnemonicParsing="false" text="Action 1" />
                     </items>
                   </Menu>
-                  <Menu mnemonicParsing="false" text="Taxonomy">
-                    <items>
-                      <MenuItem mnemonicParsing="false" text="Action 1" />
-                    </items>
-                  </Menu>
+                  <Menu fx:id="pathMenu" mnemonicParsing="false" text="Change path" />
+                  <Menu fx:id="languageMenu" mnemonicParsing="false" text="Change language" />
+                  <Menu fx:id="logicMenu" mnemonicParsing="false" text="Change logic coordinate" />
+                  <Menu fx:id="navigationMenu" mnemonicParsing="false" text="Change navigation coordinate" />
               </items>
                <padding>
                   <Insets left="-8.0" />

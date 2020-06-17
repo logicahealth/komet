@@ -37,7 +37,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
 import sh.komet.gui.control.property.*;
@@ -157,7 +157,9 @@ public class NewConceptVersionEditor implements PropertyEditor<ObservableConcept
             PropertySheetItem nameForFieldProperty = createPropertyItem(nameForAssemblageFieldProperty);
             
             
-            FxGet.rulesDrivenKometService().populateWrappedProperties(wrappedProperties);
+            FxGet.rulesDrivenKometService().populateWrappedProperties(wrappedProperties,
+                    viewProperties.getManifoldCoordinate().getValue(),
+                    viewProperties.getEditCoordinate().getValue());
 
             PropertyEditor<?> modulePropEditor = propertyEditorFactory.call(moduleProperty);
             PropertyEditor<?> pathPropertyEditor = propertyEditorFactory.call(pathProperty);

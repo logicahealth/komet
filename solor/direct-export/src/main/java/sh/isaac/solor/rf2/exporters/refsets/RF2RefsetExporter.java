@@ -52,7 +52,7 @@ public class RF2RefsetExporter extends RF2AbstractExporter {
                         break;
                     case SNAPSHOT:
                         LatestVersion<SemanticVersion> lv = Get.assemblageService().getSemanticChronology(nid)
-                            .getLatestVersion(this.rf2ExportHelper.getManifoldCoordinate().getStampFilter());
+                            .getLatestVersion(this.rf2ExportHelper.getManifoldCoordinate().getVertexStampFilter());
                         if (lv.isPresent()) {
                             writeSemantic(lv.get());
                         }

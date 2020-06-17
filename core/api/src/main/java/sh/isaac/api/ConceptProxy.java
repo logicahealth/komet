@@ -255,7 +255,7 @@ public class ConceptProxy
    @Override
    public String getFullyQualifiedName() {
       if (this.fullyQualfiedName == null) {
-         this.fullyQualfiedName = Get.defaultCoordinate().getFullyQualifiedName(this.getNid(), Get.defaultCoordinate().getStampFilter()).orElse(null);
+         this.fullyQualfiedName = Get.defaultCoordinate().getFullyQualifiedName(this.getNid(), Get.defaultCoordinate().getLanguageStampFilter()).orElse(null);
       }
       return this.fullyQualfiedName;
    }

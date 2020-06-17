@@ -22,25 +22,15 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
-    public static final VertexSort DEFAULT_DISPLAY_AND_SORT = VertexSortPreferredName.SINGLETON;
-    public static final VertexSort DISPLAY_PREFERRED_AND_SORT = VertexSortPreferredName.SINGLETON;
-    public static final VertexSort DISPLAY_PREFERRED_AND_NO_SORT = VertexSortPreferredNameNoSort.SINGLETON;
-    public static final VertexSort DISPLAY_FQN_AND_SORT =  VertexSortFullyQualifiedName.SINGLETON;
-    public static final VertexSort DISPLAY_FQN_AND_NO_SORT =VertexSortFullyQualifiedNameNoSort.SINGLETON;
+    private static final int marshalVersion = 2;
 
-    private static final int marshalVersion = 1;
-
-    private final VertexSort vertexSort;
     private final DigraphCoordinateImmutable digraphCoordinateImmutable;
-    private final StampFilterImmutable stampFilterImmutable;
 
 
     private ManifoldCoordinateImmutable() {
         // No arg constructor for HK2 managed instance
         // This instance just enables reset functionality...
-        this.vertexSort = null;
         this.digraphCoordinateImmutable = null;
-        this.stampFilterImmutable = null;
     }
     /**
      * {@inheritDoc}
@@ -50,30 +40,30 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         SINGLETONS.clear();
     }
 
-    private ManifoldCoordinateImmutable(VertexSort vertexSort, DigraphCoordinateImmutable digraphCoordinateImmutable, StampFilterImmutable stampFilterImmutable) {
-        this.vertexSort = vertexSort;
+    private ManifoldCoordinateImmutable(DigraphCoordinateImmutable digraphCoordinateImmutable) {
         this.digraphCoordinateImmutable = digraphCoordinateImmutable;
-        this.stampFilterImmutable = stampFilterImmutable;
     }
 
-    private ManifoldCoordinateImmutable(ByteArrayDataBuffer in) {
-        this.vertexSort = MarshalUtil.unmarshal(in);
-        this.digraphCoordinateImmutable = MarshalUtil.unmarshal(in);
-        this.stampFilterImmutable = MarshalUtil.unmarshal(in);
+    private ManifoldCoordinateImmutable(ByteArrayDataBuffer in, int objectMarshalVersion) {
+        switch (objectMarshalVersion) {
+            case 1:
+                MarshalUtil.unmarshal(in); // this.vertexSort =
+                this.digraphCoordinateImmutable = MarshalUtil.unmarshal(in);
+                MarshalUtil.unmarshal(in); // this.stampFilterImmutable =
+                break;
+            case marshalVersion:
+                this.digraphCoordinateImmutable = MarshalUtil.unmarshal(in);
+                break;
+            default:
+                throw new IllegalStateException("Can't handle marshalVersion: " + objectMarshalVersion);
+        }
     }
 
     @Override
     @Marshaler
     public void marshal(ByteArrayDataBuffer out) {
         out.putInt(marshalVersion);
-        MarshalUtil.marshal(this.vertexSort, out);
         MarshalUtil.marshal(this.digraphCoordinateImmutable, out);
-        MarshalUtil.marshal(this.stampFilterImmutable, out);
-    }
-
-    @Override
-    public VertexSort getVertexSort() {
-        return vertexSort;
     }
 
     @Override
@@ -99,48 +89,35 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
     public static ManifoldCoordinateImmutable make(ByteArrayDataBuffer in) {
         int objectMarshalVersion = in.getInt();
         switch (objectMarshalVersion) {
+            case 1:
             case marshalVersion:
-                return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(in),
+                return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(in, objectMarshalVersion),
                         manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
             default:
                 throw new UnsupportedOperationException("Unsupported version: " + objectMarshalVersion);
         }
     }
-    public static ManifoldCoordinateImmutable make(VertexSort vertexSort,
-                                                                    DigraphCoordinate digraphCoordinate,
-                                                                    StampFilter stampFilter) {
-         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(vertexSort,
-                         digraphCoordinate.toDigraphImmutable(), stampFilter.toStampFilterImmutable()),
+    public static ManifoldCoordinateImmutable make(DigraphCoordinate digraphCoordinate) {
+         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(digraphCoordinate.toDigraphImmutable()),
                         manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
     }
 
     public static ManifoldCoordinateImmutable makeStated(StampFilter stampFilter, LanguageCoordinate languageCoordinate) {
         DigraphCoordinateImmutable dci = DigraphCoordinateImmutable.makeStated(stampFilter, languageCoordinate);
-        return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(VertexSortFullyQualifiedName.SINGLETON, dci, stampFilter.toStampFilterImmutable()),
+        return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(dci),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
-
-
     }
 
     public static ManifoldCoordinateImmutable makeStated(StampFilter stampFilter, LanguageCoordinate languageCoordinate, LogicCoordinate logicCoordinate) {
         DigraphCoordinateImmutable dci = DigraphCoordinateImmutable.makeStated(stampFilter, languageCoordinate, logicCoordinate);
-        return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(VertexSortFullyQualifiedName.SINGLETON, dci, stampFilter.toStampFilterImmutable()),
+        return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(dci),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
-
-
     }
 
     public static ManifoldCoordinateImmutable makeInferred(StampFilter stampFilter, LanguageCoordinate languageCoordinate, LogicCoordinate logicCoordinate) {
         DigraphCoordinateImmutable dci = DigraphCoordinateImmutable.makeInferred(stampFilter, languageCoordinate, logicCoordinate);
-        return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(VertexSortFullyQualifiedName.SINGLETON, dci, stampFilter.toStampFilterImmutable()),
+        return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(dci),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
-
-
-    }
-
-    @Override
-    public StampFilterImmutable getStampFilter() {
-        return this.stampFilterImmutable;
     }
 
     @Override
@@ -153,13 +130,11 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         if (this == o) return true;
         if (!(o instanceof ManifoldCoordinateImmutable)) return false;
         ManifoldCoordinateImmutable that = (ManifoldCoordinateImmutable) o;
-        return getVertexSort().equals(that.getVertexSort()) &&
-                digraphCoordinateImmutable.equals(that.digraphCoordinateImmutable) &&
-                stampFilterImmutable.equals(that.stampFilterImmutable);
+        return digraphCoordinateImmutable.equals(that.digraphCoordinateImmutable);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getVertexSort(), digraphCoordinateImmutable, stampFilterImmutable);
+        return Objects.hash(digraphCoordinateImmutable);
     }
 }

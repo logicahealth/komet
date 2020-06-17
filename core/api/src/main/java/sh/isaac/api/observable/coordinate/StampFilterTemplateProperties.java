@@ -1,11 +1,27 @@
 package sh.isaac.api.observable.coordinate;
 
 import javafx.beans.property.ListProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SetProperty;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 interface StampFilterTemplateProperties {
+
+    default Property<?>[] getBaseProperties() {
+        return new Property<?>[] {
+                allowedStatusProperty(),
+                moduleSpecificationsProperty(),
+                excludedModuleSpecificationsProperty(),
+                modulePriorityOrderProperty()
+        };
+    }
+
+    default ObservableCoordinate<?>[] getEmbeddedCoordinates() {
+        return new ObservableCoordinate<?>[]{
+
+        };
+    }
 
     /**
      *

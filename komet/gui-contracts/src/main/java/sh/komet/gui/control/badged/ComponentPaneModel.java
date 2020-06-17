@@ -172,7 +172,7 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
         if (isSemanticTypeSupported(observableChronology)) {
             CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
                     = observableChronology.getCategorizedVersions(
-                    getManifoldCoordinate().getStampFilter());
+                    getManifoldCoordinate().getVertexStampFilter());
 
             if (oscCategorizedVersions.getLatestVersion()
                     .isPresent()) {

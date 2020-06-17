@@ -55,7 +55,7 @@ public class ConceptNode extends Label {
         this.setText(viewProperties.getPreferredDescriptionText(conceptNid));
 
         HBox controlBox;
-        LatestVersion<Version> latest = viewProperties.getManifoldCoordinate().getStampFilter().latestConceptVersion(conceptNid);
+        LatestVersion<Version> latest = viewProperties.getManifoldCoordinate().getVertexStampFilter().latestConceptVersion(conceptNid);
         if (latest.isPresent()) {
             controlBox = new HBox(openConceptButton, AxiomView.computeGraphic(conceptNid, false,
                     latest.get().getStatus(), viewProperties, premiseType));

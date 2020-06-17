@@ -130,7 +130,9 @@ public class DescriptionDialectEditor implements PropertyEditor<ObservableDescri
             PropertySheetItem acceptabilityProperty = createPropertyItem(dialect.componentNidProperty());
             
             
-            FxGet.rulesDrivenKometService().populateWrappedProperties(wrappedProperties);
+            FxGet.rulesDrivenKometService().populateWrappedProperties(wrappedProperties,
+                    viewProperties.getManifoldCoordinate().getValue(),
+                    viewProperties.getEditCoordinate().getValue());
 
             PropertyEditor<?> textPropEditor = propertyEditorFactory.call(textProperty);
             PropertyEditor<?> langPropertyEditor = propertyEditorFactory.call(langProperty);

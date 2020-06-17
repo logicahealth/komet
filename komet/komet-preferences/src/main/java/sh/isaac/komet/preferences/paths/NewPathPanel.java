@@ -49,7 +49,7 @@ public class NewPathPanel {
                 StampPathImmutable.make(TermAux.UNINITIALIZED_COMPONENT_ID, Sets.immutable.of(originOnDevelop)));
         this.nameProperty.set("Feature path");
         this.itemList.add(new PropertySheetTextWrapper("Path name", nameProperty));
-        this.itemList.add(new PropertySheetPositionListWrapper("Origins", pathCoordinateItem.pathOriginsAsListProperty()));
+        this.itemList.add(new PropertySheetPositionListWrapper("Origins", pathCoordinateItem.pathOriginsAsListPropertyProperty()));
     }
 
     protected void makePropertySheet() {

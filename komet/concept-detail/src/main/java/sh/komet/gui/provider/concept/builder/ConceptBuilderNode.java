@@ -100,22 +100,22 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract implements GuiCo
 
     public ConceptBuilderNode(ViewProperties viewProperties, IsaacPreferences preferences) {
         super(viewProperties, viewProperties.getUnlinkedActivityFeed());
-        detailPane.setCenter(componentPanelBox);
-        detailPane.setTop(builderToolbar);
-        scrollPane = new ScrollPane(detailPane);
-        newConceptButton.setOnAction(this::newConcept);
-        addDescriptionButton.setOnAction(this::newDescription);
-        commitButton.setOnAction(this::commit);
-        cancelButton.setOnAction(this::cancel);
-        cancelButton.getStyleClass()
+        this.detailPane.setCenter(componentPanelBox);
+        this.detailPane.setTop(builderToolbar);
+        this.scrollPane = new ScrollPane(detailPane);
+        this.newConceptButton.setOnAction(this::newConcept);
+        this.addDescriptionButton.setOnAction(this::newDescription);
+        this.commitButton.setOnAction(this::commit);
+        this.cancelButton.setOnAction(this::cancel);
+        this.cancelButton.getStyleClass()
                 .add(StyleClasses.CANCEL_BUTTON.toString());
-        cancelButton.setOnAction(this::cancel);
-        commitButton.getStyleClass()
+        this.cancelButton.setOnAction(this::cancel);
+        this.commitButton.getStyleClass()
                 .add(StyleClasses.COMMIT_BUTTON.toString());
-        componentPanelBox.getStyleClass()
+        this.componentPanelBox.getStyleClass()
                 .add(StyleClasses.COMPONENT_DETAIL_BACKGROUND.toString());
-        componentPanelBox.setFillWidth(true);
-        addDescriptionButton.getStyleClass()
+        this.componentPanelBox.setFillWidth(true);
+        this.addDescriptionButton.getStyleClass()
                 .setAll(ADD_DESCRIPTION_BUTTON.toString());
         this.scrollPane.setFitToWidth(true);
         this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);

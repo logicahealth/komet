@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 //~--- non-JDK imports --------------------------------------------------------
+import javafx.application.Platform;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
@@ -117,7 +118,8 @@ public class ConceptDetailTreeTableNode extends DetailNodeAbstract implements Su
 
     @Override
     public void savePreferences() {
-        throw new UnsupportedOperationException();
+        Platform.runLater(() -> FxGet.dialogs().showInformationDialog("Not implemented",
+                "Save preferences not yet implemented for ConceptDetailTreeTableNode"));
     }
 
     private void updateTitle() {

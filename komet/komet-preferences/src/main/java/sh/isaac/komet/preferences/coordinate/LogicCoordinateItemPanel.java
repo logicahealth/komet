@@ -10,6 +10,7 @@ import sh.isaac.api.coordinate.LogicCoordinateImmutable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.preferences.AbstractPreferences;
+import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateBase;
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
@@ -32,7 +33,7 @@ public class LogicCoordinateItemPanel extends AbstractPreferences {
     private final SimpleStringProperty nameProperty
             = new SimpleStringProperty(this, MetaData.LOGIC_COORDINATE_NAME____SOLOR.toExternalString());
 
-    private final ObservableLogicCoordinateImpl logicCoordinateItem;
+    private final ObservableLogicCoordinateBase logicCoordinateItem;
 
     private final UuidStringKey itemKey;
 

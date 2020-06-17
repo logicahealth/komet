@@ -224,7 +224,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
     public void addRoleWithRestrictionsAction(ConceptSpecification roleType, ConceptSpecification assemblageWithRestrictions) {
         ActionGroup newRoleGroup = new ActionGroup("Add " + viewProperties.getPreferredDescriptionText(roleType) + "...");
         ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsFromAssemblage(assemblageWithRestrictions.getNid());
-        SemanticSnapshotService<SemanticVersion> snapshot = Get.assemblageService().getSnapshot(SemanticVersion.class, viewProperties.getManifoldCoordinate().getStampFilter());
+        SemanticSnapshotService<SemanticVersion> snapshot = Get.assemblageService().getSnapshot(SemanticVersion.class, viewProperties.getManifoldCoordinate().getVertexStampFilter());
         for (int semanticNid : semanticNids.toArray()) {
             LatestVersion<SemanticVersion> latestMembership = snapshot.getLatestSemanticVersion(semanticNid);
             if (latestMembership.isPresent() && latestMembership.get().isActive()) {

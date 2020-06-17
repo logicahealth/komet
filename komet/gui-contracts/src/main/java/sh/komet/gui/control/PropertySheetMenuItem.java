@@ -73,8 +73,8 @@ import sh.isaac.api.observable.ObservableVersion;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.EditInFlight;
 import sh.komet.gui.util.FxGet;
-import sh.isaac.model.observable.CommitAwareConceptSpecificationProperty;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareConceptSpecificationProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 
 //~--- classes ----------------------------------------------------------------
@@ -232,7 +232,7 @@ public class PropertySheetMenuItem
             int assemblageNid = observableVersion.getAssemblageNid();
             OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
                     propertyConceptSpecification.getNid(),
-                    assemblageNid, viewProperties.getManifoldCoordinate().getStampFilter());
+                    assemblageNid, viewProperties.getManifoldCoordinate().getVertexStampFilter());
             if (propertyIndex.isPresent()) {
                 property = observableVersion.getProperties().get(propertyIndex.getAsInt());
             }

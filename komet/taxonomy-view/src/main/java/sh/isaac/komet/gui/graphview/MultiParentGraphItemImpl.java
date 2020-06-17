@@ -240,7 +240,7 @@ public class MultiParentGraphItemImpl
                         ConceptChronology childChronology = Get.concept(childLink.getDestinationNid());
                         MultiParentGraphItemImpl childItem = new MultiParentGraphItemImpl(childChronology, graphView, childLink.getTypeNid(), null);
                         ManifoldCoordinate manifold = graphView.getManifoldCoordinate();
-                        childItem.setDefined(childChronology.isSufficientlyDefined(manifold.getStampFilter(), manifold.getLogicCoordinate()));
+                        childItem.setDefined(childChronology.isSufficientlyDefined(manifold.getVertexStampFilter(), manifold.getLogicCoordinate()));
                         childItem.toString();
                         childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childLink.getDestinationNid()).length > 1);
 

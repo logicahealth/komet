@@ -61,6 +61,7 @@ import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.version.brittle.*;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -75,7 +76,6 @@ import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
 import sh.isaac.model.observable.version.ObservableLongVersionImpl;
 import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
 import sh.isaac.model.observable.version.ObservableStringVersionImpl;
-import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.model.semantic.version.brittle.*;
 
 //~--- classes ----------------------------------------------------------------

@@ -47,7 +47,7 @@ public class RF2ExportHelper {
 
     public RF2ExportHelper(ManifoldCoordinate manifold) {
         manifoldCoordinate = manifold;
-        observableSnapshotService = Get.observableSnapshotService(manifoldCoordinate.getStampFilter());
+        observableSnapshotService = Get.observableSnapshotService(manifoldCoordinate.getVertexStampFilter());
     }
     
     public ManifoldCoordinate getManifoldCoordinate() {

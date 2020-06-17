@@ -32,7 +32,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.property.ActivityFeed;
@@ -75,7 +74,15 @@ public class ConceptLabelToolbar {
       }
    }
 
-   public final Node getGraphicForActivity(String activityFeedName) {
+   public final Node getGraphicForActivityFeed(String activityFeedName) {
+      Optional<Node> optionalIcon = ViewProperties.getOptionalGraphicForActivityFeed(activityFeedName);
+      if (optionalIcon.isPresent()) {
+         return optionalIcon.get();
+      }
+      return new Label(" ?");
+   }
+
+   public final Node getGraphicForActivityFeedOld(String activityFeedName) {
       // TODO make the activity menu it's own object to be used in many places
       HBox combinedGraphic = new HBox(1);
       combinedGraphic.setMinWidth(45);
@@ -84,7 +91,7 @@ public class ConceptLabelToolbar {
       if (activityFeedName.equals(UNLINKED)) {
          Node linkBroken = Iconography.LINK_BROKEN.getIconographic();
          Rectangle rect = new Rectangle(16, 16, Color.TRANSPARENT);
-         combinedGraphic.getChildren().addAll(linkBroken,rect);
+         combinedGraphic.getChildren().addAll(linkBroken, rect);
       } else {
          Optional<Node> optionalIcon = ViewProperties.getOptionalGraphicForActivityFeed(activityFeedName);
          if (optionalIcon.isPresent()) {
@@ -122,7 +129,7 @@ public class ConceptLabelToolbar {
       }
 
       this.viewProperties.getActivityFeeds().forEach(feed -> {
-         MenuItem activityItem = new MenuItemWithText(feed.getFeedName(), getGraphicForActivity(feed.getFeedName()));
+         MenuItem activityItem = new MenuItemWithText(feed.getFeedName(), getGraphicForActivityFeed(feed.getFeedName()));
          activityItem.setUserData(feed.getFullyQualifiedActivityFeedName());
          activityItem.addEventHandler(ActionEvent.ACTION, this::activityFeedEventHandler);
          activityLinkMenu.getItems().add(activityItem);
@@ -134,7 +141,7 @@ public class ConceptLabelToolbar {
          if (anotherView != this.viewProperties) {
             otherViewFeeds.add(new Menu(anotherView.getViewName()));
             anotherView.getActivityFeeds().forEach(feed -> {
-               MenuItem activityItem = new MenuItemWithText(feed.getFeedName(), getGraphicForActivity(feed.getFeedName()));
+               MenuItem activityItem = new MenuItemWithText(feed.getFeedName(), getGraphicForActivityFeed(feed.getFeedName()));
                activityItem.setUserData(feed.getFullyQualifiedActivityFeedName());
                activityItem.addEventHandler(ActionEvent.ACTION, this::activityFeedEventHandler);
                otherViewFeeds.get(otherViewFeeds.size() - 1).getItems().add(activityItem);
@@ -146,10 +153,10 @@ public class ConceptLabelToolbar {
 
       activityLinkMenu.getItems().addAll(otherViewFeeds);
 
-      activityLinkMenu.setGraphic(getGraphicForActivity(activityFeedProperty.get().getFeedName()));
+      activityLinkMenu.setGraphic(getGraphicForActivityFeed(activityFeedProperty.get().getFeedName()));
       this.activityFeedProperty = activityFeedProperty;
       activityFeedProperty.addListener((observable, oldValue, newValue) -> {
-         activityLinkMenu.setGraphic(getGraphicForActivity(newValue.getFeedName()));
+         activityLinkMenu.setGraphic(getGraphicForActivityFeed(newValue.getFeedName()));
       });
    }
 

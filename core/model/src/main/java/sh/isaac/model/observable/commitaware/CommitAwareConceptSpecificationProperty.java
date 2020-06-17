@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.model.observable;
+package sh.isaac.model.observable.commitaware;
 
 import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.Get;

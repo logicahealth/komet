@@ -80,6 +80,7 @@ public class VersionEditor<V extends ObservableVersionImpl> implements PropertyE
         for (Property<?> property: this.observableVersion.getEditableProperties()) {
             propertySheet.getItems().add(new PropertySheetItem(property.getValue(), property, viewProperties));
         }
-        FxGet.rulesDrivenKometService().populateWrappedProperties(propertySheet.getItems());
+        FxGet.rulesDrivenKometService().populateWrappedProperties(propertySheet.getItems(),
+                viewProperties.getManifoldCoordinate().getValue(), viewProperties.getEditCoordinate().getValue());
     }
 }

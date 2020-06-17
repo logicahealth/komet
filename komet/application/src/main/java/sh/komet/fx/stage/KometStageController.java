@@ -38,6 +38,8 @@ package sh.komet.fx.stage;
 
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.Observable;
+import javafx.beans.property.Property;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -60,7 +62,11 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampPathImmutable;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.observable.coordinate.ObservableCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.NaturalOrder;
@@ -77,7 +83,6 @@ import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.importation.ArtifactImporter;
 import sh.komet.gui.importation.ImportView;
-import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.menu.MenuItemWithText;
@@ -150,6 +155,22 @@ public class KometStageController
 
     @FXML
     private Menu pathMenu;
+
+    @FXML
+    private Menu languageMenu;
+
+    @FXML
+    private Menu logicMenu;
+
+    @FXML
+    private Menu navigationMenu;
+
+    @FXML
+    private Menu windowCoordinates;
+
+    @FXML
+    private MenuButton viewPropertiesButton;
+
 
     private WindowPreferencesItem windowPreferencesItem;
     private IsaacPreferences preferencesNode;
@@ -247,13 +268,6 @@ public class KometStageController
         this.leftTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
         this.centerTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
         this.rightTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
-
-        pathMenu.getItems().clear();
-        // TODO, handle updates.
-        for (UuidStringKey key: FxGet.pathCoordinates().keySet()) {
-            MenuItem item = new MenuItem(key.getString());
-            this.pathMenu.getItems().add(item);
-        }
     }
 
     private List<MenuItem> getTaskMenuItems() {
@@ -396,12 +410,47 @@ public class KometStageController
         // TODO Modify skin to look for drag handling methods...
     }
 
+    private void updateMenus(Observable observable) {
+        this.windowCoordinates.getItems().clear();
+        this.pathMenu.getItems().clear();
+        for (UuidStringKey key: FxGet.pathCoordinates().keySet()) {
+            MenuItem item = new MenuItem(key.getString());
+            item.setUserData(FxGet.pathCoordinates().get(key));
+            item.setOnAction(event -> {
+                StampPathImmutable path = (StampPathImmutable) item.getUserData();
+                Platform.runLater(() -> this.viewProperties.getManifoldCoordinate().changeManifoldPath(path.getPathConceptNid()));
+                event.consume();
+            });
+            this.pathMenu.getItems().add(item);
+        }
+        setupOverrideMenu(this.viewProperties.getManifoldCoordinate(),
+                this.windowCoordinates.getItems(),
+                this.viewProperties.getManifoldCoordinate());
+    }
+
+    public static void setupOverrideMenu(ManifoldCoordinate manifoldCoordinate, ObservableList<MenuItem> menuItems, ObservableManifoldCoordinate observableManifoldCoordinate) {
+        setupOverrideMenu(manifoldCoordinate, menuItems, observableManifoldCoordinate.getBaseProperties(), observableManifoldCoordinate.getCompositeCoordinates());
+    }
+
+    private static void setupOverrideMenu(ManifoldCoordinate manifoldCoordinate, ObservableList<MenuItem> menuItems, Property<?>[] baseProperties, ObservableCoordinate<?>[] compositeCoordinates) {
+        for (Property<?> baseProperty: baseProperties) {
+            String propertyName = manifoldCoordinate.toPreferredConceptString(baseProperty.getName());
+            propertyName = propertyName + ": " + manifoldCoordinate.toPreferredConceptString(baseProperty.getValue());
+            menuItems.add(new MenuItem(propertyName));
+        }
+        for (ObservableCoordinate<?> compositeCoordinate: compositeCoordinates) {
+            Menu compositeMenu = new Menu(manifoldCoordinate.toPreferredConceptString(compositeCoordinate.getName()));
+            menuItems.add(compositeMenu);
+            setupOverrideMenu(manifoldCoordinate, compositeMenu.getItems(), compositeCoordinate.getBaseProperties(), compositeCoordinate.getCompositeCoordinates());
+        }
+    }
     /**
      * @param windowPreferencesItem preferences of the window.
      */
     public void setWindowPreferenceItem(WindowPreferencesItem windowPreferencesItem, Stage stage) throws BackingStoreException {
         this.windowPreferencesItem = windowPreferencesItem;
         this.viewProperties = windowPreferencesItem.getViewPropertiesForWindow();
+
         this.preferencesNode = windowPreferencesItem.getPreferenceNode();
         this.stage = stage;
         this.stage.getScene().getProperties().put(WindowPreferencePanel.Keys.WINDOW_UUID_STR, windowPreferencesItem.getPreferenceNode().name());
@@ -547,6 +596,10 @@ public class KometStageController
         this.windowPreferencesItem.rightTabSelectionProperty().bind(this.rightTabPane.getSelectionModel().selectedIndexProperty());
 
         this.windowSplitPane.setDividerPositions(this.windowPreferencesItem.dividerPositionsProperty().get());
+
+        this.updateMenus(null);
+        FxGet.pathCoordinates().addListener(this::updateMenus);
+        this.viewProperties.getManifoldCoordinate().addListener(this::updateMenus);
         Platform.runLater(() -> {
             // The initial layout seems to adjust the divider positions. Doing a runLater seems to put the
             // dividers in the right location.

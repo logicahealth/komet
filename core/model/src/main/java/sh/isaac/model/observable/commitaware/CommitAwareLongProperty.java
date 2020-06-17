@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.model.observable;
+package sh.isaac.model.observable.commitaware;
 
 //~--- non-JDK imports --------------------------------------------------------
 

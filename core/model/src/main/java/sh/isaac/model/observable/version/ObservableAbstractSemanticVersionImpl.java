@@ -51,7 +51,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;

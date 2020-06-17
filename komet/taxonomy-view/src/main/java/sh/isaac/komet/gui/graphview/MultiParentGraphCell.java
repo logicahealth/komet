@@ -219,7 +219,7 @@ final public class MultiParentGraphCell
                   ConceptChronology parentChronology = Get.concept(parentLink.getDestinationNid());
                   MultiParentGraphItemImpl extraParentItem = new MultiParentGraphItemImpl(parentChronology, treeItem.getGraphView(), parentLink.getTypeNid(), null);
                   ManifoldCoordinate manifold = treeItem.getGraphView().getManifoldCoordinate();
-                  extraParentItem.setDefined(parentChronology.isSufficientlyDefined(manifold.getStampFilter(), manifold.getLogicCoordinate()));
+                  extraParentItem.setDefined(parentChronology.isSufficientlyDefined(manifold.getVertexStampFilter(), manifold.getLogicCoordinate()));
                   extraParentItem.setMultiParentDepth(treeItem.getMultiParentDepth() + 1);
                   secondaryParentItems.add(extraParentItem);
                }

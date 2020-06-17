@@ -48,7 +48,7 @@ import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPositionImmutable;
 import sh.isaac.api.observable.coordinate.ObservableStampPosition;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.observable.SimpleEqualityBasedObjectProperty;
+import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedObjectProperty;
 
 import java.util.Objects;
 
@@ -62,14 +62,7 @@ import java.util.Objects;
  * @author kec
  */
 public class ObservableStampPositionImpl
-        extends ObservableCoordinateImpl<StampPositionImmutable>
-         implements ObservableStampPosition {
-
-   /** The time property. */
-   LongProperty timeProperty;
-
-   /** The stamp path nid property. */
-    ObjectProperty<ConceptSpecification> pathConceptProperty;
+        extends ObservableStampPositionBase {
 
    //~--- constructors --------------------------------------------------------
 
@@ -78,106 +71,24 @@ public class ObservableStampPositionImpl
     *
     * @param stampPosition the stamp position
     */
+   public ObservableStampPositionImpl(StampPositionImmutable stampPosition, String coordinateName) {
+      super(stampPosition, coordinateName);
+   }
    public ObservableStampPositionImpl(StampPositionImmutable stampPosition) {
-      super(stampPosition);
+      super(stampPosition, "Stamp position");
+   }
 
-      this.pathConceptProperty = new SimpleEqualityBasedObjectProperty(this,
+   protected ObjectProperty<ConceptSpecification> makePathConceptProperty(StampPosition stampPosition) {
+      return new SimpleEqualityBasedObjectProperty(this,
               ObservableFields.PATH_FOR_PATH_COORDINATE.toExternalString(),
               stampPosition.getPathConcept());
+   }
 
-      this.timeProperty = new SimpleLongProperty(this,
+   protected LongProperty makeTimeProperty(StampPosition stampPosition) {
+      return new SimpleLongProperty(this,
               ObservableFields.TIME_FOR_STAMP_POSITION.toExternalString(),
               stampPosition.getTime());
-
-      addListeners();
    }
 
-   @Override
-   protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends StampPositionImmutable> observable,
-                                                        StampPositionImmutable oldValue, StampPositionImmutable newValue) {
-      this.pathConceptProperty.setValue(newValue.getPathConcept());
-      this.timeProperty.set(newValue.getTime());
-   }
-
-   @Override
-   protected void addListeners() {
-      this.pathConceptProperty.addListener(this::pathConceptChanged);
-      this.timeProperty.addListener(this::timeChanged);
-   }
-
-   @Override
-   protected void removeListeners() {
-      this.pathConceptProperty.removeListener(this::pathConceptChanged);
-      this.timeProperty.removeListener(this::timeChanged);
-   }
-
-   //~--- methods -------------------------------------------------------------
-
-   @Override
-   public StampPositionImmutable getStampPosition() {
-      return getValue();
-   }
-
-   @Override
-   public StampPositionImmutable toStampPositionImmutable() {
-      return getValue();
-   }
-
-   private void timeChanged(ObservableValue<? extends Number> observable, Number oldValue, Number newTime) {
-      this.setValue(StampPositionImmutable.make(newTime.longValue(), getPathForPositionNid()));
-   }
-
-   private void pathConceptChanged(ObservableValue<? extends ConceptSpecification> observablePathConcept,
-                                   ConceptSpecification oldPathConcept,
-                                   ConceptSpecification newPathConcept) {
-      this.setValue(StampPositionImmutable.make(getTime(), newPathConcept.getNid()));
-   }
-    /**
-     * Filter path nid property.
-     *
-     * @return the integer property
-     */
-    @Override
-    public ObjectProperty<ConceptSpecification> pathConceptProperty() {
-         return this.pathConceptProperty;
-    }
-
-   /**
-    * Time property.
-    *
-    * @return the long property
-    */
-   @Override
-   public LongProperty timeProperty() {
-      return this.timeProperty;
-   }
-
-
-   /**
-    * To string.
-    *
-    * @return the string
-    */
-   @Override
-   public String toString() {
-      return "ObservableStampPositionImpl{" + this.getValue().toString() + '}';
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-
-   @Override
-   public boolean equals(Object o) {
-      if (this == o) return true;
-      if (o == null || !(o instanceof StampPosition)) return false;
-      StampPosition that = (StampPosition) o;
-      return this.getTime() == that.getTime() &&
-              this.getPathForPositionNid() == that.getPathForPositionNid();
-   }
-
-   @Override
-   public int hashCode() {
-      return Objects.hash(this.getTime(), this.getPathForPositionNid());
-   }
 }
 

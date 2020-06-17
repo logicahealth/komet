@@ -83,7 +83,7 @@ public interface LogicService {
    
    default ClassifierService getClassifierService(ManifoldCoordinate coordinate,
                                                   EditCoordinate editCoordinate) {
-      return getClassifierService(coordinate.getStampFilter(), coordinate.getLogicCoordinate(), editCoordinate);
+      return getClassifierService(coordinate.getLanguageStampFilter(), coordinate.getLogicCoordinate(), editCoordinate);
    }
 
    /**

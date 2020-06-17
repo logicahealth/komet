@@ -46,6 +46,9 @@ package sh.isaac.api.observable.coordinate;
 
 import javafx.beans.property.ObjectProperty;
 
+import javafx.beans.property.Property;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.*;
 
 //~--- interfaces -------------------------------------------------------------
@@ -58,21 +61,28 @@ import sh.isaac.api.coordinate.*;
 public interface ObservableManifoldCoordinate
         extends ManifoldCoordinate, ObservableCoordinate<ManifoldCoordinateImmutable> {
 
+   default Property<?>[] getBaseProperties() {
+      return new Property<?>[] {};
+   }
+
+   default ObservableCoordinate<?>[] getCompositeCoordinates() {
+      return new ObservableCoordinate<?>[]{
+              getDigraph()
+      };
+   }
 
    @Override
    ObservableDigraphCoordinate getDigraph();
 
    @Override
-   ObservableLogicCoordinate getLogicCoordinate();
+   default ObservableLogicCoordinate getLogicCoordinate() {
+      return getDigraph().getLogicCoordinate();
+   }
 
    @Override
-   ObservableLanguageCoordinate getLanguageCoordinate();
-
-   /**
-    *
-    * @return the vertexSort property.
-    */
-   ObjectProperty<VertexSort> vertexSortProperty();
+   default ObservableLanguageCoordinate getLanguageCoordinate() {
+      return getDigraph().getLanguageCoordinate();
+   }
 
    /**
     *
@@ -82,20 +92,32 @@ public interface ObservableManifoldCoordinate
 
    /**
     * In most cases all stamp filters will be the same.
-    * @return the digraph edge stamp filter services as the default stamp filter.
-    */
-   ObservableStampFilter getStampFilter();
-
-   /**
-    * In most cases all stamp filters will be the same.
     * @return the digraph vertex stamp filter services as the default stamp filter.
     */
-   ObservableStampFilter getLanguageStampFilter();
+   default ObservableStampFilter getLanguageStampFilter() {
+      return getDigraph().getLanguageStampFilter();
+   }
 
-   ObservableStampFilter getVertexStampFilter();
+   default ObservableStampFilter getVertexStampFilter() {
+      return getDigraph().getVertexStampFilter();
+   }
 
-   ObservableStampFilter getEdgeStampFilter();
+   default ObservableStampFilter getEdgeStampFilter() {
+      return getDigraph().getEdgeStampFilter();
+   }
 
+   default void changeManifoldPath(ConceptSpecification pathConcept) {
+      getEdgeStampFilter().pathConceptProperty().set(pathConcept);
+      getLanguageStampFilter().pathConceptProperty().set(pathConcept);
+      getVertexStampFilter().pathConceptProperty().set(pathConcept);
+   }
+
+   /**
+    * Will change all contained paths (vertex, edge, and language), to the provided path.
+    */
+   default void changeManifoldPath(int pathConceptNid) {
+      changeManifoldPath(Get.concept(pathConceptNid));
+   }
 
 }
 

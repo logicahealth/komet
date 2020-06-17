@@ -33,9 +33,9 @@ public abstract class DetailNodeAbstract extends ExplorationNodeAbstract impleme
     protected final SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty(0);
 
     /**
-     * Not that if you don't declare a listener as final in this way, and just use method references, or
-     * a direct lambda expression, you will not be able to remove the listener, since each reference will create
-     * a new method reference, and they won't compare equal using object identity.
+     * Note that if you don't declare a listener as final in this way, and just use method references, or
+     * a direct lambda expression, you will not be able to remove the listener, since each method reference will create
+     * a new object, and they won't compare equal using object identity.
      * https://stackoverflow.com/questions/42146360/how-do-i-remove-lambda-expressions-method-handles-that-are-used-as-listeners
      */
     private final ListChangeListener<? super IdentifiedObject> selectionChangedListener = this::selectionChanged;

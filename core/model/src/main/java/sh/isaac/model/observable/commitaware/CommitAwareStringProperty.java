@@ -37,30 +37,53 @@
 
 
 
-package sh.isaac.model.observable;
+package sh.isaac.model.observable.commitaware;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.SimpleStringProperty;
 
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class CommitAwareObjectProperty.
+ * The Class CommitAwareStringProperty.
  *
  * @author kec
- * @param <T> the generic type
  */
-public class CommitAwareObjectProperty<T>
-        extends SimpleObjectProperty<T> {
+public class CommitAwareStringProperty
+        extends SimpleStringProperty {
    /**
-    * Instantiates a new commit aware object property.
+    * Instantiates a new commit aware string property.
+    */
+   public CommitAwareStringProperty() {}
+
+   /**
+    * Instantiates a new commit aware string property.
+    *
+    * @param initialValue the initial value
+    */
+   public CommitAwareStringProperty(String initialValue) {
+      super(initialValue);
+   }
+
+   /**
+    * Instantiates a new commit aware string property.
+    *
+    * @param bean the bean
+    * @param name the name
+    */
+   public CommitAwareStringProperty(Object bean, String name) {
+      super(bean, name);
+   }
+
+   /**
+    * Instantiates a new commit aware string property.
     *
     * @param bean the bean
     * @param name the name
     * @param initialValue the initial value
     */
-   public CommitAwareObjectProperty(Object bean, String name, T initialValue) {
+   public CommitAwareStringProperty(Object bean, String name, String initialValue) {
       super(bean, name, initialValue);
    }
 
@@ -72,11 +95,11 @@ public class CommitAwareObjectProperty<T>
     * @param newValue the new value
     */
    @Override
-   public void set(T newValue) {
-      if (!newValue.equals(getValue())) {
-        CommitAwareIntegerProperty.checkChangesAllowed(getBean());
-        super.set(newValue);
-      }
+   public void set(String newValue) {
+       if (!newValue.equals(get())) {
+            CommitAwareIntegerProperty.checkChangesAllowed(getBean());
+            super.set(newValue);
+       }
    }
 
    /**
@@ -85,11 +108,11 @@ public class CommitAwareObjectProperty<T>
     * @param v the new value
     */
    @Override
-   public void setValue(T v) {
-      if (!v.equals(getValue())) {
-        CommitAwareIntegerProperty.checkChangesAllowed(getBean());
-        super.setValue(v);
-      }
+   public void setValue(String v) {
+       if (!v.equals(get())) {
+            CommitAwareIntegerProperty.checkChangesAllowed(getBean());
+            super.setValue(v);
+       }
    }
 }
 

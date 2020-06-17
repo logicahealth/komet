@@ -442,18 +442,8 @@ public class Manifold
     }
 
     @Override
-    public ObjectProperty<VertexSort> vertexSortProperty() {
-        return this.observableManifoldCoordinate.vertexSortProperty();
-    }
-
-    @Override
     public ObjectProperty<DigraphCoordinateImmutable> digraphCoordinateImmutableProperty() {
         return this.observableManifoldCoordinate.digraphCoordinateImmutableProperty();
-    }
-
-    @Override
-    public ObservableStampFilter getStampFilter() {
-        return this.observableManifoldCoordinate.getStampFilter();
     }
 
     @Override

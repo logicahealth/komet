@@ -91,7 +91,7 @@ public class ConceptSnapshotImpl
       this.conceptChronology  = conceptChronology;
       this.manifoldCoordinate    = manifoldCoordinate;
 
-      final LatestVersion<ConceptVersion> latestVersion = manifoldCoordinate.getStampFilter()
+      final LatestVersion<ConceptVersion> latestVersion = manifoldCoordinate.getVertexStampFilter()
               .getRelativePositionCalculator().getLatestVersion(conceptChronology);
       this.snapshotVersion = latestVersion;
    }
@@ -313,11 +313,6 @@ public class ConceptSnapshotImpl
     @Override
     public DigraphCoordinate getDigraph() {
         return this.manifoldCoordinate.getDigraph();
-    }
-
-    @Override
-    public StampFilter getStampFilter() {
-        return manifoldCoordinate.getStampFilter();
     }
 
     @Override

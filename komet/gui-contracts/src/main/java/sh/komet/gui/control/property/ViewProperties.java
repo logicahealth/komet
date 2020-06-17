@@ -26,13 +26,16 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.EditCoordinateImmutable;
 import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampFilter;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.komet.gui.interfaces.EditInFlight;
 
@@ -77,17 +80,18 @@ public class ViewProperties {
         VIEW_PROPERTIES_UUID,
         VIEW_NAME,
         VIEW_MANIFOLD_COORDINATE,
+        VIEW_EDIT_COORDINATE,
     }
 
     private static final HashMap<String, Supplier<Node>> ICONOGRAPHIC_SUPPLIER = new HashMap<>();
 
     static {
-        ICONOGRAPHIC_SUPPLIER.put(UNLINKED, () -> new Label());
+        ICONOGRAPHIC_SUPPLIER.put(UNLINKED, () -> Iconography.LINK_BROKEN.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(SEARCH, () -> Iconography.SIMPLE_SEARCH.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(NAVIGATION, () -> Iconography.TAXONOMY_ICON.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(FLWOR, () -> Iconography.FLWOR_SEARCH.getIconographic());
-        ICONOGRAPHIC_SUPPLIER.put(CORRELATION, () -> new Label("C"));
-        ICONOGRAPHIC_SUPPLIER.put(ANY, () -> new Label("*"));
+        ICONOGRAPHIC_SUPPLIER.put(CORRELATION, () -> new Label(" C"));
+        ICONOGRAPHIC_SUPPLIER.put(ANY, () -> new Label(" *"));
         ICONOGRAPHIC_SUPPLIER.put(CLASSIFICATION, () -> Iconography.INFERRED.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(LIST, () -> Iconography.LIST.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(CONCEPT_BUILDER, () -> Iconography.NEW_CONCEPT.getIconographic());
@@ -106,14 +110,17 @@ public class ViewProperties {
 
     private final UUID viewUuid;
     private final ObservableManifoldCoordinate manifoldCoordinate;
+    private final ObservableEditCoordinate editCoordinate;
 
     SimpleStringProperty viewNameProperty = new SimpleStringProperty();
     ObservableMap<String, ActivityFeed> activityFeedMap = FXCollections.observableHashMap();
 
 
-    private ViewProperties(UUID viewUuid, String viewName, ObservableManifoldCoordinate observableManifoldCoordinate) {
+    private ViewProperties(UUID viewUuid, String viewName, ObservableManifoldCoordinate observableManifoldCoordinate,
+                           ObservableEditCoordinate editCoordinate) {
         this.viewUuid = viewUuid;
         this.manifoldCoordinate = observableManifoldCoordinate;
+        this.editCoordinate = editCoordinate;
         this.viewNameProperty.set(viewName);
 
         activityFeedMap.put(UNLINKED, ActivityFeed.createActivityFeed(this, UNLINKED));
@@ -168,8 +175,11 @@ public class ViewProperties {
         }
     }
 
-    public static ViewProperties make(UUID viewUuid, String viewName, ObservableManifoldCoordinate providedManifold) {
-        return SINGLETONS.computeIfAbsent(viewUuid, uuid -> new ViewProperties(uuid, viewName, providedManifold));
+    public static ViewProperties make(UUID viewUuid,
+                                      String viewName,
+                                      ObservableManifoldCoordinate providedManifold,
+                                      ObservableEditCoordinate observableEditCoordinate) {
+        return SINGLETONS.computeIfAbsent(viewUuid, uuid -> new ViewProperties(uuid, viewName, providedManifold, observableEditCoordinate));
     }
 
     public static ViewProperties make(IsaacPreferences preferencesNode) {
@@ -185,19 +195,32 @@ public class ViewProperties {
         if (optionalManifoldData.isEmpty()) {
             throw new IllegalStateException(Keys.VIEW_MANIFOLD_COORDINATE + " for ViewProperties not initialized: " + preferencesNode);
         }
+        Optional<byte[]> optionalEditCoordinateData = preferencesNode.getByteArray(Keys.VIEW_EDIT_COORDINATE);
+        if (optionalManifoldData.isEmpty()) {
+            throw new IllegalStateException(Keys.VIEW_EDIT_COORDINATE + " for ViewProperties not initialized: " + preferencesNode);
+        }
+
         return SINGLETONS.computeIfAbsent(optionalViewUuid.get(), uuid ->
                 new ViewProperties(uuid,
                         optionalViewName.get(),
-                        new ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable.make(new ByteArrayDataBuffer(optionalManifoldData.get())))));
+                        new ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable.make(new ByteArrayDataBuffer(optionalManifoldData.get()))),
+                        new ObservableEditCoordinateImpl(EditCoordinateImmutable.make(new ByteArrayDataBuffer(optionalEditCoordinateData.get())))
+                        ));
     }
 
     public void save(IsaacPreferences preferencesNode) {
         preferencesNode.putUuid(Keys.VIEW_PROPERTIES_UUID, this.getViewUuid());
         preferencesNode.put(Keys.VIEW_NAME, this.getViewName());
-        ByteArrayDataBuffer buff = new ByteArrayDataBuffer();
-        this.getManifoldCoordinate().getValue().marshal(buff);
-        buff.trimToSize();
-        preferencesNode.putByteArray(Keys.VIEW_MANIFOLD_COORDINATE, buff.getData());
+
+        ByteArrayDataBuffer manifoldBuff = new ByteArrayDataBuffer();
+        this.getManifoldCoordinate().getValue().marshal(manifoldBuff);
+        manifoldBuff.trimToSize();
+        preferencesNode.putByteArray(Keys.VIEW_MANIFOLD_COORDINATE, manifoldBuff.getData());
+
+        ByteArrayDataBuffer editBuff = new ByteArrayDataBuffer();
+        this.getEditCoordinate().getValue().marshal(editBuff);
+        editBuff.trimToSize();
+        preferencesNode.putByteArray(Keys.VIEW_EDIT_COORDINATE, editBuff.getData());
     }
 
     public ObservableMap<String, ActivityFeed> getActivityFeedMap() {
@@ -208,6 +231,9 @@ public class ViewProperties {
         return this.manifoldCoordinate;
     }
 
+    public ObservableEditCoordinate getEditCoordinate() {
+        return this.editCoordinate;
+    }
 
     public String getPreferredDescriptionText(int conceptNid) {
         return getManifoldCoordinate().getPreferredDescriptionText(conceptNid);
@@ -255,6 +281,6 @@ public class ViewProperties {
     }
 
     public ObservableStampFilter getStampFilter() {
-        return getManifoldCoordinate().getStampFilter();
+        return getManifoldCoordinate().getVertexStampFilter();
     }
 }

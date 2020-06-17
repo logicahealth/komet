@@ -35,7 +35,7 @@
  *
  */
 
-package sh.isaac.model.observable;
+package sh.isaac.model.observable.commitaware;
 
 import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
