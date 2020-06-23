@@ -33,7 +33,9 @@ public class SimpleEqualityBasedListProperty<T> extends SimpleListProperty<T> {
 
     @Override
     public void set(ObservableList<T> newValue) {
-        if (this.getValue().equals(newValue) == false) {
+        if (this.getValue() == null) {
+            super.set(newValue);
+        } else if (this.getValue().equals(newValue) == false) {
             super.set(newValue);
         }
     }

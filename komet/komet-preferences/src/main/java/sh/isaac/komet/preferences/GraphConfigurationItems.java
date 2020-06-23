@@ -17,12 +17,9 @@
 package sh.isaac.komet.preferences;
 
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.coordinate.*;
 import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.util.FxGet;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +27,6 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 
 import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.*;
-import static sh.isaac.komet.preferences.coordinate.ManifoldCoordinateGroupPanel.*;
 import static sh.komet.gui.contract.preferences.GraphConfigurationItem.*;
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 
@@ -50,27 +46,27 @@ public class GraphConfigurationItems extends ParentPanel  {
 
             // inferred Preferred
             {
-                IsaacPreferences childPreferences = getPreferencesNode().node(PREMISE_DAG.getUuid().toString());
-                childPreferences.put(GROUP_NAME, PREMISE_DAG.getString());
-                childPreferences.put(ITEM_NAME, PREMISE_DAG.getString());
+                IsaacPreferences childPreferences = getPreferencesNode().node(PREMISE_DIGRAPH.getUuid().toString());
+                childPreferences.put(GROUP_NAME, PREMISE_DIGRAPH.getString());
+                childPreferences.put(ITEM_NAME, PREMISE_DIGRAPH.getString());
                 childPreferences.putConceptList(ROOTS, List.of(TermAux.SOLOR_ROOT));
                 childPreferences.putConceptList(TREES, new ArrayList<>());
                 childPreferences.putConceptList(INVERSE_TREES, new ArrayList<>());
                 childPreferences.putBoolean(INCLUDE_DEFINING_TAXONOMY, true);
-                childPreferences = addChild(PREMISE_DAG.getUuid().toString(), GraphConfigurationItemPanel.class);
+                childPreferences = addChild(PREMISE_DIGRAPH.getUuid().toString(), GraphConfigurationItemPanel.class);
                 new GraphConfigurationItemPanel(childPreferences, viewProperties, kpc);
             }
 
             // Path tree
             {
-                IsaacPreferences childPreferences = getPreferencesNode().node(PATH_TREE.getUuid().toString());
-                childPreferences.put(GROUP_NAME, PATH_TREE.getString());
-                childPreferences.put(ITEM_NAME, PATH_TREE.getString());
+                IsaacPreferences childPreferences = getPreferencesNode().node(PATH_DIGRAPH.getUuid().toString());
+                childPreferences.put(GROUP_NAME, PATH_DIGRAPH.getString());
+                childPreferences.put(ITEM_NAME, PATH_DIGRAPH.getString());
                 childPreferences.putConceptList(ROOTS, List.of(TermAux.PRIMORDIAL_PATH));
                 childPreferences.putConceptList(TREES, Arrays.asList(TermAux.PATH_ORIGIN_ASSEMBLAGE));
                 childPreferences.putConceptList(INVERSE_TREES, new ArrayList<>());
                 childPreferences.putBoolean(INCLUDE_DEFINING_TAXONOMY, false);
-                childPreferences = addChild(PATH_TREE.getUuid().toString(), GraphConfigurationItemPanel.class);
+                childPreferences = addChild(PATH_DIGRAPH.getUuid().toString(), GraphConfigurationItemPanel.class);
                 new GraphConfigurationItemPanel(childPreferences, viewProperties, kpc);
             }
 

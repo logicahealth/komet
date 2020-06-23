@@ -36,7 +36,7 @@ public class VertexSortPreferredNameNoSort implements VertexSort, Marshalable {
     }
 
     @Override
-    public int[] sortVertexes(int[] vertexConceptNids, DigraphCoordinateImmutable digraph) {
+    public int[] sortVertexes(int[] vertexConceptNids, ManifoldCoordinateImmutable manifold) {
         return vertexConceptNids;
     }
 

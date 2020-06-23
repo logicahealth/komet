@@ -66,4 +66,5 @@ public class VertexSortPreferredName extends VertexSortAbstract implements Marsh
         out.putInt(marshalVersion);
         // No fields...
     }
+
 }

@@ -41,9 +41,9 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
         }
         if (newValue == null) {
             overridden = false;
-            super.setValue(this.overriddenProperty.getValue());
+            super.set(this.overriddenProperty.getValue());
         } else {
-            super.setValue(newValue);
+            super.set(newValue);
         }
     }
 

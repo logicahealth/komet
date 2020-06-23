@@ -213,24 +213,6 @@ public final class StampPositionImmutable
         return sb.toString();
     }
 
-
-    public String toUserString() {
-        final StringBuilder sb = new StringBuilder();
-
-
-        if (this.time == Long.MAX_VALUE) {
-            sb.append("latest");
-        } else if (this.time == Long.MIN_VALUE) {
-            sb.append("CANCELED");
-        } else {
-            sb.append(getTimeAsInstant());
-        }
-
-        sb.append(" on '")
-                .append(Get.conceptDescriptionText(this.pathForPositionNid));
-        return sb.toString();
-    }
-
     public ImmutableSet<StampPositionImmutable> getPathOrigins() {
         if (this.stampPath == null) {
             this.stampPath = StampPathImmutable.make(getPathForPositionNid());

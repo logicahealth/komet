@@ -64,6 +64,7 @@ import javafx.scene.control.Label;
 import sh.isaac.MetaData;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.coordinate.*;
@@ -71,7 +72,6 @@ import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.EditInFlight;
 
 //~--- classes ----------------------------------------------------------------
@@ -94,7 +94,9 @@ import sh.komet.gui.interfaces.EditInFlight;
  * TODO: Handle clearing the concept snapshot if any dependent fields are invalidated.
  *
  * @author kec
+ *
  */
+@Deprecated // Use ViewProperties instead.
 public class Manifold
         implements ObservableManifoldCoordinate {
 
@@ -427,8 +429,8 @@ public class Manifold
     }
 
     @Override
-    public ObservableDigraphCoordinate getDigraph() {
-        return this.observableManifoldCoordinate.getDigraph();
+    public ObservableNavigationCoordinate getNavigationCoordinate() {
+        return this.observableManifoldCoordinate.getNavigationCoordinate();
     }
 
     @Override
@@ -442,8 +444,8 @@ public class Manifold
     }
 
     @Override
-    public ObjectProperty<DigraphCoordinateImmutable> digraphCoordinateImmutableProperty() {
-        return this.observableManifoldCoordinate.digraphCoordinateImmutableProperty();
+    public ObjectProperty<NavigationCoordinateImmutable> navigationCoordinateImmutableProperty() {
+        return this.observableManifoldCoordinate.navigationCoordinateImmutableProperty();
     }
 
     @Override
@@ -534,6 +536,36 @@ public class Manifold
     @Override
     public ManifoldCoordinateImmutable toManifoldCoordinateImmutable() {
         return this.observableManifoldCoordinate.getValue();
+    }
+
+    @Override
+    public ObjectProperty<StampFilterImmutable> vertexStampFilterProperty() {
+        return this.observableManifoldCoordinate.vertexStampFilterProperty();
+    }
+
+    @Override
+    public ObjectProperty<StampFilterImmutable> edgeStampFilterProperty() {
+        return this.observableManifoldCoordinate.edgeStampFilterProperty();
+    }
+
+    @Override
+    public ObjectProperty<StampFilterImmutable> languageStampFilterProperty() {
+        return this.observableManifoldCoordinate.languageStampFilterProperty();
+    }
+
+    @Override
+    public ObjectProperty<LanguageCoordinateImmutable> languageCoordinateProperty() {
+        return this.observableManifoldCoordinate.languageCoordinateProperty();
+    }
+
+    @Override
+    public ObjectProperty<VertexSort> vertexSortProperty() {
+        return this.observableManifoldCoordinate.vertexSortProperty();
+    }
+
+    @Override
+    public TaxonomySnapshot getDigraphSnapshot() {
+        return this.observableManifoldCoordinate.getDigraphSnapshot();
     }
 }
 

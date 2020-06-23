@@ -34,14 +34,14 @@ public class SimpleEqualityBasedSetProperty<T> extends SimpleSetProperty<T> {
 
     @Override
     public void set(ObservableSet<T> newValue) {
-        if (this.getValue().equals(newValue) == false) {
+        if (this.getValue() == null || this.getValue().equals(newValue) == false) {
             super.set(newValue);
         }
     }
 
     @Override
     public void setValue(ObservableSet<T> newValue) {
-        if (this.getValue().equals(newValue) == false) {
+        if (this.getValue() == null || this.getValue().equals(newValue) == false) {
             super.setValue(newValue);
         }
     }

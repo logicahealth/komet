@@ -12,13 +12,14 @@ import sh.komet.gui.util.FxGet;
 
 public class LineageTree {
     public static TreeView<String> makeLineageTree(ConceptChronology chronology, Manifold manifold) {
-        TaxonomySnapshot snapshot = FxGet.graphSnapshot(FxGet.defaultViewKey());
-        TreeView<String> treeView = new TreeView<>();
-        TreeItem<String> root = new TreeItem<>(manifold.getPreferredDescriptionText(chronology));
-        addChildren(root, chronology, snapshot, manifold);
-
-        treeView.setRoot(root);
-        return treeView;
+        throw new UnsupportedOperationException();
+//        TaxonomySnapshot snapshot = FxGet.graphSnapshot(FxGet.defaultViewKey());
+//        TreeView<String> treeView = new TreeView<>();
+//        TreeItem<String> root = new TreeItem<>(manifold.getPreferredDescriptionText(chronology));
+//        addChildren(root, chronology, snapshot, manifold);
+//
+//        treeView.setRoot(root);
+//        return treeView;
     }
 
     private static void addChildren(TreeItem<String> parentTreeItem, ConceptChronology parentConcept, TaxonomySnapshot snapshot, Manifold manifold) {

@@ -51,6 +51,7 @@ import sh.isaac.api.StaticIsaacCache;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.util.UuidT5Generator;
 
@@ -115,6 +116,9 @@ public enum ObservableFields
    STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("Stated assemblage nid for logic coordinate", "Stated assemblage"),
 
    DIGRAPH_FOR_LOGIC_COORDINATE("Digraph for logic coordinate", "Digraph for logic coordinate"),
+
+   ROOT_FOR_LOGIC_COORDINATE("Root for logic coordinate", "root"),
+
    /** The inferred assemblage nid for logic coordinate. */
    INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("Inferred assemblage nid for logic coordinate", "Inferred assemblage"),
 
@@ -179,10 +183,10 @@ public enum ObservableFields
 
    VERTEX_SORT_PROPERTY("Vertex sort for manifold", "Vertex sort"),
    DIGRAPH_PROPERTY("Digraph for manifold", "Digraph"),
-   EDGE_FILTER_FOR_DIGRAPH("Edge STAMP filter for digraph", "Edge filter"),
-   VERTEX_FILTER_FOR_DIGRAPH("Vertex STAMP filter for digraph", "Vertex filter"),
-   LANGUAGE_FILTER_FOR_DIGRAPH("Language STAMP filter for digraph", "Language filter"),
-   STAMP_FILTER_FOR_PATH("Filter filter for manifold", "Filter filter"),
+   EDGE_FILTER_FOR_DIGRAPH("Edge STAMP filter for manifold", "Edge filter"),
+   VERTEX_FILTER_FOR_DIGRAPH("Vertex STAMP filter for manifold", "Vertex filter"),
+   LANGUAGE_FILTER_FOR_DIGRAPH("Language STAMP filter for manifold", "Language filter"),
+   STAMP_FILTER_FOR_PATH("Stamp filter for path", "Stamp filter"),
 
    /** The uuid for taxonomy coordinate. */
    UUID_FOR_TAXONOMY_COORDINATE("UUID for taxonomy coordinate", "ImmutableCoordinate UUID"),

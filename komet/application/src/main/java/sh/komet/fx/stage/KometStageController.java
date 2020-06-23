@@ -39,7 +39,6 @@ package sh.komet.fx.stage;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.Observable;
-import javafx.beans.property.Property;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -62,11 +61,9 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampPathImmutable;
 import sh.isaac.api.identity.IdentifiedObject;
-import sh.isaac.api.observable.coordinate.ObservableCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableNavigationCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.NaturalOrder;
@@ -84,7 +81,6 @@ import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.importation.ArtifactImporter;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
@@ -152,6 +148,9 @@ public class KometStageController
     private GridPane topGridPane;                      // Value injected by FXMLLoader
     @FXML                                                                          // fx:id="classifierMenuButton"
     private MenuButton classifierMenuButton;             // Value injected by FXMLLoader
+
+    @FXML
+    private Label pathLabel;
 
     @FXML
     private Menu pathMenu;
@@ -314,7 +313,7 @@ public class KometStageController
             completeClassify.setOnAction((ActionEvent event) -> {
                 //TODO change how we get the edit coordinate. 
                 EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-                ClassifierService classifierService = Get.logicService().getClassifierService(FxGet.manifold(ManifoldGroup.SEARCH), editCoordinate);
+                ClassifierService classifierService = Get.logicService().getClassifierService(this.viewProperties.getManifoldCoordinate(), editCoordinate);
                 classifierService.classify();
             });
             items.add(completeClassify);
@@ -423,33 +422,39 @@ public class KometStageController
             });
             this.pathMenu.getItems().add(item);
         }
-        setupOverrideMenu(this.viewProperties.getManifoldCoordinate(),
+        this.navigationMenu.getItems().clear();
+
+        for (ConceptSpecification navOption: FxGet.navigationOptions()) {
+            ObservableNavigationCoordinate digraphCoordinate = this.viewProperties.getManifoldCoordinate().getNavigationCoordinate();
+            CheckMenuItem item = new CheckMenuItem(this.viewProperties.getManifoldCoordinate().getPreferredDescriptionText(navOption));
+            item.setSelected(digraphCoordinate.getNavigationConceptNids().contains(navOption.getNid()));
+            if (!item.isSelected()) {
+                item.setOnAction(event -> {
+                    Platform.runLater(() -> {
+                        digraphCoordinate.navigatorIdentifierConceptsProperty().clear();
+                        digraphCoordinate.navigatorIdentifierConceptsProperty().add(navOption);
+                    });
+                    event.consume();
+                });
+            }
+            this.navigationMenu.getItems().add(item);
+        }
+
+        FxGet.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(),
                 this.windowCoordinates.getItems(),
                 this.viewProperties.getManifoldCoordinate());
     }
 
-    public static void setupOverrideMenu(ManifoldCoordinate manifoldCoordinate, ObservableList<MenuItem> menuItems, ObservableManifoldCoordinate observableManifoldCoordinate) {
-        setupOverrideMenu(manifoldCoordinate, menuItems, observableManifoldCoordinate.getBaseProperties(), observableManifoldCoordinate.getCompositeCoordinates());
-    }
-
-    private static void setupOverrideMenu(ManifoldCoordinate manifoldCoordinate, ObservableList<MenuItem> menuItems, Property<?>[] baseProperties, ObservableCoordinate<?>[] compositeCoordinates) {
-        for (Property<?> baseProperty: baseProperties) {
-            String propertyName = manifoldCoordinate.toPreferredConceptString(baseProperty.getName());
-            propertyName = propertyName + ": " + manifoldCoordinate.toPreferredConceptString(baseProperty.getValue());
-            menuItems.add(new MenuItem(propertyName));
-        }
-        for (ObservableCoordinate<?> compositeCoordinate: compositeCoordinates) {
-            Menu compositeMenu = new Menu(manifoldCoordinate.toPreferredConceptString(compositeCoordinate.getName()));
-            menuItems.add(compositeMenu);
-            setupOverrideMenu(manifoldCoordinate, compositeMenu.getItems(), compositeCoordinate.getBaseProperties(), compositeCoordinate.getCompositeCoordinates());
-        }
-    }
     /**
      * @param windowPreferencesItem preferences of the window.
      */
     public void setWindowPreferenceItem(WindowPreferencesItem windowPreferencesItem, Stage stage) throws BackingStoreException {
         this.windowPreferencesItem = windowPreferencesItem;
         this.viewProperties = windowPreferencesItem.getViewPropertiesForWindow();
+        this.pathLabel.setText(this.viewProperties.getManifoldCoordinate().getPathString());
+        this.viewProperties.getManifoldCoordinate().addListener(observable -> {
+            this.pathLabel.setText(this.viewProperties.getManifoldCoordinate().getPathString());
+        });
 
         this.preferencesNode = windowPreferencesItem.getPreferenceNode();
         this.stage = stage;
@@ -473,8 +478,6 @@ public class KometStageController
                                         activityFeed.getFeedName() + " selected: " + buff.toString());
                     });
         }
-
-
 
         if (windowPreferencesItem.getPersonaItem() != null) {
             PersonaItem personaItem = windowPreferencesItem.getPersonaItem();

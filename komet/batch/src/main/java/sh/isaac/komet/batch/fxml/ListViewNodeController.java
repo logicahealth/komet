@@ -84,10 +84,10 @@ public class ListViewNodeController implements ComponentList {
         this.viewProperties = viewProperties;
         this.activityFeed = activityFeed;
 
-        this.viewChoiceBox.setItems(FxGet.graphConfigurationKeys());
+        //this.viewChoiceBox.setItems(FxGet.graphConfigurationKeys());
         this.viewChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             //TODO viewChoiceBox may be obsolete
-            GraphAmalgamWithManifold graphAmalgamWithManifold = FxGet.graphConfiguration(newValue);
+            //GraphAmalgamWithManifold graphAmalgamWithManifold = FxGet.graphConfiguration(newValue);
             this.versionTable = new VersionTable(this.viewProperties);
             this.versionTable.setViewProperties(this.viewProperties);
         });

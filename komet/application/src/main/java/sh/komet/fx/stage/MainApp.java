@@ -191,7 +191,7 @@ public class MainApp
 
                 for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
                     if (mp.getParentMenus().contains(ap)) {
-                        for (MenuItem mi : mp.getMenuItems(ap, primaryStage.getOwner())) {
+                        for (MenuItem mi : mp.getMenuItems(ap, primaryStage.getOwner(), windowPreference)) {
                             ap.getMenu().getItems().add(mi);
                         }
                     }
@@ -230,7 +230,7 @@ public class MainApp
                     case WINDOW:
                         Menu newWindowMenu = AppMenu.NEW_WINDOW.getMenu();
                         AppMenu.WINDOW.getMenu().getItems().add(newWindowMenu);
-                        updateNewWindowMenu();
+                        updateNewWindowMenu(windowPreference);
 
                         break;
                     case HELP:
@@ -338,7 +338,7 @@ public class MainApp
         AppMenu.NEW_WINDOW.getMenu().getItems().addAll(menuItems);
     }
 
-    private void updateNewWindowMenu() {
+    private void updateNewWindowMenu(WindowPreferencesItem windowPreference) {
         Menu newWindowMenu = AppMenu.NEW_WINDOW.getMenu();
         newWindowMenu.getItems().clear();
         List<MenuItem> itemsToAdd = new ArrayList<>();
@@ -349,7 +349,7 @@ public class MainApp
             itemsToAdd.add(newStatementWindowItem);
             for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
                 if (mp.getParentMenus().contains(AppMenu.NEW_WINDOW)) {
-                    for (MenuItem menuItem : mp.getMenuItems(AppMenu.NEW_WINDOW, primaryStage.getOwner())) {
+                    for (MenuItem menuItem : mp.getMenuItems(AppMenu.NEW_WINDOW, primaryStage.getOwner(), windowPreference)) {
                         menuItem.getProperties().put(MenuProvider.PARENT_PREFERENCES, FxGet.configurationNode(RootPreferences.class));
                         newWindowMenu.getItems().add(menuItem);
                     }

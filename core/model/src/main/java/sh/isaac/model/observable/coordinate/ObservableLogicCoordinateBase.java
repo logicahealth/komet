@@ -78,6 +78,9 @@ public abstract class ObservableLogicCoordinateBase
     /** The concept assemblage property. */
     final ObjectProperty<ConceptSpecification> digraphIdentityProperty;
 
+    /** The classifier property. */
+    final ObjectProperty<ConceptSpecification> rootConceptProperty;
+
     //~--- constructors --------------------------------------------------------
     /**
      * Note that if you don't declare a listener as final in this way, and just use method references, or
@@ -91,6 +94,7 @@ public abstract class ObservableLogicCoordinateBase
     private final ChangeListener<ConceptSpecification> inferredAssemblageListener = this::inferredAssemblageChanged;
     private final ChangeListener<ConceptSpecification> statedAssemblageListener = this::statedAssemblageChanged;
     private final ChangeListener<ConceptSpecification> digraphIdentityListener = this::digraphIdentityChanged;
+    private final ChangeListener<ConceptSpecification> rootConceptListener = this::rootConceptChanged;
 
    /**
     * Instantiates a new observable logic coordinate impl.
@@ -112,6 +116,8 @@ public abstract class ObservableLogicCoordinateBase
 
        this.digraphIdentityProperty = makeDigraphIdentityProperty(logicCoordinate);
 
+       this.rootConceptProperty = makeRootConceptProperty(logicCoordinate);
+
        addListeners();
 
    }
@@ -122,6 +128,7 @@ public abstract class ObservableLogicCoordinateBase
     protected abstract ObjectProperty<ConceptSpecification> makeInferredAssemblageProperty(LogicCoordinate logicCoordinate);
     protected abstract ObjectProperty<ConceptSpecification> makeStatedAssemblageProperty(LogicCoordinate logicCoordinate);
     protected abstract ObjectProperty<ConceptSpecification> makeDigraphIdentityProperty(LogicCoordinate logicCoordinate);
+    protected abstract ObjectProperty<ConceptSpecification> makeRootConceptProperty(LogicCoordinate logicCoordinate);
 
     @Override
     protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends LogicCoordinateImmutable> observable, LogicCoordinateImmutable oldValue, LogicCoordinateImmutable newValue) {
@@ -131,6 +138,7 @@ public abstract class ObservableLogicCoordinateBase
         this.inferredAssemblageProperty.setValue(newValue.getInferredAssemblage());
         this.statedAssemblageProperty.setValue(newValue.getStatedAssemblage());
         this.digraphIdentityProperty.setValue(newValue.getDigraphIdentity());
+        this.rootConceptProperty.setValue(newValue.getRoot());
     }
 
     @Override
@@ -141,6 +149,7 @@ public abstract class ObservableLogicCoordinateBase
         this.inferredAssemblageProperty.addListener(this.inferredAssemblageListener);
         this.statedAssemblageProperty.addListener(this.statedAssemblageListener);
         this.digraphIdentityProperty.addListener(this.digraphIdentityListener);
+        this.rootConceptProperty.addListener(this.rootConceptListener);
     }
 
     @Override
@@ -151,6 +160,7 @@ public abstract class ObservableLogicCoordinateBase
         this.inferredAssemblageProperty.removeListener(this.inferredAssemblageListener);
         this.statedAssemblageProperty.removeListener(this.statedAssemblageListener);
         this.digraphIdentityProperty.removeListener(this.digraphIdentityListener);
+        this.rootConceptProperty.removeListener(this.rootConceptListener);
     }
 
     //~--- methods -------------------------------------------------------------
@@ -162,7 +172,8 @@ public abstract class ObservableLogicCoordinateBase
                getInferredAssemblageNid(),
                getStatedAssemblageNid(),
                getConceptAssemblageNid(),
-               newDigraphIdentity.getNid()));
+               newDigraphIdentity.getNid(),
+               getRootNid()));
    }
     private void statedAssemblageChanged(ObservableValue<? extends ConceptSpecification> observable,
                                          ConceptSpecification oldStatedAssemblage,
@@ -172,7 +183,8 @@ public abstract class ObservableLogicCoordinateBase
                 getInferredAssemblageNid(),
                 newStatedAssemblage.getNid(),
                 getConceptAssemblageNid(),
-                getDigraphIdentityNid()));
+                getDigraphIdentityNid(),
+                getRootNid()));
     }
     private void inferredAssemblageChanged(ObservableValue<? extends ConceptSpecification> observable,
                                            ConceptSpecification oldInferredAssemblage,
@@ -182,7 +194,8 @@ public abstract class ObservableLogicCoordinateBase
                 newInferredAssemblage.getNid(),
                 getStatedAssemblageNid(),
                 getConceptAssemblageNid(),
-                getDigraphIdentityNid()));
+                getDigraphIdentityNid(),
+                getRootNid()));
     }
     private void descriptionLogicProfileChanged(ObservableValue<? extends ConceptSpecification> observable,
                                                 ConceptSpecification oldDescriptionLogicProfile,
@@ -192,7 +205,8 @@ public abstract class ObservableLogicCoordinateBase
                 getInferredAssemblageNid(),
                 getStatedAssemblageNid(),
                 getConceptAssemblageNid(),
-                getDigraphIdentityNid()));
+                getDigraphIdentityNid(),
+                getRootNid()));
     }
     private void classifierConceptAssemblageChanged(ObservableValue<? extends ConceptSpecification> observable,
                                                     ConceptSpecification oldConceptAssemblageConcept,
@@ -202,7 +216,8 @@ public abstract class ObservableLogicCoordinateBase
                 getInferredAssemblageNid(),
                 getStatedAssemblageNid(),
                 newConceptAssemblageConcept.getNid(),
-                getDigraphIdentityNid()));
+                getDigraphIdentityNid(),
+                getRootNid()));
     }
     private void classifierConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
                                           ConceptSpecification oldClassifierConcept,
@@ -212,7 +227,19 @@ public abstract class ObservableLogicCoordinateBase
                 getInferredAssemblageNid(),
                 getStatedAssemblageNid(),
                 getConceptAssemblageNid(),
-                getDigraphIdentityNid()));
+                getDigraphIdentityNid(),
+                getRootNid()));
+    }
+    private void rootConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
+                                          ConceptSpecification oldRootConcept,
+                                          ConceptSpecification newRootConcept) {
+        this.setValue(LogicCoordinateImmutable.make(getClassifierNid(),
+                getDescriptionLogicProfileNid(),
+                getInferredAssemblageNid(),
+                getStatedAssemblageNid(),
+                getConceptAssemblageNid(),
+                getDigraphIdentityNid(),
+                newRootConcept.getNid()));
     }
 
    @Override
@@ -329,6 +356,11 @@ public abstract class ObservableLogicCoordinateBase
     @Override
     public ObjectProperty<ConceptSpecification> digraphIdentityProperty() {
         return this.digraphIdentityProperty;
+    }
+
+    @Override
+    public ObjectProperty<ConceptSpecification> rootConceptProperty() {
+        return this.rootConceptProperty;
     }
 }
 

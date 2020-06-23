@@ -41,14 +41,8 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.collections.SetChangeListener;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.*;
-import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.model.observable.ObservableFields;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -60,93 +54,49 @@ import sh.isaac.model.observable.ObservableFields;
  *
  * @author kec
  */
-public class ObservableManifoldCoordinateImpl
-        extends ObservableCoordinateImpl<ManifoldCoordinateImmutable>
-         implements ObservableManifoldCoordinate {
+public class ObservableManifoldCoordinateImpl extends ObservableManifoldCoordinateBase {
 
-    private final ObservableDigraphCoordinateImpl observableDigraphCoordinate;
-    /**
-     * Note that if you don't declare a listener as final in this way, and just use method references, or
-     * a direct lambda expression, you will not be able to remove the listener, since each method reference will create
-     * a new object, and they won't compare equal using object identity.
-     * https://stackoverflow.com/questions/42146360/how-do-i-remove-lambda-expressions-method-handles-that-are-used-as-listeners
-     */
-    private final ChangeListener<DigraphCoordinateImmutable> digraphListener = this::digraphChanged;
+    public ObservableManifoldCoordinateImpl(ManifoldCoordinate manifoldCoordinate, String name) {
+        super(manifoldCoordinate, name);
+    }
 
-   //~--- constructors --------------------------------------------------------
-
-   /**
-    * Instantiates a new observable taxonomy coordinate impl.
-    *
-    * @param manifoldCoordinate the taxonomy coordinate
-    */
-   public ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable manifoldCoordinate) {
-       super(manifoldCoordinate, "Manifold");
-       this.observableDigraphCoordinate = new ObservableDigraphCoordinateImpl(manifoldCoordinate.toDigraphImmutable());
-       addListeners();
-   }
-
-    @Override
-    protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends ManifoldCoordinateImmutable> observable, ManifoldCoordinateImmutable oldValue, ManifoldCoordinateImmutable newValue) {
-        this.observableDigraphCoordinate.baseCoordinateProperty().setValue(newValue.toDigraphImmutable());
+    public ObservableManifoldCoordinateImpl(ManifoldCoordinate manifoldCoordinate) {
+        super(manifoldCoordinate);
     }
 
     @Override
-    protected void addListeners() {
-        this.observableDigraphCoordinate.baseCoordinateProperty().addListener(this.digraphListener);
+    protected ObservableNavigationCoordinateImpl makeNavigationCoordinateProperty(ManifoldCoordinate manifoldCoordinate) {
+        return new ObservableNavigationCoordinateImpl(manifoldCoordinate.toNavigationCoordinateImmutable());
     }
 
     @Override
-    protected void removeListeners() {
-        this.observableDigraphCoordinate.baseCoordinateProperty().removeListener(this.digraphListener);
-    }
-
-    //~--- methods -------------------------------------------------------------
-   private void digraphChanged(ObservableValue<? extends DigraphCoordinateImmutable> observable,
-                               DigraphCoordinateImmutable oldValue,
-                               DigraphCoordinateImmutable newValue) {
-       this.setValue(ManifoldCoordinateImmutable.make(newValue));
-       this.observableDigraphCoordinate.baseCoordinateProperty().set(newValue);
-   }
-
-    @Override
-    public ObjectProperty<DigraphCoordinateImmutable> digraphCoordinateImmutableProperty() {
-        return observableDigraphCoordinate.baseCoordinateProperty();
+    protected ObservableStampFilterBase makeLanguageStampFilterProperty(ManifoldCoordinate manifoldCoordinate) {
+        return ObservableStampFilterImpl.make(manifoldCoordinate.getLanguageStampFilter(), ObservableFields.LANGUAGE_FILTER_FOR_DIGRAPH.toExternalString());
     }
 
     @Override
-    public ObservableDigraphCoordinate getDigraph() {
-        return this.observableDigraphCoordinate;
+    protected ObservableStampFilterBase makeVertexStampFilterProperty(ManifoldCoordinate manifoldCoordinate) {
+        return  ObservableStampFilterImpl.make(manifoldCoordinate.getVertexStampFilter(), ObservableFields.VERTEX_FILTER_FOR_DIGRAPH.toExternalString());
     }
 
     @Override
-    public ObservableLogicCoordinate getLogicCoordinate() {
-        return this.observableDigraphCoordinate.getLogicCoordinate();
+    protected ObservableStampFilterBase makeEdgeStampFilterProperty(ManifoldCoordinate manifoldCoordinate) {
+        return ObservableStampFilterImpl.make(manifoldCoordinate.getEdgeStampFilter(), ObservableFields.EDGE_FILTER_FOR_DIGRAPH.toExternalString());
     }
 
     @Override
-    public ObservableLanguageCoordinate getLanguageCoordinate() {
-        return this.observableDigraphCoordinate.getLanguageCoordinate();
+    protected SimpleObjectProperty<VertexSort> makeVertexSortProperty(ManifoldCoordinate manifoldCoordinate) {
+        return new SimpleObjectProperty<>(this,
+                ObservableFields.VERTEX_SORT_PROPERTY.toExternalString(),
+                manifoldCoordinate.getVertexSort());
     }
 
-    @Override
-    public ObservableStampFilter getLanguageStampFilter() {
-        return this.observableDigraphCoordinate.getLanguageStampFilter();
-    }
 
     @Override
-    public ObservableStampFilter getVertexStampFilter() {
-        return this.observableDigraphCoordinate.getVertexStampFilter();
+    protected ObservableLanguageCoordinateBase makeLanguageCoordinate(ManifoldCoordinate manifoldCoordinate) {
+        return new ObservableLanguageCoordinateImpl(manifoldCoordinate.getLanguageCoordinate());
     }
 
-    @Override
-    public ManifoldCoordinateImmutable toManifoldCoordinateImmutable() {
-        return this.getValue();
-    }
-
-    @Override
-    public ObservableStampFilter getEdgeStampFilter() {
-        return this.observableDigraphCoordinate.getEdgeStampFilter();
-    }
 }
+
 

@@ -1,16 +1,13 @@
 package sh.komet.gui.control.property;
 
 import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import org.eclipse.collections.api.list.ImmutableList;
-import sh.isaac.api.ComponentProxy;
-import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.identity.IdentifiedObject;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -117,8 +114,8 @@ public class ActivityFeed implements ManifoldCoordinate {
     }
 
     @Override
-    public DigraphCoordinate getDigraph() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getDigraph();
+    public NavigationCoordinate getNavigationCoordinate() {
+        return this.owningViewForActivityFeed.getManifoldCoordinate().getNavigationCoordinate();
     }
 
     @Override
@@ -134,6 +131,26 @@ public class ActivityFeed implements ManifoldCoordinate {
     @Override
     public LanguageCoordinate getLanguageCoordinate() {
         return this.owningViewForActivityFeed.getManifoldCoordinate().getLanguageCoordinate();
+    }
+
+    @Override
+    public TaxonomySnapshot getDigraphSnapshot() {
+        return this.owningViewForActivityFeed.getManifoldCoordinate().getDigraphSnapshot();
+    }
+
+    @Override
+    public StampFilter getVertexStampFilter() {
+        return this.owningViewForActivityFeed.getManifoldCoordinate().getVertexStampFilter();
+    }
+
+    @Override
+    public StampFilter getEdgeStampFilter() {
+        return this.owningViewForActivityFeed.getManifoldCoordinate().getEdgeStampFilter();
+    }
+
+    @Override
+    public StampFilter getLanguageStampFilter() {
+        return this.owningViewForActivityFeed.getManifoldCoordinate().getLanguageStampFilter();
     }
 
     @Override

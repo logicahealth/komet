@@ -50,6 +50,7 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Status;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSnapshot;
@@ -311,8 +312,8 @@ public class ConceptSnapshotImpl
     }
 
     @Override
-    public DigraphCoordinate getDigraph() {
-        return this.manifoldCoordinate.getDigraph();
+    public NavigationCoordinate getNavigationCoordinate() {
+        return this.manifoldCoordinate.getNavigationCoordinate();
     }
 
     @Override
@@ -338,6 +339,26 @@ public class ConceptSnapshotImpl
     @Override
     public ManifoldCoordinateImmutable toManifoldCoordinateImmutable() {
         return this.manifoldCoordinate.toManifoldCoordinateImmutable();
+    }
+
+    @Override
+    public TaxonomySnapshot getDigraphSnapshot() {
+        return this.manifoldCoordinate.getDigraphSnapshot();
+    }
+
+    @Override
+    public StampFilter getVertexStampFilter() {
+        return this.manifoldCoordinate.getVertexStampFilter();
+    }
+
+    @Override
+    public StampFilter getEdgeStampFilter() {
+        return this.manifoldCoordinate.getEdgeStampFilter();
+    }
+
+    @Override
+    public StampFilter getLanguageStampFilter() {
+        return this.manifoldCoordinate.getLanguageStampFilter();
     }
 }
 

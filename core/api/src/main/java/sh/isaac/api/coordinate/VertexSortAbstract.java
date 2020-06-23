@@ -9,13 +9,13 @@ public abstract class VertexSortAbstract implements VertexSort {
 
 
     @Override
-    public final int[] sortVertexes(int[] vertexConceptNids, DigraphCoordinateImmutable digraph) {
+    public final int[] sortVertexes(int[] vertexConceptNids, ManifoldCoordinateImmutable manifold) {
         if (vertexConceptNids.length < 2) {
             // nothing to sort, skip creating the objects for sort.
             return vertexConceptNids;
         }
-        final LanguageCoordinate languageCoordinate = digraph.getLanguageCoordinate();
-        final StampFilter stampFilter = digraph.getLanguageStampFilter();
+        final LanguageCoordinate languageCoordinate = manifold.getLanguageCoordinate();
+        final StampFilter stampFilter = manifold.getLanguageStampFilter();
         return IntLists.immutable.of(vertexConceptNids).primitiveStream().mapToObj(vertexConceptNid ->
                 new VertexItem(vertexConceptNid, getVertexLabel(vertexConceptNid, languageCoordinate, stampFilter)))
                 .sorted().mapToInt(value -> value.nid).toArray();
@@ -44,6 +44,11 @@ public abstract class VertexSortAbstract implements VertexSort {
     @Override
     public boolean equals(Object obj) {
         return obj.getClass().equals(this.getClass());
+    }
+
+    @Override
+    public String toString() {
+        return getVertexSortName();
     }
 
 }

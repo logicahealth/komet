@@ -24,9 +24,9 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Edge;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.navigation.Navigator;
 import sh.isaac.api.task.TaskCountManager;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.komet.gui.control.property.ViewProperties;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.komet.gui.util.FxGet;
 
@@ -45,17 +45,21 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
     private final String parentName;
 
     public FetchChildren(CountDownLatch childrenLoadedLatch,
-            MultiParentGraphItemImpl treeItemImpl) {
+            MultiParentGraphItemImpl parentGraphItem) {
         this.childrenLoadedLatch = childrenLoadedLatch;
-        this.treeItemImpl = treeItemImpl;
-        this.parentName = treeItemImpl.getGraphView()
-                .getManifoldCoordinate().getPreferredDescriptionText(treeItemImpl.getValue());
+        this.treeItemImpl = parentGraphItem;
+        if (parentGraphItem.getValue() != null) {
+            this.parentName = parentGraphItem.getGraphView()
+                    .getManifoldCoordinate().getPreferredDescriptionText(parentGraphItem.getValue());
+        } else {
+            this.parentName = parentGraphItem.toString();
+        }
         updateTitle("Fetching children for: " + this.parentName);
         Get.activeTasks().add(this);
-        LOG.debug("###Starting Adding children for: " + treeItemImpl.getValue().getNid()
+        LOG.debug("###Starting Adding children for: " + parentGraphItem.getValue()
                                     + " from: " + fetcherId);
         
-        FetchChildren oldFetcher = FETCHER_MAP.put(treeItemImpl.getValue().getNid(), this);
+        FetchChildren oldFetcher = FETCHER_MAP.put(parentGraphItem.getValue().getNid(), this);
         
         if (oldFetcher != null) {
             oldFetcher.cancel(false);  //Interrupts are bad for code that uses NIO.  
@@ -78,9 +82,9 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
             } else {  // if (conceptChronology != null)
                 // Gather the children
                 ConcurrentSkipListSet<MultiParentGraphItemImpl> childrenToAdd = new ConcurrentSkipListSet<>();
-                TaxonomySnapshot taxonomySnapshot = treeItemImpl.getGraphView().getTaxonomySnapshot();
+                Navigator navigator = treeItemImpl.getGraphView().getNavigator();
                 ManifoldCoordinate manifold = treeItemImpl.getGraphView().getManifoldCoordinate();
-                Collection<Edge>  children = (Collection<Edge>) taxonomySnapshot.getTaxonomyChildLinks(conceptChronology.getNid());
+                Collection<Edge>  children = (Collection<Edge>) navigator.getChildLinks(conceptChronology.getNid());
                 addToTotalWork(children.size() + 1);
 
                 TaskCountManager taskCountManager = Get.taskCountManager();
@@ -92,7 +96,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                             MultiParentGraphItemImpl childItem = new MultiParentGraphItemImpl(childChronology, treeItemImpl.getGraphView(), childLink.getTypeNid(), null);
                             childItem.setDefined(childChronology.isSufficientlyDefined(manifold.getVertexStampFilter(), manifold.getLogicCoordinate()));
                             childItem.toString();
-                            childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childLink.getDestinationNid()).length > 1);
+                            childItem.setMultiParent(navigator.getParentNids(childLink.getDestinationNid()).length > 1);
                             childItem.isLeaf();
 
                             if (childItem.shouldDisplay()) {

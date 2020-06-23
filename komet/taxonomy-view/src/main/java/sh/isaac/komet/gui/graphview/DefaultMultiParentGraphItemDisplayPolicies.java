@@ -83,17 +83,18 @@ public class DefaultMultiParentGraphItemDisplayPolicies implements MultiParentGr
 
    @Override
    public boolean shouldDisplay(MultiParentGraphItem treeItem) {
+       if (treeItem.isRoot()) {
+           return true;
+       }
       int conceptNid = treeItem.getConceptNid();
        StampFilterImmutable vertexStampFilter = observableManifoldCoordinate.getVertexStampFilter().toStampFilterImmutable();
        StatusSet allowedStates = vertexStampFilter.getAllowedStates();
-       EnumSet<Status> states = Get.conceptActiveService().getConceptStates(conceptNid, vertexStampFilter);
-       for (Status state: states) {
-           if (allowedStates.contains(state)) {
-               return true;
+           EnumSet<Status> states = Get.conceptActiveService().getConceptStates(conceptNid, vertexStampFilter);
+           for (Status state: states) {
+               if (allowedStates.contains(state)) {
+                   return true;
+               }
            }
-       }
-       return false;
+           return false;
    }
-   
-   
 }

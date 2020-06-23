@@ -76,7 +76,6 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.DraggableWithImage;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
@@ -210,8 +209,8 @@ final public class MultiParentGraphCell
             removeExtraParents(treeItem, siblings);
          } else {
             ImmutableCollection<Edge> allParents = treeItem.getGraphView()
-                                       .getTaxonomySnapshot()
-                                       .getTaxonomyParentLinks(value.getNid());
+                                       .getNavigator()
+                                       .getParentLinks(value.getNid());
             ArrayList<MultiParentGraphItemImpl> secondaryParentItems = new ArrayList<>();
 
             for (Edge parentLink: allParents) {

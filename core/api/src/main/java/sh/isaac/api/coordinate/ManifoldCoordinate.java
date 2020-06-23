@@ -41,9 +41,13 @@ package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
 import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.Edge;
 import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -54,7 +58,6 @@ import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.util.time.DateTimeUtil;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.function.Function;
 
@@ -70,17 +73,28 @@ public interface ManifoldCoordinate {
 
     static UUID getManifoldCoordinateUuid(ManifoldCoordinate manifoldCoordinate) {
         ArrayList<UUID> uuidList = new ArrayList<>();
-        uuidList.add(manifoldCoordinate.getDigraph().getDigraphCoordinateUuid());
+        uuidList.add(manifoldCoordinate.getNavigationCoordinate().getNavigationCoordinateUuid());
         uuidList.add(manifoldCoordinate.getVertexSort().getVertexSortUUID());
+        uuidList.add(manifoldCoordinate.getVertexStampFilter().getStampFilterUuid());
+        uuidList.add(manifoldCoordinate.getEdgeStampFilter().getStampFilterUuid());
+        uuidList.add(manifoldCoordinate.getLanguageStampFilter().getStampFilterUuid());
+        uuidList.add(manifoldCoordinate.getLanguageCoordinate().getLanguageCoordinateUuid());
         StringBuilder sb = new StringBuilder(uuidList.toString());
         return UUID.nameUUIDFromBytes(sb.toString().getBytes());
     }
 
     default String toUserString() {
         StringBuilder sb = new StringBuilder("Manifold coordinate: ");
-        sb.append("\nDigraph coordinate: ").append(getDigraph().toUserString());
+        sb.append("\nDigraph: ").append(getNavigationCoordinate().toUserString());
+        sb.append("\n\nEdge filter:\n").append(getEdgeStampFilter().toUserString());
+        sb.append("\n\nLanguage coordinate:\n").append(getLanguageCoordinate().toUserString());
+        sb.append("\n\nLanguage filter:\n").append(getLanguageStampFilter().toUserString());
+        sb.append("\n\nVertex filter:\n").append(getVertexStampFilter().toUserString());
+        sb.append("\n\nVertex sort:\n").append(getVertexSort().getVertexSortName());
         return sb.toString();
     }
+
+    TaxonomySnapshot getDigraphSnapshot();
 
     ManifoldCoordinateImmutable toManifoldCoordinateImmutable();
 
@@ -88,21 +102,43 @@ public interface ManifoldCoordinate {
         return getManifoldCoordinateUuid(this);
     }
 
+    VertexSort getVertexSort();
+
+    default int[] sortVertexes(int[] vertexConceptNids) {
+        return getVertexSort().sortVertexes(vertexConceptNids, toManifoldCoordinateImmutable());
+    }
+
     /**
-     * In most cases all stamp filters will be the same.
-     * @return the vertex stamp filter services as the default stamp filter.
+     * In most cases, this coordinate will be the same object that is returned by {@link #getEdgeStampFilter()},
+     * But, it may be a different, depending on the construction - for example, a use case like returning inactive
+     * vertexes (concepts) linked by active edges (relationships).
+     *
+     * This filter is used on the vertexes (source and destination concepts)
+     * in digraph operations, while {@link #getEdgeStampFilter()} is used
+     * on the edges (relationships) themselves.
+     *
+     * @return The vertex stamp filter,
      */
-    default StampFilter getLanguageStampFilter() {
-        return getVertexStampFilter();
-    }
+    StampFilter getVertexStampFilter();
 
-    default StampFilter getVertexStampFilter() {
-        return getDigraph().getVertexStampFilter();
-    }
+    /**
+     * In most cases, this coordinate will be the same object that is returned by {@link #getVertexStampFilter()},
+     * But, it may be a different, depending on the construction - for example, a use case like returning inactive
+     * vertexes (concepts) linked by active edges (relationships).
+     *
+     * This filter is used on the edges (relationships) in digraph operations, while {@link #getVertexStampFilter()}
+     * is used on the vertexes (concepts) themselves.
+     *
+     * @return The edge stamp filter,
+     */
+    StampFilter getEdgeStampFilter();
 
-    default StampFilter getEdgeStampFilter() {
-        return getDigraph().getEdgeStampFilter();
-    }
+    /**
+     * In most cases, this coordinate will be the same object that is returned by {@link #getVertexStampFilter()}
+     * and {@link #getEdgeStampFilter()}.
+     * @return the language stamp filter.
+     */
+    StampFilter getLanguageStampFilter();
 
     default LatestVersion<DescriptionVersion> getDescription(
             ConceptSpecification concept) {
@@ -134,25 +170,24 @@ public interface ManifoldCoordinate {
     }
 
     default PremiseType getPremiseType() {
-        return getDigraph().getPremiseType();
+        if (getNavigationCoordinate().getNavigationConceptNids().contains(getLogicCoordinate().getInferredAssemblageNid())) {
+            return PremiseType.INFERRED;
+        }
+        return PremiseType.STATED;
     }
 
-    default DigraphCoordinateImmutable toDigraphImmutable() {
-        return getDigraph().toDigraphImmutable();
+    default NavigationCoordinateImmutable toNavigationCoordinateImmutable() {
+        return getNavigationCoordinate().toNavigationCoordinateImmutable();
     }
 
-    DigraphCoordinate getDigraph();
-
-    default VertexSort getVertexSort() {
-        return getDigraph().getVertexSort();
-    }
+    NavigationCoordinate getNavigationCoordinate();
 
     default LogicCoordinate getLogicCoordinate() {
-        return getDigraph().getLogicCoordinate();
+        return getNavigationCoordinate().getLogicCoordinate();
     }
 
     default LanguageCoordinate getLanguageCoordinate() {
-        return getDigraph().getLanguageCoordinate();
+        return getLanguageCoordinate();
     }
 
     default Optional<String> getFullyQualifiedName(int nid, StampFilter filter) {
@@ -169,10 +204,6 @@ public interface ManifoldCoordinate {
 
     default Optional<LogicalExpression> getLogicalExpression(ConceptSpecification concept, PremiseType premiseType) {
         return this.getLogicalExpression(concept.getNid(), premiseType);
-    }
-
-    default Optional<LogicalExpression> getLogicalExpression(int conceptNid, PremiseType premiseType) {
-        return this.getLogicCoordinate().getLogicalExpression(conceptNid, premiseType, this.getDigraph().getVertexStampFilter());
     }
 
     default LatestVersion<LogicGraphVersion> getStatedLogicalDefinition(int conceptNid) {
@@ -195,20 +226,11 @@ public interface ManifoldCoordinate {
     default Optional<String> getFullyQualifiedName(int nid) {
         return this.getLanguageCoordinate().getFullyQualifiedNameText(nid, this.getLanguageStampFilter());
     }
-    /**
-     * Sort the vertex concept nids with respect to settings from the
-     * digraphCoordinate where appropriate.
-     * @param vertexConceptNids
-     * @return sorted vertexConceptNids
-     */
-    default int[] sortVertexes(int[] vertexConceptNids) {
-        return getVertexSort().sortVertexes(vertexConceptNids, getDigraph().toDigraphImmutable());
-    }
 
     default String getVertexLabel(int vertexConceptNid) {
         return getVertexSort().getVertexLabel(vertexConceptNid,
-                getDigraph().getLanguageCoordinate().toLanguageCoordinateImmutable(),
-                getDigraph().getLanguageStampFilter().toStampFilterImmutable());
+                getLanguageCoordinate().toLanguageCoordinateImmutable(),
+                getLanguageStampFilter().toStampFilterImmutable());
     }
 
     default String getVertexLabel(ConceptSpecification vertexConcept) {
@@ -217,7 +239,7 @@ public interface ManifoldCoordinate {
 
     default String getPreferredDescriptionText(int conceptNid) {
         try {
-            return VertexSortPreferredName.getRegularName(conceptNid, getLanguageCoordinate(), getDigraph().getLanguageStampFilter());
+            return VertexSortPreferredName.getRegularName(conceptNid, getLanguageCoordinate(), getLanguageStampFilter());
         } catch (NoSuchElementException ex) {
             return ex.getLocalizedMessage();
         }
@@ -228,7 +250,7 @@ public interface ManifoldCoordinate {
     }
 
     default String getFullyQualifiedDescriptionText(int conceptNid) {
-        return VertexSortFullyQualifiedName.getFullyQualifiedName(conceptNid, getLanguageCoordinate(), getDigraph().getLanguageStampFilter());
+        return VertexSortFullyQualifiedName.getFullyQualifiedName(conceptNid, getLanguageCoordinate(), getLanguageStampFilter());
     }
 
     default String getFullyQualifiedDescriptionText(ConceptSpecification concept) {
@@ -236,7 +258,7 @@ public interface ManifoldCoordinate {
     }
 
     default LatestVersion<DescriptionVersion> getFullyQualifiedDescription(int conceptNid) {
-        return getLanguageCoordinate().getFullyQualifiedDescription(conceptNid, getDigraph().getLanguageStampFilter());
+        return getLanguageCoordinate().getFullyQualifiedDescription(conceptNid, getLanguageStampFilter());
     }
 
     default LatestVersion<DescriptionVersion> getFullyQualifiedDescription(ConceptSpecification concept) {
@@ -245,7 +267,7 @@ public interface ManifoldCoordinate {
 
 
     default LatestVersion<DescriptionVersion> getPreferredDescription(int conceptNid) {
-        return getLanguageCoordinate().getPreferredDescription(conceptNid, getDigraph().getLanguageStampFilter());
+        return getLanguageCoordinate().getPreferredDescription(conceptNid, getLanguageStampFilter());
     }
 
     default LatestVersion<DescriptionVersion> getPreferredDescription(ConceptSpecification concept) {
@@ -303,6 +325,15 @@ public interface ManifoldCoordinate {
         return toConceptString(object, this::getPreferredDescriptionText);
     }
 
+    default Optional<LogicalExpression> getLogicalExpression(int conceptNid, PremiseType premiseType) {
+        ConceptChronology concept = Get.concept(conceptNid);
+        LatestVersion<LogicGraphVersion> logicalDef = concept.getLogicalDefinition(getVertexStampFilter(), premiseType, getLogicCoordinate());
+        if (logicalDef.isPresent()) {
+            return Optional.of(logicalDef.get().getLogicalExpression());
+        }
+        return Optional.empty();
+    }
+
     default String toConceptString(Object object, Function<ConceptSpecification,String> toString) {
         if (object == null) {
             return "null";
@@ -340,6 +371,90 @@ public interface ManifoldCoordinate {
             sb.append(DateTimeUtil.format((Long) object));
         } else {
             sb.append(object.toString());
+        }
+        return sb.toString();
+    }
+
+
+
+    default int[] getRootNids() {
+        return this.getDigraphSnapshot().getRootNids();
+    }
+
+    default int[] getChildNids(ConceptSpecification parent) {
+        return getChildNids(parent.getNid());
+    }
+    default int[] getChildNids(int parentNid) {
+        return this.getVertexSort().sortVertexes(this.getDigraphSnapshot().getTaxonomyChildConceptNids(parentNid),
+                this.toManifoldCoordinateImmutable());
+    }
+
+    default boolean isChildOf(ConceptSpecification child, ConceptSpecification parent) {
+        return isChildOf(child.getNid(), parent.getNid());
+    }
+    default boolean isChildOf(int childNid, int parentNid) {
+        return this.getDigraphSnapshot().isChildOf(childNid, parentNid);
+    }
+
+    default boolean isLeaf(ConceptSpecification concept) {
+        return isLeaf(concept.getNid());
+    }
+    default boolean isLeaf(int nid) {
+        return this.getDigraphSnapshot().isLeaf(nid);
+    }
+
+    default boolean isKindOf(ConceptSpecification child, ConceptSpecification parent) {
+        return isKindOf(child.getNid(), parent.getNid());
+    }
+    default boolean isKindOf(int childNid, int parentNid) {
+        return this.getDigraphSnapshot().isKindOf(childNid, parentNid);
+    }
+
+    default  ImmutableIntSet getKindOfNidSet(ConceptSpecification kind) {
+        return getKindOfNidSet(kind.getNid());
+    }
+    default ImmutableIntSet getKindOfNidSet(int kindNid) {
+        return this.getDigraphSnapshot().getKindOfConcept(kindNid);
+    }
+
+    default boolean isDescendentOf(ConceptSpecification descendant, ConceptSpecification ancestor) {
+        return isDescendentOf(descendant.getNid(), ancestor.getNid());
+    }
+    default boolean isDescendentOf(int descendantNid, int ancestorNid) {
+        return this.getDigraphSnapshot().isDescendentOf(descendantNid, ancestorNid);
+    }
+
+    default ImmutableCollection<Edge> getParentEdges(int parentNid) {
+        return this.getDigraphSnapshot().getTaxonomyParentLinks(parentNid);
+    }
+    default ImmutableCollection<Edge> getParentEdges(ConceptSpecification parent) {
+        return getParentEdges(parent.getNid());
+    }
+
+    default ImmutableCollection<Edge> getChildEdges(ConceptSpecification child) {
+        return getChildEdges(child.getNid());
+    }
+    default ImmutableCollection<Edge> getChildEdges(int childNid) {
+        return this.getDigraphSnapshot().getTaxonomyChildLinks(childNid);
+    }
+
+    default ImmutableCollection<ConceptSpecification> getRoots() {
+        return IntLists.immutable.of(getRootNids()).collect(nid -> Get.conceptSpecification(nid));
+    }
+
+    default String getPathString() {
+        StringBuilder sb = new StringBuilder();
+        ConceptSpecification lastPath = this.getVertexStampFilter().getPathConceptForFilter();
+        sb.append(this.getPreferredDescriptionText(lastPath));
+        ConceptSpecification nextPath = this.getEdgeStampFilter().getPathConceptForFilter();
+        if (!nextPath.equals(lastPath)) {
+            lastPath = nextPath;
+            sb.append(", " + this.getPreferredDescriptionText(lastPath));
+        }
+        nextPath = this.getLanguageStampFilter().getPathConceptForFilter();
+        if (!nextPath.equals(lastPath)) {
+            lastPath = nextPath;
+            sb.append(", " + this.getPreferredDescriptionText(lastPath));
         }
         return sb.toString();
     }

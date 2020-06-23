@@ -14,6 +14,8 @@ import javafx.util.Callback;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
@@ -69,6 +71,8 @@ public class ClassifierResultsController {
 
     @FXML
     private TextArea editTextArea;
+    private ViewProperties viewProperties;
+    private ActivityFeed activityFeed;
 
     @FXML
     void initialize() {
@@ -109,7 +113,7 @@ public class ClassifierResultsController {
                     changeList.add(new ComponentProxy(treeItem.getValue().conceptSpecification));
                 }
             }
-            FxGet.manifold(Manifold.ManifoldGroup.CLASSIFICATON).manifoldSelectionProperty().setAll(changeList);
+            this.activityFeed.feedSelectionProperty().setAll(changeList);
 
        }
     }
@@ -121,7 +125,7 @@ public class ClassifierResultsController {
             for (Integer conceptNid: change.getList()) {
                 changeList.add(new ComponentProxy(Get.concept(conceptNid)));
             }
-            FxGet.manifold(Manifold.ManifoldGroup.CLASSIFICATON).manifoldSelectionProperty().setAll(changeList);
+            this.activityFeed.feedSelectionProperty().setAll(changeList);
         }
     }
 
@@ -231,5 +235,10 @@ public class ClassifierResultsController {
         stampTextArea.setText(classifierResults.getStampFilter().toUserString());
         logicTextArea.setText(classifierResults.getLogicCoordinate().toUserString());
         editTextArea.setText(classifierResults.getEditCoordinate().toUserString());
+    }
+
+    public void setViewProperties(ViewProperties viewProperties, ActivityFeed activityFeed) {
+        this.viewProperties = viewProperties;
+        this.activityFeed = activityFeed;
     }
 }

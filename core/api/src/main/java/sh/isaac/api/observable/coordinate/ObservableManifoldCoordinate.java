@@ -62,48 +62,66 @@ public interface ObservableManifoldCoordinate
         extends ManifoldCoordinate, ObservableCoordinate<ManifoldCoordinateImmutable> {
 
    default Property<?>[] getBaseProperties() {
-      return new Property<?>[] {};
-   }
-
-   default ObservableCoordinate<?>[] getCompositeCoordinates() {
-      return new ObservableCoordinate<?>[]{
-              getDigraph()
+      return new Property<?>[] {
+              vertexSortProperty()
       };
    }
 
-   @Override
-   ObservableDigraphCoordinate getDigraph();
-
-   @Override
-   default ObservableLogicCoordinate getLogicCoordinate() {
-      return getDigraph().getLogicCoordinate();
+   default ObservableCoordinate<?>[] getCompositeCoordinates() {
+      return new ObservableCoordinate<?>[] {
+              getEdgeStampFilter(),
+              getLanguageStampFilter(),
+              getVertexStampFilter(),
+              getLanguageCoordinate(),
+              getLogicCoordinate(),
+              getNavigationCoordinate()};
    }
 
    @Override
-   default ObservableLanguageCoordinate getLanguageCoordinate() {
-      return getDigraph().getLanguageCoordinate();
-   }
+   ObservableNavigationCoordinate getNavigationCoordinate();
 
    /**
     *
     * @return the digraph coordinate property.
     */
-   ObjectProperty<DigraphCoordinateImmutable> digraphCoordinateImmutableProperty();
+   ObjectProperty<NavigationCoordinateImmutable> navigationCoordinateImmutableProperty();
+
+
+   @Override
+   ObservableStampFilter getVertexStampFilter();
+   ObjectProperty<StampFilterImmutable> vertexStampFilterProperty();
+
+   @Override
+   ObservableStampFilter getEdgeStampFilter();
+   ObjectProperty<StampFilterImmutable> edgeStampFilterProperty();
+
+   @Override
+   ObservableStampFilter getLanguageStampFilter();
+   ObjectProperty<StampFilterImmutable> languageStampFilterProperty();
+
+   @Override
+   ObservableLanguageCoordinate getLanguageCoordinate();
+   ObjectProperty<LanguageCoordinateImmutable> languageCoordinateProperty();
+
+   @Override
+   default ObservableLogicCoordinate getLogicCoordinate() {
+      return getNavigationCoordinate().getLogicCoordinate();
+   }
+   default ObjectProperty<LogicCoordinateImmutable> logicCoordinateProperty() {
+      return getNavigationCoordinate().logicCoordinateProperty();
+   }
 
    /**
-    * In most cases all stamp filters will be the same.
-    * @return the digraph vertex stamp filter services as the default stamp filter.
+    *
+    * @return the vertexSort property.
     */
-   default ObservableStampFilter getLanguageStampFilter() {
-      return getDigraph().getLanguageStampFilter();
-   }
+   ObjectProperty<VertexSort> vertexSortProperty();
 
-   default ObservableStampFilter getVertexStampFilter() {
-      return getDigraph().getVertexStampFilter();
-   }
-
-   default ObservableStampFilter getEdgeStampFilter() {
-      return getDigraph().getEdgeStampFilter();
+   /**
+    * Will change all contained paths (vertex, edge, and language), to the provided path.
+    */
+   default void changeManifoldPath(int pathConceptNid) {
+      changeManifoldPath(Get.concept(pathConceptNid));
    }
 
    default void changeManifoldPath(ConceptSpecification pathConcept) {
@@ -112,11 +130,8 @@ public interface ObservableManifoldCoordinate
       getVertexStampFilter().pathConceptProperty().set(pathConcept);
    }
 
-   /**
-    * Will change all contained paths (vertex, edge, and language), to the provided path.
-    */
-   default void changeManifoldPath(int pathConceptNid) {
-      changeManifoldPath(Get.concept(pathConceptNid));
+   default void setPremiseType(PremiseType premiseType) {
+      getNavigationCoordinate().setPremiseType(premiseType);
    }
 
 }

@@ -57,4 +57,11 @@ public class ObservableLogicCoordinateImpl extends ObservableLogicCoordinateBase
                 ObservableFields.DIGRAPH_FOR_LOGIC_COORDINATE.toExternalString(),
                 logicCoordinate.getDigraphIdentity());
     }
+
+    @Override
+    protected ObjectProperty<ConceptSpecification> makeRootConceptProperty(LogicCoordinate logicCoordinate) {
+        return new SimpleEqualityBasedObjectProperty(this,
+                ObservableFields.ROOT_FOR_LOGIC_COORDINATE.toExternalString(),
+                logicCoordinate.getDigraphIdentity());
+    }
 }

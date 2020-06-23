@@ -3,6 +3,7 @@ package sh.komet.progress.view;
 import javafx.animation.Animation;
 import javafx.animation.Interpolator;
 import javafx.animation.RotateTransition;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
@@ -29,6 +30,7 @@ public class ActiveTasksProgressNode extends TaskProgressNode {
     final Node progressIcon = Iconography.SPINNER0.getIconographic();
 
     final RotateTransition rotation;
+
     public ActiveTasksProgressNode(ViewProperties manifold) {
         super(manifold);
         ActiveTasks activeTasks = Get.activeTasks();
@@ -44,7 +46,7 @@ public class ActiveTasksProgressNode extends TaskProgressNode {
         progressIcon.setTranslateZ(progressIcon.getBoundsInLocal().getWidth() / 2.0);
         progressIcon.setRotationAxis(Rotate.Z_AXIS);
         if (!taskProgressView.getTasks().isEmpty()) {
-            rotation.play();
+            Platform.runLater(() -> rotation.play());
         }
      }
 
@@ -68,41 +70,44 @@ public class ActiveTasksProgressNode extends TaskProgressNode {
     }
 
     protected void taskListener(SetChangeListener.Change<? extends Task<?>> change) {
-        if (change.wasAdded()) {
-            taskProgressView.getTasks()
-                    .add(0, change.getElementAdded());
-        } else if (change.wasRemoved()) {
-            taskProgressView.getTasks()
-                    .remove(change.getElementRemoved());
-        }
-
-        if (change.getSet()
-                .isEmpty()) {
-            rotation.stop();
-
-            activeTasksTooltip.set("No tasks");
-            if (titleLabel == null) {
-                title.set(TaskProgressNodeFactory.TITLE_BASE);
+        Platform.runLater(() -> {
+            if (change.wasAdded()) {
+                taskProgressView.getTasks()
+                        .add(0, change.getElementAdded());
+            } else if (change.wasRemoved()) {
+                taskProgressView.getTasks()
+                        .remove(change.getElementRemoved());
             }
-            titledNodeTitle.set(TaskProgressNodeFactory.TITLE_BASE);
-        } else {
-            rotation.play();
-            int taskCount = change.getSet()
-                    .size();
-            if (taskCount == 1) {
-                activeTasksTooltip.set(taskCount + " task");
+
+            if (change.getSet()
+                    .isEmpty()) {
+                rotation.stop();
+
+                activeTasksTooltip.set("No tasks");
                 if (titleLabel == null) {
-                    title.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE_SINGULAR);
+                    title.set(TaskProgressNodeFactory.TITLE_BASE);
                 }
-                titledNodeTitle.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE_SINGULAR);
+                titledNodeTitle.set(TaskProgressNodeFactory.TITLE_BASE);
             } else {
-                activeTasksTooltip.set(taskCount + " tasks");
-                if (titleLabel == null) {
-                    title.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE);
+                rotation.play();
+                int taskCount = change.getSet()
+                        .size();
+                if (taskCount == 1) {
+                    activeTasksTooltip.set(taskCount + " task");
+                    if (titleLabel == null) {
+                        title.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE_SINGULAR);
+                    }
+                    titledNodeTitle.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE_SINGULAR);
+                } else {
+                    activeTasksTooltip.set(taskCount + " tasks");
+                    if (titleLabel == null) {
+                        title.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE);
+                    }
+                    titledNodeTitle.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE);
                 }
-                titledNodeTitle.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE);
             }
-        }
+        });
+
     }
     @Override
     public void close() {

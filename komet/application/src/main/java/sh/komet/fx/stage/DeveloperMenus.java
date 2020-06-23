@@ -35,6 +35,7 @@ import sh.isaac.solor.direct.LogicGraphTransformerAndWriter;
 import sh.isaac.solor.direct.TransformationGroup;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.contract.preferences.WindowPreferencesItem;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
@@ -61,49 +62,63 @@ public class DeveloperMenus implements MenuProvider {
     }
 
     @Override
-    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window) {
+    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferencesItem windowPreference) {
         if (parentMenu == AppMenu.EDIT) {
             
             MenuItem debugConversion = new MenuItemWithText("Debug Respiratory region of nose conversion");
+            debugConversion.setUserData(windowPreference);
             debugConversion.setOnAction(this::debugNoseConversion);
 
             MenuItem debugEarFindingConversion = new MenuItemWithText("Debug Ear Finding conversion");
+            debugEarFindingConversion.setUserData(windowPreference);
             debugEarFindingConversion.setOnAction(this::debugEarFindingConversion);
 
             MenuItem debugIsoniazidConversion = new MenuItemWithText("Debug Isoniazid conversion");
+            debugIsoniazidConversion.setUserData(windowPreference);
             debugIsoniazidConversion.setOnAction(this::debugIsoniazidConversion);
 
             MenuItem debugLamivudineConversion = new MenuItemWithText("Debug Lamivudine conversion");
+            debugLamivudineConversion.setUserData(windowPreference);
             debugLamivudineConversion.setOnAction(this::debugLamivudineConversion);
 
             MenuItem debugConnectiveTissueConversion = new MenuItemWithText("Debug Connective Tissue conversion");
+            debugConnectiveTissueConversion.setUserData(windowPreference);
             debugConnectiveTissueConversion.setOnAction(this::debugConnectiveTissueConversion);
 
             MenuItem debugAdductorMuscleConversion = new MenuItemWithText("Debug Adductor Muscle conversion");
+            debugAdductorMuscleConversion.setUserData(windowPreference);
             debugAdductorMuscleConversion.setOnAction(this::debugAdductorMuscleConversion);
 
             MenuItem debugPrematureConversion = new MenuItemWithText("Debug Premature conversion");
+            debugPrematureConversion.setUserData(windowPreference);
             debugPrematureConversion.setOnAction(this::debugPrematureConversion);
 
             MenuItem debugSepsisConversion = new MenuItemWithText("Debug Sepsis conversion");
+            debugSepsisConversion.setUserData(windowPreference);
             debugSepsisConversion.setOnAction(this::debugSepsisConversion);
 
             MenuItem debugDizzinessConversion = new MenuItemWithText("Debug Dizziness conversion");
+            debugDizzinessConversion.setUserData(windowPreference);
             debugDizzinessConversion.setOnAction(this::debugDizzinessConversion);
 
             MenuItem debugNonallopathicConversion = new MenuItemWithText("Debug Nonallopathic conversion");
+            debugNonallopathicConversion.setUserData(windowPreference);
             debugNonallopathicConversion.setOnAction(this::debugNonallopathicConversion);
 
             MenuItem debugNephronophthisisConversion = new MenuItemWithText("Debug Nephronophthisis conversion");
+            debugNephronophthisisConversion.setUserData(windowPreference);
             debugNephronophthisisConversion.setOnAction(this::debugNephronophthisisConversion);
 
             MenuItem debugTenosynovitisConversion = new MenuItemWithText("Debug Tenosynovitis conversion");
+            debugTenosynovitisConversion.setUserData(windowPreference);
             debugTenosynovitisConversion.setOnAction(this::debugTenosynovitisConversion);
 
             MenuItem debugCprConversion = new MenuItemWithText("Debug CPR conversion");
+            debugCprConversion.setUserData(windowPreference);
             debugCprConversion.setOnAction(this::debugCprConversion);
 
             MenuItem testTaxonomyDistance = new MenuItemWithText("Test taxonomy distance");
+            testTaxonomyDistance.setUserData(windowPreference);
             testTaxonomyDistance.setOnAction(this::testTaxonomyDistance);
 
             return new MenuItem[]{debugConversion, debugEarFindingConversion, debugIsoniazidConversion,
@@ -238,13 +253,14 @@ public class DeveloperMenus implements MenuProvider {
 
     private void testTaxonomyDistance(ActionEvent event) {
 
+        WindowPreferencesItem windowPreferencesItem = (WindowPreferencesItem) ((MenuItem) event.getSource()).getUserData();
         Instant startInstant = Instant.now();
 
         // minimal common ancestor = new ConceptProxy("Disorder of body system (disorder)", UUID.fromString("1088bacb-ed50-3fa0-8f75-6b7b9030487e"))
         ConceptProxy concept1 = new ConceptProxy("Renal anasarca (disorder)", UUID.fromString("fb334dc1-c6fd-3136-9f56-0b1dfeb417c2"));
         ConceptProxy concept2 = new ConceptProxy("Hearing loss of bilateral ears caused by noise (disorder)", UUID.fromString("749ad125-b01a-3973-afbb-04bb9d599e98"));
 
-        TaxonomySnapshot snapshot = Get.taxonomyService().getSnapshot(FxGet.manifold(Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE));
+        TaxonomySnapshot snapshot = Get.taxonomyService().getSnapshot(windowPreferencesItem.getViewPropertiesForWindow().getManifoldCoordinate());
 
         Tree snapshotTree = snapshot.getTaxonomyTree();
 

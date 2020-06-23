@@ -22,6 +22,7 @@ import org.glassfish.hk2.api.Rank;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.*;
 import sh.isaac.api.UserConfigurationInternalImpl.ConfigurationOption;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.coordinate.*;
@@ -142,7 +143,6 @@ public class UserConfigurationImpl implements UserConfiguration
 		//stampCoordinate.stampPrecedenceProperty()
 		
 		manifoldCoordinate = new ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable.makeStated(pathCoordinate.getStampFilter(), languageCoordinate, logicCoordinate));
-		manifoldCoordinate.getDigraph().premiseTypeProperty().set(getOption(ConfigurationOption.PREMISE_TYPE));
 		//manifoldCoordinate.uuidProperty();
 	}
 
@@ -368,7 +368,17 @@ public class UserConfigurationImpl implements UserConfiguration
 						languageCoordinate.setLanguageConceptNid(getOption(ConfigurationOption.LANGUAGE));
 						break;
 					case PREMISE_TYPE:
-						manifoldCoordinate.getDigraph().premiseTypeProperty().set(getOption(ConfigurationOption.PREMISE_TYPE));
+						switch ((PremiseType) getOption(ConfigurationOption.PREMISE_TYPE)) {
+							case STATED:
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().clear();
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().add(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE);
+								break;
+							case INFERRED:
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().clear();
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().add(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE);
+								break;
+						}
+
 						break;
 					case STATED_ASSEMBLAGE:
 						logicCoordinate.statedAssemblageProperty().set(new ConceptProxy((Integer)getOption(ConfigurationOption.STATED_ASSEMBLAGE)));
@@ -418,7 +428,16 @@ public class UserConfigurationImpl implements UserConfiguration
 						languageCoordinate.setLanguageConceptNid((Integer)objectValue);
 						break;
 					case PREMISE_TYPE:
-						manifoldCoordinate.getDigraph().premiseTypeProperty().set((PremiseType)objectValue);
+						switch ((PremiseType) objectValue) {
+							case STATED:
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().clear();
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().add(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE);
+								break;
+							case INFERRED:
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().clear();
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().add(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE);
+								break;
+						}
 						break;
 					case STATED_ASSEMBLAGE:
 						logicCoordinate.statedAssemblageProperty().set(new ConceptProxy((Integer)objectValue));

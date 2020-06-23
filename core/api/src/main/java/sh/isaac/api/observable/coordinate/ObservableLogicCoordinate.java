@@ -45,9 +45,7 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinateImmutable;
-import sh.isaac.api.coordinate.LogicCoordinateProxy;
+import sh.isaac.api.coordinate.*;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -59,6 +57,11 @@ import sh.isaac.api.coordinate.LogicCoordinateProxy;
 public interface ObservableLogicCoordinate
         extends LogicCoordinateProxy, ObservableCoordinate<LogicCoordinateImmutable> {
 
+   @Override
+   default ObservableCoordinate<?>[] getCompositeCoordinates() {
+      return new ObservableCoordinate[0];
+   }
+
    default Property<?>[] getBaseProperties() {
       return new Property<?>[] {
               classifierProperty(),
@@ -69,16 +72,6 @@ public interface ObservableLogicCoordinate
               digraphIdentityProperty()
       };
    }
-
-   default ObservableCoordinate<?>[] getCompositeCoordinates() {
-      return new ObservableCoordinate<?>[]{};
-   }
-
-    /**
-     * 
-     * @return the logic coordinate that this observable wraps. 
-     */
-   LogicCoordinate getLogicCoordinate();
 
    /**
     * Classifier property.
@@ -122,6 +115,6 @@ public interface ObservableLogicCoordinate
     */
    ObjectProperty<ConceptSpecification> digraphIdentityProperty();
 
-
+   ObjectProperty<ConceptSpecification> rootConceptProperty();
 }
 

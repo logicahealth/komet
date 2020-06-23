@@ -153,7 +153,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     createConcept(SANDBOX_PATH_MODULE, TermAux.UNSPECIFIED_MODULE.getNid()).setModule(TermAux.KOMET_MODULE);
                     popParent();
                 popParent();
-            createConcept("Directed graph", "DigraphCoordinate");
+            createConcept("Directed graph", "NavigationCoordinate");
             pushParent(current());
                 createConcept(EL_PLUS_PLUS_DIGRAPH)
                         .addDescription("The directed graph that results from classifying a set of EL++ axioms.", TermAux.DEFINITION_DESCRIPTION_TYPE)
@@ -967,6 +967,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DIGRAPH_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(ROOT_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(CLASSIFIER_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);

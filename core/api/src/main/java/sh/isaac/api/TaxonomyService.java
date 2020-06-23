@@ -114,9 +114,9 @@ public interface TaxonomyService
 
    /**
     * Gets the snapshot.  This method is for returning a Snapshot that builds an entire tree in a background thread.
-    * The returned {@link TaxonomySnapshotService} can be used immediately, while it computes in the background - until
+    * The returned {@link TaxonomySnapshot} can be used immediately, while it computes in the background - until
     * the entire tree is computed, it will answer queries via direct lookups.  After the tree is computed, it will use
-    * the case to answer queries.  This approach is best for a use case where the TaxonomySnapshotService will be used 
+    * the cache to answer queries.  This approach is best for a use case where the TaxonomySnapshotService will be used
     * for many queries for a period of time.
     *
     * @param mc the manifold coordinate

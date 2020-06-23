@@ -36,6 +36,7 @@ import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.contract.preferences.WindowPreferencesItem;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
@@ -84,21 +85,24 @@ public class KometBaseMenus implements MenuProvider {
     }
 
     @Override
-    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window) {
+    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferencesItem windowPreference) {
         switch (parentMenu) {
             case FILE: {
                 MenuItem selectiveImport = new MenuItemWithText("Selective import and transform");
+                selectiveImport.setUserData(windowPreference);
                 selectiveImport.setOnAction((ActionEvent event) -> {
                     ImportView.show(FxGet.newDefaultViewProperties());
                 });
 
                 MenuItem selectiveExport = new MenuItemWithText("Selective export");
+                selectiveExport.setUserData(windowPreference);
                 selectiveExport.setOnAction(event -> ExportView.show(FxGet.newDefaultViewProperties()));
 
 
                 Menu synchronize = new Menu("Synchronize");
 
                 MenuItem initializeLocal = new MenuItemWithText("Initialize local");
+                initializeLocal.setUserData(windowPreference);
                 synchronize.getItems().add(initializeLocal);
                 initializeLocal.setOnAction((ActionEvent event) -> {
                     //
@@ -125,10 +129,12 @@ public class KometBaseMenus implements MenuProvider {
                 });
 
                 MenuItem initializeFromRemote = new MenuItemWithText("Initialize from remote...");
+                initializeFromRemote.setUserData(windowPreference);
                 synchronize.getItems().add(initializeFromRemote);
                 initializeFromRemote.setOnAction(KometBaseMenus::setupGit);
 
                 MenuItem pullFromRemote = new MenuItemWithText("Pull...");
+                pullFromRemote.setUserData(windowPreference);
                 synchronize.getItems().add(pullFromRemote);
                 pullFromRemote.setOnAction((event) -> {
                     SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
@@ -147,6 +153,7 @@ public class KometBaseMenus implements MenuProvider {
                 });
 
                 MenuItem pushToRemote = new MenuItemWithText("Push...");
+                pushToRemote.setUserData(windowPreference);
                 synchronize.getItems().add(pushToRemote);
                 pushToRemote.setOnAction((event) -> {
                     SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
@@ -166,21 +173,27 @@ public class KometBaseMenus implements MenuProvider {
                 });
 
                 MenuItem exportNative = new MenuItemWithText("Native format export to file...");
+                exportNative.setUserData(windowPreference);
                 exportNative.setOnAction(this::exportNative);
 
                 MenuItem importNative = new MenuItemWithText("Native format file to CSV...");
+                importNative.setUserData(windowPreference);
                 importNative.setOnAction(this::importNative);
 
                 MenuItem splitChangeSet = new MenuItemWithText("Split change set...");
+                splitChangeSet.setUserData(windowPreference);
                 splitChangeSet.setOnAction(this::splitChangeSet);
 
                 MenuItem executeFlwor = new MenuItemWithText("Execute FLWOR...");
+                executeFlwor.setUserData(windowPreference);
                 executeFlwor.setOnAction(this::executeFlwor);
 
                 MenuItem executeSctOwl = new MenuItemWithText("Test SNOMED OWL");
+                executeSctOwl.setUserData(windowPreference);
                 executeSctOwl.setOnAction(this::executeSctOwl);
 
                 MenuItem executeRxNormOwl = new MenuItemWithText("Test RxNorm OWL");
+                executeRxNormOwl.setUserData(windowPreference);
                 executeRxNormOwl.setOnAction(this::executeRxNormOwl);
 
                 return new MenuItem[]{selectiveImport, selectiveExport,
@@ -192,34 +205,40 @@ public class KometBaseMenus implements MenuProvider {
             case TOOLS: {
 
                 MenuItem transformSourcesFull = new MenuItemWithText("Transform RF2 to EL++ - FULL");
+                transformSourcesFull.setUserData(windowPreference);
                 transformSourcesFull.setOnAction((ActionEvent event) -> {
                     Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.FULL);
                     Get.executor().submit(transformer);
                 });
 
                 MenuItem transformSourcesActiveOnly = new MenuItem("Transform RF2 to EL++ - SNAPSHOT ACTIVE ONLY");
+                transformSourcesActiveOnly.setUserData(windowPreference);
                 transformSourcesActiveOnly.setOnAction((ActionEvent event) -> {
                     Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.SNAPSHOT_ACTIVE_ONLY);
                     Get.executor().submit(transformer);
                 });
 
                 MenuItem testGAE = new MenuItemWithText("Test GAE");
+                testGAE.setUserData(windowPreference);
                 testGAE.setOnAction(this::testGAE);
 
                 MenuItem completeClassify = new MenuItemWithText("Complete classify");
+                completeClassify.setUserData(windowPreference);
                 completeClassify.setOnAction((ActionEvent event) -> {
                     //TODO change how we get the edit coordinate. 
                     EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-                    ClassifierService classifierService = Get.logicService().getClassifierService(FxGet.manifold(Manifold.ManifoldGroup.SEARCH), editCoordinate);
+                    ClassifierService classifierService = Get.logicService().getClassifierService(windowPreference.getViewPropertiesForWindow().getManifoldCoordinate(), editCoordinate);
                     classifierService.classify();
                 });
 
                 MenuItem completeReindex = new MenuItemWithText("Complete reindex");
+                completeReindex.setUserData(windowPreference);
                 completeReindex.setOnAction((ActionEvent event) -> {
                     Get.startIndexTask();
                 });
 
                 MenuItem recomputeTaxonomy = new MenuItemWithText("Recompute taxonomy");
+                recomputeTaxonomy.setUserData(windowPreference);
                 recomputeTaxonomy.setOnAction((ActionEvent event) -> {
                     Get.taxonomyService().notifyTaxonomyListenersToRefresh();
                 });

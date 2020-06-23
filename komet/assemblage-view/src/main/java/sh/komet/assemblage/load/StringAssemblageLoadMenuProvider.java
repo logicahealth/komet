@@ -31,6 +31,7 @@ import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.contract.preferences.WindowPreferencesItem;
 import sh.komet.gui.menu.MenuItemWithText;
 
 /**
@@ -54,7 +55,7 @@ public class StringAssemblageLoadMenuProvider implements MenuProvider {
     }
 
     @Override
-    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window) {
+    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferencesItem windowPreference) {
         if (parentMenu == AppMenu.FILE) {
             MenuItem importStringAssembalge = new MenuItemWithText("Import String Assemblage...");
             importStringAssembalge.setOnAction((ActionEvent event) -> {

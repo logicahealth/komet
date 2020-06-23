@@ -155,6 +155,7 @@ public class ClassificationResultsNode extends ExplorationNodeAbstract {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/provider/classification/ClassifierResultsInterface.fxml"));
             loader.load();
             ClassifierResultsController resultsController = loader.getController();
+            resultsController.setViewProperties(this.viewProperties, this.viewProperties.getActivityFeed(ViewProperties.CLASSIFICATION));
             this.classificationResultsPane.setCenter(loader.getRoot());
             resultsController.setResults(classifierResult);
         } catch (IOException e) {

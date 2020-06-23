@@ -79,7 +79,7 @@ public class ShowConceptInGraphTask extends TimedTaskWithProgressTracker<Void> {
                 // Look for an IS_A relationship to origin.
                 boolean found = false;
 
-                for (int parent : multiParentGraphView.getTaxonomySnapshot().getTaxonomyParentConceptNids(concept.getNid())) {
+                for (int parent : multiParentGraphView.getNavigator().getParentNids(concept.getNid())) {
                     current = Get.identifierService()
                             .getUuidPrimordialForNid(parent);
                     pathToRoot.add(current);

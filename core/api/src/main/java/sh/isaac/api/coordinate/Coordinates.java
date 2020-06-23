@@ -16,7 +16,8 @@ public class Coordinates {
                     TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE,
                     TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE,
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE,
-                    TermAux.EL_PLUS_PLUS_DIGRAPH);
+                    TermAux.EL_PLUS_PLUS_DIGRAPH,
+                    TermAux.SOLOR_ROOT);
         }
     }
 
@@ -204,20 +205,26 @@ public class Coordinates {
     }
 
     public static class Digraph {
-        public static final DigraphCoordinateImmutable DevelopmentStated() {
-            return DigraphCoordinateImmutable.makeStated(Coordinates.Filter.DevelopmentLatest());
+        public static final NavigationCoordinateImmutable Stated() {
+            return NavigationCoordinateImmutable.makeStated();
         }
-        public static final DigraphCoordinateImmutable DevelopmentInferred() {
-            return DigraphCoordinateImmutable.makeInferred(Coordinates.Filter.DevelopmentLatest());
+        public static final NavigationCoordinateImmutable Inferred() {
+            return NavigationCoordinateImmutable.makeInferred();
         }
     }
 
     public static class Manifold {
         public static final ManifoldCoordinateImmutable DevelopmentInferredRegularNameSort() {
-            return ManifoldCoordinateImmutable.make(Digraph.DevelopmentInferred());
+            return ManifoldCoordinateImmutable.makeInferred(
+                    Path.Development().getStampFilter(),
+                    Language.UsEnglishPreferredName(),
+                    Logic.ElPlusPlus());
         }
         public static final ManifoldCoordinateImmutable DevelopmentStatedRegularNameSort() {
-            return ManifoldCoordinateImmutable.make(Digraph.DevelopmentStated());
+            return ManifoldCoordinateImmutable.makeStated(
+                    Path.Development().getStampFilter(),
+                    Language.UsEnglishPreferredName(),
+                    Logic.ElPlusPlus());
         }
     }
 

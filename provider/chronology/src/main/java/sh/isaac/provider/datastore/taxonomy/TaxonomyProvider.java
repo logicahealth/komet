@@ -64,6 +64,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.navigation.NavigationService;
+import sh.isaac.api.navigation.Navigator;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.api.task.TaskCountManager;
 import sh.isaac.api.tree.EdgeImpl;
@@ -73,6 +75,7 @@ import sh.isaac.model.ModelGet;
 import sh.isaac.model.TaxonomyDebugService;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
+import sh.isaac.provider.datastore.navigator.NavigationAmalgam;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
@@ -93,7 +96,7 @@ import java.util.stream.IntStream;
 @Service
 @RunLevel(value = LookupService.SL_L4)
 public class TaxonomyProvider
-        implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener {
+        implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener, NavigationService {
 
     /**
      * The Constant LOG.
@@ -377,7 +380,6 @@ public class TaxonomyProvider
     @Override
     public TaxonomySnapshot getSnapshot(ManifoldCoordinate mc) {
         Task<Tree> treeTask = getTaxonomyTree(mc);
-
         return new TaxonomySnapshotProvider(mc, treeTask);
     }
     
@@ -1011,5 +1013,10 @@ public class TaxonomyProvider
             }
             return links.toImmutable();
         }
+    }
+
+    @Override
+    public Navigator getNavigator(ManifoldCoordinate mc) {
+        return new NavigationAmalgam(mc);
     }
 }

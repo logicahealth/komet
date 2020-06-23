@@ -56,8 +56,8 @@ import sh.isaac.api.Edge;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.navigation.Navigator;
 import sh.isaac.api.util.NaturalOrder;
-import sh.komet.gui.control.property.ViewProperties;
 import sh.isaac.api.TaxonomySnapshot;
 
 //~--- classes ----------------------------------------------------------------
@@ -107,7 +107,6 @@ public class MultiParentGraphItemImpl
         this.graphView = graphView;
         this.nid = Integer.MAX_VALUE;
         this.typeNid = TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
-
     }
 
     MultiParentGraphItemImpl(int conceptSequence, MultiParentGraphViewController graphView, int typeNid) {
@@ -230,10 +229,10 @@ public class MultiParentGraphItemImpl
                     // Gather the children
                     LOG.info("addChildrenNOW(): conceptChronology={}", conceptChronology);
                     ArrayList<MultiParentGraphItemImpl> childrenToAdd = new ArrayList<>();
-                    TaxonomySnapshot taxonomySnapshot = graphView.getTaxonomySnapshot();
+                    Navigator navigator = graphView.getNavigator();
 
                     if (childLinks == null) {
-                        childLinks = taxonomySnapshot.getTaxonomyChildLinks(conceptChronology.getNid());
+                        childLinks = navigator.getChildLinks(conceptChronology.getNid());
                     }
 
                     for (Edge childLink : childLinks) {
@@ -242,7 +241,7 @@ public class MultiParentGraphItemImpl
                         ManifoldCoordinate manifold = graphView.getManifoldCoordinate();
                         childItem.setDefined(childChronology.isSufficientlyDefined(manifold.getVertexStampFilter(), manifold.getLogicCoordinate()));
                         childItem.toString();
-                        childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childLink.getDestinationNid()).length > 1);
+                        childItem.setMultiParent(navigator.getParentNids(childLink.getDestinationNid()).length > 1);
 
                         if (childItem.shouldDisplay()) {
                             childrenToAdd.add(childItem);
@@ -354,7 +353,7 @@ public class MultiParentGraphItemImpl
             return true;
         }
         if (this.childLinks == null) {
-            if (this.graphView.getTaxonomySnapshot().isLeaf(nid)) {
+            if (this.graphView.getNavigator().isLeaf(nid)) {
                 leafStatus = LeafStatus.IS_LEAF;
             } else {
                 leafStatus = LeafStatus.NOT_LEAF;

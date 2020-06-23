@@ -14,23 +14,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package sh.isaac.api.tree;
+package sh.isaac.provider.datastore.navigator;
 
 import java.util.List;
 
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
-import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.Edge;
-import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.SearchResult;
+import sh.isaac.api.navigation.Navigator;
+import sh.isaac.api.tree.EdgeImpl;
 
 /**
  * Implements the Tree interface by decorating an assemblage with tree functions.  
@@ -38,21 +38,21 @@ import sh.isaac.api.index.SearchResult;
  * ComponentNid type semantic is the child. 
  * @author kec
  */
-public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnapshot {
+public class ComponentNidAssemblageNavigator implements Navigator {
 
-    private final SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage;
+    private final SingleAssemblageSnapshot<ComponentNidVersion> navigationAssemblage;
     private final int[] treeAssemblageNidAsArray;
     private final ManifoldCoordinate manifoldCoordinate;
 
-    public TaxonomySnapshotFromComponentNidAssemblage(SingleAssemblageSnapshot<ComponentNidVersion> treeAssemblage, ManifoldCoordinate manifoldCoordinate) {
-        this.treeAssemblage = treeAssemblage;
-        this.treeAssemblageNidAsArray = new int[] {treeAssemblage.getAssemblageNid() };
+    public ComponentNidAssemblageNavigator(SingleAssemblageSnapshot<ComponentNidVersion> navigationAssemblage, ManifoldCoordinate manifoldCoordinate) {
+        this.navigationAssemblage = navigationAssemblage;
+        this.treeAssemblageNidAsArray = new int[] {navigationAssemblage.getAssemblageNid() };
         this.manifoldCoordinate = manifoldCoordinate;
     }
 
     @Override
-    public int[] getTaxonomyChildConceptNids(int parentNid) {
-        List<LatestVersion<ComponentNidVersion>> children = treeAssemblage.getLatestSemanticVersionsForComponentFromAssemblage(parentNid);
+    public int[] getChildNids(int parentNid) {
+        List<LatestVersion<ComponentNidVersion>> children = navigationAssemblage.getLatestSemanticVersionsForComponentFromAssemblage(parentNid);
         NidSet childrenNids = new NidSet();
         for (LatestVersion<ComponentNidVersion> childSemantic: children) {
             childSemantic.ifPresent((semantic) -> {
@@ -65,12 +65,12 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
     }
 
     @Override
-    public int[] getTaxonomyParentConceptNids(int childNid) {
+    public int[] getParentNids(int childNid) {
         NidSet parentNids = new NidSet();
         List<SearchResult> matches = Get.indexSemanticService().queryNidReference(childNid, treeAssemblageNidAsArray, null, null, null, null, null, Long.MIN_VALUE);
         for (SearchResult match: matches) {
             int semanticNid = match.getNid();
-            treeAssemblage.getLatestSemanticVersion(semanticNid).ifPresent((t) -> {
+            navigationAssemblage.getLatestSemanticVersion(semanticNid).ifPresent((t) -> {
                 if (Get.concept(t.getReferencedComponentNid()).getLatestVersion(manifoldCoordinate.getVertexStampFilter()).isPresent()) {
                     parentNids.add(t.getReferencedComponentNid());
                 }
@@ -86,7 +86,7 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
 
     @Override
     public boolean isChildOf(int childNid, int parentNid) {
-        List<LatestVersion<ComponentNidVersion>> children = treeAssemblage.getLatestSemanticVersionsForComponentFromAssemblage(parentNid);
+        List<LatestVersion<ComponentNidVersion>> children = navigationAssemblage.getLatestSemanticVersionsForComponentFromAssemblage(parentNid);
         for (LatestVersion<ComponentNidVersion> childSemantic: children) {
             if (childSemantic.isPresent()) {
                 if (childSemantic.get().getComponentNid() == childNid &&
@@ -100,26 +100,12 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
 
     @Override
     public boolean isLeaf(int conceptNid) {
-        return getTaxonomyChildConceptNids(conceptNid).length == 0;
+        return getChildNids(conceptNid).length == 0;
     }
 
-    @Override
-    public boolean isKindOf(int childConceptNid, int parentConceptNid) {
-        throw new UnsupportedOperationException("Not supported by assemblage."); 
-    }
-
-    @Override
-    public ImmutableIntSet getKindOfConcept(int rootConceptNid) {
-        throw new UnsupportedOperationException("Not supported by assemblage."); 
-    }
     @Override
     public boolean isDescendentOf(int descendantConceptNid, int ancestorConceptNid) {
         throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public Tree getTaxonomyTree() {
-        throw new UnsupportedOperationException("Not supported by assemblage."); 
     }
 
     @Override
@@ -128,8 +114,8 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
     }
 
     @Override
-    public ImmutableCollection<Edge> getTaxonomyParentLinks(int parentConceptNid) {
-        int[] parentNids = getTaxonomyParentConceptNids(parentConceptNid);
+    public ImmutableCollection<Edge> getParentLinks(int parentConceptNid) {
+        int[] parentNids = getParentNids(parentConceptNid);
         MutableList<Edge> links = Lists.mutable.ofInitialCapacity(parentNids.length);
         for (int parentNid: parentNids) {
             links.add(new EdgeImpl(this.treeAssemblageNidAsArray[0], parentNid));
@@ -138,8 +124,8 @@ public class TaxonomySnapshotFromComponentNidAssemblage implements TaxonomySnaps
     }
 
     @Override
-    public ImmutableCollection<Edge> getTaxonomyChildLinks(int childConceptNid) {
-        int[] childNids = getTaxonomyChildConceptNids(childConceptNid);
+    public ImmutableCollection<Edge> getChildLinks(int childConceptNid) {
+        int[] childNids = getChildNids(childConceptNid);
         MutableList<Edge> links = Lists.mutable.ofInitialCapacity(childNids.length);
         for (int childNid: childNids) {
             links.add(new EdgeImpl(this.treeAssemblageNidAsArray[0], childNid));

@@ -46,7 +46,7 @@ package sh.isaac.api;
 
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.navigation.Navigator;
 import sh.isaac.api.tree.Tree;
 
 //~--- interfaces -------------------------------------------------------------
@@ -56,23 +56,8 @@ import sh.isaac.api.tree.Tree;
  *
  * @author kec
  */
-public interface TaxonomySnapshot {
+public interface TaxonomySnapshot extends Navigator {
 
-   /**
-    * 
-    * @param conceptNid concept to test if it is a leaf node
-    * @return true if the node is a leaf (it has no children)
-    */
-   boolean isLeaf(int conceptNid);
-   
-   /**
-    * Checks if child of.
-    *
-    * @param childConceptNid the child id
-    * @param parentConceptNid the parent id
-    * @return true, if child of
-    */
-   boolean isChildOf(int childConceptNid, int parentConceptNid);
 
    /**
     * Checks if kind of.
@@ -87,15 +72,6 @@ public interface TaxonomySnapshot {
       }
       return isDescendentOf(childConceptNid, parentConceptNid);
    }
-   
-   /**
-    * Checks if descendant  of.
-    *
-    * @param descendantConceptNid the descendant id
-    * @param ancestorConceptNid the parent id
-    * @return true, if kind of
-    */
-   boolean isDescendentOf(int descendantConceptNid, int ancestorConceptNid);
 
    /**
     * Gets the kind of nid set.
@@ -104,13 +80,6 @@ public interface TaxonomySnapshot {
     * @return the kind of nid set
     */
    ImmutableIntSet getKindOfConcept(int rootConceptNid);
-
-   /**
-    * Gets the roots.
-    *
-    * @return the root concept nids
-    */
-   int[] getRootNids();
 
    /**
     * Gets the taxonomy child nids.
@@ -148,12 +117,25 @@ public interface TaxonomySnapshot {
     * @return the taxonomy tree
     */
    Tree getTaxonomyTree();
- 
-   /**
-    * Get the ManifoldCoordinate which defines the parent/child relationships of this tree.
-    * @return ManifoldCoordinate
-    */
-   ManifoldCoordinate getManifoldCoordinate();
 
+   @Override
+   default int[] getParentNids(int childNid) {
+      return getTaxonomyParentConceptNids(childNid);
+   }
+
+   @Override
+   default int[] getChildNids(int parentNid) {
+      return getTaxonomyChildConceptNids(parentNid);
+   }
+
+   @Override
+   default ImmutableCollection<Edge> getParentLinks(int childNid) {
+      return getTaxonomyParentLinks(childNid);
+   }
+
+   @Override
+   default ImmutableCollection<Edge> getChildLinks(int parentNid) {
+      return getTaxonomyChildLinks(parentNid);
+   }
 }
 

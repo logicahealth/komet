@@ -202,10 +202,11 @@ public class ConceptSuite {
       final int                  classifierNid = TermAux.SNOROCKET_CLASSIFIER.getNid();
       final int                  conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
       final int digraphIdentityNid = TermAux.EL_PLUS_PLUS_DIGRAPH.getNid();
+      final int rootConceptNid = TermAux.SOLOR_ROOT.getNid();
 
       final LogicCoordinate defaultLogicCoordinate = LogicCoordinateImmutable.make(classifierNid,
               descriptionLogicProfileNid, inferredAssemblageNid,
-              statedAssemblageNid, conceptAssemblageNid,digraphIdentityNid);
+              statedAssemblageNid, conceptAssemblageNid,digraphIdentityNid, rootConceptNid);
 
       final ConceptBuilderImpl testConceptBuilder = new ConceptBuilderImpl(conceptName,
                                                                                      semanticTag,

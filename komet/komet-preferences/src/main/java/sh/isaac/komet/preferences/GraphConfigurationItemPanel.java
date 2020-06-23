@@ -21,32 +21,23 @@ import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import sh.isaac.MetaData;
-import sh.isaac.api.Get;
-import sh.isaac.api.SingleAssemblageSnapshot;
-import sh.isaac.api.TaxonomySnapshot;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.api.tree.TaxonomySnapshotFromComponentNidAssemblage;
+
 import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.INCLUDE_DEFINING_TAXONOMY;
 import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.INVERSE_TREES;
 import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.ROOTS;
 import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.TREES;
 
-import sh.isaac.api.tree.TaxonomySnapshotFromPathOrigins;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.GraphConfigurationItem;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
-import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.manifold.GraphAmalgamWithManifold;
 import sh.komet.gui.util.FxGet;
 import sh.isaac.api.util.UuidStringKey;
 
@@ -106,10 +97,7 @@ public class GraphConfigurationItemPanel extends AbstractPreferences implements 
     final protected void saveFields() throws BackingStoreException {
         // Delete old amalgam
         Optional<String> oldItemName = getPreferencesNode().get(Keys.ITEM_NAME);
-        if (oldItemName.isPresent()) {
-            FxGet.removeGraphConfiguration(oldItemName.get());
-        }
-        
+
         getPreferencesNode().put(Keys.ITEM_NAME, nameProperty.get());
 
         getPreferencesNode().putConceptList(ROOTS, taxonomyRootListProperty);

@@ -87,8 +87,6 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
      
     final SimpleStringProperty shiroIniProperty = new SimpleStringProperty(this, "Shiro INI");
 
-     private final PropertySheetItemObjectListWrapper<UuidStringKey> viewCoordinateKeyWrapper;
-
     
     public UserPreferencesPanel(IsaacPreferences preferencesNode, ViewProperties viewProperties,
                                 KometPreferencesController kpc) {
@@ -102,9 +100,6 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         
         this.pathConceptWrapper = new PropertySheetItemConceptWrapper(viewProperties, pathConceptProperty);
         this.pathConceptWrapper.setAllowedValues(pathConceptOptions);
-
-        this.viewCoordinateKeyWrapper = new PropertySheetItemObjectListWrapper("Default view",
-                FxGet.defaultViewKeyProperty(), FxGet.graphConfigurationKeys());
         revertFields();
         save();
         int[] userConceptOptionNids = new int[userConceptOptions.size()];
@@ -112,7 +107,6 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
             userConceptOptionNids[i] = userConceptOptions.get(i).getNid();
         }
 
-        getItemList().add(this.viewCoordinateKeyWrapper);
         getItemList().add(new PropertySheetItemConceptConstraintWrapper(userConceptWrapper, viewProperties, "User"));
         getItemList().add(new PropertySheetItemConceptConstraintWrapper(moduleConceptWrapper, viewProperties, "Module"));
 

@@ -94,6 +94,7 @@ import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.metacontent.MetaContentService;
+import sh.isaac.api.navigation.NavigationService;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
@@ -180,6 +181,8 @@ public class Get
 
    /** The taxonomy service. */
    private static TaxonomyService taxonomyService;
+
+   private static NavigationService navigationService;
 
    /** The work executors. */
    private static WorkExecutors workExecutors;
@@ -842,6 +845,7 @@ public class Get
       semanticBuilderService          = null;
       assemblageService               = null;
       taxonomyService                 = null;
+      navigationService               = null;
       workExecutors                   = null;
       stampService                    = null;
       postCommitService               = null;
@@ -962,6 +966,13 @@ public class Get
       }
 
       return taxonomyService;
+   }
+   public static NavigationService navigationService() {
+      if (navigationService == null) {
+         navigationService = getService(NavigationService.class);
+      }
+
+      return navigationService;
    }
    /**
     * Work executors.

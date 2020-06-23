@@ -13,7 +13,7 @@ public class ObservableLogicCoordinateWithOverride extends ObservableLogicCoordi
     }
 
     public ObservableLogicCoordinateWithOverride(ObservableLogicCoordinate logicCoordinate) {
-        super(logicCoordinate, "Logic coordinate");
+        super(logicCoordinate, "Logic coordinate with override");
     }
 
 
@@ -53,4 +53,9 @@ public class ObservableLogicCoordinateWithOverride extends ObservableLogicCoordi
         return new ObjectPropertyWithOverride<>(overriddenCoordinate.digraphIdentityProperty(), this);
     }
 
+    @Override
+    protected ObjectProperty<ConceptSpecification> makeRootConceptProperty(LogicCoordinate logicCoordinate) {
+        ObservableLogicCoordinate overriddenCoordinate = (ObservableLogicCoordinate) logicCoordinate;
+        return new ObjectPropertyWithOverride<>(overriddenCoordinate.rootConceptProperty(), this);
+    }
 }

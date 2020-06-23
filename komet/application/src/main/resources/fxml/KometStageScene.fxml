@@ -7,12 +7,12 @@
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SplitPane?>
-<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
 
 <BorderPane fx:id="topBorderPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="600" prefHeight="875.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.fx.stage.KometStageController">
    <bottom>
@@ -39,7 +39,7 @@
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="30.0" />
           <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0" />
-          <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+          <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="SOMETIMES" />
         </columnConstraints>
         <rowConstraints>
@@ -55,18 +55,18 @@
                </GridPane.margin>
             </MenuButton>
             <Button fx:id="vanityBox" alignment="TOP_LEFT" focusTraversable="false" onAction="#handleRefreshUserCss" styleClass="vanityBox" GridPane.columnIndex="1" />
-            <ToolBar prefHeight="40.0" prefWidth="200.0" style="-fx-background-color: transparent;" GridPane.columnIndex="2" />
+            <Label fx:id="pathLabel" contentDisplay="CENTER" text="Label" GridPane.columnIndex="2">
+               <font>
+                  <Font name="System Bold" size="14.0" />
+               </font>
+            </Label>
             <MenuButton fx:id="viewPropertiesButton" maxHeight="28.0" maxWidth="28.0" minHeight="28.0" minWidth="28.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="28.0" style="-fx-background-color: transparent;">
               <items>
-                  <Menu fx:id="windowCoordinates" mnemonicParsing="false" text="Window coordinates">
-                    <items>
-                      <MenuItem mnemonicParsing="false" text="Action 1" />
-                    </items>
-                  </Menu>
+                  <Menu fx:id="windowCoordinates" mnemonicParsing="false" text="Window coordinates" />
                   <Menu fx:id="pathMenu" mnemonicParsing="false" text="Change path" />
                   <Menu fx:id="languageMenu" mnemonicParsing="false" text="Change language" />
                   <Menu fx:id="logicMenu" mnemonicParsing="false" text="Change logic coordinate" />
-                  <Menu fx:id="navigationMenu" mnemonicParsing="false" text="Change navigation coordinate" />
+                  <Menu fx:id="navigationMenu" mnemonicParsing="false" text="Change navigation" />
               </items>
                <padding>
                   <Insets left="-8.0" />

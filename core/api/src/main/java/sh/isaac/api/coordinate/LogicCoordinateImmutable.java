@@ -27,7 +27,7 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
-    private static final int marshalVersion = 1;
+    private static final int marshalVersion = 2;
 
     private final int classifierNid;
     private final int descriptionLogicProfileNid;
@@ -35,6 +35,7 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
     private final int statedAssemblageNid;
     private final int conceptAssemblageNid;
     private final int digraphIdentityNid;
+    private final int rootNid;
 
     private LogicCoordinateImmutable() {
         // No arg constructor for HK2 managed instance
@@ -45,6 +46,7 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
         this.statedAssemblageNid = Integer.MAX_VALUE;
         this.conceptAssemblageNid = Integer.MAX_VALUE;
         this.digraphIdentityNid = Integer.MAX_VALUE;
+        this.rootNid = Integer.MAX_VALUE;
     }
     /**
      * {@inheritDoc}
@@ -59,22 +61,29 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
                                     int inferredAssemblageNid,
                                     int statedAssemblageNid,
                                     int conceptAssemblageNid,
-                                    int digraphIdentityNid) {
+                                    int digraphIdentityNid,
+                                     int rootNid) {
         this.classifierNid = classifierNid;
         this.descriptionLogicProfileNid = descriptionLogicProfileNid;
         this.inferredAssemblageNid = inferredAssemblageNid;
         this.statedAssemblageNid = statedAssemblageNid;
         this.conceptAssemblageNid = conceptAssemblageNid;
         this.digraphIdentityNid = digraphIdentityNid;
+        this.rootNid = rootNid;
     }
 
-    private LogicCoordinateImmutable(ByteArrayDataBuffer in) {
+    private LogicCoordinateImmutable(ByteArrayDataBuffer in, int version) {
         this.classifierNid = in.getNid();
         this.descriptionLogicProfileNid = in.getNid();
         this.inferredAssemblageNid = in.getNid();
         this.statedAssemblageNid = in.getNid();
         this.conceptAssemblageNid = in.getNid();
         this.digraphIdentityNid = in.getNid();
+        if (version < 2) {
+            this.rootNid = TermAux.SOLOR_ROOT.getNid();
+        } else {
+            this.rootNid = in.getNid();
+        }
     }
 
     @Override
@@ -87,12 +96,14 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
                 getInferredAssemblageNid() == that.getInferredAssemblageNid() &&
                 getStatedAssemblageNid() == that.getStatedAssemblageNid() &&
                 getConceptAssemblageNid() == that.getConceptAssemblageNid() &&
-                getDigraphIdentityNid() == that.getDigraphIdentityNid();
+                getDigraphIdentityNid() == that.getDigraphIdentityNid() &&
+                getRootNid() == that.getRootNid();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getClassifierNid(), getDescriptionLogicProfileNid(), getInferredAssemblageNid(), getStatedAssemblageNid(), getConceptAssemblageNid(), getDigraphIdentityNid());
+        return Objects.hash(getClassifierNid(), getDescriptionLogicProfileNid(), getInferredAssemblageNid(),
+                getStatedAssemblageNid(), getConceptAssemblageNid(), getDigraphIdentityNid(), getRootNid());
     }
 
     public static LogicCoordinateImmutable make(int classifierNid,
@@ -100,9 +111,10 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
                                                 int inferredAssemblageNid,
                                                 int statedAssemblageNid,
                                                 int conceptAssemblageNid,
-                                                int digraphIdentityNid)  {
+                                                int digraphIdentityNid,
+                                                int rootNid)  {
         return SINGLETONS.computeIfAbsent(new LogicCoordinateImmutable(classifierNid, descriptionLogicProfileNid,
-                        inferredAssemblageNid, statedAssemblageNid, conceptAssemblageNid, digraphIdentityNid),
+                        inferredAssemblageNid, statedAssemblageNid, conceptAssemblageNid, digraphIdentityNid, rootNid),
                 logicCoordinateImmutable -> logicCoordinateImmutable);
     }
 
@@ -111,9 +123,11 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
                                                 ConceptSpecification inferredAssemblage,
                                                 ConceptSpecification statedAssemblage,
                                                 ConceptSpecification conceptAssemblage,
-                                                ConceptSpecification digraphIdentity)  {
+                                                ConceptSpecification digraphIdentity,
+                                                ConceptSpecification root)  {
         return SINGLETONS.computeIfAbsent(new LogicCoordinateImmutable(classifier.getNid(), descriptionLogicProfile.getNid(),
-                        inferredAssemblage.getNid(), statedAssemblage.getNid(), conceptAssemblage.getNid(), digraphIdentity.getNid()),
+                        inferredAssemblage.getNid(), statedAssemblage.getNid(), conceptAssemblage.getNid(), digraphIdentity.getNid(),
+                        root.getNid()),
                 logicCoordinateImmutable -> logicCoordinateImmutable);
     }
 
@@ -121,8 +135,9 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
     public static LogicCoordinateImmutable make(ByteArrayDataBuffer in) {
         int objectMarshalVersion = in.getInt();
         switch (objectMarshalVersion) {
+            case 1:
             case marshalVersion:
-                return SINGLETONS.computeIfAbsent(new LogicCoordinateImmutable(in),
+                return SINGLETONS.computeIfAbsent(new LogicCoordinateImmutable(in, objectMarshalVersion),
                         logicCoordinateImmutable -> logicCoordinateImmutable);
             default:
                 throw new UnsupportedOperationException("Unsupported version: " + objectMarshalVersion);
@@ -139,6 +154,7 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
         out.putNid(this.statedAssemblageNid);
         out.putNid(this.conceptAssemblageNid);
         out.putNid(this.digraphIdentityNid);
+        out.putNid(this.rootNid);
     }
 
     @Override
@@ -164,6 +180,16 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
     @Override
     public int getConceptAssemblageNid() {
         return this.conceptAssemblageNid;
+    }
+
+    @Override
+    public int getRootNid() {
+        return this.rootNid;
+    }
+
+    @Override
+    public ConceptSpecification getRoot() {
+        return Get.concept(this.rootNid);
     }
 
     @Override

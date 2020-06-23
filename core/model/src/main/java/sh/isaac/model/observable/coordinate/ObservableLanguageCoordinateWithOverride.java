@@ -16,12 +16,12 @@ public class ObservableLanguageCoordinateWithOverride extends ObservableLanguage
 
 
     public ObservableLanguageCoordinateWithOverride(ObservableLanguageCoordinate overriddenCoordinate, String coordinateName) {
-        super(overriddenCoordinate.toLanguageCoordinateImmutable(), coordinateName);
+        super(overriddenCoordinate, coordinateName);
         this.overriddenCoordinate = overriddenCoordinate;
     }
 
     public ObservableLanguageCoordinateWithOverride(ObservableLanguageCoordinate overriddenCoordinate) {
-        super(overriddenCoordinate.toLanguageCoordinateImmutable(), "Language coordinate with override");
+        super(overriddenCoordinate, "Language coordinate with override");
         this.overriddenCoordinate = overriddenCoordinate;
     }
 

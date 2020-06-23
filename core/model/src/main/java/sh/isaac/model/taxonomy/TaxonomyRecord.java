@@ -49,10 +49,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.coordinate.DigraphCoordinateImmutable;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampFilterImmutable;
-import sh.isaac.api.coordinate.VertexSort;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
 
@@ -540,14 +537,14 @@ public class TaxonomyRecord {
         final RelativePositionCalculator edgeComputer = manifoldCoordinate.getEdgeStampFilter().getRelativePositionCalculator();
         final RelativePositionCalculator vertexComputer = manifoldCoordinate.getVertexStampFilter().getRelativePositionCalculator();
         return getConceptNidsForType(typeSequence, taxonomyDataProvider, flags, edgeComputer,
-                vertexComputer, manifoldCoordinate.getVertexSort(), manifoldCoordinate.toDigraphImmutable());
+                vertexComputer, manifoldCoordinate.getVertexSort(), manifoldCoordinate.toManifoldCoordinateImmutable());
     }
 
     public int[] getConceptNidsForType(int typeSequence, IntFunction<int[]> taxonomyDataProvider, int flags,
                                        RelativePositionCalculator edgeComputer,
                                        RelativePositionCalculator vertexComputer,
                                        VertexSort sort,
-                                       DigraphCoordinateImmutable digraph) {
+                                       ManifoldCoordinateImmutable digraph) {
         final MutableIntSet conceptNidsForTypeSet = IntSets.mutable.empty();
 
         this.conceptNidRecordMap.forEachKeyValue((int possibleParentNid,

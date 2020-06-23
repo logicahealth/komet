@@ -44,6 +44,7 @@ package sh.isaac.model.configuration;
 import javafx.collections.ObservableList;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.observable.coordinate.*;
@@ -255,7 +256,16 @@ public class DefaultCoordinateProvider {
     * @param premiseType the new default premise type
     */
    public void setDefaultPremiseType(PremiseType premiseType) {
-      this.observableManifoldCoordinate.getDigraph().premiseTypeProperty().setValue(premiseType);
+      switch (premiseType) {
+         case STATED:
+            this.observableManifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().clear();
+            this.observableManifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().add(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE);
+            break;
+         case INFERRED:
+            this.observableManifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().clear();
+            this.observableManifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().add(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE);
+            break;
+      }
    }
 
    /**
