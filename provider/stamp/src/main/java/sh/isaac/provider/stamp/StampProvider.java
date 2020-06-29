@@ -41,6 +41,12 @@ package sh.isaac.provider.stamp;
 import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.list.primitive.ImmutableLongList;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableLongSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
+import org.eclipse.collections.impl.factory.primitive.LongSets;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.*;
@@ -127,7 +133,7 @@ public class StampProvider
      * Persistent map of stamp sequences to a STAMP object. When a STAMP is cancelled, the time is
      * set to Long.MIN_VALUE, therefore there can be more than one stamp sequence for canceled
      * stamps. The stamp map supports an int[] so that when more than one canceled stamp with a
-     * particuar module, author, & path will be properly represented.
+     * particular module, author, & path will be properly represented.
      */
     private final ConcurrentHashMap<Stamp, int[]> stampMap = new ConcurrentHashMap<>();
 
@@ -1069,6 +1075,40 @@ public class StampProvider
     @Override
     public boolean isUncommitted(int stampSequence) {
         return getTimeForStamp(stampSequence) == Long.MAX_VALUE;
+    }
+
+    @Override
+    public ImmutableIntSet getPathsInUse() {
+        MutableIntSet pathsInUse = IntSets.mutable.empty();
+        stampSequence_PathNid_Map.values().forEach(pathNid -> pathsInUse.add(pathNid));
+        return pathsInUse.toImmutable();
+    }
+
+    @Override
+    public ImmutableIntSet getModulesInUse() {
+        MutableIntSet modulesInUse = IntSets.mutable.empty();
+        for (Stamp stamp: inverseStampMap.values()) {
+            modulesInUse.add(stamp.getModuleNid());
+        }
+        return modulesInUse.toImmutable();
+    }
+
+    @Override
+    public ImmutableIntSet getAuthorsInUse() {
+        MutableIntSet authorsInUse = IntSets.mutable.empty();
+        for (Stamp stamp: inverseStampMap.values()) {
+            authorsInUse.add(stamp.getAuthorNid());
+        }
+        return authorsInUse.toImmutable();
+    }
+
+    @Override
+    public ImmutableLongList getTimesInUse() {
+        MutableLongSet timesInUse = LongSets.mutable.empty();
+        for (Stamp stamp: inverseStampMap.values()) {
+            timesInUse.add(stamp.getTime());
+        }
+        return timesInUse.toSortedList().toImmutable();
     }
 }
 

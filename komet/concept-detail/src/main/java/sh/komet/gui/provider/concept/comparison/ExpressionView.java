@@ -33,8 +33,10 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.axiom.AxiomView;
+import sh.komet.gui.control.concept.AddToContextMenu;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
+import sh.komet.gui.control.concept.MenuSupplierForFocusConcept;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.DetailNodeAbstract;
@@ -60,14 +62,15 @@ public class ExpressionView extends DetailNodeAbstract implements Supplier<List<
 
     //~--- constructors --------------------------------------------------------
     public ExpressionView(ViewProperties viewProperties, String activityGroupName, IsaacPreferences preferences) {
-        super(viewProperties, viewProperties.getActivityFeed(activityGroupName), preferences);
+        super(viewProperties, viewProperties.getActivityFeed(activityGroupName), preferences, MenuSupplierForFocusConcept.getArray());
         this.conceptLabelToolbar = ConceptLabelToolbar.make(this.viewProperties,
                 this.identifiedObjectFocusProperty,
                 ConceptLabelWithDragAndDrop::setPreferredText,
                 this.selectionIndexProperty,
                 () -> this.unlinkFromActivityFeed(),
                 this.activityFeedProperty,
-                Optional.of(true));
+                Optional.of(true),
+                MenuSupplierForFocusConcept.getArray());
         detailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
         detailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         expressionProperty().addListener((observable, oldValue, newValue) -> {

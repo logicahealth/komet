@@ -28,7 +28,6 @@ import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 import sh.komet.gui.contract.GuiConceptBuilder;
 import sh.komet.gui.contract.GuiSearcher;
 import sh.komet.gui.control.axiom.AxiomView;
-import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
@@ -194,10 +193,10 @@ public class CellHelper {
 
         }
     }
-    public static String getTextForComponent(ViewProperties viewProperties, Version version) {
+    public static String getTextForComponent(ManifoldCoordinate manifoldCoordinate, Version version) {
         switch (version.getSemanticType()) {
             case CONCEPT: {
-                Optional<String> latestDescriptionText = viewProperties.getManifoldCoordinate().getDescriptionText(version.getNid());
+                Optional<String> latestDescriptionText = manifoldCoordinate.getDescriptionText(version.getNid());
                 if (latestDescriptionText.isPresent()) {
                     return latestDescriptionText.get();
                 }
@@ -229,7 +228,7 @@ public class CellHelper {
                 .add(StyleClasses.ASSEMBLAGE_NAME_TEXT.toString());
 
         if (version.getSemanticType() == VersionType.CONCEPT) {
-            processDescriptionText(label, tableColumn, getTextForComponent(this.cell.getViewProperties(), version));
+            processDescriptionText(label, tableColumn, getTextForComponent(this.cell.getManifoldCoordinate(), version));
         } else {
             SemanticVersion semanticVersion;
             if (version instanceof ObservableCategorizedVersion) {

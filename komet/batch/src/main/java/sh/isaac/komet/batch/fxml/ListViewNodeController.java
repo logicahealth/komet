@@ -9,19 +9,20 @@ import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.SelectionMode;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.util.UUIDUtil;
+import sh.isaac.komet.batch.AddConceptsInModule;
+import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateWithOverride;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DropHelper;
@@ -56,13 +57,20 @@ public class ListViewNodeController implements ComponentList {
     private TextField listName;
 
     @FXML
-    private ChoiceBox<UuidStringKey> viewChoiceBox;
+    private Menu navigationMenu;
 
+    @FXML
+    private Menu addConceptsInModuleMenu;
+
+    @FXML
+    private Menu addConceptsOnPathMenu;
+
+    @FXML
+    private Menu addConceptsByAuthorMenu;
 
     private VersionTable versionTable;
 
     private ViewProperties viewProperties;
-
     private DropHelper dropHelper;
 
     private final UUID listId = UUID.randomUUID();
@@ -72,7 +80,7 @@ public class ListViewNodeController implements ComponentList {
     void initialize() {
         assert batchAnchor != null : "fx:id=\"batchAnchor\" was not injected: check your FXML file 'ListViewNode.fxml'.";
         assert batchBorderPane != null : "fx:id=\"batchBorderPane\" was not injected: check your FXML file 'ListViewNode.fxml'.";
-        this.listName.setText("Unamed List");
+        this.listName.setText("Unnamed List");
         FxGet.addComponentList(this);
     }
 
@@ -83,16 +91,13 @@ public class ListViewNodeController implements ComponentList {
     public void setViewProperties(ViewProperties viewProperties, ActivityFeed activityFeed) {
         this.viewProperties = viewProperties;
         this.activityFeed = activityFeed;
-
-        //this.viewChoiceBox.setItems(FxGet.graphConfigurationKeys());
-        this.viewChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            //TODO viewChoiceBox may be obsolete
-            //GraphAmalgamWithManifold graphAmalgamWithManifold = FxGet.graphConfiguration(newValue);
+        this.viewProperties.getManifoldCoordinate().addListener(observable -> {
             this.versionTable = new VersionTable(this.viewProperties);
             this.versionTable.setViewProperties(this.viewProperties);
         });
 
-        this.viewChoiceBox.getSelectionModel().select(FxGet.defaultViewKey());
+        FxGet.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(), this.navigationMenu.getItems(), this.viewProperties.getManifoldCoordinate());
+
         this.versionTable = new VersionTable(this.viewProperties);
         this.versionTable.getRootNode().getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         this.versionTable.getRootNode().getSelectionModel().getSelectedItems().addListener(this::selectionChanged);
@@ -107,6 +112,25 @@ public class ListViewNodeController implements ComponentList {
         //TODO get the visible columns from preferences, and write them to preferences when changed...
         this.versionTable.setAuthorTimeColumnVisible(false);
         this.versionTable.setModulePathColumnVisible(false);
+
+        Get.stampService().getModulesInUse().forEach(moduleNid -> {
+            MenuItem menuItem = new MenuItem(this.viewProperties.getPreferredDescriptionText(moduleNid));
+            addConceptsInModuleMenu.getItems().add(menuItem);
+            menuItem.setOnAction(event -> {
+                Get.executor().submit(new AddConceptsInModule(moduleNid, viewProperties,
+                        this));
+            });
+        });
+        addConceptsInModuleMenu.getItems().sort((o1, o2) -> o1.getText().compareTo(o2.getText()));
+
+        Get.stampService().getPathsInUse().forEach(moduleNid -> {
+            //addConceptsInModuleMenu
+        });
+
+        Get.stampService().getAuthorsInUse().forEach(moduleNid -> {
+            //addConceptsInModuleMenu
+        });
+
     }
 
     private void selectionChanged(ListChangeListener.Change<? extends ObservableChronology> c) {
@@ -138,7 +162,7 @@ public class ListViewNodeController implements ComponentList {
         }
     }
 
-    private void addIdentifiedObject(IdentifiedObject object) {
+    public void addIdentifiedObject(IdentifiedObject object) {
         if (object == null) {
             return;
         }

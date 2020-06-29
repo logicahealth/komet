@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.ChoiceBox?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
 <?import javafx.scene.control.SeparatorMenuItem?>
@@ -19,9 +19,15 @@
               <items>
                   <MenuButton contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" mnemonicParsing="false">
                     <items>
+                        <Menu fx:id="navigationMenu" mnemonicParsing="false" text="Navigation coordinates" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#copyItems" text="Copy selected items" />
                         <MenuItem mnemonicParsing="false" onAction="#pasteItems" text="Paste items" />
                         <MenuItem mnemonicParsing="false" text="Delete selected items" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <Menu fx:id="addConceptsInModuleMenu" mnemonicParsing="false" text="Add concepts in module" />
+                        <Menu fx:id="addConceptsOnPathMenu" mnemonicParsing="false" text="Add concepts on path" />
+                        <Menu fx:id="addConceptsByAuthorMenu" mnemonicParsing="false" text="Add concepts by author" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#deDupe" text="Remove duplicates" />
                         <SeparatorMenuItem mnemonicParsing="false" />
@@ -38,7 +44,6 @@
                   </MenuButton>
                   <Label text="   List name: " />
                   <TextField fx:id="listName" maxWidth="1.7976931348623157E308" prefWidth="250.0" promptText="enter list name..." />
-                  <ChoiceBox fx:id="viewChoiceBox" />
               </items>
             </ToolBar>
          </top>

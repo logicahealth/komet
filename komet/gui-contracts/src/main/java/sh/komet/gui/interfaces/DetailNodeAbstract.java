@@ -13,6 +13,7 @@ import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
+import sh.komet.gui.control.concept.AddToContextMenu;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
 import sh.komet.gui.control.property.ActivityFeed;
@@ -41,12 +42,15 @@ public abstract class DetailNodeAbstract extends ExplorationNodeAbstract impleme
     private final ListChangeListener<? super IdentifiedObject> selectionChangedListener = this::selectionChanged;
     protected final ConceptLabelToolbar conceptLabelToolbar;
     protected final IsaacPreferences preferences;
+    protected final AddToContextMenu[] contextMenuProviders;
 
     protected final BorderPane detailPane = new BorderPane();
 
-    public DetailNodeAbstract(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferences) {
+    public DetailNodeAbstract(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferences,
+                              AddToContextMenu[] contextMenuProviders) {
         super(viewProperties, activityFeed);
         this.preferences = preferences;
+        this.contextMenuProviders = contextMenuProviders;
         this.detailPane.getProperties().put(Keys.DETAIL_NODE_INSTANCE, this);
         this.detailPane.sceneProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue == null) {
@@ -66,7 +70,8 @@ public abstract class DetailNodeAbstract extends ExplorationNodeAbstract impleme
                 this.selectionIndexProperty,
                 () -> unlinkFromActivityFeed(),
                 this.activityFeedProperty,
-                Optional.of(false));
+                Optional.of(false),
+                contextMenuProviders);
         this.detailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
 
         Platform.runLater(() -> updateMenuGraphic());
@@ -202,7 +207,8 @@ public abstract class DetailNodeAbstract extends ExplorationNodeAbstract impleme
                     focusedObjectProperty(),
                     ConceptLabelWithDragAndDrop::setPreferredText,
                     selectionIndexProperty(),
-                    () -> unlinkFromActivityFeed());
+                    () -> unlinkFromActivityFeed(),
+                    this.contextMenuProviders);
             this.titleLabel.setGraphic(getTitleIconGraphic());
             this.titleProperty.set("");
         }

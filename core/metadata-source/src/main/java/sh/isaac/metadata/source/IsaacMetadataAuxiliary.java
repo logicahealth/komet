@@ -118,7 +118,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
     *             the unsupported encoding exception
     */
    public IsaacMetadataAuxiliary() throws NoSuchAlgorithmException, UnsupportedEncodingException, Exception {
-      super(PRIMORDIAL_PATH, TermAux.USER, TermAux.CORE_METADATA_MODULE, ConceptProxy.METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.CORE_METADATA_MODULE.getPrimordialUuid());
+      super(PRIMORDIAL_PATH, TermAux.USER, TermAux.PRIMORDIAL_MODULE, ConceptProxy.METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.PRIMORDIAL_MODULE.getPrimordialUuid());
 
 //J-
       createConcept(TermAux.SOLOR_ROOT);
@@ -205,7 +205,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(DEVELOPMENT_MODULE).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.METADATA_MODULES).setModule(TermAux.KOMET_MODULE);
                pushParent(current());
-                  createConcept(TermAux.CORE_METADATA_MODULE);
+                  createConcept(TermAux.PRIMORDIAL_MODULE);
                   createConcept(TermAux.KOMET_MODULE).setModule(TermAux.KOMET_MODULE);
                   popParent();
                createConcept(TermAux.SOLOR_MODULE).addDescription("SOLOR", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
@@ -390,7 +390,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     createConcept("SKOS alternate label").setModule(TermAux.KOMET_MODULE);
                     createConcept("SKOS preferred label").setModule(TermAux.KOMET_MODULE);
                     createConcept("SKOS definition").setModule(TermAux.KOMET_MODULE);
-
                     popParent();
                createConcept("Issue management assemblage").addComponentSemantic(UUID.fromString("6b0a4de8-e2db-54a1-9c87-fb365df15662"), STRING_SEMANTIC, SEMANTIC_TYPE);
                pushParent(current());
@@ -405,6 +404,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept("SOLOR issue assemblage").addComponentSemantic(UUID.fromString("ef4e2854-cff5-5a52-bc26-d74b3c5d652c"), STRING_SEMANTIC, SEMANTIC_TYPE);
                   popParent();
                createConcept(TermAux.DESCRIPTION_ASSEMBLAGE);
+               createConcept(TermAux.DEPENDENCY_MANAGEMENT);
                createConcept("Dialect assemblage");
                pushParent(current());
                   createConcept(TermAux.ENGLISH_DIALECT_ASSEMBLAGE).addComponentSemantic(UUID.fromString("1efad98f-1448-53bd-b0bf-168b788f0428"), CONCEPT_SEMANTIC, SEMANTIC_TYPE);

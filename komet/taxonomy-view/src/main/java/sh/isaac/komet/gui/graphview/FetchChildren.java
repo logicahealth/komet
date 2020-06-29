@@ -27,7 +27,6 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.navigation.Navigator;
 import sh.isaac.api.task.TaskCountManager;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.api.TaxonomySnapshot;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -39,7 +38,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
    private static final ConcurrentHashMap<Integer, FetchChildren> FETCHER_MAP = new ConcurrentHashMap<>();
 
     private final CountDownLatch childrenLoadedLatch;
-    private final MultiParentGraphItemImpl treeItemImpl;
+    private final MultiParentGraphItemImpl parentGraphItem;
     private final int fetcherId = FETCHER_SEQUENCE.incrementAndGet();
     private int childrenFound = 0;
     private final String parentName;
@@ -47,7 +46,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
     public FetchChildren(CountDownLatch childrenLoadedLatch,
             MultiParentGraphItemImpl parentGraphItem) {
         this.childrenLoadedLatch = childrenLoadedLatch;
-        this.treeItemImpl = parentGraphItem;
+        this.parentGraphItem = parentGraphItem;
         if (parentGraphItem.getValue() != null) {
             this.parentName = parentGraphItem.getGraphView()
                     .getManifoldCoordinate().getPreferredDescriptionText(parentGraphItem.getValue());
@@ -75,15 +74,15 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
     @Override
     protected Void call() throws Exception {
         try {
-            final ConceptChronology conceptChronology = treeItemImpl.getValue();
+            final ConceptChronology conceptChronology = parentGraphItem.getValue();
 
             if (conceptChronology == null) {
                 LOG.debug("addChildren(): conceptChronology={}", conceptChronology);
             } else {  // if (conceptChronology != null)
                 // Gather the children
                 ConcurrentSkipListSet<MultiParentGraphItemImpl> childrenToAdd = new ConcurrentSkipListSet<>();
-                Navigator navigator = treeItemImpl.getGraphView().getNavigator();
-                ManifoldCoordinate manifold = treeItemImpl.getGraphView().getManifoldCoordinate();
+                Navigator navigator = parentGraphItem.getGraphView().getNavigator();
+                ManifoldCoordinate manifold = parentGraphItem.getGraphView().getManifoldCoordinate();
                 Collection<Edge>  children = (Collection<Edge>) navigator.getChildLinks(conceptChronology.getNid());
                 addToTotalWork(children.size() + 1);
 
@@ -93,7 +92,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                     Get.executor().execute(() -> {
                         try {
                             ConceptChronology childChronology = Get.concept(childLink.getDestinationNid());
-                            MultiParentGraphItemImpl childItem = new MultiParentGraphItemImpl(childChronology, treeItemImpl.getGraphView(), childLink.getTypeNid(), null);
+                            MultiParentGraphItemImpl childItem = new MultiParentGraphItemImpl(childChronology, parentGraphItem.getGraphView(), childLink.getTypeNid(), null);
                             childItem.setDefined(childChronology.isSufficientlyDefined(manifold.getVertexStampFilter(), manifold.getLogicCoordinate()));
                             childItem.toString();
                             childItem.setMultiParent(navigator.getParentNids(childLink.getDestinationNid()).length > 1);
@@ -104,7 +103,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                             } else {
                                 LOG.debug(
                                         "item.shouldDisplay() == false: not adding " + childItem.getConceptUuid() + " as child of "
-                                                + treeItemImpl.getConceptUuid());
+                                                + parentGraphItem.getConceptUuid());
                             }
                         } finally {
                             taskCountManager.release();
@@ -119,10 +118,10 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                 Platform.runLater(
                         () -> {
                             if (!FetchChildren.this.isCancelled()) {
-                                LOG.debug("###Adding children for: " + treeItemImpl.getValue().getNid()
+                                LOG.debug("###Adding children for: " + parentGraphItem.getValue().getNid()
                                         + " from: " + fetcherId);
-                                treeItemImpl.getChildren().setAll(childrenToAdd);
-                                treeItemImpl.setExpanded(true);
+                                parentGraphItem.getChildren().setAll(childrenToAdd);
+                                parentGraphItem.setExpanded(true);
                                 completedUnitOfWork();
                             }
 
@@ -136,12 +135,12 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
             this.done();
             childrenLoadedLatch.countDown();
             Get.activeTasks().remove(this);
-            FETCHER_MAP.remove(treeItemImpl.getValue().getNid());
+            FETCHER_MAP.remove(parentGraphItem.getValue().getNid());
             if (FetchChildren.this.isCancelled()) {
-                LOG.debug("###Canceled Adding children for: " + treeItemImpl.getValue().getNid()
+                LOG.debug("###Canceled Adding children for: " + parentGraphItem.getValue().getNid()
                                     + " from: " + fetcherId);
             } else {
-                LOG.debug("###Finished Adding children for: " + treeItemImpl.getValue().getNid()
+                LOG.debug("###Finished Adding children for: " + parentGraphItem.getValue().getNid()
                                     + " from: " + fetcherId);
             }
         }

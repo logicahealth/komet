@@ -178,7 +178,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
                         stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
                         stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
 
-                        stage.setTitle(windowPreference.getWindowName().getValue());
+                        stage.setTitle(windowPreference.getWindowName().getValue() + ": " + Get.dataStore().getDataStorePath().toFile().getName());
                         // GraphController.setSceneForControllers(scene);
                         scene.getStylesheets()
                                 .add(FxGet.fxConfiguration().getUserCSSURL().toString());

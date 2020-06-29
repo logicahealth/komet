@@ -37,6 +37,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateWithOverride;
 import sh.komet.gui.interfaces.EditInFlight;
 
 import java.util.Collection;
@@ -96,6 +97,7 @@ public class ViewProperties {
         ICONOGRAPHIC_SUPPLIER.put(LIST, () -> Iconography.LIST.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(CONCEPT_BUILDER, () -> Iconography.NEW_CONCEPT.getIconographic());
     }
+
     public static Optional<Node> getOptionalGraphicForActivityFeed(String activityFeedName) {
         String[] nameParts = activityFeedName.split(":");
         if (nameParts.length > 1) {
@@ -111,16 +113,17 @@ public class ViewProperties {
     private final UUID viewUuid;
     private final ObservableManifoldCoordinate manifoldCoordinate;
     private final ObservableEditCoordinate editCoordinate;
+    private final ViewProperties parentViewProperties;
 
     SimpleStringProperty viewNameProperty = new SimpleStringProperty();
     ObservableMap<String, ActivityFeed> activityFeedMap = FXCollections.observableHashMap();
-
 
     private ViewProperties(UUID viewUuid, String viewName, ObservableManifoldCoordinate observableManifoldCoordinate,
                            ObservableEditCoordinate editCoordinate) {
         this.viewUuid = viewUuid;
         this.manifoldCoordinate = observableManifoldCoordinate;
         this.editCoordinate = editCoordinate;
+        this.parentViewProperties = null;
         this.viewNameProperty.set(viewName);
 
         activityFeedMap.put(UNLINKED, ActivityFeed.createActivityFeed(this, UNLINKED));
@@ -134,6 +137,22 @@ public class ViewProperties {
         activityFeedMap.put(ANY, ActivityFeed.createActivityFeed(this, ANY));
         linkAny();
         SINGLETONS.put(viewUuid, this);
+    }
+
+    private ViewProperties(String viewName, ObservableManifoldCoordinate observableManifoldCoordinate,
+                           ObservableEditCoordinate editCoordinate, ViewProperties parentViewProperties) {
+        this.viewUuid = parentViewProperties.getViewUuid();
+        this.manifoldCoordinate = observableManifoldCoordinate;
+        this.editCoordinate = editCoordinate;
+        this.parentViewProperties = parentViewProperties;
+        this.viewNameProperty.set(viewName);
+        activityFeedMap = parentViewProperties.activityFeedMap;
+    }
+
+    public ViewProperties makeOverride() {
+        return new ViewProperties(this.getViewName(),
+                new ObservableManifoldCoordinateWithOverride(this.getManifoldCoordinate()),
+                this.editCoordinate, this);
     }
 
     public UUID getViewUuid() {

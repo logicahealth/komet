@@ -38,6 +38,8 @@ import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.util.number.NumberUtil;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.concept.AddToContextMenu;
+import sh.komet.gui.control.concept.MenuSupplierForFocusConcept;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.DetailNodeAbstract;
@@ -49,7 +51,7 @@ import static sh.komet.gui.style.StyleClasses.ASSEMBLAGE_DETAIL;
 /**
  * @author kec
  */
-public class AssemblageViewProvider extends DetailNodeAbstract implements Supplier<List<MenuItem>> {
+public class AssemblageViewProvider extends DetailNodeAbstract {
     protected static final Logger LOG = LogManager.getLogger();
 
     {
@@ -57,13 +59,17 @@ public class AssemblageViewProvider extends DetailNodeAbstract implements Suppli
         titleProperty.setValue("empty assemblage view");
         menuIconProperty.setValue(Iconography.PAPERCLIP.getIconographic());
     }
+    private static AddToContextMenu[] getContextMenuProviders(ViewProperties viewProperties, ActivityFeed activityFeed) {
+        return new AddToContextMenu[] {
+                AssemblageMenuProvider.get(),
+                MenuSupplierForFocusConcept.get()
+        };
+    }
     private final SearchToolbar searchToolbar;
     private final AssemblageDetailController assemblageDetailController;
 
-    private final AssemblageMenuProvider assemblageMenuProvider;
-
     public AssemblageViewProvider(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
-        super(viewProperties, activityFeed, preferencesNode);
+        super(viewProperties, activityFeed, preferencesNode, getContextMenuProviders(viewProperties, activityFeed));
         try {
             if (activityFeed.isLinked()) {
                 FxGet.dialogs().showErrorDialog(new IllegalStateException("Activity feed for assemblage must be unlinked... Found " +
@@ -71,7 +77,6 @@ public class AssemblageViewProvider extends DetailNodeAbstract implements Suppli
             }
 
             this.detailPane.getStyleClass().setAll(ASSEMBLAGE_DETAIL.toString());
-            this.assemblageMenuProvider = new AssemblageMenuProvider(this.viewProperties, this.getActivityFeed());
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/sh/komet/assemblage/view/AssemblageDetail.fxml"));
             BorderPane rootPane = loader.load();
@@ -141,11 +146,6 @@ public class AssemblageViewProvider extends DetailNodeAbstract implements Suppli
     @Override
     public Node getNode() {
         return detailPane;
-    }
-
-    @Override
-    public List<MenuItem> get() {
-        return assemblageMenuProvider.get();
     }
 
     @Override

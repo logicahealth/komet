@@ -265,7 +265,8 @@ public class FxGet implements StaticIsaacCache {
 
         NAVIGATION_OPTIONS.addAll(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE,
                 TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE,
-                TermAux.PATH_ORIGIN_ASSEMBLAGE);
+                TermAux.PATH_ORIGIN_ASSEMBLAGE,
+                TermAux.DEPENDENCY_MANAGEMENT);
     }
 
     public static void sync() {

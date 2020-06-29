@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import sh.isaac.MetaData;
+import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
@@ -123,6 +124,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         // We want the name of the group to be the same as name of the window, and will link the
         // properties here.
         windowNameProperty.set(preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME, "New window 1"));
+
         this.viewPropertiesForWindow = setupViewPropertiesForWindow(preferencesNode);
 
         windowNameProperty.addListener((observable, oldValue, newValue) -> {
@@ -131,7 +133,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
                     Stage stage = (Stage) window;
                     String uuidStr = (String) stage.getScene().getProperties().get(Keys.WINDOW_UUID_STR);
                     if (preferencesNode.name().equals(uuidStr)) {
-                        stage.setTitle(newValue);
+                        stage.setTitle(newValue + ": " + Get.dataStore().getDataStorePath().toFile().getName());
                     }
                 }
             }

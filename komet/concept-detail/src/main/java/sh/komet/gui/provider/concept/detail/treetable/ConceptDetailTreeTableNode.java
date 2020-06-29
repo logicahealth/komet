@@ -54,6 +54,7 @@ import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
+import sh.komet.gui.control.concept.MenuSupplierForFocusConcept;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.DetailNodeAbstract;
@@ -77,7 +78,7 @@ public class ConceptDetailTreeTableNode extends DetailNodeAbstract implements Su
 
     //~--- constructors --------------------------------------------------------
     public ConceptDetailTreeTableNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferences) {
-        super(viewProperties, activityFeed, preferences);
+        super(viewProperties, activityFeed, preferences, MenuSupplierForFocusConcept.getArray());
         try {
 
             detailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());

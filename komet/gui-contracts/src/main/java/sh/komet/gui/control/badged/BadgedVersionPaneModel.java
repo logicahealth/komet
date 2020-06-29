@@ -430,7 +430,7 @@ public abstract class BadgedVersionPaneModel {
 
                 case Nid1_Long2: {
                     if (isLatestPanel()) {
-                        componentType.setText("INT-LONG");
+                        componentType.setText("REF-LONG");
                     } else {
                         componentType.setText("");
                     }
@@ -441,7 +441,8 @@ public abstract class BadgedVersionPaneModel {
                     switch (Get.identifierService().getObjectTypeForComponent(nid)) {
                         case CONCEPT:
                             String longText;
-                            if (semanticVersion.getAssemblageNid() == MetaData.PATH_ORIGINS_ASSEMBLAGE____SOLOR.getNid()) {
+                            if (semanticVersion.getAssemblageNid() == MetaData.PATH_ORIGINS_ASSEMBLAGE____SOLOR.getNid() ||
+                                    semanticVersion.getAssemblageNid() == MetaData.DEPENDENCY_MANAGEMENT_ASSEMBLAGE____SOLOR.getNid()) {
                                 longText = DateTimeUtil.format(longValue);
                             } else {
                                 longText = Long.toString(longValue);

@@ -112,13 +112,15 @@ public class ConceptLabelToolbar {
                                SimpleIntegerProperty selectionIndexProperty,
                                Runnable unlink,
                                SimpleObjectProperty<ActivityFeed> activityFeedProperty,
-                               Optional<Boolean> focusTabOnConceptChange) {
+                               Optional<Boolean> focusTabOnConceptChange,
+                               AddToContextMenu[] contextMenuProviders) {
       this.viewProperties = viewProperties;
       this.conceptLabel = new ConceptLabelWithDragAndDrop(viewProperties,
               conceptFocusProperty,
               descriptionTextUpdater,
               selectionIndexProperty,
-              unlink);
+              unlink,
+              contextMenuProviders);
 
       if (focusTabOnConceptChange.isPresent())
       {
@@ -166,9 +168,11 @@ public class ConceptLabelToolbar {
                                              SimpleIntegerProperty selectionIndexProperty,
                                              Runnable unlink,
                                              SimpleObjectProperty<ActivityFeed> activityFeedProperty,
-                                             Optional<Boolean> focusTabOnConceptChange) {
+                                             Optional<Boolean> focusTabOnConceptChange,
+                                             AddToContextMenu[] contextMenuProviders) {
       ConceptLabelToolbar gctb = new ConceptLabelToolbar(viewProperties, conceptFocusProperty,
-              descriptionTextUpdater, selectionIndexProperty, unlink, activityFeedProperty, focusTabOnConceptChange);
+              descriptionTextUpdater, selectionIndexProperty, unlink, activityFeedProperty, focusTabOnConceptChange,
+              contextMenuProviders);
       GridPane.setConstraints(gctb.activityLinkMenu, 0, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.NEVER, Priority.NEVER);
       gctb.toolBarGrid.getChildren().add(gctb.activityLinkMenu);
       GridPane.setConstraints(gctb.conceptLabel, 1, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.ALWAYS, Priority.NEVER);

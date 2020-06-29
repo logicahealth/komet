@@ -10,6 +10,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
@@ -41,6 +42,15 @@ public class NavigationAmalgam implements Navigator {
                 PathOriginsNavigator pathOriginsNavigator = new PathOriginsNavigator(this.manifoldCoordinate);
                 this.navigators.add(pathOriginsNavigator);
                 for (int rootNid: pathOriginsNavigator.getRootNids()) {
+                    this.roots.add(Get.concept(rootNid));
+                }
+            } else if (navigatorNid == TermAux.DEPENDENCY_MANAGEMENT.getNid()) {
+                DependencyNavigator dependencyNavigator =
+                        new DependencyNavigator(Get.assemblageService().getSingleAssemblageSnapshot(
+                                TermAux.DEPENDENCY_MANAGEMENT.getNid(), Nid1_Long2_Version.class, manifoldCoordinate.getVertexStampFilter()
+                        ), manifoldCoordinate);
+                this.navigators.add(dependencyNavigator);
+                for (int rootNid: dependencyNavigator.getRootNids()) {
                     this.roots.add(Get.concept(rootNid));
                 }
             } else {

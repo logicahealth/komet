@@ -47,22 +47,27 @@ public class DefaultMultiParentGraphItemDisplayPolicies implements MultiParentGr
    
    @Override
    public Node computeGraphic(MultiParentGraphItem item) {
-        if (item.isRoot()) {
-            // TODO get dynamic icons from Assemblages.
-            if (item.getConceptNid() == TermAux.PRIMORDIAL_PATH.getNid()) {
-                return Iconography.SOURCE_BRANCH_1.getIconographic();
-            }
-            return Iconography.TAXONOMY_ROOT_ICON.getIconographic();
-        } 
-       
+
+       if (item.isRoot()) {
+           // TODO get dynamic icons from Assemblages.
+           if (item.getConceptNid() == TermAux.PRIMORDIAL_PATH.getNid()) {
+               return Iconography.SOURCE_BRANCH_1.getIconographic();
+           } else if (item.getConceptNid() == TermAux.PRIMORDIAL_MODULE.getNid()) {
+               return Iconography.LINK_EXTERNAL.getIconographic();
+           }
+           return Iconography.TAXONOMY_ROOT_ICON.getIconographic();
+       }
+
        if (item.getTypeNid() != TermAux.IS_A.getNid()) {
            // TODO get dynamic icons from Assemblages.
            if (item.getTypeNid() == TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid()) {
                return Iconography.SOURCE_BRANCH_1.getIconographic();
+           } else if (item.getTypeNid() == TermAux.DEPENDENCY_MANAGEMENT.getNid()) {
+               return Iconography.LINK_EXTERNAL.getIconographic();
            }
-          return Iconography.ALERT_CONFIRM.getIconographic();
-       } 
-       
+           return Iconography.ALERT_CONFIRM.getIconographic();
+       }
+
        if (item.isDefined() && (item.isMultiParent() || item.getMultiParentDepth() > 0)) {
          if (item.isSecondaryParentOpened()) {
             return Iconography.TAXONOMY_DEFINED_MULTIPARENT_OPEN.getIconographic();

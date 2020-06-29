@@ -34,7 +34,7 @@ public class ListViewNode extends ExplorationNodeAbstract {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/ListViewNode.fxml"));
             this.root = loader.load();
             this.controller = loader.getController();
-            this.controller.setViewProperties(this.viewProperties, this.viewProperties.getActivityFeed(ViewProperties.LIST));
+            this.controller.setViewProperties(this.viewProperties.makeOverride(), this.viewProperties.getActivityFeed(ViewProperties.LIST));
 
 
             this.controller.nameProperty().addListener((observable, oldValue, newValue) -> {

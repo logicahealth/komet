@@ -105,8 +105,8 @@ public class VersionTableController {
         });
 
         generalColumn.setComparator((o1, o2) -> {
-            return CellHelper.getTextForComponent(this.viewProperties, o1)
-                    .compareTo(CellHelper.getTextForComponent(this.viewProperties, o2));
+            return CellHelper.getTextForComponent(this.viewProperties.getManifoldCoordinate(), o1)
+                    .compareTo(CellHelper.getTextForComponent(this.viewProperties.getManifoldCoordinate(), o2));
         });
 
         listTable.setOnKeyPressed(event -> {

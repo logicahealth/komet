@@ -63,6 +63,7 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.observable.ObservableVersion;
 
 //~--- interfaces -------------------------------------------------------------
@@ -87,6 +88,13 @@ public interface AssemblageService
     * @param semanticChronicle the SemanticChronology 
     */
    void writeSemanticChronology(SemanticChronology semanticChronicle);
+
+   default void writeAndIndexSemanticChronology(SemanticChronology semanticChronicle) {
+       writeSemanticChronology(semanticChronicle);
+       for (IndexBuilderService indexBuilderService: LookupService.get().getAllServices(IndexBuilderService.class)) {
+           indexBuilderService.index(semanticChronicle);
+       }
+   }
 
    //~--- get methods ---------------------------------------------------------
 

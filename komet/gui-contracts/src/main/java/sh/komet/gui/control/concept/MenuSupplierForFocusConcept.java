@@ -23,23 +23,42 @@ import sh.komet.gui.menu.MenuItemWithText;
 
 import java.util.Optional;
 
-public class MenuSupplierForFocusConcept {
+public class MenuSupplierForFocusConcept implements AddToContextMenu {
 
+    private static AddToContextMenu SINGLETON;
+    private static AddToContextMenu[] SINGLETON_ARRAY;
 
-    static public void addToContextMenu(ContextMenu contextMenu, ViewProperties viewProperties,
-                                        SimpleObjectProperty<IdentifiedObject> conceptFocusProperty,
-                                        SimpleIntegerProperty selectionIndexProperty,
-                                        Runnable unlink) {
+    public static AddToContextMenu get() {
+        if (SINGLETON == null) {
+            SINGLETON = new MenuSupplierForFocusConcept();
+        }
+        return SINGLETON;
+    }
 
+    public static AddToContextMenu[] getArray() {
+        if (SINGLETON_ARRAY == null) {
+            SINGLETON_ARRAY = new AddToContextMenu[] {get()};
+        }
+        return SINGLETON_ARRAY;
+    }
+
+    private MenuSupplierForFocusConcept() {
+    }
+
+    @Override
+    public void addToContextMenu(ContextMenu contextMenu, ViewProperties viewProperties,
+                                 SimpleObjectProperty<IdentifiedObject> conceptFocusProperty,
+                                 SimpleIntegerProperty selectionIndexProperty,
+                                 Runnable unlink) {
         contextMenu.getItems()
-                .add(makeCopyMenuItem(Optional.ofNullable(conceptFocusProperty.get()), viewProperties));
+                .add(MenuSupplierForFocusConcept.makeCopyMenuItem(Optional.ofNullable(conceptFocusProperty.get()), viewProperties));
         contextMenu.getItems()
                 .add(new SeparatorMenuItem());
 
         Menu historyMenuForView = new Menu(viewProperties.getViewName() + " history");
         contextMenu.getItems().add(historyMenuForView);
         for (ActivityFeed activityFeed: viewProperties.getActivityFeedMap().values()) {
-            setupHistoryMenuItem(activityFeed.feedHistoryProperty(), historyMenuForView,
+            MenuSupplierForFocusConcept.setupHistoryMenuItem(activityFeed.feedHistoryProperty(), historyMenuForView,
                     conceptFocusProperty, selectionIndexProperty, unlink);
         }
         for (ViewProperties propertiesForAnotherView: ViewProperties.getAll()) {
@@ -47,13 +66,12 @@ public class MenuSupplierForFocusConcept {
                 Menu historyMenuForOtherView = new Menu(propertiesForAnotherView.getViewName() + " history");
                 contextMenu.getItems().add(historyMenuForOtherView);
                 for (ActivityFeed activityFeed: propertiesForAnotherView.getActivityFeedMap().values()) {
-                    setupHistoryMenuItem(activityFeed.feedHistoryProperty(), historyMenuForView,
+                    MenuSupplierForFocusConcept.setupHistoryMenuItem(activityFeed.feedHistoryProperty(), historyMenuForView,
                             conceptFocusProperty, selectionIndexProperty, unlink);
                 }
             }
         }
     }
-
 
     private static void setupHistoryMenuItem(SimpleListProperty<ImmutableList<IdentifiedObject>> historyCollection,
                                              Menu manifoldHistoryMenu,
@@ -61,7 +79,6 @@ public class MenuSupplierForFocusConcept {
                                              SimpleIntegerProperty selectionIndexProperty,
                                              Runnable unlink) {
         for (ImmutableList<IdentifiedObject> historyRecord : historyCollection) {
-            ;
             MenuItem historyItem = new MenuItemWithText(Get.conceptDescriptionTextList((ConceptSpecification[]) historyRecord.toArray()));
             historyItem.setUserData(historyRecord);
             historyItem.setOnAction((ActionEvent actionEvent) -> {

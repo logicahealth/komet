@@ -85,6 +85,7 @@ import sh.komet.gui.control.ExpandControl;
 import sh.komet.gui.control.StampControl;
 import sh.komet.gui.control.badged.ComponentPaneModel;
 import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
+import sh.komet.gui.control.concept.MenuSupplierForFocusConcept;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.control.toggle.OnOffToggleSwitch;
@@ -152,7 +153,7 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
 
     //~--- constructors --------------------------------------------------------
     public ConceptDetailPanelNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferences) {
-        super(viewProperties, activityFeed, preferences);
+        super(viewProperties, activityFeed, preferences, MenuSupplierForFocusConcept.getArray());
 
         this.historySwitch.setSelected(false); // add to pref...
         updateManifoldHistoryStates();

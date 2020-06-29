@@ -22,14 +22,27 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.factory.set.primitive.MutableIntSetFactory;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.list.primitive.ImmutableLongList;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.*;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Version;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.sync.MergeFailOption;
 import sh.isaac.api.sync.MergeFailure;
+import sh.isaac.api.util.UuidT5Generator;
+import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.gui.exporter.ExportView;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
 import sh.isaac.solor.direct.ImportType;
@@ -83,7 +96,8 @@ public class KometBaseMenus implements MenuProvider {
     public EnumSet<AppMenu> getParentMenus() {
         return EnumSet.of(AppMenu.FILE, AppMenu.TOOLS);
     }
-
+/*
+ */
     @Override
     public MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferencesItem windowPreference) {
         switch (parentMenu) {
@@ -204,6 +218,58 @@ public class KometBaseMenus implements MenuProvider {
 
             case TOOLS: {
 
+                MenuItem showCommitTimes = new MenuItemWithText("Show commit times");
+                showCommitTimes.setUserData(windowPreference);
+                showCommitTimes.setOnAction((ActionEvent event) -> {
+                    ImmutableLongList timesInUse = Get.stampService().getTimesInUse();
+                    StringBuilder builder = new StringBuilder();
+                    timesInUse.forEach(time -> {
+                        builder.append(DateTimeUtil.format(time)).append("\n");
+                    });
+                    FxGet.dialogs().showInformationDialog("Commit times (" + timesInUse.size() + ")", builder.toString());
+                });
+
+                MenuItem showActiveAuthors = new MenuItemWithText("Show active authors");
+                showActiveAuthors.setUserData(windowPreference);
+                showActiveAuthors.setOnAction((ActionEvent event) -> {
+                    ImmutableIntSet authorsInUse = Get.stampService().getAuthorsInUse();
+                    ImmutableList<String> authorNames = windowPreference.getViewPropertiesForWindow().getManifoldCoordinate().getPreferredDescriptionTextList(authorsInUse.toArray());
+                    StringBuilder builder = new StringBuilder();
+                    authorNames.forEach(moduleName -> builder.append(moduleName).append("\n"));
+                    FxGet.dialogs().showInformationDialog("Active authors (" + authorNames.size() + ")", builder.toString());
+                });
+
+                MenuItem showActivePaths = new MenuItemWithText("Show active paths");
+                showActivePaths.setUserData(windowPreference);
+                showActivePaths.setOnAction((ActionEvent event) -> {
+                    ImmutableIntSet pathsInUse = Get.stampService().getPathsInUse();
+                    ImmutableList<String> pathNames = windowPreference.getViewPropertiesForWindow().getManifoldCoordinate().getPreferredDescriptionTextList(pathsInUse.toArray());
+                    StringBuilder builder = new StringBuilder();
+                    pathNames.forEach(moduleName -> builder.append(moduleName).append("\n"));
+
+                    FxGet.dialogs().showInformationDialog("Active paths(" + pathsInUse.size() + ")", builder.toString());
+                });
+
+                MenuItem showActiveModules = new MenuItemWithText("Show active modules");
+                showActiveModules.setUserData(windowPreference);
+                showActiveModules.setOnAction((ActionEvent event) -> {
+                    ImmutableIntSet moduleNids = Get.stampService().getModulesInUse();
+                    ImmutableList<String> moduleNames = windowPreference.getViewPropertiesForWindow().getManifoldCoordinate().getPreferredDescriptionTextList(moduleNids.toArray());
+                    StringBuilder builder = new StringBuilder();
+                    moduleNames.forEach(moduleName -> builder.append(moduleName).append("\n"));
+
+                    FxGet.dialogs().showInformationDialog("Active modules(" + moduleNames.size() + ")", builder.toString());
+                });
+
+
+                MenuItem transformModuleDependencies = new MenuItemWithText("Transform Module dependencies (SCT) to Dependency management (Solor)");
+                transformModuleDependencies.setUserData(windowPreference);
+                transformModuleDependencies.setOnAction((ActionEvent event) -> {
+                    Get.executor().submit(new DependencyManagementCollector(windowPreference.getViewPropertiesForWindow().getManifoldCoordinate()));
+                });
+
+
+
                 MenuItem transformSourcesFull = new MenuItemWithText("Transform RF2 to EL++ - FULL");
                 transformSourcesFull.setUserData(windowPreference);
                 transformSourcesFull.setOnAction((ActionEvent event) -> {
@@ -245,8 +311,10 @@ public class KometBaseMenus implements MenuProvider {
 
 
                 return new MenuItem[]{
-                    completeClassify, completeReindex, recomputeTaxonomy,
-                    transformSourcesFull, transformSourcesActiveOnly, testGAE
+                        showActiveModules, showActivePaths, showActiveAuthors, showCommitTimes,
+                        completeClassify, completeReindex, recomputeTaxonomy,
+                    transformSourcesFull, transformSourcesActiveOnly, testGAE,
+                        transformModuleDependencies
                 };
             }
         }
@@ -349,7 +417,6 @@ public class KometBaseMenus implements MenuProvider {
             NativeImport importFile = new NativeImport(zipFile);
             Get.executor().submit(importFile);
         }
-
     }
 
     private void splitChangeSet(ActionEvent event) {

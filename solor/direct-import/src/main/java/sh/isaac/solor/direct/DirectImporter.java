@@ -298,7 +298,7 @@ public class DirectImporter
                 .collect(Collectors.toList());
         ArrayList<ImportSpecification> specificationsToImport = new ArrayList<>();
         StringBuilder importPrefixRegex = new StringBuilder();
-        importPrefixRegex.append("([a-z/0-9_]*)?(rf2release/)?"); //ignore parent directories
+        importPrefixRegex.append("([a-z/0-9_\\-]*)?(rf2release/)?"); //ignore parent directories
         switch (importType) {
             case FULL:
                 importPrefixRegex.append("(full/)"); //prefixes to match
@@ -317,9 +317,11 @@ public class DirectImporter
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
                     if (!entry.isDirectory()) {
-                        String entryName = entry.getName().toLowerCase();
-                        if (entryName.matches(importPrefixRegex.toString())) {
-                            processEntry(new ContentProvider(zipFilePath.toFile(), entry), specificationsToImport, solorReleaseFormat);
+                        if (!entry.getName().contains("__MACOSX")) {
+                            String entryName = entry.getName().toLowerCase();
+                            if (entryName.matches(importPrefixRegex.toString())) {
+                                processEntry(new ContentProvider(zipFilePath.toFile(), entry), specificationsToImport, solorReleaseFormat);
+                            }
                         }
                     }
                 }

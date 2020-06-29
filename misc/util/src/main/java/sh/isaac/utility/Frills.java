@@ -427,7 +427,7 @@ public class Frills
             Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
             int nid = Get.conceptBuilderService().getDefaultConceptBuilder(termTypeFQN, ConceptProxy.METADATA_SEMANTIC_TAG, defBuilder.build(), 
                  MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid()).setT5UuidNested(Get.concept(module).getPrimordialUuid()).build(transaction,
-                    EditCoordinateImmutable.make(TermAux.USER.getNid(),  TermAux.CORE_METADATA_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid())).get().getNid();
+                    EditCoordinateImmutable.make(TermAux.USER.getNid(),  TermAux.PRIMORDIAL_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid())).get().getNid();
              commitCheck(transaction.commit("creating new edit module for terminology type " + Get.conceptDescriptionText(termTypeConcept)));
              return nid;
          }
@@ -450,10 +450,10 @@ public class Frills
       
       if (stampFilter != null) {
          //ensure the provided stamp includes the metadata module
-         if (stampFilter.getModuleNids().size() > 0 && !stampFilter.getModuleNids().contains(MetaData.CORE_METADATA_MODULE____SOLOR.getNid()))
+         if (stampFilter.getModuleNids().size() > 0 && !stampFilter.getModuleNids().contains(MetaData.PRIMORDIAL_MODULE____SOLOR.getNid()))
          {
             MutableIntSet moduleNids = IntSets.mutable.of(stampFilter.getModuleNids().toArray());
-            moduleNids.add(MetaData.CORE_METADATA_MODULE____SOLOR.getNid());
+            moduleNids.add(MetaData.PRIMORDIAL_MODULE____SOLOR.getNid());
 
 
             stampToUse = StampFilterImmutable.make(stampToUse.getAllowedStates(), stampToUse.getStampPosition(),

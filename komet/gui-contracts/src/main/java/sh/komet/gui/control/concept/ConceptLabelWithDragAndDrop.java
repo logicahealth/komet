@@ -40,7 +40,6 @@ package sh.komet.gui.control.concept;
 
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.collections.ListChangeListener;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.stage.WindowEvent;
@@ -51,7 +50,6 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DragAndDropHelper;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 
 import java.util.Optional;
@@ -76,6 +74,7 @@ public class ConceptLabelWithDragAndDrop
     final DragAndDropHelper dragAndDropHelper;
     final SimpleIntegerProperty selectionIndexProperty;
     final Runnable unlink;
+    final AddToContextMenu[] contextMenuProviders;
 
 
     //~--- constructors --------------------------------------------------------
@@ -83,13 +82,15 @@ public class ConceptLabelWithDragAndDrop
                                        SimpleObjectProperty<IdentifiedObject> conceptFocusProperty,
                                        Consumer<ConceptLabelWithDragAndDrop> descriptionTextUpdater,
                                        SimpleIntegerProperty selectionIndexProperty,
-                                       Runnable unlink) {
+                                       Runnable unlink,
+                                       AddToContextMenu[] contextMenuProviders) {
         super(EMPTY_TEXT);
         this.viewProperties = viewProperties;
         this.conceptFocusProperty = conceptFocusProperty;
         this.descriptionTextUpdater = descriptionTextUpdater;
         this.selectionIndexProperty = selectionIndexProperty;
         this.unlink = unlink;
+        this.contextMenuProviders = contextMenuProviders;
         this.descriptionTextUpdater.accept(this);
         this.conceptFocusProperty.addListener((observable, oldValue, newValue) -> {
             this.descriptionTextUpdater.accept(this);
@@ -111,8 +112,8 @@ public class ConceptLabelWithDragAndDrop
 
         ContextMenu contextMenu = new ContextMenu();
 
-        for (String manifoldGroupName : Manifold.getGroupNames()) {
-            MenuItem item = new MenuItemWithText(manifoldGroupName + " history");
+        for (String activityFeedName : ViewProperties.ACTIVITY_FEED_NAMES) {
+            MenuItem item = new MenuItemWithText(activityFeedName + " history");
             contextMenu.getItems().add(item);
         }
 
@@ -125,8 +126,10 @@ public class ConceptLabelWithDragAndDrop
     private void handle(WindowEvent event) {
         ContextMenu contextMenu = (ContextMenu) event.getSource();
         contextMenu.getItems().clear();
-        MenuSupplierForFocusConcept.addToContextMenu(contextMenu, this.viewProperties,
-                this.conceptFocusProperty, this.selectionIndexProperty, this.unlink);
+        for (AddToContextMenu contextMenuProvider: contextMenuProviders) {
+            contextMenuProvider.addToContextMenu(contextMenu, this.viewProperties,
+                    this.conceptFocusProperty, this.selectionIndexProperty, this.unlink);
+        }
 
     }
 

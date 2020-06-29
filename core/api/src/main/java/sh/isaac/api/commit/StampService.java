@@ -42,6 +42,8 @@ package sh.isaac.api.commit;
 //~--- JDK imports ------------------------------------------------------------
 
 import javafx.concurrent.Task;
+import org.eclipse.collections.api.list.primitive.ImmutableLongList;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.Get;
@@ -324,5 +326,13 @@ public interface StampService
    default StampPositionImmutable getStampPosition(int stampSequence) {
       return StampPositionImmutable.make(getTimeForStamp(stampSequence), getPathNidForStamp(stampSequence));
    }
+
+   ImmutableIntSet getPathsInUse();
+
+   ImmutableIntSet getModulesInUse();
+
+   ImmutableIntSet getAuthorsInUse();
+
+   ImmutableLongList getTimesInUse();
 }
 

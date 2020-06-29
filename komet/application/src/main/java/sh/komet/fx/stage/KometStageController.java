@@ -458,6 +458,15 @@ public class KometStageController
 
         this.preferencesNode = windowPreferencesItem.getPreferenceNode();
         this.stage = stage;
+
+        String windowName = windowPreferencesItem.getWindowName().getValue();
+        String dataStoreName = Get.dataStore().getDataStorePath().toString();
+        this.stage.titleProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("Title changed to: " + newValue);
+        });
+        this.stage.setTitle(windowName + ": " + Get.dataStore().getDataStorePath().toFile().getName());
+        LOG.info("Setting title to: " + windowName + ": " + dataStoreName);
+
         this.stage.getScene().getProperties().put(WindowPreferencePanel.Keys.WINDOW_UUID_STR, windowPreferencesItem.getPreferenceNode().name());
         this.stage.getScene().getProperties().put(WINDOW_PREFERENCE_ABSOLUTE_PATH, windowPreferencesItem.getPreferenceNode().absolutePath());
 

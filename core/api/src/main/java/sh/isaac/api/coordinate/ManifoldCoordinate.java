@@ -42,6 +42,10 @@ package sh.isaac.api.coordinate;
 //~--- JDK imports ------------------------------------------------------------
 
 import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import sh.isaac.api.ConceptProxy;
@@ -236,6 +240,39 @@ public interface ManifoldCoordinate {
     default String getVertexLabel(ConceptSpecification vertexConcept) {
         return getVertexLabel(vertexConcept.getNid());
     }
+
+    default ImmutableList<String> getPreferredDescriptionTextList(int[] nidArray) {
+        MutableList<String> results = Lists.mutable.empty();
+        for (int nid: nidArray) {
+            results.add(getPreferredDescriptionText(nid));
+        }
+        return results.toImmutable();
+    }
+
+    default ImmutableList<String> getPreferredDescriptionTextList(Collection<ConceptSpecification> conceptCollection) {
+        MutableList<String> results = Lists.mutable.empty();
+        for (ConceptSpecification conceptSpecification: conceptCollection) {
+            results.add(getPreferredDescriptionText(conceptSpecification));
+        }
+        return results.toImmutable();
+    }
+
+    default ImmutableList<String> getFullyQualifiedNameTextList(int[] nidArray) {
+        MutableList<String> results = Lists.mutable.empty();
+        for (int nid: nidArray) {
+            results.add(getFullyQualifiedDescriptionText(nid));
+        }
+        return results.toImmutable();
+    }
+
+    default ImmutableList<String> getFullyQualifiedNameTextList(Collection<ConceptSpecification> conceptCollection) {
+        MutableList<String> results = Lists.mutable.empty();
+        for (ConceptSpecification conceptSpecification: conceptCollection) {
+            results.add(getFullyQualifiedDescriptionText(conceptSpecification));
+        }
+        return results.toImmutable();
+    }
+
 
     default String getPreferredDescriptionText(int conceptNid) {
         try {

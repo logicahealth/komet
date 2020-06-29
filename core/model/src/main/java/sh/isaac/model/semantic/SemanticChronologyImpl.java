@@ -120,7 +120,6 @@ public class SemanticChronologyImpl
    @Override
    public <V extends Version> V createMutableVersion(int stampSequence) {
       final V version = createMutableVersionInternal(stampSequence);
-
       addVersion(version);
       return version;
    }
