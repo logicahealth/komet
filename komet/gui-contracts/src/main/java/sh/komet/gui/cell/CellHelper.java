@@ -21,6 +21,7 @@ import sh.isaac.api.component.semantic.version.*;
 import sh.isaac.api.component.semantic.version.brittle.*;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
@@ -28,6 +29,7 @@ import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 import sh.komet.gui.contract.GuiConceptBuilder;
 import sh.komet.gui.contract.GuiSearcher;
 import sh.komet.gui.control.axiom.AxiomView;
+import sh.komet.gui.control.axiom.ConceptNode;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
@@ -163,6 +165,15 @@ public class CellHelper {
         setupWidth(textFlow);
     }
 
+    private void addReferencedConceptToCell(Text assemblageNameText, ConceptNode referencedComponentConceptNode) {
+        TextFlow textFlow = new TextFlow(assemblageNameText, referencedComponentConceptNode);
+        textFlow.setLayoutX(1);
+        textFlow.setLayoutY(1);
+        textFlow.setPrefWidth(cell.getWidth() - (textFlow.getInsets().getLeft() + textFlow.getInsets().getRight()));
+
+        setupWidth(textFlow);
+    }
+
     public static String getTextForComponent(ManifoldCoordinate manifold, Chronology component) {
         switch (component.getVersionType()) {
             case CONCEPT: {
@@ -236,6 +247,10 @@ public class CellHelper {
             } else {
                 semanticVersion = (ObservableSemanticVersion) version;
             }
+            ConceptNode referencedComponentConceptNode = null;
+            if (Get.identifierService().getObjectTypeForComponent(semanticVersion.getReferencedComponentNid()) == IsaacObjectType.CONCEPT) {
+                referencedComponentConceptNode = new ConceptNode(semanticVersion.getReferencedComponentNid(), this.cell.getViewProperties());
+            }
             String referencedComponentString = cell.getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getReferencedComponentNid());
             if (referencedComponentString == null || referencedComponentString.isEmpty()) {
                 LOG.warn("No referenced component text for: " + semanticVersion.getReferencedComponentNid());
@@ -287,7 +302,12 @@ public class CellHelper {
                     break;
 
                 case MEMBER:
-                    addTextToCell(assemblageNameText, referencedComponentTextNoNewLine);
+                    if (referencedComponentConceptNode != null) {
+                        addReferencedConceptToCell(assemblageNameText, referencedComponentConceptNode);
+                    } else {
+                        addTextToCell(assemblageNameText, referencedComponentTextNoNewLine);
+                    }
+
                     break;
 
                 case LONG:

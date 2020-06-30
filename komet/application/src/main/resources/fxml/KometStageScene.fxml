@@ -62,7 +62,7 @@
             </Label>
             <MenuButton fx:id="viewPropertiesButton" maxHeight="28.0" maxWidth="28.0" minHeight="28.0" minWidth="28.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="28.0" style="-fx-background-color: transparent;">
               <items>
-                  <Menu fx:id="windowCoordinates" mnemonicParsing="false" text="Window coordinates" />
+                  <Menu fx:id="windowCoordinates" mnemonicParsing="false" text="Navigation coordinates" />
                   <Menu fx:id="pathMenu" mnemonicParsing="false" text="Change path" />
                   <Menu fx:id="languageMenu" mnemonicParsing="false" text="Change language" />
                   <Menu fx:id="logicMenu" mnemonicParsing="false" text="Change logic coordinate" />

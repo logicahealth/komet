@@ -17,8 +17,8 @@
 package sh.komet.gui.control.axiom;
 
 import java.util.Optional;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
+
+import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
@@ -33,6 +33,7 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.concept.MenuSupplierForFocusConcept;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.drag.drop.IsaacClipboard;
@@ -63,13 +64,16 @@ public class ConceptNode extends Label {
             controlBox = new HBox(openConceptButton, AxiomView.computeGraphic(conceptNid, false,
                     Status.PRIMORDIAL, viewProperties, premiseType));
         }
-        ;
 
         this.setGraphic(controlBox);
         setOnDragDetected(this::handleDragDetected);
         setOnDragDone(this::handleDragDone);
         openConceptButton.getStyleClass().setAll(StyleClasses.OPEN_CONCEPT_BUTTON.toString());
         openConceptButton.setOnMouseClicked(this::handleShowConceptNodeClick);
+        ContextMenu contextMenu = new ContextMenu();
+        this.setContextMenu(contextMenu);
+        Menu copyMenu = MenuSupplierForFocusConcept.makeCopyMenuItem(Optional.of(Get.concept(this.conceptNid)), this.viewProperties);
+        contextMenu.getItems().addAll(copyMenu.getItems());
     }
 
     private void handleShowConceptNodeClick(MouseEvent mouseEvent) {

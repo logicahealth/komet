@@ -34,6 +34,7 @@ import javafx.util.Duration;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.property.editor.PropertyEditor;
 import org.eclipse.collections.api.list.ImmutableList;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -112,11 +113,12 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
                 if (!activityFeed.feedHistoryProperty().isEmpty()) {
                     Menu activityFeedHistory = new Menu(activityFeed.getFeedName());
                     this.menuButton.getItems().add(activityFeedHistory);
-                    for (ImmutableList<? extends IdentifiedObject> record : activityFeed.feedHistoryProperty()) {
+                    for (ComponentProxy record : activityFeed.feedHistoryProperty()) {
 
-                        ConceptListMenuItem conceptListMenuItem = new ConceptListMenuItem(record, this.viewProperties);
-                        conceptListMenuItem.setOnAction(this::handleAction);
-                        activityFeedHistory.getItems().add(conceptListMenuItem);
+                        MenuItem historyMenuItem = new MenuItem(record.getComponentString());
+                        historyMenuItem.setUserData(record);
+                        historyMenuItem.setOnAction(this::handleAction);
+                        activityFeedHistory.getItems().add(historyMenuItem);
                     }
                 }
             }
@@ -139,9 +141,10 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
     }
 
     private void handleAction(ActionEvent event) {
-        if (event.getSource() instanceof ConceptListMenuItem) {
-            ConceptListMenuItem menuItem = (ConceptListMenuItem) event.getSource();
-            ConceptSpecification spec = Get.conceptSpecification(menuItem.getIdentifiedObjects().get(0).getNid());
+        if (event.getSource() instanceof MenuItem) {
+            MenuItem menuItem = (MenuItem) event.getSource();
+            ComponentProxy record = (ComponentProxy) menuItem.getUserData();
+            ConceptSpecification spec = Get.conceptSpecification(record.getNid());
             this.conceptSpecificationValue.set(spec);
             this.menuButton.setText(viewProperties.getPreferredDescriptionText(spec));
         }

@@ -104,7 +104,7 @@ public class ConceptLabelWithDragAndDrop
             }
             return null;
 
-        } , this::setValue, mouseEvent -> true,
+        } , this::droppedValue, mouseEvent -> true,
                 dragEvent -> true);
 
 
@@ -122,6 +122,12 @@ public class ConceptLabelWithDragAndDrop
     }
 
     //~--- methods -------------------------------------------------------------
+
+    void droppedValue(IdentifiedObject value) {
+        this.unlink.run();
+        setValue(value);
+    }
+
 
     private void handle(WindowEvent event) {
         ContextMenu contextMenu = (ContextMenu) event.getSource();

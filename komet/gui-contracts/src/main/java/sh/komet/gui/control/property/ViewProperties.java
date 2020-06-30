@@ -139,6 +139,12 @@ public class ViewProperties {
         SINGLETONS.put(viewUuid, this);
     }
 
+    public UUID getRootUuid() {
+        if (parentViewProperties != null) {
+            return parentViewProperties.viewUuid;
+        }
+        return viewUuid;
+    }
     private ViewProperties(String viewName, ObservableManifoldCoordinate observableManifoldCoordinate,
                            ObservableEditCoordinate editCoordinate, ViewProperties parentViewProperties) {
         this.viewUuid = parentViewProperties.getViewUuid();
