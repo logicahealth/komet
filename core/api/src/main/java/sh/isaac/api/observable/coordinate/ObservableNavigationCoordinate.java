@@ -19,9 +19,7 @@ public interface ObservableNavigationCoordinate extends ObservableCoordinate<Nav
     }
 
     default ObservableCoordinate<?>[] getCompositeCoordinates() {
-        return new ObservableCoordinate<?>[] {
-                getLogicCoordinate()
-        };
+        return new ObservableCoordinate<?>[] {};
     }
 
     @Override

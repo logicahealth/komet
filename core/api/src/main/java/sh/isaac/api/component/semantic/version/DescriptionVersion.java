@@ -42,7 +42,6 @@ package sh.isaac.api.component.semantic.version;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.coordinate.VertexSortPreferredName;
 
 /**
  * Describes the referenced component in a way appropriate for the type and
@@ -88,8 +87,7 @@ public interface DescriptionVersion
       } else if (nid == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
           return "Definition";
       } else {
-          return VertexSortPreferredName.getRegularName(nid, Get.defaultCoordinate().getLanguageCoordinate(),
-                  Get.defaultCoordinate().getLanguageStampFilter());
+          return Get.defaultCoordinate().getPreferredDescriptionText(nid);
       }
    }
 

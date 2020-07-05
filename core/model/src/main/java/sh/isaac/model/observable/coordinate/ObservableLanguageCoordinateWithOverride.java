@@ -21,7 +21,7 @@ public class ObservableLanguageCoordinateWithOverride extends ObservableLanguage
     }
 
     public ObservableLanguageCoordinateWithOverride(ObservableLanguageCoordinate overriddenCoordinate) {
-        super(overriddenCoordinate, "Language coordinate with override");
+        super(overriddenCoordinate, overriddenCoordinate.getName());
         this.overriddenCoordinate = overriddenCoordinate;
     }
 
@@ -36,7 +36,7 @@ public class ObservableLanguageCoordinateWithOverride extends ObservableLanguage
             ObservableLanguageCoordinate overriddenNextCoordinate = (ObservableLanguageCoordinate) languageCoordinate.getNextPriorityLanguageCoordinate().get();
             return new SimpleEqualityBasedObjectProperty<>(this,
                     ObservableFields.NEXT_PRIORITY_LANGUAGE_COORDINATE.toExternalString(),
-                    new ObservableLanguageCoordinateWithOverride(overriddenNextCoordinate, "Overridden language coordinate"));
+                    new ObservableLanguageCoordinateWithOverride(overriddenNextCoordinate));
         }
         return new SimpleEqualityBasedObjectProperty<>(this,
                 ObservableFields.NEXT_PRIORITY_LANGUAGE_COORDINATE.toExternalString(),

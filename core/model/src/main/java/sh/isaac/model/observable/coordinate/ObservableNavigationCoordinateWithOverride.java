@@ -13,7 +13,7 @@ public class ObservableNavigationCoordinateWithOverride extends ObservableNaviga
     }
 
     public ObservableNavigationCoordinateWithOverride(ObservableNavigationCoordinate digraphCoordinate) {
-        super(digraphCoordinate, "Navigation coordinate with override");
+        super(digraphCoordinate, digraphCoordinate.getName());
     }
 
     @Override

@@ -45,7 +45,7 @@ public class SimpleEqualityBasedListProperty<T> extends SimpleListProperty<T> {
         if (Arrays.equals(this.getValue().toArray(), elements) == false) {
             return super.setAll(elements);
         }
-        return true;
+        return false;
     }
 
     @Override
@@ -53,6 +53,6 @@ public class SimpleEqualityBasedListProperty<T> extends SimpleListProperty<T> {
         if (this.getValue().equals(elements) == false) {
             return super.setAll(elements);
         }
-        return true;
+        return false;
     }
 }

@@ -80,16 +80,22 @@ public abstract class ObservableStampFilterBase extends ObservableCoordinateImpl
         this.modulePriorityOrderProperty.setAll(newValue.getModulePriorityOrder().collect(nid -> Get.conceptSpecification(nid)).castToList());
 
         EnumSet<Status> statusSet = newValue.getAllowedStates().toEnumSet();
-        this.allowedStatusProperty.retainAll(statusSet);
-        this.allowedStatusProperty.addAll(statusSet);
+        if (!statusSet.equals(this.allowedStatusProperty.get())) {
+            this.allowedStatusProperty.retainAll(statusSet);
+            this.allowedStatusProperty.addAll(statusSet);
+        }
 
         Set<ConceptSpecification> excludedModuleSet = newValue.getExcludedModuleNids().collect(nid -> Get.conceptSpecification(nid)).castToSet();
-        this.excludedModuleSpecificationsProperty.retainAll(excludedModuleSet);
-        this.excludedModuleSpecificationsProperty.addAll(excludedModuleSet);
+        if (!excludedModuleSet.equals(this.excludedModuleSpecificationsProperty.get())) {
+            this.excludedModuleSpecificationsProperty.retainAll(excludedModuleSet);
+            this.excludedModuleSpecificationsProperty.addAll(excludedModuleSet);
+        }
 
         Set<ConceptSpecification> moduleSet = newValue.getModuleNids().collect(nid -> Get.conceptSpecification(nid)).castToSet();
-        this.moduleSpecificationsProperty.retainAll(moduleSet);
-        this.moduleSpecificationsProperty.addAll(moduleSet);
+        if (!moduleSet.equals(this.moduleSpecificationsProperty.get())) {
+            this.moduleSpecificationsProperty.retainAll(moduleSet);
+            this.moduleSpecificationsProperty.addAll(moduleSet);
+        }
     }
 
     @Override

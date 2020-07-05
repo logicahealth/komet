@@ -7,6 +7,7 @@ import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * An immutable bitset implementation of a status set.
@@ -85,6 +86,10 @@ public class StatusSet implements ImmutableCoordinate {
         return (bits & (1L << status.ordinal())) != 0;
     }
 
+    public Status[] toArray() {
+        EnumSet<Status> statusSet = toEnumSet();
+        return statusSet.toArray(new Status[statusSet.size()]);
+    }
     public EnumSet<Status> toEnumSet() {
         EnumSet<Status> result = EnumSet.noneOf(Status.class);
         for (Status status: Status.values()) {
@@ -137,6 +142,23 @@ public class StatusSet implements ImmutableCoordinate {
                 '}';
     }
     public String toUserString() {
-        return toEnumSet().toString();
+        StringBuilder sb = new StringBuilder("[");
+        AtomicInteger count = new AtomicInteger();
+        addIfPresent(sb, count, Status.ACTIVE);
+        addIfPresent(sb, count, Status.CANCELED);
+        addIfPresent(sb, count, Status.INACTIVE);
+        addIfPresent(sb, count, Status.PRIMORDIAL);
+        addIfPresent(sb, count, Status.WITHDRAWN);
+        sb.append("]");
+        return sb.toString();
+    }
+
+    private void addIfPresent(StringBuilder sb, AtomicInteger count, Status status) {
+        if (this.contains(status)) {
+            if (count.getAndIncrement() > 0) {
+                sb.append(", ");
+            }
+            sb.append(status);
+        }
     }
 }

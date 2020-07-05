@@ -170,8 +170,8 @@ public class ActivityFeed implements ManifoldCoordinate {
     }
 
     @Override
-    public TaxonomySnapshot getDigraphSnapshot() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getDigraphSnapshot();
+    public TaxonomySnapshot getNavigationSnapshot() {
+        return this.owningViewForActivityFeed.getManifoldCoordinate().getNavigationSnapshot();
     }
 
     @Override

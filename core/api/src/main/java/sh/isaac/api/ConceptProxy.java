@@ -222,7 +222,7 @@ public class ConceptProxy
    @Override
    public String toString() {
       if (this.cachedNid != 0 && LookupService.isIsaacStarted()) {
-         return getFullyQualifiedName() + Arrays.toString(getUuids());
+         return getFullyQualifiedName() + " " + Arrays.toString(getUuids());
       }
       if (this.getUuids() != null) {
           StringBuilder builder = new StringBuilder();

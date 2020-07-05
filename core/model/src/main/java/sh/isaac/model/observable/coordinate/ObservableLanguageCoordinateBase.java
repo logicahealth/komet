@@ -13,6 +13,7 @@ import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedListProperty;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedObjectProperty;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 public abstract class ObservableLanguageCoordinateBase extends ObservableCoordinateImpl<LanguageCoordinateImmutable>

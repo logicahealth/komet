@@ -17,4 +17,37 @@ public interface ObservableCoordinate<T extends ImmutableCoordinate> extends Pro
      * recursively identified.
      */
     ObservableCoordinate<?>[] getCompositeCoordinates();
+
+    default boolean hasOverrides() {
+        for (Property property: getBaseProperties()) {
+            if (property instanceof PropertyWithOverride) {
+                PropertyWithOverride propertyWithOverride = (PropertyWithOverride) property;
+                if (propertyWithOverride.isOverridden()) {
+                    return true;
+                }
+            }
+        }
+        for (ObservableCoordinate coordinate: getCompositeCoordinates()) {
+            if (coordinate.hasOverrides()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    default void removeOverrides() {
+        for (Property property: getBaseProperties()) {
+            if (property instanceof PropertyWithOverride) {
+                PropertyWithOverride propertyWithOverride = (PropertyWithOverride) property;
+                if (propertyWithOverride.isOverridden()) {
+                    propertyWithOverride.removeOverride();
+                }
+            }
+        }
+        for (ObservableCoordinate coordinate: getCompositeCoordinates()) {
+            if (coordinate.hasOverrides()) {
+                coordinate.removeOverrides();
+            }
+        }
+    }
 }

@@ -10,6 +10,7 @@ import javafx.collections.ObservableSet;
 import sh.isaac.api.observable.coordinate.PropertyWithOverride;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedSetProperty;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Predicate;
 
@@ -26,7 +27,10 @@ public class SetPropertyWithOverride <T> extends SimpleEqualityBasedSetProperty<
         this.bind(overriddenProperty);
     }
 
-
+    @Override
+    public Property<ObservableSet<T>> overriddenProperty() {
+        return this.overriddenProperty;
+    }
 
     @Override
     public boolean isOverridden() {
@@ -54,44 +58,30 @@ public class SetPropertyWithOverride <T> extends SimpleEqualityBasedSetProperty<
 
     @Override
     public boolean setAll(T... elements) {
-        if (!overridden) {
-            overridden = true;
-            this.unbind();
-            super.set(FXCollections.observableSet());
-        }
-        return super.setAll(elements);
+        return setAll(Arrays.asList(elements));
     }
 
     @Override
     public boolean setAll(Collection<? extends T> elements) {
-        if (!overridden) {
-            overridden = true;
-            this.unbind();
-            super.set(FXCollections.observableSet());
+        if (!this.get().equals(elements)) {
+            if (!overridden) {
+                overridden = true;
+                this.unbind();
+            }
+            return super.setAll(elements);
         }
-        return super.setAll(elements);
-    }
-
-    @Override
-    public void setValue(ObservableSet<T> v) {
-        if (!overridden) {
-            overridden = true;
-            this.unbind();
-        }
-        if (v == null) {
-            overridden = false;
-            this.bind(this.overriddenProperty);
-        } else {
-            super.setValue(v);
-        }
+        return false;
     }
 
     @Override
     public boolean remove(Object obj) {
         if (!overridden) {
             overridden = true;
+            ObservableSet<T> set = FXCollections.observableSet(get());
             this.unbind();
-            super.set(FXCollections.observableSet(get()));
+            boolean returnValue = set.remove(obj);
+            super.set(set);
+            return returnValue;
         }
         return super.remove(obj);
     }
@@ -100,8 +90,11 @@ public class SetPropertyWithOverride <T> extends SimpleEqualityBasedSetProperty<
     public boolean add(T element) {
         if (!overridden) {
             overridden = true;
+            ObservableSet<T> set = FXCollections.observableSet(get());
             this.unbind();
+            boolean returnValue = set.add(element);
             super.set(FXCollections.observableSet(get()));
+            return returnValue;
         }
         return super.add(element);
     }
@@ -110,8 +103,11 @@ public class SetPropertyWithOverride <T> extends SimpleEqualityBasedSetProperty<
     public boolean addAll(Collection<? extends T> elements) {
         if (!overridden) {
             overridden = true;
+            ObservableSet<T> set = FXCollections.observableSet(get());
             this.unbind();
-            super.set(FXCollections.observableSet(get()));
+            boolean returnValue = set.addAll(elements);
+            super.set(set);
+            return returnValue;
         }
         return super.addAll(elements);
     }
@@ -120,8 +116,11 @@ public class SetPropertyWithOverride <T> extends SimpleEqualityBasedSetProperty<
     public boolean removeAll(Collection<?> objects) {
         if (!overridden) {
             overridden = true;
+            ObservableSet<T> set = FXCollections.observableSet(get());
             this.unbind();
-            super.set(FXCollections.observableSet(get()));
+            boolean returnValue = set.removeAll(objects);
+            super.set(set);
+            return returnValue;
         }
         return super.removeAll(objects);
     }
@@ -130,8 +129,11 @@ public class SetPropertyWithOverride <T> extends SimpleEqualityBasedSetProperty<
     public boolean retainAll(Collection<?> objects) {
         if (!overridden) {
             overridden = true;
+            ObservableSet<T> set = FXCollections.observableSet(get());
             this.unbind();
-            super.set(FXCollections.observableSet(get()));
+            boolean returnValue = set.retainAll(objects);
+            super.set(set);
+            return returnValue;
         }
         return super.retainAll(objects);
     }
@@ -150,8 +152,11 @@ public class SetPropertyWithOverride <T> extends SimpleEqualityBasedSetProperty<
     public boolean removeIf(Predicate<? super T> filter) {
         if (!overridden) {
             overridden = true;
+            ObservableSet<T> set = FXCollections.observableSet(get());
             this.unbind();
-            super.set(FXCollections.observableSet(get()));
+            boolean returnValue = set.removeIf(filter);
+            super.set(set);
+            return returnValue;
         }
         return super.removeIf(filter);
     }

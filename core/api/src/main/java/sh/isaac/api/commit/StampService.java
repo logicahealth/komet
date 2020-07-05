@@ -42,7 +42,10 @@ package sh.isaac.api.commit;
 //~--- JDK imports ------------------------------------------------------------
 
 import javafx.concurrent.Task;
+import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.primitive.ImmutableLongList;
+import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.DatastoreServices;
@@ -50,6 +53,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.VersionManagmentPathService;
 import sh.isaac.api.collections.StampSequenceSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.coordinate.StampPositionImmutable;
@@ -253,6 +257,7 @@ public interface StampService
        * @return an IntStream of all stamp sequences known to the stamp service.
        */
    IntStream getStampSequences();
+
    /**
     * Return the set of stamps that are between the two stamp coordinates, where
     * the returned values are exclusive of the start coordinate, and inclusive of the
@@ -329,9 +334,33 @@ public interface StampService
 
    ImmutableIntSet getPathsInUse();
 
+   default ImmutableSet<ConceptSpecification> getPathConceptsInUse() {
+      MutableSet<ConceptSpecification> paths = Sets.mutable.empty();
+      for (int pathNid: Get.stampService().getPathsInUse().toArray()) {
+         paths.add(Get.concept(pathNid));
+      }
+      return paths.toImmutable();
+   }
+
    ImmutableIntSet getModulesInUse();
 
+   default ImmutableSet<ConceptSpecification> getModuleConceptsInUse() {
+      MutableSet<ConceptSpecification> modules = Sets.mutable.empty();
+      for (int moduleNid: Get.stampService().getModulesInUse().toArray()) {
+         modules.add(Get.concept(moduleNid));
+      }
+      return modules.toImmutable();
+   }
+
    ImmutableIntSet getAuthorsInUse();
+
+   default ImmutableSet<ConceptSpecification> getAuthorConceptsInUse() {
+      MutableSet<ConceptSpecification> authors = Sets.mutable.empty();
+      for (int authorNid: Get.stampService().getAuthorsInUse().toArray()) {
+         authors.add(Get.concept(authorNid));
+      }
+      return authors.toImmutable();
+   }
 
    ImmutableLongList getTimesInUse();
 }

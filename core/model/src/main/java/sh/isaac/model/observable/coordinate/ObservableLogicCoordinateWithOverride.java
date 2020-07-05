@@ -13,7 +13,7 @@ public class ObservableLogicCoordinateWithOverride extends ObservableLogicCoordi
     }
 
     public ObservableLogicCoordinateWithOverride(ObservableLogicCoordinate logicCoordinate) {
-        super(logicCoordinate, "Logic coordinate with override");
+        super(logicCoordinate, logicCoordinate.getName());
     }
 
 

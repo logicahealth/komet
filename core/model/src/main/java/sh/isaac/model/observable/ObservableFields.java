@@ -145,7 +145,7 @@ public enum ObservableFields
 
    AUTHOR_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Author specification set for stamp coordinate", "Author set"),
 
-   DIGRAPH_SPECIFICATION_SET("Digraph concept set", "Digraph set"),
+   DIGRAPH_SPECIFICATION_SET("Navigation concept set", "Navigation set"),
    /** The allowed states for stamp coordinate. */
    ALLOWED_STATES_FOR_STAMP_COORDINATE("Allowed states for stamp coordinate", "Allowed states"),
 
@@ -181,7 +181,7 @@ public enum ObservableFields
    /** The logic coordinate for taxonomy coordinate. */
    LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE("Logic coordinate for taxonomy coordinate", "Logic coordinate"),
 
-   VERTEX_SORT_PROPERTY("Vertex sort for manifold", "Vertex sort"),
+   VERTEX_SORT_PROPERTY("Vertex sort", "Sort"),
    DIGRAPH_PROPERTY("Digraph for manifold", "Digraph"),
    EDGE_FILTER_FOR_DIGRAPH("Edge STAMP filter for manifold", "Edge filter"),
    VERTEX_FILTER_FOR_DIGRAPH("Vertex STAMP filter for manifold", "Vertex filter"),

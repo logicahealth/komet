@@ -22,7 +22,7 @@ public class ObservableStampPositionWithOverride
         super(stampPosition, coordinateName);
     }
     public ObservableStampPositionWithOverride(ObservableStampPosition stampPosition) {
-        super(stampPosition, "Stamp position with override");
+        super(stampPosition, stampPosition.getName());
     }
 
     protected ObjectProperty<ConceptSpecification> makePathConceptProperty(StampPosition stampPosition) {

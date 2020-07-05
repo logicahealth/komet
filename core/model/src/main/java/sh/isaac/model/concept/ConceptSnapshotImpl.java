@@ -342,8 +342,8 @@ public class ConceptSnapshotImpl
     }
 
     @Override
-    public TaxonomySnapshot getDigraphSnapshot() {
-        return this.manifoldCoordinate.getDigraphSnapshot();
+    public TaxonomySnapshot getNavigationSnapshot() {
+        return this.manifoldCoordinate.getNavigationSnapshot();
     }
 
     @Override

@@ -3,6 +3,7 @@ package sh.isaac.model.observable.override;
 import javafx.beans.InvalidationListener;
 import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import sh.isaac.api.observable.coordinate.PropertyWithOverride;
@@ -50,6 +51,10 @@ public class ObjectPropertyWithOverride<T> extends SimpleEqualityBasedObjectProp
         this.set(null);
     }
 
+    @Override
+    public Property<T> overriddenProperty() {
+        return this.overriddenProperty;
+    }
 
     @Override
     public T get() {

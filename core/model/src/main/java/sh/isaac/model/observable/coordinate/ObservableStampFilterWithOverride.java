@@ -18,7 +18,7 @@ import java.util.Collection;
 public class ObservableStampFilterWithOverride extends ObservableStampFilterBase {
 
     public ObservableStampFilterWithOverride(ObservableStampFilter stampFilter) {
-        super(stampFilter, "Stamp filter with override");
+        super(stampFilter, stampFilter.getName());
     }
 
     public ObservableStampFilterWithOverride(ObservableStampFilter stampFilter, String coordinateName) {

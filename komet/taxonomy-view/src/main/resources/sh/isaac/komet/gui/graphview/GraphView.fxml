@@ -28,10 +28,9 @@
                      <items>
                         <MenuButton fx:id="navigationMenuButton" mnemonicParsing="false">
                           <items>
+                              <Menu fx:id="navigationCoordinateMenu" mnemonicParsing="false" text="Coordinates" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
                               <MenuItem mnemonicParsing="false" onAction="#copySelectedConcepts" text="Copy selected concepts" />
-                              <SeparatorMenuItem mnemonicParsing="false" />
-                              <Menu fx:id="navigationCoordinateMenu" mnemonicParsing="false" text="Navigation coordinates" />
-                              <SeparatorMenuItem mnemonicParsing="false" />
                           </items>
                            <padding>
                               <Insets left="-8.0" />

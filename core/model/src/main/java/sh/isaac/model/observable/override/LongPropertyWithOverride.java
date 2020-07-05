@@ -53,7 +53,6 @@ public class LongPropertyWithOverride extends SimpleLongProperty implements Prop
         this.setValue(null);
     }
 
-
     private void overriddenPropertyChanged(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
         if (!overridden) {
             this.oldValue = oldValue;
@@ -190,6 +189,10 @@ public class LongPropertyWithOverride extends SimpleLongProperty implements Prop
         return get();
     }
 
+    @Override
+    public Property<Number> overriddenProperty() {
+        return this.overriddenProperty;
+    }
 
     @Override
     public void bind(ObservableValue<? extends Number> rawObservable) {

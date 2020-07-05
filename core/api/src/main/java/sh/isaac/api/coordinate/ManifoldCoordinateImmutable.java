@@ -151,7 +151,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(stampFilter.toStampFilterImmutable(),
                         languageCoordinate.toLanguageCoordinateImmutable(),
                         stampFilter.toStampFilterImmutable(),
-                        VertexSortPreferredName.SINGLETON,
+                        VertexSortNaturalOrder.SINGLETON,
                         stampFilter.toStampFilterImmutable(), dci),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
     }
@@ -161,7 +161,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(stampFilter.toStampFilterImmutable(),
                         languageCoordinate.toLanguageCoordinateImmutable(),
                         stampFilter.toStampFilterImmutable(),
-                        VertexSortPreferredName.SINGLETON,
+                        VertexSortNaturalOrder.SINGLETON,
                         stampFilter.toStampFilterImmutable(), dci),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
     }
@@ -173,7 +173,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(stampFilter.toStampFilterImmutable(),
                         languageCoordinate.toLanguageCoordinateImmutable(),
                         stampFilter.toStampFilterImmutable(),
-                        VertexSortPreferredName.SINGLETON,
+                        VertexSortNaturalOrder.SINGLETON,
                         stampFilter.toStampFilterImmutable(), dci),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
     }
@@ -225,7 +225,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
     @Override
     public String toString() {
         return "ManifoldCoordinateImmutable{" + this.getNavigationCoordinate() +
-                ",\n  vertex sort: " + this.vertexSort.getVertexSortName() +
+                ",\n  label and sort: " + this.vertexSort.getVertexSortName() +
                 ",\n  edge filter: " + this.edgeStampFilter +
                 ", \n vertex filter: " + this.vertexStampFilter
                 + ", \n lang filter: " + this.languageStampFilter + ", \n" +
@@ -233,7 +233,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
     }
 
     @Override
-    public TaxonomySnapshot getDigraphSnapshot() {
+    public TaxonomySnapshot getNavigationSnapshot() {
         if (this.digraphSnapshot == null) {
             this.digraphSnapshot = Get.taxonomyService().getSnapshot(this);
             Get.commitService().addCommitListener(this);

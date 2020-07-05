@@ -564,8 +564,8 @@ public class Manifold
     }
 
     @Override
-    public TaxonomySnapshot getDigraphSnapshot() {
-        return this.observableManifoldCoordinate.getDigraphSnapshot();
+    public TaxonomySnapshot getNavigationSnapshot() {
+        return this.observableManifoldCoordinate.getNavigationSnapshot();
     }
 }
 

@@ -153,18 +153,6 @@ public class KometStageController
     private Label pathLabel;
 
     @FXML
-    private Menu pathMenu;
-
-    @FXML
-    private Menu languageMenu;
-
-    @FXML
-    private Menu logicMenu;
-
-    @FXML
-    private Menu navigationMenu;
-
-    @FXML
     private Menu windowCoordinates;
 
     @FXML
@@ -411,35 +399,6 @@ public class KometStageController
 
     private void updateMenus(Observable observable) {
         this.windowCoordinates.getItems().clear();
-        this.pathMenu.getItems().clear();
-        for (UuidStringKey key: FxGet.pathCoordinates().keySet()) {
-            MenuItem item = new MenuItem(key.getString());
-            item.setUserData(FxGet.pathCoordinates().get(key));
-            item.setOnAction(event -> {
-                StampPathImmutable path = (StampPathImmutable) item.getUserData();
-                Platform.runLater(() -> this.viewProperties.getManifoldCoordinate().changeManifoldPath(path.getPathConceptNid()));
-                event.consume();
-            });
-            this.pathMenu.getItems().add(item);
-        }
-        this.navigationMenu.getItems().clear();
-
-        for (ConceptSpecification navOption: FxGet.navigationOptions()) {
-            ObservableNavigationCoordinate digraphCoordinate = this.viewProperties.getManifoldCoordinate().getNavigationCoordinate();
-            CheckMenuItem item = new CheckMenuItem(this.viewProperties.getManifoldCoordinate().getPreferredDescriptionText(navOption));
-            item.setSelected(digraphCoordinate.getNavigationConceptNids().contains(navOption.getNid()));
-            if (!item.isSelected()) {
-                item.setOnAction(event -> {
-                    Platform.runLater(() -> {
-                        digraphCoordinate.navigatorIdentifierConceptsProperty().clear();
-                        digraphCoordinate.navigatorIdentifierConceptsProperty().add(navOption);
-                    });
-                    event.consume();
-                });
-            }
-            this.navigationMenu.getItems().add(item);
-        }
-
         FxGet.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(),
                 this.windowCoordinates.getItems(),
                 this.viewProperties.getManifoldCoordinate());

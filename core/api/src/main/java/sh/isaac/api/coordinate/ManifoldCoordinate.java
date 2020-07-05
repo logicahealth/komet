@@ -45,7 +45,6 @@ import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.MutableList;
-import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import sh.isaac.api.ConceptProxy;
@@ -60,6 +59,7 @@ import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.api.util.time.DateTimeUtil;
 
 import java.util.*;
@@ -94,11 +94,11 @@ public interface ManifoldCoordinate {
         sb.append("\n\nLanguage coordinate:\n").append(getLanguageCoordinate().toUserString());
         sb.append("\n\nLanguage filter:\n").append(getLanguageStampFilter().toUserString());
         sb.append("\n\nVertex filter:\n").append(getVertexStampFilter().toUserString());
-        sb.append("\n\nVertex sort:\n").append(getVertexSort().getVertexSortName());
+        sb.append("\n\nSort:\n").append(getVertexSort().getVertexSortName());
         return sb.toString();
     }
 
-    TaxonomySnapshot getDigraphSnapshot();
+    TaxonomySnapshot getNavigationSnapshot();
 
     ManifoldCoordinateImmutable toManifoldCoordinateImmutable();
 
@@ -276,7 +276,8 @@ public interface ManifoldCoordinate {
 
     default String getPreferredDescriptionText(int conceptNid) {
         try {
-            return VertexSortPreferredName.getRegularName(conceptNid, getLanguageCoordinate(), getLanguageStampFilter());
+            return getLanguageCoordinate().getPreferredDescriptionText(conceptNid, getLanguageStampFilter())
+                    .orElse("No desc for: " + Get.conceptDescriptionText(conceptNid));
         } catch (NoSuchElementException ex) {
             return ex.getLocalizedMessage();
         }
@@ -287,7 +288,8 @@ public interface ManifoldCoordinate {
     }
 
     default String getFullyQualifiedDescriptionText(int conceptNid) {
-        return VertexSortFullyQualifiedName.getFullyQualifiedName(conceptNid, getLanguageCoordinate(), getLanguageStampFilter());
+        return getLanguageCoordinate().getFullyQualifiedNameText(conceptNid, getLanguageStampFilter())
+                .orElse("No desc for: " + Get.conceptDescriptionText(conceptNid));
     }
 
     default String getFullyQualifiedDescriptionText(ConceptSpecification concept) {
@@ -372,28 +374,59 @@ public interface ManifoldCoordinate {
     }
 
     default String toConceptString(Object object, Function<ConceptSpecification,String> toString) {
-        if (object == null) {
-            return "null";
-        }
         StringBuilder sb = new StringBuilder();
+        toConceptString(object, toString, sb);
+        return sb.toString();
+    }
+
+    default void toConceptString(Object object, Function<ConceptSpecification,String> toString, StringBuilder sb) {
+        if (object == null) {
+            return;
+        }
         if (object instanceof ConceptSpecification) {
             ConceptSpecification conceptSpecification = (ConceptSpecification) object;
             sb.append(toString.apply(conceptSpecification));
         } else if (object instanceof Collection) {
-            Collection collection = (Collection) object;
-            return toConceptString(collection.toArray(), toString);
+
+            if (object instanceof Set) {
+                // a set, so order does not matter. Alphabetic order desirable.
+                Set set = (Set) object;
+                if (set.isEmpty()) {
+                    toConceptString(set.toArray(), toString, sb);
+                } else {
+                    Object[] conceptSpecs = set.toArray();
+                    Arrays.sort(conceptSpecs, (o1, o2) ->
+                            NaturalOrder.compareStrings(toString.apply((ConceptSpecification) o1), toString.apply((ConceptSpecification) o2)));
+                    toConceptString(conceptSpecs, toString, sb);
+                }
+            } else {
+                // not a set, so order matters
+                Collection collection = (Collection) object;
+                toConceptString(collection.toArray(), toString, sb);
+            }
         } else if (object.getClass().isArray()) {
             Object[] a = (Object[]) object;
-            int iMax = a.length - 1;
+            final int iMax = a.length - 1;
             if (iMax == -1) {
                 sb.append("[]");
             } else {
                 sb.append('[');
+                int indent = sb.length();
                 for (int i = 0; ; i++) {
+                    if (i > 0) {
+                        sb.append('\u200A');
+                    }
                     sb.append(toConceptString(a[i], toString));
-                    if (i == iMax)
-                        return sb.append(']').toString();
-                    sb.append(", ");
+                    if (i == iMax) {
+                        sb.append(']').toString();
+                        return;
+                    }
+                    if (iMax > 0) {
+                        sb.append(",\n");
+                        for (int indentIndex = 0; indentIndex < indent; indentIndex++) {
+                            sb.append('\u2004'); //
+                        }
+                    }
                 }
             }
         } else if (object instanceof String) {
@@ -409,20 +442,19 @@ public interface ManifoldCoordinate {
         } else {
             sb.append(object.toString());
         }
-        return sb.toString();
     }
 
 
 
     default int[] getRootNids() {
-        return this.getDigraphSnapshot().getRootNids();
+        return this.getNavigationSnapshot().getRootNids();
     }
 
     default int[] getChildNids(ConceptSpecification parent) {
         return getChildNids(parent.getNid());
     }
     default int[] getChildNids(int parentNid) {
-        return this.getVertexSort().sortVertexes(this.getDigraphSnapshot().getTaxonomyChildConceptNids(parentNid),
+        return this.getVertexSort().sortVertexes(this.getNavigationSnapshot().getTaxonomyChildConceptNids(parentNid),
                 this.toManifoldCoordinateImmutable());
     }
 
@@ -430,39 +462,39 @@ public interface ManifoldCoordinate {
         return isChildOf(child.getNid(), parent.getNid());
     }
     default boolean isChildOf(int childNid, int parentNid) {
-        return this.getDigraphSnapshot().isChildOf(childNid, parentNid);
+        return this.getNavigationSnapshot().isChildOf(childNid, parentNid);
     }
 
     default boolean isLeaf(ConceptSpecification concept) {
         return isLeaf(concept.getNid());
     }
     default boolean isLeaf(int nid) {
-        return this.getDigraphSnapshot().isLeaf(nid);
+        return this.getNavigationSnapshot().isLeaf(nid);
     }
 
     default boolean isKindOf(ConceptSpecification child, ConceptSpecification parent) {
         return isKindOf(child.getNid(), parent.getNid());
     }
     default boolean isKindOf(int childNid, int parentNid) {
-        return this.getDigraphSnapshot().isKindOf(childNid, parentNid);
+        return this.getNavigationSnapshot().isKindOf(childNid, parentNid);
     }
 
     default  ImmutableIntSet getKindOfNidSet(ConceptSpecification kind) {
         return getKindOfNidSet(kind.getNid());
     }
     default ImmutableIntSet getKindOfNidSet(int kindNid) {
-        return this.getDigraphSnapshot().getKindOfConcept(kindNid);
+        return this.getNavigationSnapshot().getKindOfConcept(kindNid);
     }
 
     default boolean isDescendentOf(ConceptSpecification descendant, ConceptSpecification ancestor) {
         return isDescendentOf(descendant.getNid(), ancestor.getNid());
     }
     default boolean isDescendentOf(int descendantNid, int ancestorNid) {
-        return this.getDigraphSnapshot().isDescendentOf(descendantNid, ancestorNid);
+        return this.getNavigationSnapshot().isDescendentOf(descendantNid, ancestorNid);
     }
 
     default ImmutableCollection<Edge> getParentEdges(int parentNid) {
-        return this.getDigraphSnapshot().getTaxonomyParentLinks(parentNid);
+        return this.getNavigationSnapshot().getTaxonomyParentLinks(parentNid);
     }
     default ImmutableCollection<Edge> getParentEdges(ConceptSpecification parent) {
         return getParentEdges(parent.getNid());
@@ -472,7 +504,7 @@ public interface ManifoldCoordinate {
         return getChildEdges(child.getNid());
     }
     default ImmutableCollection<Edge> getChildEdges(int childNid) {
-        return this.getDigraphSnapshot().getTaxonomyChildLinks(childNid);
+        return this.getNavigationSnapshot().getTaxonomyChildLinks(childNid);
     }
 
     default ImmutableCollection<ConceptSpecification> getRoots() {

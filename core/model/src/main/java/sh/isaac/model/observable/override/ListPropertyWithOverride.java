@@ -2,12 +2,15 @@ package sh.isaac.model.observable.override;
 
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.SetPropertyBase;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import sh.isaac.api.observable.coordinate.PropertyWithOverride;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedListProperty;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Predicate;
@@ -21,7 +24,7 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
     public ListPropertyWithOverride(ListProperty<T> overriddenProperty, Object bean) {
         super(bean, overriddenProperty.getName());
         this.overriddenProperty = overriddenProperty;
-        this.set(overriddenProperty.getValue());
+        this.bind(overriddenProperty);
     }
 
     @Override
@@ -35,13 +38,19 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
     }
 
     @Override
+    public Property<ObservableList<T>> overriddenProperty() {
+        return this.overriddenProperty;
+    }
+
+    @Override
     public void set(ObservableList<T> newValue) {
-        if (!overridden) {
+        if (!overridden && newValue != null) {
             overridden = true;
+            this.unbind();
         }
         if (newValue == null) {
             overridden = false;
-            super.set(this.overriddenProperty.getValue());
+            this.bind(overriddenProperty);
         } else {
             super.set(newValue);
         }
@@ -49,41 +58,30 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
 
     @Override
     public boolean setAll(T... elements) {
-        if (!overridden) {
-            overridden = true;
-            super.set(FXCollections.observableArrayList());
-        }
-        return super.setAll(elements);
+        return setAll(Arrays.asList(elements));
     }
 
     @Override
     public boolean setAll(Collection<? extends T> elements) {
-        if (!overridden) {
-            overridden = true;
-            super.set(FXCollections.observableArrayList());
+        if (!this.get().equals(elements)) {
+            if (!overridden) {
+                overridden = true;
+                this.unbind();
+            }
+            return super.setAll(elements);
         }
-        return super.setAll(elements);
-    }
-
-    @Override
-    public void setValue(ObservableList<T> v) {
-        if (!overridden) {
-            overridden = true;
-        }
-        if (v == null) {
-            overridden = false;
-            super.setValue(this.overriddenProperty.getValue());
-        } else {
-            super.setValue(v);
-        }
-
+        return false;
     }
 
     @Override
     public boolean add(T element) {
         if (!overridden) {
             overridden = true;
-            super.set(FXCollections.observableArrayList(get()));
+            ObservableList<T> copy = FXCollections.observableArrayList(get());
+            this.unbind();
+            copy.add(element);
+            super.set(copy);
+            return true;
         }
         return super.add(element);
     }
@@ -92,7 +90,11 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
     public boolean addAll(Collection<? extends T> elements) {
         if (!overridden) {
             overridden = true;
-            super.set(FXCollections.observableArrayList(get()));
+            ObservableList<T> copy = FXCollections.observableArrayList(get());
+            this.unbind();
+            copy.addAll(elements);
+            super.set(copy);
+            return true;
         }
         return super.addAll(elements);
     }
@@ -101,7 +103,11 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
     public boolean addAll(int i, Collection<? extends T> elements) {
         if (!overridden) {
             overridden = true;
-            super.set(FXCollections.observableArrayList(get()));
+            ObservableList<T> copy = FXCollections.observableArrayList(get());
+            this.unbind();
+            copy.addAll(i, copy);
+            super.set(copy);
+            return true;
         }
         return super.addAll(i, elements);
     }
@@ -110,7 +116,11 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
     public boolean removeAll(Collection<?> objects) {
         if (!overridden) {
             overridden = true;
-            super.set(FXCollections.observableArrayList(get()));
+            ObservableList<T> copy = FXCollections.observableArrayList(get());
+            this.unbind();
+            copy.removeAll(objects);
+            super.set(copy);
+            return true;
         }
         return super.removeAll(objects);
     }
@@ -119,7 +129,11 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
     public boolean retainAll(Collection<?> objects) {
         if (!overridden) {
             overridden = true;
-            super.set(FXCollections.observableArrayList(get()));
+            ObservableList<T> copy = FXCollections.observableArrayList(get());
+            this.unbind();
+            copy.retainAll(objects);
+            super.set(copy);
+            return true;
         }
         return super.retainAll(objects);
     }
@@ -127,6 +141,7 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
     @Override
     public void clear() {
         if (!overridden) {
+            this.unbind();
             overridden = true;
             super.set(FXCollections.observableArrayList());
         }
@@ -137,7 +152,11 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
     public T set(int i, T element) {
         if (!overridden) {
             overridden = true;
-            super.set(FXCollections.observableArrayList(get()));
+            ObservableList<T> copy = FXCollections.observableArrayList(get());
+            this.unbind();
+            T old = copy.set(i, element);
+            super.set(copy);
+            return old;
         }
         return super.set(i, element);
     }
@@ -146,16 +165,24 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
     public void add(int i, T element) {
         if (!overridden) {
             overridden = true;
-            super.set(FXCollections.observableArrayList(get()));
+            ObservableList<T> copy = FXCollections.observableArrayList(get());
+            this.unbind();
+            copy.add(i, element);
+            super.set(copy);
+        } else {
+            super.add(i, element);
         }
-        super.add(i, element);
     }
 
     @Override
     public T remove(int i) {
         if (!overridden) {
             overridden = true;
-            super.set(FXCollections.observableArrayList(get()));
+            ObservableList<T> copy = FXCollections.observableArrayList(get());
+            this.unbind();
+            T old = copy.remove(i);
+            super.set(copy);
+            return old;
         }
         return super.remove(i);
     }
@@ -164,7 +191,11 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
     public boolean addAll(T... elements) {
         if (!overridden) {
             overridden = true;
-            super.set(FXCollections.observableArrayList(get()));
+            ObservableList<T> copy = FXCollections.observableArrayList(get());
+            this.unbind();
+            copy.addAll(elements);
+            super.set(copy);
+            return true;
         }
         return super.addAll(elements);
     }
@@ -173,7 +204,11 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
     public boolean removeAll(T... elements) {
         if (!overridden) {
             overridden = true;
-            super.set(FXCollections.observableArrayList(get()));
+            ObservableList<T> copy = FXCollections.observableArrayList(get());
+            this.unbind();
+            boolean returnValue = copy.removeAll(elements);
+            super.set(copy);
+            return returnValue;
         }
         return super.removeAll(elements);
     }
@@ -182,7 +217,11 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
     public boolean retainAll(T... elements) {
         if (!overridden) {
             overridden = true;
-            super.set(FXCollections.observableArrayList(get()));
+            ObservableList<T> copy = FXCollections.observableArrayList(get());
+            this.unbind();
+            boolean returnValue = copy.retainAll(elements);
+            super.set(copy);
+            return returnValue;
         }
         return super.retainAll(elements);
     }
@@ -191,33 +230,42 @@ public class ListPropertyWithOverride<T> extends SimpleEqualityBasedListProperty
     public void remove(int from, int to) {
         if (!overridden) {
             overridden = true;
-            super.set(FXCollections.observableArrayList(get()));
+            ObservableList<T> copy = FXCollections.observableArrayList(get());
+            this.unbind();
+            copy.remove(from, to);
+            super.set(copy);
+        } else {
+            super.remove(from, to);
         }
-        super.remove(from, to);
     }
 
     @Override
     public void replaceAll(UnaryOperator<T> operator) {
         if (!overridden) {
             overridden = true;
-            super.set(FXCollections.observableArrayList(get()));
+            ObservableList<T> copy = FXCollections.observableArrayList(get());
+            this.unbind();
+            copy.replaceAll(operator);
+            super.set(copy);
+        } else {
+            super.replaceAll(operator);
         }
-        super.replaceAll(operator);
     }
 
     @Override
     public boolean removeIf(Predicate<? super T> filter) {
         if (!overridden) {
             overridden = true;
-            super.set(FXCollections.observableArrayList(get()));
+            ObservableList<T> copy = FXCollections.observableArrayList(get());
+            this.unbind();
+            boolean returnValue = copy.removeIf(filter);
+            super.set(copy);
+            return returnValue;
+        } else {
+            return super.removeIf(filter);
         }
-        return super.removeIf(filter);
     }
 
-    @Override
-    public void bind(ObservableValue<? extends ObservableList<T>> newObservable) {
-        throw new UnsupportedOperationException();
-    }
     @Override
     public void bindBidirectional(Property<ObservableList<T>> other) {
         throw new UnsupportedOperationException();

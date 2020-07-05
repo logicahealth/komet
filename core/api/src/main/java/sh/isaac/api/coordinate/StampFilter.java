@@ -91,6 +91,15 @@ public interface StampFilter extends StampFilterTemplate, TimeBasedAnalogMaker<S
                     .append(" ");
         }
 
+        builder.append("\n   excluded modules: ");
+
+        if (this.getExcludedModuleNids().isEmpty()) {
+            builder.append("none ");
+        } else {
+            builder.append(Get.conceptDescriptionTextList(this.getExcludedModuleNids().toArray()))
+                    .append(" ");
+        }
+
         builder.append("\n   module priorities: ");
         if (this.getModulePriorityOrder().isEmpty()) {
             builder.append("none ");
