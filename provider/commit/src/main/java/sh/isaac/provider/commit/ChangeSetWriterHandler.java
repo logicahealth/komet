@@ -296,6 +296,7 @@ public class ChangeSetWriterHandler
             this.writer = null;
          }
       }
+      LOG.info("Stopped ChangeSetWriterHandler");
    }
 
    /**

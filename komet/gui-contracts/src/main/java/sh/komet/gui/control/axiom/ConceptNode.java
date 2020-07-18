@@ -30,6 +30,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.komet.iconography.Iconography;
@@ -47,22 +48,22 @@ public class ConceptNode extends Label {
 
     private final int conceptNid;
     private final Button openConceptButton = new Button("", Iconography.LINK_EXTERNAL.getIconographic());
-    private final ViewProperties viewProperties;
+    private final ManifoldCoordinate manifoldCoordinate;
     private PremiseType premiseType = PremiseType.INFERRED;
 
-    public ConceptNode(int conceptNid, ViewProperties viewProperties) {
+    public ConceptNode(int conceptNid, ManifoldCoordinate manifoldCoordinate) {
         this.conceptNid = conceptNid;
-        this.viewProperties = viewProperties;
-        this.setText(viewProperties.getPreferredDescriptionText(conceptNid));
+        this.manifoldCoordinate = manifoldCoordinate;
+        this.setText(manifoldCoordinate.getPreferredDescriptionText(conceptNid));
 
         HBox controlBox;
-        LatestVersion<Version> latest = viewProperties.getManifoldCoordinate().getVertexStampFilter().latestConceptVersion(conceptNid);
+        LatestVersion<Version> latest = manifoldCoordinate.getVertexStampFilter().latestConceptVersion(conceptNid);
         if (latest.isPresent()) {
             controlBox = new HBox(openConceptButton, AxiomView.computeGraphic(conceptNid, false,
-                    latest.get().getStatus(), viewProperties, premiseType));
+                    latest.get().getStatus(), manifoldCoordinate, premiseType));
         } else {
             controlBox = new HBox(openConceptButton, AxiomView.computeGraphic(conceptNid, false,
-                    Status.PRIMORDIAL, viewProperties, premiseType));
+                    Status.PRIMORDIAL, manifoldCoordinate, premiseType));
         }
 
         this.setGraphic(controlBox);
@@ -72,7 +73,7 @@ public class ConceptNode extends Label {
         openConceptButton.setOnMouseClicked(this::handleShowConceptNodeClick);
         ContextMenu contextMenu = new ContextMenu();
         this.setContextMenu(contextMenu);
-        Menu copyMenu = MenuSupplierForFocusConcept.makeCopyMenuItem(Optional.of(Get.concept(this.conceptNid)), this.viewProperties);
+        Menu copyMenu = MenuSupplierForFocusConcept.makeCopyMenuItem(Optional.of(Get.concept(this.conceptNid)), this.manifoldCoordinate);
         contextMenu.getItems().addAll(copyMenu.getItems());
     }
 
@@ -84,16 +85,16 @@ public class ConceptNode extends Label {
 
     private void showPopup(int conceptNid, MouseEvent mouseEvent) {
 
-        Optional<LogicalExpression> expression = viewProperties.getManifoldCoordinate().getLogicalExpression(conceptNid, premiseType);
+        Optional<LogicalExpression> expression = manifoldCoordinate.getLogicalExpression(conceptNid, premiseType);
         if (!expression.isPresent()) {
             premiseType = PremiseType.STATED;
-            expression = viewProperties.getManifoldCoordinate().getLogicalExpression(conceptNid, premiseType);
+            expression = manifoldCoordinate.getLogicalExpression(conceptNid, premiseType);
         }
         if (expression.isPresent()) {
             PopOver popover = new PopOver();
             popover.setContentNode(AxiomView.createWithCommitPanel(expression.get(),
                     premiseType,
-                    viewProperties));
+                    manifoldCoordinate));
             popover.setCloseButtonEnabled(true);
             popover.setHeaderAlwaysVisible(false);
             popover.setTitle("");

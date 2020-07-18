@@ -169,8 +169,10 @@ public class ObjectPropertyWithOverride<T> extends SimpleEqualityBasedObjectProp
 
     @Override
     protected void invalidated() {
-        this.invalidationListeners.forEach(invalidationListener ->
-                invalidationListener.invalidated(this));
+        if (this.invalidationListeners != null) {
+            this.invalidationListeners.forEach(invalidationListener ->
+                    invalidationListener.invalidated(this));
+        }
     }
 
 

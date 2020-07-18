@@ -13,9 +13,11 @@ import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.komet.gui.contract.ConceptSearchNodeFactory;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
 import sh.komet.gui.util.FxGet;
@@ -28,7 +30,7 @@ public class ComponentListEditor implements PropertyEditor<ObservableList<Compon
 
     BorderPane editorPane = new BorderPane();
     AnchorPane anchorPane = new AnchorPane();
-    ViewProperties viewProperties;
+    ManifoldCoordinate manifoldCoordinate;
     ListView<ComponentProxy> componentListView = new ListView<>();
     {
         componentListView.setPrefHeight(152);
@@ -69,8 +71,8 @@ public class ComponentListEditor implements PropertyEditor<ObservableList<Compon
         deleteButton.setOnAction(this::deleteSelection);
     }
 
-    public ComponentListEditor(ViewProperties viewProperties) {
-        this.viewProperties = viewProperties;
+    public ComponentListEditor(ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
     }
 
     @Override
@@ -97,7 +99,9 @@ public class ComponentListEditor implements PropertyEditor<ObservableList<Compon
         this.popOver.setTitle("");
         this.popOver.setArrowLocation(PopOver.ArrowLocation.LEFT_TOP);
         ConceptSearchNodeFactory searchNodeFactory = Get.service(ConceptSearchNodeFactory.class);
-        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(viewProperties, viewProperties.getActivityFeed(ViewProperties.LIST), null);
+        WindowPreferences windowPreferences = FxGet.windowPreferences(editorPane);
+        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(windowPreferences.getViewPropertiesForWindow(),
+                windowPreferences.getViewPropertiesForWindow().getActivityFeed(ViewProperties.LIST), null);
         Node searchNode = searchExplorationNode.getNode();
         this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();
         BorderPane searchBorder = new BorderPane(searchNode);

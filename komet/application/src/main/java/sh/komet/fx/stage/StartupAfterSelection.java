@@ -25,7 +25,7 @@ import sh.isaac.komet.preferences.UserPreferencesPanel;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.KometPreferences;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.util.FxGet;
 
 import java.io.IOException;
@@ -155,7 +155,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
 
                 kometPreferences.reloadPreferences();
                 boolean replacePrimaryStage = true;
-                for (WindowPreferencesItem windowPreference : kometPreferences.getWindowPreferenceItems()) {
+                for (WindowPreferences windowPreference : kometPreferences.getWindowPreferenceItems()) {
                     this.updateMessage("Opening " + windowPreference.getWindowName().get());
                     try {
                         UUID stageUuid = windowPreference.getWindowUuid();

@@ -16,9 +16,8 @@
  */
 package sh.isaac.komet.gui.graphview;
 
-import javax.inject.Singleton;
-import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
+import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
@@ -27,7 +26,8 @@ import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+
+import javax.inject.Singleton;
 
 /**
  *
@@ -42,7 +42,7 @@ public class GraphViewExplorationNodeFactory
 
    @Override
    public ExplorationNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
-      GraphViewExplorationNode multiParentGraphView = new GraphViewExplorationNode(viewProperties, preferencesNode);
+      GraphViewExplorationNode multiParentGraphView = new GraphViewExplorationNode(viewProperties.makeOverride(), preferencesNode);
       return multiParentGraphView;
    }
 

@@ -19,8 +19,6 @@ public abstract class ObservableNavigationCoordinateBase
 
     private final SimpleEqualityBasedSetProperty<ConceptSpecification> navigatorIdentifierConceptsProperty;
 
-    private final ObservableLogicCoordinateBase logicCoordinateObservable;
-
     /**
      * Note that if you don't declare a listener as final in this way, and just use method references, or
      * a direct lambda expression, you will not be able to remove the listener, since each method reference will create
@@ -28,53 +26,37 @@ public abstract class ObservableNavigationCoordinateBase
      * https://stackoverflow.com/questions/42146360/how-do-i-remove-lambda-expressions-method-handles-that-are-used-as-listeners
      */
     private final SetChangeListener<ConceptSpecification> navigatorIdentifierConceptSetListener = this::navigationSetChanged;
-    private final ChangeListener<LogicCoordinateImmutable> logicCoordinateListener = this::logicCoordinateChanged;
 
     public ObservableNavigationCoordinateBase(NavigationCoordinate navigationCoordinate, String coordinateName) {
         super(navigationCoordinate.toNavigationCoordinateImmutable(), coordinateName);
-        this.logicCoordinateObservable = makeLogicCoordinate(navigationCoordinate);
         this.navigatorIdentifierConceptsProperty = makeNavigatorIdentifierConceptsProperty(navigationCoordinate);
         addListeners();
     }
 
     protected abstract SimpleEqualityBasedSetProperty<ConceptSpecification> makeNavigatorIdentifierConceptsProperty(NavigationCoordinate navigationCoordinate);
 
-    protected abstract ObservableLogicCoordinateBase makeLogicCoordinate(NavigationCoordinate navigationCoordinate);
-
 
     @Override
     protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends NavigationCoordinateImmutable> observable, NavigationCoordinateImmutable oldValue, NavigationCoordinateImmutable newValue) {
-        this.logicCoordinateObservable.setValue(newValue.getLogicCoordinate());
         this.navigatorIdentifierConceptsProperty.setAll(newValue.getNavigationConceptNids()
                 .collect(nid -> Get.conceptSpecification(nid)).toSet());
     }
 
     @Override
     protected void addListeners() {
-        this.logicCoordinateObservable.baseCoordinateProperty().addListener(this.logicCoordinateListener);
         this.navigatorIdentifierConceptsProperty.addListener(this.navigatorIdentifierConceptSetListener);
     }
 
     @Override
     protected void removeListeners() {
-        this.logicCoordinateObservable.baseCoordinateProperty().removeListener(this.logicCoordinateListener);
         this.navigatorIdentifierConceptsProperty.removeListener(this.navigatorIdentifierConceptSetListener);
     }
 
 
     private void navigationSetChanged(SetChangeListener.Change<? extends ConceptSpecification> c) {
-        this.setValue(NavigationCoordinateImmutable.make(getLogicCoordinate().toLogicCoordinateImmutable(),
+        this.setValue(NavigationCoordinateImmutable.make(
                 IntSets.immutable.of(c.getSet().stream().mapToInt(value -> value.getNid()).toArray())));
     }
-
-    private void logicCoordinateChanged(ObservableValue<? extends LogicCoordinateImmutable> observable,
-                                        LogicCoordinateImmutable oldValue,
-                                        LogicCoordinateImmutable newValue) {
-        this.logicCoordinateObservable.setValue(newValue);
-        this.setValue(NavigationCoordinateImmutable.make(newValue,
-                getNavigationConceptNids()));
-    }
-
 
     @Override
     public NavigationCoordinateImmutable getDigraph() {
@@ -84,15 +66,5 @@ public abstract class ObservableNavigationCoordinateBase
     @Override
     public SetProperty<ConceptSpecification> navigatorIdentifierConceptsProperty() {
         return navigatorIdentifierConceptsProperty;
-    }
-
-    @Override
-    public ObjectProperty<LogicCoordinateImmutable> logicCoordinateProperty() {
-        return logicCoordinateObservable.baseCoordinateProperty();
-    }
-
-    @Override
-    public ObservableLogicCoordinate getLogicCoordinate() {
-        return this.logicCoordinateObservable;
     }
 }

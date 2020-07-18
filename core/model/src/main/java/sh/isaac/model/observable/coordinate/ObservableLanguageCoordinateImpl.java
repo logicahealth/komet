@@ -68,6 +68,11 @@ public final class ObservableLanguageCoordinateImpl
     }
 
     @Override
+    public void setExceptOverrides(LanguageCoordinateImmutable updatedCoordinate) {
+        setValue(updatedCoordinate);
+    }
+
+    @Override
     protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makeLanguageProperty(LanguageCoordinate languageCoordinate) {
         return new SimpleEqualityBasedObjectProperty<>(this,
                 ObservableFields.LANGUAGE_FOR_LANGUAGE_COORDINATE.toExternalString(),

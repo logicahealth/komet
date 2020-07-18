@@ -19,6 +19,7 @@ package sh.komet.gui.control.circumstance;
 import java.util.ArrayList;
 import java.util.List;
 import org.controlsfx.control.PropertySheet;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.statement.CircumstanceImpl;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
@@ -30,9 +31,8 @@ import sh.komet.gui.control.property.ViewProperties;
  */
 public abstract class CircumstancePropertySheet {
     
-    protected final ViewProperties viewProperties;
-    
-    
+    protected final ManifoldCoordinate manifoldCoordinate;
+
     private final PropertySheet propertySheet = new PropertySheet();
     {
         this.propertySheet.setMode(PropertySheet.Mode.NAME);
@@ -41,9 +41,9 @@ public abstract class CircumstancePropertySheet {
         
     }
 
-    public CircumstancePropertySheet(ViewProperties viewProperties) {
-        this.viewProperties = viewProperties;
-        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.viewProperties));
+    public CircumstancePropertySheet(ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifoldCoordinate));
     }
     
     public void setCircumstance(CircumstanceImpl circumstance) {
@@ -57,7 +57,7 @@ public abstract class CircumstancePropertySheet {
     private List<PropertySheet.Item> getProperties(CircumstanceImpl circumstance) {
        ArrayList<PropertySheet.Item> itemList = new ArrayList<>();
        
-       itemList.add(new PropertySheetMeasureWrapper(viewProperties, circumstance.timingProperty()));
+       itemList.add(new PropertySheetMeasureWrapper(manifoldCoordinate, circumstance.timingProperty()));
        
        // purpose list
 

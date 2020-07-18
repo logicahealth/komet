@@ -60,6 +60,11 @@ public class ObservableManifoldCoordinateImpl extends ObservableManifoldCoordina
         super(manifoldCoordinate, name);
     }
 
+    @Override
+    public void setExceptOverrides(ManifoldCoordinateImmutable updatedCoordinate) {
+        setValue(updatedCoordinate);
+    }
+
     public ObservableManifoldCoordinateImpl(ManifoldCoordinate manifoldCoordinate) {
         super(manifoldCoordinate);
     }
@@ -84,6 +89,7 @@ public class ObservableManifoldCoordinateImpl extends ObservableManifoldCoordina
         return ObservableStampFilterImpl.make(manifoldCoordinate.getEdgeStampFilter(), ObservableFields.EDGE_FILTER_FOR_DIGRAPH.toExternalString());
     }
 
+
     @Override
     protected SimpleObjectProperty<VertexSort> makeVertexSortProperty(ManifoldCoordinate manifoldCoordinate) {
         return new SimpleObjectProperty<>(this,
@@ -97,6 +103,10 @@ public class ObservableManifoldCoordinateImpl extends ObservableManifoldCoordina
         return new ObservableLanguageCoordinateImpl(manifoldCoordinate.getLanguageCoordinate());
     }
 
+    @Override
+    protected ObservableLogicCoordinateBase makeLogicCoordinate(ManifoldCoordinate manifoldCoordinate) {
+        return new ObservableLogicCoordinateImpl(manifoldCoordinate.getLogicCoordinate());
+    }
 }
 
 

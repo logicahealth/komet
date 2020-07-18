@@ -115,10 +115,10 @@ public class AssemblageViewProvider extends DetailNodeAbstract {
     public void updateFocusedObject(IdentifiedObject component) {
         ConceptSpecification focus = TermAux.UNINITIALIZED_COMPONENT_ID;
         if (component != null) {
+            focus = Get.concept(component.getNid());
             int count = (int) Get.identifierService().getNidsForAssemblage(focus.getNid()).count();
             toolTipProperty.set("View of all " + count + " " + viewProperties.getPreferredDescriptionText(focus) + " assemblage elements");
             this.conceptLabelToolbar.getRightInfoLabel().setText(NumberUtil.formatWithGrouping(count) + " ");
-            focus = Get.concept(component.getNid());
             this.assemblageDetailController.updateFocus(component, count);
         }
     }
@@ -183,7 +183,7 @@ public class AssemblageViewProvider extends DetailNodeAbstract {
         private void handleTreeItem(TreeItem<ObservableCategorizedVersion> item) {
             if (item != null && item.getValue() != null) {
                 ObservableCategorizedVersion version = item.getValue();
-                if (version.unwrap().toString().contains(searchString)) {
+                if (version.unwrap().toString().toLowerCase().contains(searchString.toLowerCase())) {
                     searchToolbar.addResult(item);
                 }
                 Platform.runLater(() -> {

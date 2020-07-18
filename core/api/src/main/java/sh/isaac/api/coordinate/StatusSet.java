@@ -20,6 +20,9 @@ public class StatusSet implements ImmutableCoordinate {
 
     public static StatusSet ACTIVE_ONLY = make(Status.ACTIVE);
     public static StatusSet ACTIVE_AND_INACTIVE = make(Status.ACTIVE, Status.INACTIVE, Status.WITHDRAWN);
+    public static final StatusSet INACTIVE = make(Status.INACTIVE, Status.WITHDRAWN);
+    public static final StatusSet WITHDRAWN = make(Status.WITHDRAWN);
+    public static final StatusSet INACTIVE_ONLY = make(Status.INACTIVE);
 
     private static final int marshalVersion = 1;
 

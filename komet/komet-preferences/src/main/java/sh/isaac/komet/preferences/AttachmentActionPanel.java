@@ -101,7 +101,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
         });
         revertFields();
         save();
-        getItemList().add(new PropertySheetTextWrapper(viewProperties, nameProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), nameProperty));
         getItemList().add(new PropertySheetBooleanWrapper("edit status", showStatusProperty));
         getItemList().add(new PropertySheetBooleanWrapper("edit module", showModuleProperty));
         getItemList().add(new PropertySheetBooleanWrapper("edit path", showPathProperty));
@@ -109,7 +109,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
         getItemList().add(new PropertySheetBooleanWrapper("allow history", showHistoryProperty));
 
         getItemList().add(new PropertySheetItemVersionTypeWrapper("Version type", versionTypeForActionProperty));
-        PropertySheetItemConceptWrapper conceptWrapper = new PropertySheetItemConceptWrapper(viewProperties, assemblageForActionProperty);
+        PropertySheetItemConceptWrapper conceptWrapper = new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), assemblageForActionProperty);
         getItemList().add(conceptWrapper);
 
         handleAssemblageChange(null, null, assemblageForActionProperty.get());
@@ -129,7 +129,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
         if (this.itemListProperty.get() != null) {
             getItemList().removeAll(itemListProperty.get());
         }
-        this.itemListProperty.set(FxGet.constraintPropertyItemsForAssemblageSemantic(newValue, getViewProperties()));
+        this.itemListProperty.set(FxGet.constraintPropertyItemsForAssemblageSemantic(newValue, getViewProperties().getManifoldCoordinate()));
         getItemList().addAll(itemListProperty.get());
         for (PropertySheet.Item item : itemListProperty.get()) {
             if (item instanceof PropertySheetItemConceptConstraintWrapper) {
@@ -194,7 +194,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
             this.fieldConcepts.add(new ConceptProxy(externalString));
         }
         this.propertySheetItemMap.clear();
-        this.itemListProperty.set(FxGet.constraintPropertyItemsForAssemblageSemantic(assemblageForActionProperty.get(), getViewProperties()));
+        this.itemListProperty.set(FxGet.constraintPropertyItemsForAssemblageSemantic(assemblageForActionProperty.get(), getViewProperties().getManifoldCoordinate()));
 
         for (PropertySheet.Item item : itemListProperty.get()) {
             if (item instanceof PropertySheetItemConceptConstraintWrapper) {

@@ -110,7 +110,7 @@ public class ExpressionView extends DetailNodeAbstract implements Supplier<List<
         splitPane.setOrientation(Orientation.VERTICAL);
         detailPane.setCenter(splitPane);
         if (expressionProperty.get() != null) {
-            splitPane.getItems().add(AxiomView.createWithCommitPanel(expressionProperty.get(), PremiseType.STATED, this.viewProperties));
+            splitPane.getItems().add(AxiomView.createWithCommitPanel(expressionProperty.get(), PremiseType.STATED, this.viewProperties.getManifoldCoordinate()));
         } else {
             detailPane.setCenter(new Label("No stated form"));
         }

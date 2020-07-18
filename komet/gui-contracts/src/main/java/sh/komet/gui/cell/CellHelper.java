@@ -110,7 +110,7 @@ public class CellHelper {
 
     private void addDefToCell(LogicalExpression expression, PremiseType premiseType) {
 
-        BorderPane defNodePanel = AxiomView.createWithCommitPanel(expression, premiseType, cell.getViewProperties());
+        BorderPane defNodePanel = AxiomView.createWithCommitPanel(expression, premiseType, cell.getManifoldCoordinate());
         setupWidth(defNodePanel);
     }
 
@@ -249,7 +249,7 @@ public class CellHelper {
             }
             ConceptNode referencedComponentConceptNode = null;
             if (Get.identifierService().getObjectTypeForComponent(semanticVersion.getReferencedComponentNid()) == IsaacObjectType.CONCEPT) {
-                referencedComponentConceptNode = new ConceptNode(semanticVersion.getReferencedComponentNid(), this.cell.getViewProperties());
+                referencedComponentConceptNode = new ConceptNode(semanticVersion.getReferencedComponentNid(), this.cell.getManifoldCoordinate());
             }
             String referencedComponentString = cell.getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getReferencedComponentNid());
             if (referencedComponentString == null || referencedComponentString.isEmpty()) {

@@ -1,10 +1,7 @@
 package sh.isaac.model.observable.override;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.property.Property;
 import javafx.beans.property.SetProperty;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import sh.isaac.api.observable.coordinate.PropertyWithOverride;

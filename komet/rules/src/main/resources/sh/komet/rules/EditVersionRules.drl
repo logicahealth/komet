@@ -29,7 +29,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.provider.drools.AddEditVersionMenuItems;
 import sh.komet.gui.control.PropertySheetMenuItem;
-import sh.komet.gui.manifold.Manifold;
 import javafx.beans.property.Property;
 import sh.isaac.MetaData;
 import sh.isaac.api.chronicle.VersionCategory;

@@ -16,18 +16,16 @@
  */
 package sh.komet.gui.control;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import javafx.beans.property.SetProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableSet;
 import org.controlsfx.control.PropertySheet;
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Status;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.komet.gui.manifold.Manifold;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -44,12 +42,6 @@ public class PropertySheetStatusSetWrapper implements PropertySheet.Item {
         }
         this.name = name;
         this.statusSetProperty = statusSetProperty;
-    }
-
-    public PropertySheetStatusSetWrapper(Manifold manifold,
-                                         SetProperty<Status> statusSetProperty) {
-        this(manifold.getPreferredDescriptionText(new ConceptProxy(statusSetProperty.getName())),
-                statusSetProperty);
     }
 
     @Override

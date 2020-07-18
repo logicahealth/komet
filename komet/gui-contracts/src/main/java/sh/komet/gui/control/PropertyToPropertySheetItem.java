@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.control;
 
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,23 +33,23 @@ import sh.komet.gui.control.property.ViewProperties;
  * @author kec
  */
 public class PropertyToPropertySheetItem {
-    public static List<PropertySheet.Item> getItems(List<Property<?>> properties, ViewProperties viewProperties) {
+    public static List<PropertySheet.Item> getItems(List<Property<?>> properties, ManifoldCoordinate manifoldCoordinate) {
         ArrayList<PropertySheet.Item> items = new ArrayList<>();
         
         for (Property<?> property: properties) {
             try {
                 if (property instanceof StringProperty) {
-                    items.add(new PropertySheetTextWrapper(viewProperties, (StringProperty) property));
+                    items.add(new PropertySheetTextWrapper(manifoldCoordinate, (StringProperty) property));
                 } else if (property instanceof IntegerProperty) {
                     String lowerCaseName = property.getName().toLowerCase();
                     if (lowerCaseName.contains("nid") || lowerCaseName.contains("component")) {
-                        items.add(new PropertySheetItemConceptNidWrapper(viewProperties,
+                        items.add(new PropertySheetItemConceptNidWrapper(manifoldCoordinate,
                                 (IntegerProperty) property));
                     }
                     
                 } else if (property instanceof ObjectProperty) {
                     if (((ObjectProperty<Object>) property).getValue() instanceof Status) {
-                        items.add(new PropertySheetStatusWrapper(viewProperties,
+                        items.add(new PropertySheetStatusWrapper(manifoldCoordinate,
                                 (ObjectProperty<Status>) property));
                     }
                 }

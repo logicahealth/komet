@@ -16,14 +16,13 @@
  */
 package sh.komet.gui.control;
 
-import java.util.List;
-import java.util.Optional;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import org.controlsfx.control.PropertySheet;
-import sh.isaac.api.ConceptProxy;
-import sh.komet.gui.manifold.Manifold;
+
+import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -39,12 +38,6 @@ public class PropertySheetItemObjectListWrapper<T extends Object> implements Pro
 
    public PropertySheetItemObjectListWrapper(String name, ObjectProperty<T> selectionProperty, ObservableList<T> allowedValues) {
       this.name = name;
-      this.selectionProperty = selectionProperty;
-      this.allowedValues = allowedValues;
-   }
-
-   public PropertySheetItemObjectListWrapper(Manifold manifold, ObjectProperty<T> selectionProperty, ObservableList<T> allowedValues) {
-      this.name = manifold.getPreferredDescriptionText(new ConceptProxy(selectionProperty.getName()));
       this.selectionProperty = selectionProperty;
       this.allowedValues = allowedValues;
    }

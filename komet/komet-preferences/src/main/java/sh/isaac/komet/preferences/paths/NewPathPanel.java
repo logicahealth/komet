@@ -57,7 +57,7 @@ public class NewPathPanel {
         sheet.setMode(PropertySheet.Mode.NAME);
         sheet.setSearchBoxVisible(false);
         sheet.setModeSwitcherVisible(false);
-        sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties));
+        sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties.getManifoldCoordinate()));
         sheet.getItems().addAll(this.itemList);
         this.propertySheetBorderPane.setCenter(sheet);
     }

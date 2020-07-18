@@ -355,44 +355,65 @@ public class FileSystemDataStore
     public void shutdown() {
         try {
             LOG.info("Stopping FileSystemDataStore.");
-
-            // The IO non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
-            // with an unbounded queue.
-            ThreadPoolExecutor executor = new ThreadPoolExecutor(
-                    4,
-                    4,
-                    60,
-                    TimeUnit.SECONDS,
-                    new LinkedBlockingQueue<>(),
-                    new NamedThreadFactory("IODataStore-Shutdown-work-thread", true));
-
-            executor.allowCoreThreadTimeOut(true);
-
-            Task<Void> syncTask = new SyncTask();
-
-            pendingSync.acquire();
-            executor.submit(syncTask)
-                    .get();
-            this.datastoreStartState = DataStoreStartState.NOT_YET_CHECKED;
-            this.assemblageNid_SequenceGenerator_Map.clear();
-            this.properties.clear();
-            this.assemblage_ElementToNid_Map.clear();
-            this.spinedChronologyMapMap.clear();
-            this.spinedTaxonomyMapMap.clear();
-            this.componentToSemanticNidsMap.clear();
-            this.assemblageToObjectType_Map.clear();
-            this.assemblageToVersionType_Map.clear();
-            this.nidToAssemblageNidMap.clear();
-            this.nidToElementSequenceMap.clear();
-            this.lastSyncTask = null;
-            this.lastSyncFuture = null;
-            this.writeListeners.clear();
-        } catch (InterruptedException | ExecutionException ex) {
+            StopMeTask stopMeTask = new StopMeTask();
+            stopMeTask.call();
+        } catch (Exception ex) {
             LOG.error("Unexpected error in FileSystemDataStore shutdown", ex);
             throw new RuntimeException(ex);
         }
+        LOG.info("Stopped FileSystemDataStore.");
     }
+    private class StopMeTask extends TimedTaskWithProgressTracker {
 
+        public StopMeTask() {
+            updateTitle("Stopping File system datastore");
+            addToTotalWork(2);
+            Get.activeTasks().add(this);
+        }
+        @Override
+        protected Object call() throws Exception {
+            try {
+                this.updateMessage("Write to disk");
+
+                // The IO non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
+                // with an unbounded queue.
+                ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                        4,
+                        4,
+                        60,
+                        TimeUnit.SECONDS,
+                        new LinkedBlockingQueue<>(),
+                        new NamedThreadFactory("IODataStore-Shutdown-work-thread", true));
+
+                executor.allowCoreThreadTimeOut(true);
+
+                Task<Void> syncTask = new SyncTask();
+
+                pendingSync.acquire();
+                executor.submit(syncTask).get();
+                completedUnitOfWork();
+                this.updateMessage("Clearing caches");
+                FileSystemDataStore.this.datastoreStartState = DataStoreStartState.NOT_YET_CHECKED;
+                FileSystemDataStore.this.assemblageNid_SequenceGenerator_Map.clear();
+                FileSystemDataStore.this.properties.clear();
+                FileSystemDataStore.this.assemblage_ElementToNid_Map.clear();
+                FileSystemDataStore.this.spinedChronologyMapMap.clear();
+                FileSystemDataStore.this.spinedTaxonomyMapMap.clear();
+                FileSystemDataStore.this.componentToSemanticNidsMap.clear();
+                FileSystemDataStore.this.assemblageToObjectType_Map.clear();
+                FileSystemDataStore.this.assemblageToVersionType_Map.clear();
+                FileSystemDataStore.this.nidToAssemblageNidMap.clear();
+                FileSystemDataStore.this.nidToElementSequenceMap.clear();
+                FileSystemDataStore.this.lastSyncTask = null;
+                FileSystemDataStore.this.lastSyncFuture = null;
+                FileSystemDataStore.this.writeListeners.clear();
+                completedUnitOfWork();
+                return null;
+            } finally {
+                Get.activeTasks().remove(this);
+            }
+        }
+    }
     private void writeAssemblageToObjectTypeFile()
             throws IOException {
         try (DataOutputStream dos = new DataOutputStream(

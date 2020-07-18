@@ -20,10 +20,11 @@ import javafx.beans.property.Property;
 import javafx.scene.Node;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.PropertyEditor;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.property.PropertySheetItem;
-import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -40,19 +41,19 @@ public class VersionEditor<V extends ObservableVersionImpl> implements PropertyE
          
     }
     private V observableVersion;
-    private final ViewProperties viewProperties;
+    private final ManifoldCoordinate manifoldCoordinate;
 
-    public VersionEditor(V observableVersion, ViewProperties viewProperties) {
+    public VersionEditor(V observableVersion, ManifoldCoordinate manifoldCoordinate) {
         this.observableVersion = observableVersion;
-        this.viewProperties = viewProperties;
-        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties));
+        this.manifoldCoordinate = manifoldCoordinate;
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifoldCoordinate));
         if (observableVersion != null) {
             setupProperties();
         }
     }
 
-    public VersionEditor(ViewProperties viewProperties) {
-        this(null, viewProperties);
+    public VersionEditor(ManifoldCoordinate manifoldCoordinate) {
+        this(null, manifoldCoordinate);
     }
 
     @Override
@@ -78,9 +79,12 @@ public class VersionEditor<V extends ObservableVersionImpl> implements PropertyE
     private void setupProperties() {
         propertySheet.getItems().clear();
         for (Property<?> property: this.observableVersion.getEditableProperties()) {
-            propertySheet.getItems().add(new PropertySheetItem(property.getValue(), property, viewProperties));
+            propertySheet.getItems().add(new PropertySheetItem(property.getValue(), property, manifoldCoordinate));
         }
+        WindowPreferences windowPreferences = FxGet.windowPreferences(this.propertySheet);
+
         FxGet.rulesDrivenKometService().populateWrappedProperties(propertySheet.getItems(),
-                viewProperties.getManifoldCoordinate().getValue(), viewProperties.getEditCoordinate().getValue());
+                manifoldCoordinate.toManifoldCoordinateImmutable(),
+                windowPreferences.getViewPropertiesForWindow().getEditCoordinate().getValue());
     }
 }

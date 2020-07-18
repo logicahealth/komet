@@ -65,9 +65,9 @@ public class ConfigurationPreferencePanel extends AbstractPreferences implements
         nameProperty.addListener((observable, oldValue, newValue) -> {
             FxGet.setConfigurationName(newValue);
         });
-        getItemList().add(new PropertySheetTextWrapper(viewProperties, this.nameProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, this.enableEdit));
-        getItemList().add(new PropertySheetTextWrapper(viewProperties, this.datastoreLocationProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), this.nameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), this.enableEdit));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), this.datastoreLocationProperty));
     }
 
     @Override

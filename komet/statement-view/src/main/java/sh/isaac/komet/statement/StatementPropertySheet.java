@@ -45,7 +45,7 @@ public class StatementPropertySheet {
 
     public StatementPropertySheet(ViewProperties viewProperties) {
         this.viewProperties = viewProperties;
-        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.viewProperties));
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.viewProperties.getManifoldCoordinate()));
     }
     
     public void setClinicalStatement(ClinicalStatementImpl clinicalStatement) {
@@ -59,17 +59,17 @@ public class StatementPropertySheet {
     public List<PropertySheet.Item> getProperties(ClinicalStatementImpl clinicalStatement) {
         ArrayList<PropertySheet.Item> items = new ArrayList<>();
         
-        items.add(new PropertySheetItemConceptNidWrapper(viewProperties,
+        items.add(new PropertySheetItemConceptNidWrapper(viewProperties.getManifoldCoordinate(),
                 clinicalStatement.modeProperty(),
         TermAux.TEMPLATE.getNid(), TermAux.INSTANCE.getNid()));
         
         
         
-        items.add(new PropertySheetTextWrapper(viewProperties, clinicalStatement.narrativeProperty()));
-        items.add(new PropertySheetItemConceptNidWrapper(viewProperties,
+        items.add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), clinicalStatement.narrativeProperty()));
+        items.add(new PropertySheetItemConceptNidWrapper(viewProperties.getManifoldCoordinate(),
                 clinicalStatement.statementTypeProperty(),
             TermAux.REQUEST_STATEMENT.getNid(), TermAux.PERFORMANCE_STATEMENT.getNid()));
-        items.add(new PropertySheetItemConceptNidWrapper(viewProperties,
+        items.add(new PropertySheetItemConceptNidWrapper(viewProperties.getManifoldCoordinate(),
                 clinicalStatement.subjectOfInformationProperty(), 
                 TermAux.SUBJECT_OF_RECORD.getNid(),
                 TermAux.MOTHER_OF_SUBJECT_OF_RECORD.getNid(), 
@@ -78,9 +78,9 @@ public class StatementPropertySheet {
                 TermAux.PATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD.getNid()
                 
         ));
-        items.add(new PropertySheetItemConceptNidWrapper(viewProperties,
+        items.add(new PropertySheetItemConceptNidWrapper(viewProperties.getManifoldCoordinate(),
                 clinicalStatement.topicProperty()));
-        items.add(new PropertySheetMeasureWrapper(viewProperties, clinicalStatement.statementTimeProperty()));
+        items.add(new PropertySheetMeasureWrapper(viewProperties.getManifoldCoordinate(), clinicalStatement.statementTimeProperty()));
         items.add(new PropertySheetCircumstanceWrapper(viewProperties, clinicalStatement.circumstanceProperty()));
         
         

@@ -48,6 +48,7 @@ import javafx.scene.control.TreeTableColumn;
 
 import javafx.util.Callback;
 
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 
 import sh.komet.gui.control.property.ViewProperties;
@@ -61,11 +62,11 @@ import sh.komet.gui.control.property.ViewProperties;
 public class TreeTableWhatCellFactory
          implements Callback<TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion>,
                              TreeTableCell<ObservableCategorizedVersion, ObservableCategorizedVersion>> {
-   private final ViewProperties manifold;
+   private final ManifoldCoordinate manifold;
 
    //~--- constructors --------------------------------------------------------
 
-   public TreeTableWhatCellFactory(ViewProperties manifold) {
+   public TreeTableWhatCellFactory(ManifoldCoordinate manifold) {
       this.manifold = manifold;
    }
 

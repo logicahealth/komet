@@ -16,34 +16,11 @@
  */
 package sh.komet.gui.control.property;
 
-import java.time.LocalDateTime;
-import sh.isaac.api.ComponentProxy;
-import sh.komet.gui.control.*;
-import sh.komet.gui.control.component.ComponentListEditor;
-import sh.komet.gui.control.component.PropertySheetComponentListWrapper;
-import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
-import sh.komet.gui.control.concept.ConceptLabel;
-import sh.komet.gui.control.concept.ConceptForControlWrapper;
-import sh.komet.gui.control.image.ImageSourceEditor;
-import sh.komet.gui.control.image.PropertySheetImageWrapper;
-import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.NoSuchElementException;
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Menu;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.control.TextInputControl;
+import javafx.scene.control.*;
 import javafx.util.Callback;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.AbstractPropertyEditor;
@@ -53,31 +30,33 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.statement.MeasureImpl;
 import sh.isaac.model.statement.ResultImpl;
+import sh.komet.gui.control.*;
 import sh.komet.gui.control.circumstance.CircumstanceEditor;
 import sh.komet.gui.control.circumstance.PropertySheetCircumstanceWrapper;
-import sh.komet.gui.control.concept.AssemblageListEditor;
-import sh.komet.gui.control.concept.ConceptListEditor;
-import sh.komet.gui.control.concept.ConceptSpecificationEditor;
-import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
-import sh.komet.gui.control.concept.PropertySheetConceptSetWrapper;
-import sh.komet.gui.control.concept.PropertySheetItemAssemblageListWrapper;
-import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
-import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.control.concept.PropertySheetItemConceptWrapperEditor;
-import sh.komet.gui.control.concept.PropertySheetItemConceptWrapperNoSearch;
+import sh.komet.gui.control.component.ComponentListEditor;
+import sh.komet.gui.control.component.PropertySheetComponentListWrapper;
+import sh.komet.gui.control.concept.*;
+import sh.komet.gui.control.image.ImageSourceEditor;
+import sh.komet.gui.control.image.PropertySheetImageWrapper;
 import sh.komet.gui.control.list.ListEditor;
 import sh.komet.gui.control.list.PropertySheetListWrapper;
 import sh.komet.gui.control.measure.MeasureEditor;
+import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
 import sh.komet.gui.control.position.PositionEditor;
 import sh.komet.gui.control.position.PositionListEditor;
 import sh.komet.gui.control.result.PropertySheetResultWrapper;
 import sh.komet.gui.control.result.ResultEditor;
 import sh.komet.gui.control.versiontype.PropertySheetItemVersionTypeWrapper;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.time.KometDateTimePicker;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.NoSuchElementException;
 
 /**
  *
@@ -85,23 +64,21 @@ import sh.komet.gui.time.KometDateTimePicker;
  */
 public class PropertyEditorFactory implements Callback<PropertySheet.Item, PropertyEditor<?>> {
 
-    ViewProperties viewProperties;
+    ManifoldCoordinate manifoldCoordinate;
 
-    public PropertyEditorFactory(ViewProperties viewProperties) {
-        if (viewProperties == null) {
+    public PropertyEditorFactory(ManifoldCoordinate manifoldCoordinate) {
+        if (manifoldCoordinate == null) {
             throw new NullPointerException("manifoldForDisplay cannot be null");
         }
-        this.viewProperties = viewProperties;
+        this.manifoldCoordinate = manifoldCoordinate;
     }
 
     @Override
     public PropertyEditor<?> call(PropertySheet.Item propertySheetItem) {
-        if (propertySheetItem instanceof PropertySheetItemConceptNidWrapper) {
-            return createCustomChoiceEditor((PropertySheetItemConceptNidWrapper) propertySheetItem);
-        } else if (propertySheetItem instanceof PropertySheetItemConceptConstraintWrapper) {
-            return new PropertySheetItemConceptWrapperEditor(viewProperties);
+        if (propertySheetItem instanceof PropertySheetItemConceptConstraintWrapper) {
+            return new PropertySheetItemConceptWrapperEditor(this.manifoldCoordinate);
         } else if (propertySheetItem instanceof PropertySheetItemConceptWrapper) {
-            return new ConceptSpecificationEditor((PropertySheetItemConceptWrapper) propertySheetItem, viewProperties);
+            return new ConceptSpecificationEditor((PropertySheetItemConceptWrapper) propertySheetItem, manifoldCoordinate);
         } else if (propertySheetItem instanceof PropertySheetItemConceptWrapperNoSearch) {
             PropertySheetItemConceptWrapperNoSearch propertySheetItemNoSearch = 
                     (PropertySheetItemConceptWrapperNoSearch) propertySheetItem;
@@ -120,18 +97,18 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             return Editors.createNumericEditor(wrappedItem);
         } else if (propertySheetItem instanceof PropertySheetMeasureWrapper) {
             PropertySheetMeasureWrapper measureWrapper = (PropertySheetMeasureWrapper) propertySheetItem;
-            MeasureEditor measureEditor = new MeasureEditor(viewProperties);
+            MeasureEditor measureEditor = new MeasureEditor(this.manifoldCoordinate);
             measureEditor.setValue((MeasureImpl) measureWrapper.getValue());
             return measureEditor;
         } else if (propertySheetItem instanceof PropertySheetCircumstanceWrapper) {
             PropertySheetCircumstanceWrapper circumstanceWrapper = (PropertySheetCircumstanceWrapper) propertySheetItem;
-            return new CircumstanceEditor(circumstanceWrapper.getObservableValue().get(), viewProperties);
+            return new CircumstanceEditor(circumstanceWrapper.getObservableValue().get(), this.manifoldCoordinate);
         } else if (propertySheetItem instanceof PropertySheetResultWrapper) {
             PropertySheetResultWrapper resultWrapper = (PropertySheetResultWrapper) propertySheetItem;
-            return new ResultEditor((ObservableValue<ResultImpl>) resultWrapper.getObservableValue().get(), viewProperties);
+            return new ResultEditor((ObservableValue<ResultImpl>) resultWrapper.getObservableValue().get(), this.manifoldCoordinate);
         } else if (propertySheetItem instanceof PropertySheetListWrapper) {
             PropertySheetListWrapper listWrapper = (PropertySheetListWrapper) propertySheetItem;
-            ListEditor listEditor = new ListEditor(this.viewProperties, listWrapper.getNewObjectSupplier(), listWrapper.getNewEditorSupplier());
+            ListEditor listEditor = new ListEditor(this.manifoldCoordinate, listWrapper.getNewObjectSupplier(), listWrapper.getNewEditorSupplier());
             listEditor.setValue((ObservableList) listWrapper.getValue());
             return listEditor;
         } else if (propertySheetItem instanceof PropertySheetItem) {
@@ -184,12 +161,12 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
             return new ImageSourceEditor(((PropertySheetImageWrapper)propertySheetItem).imageDataProperty());
         } else if (propertySheetItem instanceof PropertySheetPositionWrapper) {
             PropertySheetPositionWrapper positionWrapper = (PropertySheetPositionWrapper) propertySheetItem;
-            PositionEditor positionEditor = new PositionEditor(viewProperties, positionWrapper.getObservableStampPosition());
+            PositionEditor positionEditor = new PositionEditor(manifoldCoordinate, positionWrapper.getObservableStampPosition());
             positionEditor.setValue(positionWrapper.getValue());
             return positionEditor;
         } else if (propertySheetItem instanceof PropertySheetPositionListWrapper) {
             PropertySheetPositionListWrapper positionListWrapper = (PropertySheetPositionListWrapper) propertySheetItem;
-            return new PositionListEditor(this.viewProperties, positionListWrapper.getValue());
+            return new PositionListEditor(this.manifoldCoordinate, positionListWrapper.getValue());
         }
         
         
@@ -232,7 +209,7 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                 Collection<ConceptForControlWrapper> collection = new ArrayList<>();
                 for (Object allowedValue : item.getAllowedValues()) {
                     ConceptSpecification allowedConcept = (ConceptSpecification) allowedValue;
-                    collection.add(new ConceptForControlWrapper(viewProperties, allowedConcept.getNid()));
+                    collection.add(new ConceptForControlWrapper(manifoldCoordinate, allowedConcept.getNid()));
                 }
                 PropertyEditor editor = Editors.createChoiceEditor(item, collection);
                 ComboBox editorControl = (ComboBox) editor.getEditor();
@@ -247,7 +224,7 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                 Object currentValue = item.getValue();
 
                 if (currentValue == null) {
-                    editor.setValue(new ConceptForControlWrapper(viewProperties, defaultConcept.getNid()));
+                    editor.setValue(new ConceptForControlWrapper(manifoldCoordinate, defaultConcept.getNid()));
                 } else {
                     ConceptSpecification currentConcept;
                     if (currentValue instanceof ConceptSpecification) {
@@ -255,7 +232,7 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
                     } else {
                         currentConcept = Get.conceptSpecification((Integer) currentValue);
                     }
-                    editor.setValue(new ConceptForControlWrapper(viewProperties, currentConcept.getNid()));
+                    editor.setValue(new ConceptForControlWrapper(manifoldCoordinate, currentConcept.getNid()));
                 }
                 return editor;
             }
@@ -294,56 +271,26 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
         }
     }
 
-    private PropertyEditor<?> createCustomChoiceEditor(PropertySheetItemConceptNidWrapper propertySheetItem) {
-        if (!propertySheetItem.getAllowedValues().isEmpty()) {
-            Collection<ConceptForControlWrapper> collection = new ArrayList<>();
-            propertySheetItem.getAllowedValues().stream().forEach((nid) -> collection.add(new ConceptForControlWrapper(viewProperties, nid)));
-            return Editors.createChoiceEditor(propertySheetItem, collection);
-        } else {
-            ConceptLabel conceptLabel = new ConceptLabel(viewProperties, ConceptLabel::setPreferredText, (label) -> {
-                List<MenuItem> labelMenu = new ArrayList<>();
-
-                for (Manifold.ManifoldGroup manifoldGroup : Manifold.ManifoldGroup.values()) {
-                    Menu manifoldHistory = new Menu(manifoldGroup.getGroupName());
-                    labelMenu.add(manifoldHistory);
-                    Collection<ComponentProxy> groupHistory = Manifold.get(manifoldGroup).getHistoryRecords();
-                    for (ComponentProxy record : groupHistory) {
-                        MenuItem conceptItem = new MenuItemWithText(
-                                viewProperties.getPreferredDescriptionText(record.getNid())
-                        );
-                        conceptItem.setOnAction((ActionEvent event) -> {
-                            label.setValue(record.getNid());
-                        });
-                        manifoldHistory.getItems().add(conceptItem);
-                    }
-                }
-                return labelMenu;
-            });
-
-            return conceptLabel;
-        }
-    }
-
     private PropertyEditor<?> createConceptListEditor(PropertySheetConceptListWrapper propertySheetConceptListWrapper) {
-        ConceptListEditor editor = new ConceptListEditor(viewProperties);
+        ConceptListEditor editor = new ConceptListEditor(manifoldCoordinate);
         editor.setValue(propertySheetConceptListWrapper.getValue());
         return editor;
     }
 
     private PropertyEditor<?> createComponentListEditor(PropertySheetComponentListWrapper propertySheetComponentListWrapper) {
-        ComponentListEditor editor = new ComponentListEditor(viewProperties);
+        ComponentListEditor editor = new ComponentListEditor(manifoldCoordinate);
         editor.setValue(propertySheetComponentListWrapper.getValue());
         return editor;
     }
 
     private PropertyEditor<?> createAssemblageListEditor(PropertySheetItemAssemblageListWrapper propertySheetConceptListWrapper) {
-        AssemblageListEditor editor = new AssemblageListEditor(viewProperties);
+        AssemblageListEditor editor = new AssemblageListEditor(manifoldCoordinate);
         editor.setValue(propertySheetConceptListWrapper.getValue());
         return editor;
     }
 
     private PropertyEditor<?> createConceptListEditor(PropertySheetConceptSetWrapper propertySheetConceptSetWrapper) {
-        ConceptListEditor editor = new ConceptListEditor(viewProperties);
+        ConceptListEditor editor = new ConceptListEditor(manifoldCoordinate);
         editor.setValue(propertySheetConceptSetWrapper.getValue());
         return editor;
     }

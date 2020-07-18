@@ -29,7 +29,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.menu.MenuItemWithText;
@@ -50,7 +50,7 @@ public class ConceptCorrelationViewMenuProvider implements MenuProvider {
     }
 
     @Override
-    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferencesItem windowPreference) {
+    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferences windowPreference) {
         if (parentMenu == AppMenu.NEW_WINDOW) {
             MenuItem newComparisonWindowMenuItem = new MenuItemWithText("Correlation Window");
             newComparisonWindowMenuItem.setOnAction(this::newCorelationView);

@@ -286,6 +286,7 @@ public class ChronologyProvider
             LOG.info("Stopping chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
             this.sync().get();
             this.metadataLoaded.set(-1);
+            LOG.info("Stopped chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
         } catch (InterruptedException | ExecutionException ex) {
             LOG.error(ex);
         }

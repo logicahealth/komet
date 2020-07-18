@@ -17,6 +17,7 @@
 package sh.komet.gui.cell.treetable;
 
 import javafx.scene.control.TreeTableRow;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.control.property.ViewProperties;
 
@@ -25,17 +26,17 @@ import sh.komet.gui.control.property.ViewProperties;
  * @author kec
  */
 public class TreeTableConceptCell extends KometTreeTableCell<Integer> {
-   private final ViewProperties viewProperties;
+   private final ManifoldCoordinate manifoldCoordinate;
 
    protected TreeTableConceptCell() {
        throw new UnsupportedOperationException(
                "Manifold must be set. No arg constructor not allowed");
    }
-   public TreeTableConceptCell(ViewProperties viewProperties) {
-      if (viewProperties == null) {
+   public TreeTableConceptCell(ManifoldCoordinate manifoldCoordinate) {
+      if (manifoldCoordinate == null) {
          throw new IllegalArgumentException("manifold cannot be null");
       }
-      this.viewProperties = viewProperties;
+      this.manifoldCoordinate = manifoldCoordinate;
       getStyleClass().add("komet-version-concept-cell");
       getStyleClass().add("isaac-version");
    }
@@ -43,7 +44,7 @@ public class TreeTableConceptCell extends KometTreeTableCell<Integer> {
    @Override
    protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, Integer cellValue) {
        if (cellValue!= null) {
-           setText(viewProperties.getPreferredDescriptionText(cellValue));
+           setText(manifoldCoordinate.getPreferredDescriptionText(cellValue));
        }
          
    }

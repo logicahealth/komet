@@ -25,6 +25,11 @@ public class ObservableStampFilterImpl extends ObservableStampFilterBase {
     }
 
     @Override
+    public void setExceptOverrides(StampFilterImmutable updatedCoordinate) {
+        setValue(updatedCoordinate);
+    }
+
+    @Override
     protected ListProperty<ConceptSpecification> makeModulePriorityOrderProperty(StampFilter stampFilter) {
         return new SimpleEqualityBasedListProperty<>(this,
                 ObservableFields.MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE.toExternalString(),

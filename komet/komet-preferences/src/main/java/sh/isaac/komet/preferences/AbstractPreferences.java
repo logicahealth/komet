@@ -273,7 +273,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         sheet.setMode(PropertySheet.Mode.NAME);
         sheet.setSearchBoxVisible(false);
         sheet.setModeSwitcherVisible(false);
-        sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties));
+        sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties.getManifoldCoordinate()));
         sheet.getItems().addAll(itemList);
         for (PropertySheet.Item item : itemList) {
             if (item instanceof PreferenceChanged) {
@@ -329,7 +329,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
     }
 
     protected PropertySheetItem createPropertyItem(Property<?> property) {
-        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, viewProperties, PropertySheetPurpose.DESCRIPTION_DIALECT);
+        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, viewProperties.getManifoldCoordinate(), PropertySheetPurpose.DESCRIPTION_DIALECT);
         return wrappedProperty;
     }
 

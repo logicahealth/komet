@@ -5,7 +5,6 @@ import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.komet.gui.manifold.Manifold;
 
 import java.util.Optional;
 
@@ -21,12 +20,6 @@ public class PropertySheetItemFloatWrapper implements PropertySheet.Item {
         }
         this.name = name;
         this.floatProperty = floatProperty;
-    }
-
-    public PropertySheetItemFloatWrapper(Manifold manifold,
-                                         FloatProperty floatProperty) {
-        this(manifold.getPreferredDescriptionText(new ConceptProxy(floatProperty.getName())),
-                floatProperty);
     }
     public ConceptSpecification getSpecification() {
         if (this.propertySpecification != null) {

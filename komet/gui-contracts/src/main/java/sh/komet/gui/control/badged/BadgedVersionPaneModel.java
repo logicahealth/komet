@@ -1,17 +1,5 @@
 package sh.komet.gui.control.badged;
 
-import java.io.ByteArrayInputStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.OptionalInt;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import javafx.scene.control.*;
-import org.apache.mahout.math.map.OpenIntIntHashMap;
-import org.controlsfx.control.PropertySheet;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -21,17 +9,14 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.TilePane;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
+import org.apache.mahout.math.map.OpenIntIntHashMap;
+import org.controlsfx.control.PropertySheet;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -42,14 +27,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.ComponentNidVersion;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.version.DynamicVersion;
-import sh.isaac.api.component.semantic.version.ImageVersion;
-import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.component.semantic.version.LongVersion;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.version.*;
 import sh.isaac.api.component.semantic.version.brittle.LoincVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
@@ -71,10 +49,15 @@ import sh.komet.gui.control.StampControl;
 import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.control.axiom.ConceptNode;
 import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.control.text.TextAreaReadOnly;
 import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
+
+import java.io.ByteArrayInputStream;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BadgedVersionPaneModel {
     public static final int FIRST_COLUMN_WIDTH = 32;
@@ -85,6 +68,7 @@ public abstract class BadgedVersionPaneModel {
     protected final TilePane badgeTiles = new TilePane();
     protected final FlowPane badgeFlow = new FlowPane();
     protected final VBox componentVBox = new VBox();
+    protected final ArrayList<TextAreaReadOnly> textToWrap = new ArrayList<>();
     private final BorderPane primaryPane = new BorderPane();
     private boolean primaryPaneWrappedForAttachment = false;
 
@@ -257,9 +241,19 @@ public abstract class BadgedVersionPaneModel {
                     break;
             }
         });
-
-
+//
+//        this.textToWrap.forEach(text -> {
+//            text.setMaxWidth(500);
+//            text.setPrefWidth(500);
+//        });
         redoLayout();
+    }
+
+    private TextAreaReadOnly addText(String theText) {
+        TextAreaReadOnly textArea = new TextAreaReadOnly();
+        textArea.setText(theText);
+        textToWrap.add(textArea);
+        return textArea;
     }
 
     public HashMap<String, AtomicBoolean> getDisclosureStateMap() {
@@ -294,13 +288,13 @@ public abstract class BadgedVersionPaneModel {
         if (isLatestPanel()) {
             componentType.setText("CON");
             componentVBox.getChildren().setAll(
-                    new Text("\n" + conceptVersion.getStatus() + " in " + getManifoldCoordinate().getPreferredDescriptionText(
+                    addText("\n" + conceptVersion.getStatus() + " in " + getManifoldCoordinate().getPreferredDescriptionText(
                             conceptVersion.getModuleNid()) + " on " + getManifoldCoordinate().getPreferredDescriptionText(
                             conceptVersion.getPathNid()))
             );
         } else {
             componentType.setText("");
-            componentVBox.getChildren().setAll( new Text(
+            componentVBox.getChildren().setAll( addText(
                     conceptVersion.getStatus() + " in " + getManifoldCoordinate().getPreferredDescriptionText(
                             conceptVersion.getModuleNid()) + " on " + getManifoldCoordinate().getPreferredDescriptionText(
                             conceptVersion.getPathNid())));
@@ -331,11 +325,10 @@ public abstract class BadgedVersionPaneModel {
         }
 
         LogicalExpression expression = logicGraphVersion.getLogicalExpression();
-        Pane logicDetailPanel = AxiomView.createWithCommitPanel(expression, premiseType, viewProperties);
+        Pane logicDetailPanel = AxiomView.createWithCommitPanel(expression, premiseType, viewProperties.getManifoldCoordinate());
         BorderPane.setAlignment(logicDetailPanel, Pos.TOP_LEFT);
         primaryPane.setCenter(logicDetailPanel);
     }
-
     protected final void setupOther(Version version) {
 
         if (version instanceof SemanticVersion) {
@@ -352,8 +345,7 @@ public abstract class BadgedVersionPaneModel {
                     } else {
                         componentType.setText("");
                     }
-
-                    componentVBox.getChildren().setAll(new Text(getManifoldCoordinate()
+                    componentVBox.getChildren().setAll(addText(getManifoldCoordinate()
                             .getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\n" + ((StringVersion) semanticVersion).getString()));
                     break;
 
@@ -368,20 +360,20 @@ public abstract class BadgedVersionPaneModel {
 
                     switch (Get.identifierService().getObjectTypeForComponent(nid)) {
                         case CONCEPT:
-                            componentVBox.getChildren().setAll(new Text(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())));
-                            componentVBox.getChildren().add(new ConceptNode(nid, viewProperties));
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())));
+                            componentVBox.getChildren().add(new ConceptNode(nid, viewProperties.getManifoldCoordinate()));
                             break;
 
                         case SEMANTIC:
                             SemanticChronology sc = Get.assemblageService()
                                     .getSemanticChronology(nid);
 
-                            componentVBox.getChildren().setAll(new Text(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences: " + sc.getVersionType().toString()));
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences: " + sc.getVersionType().toString()));
                             break;
 
                         case UNKNOWN:
                         default:
-                            componentVBox.getChildren().setAll(new Text(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences:"
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences:"
                                     + Get.identifierService().getObjectTypeForComponent(
                                     nid).toString()));
                     }
@@ -401,22 +393,22 @@ public abstract class BadgedVersionPaneModel {
 
                     switch (Get.identifierService().getObjectTypeForComponent(nid)) {
                         case CONCEPT:
-                            componentVBox.getChildren().setAll(new Text(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
                                     + "\n" + intValue));
-                            componentVBox.getChildren().add(new ConceptNode(nid, viewProperties));
+                            componentVBox.getChildren().add(new ConceptNode(nid, viewProperties.getManifoldCoordinate()));
                             break;
 
                         case SEMANTIC:
                             SemanticChronology sc = Get.assemblageService()
                                     .getSemanticChronology(nid);
 
-                            componentVBox.getChildren().setAll(new Text(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
                                     + "\n" + intValue + ": References: " + sc.getVersionType().toString()));
                             break;
 
                         case UNKNOWN:
                         default:
-                            componentVBox.getChildren().setAll(new Text(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
                                     + "\n" + intValue + ": References:"
                                     + Get.identifierService().getObjectTypeForComponent(
                                     nid).toString()));
@@ -443,24 +435,24 @@ public abstract class BadgedVersionPaneModel {
                             } else {
                                 longText = Long.toString(longValue);
                             }
-                            componentVBox.getChildren().setAll(new Text(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
                                     + "\n" + getManifoldCoordinate().getPreferredDescriptionText(nid)
                                     + "\n" + longText));
-                            componentVBox.getChildren().add(new ConceptNode(nid, viewProperties));
+                            componentVBox.getChildren().add(new ConceptNode(nid, viewProperties.getManifoldCoordinate()));
                             break;
 
                         case SEMANTIC:
                             SemanticChronology sc = Get.assemblageService()
                                     .getSemanticChronology(nid);
 
-                            componentVBox.getChildren().setAll(new Text(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
                                     + "\n" + getManifoldCoordinate().getPreferredDescriptionText(nid)
                                     + "\n" + longValue + ": References: " + sc.getVersionType().toString()));
                             break;
 
                         case UNKNOWN:
                         default:
-                            componentVBox.getChildren().setAll(new Text(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
                                     + "\n" + getManifoldCoordinate().getPreferredDescriptionText(nid)
                                     + "\n" + longValue + ": References:"
                                     + Get.identifierService().getObjectTypeForComponent(
@@ -476,7 +468,7 @@ public abstract class BadgedVersionPaneModel {
                         componentType.setText("");
                     }
 
-                    componentVBox.getChildren().setAll(new Text(((LogicGraphVersion) semanticVersion).getLogicalExpression()
+                    componentVBox.getChildren().setAll(addText(((LogicGraphVersion) semanticVersion).getLogicalExpression()
                             .toString()));
                     break;
 
@@ -487,7 +479,7 @@ public abstract class BadgedVersionPaneModel {
                         componentType.setText("");
                     }
 
-                    componentVBox.getChildren().setAll(new Text(Long.toString(((LongVersion) semanticVersion).getLongValue())));
+                    componentVBox.getChildren().setAll(addText(Long.toString(((LongVersion) semanticVersion).getLongValue())));
                     break;
 
                 case MEMBER:
@@ -496,7 +488,7 @@ public abstract class BadgedVersionPaneModel {
                     } else {
                         componentType.setText("");
                     }
-                    componentVBox.getChildren().setAll(new Text(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember"));
+                    componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember"));
                     break;
 
                 case LOINC_RECORD: {
@@ -526,7 +518,7 @@ public abstract class BadgedVersionPaneModel {
                     sb.append(lv.getSystem());
                     sb.append("\ntiming: ");
                     sb.append(lv.getTimeAspect());
-                    componentVBox.getChildren().setAll(new Text(sb.toString()));
+                    componentVBox.getChildren().setAll(addText(sb.toString()));
 
                 }
                 break;
@@ -547,7 +539,7 @@ public abstract class BadgedVersionPaneModel {
                         sb.append(": ");
                         sb.append(dv.getData()[dci.getColumnOrder()] == null ? "" : dv.getData()[dci.getColumnOrder()].dataToString());
                     }
-                    componentVBox.getChildren().setAll(new Text(sb.toString()));
+                    componentVBox.getChildren().setAll(addText(sb.toString()));
                     break;
 
                 case IMAGE:
@@ -564,7 +556,7 @@ public abstract class BadgedVersionPaneModel {
                     throw new UnsupportedOperationException("al Can't handle: " + semanticType);
             }
         } else {
-            componentVBox.getChildren().setAll(new Text(version.getClass()
+            componentVBox.getChildren().setAll(addText(version.getClass()
                     .getSimpleName()));
         }
     }
@@ -584,7 +576,7 @@ public abstract class BadgedVersionPaneModel {
     }
 
     protected final void setupDescription(DescriptionVersion description) {
-        componentVBox.getChildren().setAll(new Text(description.getText()));
+        componentVBox.getChildren().setAll(addText(description.getText()));
 
         if (isLatestPanel()) {
             int descriptionType = description.getDescriptionTypeConceptNid();
@@ -747,7 +739,7 @@ public abstract class BadgedVersionPaneModel {
     }
 
     public final List<MenuItem> getEditMenuItems() {
-        return FxGet.rulesDrivenKometService().getEditVersionMenuItems(viewProperties, this.categorizedVersion, (propertySheetMenuItem) -> {
+        return FxGet.rulesDrivenKometService().getEditVersionMenuItems(viewProperties.getManifoldCoordinate(), this.categorizedVersion, (propertySheetMenuItem) -> {
             addEditingPropertySheet(propertySheetMenuItem);
         });
     }
@@ -773,7 +765,7 @@ public abstract class BadgedVersionPaneModel {
     }
 
     public final List<MenuItem> getAttachmentMenuItems() {
-        return FxGet.rulesDrivenKometService().getAddAttachmentMenuItems(viewProperties, this.categorizedVersion,
+        return FxGet.rulesDrivenKometService().getAddAttachmentMenuItems(viewProperties.getManifoldCoordinate(), this.categorizedVersion,
                 (propertySheetMenuItem, assemblageSpecification) -> {
                     addNewAttachmentPropertySheet(propertySheetMenuItem, assemblageSpecification);
                 });

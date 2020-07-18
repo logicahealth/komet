@@ -17,8 +17,8 @@ public class CoordinateGroupPanel extends ParentPanel {
             addChild("Path filter", FilterGroupPanel.class);
             addChild("Language", LanguageCoordinateGroupPanel.class);
             addChild("Logic", LogicCoordinateGroupPanel.class);
-            addChild("Digraph", DigraphGroupPanel.class);
-            addChild("Manifold", ManifoldCoordinateGroupPanel.class);
+            addChild("Navigation", DigraphGroupPanel.class);
+            addChild("Manifold coordinate", ManifoldCoordinateGroupPanel.class);
         }
     }
 

@@ -121,4 +121,11 @@ public abstract class ObservableCoordinateImpl<T extends ImmutableCoordinate> im
     public String getName() {
         return this.immutableCoordinate.getName();
     }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "{\n" +
+                getValue().toString() +
+                "\n}";
+    }
 }

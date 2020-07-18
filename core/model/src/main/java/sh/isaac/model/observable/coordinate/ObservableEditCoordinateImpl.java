@@ -71,6 +71,11 @@ public class ObservableEditCoordinateImpl
        super(editCoordinate, coordinateName);
    }
 
+    @Override
+    public void setExceptOverrides(EditCoordinateImmutable updatedCoordinate) {
+        setValue(updatedCoordinate);
+    }
+
     public ObservableEditCoordinateImpl(EditCoordinateImmutable editCoordinate) {
         super(editCoordinate, "Edit coordinate");
     }

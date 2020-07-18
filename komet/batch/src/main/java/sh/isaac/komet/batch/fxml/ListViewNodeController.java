@@ -13,21 +13,24 @@ import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
-import sh.isaac.api.ComponentProxy;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.factory.Sets;
+import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.set.MutableSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.komet.batch.AddConceptsInModule;
-import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateWithOverride;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DropHelper;
 import sh.komet.gui.interfaces.ComponentList;
-import sh.komet.gui.manifold.GraphAmalgamWithManifold;
 import sh.komet.gui.row.DragAndDropRowFactory;
 import sh.komet.gui.table.version.VersionTable;
 import sh.komet.gui.util.FxGet;
@@ -40,6 +43,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 public class ListViewNodeController implements ComponentList {
+    private static final Logger LOG = LogManager.getLogger();
+    public static final int MAX_PROPAGATION_SIZE = 10;
 
     @FXML
     private ResourceBundle resources;
@@ -68,6 +73,9 @@ public class ListViewNodeController implements ComponentList {
     @FXML
     private Menu addConceptsByAuthorMenu;
 
+    @FXML
+    private MenuItem listCount;
+
     private VersionTable versionTable;
 
     private ViewProperties viewProperties;
@@ -75,6 +83,9 @@ public class ListViewNodeController implements ComponentList {
 
     private final UUID listId = UUID.randomUUID();
     private ActivityFeed activityFeed;
+
+    private final ListChangeListener<ObservableChronology> listChangeListener = this::listChanged;
+    private final ListChangeListener<ObservableChronology> selectionChangedListener = this::selectionChanged;
 
     @FXML
     void initialize() {
@@ -88,27 +99,39 @@ public class ListViewNodeController implements ComponentList {
         return this.versionTable.getRootNode().getItems();
     }
 
+    private void listChanged(ListChangeListener.Change<? extends ObservableChronology> change) {
+        listCount.setText("Count: " + change.getList().size());
+    }
+
+
+
     public void setViewProperties(ViewProperties viewProperties, ActivityFeed activityFeed) {
         this.viewProperties = viewProperties;
         this.activityFeed = activityFeed;
         this.viewProperties.getManifoldCoordinate().addListener(observable -> {
-            this.versionTable = new VersionTable(this.viewProperties);
-            this.versionTable.setViewProperties(this.viewProperties);
+            if (this.versionTable != null) {
+                this.versionTable.getRootNode().getItems().removeListener(this.listChangeListener);
+                this.versionTable.getRootNode().getSelectionModel().getSelectedItems().removeListener(this.selectionChangedListener);
+            }
+            VersionTable oldVersionTable = this.versionTable;
+
+            setupVersionTable();
+
+            //TODO get the visible columns from preferences, and write them to preferences when changed...
+            this.versionTable.setAuthorTimeColumnVisible(oldVersionTable.isAuthorTimeColumnVisible());
+            this.versionTable.setModulePathColumnVisible(oldVersionTable.isModulePathColumnVisible());
+            this.versionTable.setWhatColumnVisible(oldVersionTable.isWhatColumnVisible());
+            this.versionTable.setStatusColumnVisible(oldVersionTable.isStatusColumnVisible());
+            this.versionTable.setTimeColumnVisible(oldVersionTable.isTimeColumnVisible());
+            this.versionTable.setAuthorColumnVisible(oldVersionTable.isAuthorColumnVisible());
+            this.versionTable.setModuleColumnVisible(oldVersionTable.isModuleColumnVisible());
+            this.versionTable.setPathColumnVisible(oldVersionTable.isPathColumnVisible());
+
+            this.versionTable.getRootNode().getItems().setAll(oldVersionTable.getRootNode().getItems());
         });
 
-        FxGet.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(), this.navigationMenu.getItems(), this.viewProperties.getManifoldCoordinate());
 
-        this.versionTable = new VersionTable(this.viewProperties);
-        this.versionTable.getRootNode().getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
-        this.versionTable.getRootNode().getSelectionModel().getSelectedItems().addListener(this::selectionChanged);
-
-        DragAndDropRowFactory dragAndDropRowFactory = new DragAndDropRowFactory();
-        this.versionTable.getRootNode().setRowFactory(dragAndDropRowFactory);
-
-        this.dropHelper = new DropHelper(versionTable.getRootNode(),
-                this::addIdentifiedObject, dragEvent -> true, dragAndDropRowFactory::isDragging);
-
-        this.batchBorderPane.setCenter(this.versionTable.getRootNode());
+        setupVersionTable();
         //TODO get the visible columns from preferences, and write them to preferences when changed...
         this.versionTable.setAuthorTimeColumnVisible(false);
         this.versionTable.setModulePathColumnVisible(false);
@@ -124,13 +147,28 @@ public class ListViewNodeController implements ComponentList {
         addConceptsInModuleMenu.getItems().sort((o1, o2) -> o1.getText().compareTo(o2.getText()));
 
         Get.stampService().getPathsInUse().forEach(moduleNid -> {
-            //addConceptsInModuleMenu
+            //addConceptsInPathMenu
         });
 
         Get.stampService().getAuthorsInUse().forEach(moduleNid -> {
-            //addConceptsInModuleMenu
+            //addConceptsForAuthorsMenu
         });
 
+    }
+
+    private void setupVersionTable() {
+        this.navigationMenu.getItems().clear();
+        FxGet.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(), this.navigationMenu.getItems(), this.viewProperties.getManifoldCoordinate());
+        this.versionTable = new VersionTable(this.viewProperties.getManifoldCoordinate());
+        this.versionTable.getRootNode().getItems().addListener(this.listChangeListener);
+        this.versionTable.getRootNode().getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        this.versionTable.getRootNode().getSelectionModel().getSelectedItems().addListener(this.selectionChangedListener);
+        DragAndDropRowFactory dragAndDropRowFactory = new DragAndDropRowFactory();
+        this.versionTable.getRootNode().setRowFactory(dragAndDropRowFactory);
+        this.dropHelper = new DropHelper(versionTable.getRootNode(),
+                this::addIdentifiedObject, dragEvent -> true, dragAndDropRowFactory::isDragging);
+
+        this.batchBorderPane.setCenter(this.versionTable.getRootNode());
     }
 
     private void selectionChanged(ListChangeListener.Change<? extends ObservableChronology> c) {
@@ -142,41 +180,34 @@ public class ListViewNodeController implements ComponentList {
             } else if (c.wasUpdated()) {
                 //nothing to do
             } else {
-                for (ObservableChronology remitem : c.getRemoved()) {
-                    this.activityFeed.feedSelectionProperty().remove(new ComponentProxy(remitem.getNid(), remitem.toUserString()));
+                if (!c.getRemoved().isEmpty()) {
+                    List<? extends ObservableChronology> removed = c.getRemoved();
+                    if (removed.size() > MAX_PROPAGATION_SIZE) {
+                        this.activityFeed.feedSelectionProperty().clear();
+                        LOG.info("Suppressing selection remove propagation of size: " + c.getRemoved().size());
+                    } else {
+                        this.activityFeed.feedSelectionProperty().removeAll(removed);
+                    }
+
                 }
-                for (ObservableChronology additem : c.getAddedSubList()) {
-                    this.activityFeed.feedSelectionProperty().add(new ComponentProxy(additem.getNid(), additem.toUserString()));
+                if (!c.getAddedSubList().isEmpty()) {
+                    List<? extends ObservableChronology> added = c.getAddedSubList();
+                    if (added.size() > MAX_PROPAGATION_SIZE) {
+                        added = added.subList(0, MAX_PROPAGATION_SIZE - 1);
+                        LOG.info("Reducing selection add propagation of size: " + c.getAddedSubList().size() +
+                                " to size: " + added.size());
+                    }
+                    this.activityFeed.feedSelectionProperty().addAll(added);
                 }
             }
         }
         // Check to make sure lists are equal in size/properly synchronized.
-        if (this.activityFeed.feedSelectionProperty().get().size() != c.getList().size()) {
+        if (c.getList().size() <= MAX_PROPAGATION_SIZE && this.activityFeed.feedSelectionProperty().get().size() != c.getList().size()) {
             // lists are out of sync, reset with fresh list.
-            ComponentProxy[] selectedItems = new ComponentProxy[c.getList().size()];
-            for (int i = 0; i < selectedItems.length; i++) {
-                ObservableChronology component = c.getList().get(i);
-                selectedItems[i] = new ComponentProxy(component.getNid(), component.toUserString());
-            }
-            this.activityFeed.feedSelectionProperty().setAll(selectedItems);
+            this.activityFeed.feedSelectionProperty().setAll(c.getList());
         }
     }
 
-    public void addIdentifiedObject(IdentifiedObject object) {
-        if (object == null) {
-            return;
-        }
-        ObservableChronology chronology;
-        if (object instanceof ObservableChronology) {
-            chronology = (ObservableChronology) object;
-        } else {
-            chronology = Get.observableChronology(object.getNid());
-        }
-        TableView<ObservableChronology> table = versionTable.getRootNode();
-        table.getItems().add(chronology);
-        table.getSelectionModel().clearAndSelect(table.getItems().size() - 1);
-        table.requestFocus();
-    }
 
     @FXML
     void clearList(ActionEvent event) {
@@ -261,11 +292,13 @@ public class ListViewNodeController implements ComponentList {
 
     @FXML
     void deDupe(ActionEvent event) {
-        HashSet<Integer> uniqueComponents = new HashSet<>();
+        MutableIntSet uniqueComponents = IntSets.mutable.empty();
+        MutableList<ObservableChronology> duplicates = Lists.mutable.empty();
         for (int i = 0; i < getComponents().size(); i++) {
             ObservableChronology item = getComponents().get(i);
             if (uniqueComponents.contains(item.getNid())) {
                 while (item != null && uniqueComponents.contains(item.getNid())) {
+                    duplicates.add(item);
                     getComponents().remove(i);
                     if (i < getComponents().size()) {
                         item = getComponents().get(i);
@@ -281,6 +314,7 @@ public class ListViewNodeController implements ComponentList {
                 uniqueComponents.add(item.getNid());
             }
         }
+        FxGet.statusMessageService().reportStatus("Removed " + duplicates.size() + " duplicates");
     }
 
 
@@ -317,5 +351,23 @@ public class ListViewNodeController implements ComponentList {
         return new UuidStringKey(listId, nameProperty().getValue());
     }
 
+    public void addIdentifiedObject(IdentifiedObject object) {
+        if (object == null) {
+            return;
+        }
+        ObservableChronology chronology;
+        if (object instanceof ObservableChronology) {
+            chronology = (ObservableChronology) object;
+        } else {
+            chronology = Get.observableChronology(object.getNid());
+        }
+        TableView<ObservableChronology> table = versionTable.getRootNode();
+        table.getItems().add(chronology);
+    }
 
+    public void addIdentifiedObjects(MutableList<IdentifiedObject> objectsToAdd) {
+        objectsToAdd.forEach(identifiedObject -> {
+            addIdentifiedObject(identifiedObject);
+        });
+    }
 }

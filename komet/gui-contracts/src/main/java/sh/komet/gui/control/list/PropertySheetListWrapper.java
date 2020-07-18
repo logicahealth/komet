@@ -16,17 +16,17 @@
  */
 package sh.komet.gui.control.list;
 
-import java.util.Optional;
-import java.util.function.Function;
-import java.util.function.Supplier;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.ConceptProxy;
-import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+
+import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  *
@@ -37,12 +37,12 @@ public class PropertySheetListWrapper<T> implements PropertySheet.Item {
     private final SimpleListProperty<T> wrappedProperty;
     private final String name;
     private final Supplier<T> newObjectSupplier;
-    private final Function<ViewProperties,PropertyEditor<T>> newEditorSupplier;
+    private final Function<ManifoldCoordinate,PropertyEditor<T>> newEditorSupplier;
 
-    public PropertySheetListWrapper(ViewProperties viewProperties, SimpleListProperty<T> wrappedProperty,
-                                    Supplier<T> newObjectSupplier, Function<ViewProperties,PropertyEditor<T>> newEditorSupplier) {
+    public PropertySheetListWrapper(ManifoldCoordinate manifoldCoordinate, SimpleListProperty<T> wrappedProperty,
+                                    Supplier<T> newObjectSupplier, Function<ManifoldCoordinate,PropertyEditor<T>> newEditorSupplier) {
         this.wrappedProperty = wrappedProperty;
-        this.name = viewProperties.getPreferredDescriptionText(new ConceptProxy(wrappedProperty.getName()));
+        this.name = manifoldCoordinate.getPreferredDescriptionText(new ConceptProxy(wrappedProperty.getName()));
         this.newObjectSupplier = newObjectSupplier;
         this.newEditorSupplier = newEditorSupplier;
     }
@@ -51,7 +51,7 @@ public class PropertySheetListWrapper<T> implements PropertySheet.Item {
         return newObjectSupplier;
     }
 
-    public Function<ViewProperties, PropertyEditor<T>> getNewEditorSupplier() {
+    public Function<ManifoldCoordinate, PropertyEditor<T>> getNewEditorSupplier() {
         return newEditorSupplier;
     }
 

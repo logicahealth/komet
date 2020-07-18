@@ -5,6 +5,7 @@ import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.marshal.Marshalable;
 import sh.isaac.api.transaction.Transaction;
@@ -27,7 +28,7 @@ public abstract class ActionItem implements Marshalable {
         return this.propertySheet;
     }
 
-    public void setupForGui(ViewProperties manifold) {
+    public void setupForGui(ManifoldCoordinate manifold) {
         // TODO make property sheet transparent so background list row striping shows through properly...
         this.propertySheet = new PropertySheet();
         this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
@@ -36,7 +37,7 @@ public abstract class ActionItem implements Marshalable {
         setupItemForGui(manifold);
     }
 
-    protected abstract void setupItemForGui(ViewProperties manifold);
+    protected abstract void setupItemForGui(ManifoldCoordinate manifold);
 
     /**
      * Called once before calling the apply methods, so that an action can setup and cache any objects

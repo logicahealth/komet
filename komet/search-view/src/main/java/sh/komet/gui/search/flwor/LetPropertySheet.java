@@ -19,6 +19,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.observable.ObservableConceptProxy;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
@@ -27,10 +28,8 @@ import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampPath;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
-import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateBase;
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
@@ -139,25 +138,22 @@ public class LetPropertySheet {
         this.manifoldCoordinateKeys.clear();
         this.conceptSpecificationKeys.clear();
         for (Map.Entry<LetItemKey, Object> entry : this.letItemObjectMap.entrySet()) {
-            if (entry.getValue() instanceof StampFilter
-                    && !(entry.getValue() instanceof Manifold)) {
+            if (entry.getValue() instanceof StampFilter) {
                 if (!this.stampFilterKeys.contains(entry.getKey())) {
                     this.stampFilterKeys.add(entry.getKey());
                 }
             }
-            if (entry.getValue() instanceof LanguageCoordinate
-                    && !(entry.getValue() instanceof Manifold)) {
+            if (entry.getValue() instanceof LanguageCoordinate) {
                 if (!this.languageCoordinateKeys.contains(entry.getKey())) {
                     this.languageCoordinateKeys.add(entry.getKey());
                 }
             }
-            if (entry.getValue() instanceof LogicCoordinate
-                    && !(entry.getValue() instanceof Manifold)) {
+            if (entry.getValue() instanceof LogicCoordinate) {
                 if (!this.logicCoordinateKeys.contains(entry.getKey())) {
                     this.logicCoordinateKeys.add(entry.getKey());
                 }
             }
-            if (entry.getValue() instanceof Manifold) {
+            if (entry.getValue() instanceof ManifoldCoordinate) {
                 if (!this.manifoldCoordinateKeys.contains(entry.getKey())) {
                     this.manifoldCoordinateKeys.add(entry.getKey());
                 }
@@ -211,11 +207,9 @@ public class LetPropertySheet {
     public void addItem(LetItemKey newLetItem, Object newObject) {
         if (newObject instanceof String) {
             addString(newLetItem, (String) newObject);
-        } else if (newObject instanceof LanguageCoordinate
-                && !(newObject instanceof Manifold)) {
+        } else if (newObject instanceof LanguageCoordinate) {
             addLanguageCoordinate(newLetItem, (LanguageCoordinate) newObject);
-        } else if (newObject instanceof LogicCoordinate
-                && !(newObject instanceof Manifold)) {
+        } else if (newObject instanceof LogicCoordinate) {
             addLogicCoordinate(newLetItem, (LogicCoordinate) newObject);
         } else if (newObject instanceof ObservableManifoldCoordinate) {
             addManifoldCoordinate(newLetItem, (ObservableManifoldCoordinate) newObject);

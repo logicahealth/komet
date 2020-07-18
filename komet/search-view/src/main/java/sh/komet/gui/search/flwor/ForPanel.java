@@ -44,7 +44,7 @@ public class ForPanel {
     
     public ForPanel(ViewProperties viewProperties) {
         this.viewProperties = viewProperties;
-        this.sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties));
+        this.sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties.getManifoldCoordinate()));
         this.sheet.getItems().add(new PropertySheetItemAssemblageListWrapper(viewProperties, forAssemblagesProperty));
         this.sheet.setMode(PropertySheet.Mode.NAME);
         this.sheet.setModeSwitcherVisible(false);

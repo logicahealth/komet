@@ -16,22 +16,22 @@
  */
 package sh.isaac.provider.drools;
 
-import sh.komet.gui.control.PropertySheetMenuItem;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.function.Consumer;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.scene.control.MenuItem;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.PropertySheetMenuItem;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  *
@@ -40,15 +40,15 @@ import sh.komet.gui.util.FxGet;
 public class AddEditVersionMenuItems {
 
     final List<MenuItem> menuItems = new ArrayList<>();
-    final ViewProperties viewProperties;
+    final ManifoldCoordinate manifoldCoordinate;
     final ObservableCategorizedVersion categorizedVersion;
     final Consumer<PropertySheetMenuItem> propertySheetConsumer;
     final HashMap<String, PropertySheetMenuItem> propertySheetMenuItems = new HashMap<>();
 
-    public AddEditVersionMenuItems(ViewProperties viewProperties,
+    public AddEditVersionMenuItems(ManifoldCoordinate manifoldCoordinate,
                                    ObservableCategorizedVersion categorizedVersion,
                                    Consumer<PropertySheetMenuItem> propertySheetConsumer) {
-        this.viewProperties = viewProperties;
+        this.manifoldCoordinate = manifoldCoordinate;
         this.categorizedVersion = categorizedVersion;
         this.propertySheetConsumer = propertySheetConsumer;
     }
@@ -77,7 +77,7 @@ public class AddEditVersionMenuItems {
         if (propertySheetMenuItems.containsKey(menuText)) {
             return propertySheetMenuItems.get(menuText);
         }
-        PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(viewProperties, categorizedVersion);
+        PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifoldCoordinate, categorizedVersion);
         propertySheetMenuItems.put(menuText, propertySheetMenuItem);
         MenuItem menuItem = new MenuItemWithText(menuText);
         menuItem.setOnAction((event) -> {

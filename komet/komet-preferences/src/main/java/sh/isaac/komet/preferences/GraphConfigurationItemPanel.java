@@ -82,12 +82,12 @@ public class GraphConfigurationItemPanel extends AbstractPreferences implements 
             this.graphConfigurationKey.updateString(newValue);
         });
 
-        getItemList().add(new PropertySheetTextWrapper(viewProperties, nameProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, includeDefiningTaxonomyProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), nameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), includeDefiningTaxonomyProperty));
 
-        getItemList().add(new PropertySheetConceptListWrapper(viewProperties, taxonomyRootListProperty));
-        getItemList().add(new PropertySheetConceptListWrapper(viewProperties, treeListProperty));
-        getItemList().add(new PropertySheetConceptListWrapper(viewProperties, inverseTreeListProperty));
+        getItemList().add(new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), taxonomyRootListProperty));
+        getItemList().add(new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), treeListProperty));
+        getItemList().add(new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), inverseTreeListProperty));
         revertFields();
         save();
 

@@ -9,7 +9,6 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.manifold.Manifold;
 
 import javax.inject.Singleton;
 

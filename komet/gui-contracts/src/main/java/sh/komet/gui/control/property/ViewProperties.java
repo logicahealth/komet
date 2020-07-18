@@ -36,6 +36,7 @@ import sh.isaac.api.observable.coordinate.ObservableStampFilter;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateBase;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateWithOverride;
 import sh.komet.gui.interfaces.EditInFlight;
@@ -61,7 +62,6 @@ public class ViewProperties {
     public static Collection<ViewProperties> getAll() {
         return SINGLETONS.values();
     }
-    private static final ObservableSet<EditInFlight> EDITS_IN_PROCESS = FXCollections.observableSet();
 
     public static final String ANY = "any";
     public static final String UNLINKED = "unlinked";
@@ -97,7 +97,9 @@ public class ViewProperties {
         ICONOGRAPHIC_SUPPLIER.put(LIST, () -> Iconography.LIST.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(CONCEPT_BUILDER, () -> Iconography.NEW_CONCEPT.getIconographic());
     }
-
+    public static Optional<Node> getOptionalGraphicForActivityFeed(ActivityFeed activityFeed) {
+        return getOptionalGraphicForActivityFeed(activityFeed.getFeedName());
+    }
     public static Optional<Node> getOptionalGraphicForActivityFeed(String activityFeedName) {
         String[] nameParts = activityFeedName.split(":");
         if (nameParts.length > 1) {
@@ -157,7 +159,7 @@ public class ViewProperties {
 
     public ViewProperties makeOverride() {
         return new ViewProperties(this.getViewName(),
-                new ObservableManifoldCoordinateWithOverride(this.getManifoldCoordinate()),
+                new ObservableManifoldCoordinateWithOverride((ObservableManifoldCoordinateBase) this.getManifoldCoordinate()),
                 this.editCoordinate, this);
     }
 
@@ -271,13 +273,6 @@ public class ViewProperties {
     }
     public String getFullyQualifiedDescriptionText(int conceptNid) {
         return getManifoldCoordinate().getFullyQualifiedDescriptionText(conceptNid);
-    }
-
-    public void addEditInFlight(EditInFlight editInFlight) {
-        EDITS_IN_PROCESS.add(editInFlight);
-        editInFlight.addCompletionListener((observable, oldValue, newValue) -> {
-            EDITS_IN_PROCESS.remove(editInFlight);
-        });
     }
 
     public String getViewName() {

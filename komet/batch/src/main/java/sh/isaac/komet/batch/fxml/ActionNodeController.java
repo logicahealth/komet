@@ -9,6 +9,7 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.komet.batch.ActionCell;
 import sh.isaac.komet.batch.action.ActionItem;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
@@ -38,7 +39,7 @@ public class ActionNodeController {
     @FXML
     private BorderPane actionBorderPane;
 
-    private ViewProperties manifold;
+    private ManifoldCoordinate manifold;
 
     private PropertySheetItemConceptWrapper conceptWrapper;
 
@@ -82,7 +83,7 @@ public class ActionNodeController {
         return actionItem;
     }
 
-    public void setAction(ViewProperties manifold, ActionItem actionItem) {
+    public void setAction(ManifoldCoordinate manifold, ActionItem actionItem) {
         actionItem.setupForGui(manifold);
         this.actionTitle.setText(actionItem.getTitle());
         this.actionItem = actionItem;

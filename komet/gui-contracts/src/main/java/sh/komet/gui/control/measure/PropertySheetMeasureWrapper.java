@@ -21,6 +21,7 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.statement.MeasureImpl;
 import sh.komet.gui.control.property.ViewProperties;
 
@@ -32,9 +33,9 @@ public class PropertySheetMeasureWrapper implements PropertySheet.Item {
     private final SimpleObjectProperty<MeasureImpl> measureProperty;
     private final String name;
 
-    public PropertySheetMeasureWrapper(ViewProperties viewProperties, SimpleObjectProperty<MeasureImpl> measureProperty) {
+    public PropertySheetMeasureWrapper(ManifoldCoordinate manifoldCoordinate, SimpleObjectProperty<MeasureImpl> measureProperty) {
         this.measureProperty = measureProperty;
-        this.name = viewProperties.getPreferredDescriptionText(new ConceptProxy(measureProperty.getName()));
+        this.name = manifoldCoordinate.getPreferredDescriptionText(new ConceptProxy(measureProperty.getName()));
     }
 
     @Override

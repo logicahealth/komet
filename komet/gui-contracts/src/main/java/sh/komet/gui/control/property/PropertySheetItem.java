@@ -31,6 +31,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 
 /**
@@ -53,7 +54,7 @@ public class PropertySheetItem implements PropertySheet.Item {
     
     private final Property theProperty;
     
-    private final ViewProperties viewProperties;
+    private final ManifoldCoordinate manifoldCoordinate;
     
     private final String name;
     
@@ -63,21 +64,21 @@ public class PropertySheetItem implements PropertySheet.Item {
     
     private PropertySheetPurpose propertySheetPurpose = PropertySheetPurpose.UNSPECIFIED;
     
-    public PropertySheetItem(Property theProperty, ViewProperties viewProperties) {
-        this(null, theProperty, viewProperties);
+    public PropertySheetItem(Property theProperty, ManifoldCoordinate manifoldCoordinate) {
+        this(null, theProperty, manifoldCoordinate);
     }
 
-    public PropertySheetItem(Object defaultValue, Property theProperty, ViewProperties viewProperties, PropertySheetPurpose propertySheetPurpose) {
-        this(defaultValue, theProperty, viewProperties);
+    public PropertySheetItem(Object defaultValue, Property theProperty, ManifoldCoordinate manifoldCoordinate, PropertySheetPurpose propertySheetPurpose) {
+        this(defaultValue, theProperty, manifoldCoordinate);
         this.propertySheetPurpose = propertySheetPurpose;
     }
     
-    public PropertySheetItem(Object defaultValue, Property theProperty, ViewProperties viewProperties) {
+    public PropertySheetItem(Object defaultValue, Property theProperty, ManifoldCoordinate manifoldCoordinate) {
         this.defaultValue = defaultValue;
         this.theProperty = theProperty;
-        this.viewProperties = viewProperties;
+        this.manifoldCoordinate = manifoldCoordinate;
         this.specificationForProperty = new ConceptProxy(theProperty.getName());
-        this.name = viewProperties.getPreferredDescriptionText(this.specificationForProperty);
+        this.name = manifoldCoordinate.getPreferredDescriptionText(this.specificationForProperty);
         if (defaultValue instanceof Boolean) {
             this.editorType = EditorType.BOOLEAN;
         } else if (theProperty instanceof StringProperty) {

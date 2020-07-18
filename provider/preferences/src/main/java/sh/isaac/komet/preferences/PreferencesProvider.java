@@ -99,6 +99,7 @@ public class PreferencesProvider
          LOG.error("Unexpected error stopping prefs provider", ex);
          throw new RuntimeException(ex);
       }
+      LOG.info("Stopped Preferences Provider.");
    }
 
    //~--- get methods ---------------------------------------------------------

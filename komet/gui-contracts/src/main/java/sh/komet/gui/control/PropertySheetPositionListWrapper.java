@@ -4,9 +4,7 @@ import javafx.beans.property.ListProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import org.controlsfx.control.PropertySheet;
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.coordinate.StampPositionImmutable;
-import sh.komet.gui.manifold.Manifold;
 
 import java.util.Optional;
 
@@ -14,10 +12,6 @@ public class PropertySheetPositionListWrapper implements PropertySheet.Item {
 
     private final ListProperty<StampPositionImmutable> positionListProperty;
     private final String name;
-
-    public PropertySheetPositionListWrapper(Manifold manifold, ListProperty<StampPositionImmutable> positionSetProperty) {
-        this(manifold.getPreferredDescriptionText(new ConceptProxy(positionSetProperty.getName())), positionSetProperty);
-    }
 
     public PropertySheetPositionListWrapper(String name, ListProperty<StampPositionImmutable> positionListProperty) {
         this.positionListProperty = positionListProperty;

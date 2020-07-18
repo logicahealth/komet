@@ -10,7 +10,6 @@ import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
 
 import javax.inject.Singleton;
 

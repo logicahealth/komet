@@ -19,6 +19,7 @@ package sh.komet.gui.control.participant;
 import java.util.ArrayList;
 import java.util.List;
 import org.controlsfx.control.PropertySheet;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.statement.ParticipantImpl;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
@@ -30,7 +31,7 @@ import sh.komet.gui.control.property.ViewProperties;
  */
 public class ParticipantPropertySheet {
     
-    protected final ViewProperties viewProperties;
+    protected final ManifoldCoordinate manifoldCoordinate;
     
     
     private final PropertySheet propertySheet = new PropertySheet();
@@ -41,9 +42,9 @@ public class ParticipantPropertySheet {
         
     }
 
-    public ParticipantPropertySheet(ViewProperties viewProperties) {
-        this.viewProperties = viewProperties;
-        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.viewProperties));
+    public ParticipantPropertySheet(ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifoldCoordinate));
     }
     
     public PropertySheet getPropertySheet() {
@@ -61,7 +62,7 @@ public class ParticipantPropertySheet {
     private List<PropertySheet.Item> getProperties(ParticipantImpl participant) {
        ArrayList<PropertySheet.Item> itemList = new ArrayList<>();
        
-       itemList.add(new PropertySheetItemConceptWrapper(viewProperties, participant.participantRoleProperty()));
+       itemList.add(new PropertySheetItemConceptWrapper(manifoldCoordinate, participant.participantRoleProperty()));
        // TODO add UUID editor...
 
        return itemList;

@@ -38,7 +38,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.window.WindowsPanel;
 import sh.komet.gui.contract.preferences.*;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
@@ -58,7 +58,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     private final ObservableList<SynchronizationItem> synchronizationItems = FXCollections.observableArrayList();
     private final ObservableList<GraphConfigurationItem> graphConfigurationItems = FXCollections.observableArrayList();
     private final ObservableList<UserPreferenceItems> userPreferenceItems = FXCollections.observableArrayList();
-    private final ObservableList<WindowPreferencesItem> windowPreferenceItems = FXCollections.observableArrayList();
+    private final ObservableList<WindowPreferences> windowPreferenceItems = FXCollections.observableArrayList();
     private final ObservableList<PersonaItem> personaPreferences = FXCollections.observableArrayList();
     private WindowsPanel windowsPanel;
 
@@ -217,8 +217,8 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
             graphConfigurationItems.add((GraphConfigurationItem) item);
         } else if (item instanceof UserPreferenceItems) {
             userPreferenceItems.add((UserPreferenceItems) item);
-        } else if (item instanceof WindowPreferencesItem) {
-            windowPreferenceItems.add((WindowPreferencesItem) item);
+        } else if (item instanceof WindowPreferences) {
+            windowPreferenceItems.add((WindowPreferences) item);
         } else if(item instanceof PersonaItem){
             personaPreferences.add((PersonaItem)item);
         } else if (item instanceof WindowsPanel) {
@@ -240,7 +240,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
             graphConfigurationItems.remove(item);
         } else if (item instanceof UserPreferenceItems) {
             userPreferenceItems.remove(item);
-        } else if (item instanceof WindowPreferencesItem) {
+        } else if (item instanceof WindowPreferences) {
             windowPreferenceItems.remove(item);
         } else if(item instanceof PersonaItem){
             personaPreferences.remove(item);
@@ -292,7 +292,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     }
 
     @Override
-    public ObservableList<WindowPreferencesItem> getWindowPreferenceItems() {
+    public ObservableList<WindowPreferences> getWindowPreferenceItems() {
         return windowPreferenceItems;
     }
 

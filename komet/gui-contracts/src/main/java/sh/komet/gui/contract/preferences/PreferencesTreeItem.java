@@ -16,16 +16,16 @@
  */
 package sh.komet.gui.contract.preferences;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Optional;
 import javafx.scene.control.TreeItem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.manifold.Manifold;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.Optional;
 
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.CHILDREN_NODES;
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.PROPERTY_SHEET_CLASS;

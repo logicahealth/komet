@@ -656,6 +656,7 @@ public class StampProvider
         this.stampSequence_PathNid_Map.clear();
         this.inverseStampMap.clear();
         this.dataStoreId = Optional.empty();
+        LOG.info("Stopped StampProvider pre-destroy. ");
     }
 
     private void writeData() throws RuntimeException {

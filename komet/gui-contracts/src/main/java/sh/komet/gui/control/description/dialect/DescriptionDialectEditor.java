@@ -32,14 +32,15 @@ import org.controlsfx.control.PropertySheet.Item;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.observable.ObservableDescriptionDialect;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
 import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.property.PropertySheetItem;
 import sh.komet.gui.control.property.PropertySheetPurpose;
-import sh.komet.gui.control.property.ViewProperties;
 
 import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
 
@@ -63,14 +64,14 @@ public class DescriptionDialectEditor implements PropertyEditor<ObservableDescri
                     this,
                     ObservableFields.DESCRIPTION_DIALECT.toExternalString(),
                     null);
-    private final ViewProperties viewProperties;
+    private final ManifoldCoordinate manifoldCoordinate;
     
     private final PropertyEditorFactory propertyEditorFactory;
     private final List<Item> wrappedProperties = new ArrayList<>();
 
-    public DescriptionDialectEditor(UUID conceptUuid, ViewProperties viewProperties) {
-        this.viewProperties = viewProperties;
-        this.propertyEditorFactory = new PropertyEditorFactory(viewProperties);
+    public DescriptionDialectEditor(UUID conceptUuid, ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
+        this.propertyEditorFactory = new PropertyEditorFactory(manifoldCoordinate);
         this.editorGridPane.maxWidthProperty().set(Double.MAX_VALUE);
         if (conceptUuid != null) {
             setupWithConceptUuid(conceptUuid);
@@ -90,8 +91,8 @@ public class DescriptionDialectEditor implements PropertyEditor<ObservableDescri
         setupProperties();
     }
 
-    public DescriptionDialectEditor(ViewProperties viewProperties) {
-        this(null, viewProperties);
+    public DescriptionDialectEditor(ManifoldCoordinate manifoldCoordinate) {
+        this(null, manifoldCoordinate);
     }
 
     @Override
@@ -128,11 +129,12 @@ public class DescriptionDialectEditor implements PropertyEditor<ObservableDescri
             PropertySheetItem caseProperty = createPropertyItem(description.caseSignificanceConceptNidProperty());
             PropertySheetItem dialectProperty = createPropertyItem(dialect.assemblageNidProperty());
             PropertySheetItem acceptabilityProperty = createPropertyItem(dialect.componentNidProperty());
-            
-            
+
+            WindowPreferences windowPreferences = FxGet.windowPreferences(this.editorNode);
+
             FxGet.rulesDrivenKometService().populateWrappedProperties(wrappedProperties,
-                    viewProperties.getManifoldCoordinate().getValue(),
-                    viewProperties.getEditCoordinate().getValue());
+                    manifoldCoordinate.toManifoldCoordinateImmutable(),
+                    windowPreferences.getViewPropertiesForWindow().getEditCoordinate().getValue());
 
             PropertyEditor<?> textPropEditor = propertyEditorFactory.call(textProperty);
             PropertyEditor<?> langPropertyEditor = propertyEditorFactory.call(langProperty);
@@ -208,7 +210,7 @@ public class DescriptionDialectEditor implements PropertyEditor<ObservableDescri
     }
 
     private PropertySheetItem createPropertyItem(Property<?> property) {
-        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, viewProperties, PropertySheetPurpose.DESCRIPTION_DIALECT);
+        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, manifoldCoordinate, PropertySheetPurpose.DESCRIPTION_DIALECT);
         wrappedProperties.add(wrappedProperty);
         return wrappedProperty;
     }

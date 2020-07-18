@@ -88,7 +88,7 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
 
     //~--- fields --------------------------------------------------------------
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private final ViewProperties viewProperties;
+    private final ManifoldCoordinate manifoldCoordinate;
     private final Button editButton = new Button("", Iconography.EDIT_PENCIL.getIconographic());
     private final GridPane textAndEditGrid = new GridPane();
     private final BorderPane editPanel = new BorderPane();
@@ -99,15 +99,15 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
     private final CellHelper cellHelper = new CellHelper(this);
 
     //~--- constructors --------------------------------------------------------
-    public TableGeneralCell(ViewProperties viewProperties) {
-        this.viewProperties = viewProperties;
+    public TableGeneralCell(ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
         getStyleClass().add("komet-version-general-cell");
         getStyleClass().add("isaac-version");
         editButton.getStyleClass()
                 .setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
         editButton.setOnAction(this::toggleEdit);
         textAndEditGrid.getChildren().addAll(paneForText, editButton, editPanel);
-        setContextMenu(cellHelper.makeContextMenu());
+        //setContextMenu(cellHelper.makeContextMenu());
         // setConstraints(Node child, int columnIndex, int rowIndex, int columnspan, int rowspan, HPos halignment, VPos valignment, Priority hgrow, Priority vgrow)
         GridPane.setConstraints(paneForText, 0, 0, 1, 2, HPos.LEFT, VPos.TOP, Priority.ALWAYS, Priority.NEVER);
         GridPane.setConstraints(editButton, 2, 0, 1, 1, HPos.RIGHT, VPos.TOP, Priority.NEVER, Priority.NEVER);
@@ -144,7 +144,7 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
 
     @Override
     public ManifoldCoordinate getManifoldCoordinate() {
-        return viewProperties.getManifoldCoordinate();
+        return this.manifoldCoordinate;
     }
 
     public void initializeConceptBuilder() {
@@ -198,8 +198,8 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
                     propertySheet.setMode(PropertySheet.Mode.NAME);
                     propertySheet.setSearchBoxVisible(false);
                     propertySheet.setModeSwitcherVisible(false);
-                    propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.viewProperties));
-                    propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.viewProperties));
+                    propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifoldCoordinate));
+                    propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifoldCoordinate));
 
                     editPanel.setTop(toolBar);
                     editPanel.setCenter(propertySheet);
@@ -218,11 +218,6 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
             return version.getSemanticType();
         }
         return VersionType.UNKNOWN;
-    }
-
-    @Override
-    public ViewProperties getViewProperties() {
-        return this.viewProperties;
     }
 
     @Override

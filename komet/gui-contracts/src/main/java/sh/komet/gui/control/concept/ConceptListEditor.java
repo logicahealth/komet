@@ -32,9 +32,10 @@ import org.controlsfx.control.PopOver;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
-import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.contract.ConceptSearchNodeFactory;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
@@ -51,7 +52,7 @@ public class ConceptListEditor implements PropertyEditor<ObservableList<ConceptS
    
     BorderPane editorPane = new BorderPane();
     AnchorPane anchorPane = new AnchorPane();
-    ViewProperties viewProperties;
+    ManifoldCoordinate manifoldCoordinate;
     ListView<ConceptSpecification> conceptListView = new ListView<>();
     {
         conceptListView.setPrefHeight(152);
@@ -62,7 +63,7 @@ public class ConceptListEditor implements PropertyEditor<ObservableList<ConceptS
             protected void updateItem(ConceptSpecification item, boolean empty) {
                 super.updateItem(item, empty); 
                 if (!empty) {
-                    this.setText(viewProperties.getManifoldCoordinate().getPreferredDescriptionText(item));
+                    this.setText(manifoldCoordinate.getPreferredDescriptionText(item));
                 } else {
                     this.setText("");
                 }
@@ -92,8 +93,8 @@ public class ConceptListEditor implements PropertyEditor<ObservableList<ConceptS
         deleteButton.setOnAction(this::deleteSelection);
     }
 
-    public ConceptListEditor(ViewProperties viewProperties) {
-        this.viewProperties = viewProperties;
+    public ConceptListEditor(ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
     }
 
     @Override
@@ -120,7 +121,11 @@ public class ConceptListEditor implements PropertyEditor<ObservableList<ConceptS
         this.popOver.setTitle("");
         this.popOver.setArrowLocation(PopOver.ArrowLocation.LEFT_TOP);
         ConceptSearchNodeFactory searchNodeFactory = Get.service(ConceptSearchNodeFactory.class);
-        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(viewProperties, viewProperties.getUnlinkedActivityFeed(), null);
+        WindowPreferences windowPreferences = FxGet.windowPreferences(this.editorPane);
+
+
+        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(windowPreferences.getViewPropertiesForWindow(),
+                windowPreferences.getViewPropertiesForWindow().getUnlinkedActivityFeed(), null);
         Node searchNode = searchExplorationNode.getNode();
         this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();
         BorderPane searchBorder = new BorderPane(searchNode);

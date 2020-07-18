@@ -37,27 +37,15 @@
 package sh.komet.gui.provider.concept.detail.treetable;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.net.URL;
 
-import java.util.ResourceBundle;
-
-//~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
-
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-
 import javafx.fxml.FXML;
-
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.BorderPane;
-
-import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersions;
@@ -65,16 +53,14 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.komet.gui.cell.treetable.TreeTableAuthorTimeCellFactory;
-import sh.komet.gui.cell.treetable.TreeTableConceptCellFactory;
-import sh.komet.gui.cell.treetable.TreeTableGeneralCellFactory;
-import sh.komet.gui.cell.treetable.TreeTableModulePathCellFactory;
-import sh.komet.gui.cell.treetable.TreeTableTimeCellFactory;
-import sh.komet.gui.cell.treetable.TreeTableWhatCellFactory;
-import sh.komet.gui.control.property.ActivityFeed;
-import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.manifold.Manifold;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.komet.gui.cell.treetable.*;
+import sh.komet.gui.control.property.ViewProperties;
+
+import java.net.URL;
+import java.util.ResourceBundle;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 public class ConceptDetailTreeTableController {
@@ -167,24 +153,24 @@ public class ConceptDetailTreeTableController {
 
    }
    private void manifoldChanged(ObservableValue<? extends ManifoldCoordinate> manifoldProperty, ManifoldCoordinate oldManifold, ManifoldCoordinate newManifold) {
-      this.conceptCellFactory = new TreeTableConceptCellFactory(this.viewProperties);
+      this.conceptCellFactory = new TreeTableConceptCellFactory(this.viewProperties.getManifoldCoordinate());
       this.conceptAuthorColumn.setCellFactory(this.conceptCellFactory::call);
       this.conceptModuleColumn.setCellFactory(this.conceptCellFactory::call);
       this.conceptPathColumn.setCellFactory(this.conceptCellFactory::call);
 
-      this.whatCellFactory = new TreeTableWhatCellFactory(this.viewProperties);
+      this.whatCellFactory = new TreeTableWhatCellFactory(this.viewProperties.getManifoldCoordinate());
       this.conceptWhatColumn.setCellValueFactory(this.whatCellFactory::getCellValue);
       this.conceptWhatColumn.setCellFactory(this.whatCellFactory::call);
 
-      this.generalCellFactory = new TreeTableGeneralCellFactory(this.viewProperties);
+      this.generalCellFactory = new TreeTableGeneralCellFactory(this.viewProperties.getManifoldCoordinate());
       this.conceptGeneralColumn.setCellValueFactory(this.generalCellFactory::getCellValue);
       this.conceptGeneralColumn.setCellFactory(this.generalCellFactory::call);
 
-      this.modulePathCellFactory = new TreeTableModulePathCellFactory(this.viewProperties);
+      this.modulePathCellFactory = new TreeTableModulePathCellFactory(this.viewProperties.getManifoldCoordinate());
       this.conceptModulePathColumn.setCellValueFactory(this.modulePathCellFactory::getCellValue);
       this.conceptModulePathColumn.setCellFactory(this.modulePathCellFactory::call);
 
-      this.authorTimeCellFactory = new TreeTableAuthorTimeCellFactory(this.viewProperties);
+      this.authorTimeCellFactory = new TreeTableAuthorTimeCellFactory(this.viewProperties.getManifoldCoordinate());
       this.conceptAuthorTimeColumn.setCellValueFactory(this.authorTimeCellFactory::getCellValue);
       this.conceptAuthorTimeColumn.setCellFactory(this.authorTimeCellFactory::call);
    }

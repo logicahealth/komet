@@ -68,6 +68,7 @@ import sh.isaac.api.navigation.NavigationService;
 import sh.isaac.api.navigation.Navigator;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.api.task.TaskCountManager;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.tree.EdgeImpl;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
@@ -280,27 +281,54 @@ public class TaxonomyProvider
     private void stopMe() {
         LOG.info("Stopping TaxonomyProvider");
         try {
-            // ensure all pending operations have completed. 
-            for (Task<?> updateTask : this.pendingUpdateTasks) {
-                updateTask.get();
-            }
-            this.sync().get();
-            // make sure updates are done prior to allowing other services to stop.
-            this.taskCountManager.waitForCompletion();
-            this.semanticNidsForUnhandledChanges.clear();
-            this.pendingUpdateTasks.clear();
-            this.snapshotCache.clear();
-            this.noTreeSnapshotCache.clear();
-            this.refreshListeners.clear();
-            this.identifierService = null;
-            this.store = null;
-            this.isANidSet.clear();
-            this.childOfTypeNidSet.clear();
-            Get.commitService().removeChangeListener(this);
-        } catch (InterruptedException | ExecutionException ex) {
+            StopMeTask stopMeTask = new StopMeTask();
+            stopMeTask.call();
+        } catch (Exception ex) {
             LOG.error("Exception during service stop. ", ex);
         }
-        LOG.info("BdbTaxonomyProvider stopped");
+        LOG.info("Stopped TaxonomyProvider");
+    }
+    private class StopMeTask extends TimedTaskWithProgressTracker {
+
+        public StopMeTask() {
+            updateTitle("Stopping taxonomy provider");
+            addToTotalWork(4);
+            Get.activeTasks().add(this);
+        }
+
+        @Override
+        protected Object call() throws Exception {
+            try {
+                // ensure all pending operations have completed.
+                updateMessage("Waiting for pending taxonomy updates");
+                for (Task<?> updateTask : TaxonomyProvider.this.pendingUpdateTasks) {
+                    updateTask.get();
+                }
+                completedUnitOfWork();
+                updateMessage("Waiting for taxonomy sync");
+                TaxonomyProvider.this.sync().get();
+                completedUnitOfWork();
+                // make sure updates are done prior to allowing other services to stop.
+                updateMessage("Waiting for task count manager");
+                TaxonomyProvider.this.taskCountManager.waitForCompletion();
+                completedUnitOfWork();
+                updateMessage("Clearing cached data");
+                TaxonomyProvider.this.semanticNidsForUnhandledChanges.clear();
+                TaxonomyProvider.this.pendingUpdateTasks.clear();
+                TaxonomyProvider.this.snapshotCache.clear();
+                TaxonomyProvider.this.noTreeSnapshotCache.clear();
+                TaxonomyProvider.this.refreshListeners.clear();
+                TaxonomyProvider.this.identifierService = null;
+                TaxonomyProvider.this.store = null;
+                TaxonomyProvider.this.isANidSet.clear();
+                TaxonomyProvider.this.childOfTypeNidSet.clear();
+                Get.commitService().removeChangeListener(TaxonomyProvider.this);
+                completedUnitOfWork();
+                return null;
+            } finally {
+                Get.activeTasks().remove(this);
+            }
+        }
     }
 
     //~--- get methods ---------------------------------------------------------

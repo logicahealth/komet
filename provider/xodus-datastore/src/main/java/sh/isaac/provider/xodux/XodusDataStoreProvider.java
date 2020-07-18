@@ -215,6 +215,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 				LOG.error("Unexpected error shutting down xodus", e);
 			}
 		}
+		LOG.info("Stopped Xodus Data Store.");
 	}
 	
 	

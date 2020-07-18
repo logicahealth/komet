@@ -19,6 +19,7 @@ package sh.komet.gui.cell.treetable;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.control.TreeTableColumn;
 import javafx.util.Callback;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.control.property.ViewProperties;
 
@@ -29,19 +30,19 @@ import sh.komet.gui.control.property.ViewProperties;
 public class TreeTableModulePathCellFactory 
          implements Callback<TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion>,
                              TreeTableModulePathCell> {
-   private final ViewProperties viewProperties;
+   private final ManifoldCoordinate manifoldCoordinate;
 
    //~--- constructors --------------------------------------------------------
 
-   public TreeTableModulePathCellFactory(ViewProperties viewProperties) {
-      this.viewProperties = viewProperties;
+   public TreeTableModulePathCellFactory(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
    }
 
    //~--- methods -------------------------------------------------------------
 
    @Override
    public TreeTableModulePathCell call(TreeTableColumn<ObservableCategorizedVersion, ObservableCategorizedVersion> param) {
-      return new TreeTableModulePathCell(this.viewProperties);
+      return new TreeTableModulePathCell(this.manifoldCoordinate);
    }
 
    //~--- get methods ---------------------------------------------------------

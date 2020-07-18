@@ -85,7 +85,7 @@ public class TreeTableGeneralCell
     private static final Logger LOG = LogManager.getLogger();
 
     //~--- fields --------------------------------------------------------------
-    private final ViewProperties viewProperties;
+    private final ManifoldCoordinate manifoldCoordinate;
     private final Button editButton = new Button("", Iconography.EDIT_PENCIL.getIconographic());
     private final GridPane textAndEditGrid = new GridPane();
     private final BorderPane editPanel = new BorderPane();
@@ -96,8 +96,8 @@ public class TreeTableGeneralCell
     private final CellHelper cellHelper = new CellHelper(this);
 
     //~--- constructors --------------------------------------------------------
-    public TreeTableGeneralCell(ViewProperties viewProperties) {
-        this.viewProperties = viewProperties;
+    public TreeTableGeneralCell(ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
         getStyleClass().add("komet-version-general-cell");
         getStyleClass().add("isaac-version");
         editButton.getStyleClass()
@@ -146,7 +146,7 @@ public class TreeTableGeneralCell
     }
     @Override
     public ManifoldCoordinate getManifoldCoordinate() {
-        return viewProperties.getManifoldCoordinate();
+        return manifoldCoordinate;
     }
 
     public void initializeConceptBuilder() {
@@ -200,8 +200,8 @@ public class TreeTableGeneralCell
                     propertySheet.setMode(PropertySheet.Mode.NAME);
                     propertySheet.setSearchBoxVisible(false);
                     propertySheet.setModeSwitcherVisible(false);
-                    propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.viewProperties));
-                    propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.viewProperties));
+                    propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifoldCoordinate));
+                    propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifoldCoordinate));
 
                     editPanel.setTop(toolBar);
                     editPanel.setCenter(propertySheet);
@@ -212,11 +212,6 @@ public class TreeTableGeneralCell
             editPanel.getChildren().clear();
             editButton.setVisible(true);
         }
-    }
-
-    @Override
-    public ViewProperties getViewProperties() {
-        return this.viewProperties;
     }
 
     @Override

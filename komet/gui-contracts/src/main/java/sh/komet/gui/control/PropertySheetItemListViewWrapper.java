@@ -1,5 +1,6 @@
 package sh.komet.gui.control;
 
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.komet.gui.control.concept.ConceptForControlWrapper;
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.value.ObservableValue;
@@ -15,14 +16,14 @@ public class PropertySheetItemListViewWrapper implements PropertySheet.Item {
     private final String name;
     private SimpleListProperty<ConceptForControlWrapper> simpleListProperty;
     private ListChangeListener<ConceptForControlWrapper> listChangeListener;
-    private final ViewProperties viewProperties;
+    private final ManifoldCoordinate manifoldCoordinate;
 
 
     public PropertySheetItemListViewWrapper(ObservableIntegerArray observableIntegerArray, String name,
-                                            ViewProperties viewProperties, int[] conceptList) {
+                                            ManifoldCoordinate manifoldCoordinate, int[] conceptList) {
         this.observableIntegerArray = observableIntegerArray;
         this.name = name;
-        this.viewProperties = viewProperties;
+        this.manifoldCoordinate = manifoldCoordinate;
         createListViewObservableList(conceptList);
     }
 
@@ -31,7 +32,7 @@ public class PropertySheetItemListViewWrapper implements PropertySheet.Item {
         ObservableList<ConceptForControlWrapper> conceptWrapperList = FXCollections.observableArrayList();
         for(int i = 0; i < iArray.length; i++){
             ConceptForControlWrapper tempWrapper = new ConceptForControlWrapper
-                    (viewProperties, iArray[i]);
+                    (manifoldCoordinate, iArray[i]);
             conceptWrapperList.add(tempWrapper);
         }
         this.simpleListProperty = new SimpleListProperty<>(conceptWrapperList);

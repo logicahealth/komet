@@ -16,16 +16,14 @@
  */
 package sh.komet.gui.control;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
-import sh.isaac.api.ConceptProxy;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampPrecedence;
-import sh.komet.gui.manifold.Manifold;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 /**
  *
@@ -38,11 +36,6 @@ public class PropertySheetStampPrecedenceWrapper implements PropertySheet.Item {
 
    public PropertySheetStampPrecedenceWrapper(String name, ObjectProperty<StampPrecedence> precedenceProperty) {
       this.name = name;
-      this.precedenceProperty = precedenceProperty;
-   }
-
-   public PropertySheetStampPrecedenceWrapper(Manifold manifold, ObjectProperty<StampPrecedence> precedenceProperty) {
-      this.name = manifold.getPreferredDescriptionText(new ConceptProxy(precedenceProperty.getName()));
       this.precedenceProperty = precedenceProperty;
    }
 

@@ -73,7 +73,7 @@ public class LanguageCoordinateItemPanel extends AbstractPreferences {
     private void setup(ViewProperties viewProperties) {
 
         nameProperty.set(groupNameProperty().get());
-        getItemList().add(new PropertySheetTextWrapper(viewProperties, nameProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), nameProperty));
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
             FxGet.languageCoordinates().remove(itemKey);
@@ -82,10 +82,10 @@ public class LanguageCoordinateItemPanel extends AbstractPreferences {
 
         });
 
-        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties, languageCoordinateItem.languageConceptProperty(),
+        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), languageCoordinateItem.languageConceptProperty(),
                 TermAux.ENGLISH_LANGUAGE.getNid(),TermAux.SPANISH_LANGUAGE.getNid()));
-        getItemList().add(new PropertySheetConceptListWrapper(viewProperties, languageCoordinateItem.dialectAssemblagePreferenceListProperty()));
-        getItemList().add(new PropertySheetConceptListWrapper(viewProperties, languageCoordinateItem.descriptionTypePreferenceListProperty()));
+        getItemList().add(new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), languageCoordinateItem.dialectAssemblagePreferenceListProperty()));
+        getItemList().add(new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), languageCoordinateItem.descriptionTypePreferenceListProperty()));
         revert();
         save();
     }

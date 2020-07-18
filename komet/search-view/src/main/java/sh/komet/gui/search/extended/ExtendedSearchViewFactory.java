@@ -36,22 +36,21 @@
  */
 package sh.komet.gui.search.extended;
 
-import java.io.IOException;
-
+import javafx.scene.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
-import javafx.scene.Node;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.contract.ConceptSearchNodeFactory;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
-import sh.komet.gui.contract.ConceptSearchNodeFactory;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
+
+import java.io.IOException;
 
 /**
  * A search viewer evolved from the old lego editor, to the previous JavaFX gui,

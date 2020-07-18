@@ -22,6 +22,7 @@ import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.komet.gui.control.property.ViewProperties;
 
 /**
@@ -42,9 +43,9 @@ public class PropertySheetTextWrapper  implements PropertySheet.Item {
       this.textProperty = textProperty;
    }
 
-   public PropertySheetTextWrapper(ViewProperties viewProperties,
+   public PropertySheetTextWrapper(ManifoldCoordinate manifoldCoordinate,
                                    StringProperty textProperty) {
-      this(viewProperties.getPreferredDescriptionText(new ConceptProxy(textProperty.getName())),
+      this(manifoldCoordinate.getPreferredDescriptionText(new ConceptProxy(textProperty.getName())),
               textProperty);
    }
     public ConceptSpecification getSpecification() {

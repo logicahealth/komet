@@ -14,7 +14,7 @@ import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.isaac.komet.preferences.window.WindowPreferencePanel;
 import sh.komet.gui.contract.preferences.PersonaItem;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
@@ -132,25 +132,25 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
         });
-        this.leftPaneOptionsWrapper = new PropertySheetConceptListWrapper(viewProperties, leftPaneOptionsProperty);
-        this.centerPaneOptionsWrapper = new PropertySheetConceptListWrapper(viewProperties, centerPaneOptionsProperty);
-        this.rightPaneOptionsWrapper = new PropertySheetConceptListWrapper(viewProperties, rightPaneOptionsProperty);
+        this.leftPaneOptionsWrapper = new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), leftPaneOptionsProperty);
+        this.centerPaneOptionsWrapper = new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), centerPaneOptionsProperty);
+        this.rightPaneOptionsWrapper = new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), rightPaneOptionsProperty);
 
-        this.leftPaneDefaultsWrapper = new PropertySheetConceptListWrapper(viewProperties, leftPaneDefaultsProperty);
-        this.centerPaneDefaultsWrapper = new PropertySheetConceptListWrapper(viewProperties, centerPaneDefaultsProperty);
-        this.rightPaneDefaultsWrapper = new PropertySheetConceptListWrapper(viewProperties, rightPaneDefaultsProperty);
+        this.leftPaneDefaultsWrapper = new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), leftPaneDefaultsProperty);
+        this.centerPaneDefaultsWrapper = new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), centerPaneDefaultsProperty);
+        this.rightPaneDefaultsWrapper = new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), rightPaneDefaultsProperty);
 
         revertFields();
         save();
-        getItemList().add(new PropertySheetTextWrapper(viewProperties, nameProperty));
-        getItemList().add(new PropertySheetTextWrapper(viewProperties, instanceNameProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, enableLeftPaneProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), nameProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), instanceNameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableLeftPaneProperty));
         getItemList().add(leftPaneDefaultsWrapper);
         getItemList().add(leftPaneOptionsWrapper);
-        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, enableCenterPaneProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableCenterPaneProperty));
         getItemList().add(centerPaneDefaultsWrapper);
         getItemList().add(centerPaneOptionsWrapper);
-        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, enableRightPaneProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableRightPaneProperty));
         getItemList().add(rightPaneDefaultsWrapper);
         getItemList().add(rightPaneOptionsWrapper);
     }
@@ -275,7 +275,7 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
     }
 
     @Override
-    public WindowPreferencesItem createNewWindowPreferences() {
+    public WindowPreferences createNewWindowPreferences() {
         UUID windowUuid = UUID.randomUUID();
         String windowName = WindowPreferencePanel.getWindowName(instanceNameProperty.get(), windowUuid.toString());
         IsaacPreferences windowPreferencesNode = FxGet.kometPreferences().getWindowParentPreferences().addWindow(windowName, windowUuid);
@@ -286,8 +286,8 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
                 this.kpc, this);
     }
 
-    public static WindowPreferencesItem createNewDefaultWindowPreferences(IsaacPreferences windowPreferencesNode,
-                                                                          ViewProperties viewProperties, KometPreferencesController kpc) {
+    public static WindowPreferences createNewDefaultWindowPreferences(IsaacPreferences windowPreferencesNode,
+                                                                      ViewProperties viewProperties, KometPreferencesController kpc) {
 
         TransientPreferences transientPersonaPreferences = new TransientPreferences(PersonasPanel.DEFAULT_PERSONA_UUID);
         transientPersonaPreferences.put(GROUP_NAME, DEFAULT_PERSONA_NAME);

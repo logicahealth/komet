@@ -82,7 +82,7 @@ import java.util.stream.Collectors;
  */
 @Service(name = "Path Provider")
 @RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
-public class VersionManagmentPathProvider
+public class VersionManagementPathProvider
          implements VersionManagmentPathService, CommitListener {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
@@ -103,7 +103,7 @@ public class VersionManagmentPathProvider
    /**
     * Instantiates a new path provider.
     */
-   private VersionManagmentPathProvider() {
+   private VersionManagementPathProvider() {
       //For HK2 only
    }
 
@@ -412,9 +412,10 @@ public class VersionManagmentPathProvider
     */
    @PreDestroy
    private void stopMe() {
-      LOG.info("VersionManagementPathProvider stops");
+      LOG.info("Stopping VersionManagementPathProvider");
       Get.commitService().removeCommitListener(this);
       this.pathMap = null;
+      LOG.info("Stopped VersionManagementPathProvider");
    }
 
    @Override

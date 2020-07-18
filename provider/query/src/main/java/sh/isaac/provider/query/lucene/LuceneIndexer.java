@@ -1151,8 +1151,7 @@ public abstract class LuceneIndexer
       this.lastDocCache.invalidateAll();
       clearIndexedStatistics();
       this.dbBuildMode = null;
-      
-      
+      LOG.info("Stopped " + getIndexerName() + " pre-destroy. ");
    }
 
    //~--- get methods ---------------------------------------------------------

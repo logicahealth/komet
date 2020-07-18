@@ -19,6 +19,7 @@ package sh.komet.gui.util;
 import javafx.application.Platform;
 import javafx.beans.property.*;
 import javafx.collections.*;
+import javafx.scene.Node;
 import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
@@ -26,7 +27,6 @@ import javafx.scene.control.SeparatorMenuItem;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.controlsfx.control.PropertySheet;
-import org.eclipse.collections.api.block.function.primitive.IntToObjectFunction;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.primitive.ImmutableLongList;
@@ -42,6 +42,8 @@ import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.commit.CommitListener;
+import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -55,12 +57,12 @@ import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.api.util.UuidStringKey;
 import sh.isaac.api.util.time.DateTimeUtil;
-import sh.isaac.model.collections.IntObjectMap;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.komet.gui.contract.*;
 import sh.komet.gui.contract.preferences.KometPreferences;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.PropertySheetItem;
@@ -72,10 +74,7 @@ import sh.komet.gui.provider.StatusMessageProvider;
 
 import javax.inject.Singleton;
 import java.io.File;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.time.ZonedDateTime;
-import java.time.temporal.TemporalField;
 import java.util.*;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -92,12 +91,25 @@ import static sh.komet.gui.contract.preferences.GraphConfigurationItem.PREMISE_D
 @Singleton
 public class FxGet implements StaticIsaacCache {
 
+    public enum PROPERTY_KEYS {
+        WINDOW_PREFERENCES
+    }
+
+    private enum Keys {
+        CONFIGURATION_NAME,
+        LANGUAGE_COORDINATE_KEY_LIST,
+        LOGIC_COORDINATE_KEY_LIST,
+        MANIFOLD_COORDINATE_KEY_LIST,
+
+    }
+
+    private static CommitListener COMMIT_LISTENER;
+
 
     private static ObservableMap<UuidStringKey, StampPathImmutable> PATHS;
     private static ObservableMap<UuidStringKey, ObservableLanguageCoordinate> LANGUAGE_COORDINATES;
     private static ObservableMap<UuidStringKey, ObservableLogicCoordinate>    LOGIC_COORDINATES;
     private static ObservableMap<UuidStringKey, ObservableManifoldCoordinate> MANIFOLD_COORDINATES;
-    private static ObservableList<UuidStringKey> PATH_COORDINATE_KEY_LIST;
     private static ObservableList<UuidStringKey> LANGUAGE_COORDINATE_KEY_LIST;
     private static ObservableList<UuidStringKey> LOGIC_COORDINATE_KEY_LIST;
     private static ObservableList<UuidStringKey> MANIFOLD_COORDINATE_KEY_LIST;
@@ -192,13 +204,13 @@ public class FxGet implements StaticIsaacCache {
      */
     @Override
     public void reset() {
+        COMMIT_LISTENER = null;
         DIALOG_SERVICE = null;
         RULES_DRIVEN_KOMET_SERVICE = null;
         STATUS_MESSAGE_PROVIDER = null;
         FX_CONFIGURATION = null;
 
         PATHS = null;
-        PATH_COORDINATE_KEY_LIST = null;
 
         LANGUAGE_COORDINATES = null;
         LANGUAGE_COORDINATE_KEY_LIST = null;
@@ -227,19 +239,22 @@ public class FxGet implements StaticIsaacCache {
     public static IsaacPreferences configurationNode(Class<?> c) {
         return preferenceService().getConfigurationPreferences().node(c);
     }
-
-    private enum Keys {
-        CONFIGURATION_NAME,
-        PATH_COORDINATE_KEY_LIST,
-        LANGUAGE_COORDINATE_KEY_LIST,
-        LOGIC_COORDINATE_KEY_LIST,
-        MANIFOLD_COORDINATE_KEY_LIST,
-
-    }
     public static void load() {
 
+        COMMIT_LISTENER = new CommitListener() {
+            UUID uuid = UUID.randomUUID();
+            @Override
+            public UUID getListenerUuid() {
+                return uuid;
+            }
+
+            @Override
+            public void handleCommit(CommitRecord commitRecord) {
+                addPaths();
+            }
+        };
+
         PATHS = FXCollections.observableMap(new TreeMap<>());
-        PATH_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
 
         LANGUAGE_COORDINATES = FXCollections.observableMap(new TreeMap<>());
         LANGUAGE_COORDINATE_KEY_LIST = FXCollections.observableArrayList();
@@ -252,17 +267,14 @@ public class FxGet implements StaticIsaacCache {
 
         NAVIGATION_OPTIONS = FXCollections.observableArrayList();
 
-        PATHS.addListener(FxGet::pathChangeListener);
         LANGUAGE_COORDINATES.addListener(FxGet::languageChangeListener);
         LOGIC_COORDINATES.addListener(FxGet::logicChangeListener);
         MANIFOLD_COORDINATES.addListener(FxGet::manifoldChangeListener);
 
         IsaacPreferences fxGetPreferences = preferenceService().getConfigurationPreferences().node(FxGet.class);
         CONFIGURATION_NAME_PROPERTY.setValue(fxGetPreferences.get(Keys.CONFIGURATION_NAME, VIEWER));
-        List<UuidStringKey> pathCoordinateKeys = fxGetPreferences.getUuidStringKeyList(Keys.PATH_COORDINATE_KEY_LIST);
-        for (UuidStringKey key: pathCoordinateKeys) {
-            PATHS.put(key, fxGetPreferences.getObject(key.getUuid()));
-        }
+
+        addPaths();
 
         List<UuidStringKey> languageCoordinateKeys = fxGetPreferences.getUuidStringKeyList(Keys.LANGUAGE_COORDINATE_KEY_LIST);
         for (UuidStringKey key: languageCoordinateKeys) {
@@ -289,7 +301,7 @@ public class FxGet implements StaticIsaacCache {
         IsaacPreferences fxGetPreferences = preferenceService().getConfigurationPreferences().node(FxGet.class);
 
         fxGetPreferences.put(Keys.CONFIGURATION_NAME, CONFIGURATION_NAME_PROPERTY.getValue());
-        fxGetPreferences.putUuidStringKeyList(Keys.PATH_COORDINATE_KEY_LIST, PATH_COORDINATE_KEY_LIST);
+
         for (Map.Entry<UuidStringKey, StampPathImmutable> entry: PATHS.entrySet()) {
             fxGetPreferences.putObject(entry.getKey().getUuid(), entry.getValue());
         }
@@ -313,26 +325,26 @@ public class FxGet implements StaticIsaacCache {
         }
     }
 
-    public static List<PropertySheet.Item> constraintPropertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, ViewProperties viewProperties) {
-        return propertyItemsForAssemblageSemantic(assemblageConcept, viewProperties, true);
+    public static List<PropertySheet.Item> constraintPropertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, ManifoldCoordinate manifoldCoordinate) {
+        return propertyItemsForAssemblageSemantic(assemblageConcept, manifoldCoordinate, true);
     }
 
-    public static List<PropertySheet.Item> propertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, ViewProperties viewProperties) {
-        return propertyItemsForAssemblageSemantic(assemblageConcept, viewProperties, false);
+    public static List<PropertySheet.Item> propertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, ManifoldCoordinate manifoldCoordinate) {
+        return propertyItemsForAssemblageSemantic(assemblageConcept, manifoldCoordinate, false);
     }
 
-    private static List<PropertySheet.Item> propertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, ViewProperties viewProperties, boolean forConstraints) {
+    private static List<PropertySheet.Item> propertyItemsForAssemblageSemantic(ConceptSpecification assemblageConcept, ManifoldCoordinate manifoldCoordinate, boolean forConstraints) {
         TreeMap<Integer, ConceptSpecification> fieldIndexToFieldConcept = new TreeMap<>();
         TreeMap<Integer, ConceptSpecification> fieldIndexToFieldDataType = new TreeMap<>();
         List<PropertySheet.Item> items = new ArrayList();
-        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageConcept, viewProperties.getManifoldCoordinate().getVertexStampFilter());
+        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageConcept, manifoldCoordinate.getVertexStampFilter());
 
         if (optionalSemanticConceptNid.isPresent()) {
             int semanticConceptNid = optionalSemanticConceptNid.getAsInt();
             ImmutableIntSet semanticTypeOfFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(semanticConceptNid, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE.getNid());
             for (int nid : semanticTypeOfFields.toArray()) { // one member, "Concept field": 1
                 SemanticChronology semanticTypeField = Get.assemblageService().getSemanticChronology(nid);
-                LatestVersion<Version> latestSemanticTypeField = semanticTypeField.getLatestVersion(viewProperties.getManifoldCoordinate().getVertexStampFilter());
+                LatestVersion<Version> latestSemanticTypeField = semanticTypeField.getLatestVersion(manifoldCoordinate.getVertexStampFilter());
                 Nid1_Int2_Version latestSemanticTypeFieldVersion = (Nid1_Int2_Version) latestSemanticTypeField.get();
                 fieldIndexToFieldDataType.put(latestSemanticTypeFieldVersion.getInt2(), Get.concept(latestSemanticTypeFieldVersion.getNid1()));
             }
@@ -340,7 +352,7 @@ public class FxGet implements StaticIsaacCache {
             ImmutableIntSet assemblageSemanticFields = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(assemblageConcept.getNid(), MetaData.SEMANTIC_FIELDS_ASSEMBLAGE____SOLOR.getNid());
             for (int nid : assemblageSemanticFields.toArray()) {
                 SemanticChronology semanticField = Get.assemblageService().getSemanticChronology(nid);
-                LatestVersion<Version> latestSemanticField = semanticField.getLatestVersion(viewProperties.getManifoldCoordinate().getVertexStampFilter());
+                LatestVersion<Version> latestSemanticField = semanticField.getLatestVersion(manifoldCoordinate.getVertexStampFilter());
                 Nid1_Int2_Version latestSemanticFieldVersion = (Nid1_Int2_Version) latestSemanticField.get();
                 fieldIndexToFieldConcept.put(latestSemanticFieldVersion.getInt2(), Get.concept(latestSemanticFieldVersion.getNid1()));
             }
@@ -355,51 +367,52 @@ public class FxGet implements StaticIsaacCache {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
                 if (forConstraints) {
                     items.add(new PropertySheetItemConceptConstraintWrapper(
-                            new PropertySheetItemConceptWrapper(viewProperties, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()), viewProperties, viewProperties.getPreferredDescriptionText(fieldConcept)));
+                            new PropertySheetItemConceptWrapper(manifoldCoordinate, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()),
+                            manifoldCoordinate, manifoldCoordinate.getPreferredDescriptionText(fieldConcept)));
                 } else {
-                    items.add(new PropertySheetItemConceptWrapper(viewProperties, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()));
+                    items.add(new PropertySheetItemConceptWrapper(manifoldCoordinate, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()));
                 }
 
             } else if (fieldDataType.getNid() == MetaData.CONCEPT_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
                 if (forConstraints) {
                     items.add(new PropertySheetItemConceptConstraintWrapper(
-                            new PropertySheetItemConceptWrapper(viewProperties, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()), viewProperties, viewProperties.getPreferredDescriptionText(fieldConcept)));
+                            new PropertySheetItemConceptWrapper(manifoldCoordinate, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()), manifoldCoordinate, manifoldCoordinate.getPreferredDescriptionText(fieldConcept)));
                 } else {
-                    items.add(new PropertySheetItemConceptWrapper(viewProperties, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()));
+                    items.add(new PropertySheetItemConceptWrapper(manifoldCoordinate, property, TermAux.UNINITIALIZED_COMPONENT_ID.getNid()));
                 }
             } else if (fieldDataType.getNid() == MetaData.BOOLEAN_FIELD____SOLOR.getNid()) {
                 SimpleBooleanProperty property = new SimpleBooleanProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, viewProperties));
+                items.add(new PropertySheetItem(property, manifoldCoordinate));
             } else if (fieldDataType.getNid() == MetaData.ARRAY_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, viewProperties));
+                items.add(new PropertySheetItem(property, manifoldCoordinate));
             } else if (fieldDataType.getNid() == MetaData.BYTE_ARRAY_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, viewProperties));
+                items.add(new PropertySheetItem(property, manifoldCoordinate));
             } else if (fieldDataType.getNid() == MetaData.DOUBLE_FIELD____SOLOR.getNid()) {
                 SimpleDoubleProperty property = new SimpleDoubleProperty(null, fieldConcept.toExternalString());
             } else if (fieldDataType.getNid() == MetaData.FLOAT_FIELD____SOLOR.getNid()) {
                 SimpleFloatProperty property = new SimpleFloatProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, viewProperties));
+                items.add(new PropertySheetItem(property, manifoldCoordinate));
             } else if (fieldDataType.getNid() == MetaData.INTEGER_FIELD____SOLOR.getNid()) {
                 SimpleIntegerProperty property = new SimpleIntegerProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, viewProperties));
+                items.add(new PropertySheetItem(property, manifoldCoordinate));
             } else if (fieldDataType.getNid() == MetaData.LOGICAL_EXPRESSION_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, viewProperties));
+                items.add(new PropertySheetItem(property, manifoldCoordinate));
             } else if (fieldDataType.getNid() == MetaData.LONG_FIELD____SOLOR.getNid()) {
                 SimpleLongProperty property = new SimpleLongProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, viewProperties));
+                items.add(new PropertySheetItem(property, manifoldCoordinate));
             } else if (fieldDataType.getNid() == MetaData.STRING_FIELD____SOLOR.getNid()) {
                 SimpleStringProperty property = new SimpleStringProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, viewProperties));
+                items.add(new PropertySheetItem(property, manifoldCoordinate));
             } else if (fieldDataType.getNid() == MetaData.POLYMORPHIC_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, viewProperties));
+                items.add(new PropertySheetItem(property, manifoldCoordinate));
             } else if (fieldDataType.getNid() == MetaData.UUID_FIELD____SOLOR.getNid()) {
                 SimpleObjectProperty property = new SimpleObjectProperty(null, fieldConcept.toExternalString());
-                items.add(new PropertySheetItem(property, viewProperties));
+                items.add(new PropertySheetItem(property, manifoldCoordinate));
             }
         }
         return items;
@@ -424,22 +437,12 @@ public class FxGet implements StaticIsaacCache {
         return EditCoordinate.get();
     }
 
-    private static void pathChangeListener(MapChangeListener.Change<? extends UuidStringKey, ? extends StampPathImmutable> change) {
-        if (change.wasAdded()) {
-            PATH_COORDINATE_KEY_LIST.add(change.getKey());
-        }
-        if (change.wasRemoved()) {
-            PATH_COORDINATE_KEY_LIST.remove(change.getKey());
-        }
-    }
-
-    private static void makeRecursiveOverrideMenu(ManifoldCoordinate manifoldCoordinate, ObservableList<MenuItem> menuItems,
+    private static boolean makeRecursiveOverrideMenu(ManifoldCoordinate manifoldCoordinate, ObservableList<MenuItem> menuItems,
                                            ObservableCoordinate observableCoordinate) {
 
         if (observableCoordinate.hasOverrides()) {
             Menu overridesMenu = new Menu(manifoldCoordinate.toPreferredConceptString(observableCoordinate.getName()) + " has overrides");
             menuItems.add(overridesMenu);
-            menuItems.add(new SeparatorMenuItem());
             for (Property property: observableCoordinate.getBaseProperties()) {
                 if (property instanceof PropertyWithOverride) {
                     PropertyWithOverride propertyWithOverride = (PropertyWithOverride) property;
@@ -449,12 +452,14 @@ public class FxGet implements StaticIsaacCache {
                 }
             }
             for (ObservableCoordinate compositeCoordinate: observableCoordinate.getCompositeCoordinates()) {
-                if (compositeCoordinate.hasOverrides()) {
-                    makeRecursiveOverrideMenu(manifoldCoordinate, overridesMenu.getItems(),
-                            compositeCoordinate);
+                if (makeRecursiveOverrideMenu(manifoldCoordinate, overridesMenu.getItems(),
+                        compositeCoordinate)) {
+                    addSeperator(menuItems);
                 }
             }
+            return true;
         }
+        return false;
     }
 
     /**
@@ -481,25 +486,34 @@ public class FxGet implements StaticIsaacCache {
 
 
         if (observableCoordinate instanceof ManifoldCoordinate) {
-            menuItems.add(new SeparatorMenuItem());
+            addSeperator(menuItems);
             addRemoveOverrides(menuItems, observableCoordinate);
             addChangeItemsForManifold(manifoldCoordinate, menuItems, (ObservableManifoldCoordinate) observableCoordinate);
         } else if (observableCoordinate instanceof LanguageCoordinate) {
-            menuItems.add(new SeparatorMenuItem());
+            addSeperator(menuItems);
             addChangeItemsForLanguage(manifoldCoordinate, menuItems, (ObservableLanguageCoordinate) observableCoordinate);
         } else if (observableCoordinate instanceof LogicCoordinate) {
             //menuItems.add(new SeparatorMenuItem());
             addChangeItemsForLogic(manifoldCoordinate, menuItems, (ObservableLogicCoordinate) observableCoordinate);
         } else if (observableCoordinate instanceof NavigationCoordinate) {
-            menuItems.add(new SeparatorMenuItem());
+            addSeperator(menuItems);
             addChangeItemsForNavigation(manifoldCoordinate, menuItems, (ObservableNavigationCoordinate) observableCoordinate);
         } else if (observableCoordinate instanceof EditCoordinate) {
-            menuItems.add(new SeparatorMenuItem());
+            addSeperator(menuItems);
             addChangeItemsForEdit(manifoldCoordinate, menuItems, (ObservableEditCoordinate) observableCoordinate);
         } else if (observableCoordinate instanceof StampFilter) {
-            menuItems.add(new SeparatorMenuItem());
+            addSeperator(menuItems);
             addChangeItemsForFilter(manifoldCoordinate, menuItems, (ObservableStampFilter) observableCoordinate);
         }
+    }
+
+    private static void addSeperator(ObservableList<MenuItem> menuItems) {
+        if (menuItems.get(menuItems.size() -1) instanceof SeparatorMenuItem) {
+            // already a seperator, don't duplicate.
+        } else {
+            menuItems.add(new SeparatorMenuItem());
+        }
+
     }
 
     private static void addRemoveOverrides(ObservableList<MenuItem> menuItems, ObservableCoordinate observableCoordinate) {
@@ -591,7 +605,8 @@ public class FxGet implements StaticIsaacCache {
         Menu changeAllowedStatusMenu = new Menu("Change allowed states");
         menuItems.add(changeAllowedStatusMenu);
 
-        for (StatusSet statusSet: new StatusSet[] { StatusSet.ACTIVE_ONLY, StatusSet.ACTIVE_AND_INACTIVE}) {
+        for (StatusSet statusSet: new StatusSet[] { StatusSet.ACTIVE_ONLY, StatusSet.ACTIVE_AND_INACTIVE, StatusSet.INACTIVE,
+                StatusSet.WITHDRAWN, StatusSet.INACTIVE_ONLY}) {
             CheckMenuItem item = new CheckMenuItem(statusSet.toUserString());
             item.setSelected(statusSet.equals(observableCoordinate.getAllowedStates()));
             item.setOnAction(event -> {
@@ -841,19 +856,8 @@ public class FxGet implements StaticIsaacCache {
 
     private static void addChangeItemsForLanguage(ManifoldCoordinate manifoldCoordinate, ObservableList<MenuItem> menuItems,
                                                   ObservableLanguageCoordinate observableCoordinate) {
-        Menu changeLanguageMenu = new Menu("Change language");
-        menuItems.add(changeLanguageMenu);
-        for (ConceptSpecification language: FxGet.allowedLanguages()) {
-            CheckMenuItem languageItem = new CheckMenuItem(manifoldCoordinate.getPreferredDescriptionText(language));
-            changeLanguageMenu.getItems().add(languageItem);
-            languageItem.setSelected(language.getNid() == observableCoordinate.languageConceptProperty().get().getNid());
-            languageItem.setOnAction(event -> {
-                Platform.runLater(() -> observableCoordinate.languageConceptProperty().setValue(language));
-                event.consume();
-            });
-        }
 
-        Menu changeTypeOrder = new Menu("Change description type preference order");
+        Menu changeTypeOrder = new Menu("Change description preference");
         menuItems.add(changeTypeOrder);
         for (ImmutableList<? extends ConceptSpecification> typePreferenceList: FxGet.allowedDescriptionTypeOrder()) {
             CheckMenuItem typeOrderItem = new CheckMenuItem(manifoldCoordinate.toConceptString(typePreferenceList.castToList(), manifoldCoordinate::getPreferredDescriptionText));
@@ -864,6 +868,18 @@ public class FxGet implements StaticIsaacCache {
                 Platform.runLater(() ->
                         observableCoordinate.descriptionTypePreferenceListProperty().setValue(prefList)
                 );
+                event.consume();
+            });
+        }
+
+        Menu changeLanguageMenu = new Menu("Change language");
+        menuItems.add(changeLanguageMenu);
+        for (ConceptSpecification language: FxGet.allowedLanguages()) {
+            CheckMenuItem languageItem = new CheckMenuItem(manifoldCoordinate.getPreferredDescriptionText(language));
+            changeLanguageMenu.getItems().add(languageItem);
+            languageItem.setSelected(language.getNid() == observableCoordinate.languageConceptProperty().get().getNid());
+            languageItem.setOnAction(event -> {
+                Platform.runLater(() -> observableCoordinate.languageConceptProperty().setValue(language));
                 event.consume();
             });
         }
@@ -884,6 +900,24 @@ public class FxGet implements StaticIsaacCache {
 
     private static void addChangeItemsForManifold(ManifoldCoordinate manifoldCoordinate, ObservableList<MenuItem> menuItems,
                                                   ObservableManifoldCoordinate observableCoordinate) {
+
+        Menu changeDescriptionPreferenceMenu = new Menu("Change description preference");
+        menuItems.add(changeDescriptionPreferenceMenu);
+
+        for (ImmutableList<? extends ConceptSpecification> typePreferenceList: FxGet.allowedDescriptionTypeOrder()) {
+            CheckMenuItem typeOrderItem = new CheckMenuItem(manifoldCoordinate.toConceptString(typePreferenceList.castToList(), manifoldCoordinate::getPreferredDescriptionText));
+            changeDescriptionPreferenceMenu.getItems().add(typeOrderItem);
+            typeOrderItem.setSelected(observableCoordinate.getLanguageCoordinate().descriptionTypePreferenceListProperty().getValue().equals(typePreferenceList.castToList()));
+            typeOrderItem.setOnAction(event -> {
+                ObservableList<ConceptSpecification> prefList = FXCollections.observableArrayList(typePreferenceList.toArray(new ConceptSpecification[0]));
+                Platform.runLater(() ->
+                        observableCoordinate.getLanguageCoordinate().descriptionTypePreferenceListProperty().setValue(prefList)
+                );
+                event.consume();
+            });
+        }
+
+
         Menu changeVertexSortMenu = new Menu("Change sort");
         menuItems.add(changeVertexSortMenu);
         VertexSort[] sorts = new VertexSort[] {VertexSortNaturalOrder.SINGLETON, VertexSortNone.SINGLETON};
@@ -921,7 +955,8 @@ public class FxGet implements StaticIsaacCache {
         Menu changeAllowedStatusMenu = new Menu("Change allowed states");
         menuItems.add(changeAllowedStatusMenu);
 
-        for (StatusSet statusSet: new StatusSet[] { StatusSet.ACTIVE_ONLY, StatusSet.ACTIVE_AND_INACTIVE}) {
+        for (StatusSet statusSet: new StatusSet[] { StatusSet.ACTIVE_ONLY, StatusSet.ACTIVE_AND_INACTIVE, StatusSet.INACTIVE,
+        StatusSet.WITHDRAWN, StatusSet.INACTIVE_ONLY}) {
             CheckMenuItem item = new CheckMenuItem(statusSet.toUserString());
             item.setSelected(statusSet.equals(observableCoordinate.getEdgeStampFilter().getAllowedStates()) &&
                     statusSet.equals(observableCoordinate.getLanguageStampFilter().getAllowedStates()) &&
@@ -986,16 +1021,21 @@ public class FxGet implements StaticIsaacCache {
     public static ObservableMap<UuidStringKey, StampPathImmutable> pathCoordinates() {
         if (PATHS.isEmpty()) {
             //TODO add commit listener, and update when new semantic or a commit.
-            Get.identifierService().getNidsForAssemblage(TermAux.PATH_ASSEMBLAGE).forEach(semanticNid -> {
-                SemanticChronology pathConceptSemantic = Get.assemblageService().getSemanticChronology(semanticNid);
-                StampPathImmutable path = StampPathImmutable.make(pathConceptSemantic.getReferencedComponentNid());
-                String pathDescription = Get.defaultCoordinate().getPreferredDescriptionText(path.getPathConceptNid());
-                UuidStringKey pathKey = new UuidStringKey(path.getPathCoordinateUuid(), pathDescription);
-                PATHS.put(pathKey, path);
-            });
+            addPaths();
         }
         return PATHS;
     }
+
+    private static void addPaths() {
+        Get.identifierService().getNidsForAssemblage(TermAux.PATH_ASSEMBLAGE).forEach(semanticNid -> {
+            SemanticChronology pathConceptSemantic = Get.assemblageService().getSemanticChronology(semanticNid);
+            StampPathImmutable path = StampPathImmutable.make(pathConceptSemantic.getReferencedComponentNid());
+            String pathDescription = Get.defaultCoordinate().getPreferredDescriptionText(path.getPathConceptNid());
+            UuidStringKey pathKey = new UuidStringKey(path.getPathCoordinateUuid(), pathDescription);
+            PATHS.put(pathKey, path);
+        });
+    }
+
     public static ObservableMap<UuidStringKey, ObservableLanguageCoordinate> languageCoordinates() {
         return LANGUAGE_COORDINATES;
     }
@@ -1005,9 +1045,7 @@ public class FxGet implements StaticIsaacCache {
     public static ObservableMap<UuidStringKey, ObservableManifoldCoordinate> manifoldCoordinates() {
         return MANIFOLD_COORDINATES;
     }
-    public static ObservableList<UuidStringKey> pathCoordinateKeys() {
-        return PATH_COORDINATE_KEY_LIST;
-    }
+
     public static ObservableList<UuidStringKey> languageCoordinateKeys() {
         return LANGUAGE_COORDINATE_KEY_LIST;
     }
@@ -1076,25 +1114,25 @@ public class FxGet implements StaticIsaacCache {
     }
 
     public static ObservableList<ConceptSnapshot> activeConceptMembers(ConceptSpecification assemblage,
-                                                                       ViewProperties manifoldCoordinate) {
+                                                                       ManifoldCoordinate manifoldCoordinate) {
         return activeConceptMembers(assemblage.getNid(), manifoldCoordinate);
     }
 
     public static ObservableList<ConceptSnapshot> activeConceptMembers(int assemblageNid,
-                                                                       ViewProperties viewProperties) {
-        if (viewProperties == null) {
+                                                                       ManifoldCoordinate manifoldCoordinate) {
+        if (manifoldCoordinate == null) {
             throw new NullPointerException("manifoldCoordinate cannot be null");
         }
         ObservableList<ConceptSnapshot> activeConceptMemberList = FXCollections.observableArrayList();
         SingleAssemblageSnapshot<SemanticVersion> snapshot =
-                Get.assemblageService().getSingleAssemblageSnapshot(assemblageNid, SemanticVersion.class, viewProperties.getManifoldCoordinate().getVertexStampFilter());
+                Get.assemblageService().getSingleAssemblageSnapshot(assemblageNid, SemanticVersion.class, manifoldCoordinate.getVertexStampFilter());
 
         snapshot.getLatestSemanticVersionsFromAssemblage().forEach(new Consumer<LatestVersion<SemanticVersion>>() {
             @Override
             public void accept(LatestVersion<SemanticVersion> semanticVersionLatestVersion) {
                 if (semanticVersionLatestVersion.isPresent() && semanticVersionLatestVersion.get().isActive()) {
                     activeConceptMemberList.add(Get.conceptSnapshot(semanticVersionLatestVersion.get().getReferencedComponentNid(),
-                            viewProperties.getManifoldCoordinate()));
+                            manifoldCoordinate));
                 }
             }
         });
@@ -1119,4 +1157,7 @@ public class FxGet implements StaticIsaacCache {
                 editCoordinate());
     }
 
+    public static WindowPreferences windowPreferences(Node node) {
+        return (WindowPreferences) node.getScene().getProperties().get(PROPERTY_KEYS.WINDOW_PREFERENCES);
+    }
 }

@@ -13,7 +13,7 @@ import java.util.List;
 import java.util.UUID;
 
 
-public interface WindowPreferencesItem {
+public interface WindowPreferences {
     void save();
     void revert();
     UUID getWindowUuid();

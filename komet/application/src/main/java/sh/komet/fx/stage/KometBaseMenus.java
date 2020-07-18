@@ -22,26 +22,17 @@ import javafx.stage.FileChooser;
 import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.collections.api.factory.set.primitive.MutableIntSetFactory;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.primitive.ImmutableLongList;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
-import org.eclipse.collections.api.set.primitive.MutableIntSet;
-import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.*;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.classifier.ClassifierService;
-import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Version;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.sync.MergeFailOption;
 import sh.isaac.api.sync.MergeFailure;
-import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.gui.exporter.ExportView;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
@@ -49,9 +40,8 @@ import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.importation.ImportView;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
@@ -99,7 +89,7 @@ public class KometBaseMenus implements MenuProvider {
 /*
  */
     @Override
-    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferencesItem windowPreference) {
+    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferences windowPreference) {
         switch (parentMenu) {
             case FILE: {
                 MenuItem selectiveImport = new MenuItemWithText("Selective import and transform");

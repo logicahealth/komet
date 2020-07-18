@@ -10,12 +10,12 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
-import org.eclipse.collections.api.list.ImmutableList;
 import sh.isaac.MetaData;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.docbook.DocBook;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.komet.gui.control.property.ActivityFeed;
@@ -54,7 +54,7 @@ public class MenuSupplierForFocusConcept implements AddToContextMenu {
                                  SimpleIntegerProperty selectionIndexProperty,
                                  Runnable unlink) {
         contextMenu.getItems()
-                .add(MenuSupplierForFocusConcept.makeCopyMenuItem(Optional.ofNullable(conceptFocusProperty.get()), viewProperties));
+                .add(MenuSupplierForFocusConcept.makeCopyMenuItem(Optional.ofNullable(conceptFocusProperty.get()), viewProperties.getManifoldCoordinate()));
         contextMenu.getItems()
                 .add(new SeparatorMenuItem());
 
@@ -103,7 +103,7 @@ public class MenuSupplierForFocusConcept implements AddToContextMenu {
         }
     }
 
-    public static Menu makeCopyMenuItem(Optional<IdentifiedObject> concept, ViewProperties viewProperties) {
+    public static Menu makeCopyMenuItem(Optional<IdentifiedObject> concept, ManifoldCoordinate manifoldCoordinate) {
         Menu copyMenu = new Menu("copy");
         MenuItem conceptLoincCodeMenuItem = new MenuItemWithText("Concept LOINC code");
         copyMenu.getItems().add(conceptLoincCodeMenuItem);
@@ -112,7 +112,7 @@ public class MenuSupplierForFocusConcept implements AddToContextMenu {
                 Optional<String> optionalLoincCode =
                         Get.identifierService().getIdentifierFromAuthority(concept.get().getNid(),
                                 MetaData.LOINC_ID_ASSEMBLAGE____SOLOR,
-                                viewProperties.getStampFilter());
+                                manifoldCoordinate.getVertexStampFilter());
 
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
@@ -132,7 +132,7 @@ public class MenuSupplierForFocusConcept implements AddToContextMenu {
                 Optional<String> optionalSnomedCode =
                         Get.identifierService().getIdentifierFromAuthority(concept.get().getNid(),
                                 MetaData.SCTID____SOLOR,
-                                viewProperties.getStampFilter());
+                                manifoldCoordinate.getVertexStampFilter());
 
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
@@ -149,7 +149,7 @@ public class MenuSupplierForFocusConcept implements AddToContextMenu {
         copyMenu.getItems().add(conceptFQNMenuItem);
         conceptFQNMenuItem.setOnAction((event) -> {
             if (concept.isPresent()) {
-                String fqnString = viewProperties.getFullyQualifiedDescriptionText(concept.get().getNid());
+                String fqnString = manifoldCoordinate.getFullyQualifiedDescriptionText(concept.get().getNid());
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
                 content.putString(fqnString);
@@ -174,7 +174,7 @@ public class MenuSupplierForFocusConcept implements AddToContextMenu {
         docBookInlineReferenceMenuItem.setOnAction((event) -> {
             if (concept.isPresent()) {
                 String docbookXml = DocBook.getInlineEntry(Get.conceptSpecification(concept.get().getNid()),
-                        viewProperties.getManifoldCoordinate());
+                        manifoldCoordinate);
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
                 content.putString(docbookXml);
@@ -187,7 +187,7 @@ public class MenuSupplierForFocusConcept implements AddToContextMenu {
         copyDocBookMenuItem.setOnAction((event) -> {
             if (concept.isPresent()) {
                 String docbookXml = DocBook.getGlossentry(Get.conceptSpecification(concept.get().getNid()),
-                        viewProperties.getManifoldCoordinate());
+                        manifoldCoordinate);
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
                 content.putString(docbookXml);

@@ -30,6 +30,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DragAndDropHelper;
 
@@ -45,21 +46,21 @@ public class ConceptLabel
         extends Label implements PropertyEditor<Object> {
 
     private static final String EMPTY_TEXT = "empty";
-    ViewProperties viewProperties;
+    ManifoldCoordinate manifoldCoordinate;
     Consumer<ConceptLabel> descriptionTextUpdater;
     final Function<ConceptLabel, List<MenuItem>> menuSupplier;
     final SimpleObjectProperty<ConceptSpecification> conceptInLabel = new SimpleObjectProperty<>();
     final DragAndDropHelper dragAndDropHelper;
 
    //~--- constructors --------------------------------------------------------
-   public ConceptLabel(ViewProperties viewProperties,
+   public ConceptLabel(ManifoldCoordinate manifoldCoordinate,
                        Consumer<ConceptLabel> descriptionTextUpdater,
                        Function<ConceptLabel, List<MenuItem>> menuSupplier) {
         super(EMPTY_TEXT);
         if (menuSupplier == null) {
             throw new IllegalStateException("Supplier<List<MenuItem>> menuSupplier cannot be null");
         }
-        this.viewProperties = viewProperties;
+        this.manifoldCoordinate = manifoldCoordinate;
         this.descriptionTextUpdater = descriptionTextUpdater;
         this.menuSupplier = menuSupplier;
         this.getStyleClass().add(CONCEPT_LABEL.toString());
@@ -120,7 +121,7 @@ public class ConceptLabel
         ConceptChronology focusedConcept = Get.concept(label.conceptInLabel.get());
         if (focusedConcept != null) {
             focusedConcept
-                    .getFullySpecifiedDescription(label.viewProperties.getManifoldCoordinate())
+                    .getFullySpecifiedDescription(label.manifoldCoordinate)
                     .ifPresent(label::setDescriptionText)
                     .ifAbsent(label::setEmptyText);
         } else {
@@ -132,7 +133,7 @@ public class ConceptLabel
         ConceptChronology focusedConcept = Get.concept(label.conceptInLabel.get());
         if (focusedConcept != null) {
             focusedConcept
-                    .getPreferredDescription(label.viewProperties.getManifoldCoordinate())
+                    .getPreferredDescription(label.manifoldCoordinate)
                     .ifPresent(label::setDescriptionText)
                     .ifAbsent(label::setEmptyText);
         } else {

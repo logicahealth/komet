@@ -155,7 +155,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
         for (ActionFactory factory: factories) {
             MenuItem factoryItem = new MenuItem(factory.getActionName(), factory.getActionIcon());
             factoryItem.setOnAction(event -> {
-                addAction(factory.makeActionItem(viewProperties));
+                addAction(factory.makeActionItem(viewProperties.getManifoldCoordinate()));
             });
             addActionMenuButton.getItems().add(factoryItem);
         }
@@ -168,7 +168,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/ActionNode.fxml"));
             Object root = loader.load();
             ActionNodeController actionNodeController = loader.getController();
-            actionNodeController.setAction(viewProperties, actionItem);
+            actionNodeController.setAction(viewProperties.getManifoldCoordinate(), actionItem);
             actionListView.getItems().add(actionNodeController);
         } catch (IOException e) {
             FxGet.dialogs().showErrorDialog(e);
@@ -202,7 +202,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/ActionNode.fxml"));
                     Object root = loader.load();
                     ActionNodeController actionNodeController = loader.getController();
-                    actionNodeController.setAction(viewProperties, actionItem);
+                    actionNodeController.setAction(viewProperties.getManifoldCoordinate(), actionItem);
                     actionListView.getItems().add(actionNodeController);
                 }
             } catch (IOException e) {

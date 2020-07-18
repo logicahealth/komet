@@ -14,7 +14,7 @@ import sh.isaac.komet.preferences.ParentPanel;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.contract.preferences.PersonaItem;
 import sh.komet.gui.contract.preferences.TabSpecification;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.control.PropertySheetBooleanWrapper;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.property.ViewProperties;
@@ -41,7 +41,7 @@ import java.util.*;
  *     3. The exploration and detail nodes store the factory class to construct to be used to reconstruct
  *     them.
  */
-public class WindowPreferencePanel extends ParentPanel implements WindowPreferencesItem {
+public class WindowPreferencePanel extends ParentPanel implements WindowPreferences {
 
     public enum Keys {
         LEFT_TAB_NODES,
@@ -141,10 +141,10 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         });
         revertFields();
         save();
-        getItemList().add(new PropertySheetTextWrapper(viewProperties, windowNameProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, enableLeftPaneProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, enableCenterPaneProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, enableRightPaneProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), windowNameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableLeftPaneProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableCenterPaneProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableRightPaneProperty));
         this.leftTabSelectionProperty.addListener((observable, oldValue, newValue) -> {
             save();
         });
@@ -232,10 +232,10 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         }
         setDefaultLocationAndSize();
         save();
-        getItemList().add(new PropertySheetTextWrapper(viewProperties, windowNameProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, enableLeftPaneProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, enableCenterPaneProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, enableRightPaneProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), windowNameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableLeftPaneProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableCenterPaneProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableRightPaneProperty));
     }
 
     @Override

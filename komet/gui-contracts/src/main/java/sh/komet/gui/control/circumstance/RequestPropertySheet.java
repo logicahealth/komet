@@ -19,6 +19,7 @@ package sh.komet.gui.control.circumstance;
 import java.util.List;
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.property.editor.PropertyEditor;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.statement.Repetition;
 import sh.isaac.model.statement.CircumstanceImpl;
 import sh.isaac.model.statement.RepetitionImpl;
@@ -34,8 +35,8 @@ import sh.komet.gui.control.repetition.RepetitionEditor;
  */
 public class RequestPropertySheet extends CircumstancePropertySheet {
 
-    public RequestPropertySheet(ViewProperties viewProperties) {
-        super(viewProperties);
+    public RequestPropertySheet(ManifoldCoordinate manifoldCoordinate) {
+        super(manifoldCoordinate);
     }
 
     @Override
@@ -48,18 +49,18 @@ public class RequestPropertySheet extends CircumstancePropertySheet {
         
         // TODO SimpleObjectProperty<LogicalExpression> priorityProperty()
 
-        itemList.add(new PropertySheetListWrapper<>(viewProperties, request.repetitionsProperty(),
+        itemList.add(new PropertySheetListWrapper<>(manifoldCoordinate, request.repetitionsProperty(),
             this::newRepetition, 
             this::newPropertyEditor));
 
-        itemList.add(new PropertySheetMeasureWrapper(viewProperties, request.requestedMeasureProperty()));
+        itemList.add(new PropertySheetMeasureWrapper(manifoldCoordinate, request.requestedMeasureProperty()));
     }
     
     Repetition newRepetition() {
         return new RepetitionImpl();
     }
     
-    PropertyEditor<Repetition> newPropertyEditor(ViewProperties viewProperties) {
-        return new RepetitionEditor(viewProperties);
+    PropertyEditor<Repetition> newPropertyEditor(ManifoldCoordinate manifoldCoordinate) {
+        return new RepetitionEditor(manifoldCoordinate);
     }
 }

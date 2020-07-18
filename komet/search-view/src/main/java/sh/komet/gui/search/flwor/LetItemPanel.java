@@ -68,8 +68,8 @@ public class LetItemPanel {
                         ListView<LetItemKey> letListViewletListView, Observable letItem,
                         LetPropertySheet letPropertySheet) {
         this.viewProperties = viewProperties;
-        this.sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties));
-        this.sheet.getItems().add(new PropertySheetTextWrapper(viewProperties, nameProperty));
+        this.sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties.getManifoldCoordinate()));
+        this.sheet.getItems().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), nameProperty));
         this.letListView = letListViewletListView;
         this.letItem = letItem;
         this.letItemKey = letItemKey;
@@ -100,12 +100,12 @@ public class LetItemPanel {
         }
     }
     private void setupString(SimpleStringProperty stringItem) {
-        this.sheet.getItems().add(new PropertySheetTextWrapper(viewProperties, stringItem));
+        this.sheet.getItems().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), stringItem));
     }
     
     
     private void setupConceptProxy(ObservableConceptProxy conceptProxyItem) {
-        PropertySheetItemConceptWrapper conceptWrapper = new PropertySheetItemConceptWrapper(viewProperties, conceptProxyItem);
+        PropertySheetItemConceptWrapper conceptWrapper = new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), conceptProxyItem);
         conceptProxyItem.addListener((observable, oldValue, newValue) -> {
             this.letPropertySheet.getLetItemObjectMap().put(letItemKey, newValue);
         });
@@ -131,10 +131,10 @@ public class LetItemPanel {
 
     private void setupLanguageCoordinate(ObservableLanguageCoordinate languageCoordinateItem) {
 
-        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties, languageCoordinateItem.languageConceptProperty(),
+        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), languageCoordinateItem.languageConceptProperty(),
                 TermAux.ENGLISH_LANGUAGE.getNid(),TermAux.SPANISH_LANGUAGE.getNid()));
-        this.sheet.getItems().add(new PropertySheetConceptListWrapper(viewProperties, languageCoordinateItem.dialectAssemblagePreferenceListProperty()));
-        this.sheet.getItems().add(new PropertySheetConceptListWrapper(viewProperties, languageCoordinateItem.descriptionTypePreferenceListProperty()));
+        this.sheet.getItems().add(new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), languageCoordinateItem.dialectAssemblagePreferenceListProperty()));
+        this.sheet.getItems().add(new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), languageCoordinateItem.descriptionTypePreferenceListProperty()));
     }
     
     private void setupStampCoordinate(ObservableStampPath stampCoordinateItem) {
@@ -151,15 +151,15 @@ public class LetItemPanel {
     
     private void setupLogicCoordinate(ObservableLogicCoordinate logicCoordinateItem) {
 
-        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties, "Logic profile", logicCoordinateItem.descriptionLogicProfileProperty(),
+        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Logic profile", logicCoordinateItem.descriptionLogicProfileProperty(),
                 new ConceptSpecification[] { TermAux.EL_PLUS_PLUS_LOGIC_PROFILE }));
-        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties, "Classifier", logicCoordinateItem.classifierProperty(),
+        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Classifier", logicCoordinateItem.classifierProperty(),
                 new ConceptSpecification[] { TermAux.SNOROCKET_CLASSIFIER }));
-        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties, "Concepts to classify", logicCoordinateItem.conceptAssemblageProperty(),
+        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Concepts to classify", logicCoordinateItem.conceptAssemblageProperty(),
                 new ConceptSpecification[] { TermAux.SOLOR_CONCEPT_ASSEMBLAGE }));
-        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties, "Stated assemblage", logicCoordinateItem.statedAssemblageProperty(),
+        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Stated assemblage", logicCoordinateItem.statedAssemblageProperty(),
                 new ConceptSpecification[] { TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE }));
-        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties, "Inferred assemblage", logicCoordinateItem.inferredAssemblageProperty(),
+        this.sheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Inferred assemblage", logicCoordinateItem.inferredAssemblageProperty(),
                 new ConceptSpecification[] { TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE }));
     }
 }

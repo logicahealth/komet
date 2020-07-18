@@ -60,6 +60,7 @@ import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.logic.ClassifierResultsImpl;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
@@ -165,34 +166,64 @@ public class LogicProvider
     @PreDestroy
     private void stopMe() {
         LOG.info("Stopping LogicProvider for change to runlevel: " + LookupService.getProceedingToRunLevel());
-        for (Task<?> updateTask : pendingLogicTasks) {
-            try {
-                LOG.info("Waiting for completion of: " + updateTask.getTitle());
-                updateTask.get();
-                LOG.info("Completed: " + updateTask.getTitle());
-            } catch (Throwable ex) {
-                LOG.error(ex);
-            }
-        }
-        this.classifierServiceMap.clear();
-        this.pendingLogicTasks.clear();
-        ByteArrayDataBuffer buff = new ByteArrayDataBuffer();
-        Set<Map.Entry<Instant, ClassifierResults[]>> classifierResultsEntrySet = classifierResultMap.entrySet();
-        buff.putInt(classifierResultsEntrySet.size());
-        for (Map.Entry<Instant, ClassifierResults[]> entry: classifierResultsEntrySet) {
-            buff.putLong(entry.getKey().toEpochMilli());
-            LOG.info("Writing classifier results for: " + entry.getKey());
-            buff.putInt(entry.getValue().length);
-            for (ClassifierResults results: entry.getValue()) {
-                ((ClassifierResultsImpl) results).putExternal(buff);
-            }
-        }
-        // write to disk...
-        try (DataOutputStream output = new DataOutputStream(new FileOutputStream(this.classifierResultsFile))) {
-            buff.write(output);
-        } catch (IOException e) {
+        StopMeTask stopMeTask = new StopMeTask();
+        try {
+            stopMeTask.call();
+        } catch (Exception e) {
             LOG.error(e);
         }
+        LOG.info("Stopped LogicProvider  ");
+    }
+
+    private class StopMeTask extends TimedTaskWithProgressTracker {
+
+        public StopMeTask() {
+            updateTitle("Stopping logic provider");
+            addToTotalWork(2);
+            Get.activeTasks().add(this);
+        }
+        @Override
+        protected Object call() throws Exception {
+            try {
+                updateMessage("Completing pending logic tasks");
+                for (Task<?> updateTask : pendingLogicTasks) {
+                    try {
+                        LOG.info("Waiting for completion of: " + updateTask.getTitle());
+                        updateTask.get();
+                        LOG.info("Completed: " + updateTask.getTitle());
+                    } catch (Throwable ex) {
+                        LOG.error(ex);
+                    }
+                }
+                completedUnitOfWork();
+
+                updateMessage("Writing classifier results");
+                LogicProvider.this.classifierServiceMap.clear();
+                LogicProvider.this.pendingLogicTasks.clear();
+                ByteArrayDataBuffer buff = new ByteArrayDataBuffer();
+                Set<Map.Entry<Instant, ClassifierResults[]>> classifierResultsEntrySet = classifierResultMap.entrySet();
+                buff.putInt(classifierResultsEntrySet.size());
+                for (Map.Entry<Instant, ClassifierResults[]> entry: classifierResultsEntrySet) {
+                    buff.putLong(entry.getKey().toEpochMilli());
+                    LOG.info("Writing classifier results for: " + entry.getKey());
+                    buff.putInt(entry.getValue().length);
+                    for (ClassifierResults results: entry.getValue()) {
+                        ((ClassifierResultsImpl) results).putExternal(buff);
+                    }
+                }
+
+                // write to disk...
+                try (DataOutputStream output = new DataOutputStream(new FileOutputStream(LogicProvider.this.classifierResultsFile))) {
+                    buff.write(output);
+                } catch (IOException e) {
+                    LOG.error(e);
+                }
+                completedUnitOfWork();
+                return null;
+            } finally {
+                Get.activeTasks().remove(this);
+            }
+         }
     }
 
     //~--- get methods ---------------------------------------------------------

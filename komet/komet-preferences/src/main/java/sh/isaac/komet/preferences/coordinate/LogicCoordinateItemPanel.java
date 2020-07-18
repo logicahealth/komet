@@ -68,7 +68,7 @@ public class LogicCoordinateItemPanel extends AbstractPreferences {
     private void setup(ViewProperties viewProperties) {
 
         nameProperty.set(groupNameProperty().get());
-        getItemList().add(new PropertySheetTextWrapper(FxGet.preferenceViewProperties(), nameProperty));
+        getItemList().add(new PropertySheetTextWrapper(FxGet.preferenceViewProperties().getManifoldCoordinate(), nameProperty));
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
             FxGet.languageCoordinates().remove(itemKey);
@@ -76,15 +76,15 @@ public class LogicCoordinateItemPanel extends AbstractPreferences {
             FxGet.logicCoordinates().put(itemKey, logicCoordinateItem);
         });
 
-        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties, "Logic profile", logicCoordinateItem.descriptionLogicProfileProperty(),
+        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Logic profile", logicCoordinateItem.descriptionLogicProfileProperty(),
                 new ConceptSpecification[] { TermAux.EL_PLUS_PLUS_LOGIC_PROFILE }));
-        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties, "Classifier", logicCoordinateItem.classifierProperty(),
+        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Classifier", logicCoordinateItem.classifierProperty(),
                 new ConceptSpecification[] { TermAux.SNOROCKET_CLASSIFIER }));
-        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties, "Concepts to classify", logicCoordinateItem.conceptAssemblageProperty(),
+        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Concepts to classify", logicCoordinateItem.conceptAssemblageProperty(),
                 new ConceptSpecification[] { TermAux.SOLOR_CONCEPT_ASSEMBLAGE }));
-        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties, "Stated assemblage", logicCoordinateItem.statedAssemblageProperty(),
+        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Stated assemblage", logicCoordinateItem.statedAssemblageProperty(),
                 new ConceptSpecification[] { TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE }));
-        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties, "Inferred assemblage", logicCoordinateItem.inferredAssemblageProperty(),
+        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Inferred assemblage", logicCoordinateItem.inferredAssemblageProperty(),
                 new ConceptSpecification[] { TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE }));
         revert();
         save();

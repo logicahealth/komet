@@ -1,15 +1,12 @@
 package sh.komet.gui.control;
 
-import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableSet;
 import org.controlsfx.control.PropertySheet;
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.StampPositionImmutable;
 import sh.isaac.model.observable.coordinate.ObservableStampPositionImpl;
-import sh.komet.gui.manifold.Manifold;
 
 import java.util.Optional;
 
@@ -25,12 +22,6 @@ public class PropertySheetPositionWrapper implements PropertySheet.Item {
         this.name = name;
         this.stampPosition.setValue(positionProperty.getValue());
         this.stampPosition.bindBidirectional(positionProperty);
-    }
-
-    public PropertySheetPositionWrapper(Manifold manifold,
-                                        SimpleObjectProperty<StampPositionImmutable> positionProperty) {
-        this(manifold.getPreferredDescriptionText(new ConceptProxy(positionProperty.getName())),
-                positionProperty);
     }
     @Override
     public Class<?> getType() {

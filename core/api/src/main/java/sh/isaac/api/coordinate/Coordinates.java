@@ -204,15 +204,6 @@ public class Coordinates {
 
     }
 
-    public static class Digraph {
-        public static final NavigationCoordinateImmutable Stated() {
-            return NavigationCoordinateImmutable.makeStated();
-        }
-        public static final NavigationCoordinateImmutable Inferred() {
-            return NavigationCoordinateImmutable.makeInferred();
-        }
-    }
-
     public static class Manifold {
         public static final ManifoldCoordinateImmutable DevelopmentInferredRegularNameSort() {
             return ManifoldCoordinateImmutable.makeInferred(

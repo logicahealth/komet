@@ -178,7 +178,7 @@ public class LogicDetailNode extends DetailNodeAbstract {
             if (statedExpression.get().isUncommitted()) {
                 editInFlight = statedExpression.get();
                 BorderPane expressionBorderPane = new BorderPane();
-                expressionBorderPane.setCenter(AxiomView.createWithCommitPanel(statedExpression.get(), PremiseType.STATED, this.viewProperties));
+                expressionBorderPane.setCenter(AxiomView.createWithCommitPanel(statedExpression.get(), PremiseType.STATED, this.viewProperties.getManifoldCoordinate()));
 
                 ToolBar commitToolbar = new ToolBar();
                 Region spacer = new Region();
@@ -193,7 +193,7 @@ public class LogicDetailNode extends DetailNodeAbstract {
                 splitPane.getItems().add(expressionBorderPane);
             } else {
                 editInFlight = null;
-                splitPane.getItems().add(AxiomView.createWithCommitPanel(statedExpression.get(), PremiseType.STATED, this.viewProperties));
+                splitPane.getItems().add(AxiomView.createWithCommitPanel(statedExpression.get(), PremiseType.STATED, this.viewProperties.getManifoldCoordinate()));
             }
         } else {
             detailPane.setCenter(new Label("No stated form"));
@@ -202,7 +202,7 @@ public class LogicDetailNode extends DetailNodeAbstract {
             Optional<LogicalExpression> inferredExpression = this.viewProperties.getManifoldCoordinate().getInferredLogicalExpression(
                     this.getFocusedObject().get().getNid());
             if (inferredExpression.isPresent()) {
-                splitPane.getItems().add(AxiomView.create(inferredExpression.get(), PremiseType.INFERRED, this.viewProperties));
+                splitPane.getItems().add(AxiomView.create(inferredExpression.get(), PremiseType.INFERRED, this.viewProperties.getManifoldCoordinate()));
             } else {
                 detailPane.setCenter(new Label("No inferred form"));
             }

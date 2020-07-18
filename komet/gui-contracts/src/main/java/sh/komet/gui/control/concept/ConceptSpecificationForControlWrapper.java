@@ -32,15 +32,15 @@ import sh.komet.gui.control.property.ViewProperties;
 public class ConceptSpecificationForControlWrapper
         implements ConceptSpecification {
 
-    private final ViewProperties viewProperties;
+    private final ManifoldCoordinate manifoldCoordinate;
     private final ConceptSpecification spec;
 
     //~--- constructors --------------------------------------------------------
-    public ConceptSpecificationForControlWrapper(ConceptSpecification spec, ViewProperties viewProperties) {
+    public ConceptSpecificationForControlWrapper(ConceptSpecification spec, ManifoldCoordinate manifoldCoordinate) {
         if (spec == null) {
             spec = MetaData.UNINITIALIZED_COMPONENT____SOLOR;
         }
-        this.viewProperties = viewProperties;
+        this.manifoldCoordinate = manifoldCoordinate;
         this.spec = spec;
     }
 
@@ -56,7 +56,7 @@ public class ConceptSpecificationForControlWrapper
         return "unspecified";
     }
     public ManifoldCoordinate getManifoldCoordinate() {
-        return viewProperties.getManifoldCoordinate();
+        return manifoldCoordinate;
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -74,12 +74,12 @@ public class ConceptSpecificationForControlWrapper
 
     @Override
     public String getFullyQualifiedName() {
-        return this.viewProperties.getFullyQualifiedDescriptionText(this.spec);
+        return this.manifoldCoordinate.getFullyQualifiedDescriptionText(this.spec);
     }
 
     @Override
     public Optional<String> getRegularName() {
-        return Optional.of(this.viewProperties.getPreferredDescriptionText(this.spec));
+        return Optional.of(this.manifoldCoordinate.getPreferredDescriptionText(this.spec));
     }
 
     @Override

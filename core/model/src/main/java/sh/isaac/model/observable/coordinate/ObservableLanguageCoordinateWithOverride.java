@@ -1,14 +1,22 @@
 package sh.isaac.model.observable.coordinate;
 
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.ObjectProperty;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.EditCoordinateImmutable;
 import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.LanguageCoordinateImmutable;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.override.ListPropertyWithOverride;
 import sh.isaac.model.observable.override.ObjectPropertyWithOverride;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedListProperty;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedObjectProperty;
+
+import java.util.List;
+import java.util.Optional;
 
 public class ObservableLanguageCoordinateWithOverride extends ObservableLanguageCoordinateBase {
 
@@ -23,6 +31,61 @@ public class ObservableLanguageCoordinateWithOverride extends ObservableLanguage
     public ObservableLanguageCoordinateWithOverride(ObservableLanguageCoordinate overriddenCoordinate) {
         super(overriddenCoordinate, overriddenCoordinate.getName());
         this.overriddenCoordinate = overriddenCoordinate;
+    }
+
+    @Override
+    public void setExceptOverrides(LanguageCoordinateImmutable updatedCoordinate) {
+        if (hasOverrides()) {
+            int languageConceptNid = updatedCoordinate.getLanguageConceptNid();
+            if (languageConceptProperty().isOverridden()) {
+                languageConceptNid = languageConceptProperty().get().getNid();
+            }
+            int[] modulePreferenceList = updatedCoordinate.getModulePreferenceListForLanguage();
+            if (modulePreferenceListForLanguageProperty().isOverridden()) {
+                modulePreferenceList = getModulePreferenceListForLanguage();
+            }
+
+            int[] descriptionTypePreferenceList = updatedCoordinate.getDescriptionTypePreferenceList();
+            if (descriptionTypePreferenceListProperty().isOverridden()) {
+                descriptionTypePreferenceList = getModulePreferenceListForLanguage();
+            }
+
+            int[] dialectAssemblagePreferenceList = updatedCoordinate.getDialectAssemblagePreferenceList();
+            if (dialectAssemblagePreferenceListProperty().isOverridden()) {
+                dialectAssemblagePreferenceList = getDialectAssemblagePreferenceList();
+            }
+
+            setValue(LanguageCoordinateImmutable.make(languageConceptNid, IntLists.immutable.of(descriptionTypePreferenceList),
+                    IntLists.immutable.of(dialectAssemblagePreferenceList), IntLists.immutable.of(modulePreferenceList), updatedCoordinate.getNextPriorityLanguageCoordinate()));
+
+        } else {
+            setValue(updatedCoordinate);
+        }
+    }
+
+    @Override
+    public ListPropertyWithOverride<ConceptSpecification> modulePreferenceListForLanguageProperty() {
+        return (ListPropertyWithOverride<ConceptSpecification>) super.modulePreferenceListForLanguageProperty();
+    }
+
+    @Override
+    public ListPropertyWithOverride<ConceptSpecification> descriptionTypePreferenceListProperty() {
+        return (ListPropertyWithOverride<ConceptSpecification>) super.descriptionTypePreferenceListProperty();
+    }
+
+    @Override
+    public ListPropertyWithOverride<ConceptSpecification> dialectAssemblagePreferenceListProperty() {
+        return (ListPropertyWithOverride<ConceptSpecification>) super.dialectAssemblagePreferenceListProperty();
+    }
+
+    @Override
+    public Optional<? extends LanguageCoordinate> getNextPriorityLanguageCoordinate() {
+        return super.getNextPriorityLanguageCoordinate();
+    }
+
+    @Override
+    public ObjectPropertyWithOverride<ConceptSpecification> languageConceptProperty() {
+        return (ObjectPropertyWithOverride<ConceptSpecification>) super.languageConceptProperty();
     }
 
     @Override

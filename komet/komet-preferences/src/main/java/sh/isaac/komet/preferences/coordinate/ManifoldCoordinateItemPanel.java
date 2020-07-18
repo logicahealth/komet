@@ -3,21 +3,16 @@ package sh.isaac.komet.preferences.coordinate;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.Node;
-import javafx.scene.control.Label;
-import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.MetaData;
-import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.api.util.UuidStringKey;
 import sh.isaac.komet.preferences.AbstractPreferences;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.control.PropertySheetTextWrapper;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
-import sh.isaac.api.util.UuidStringKey;
 
 import java.util.UUID;
 
@@ -42,7 +37,7 @@ public class ManifoldCoordinateItemPanel extends AbstractPreferences implements 
         nameProperty.set(groupNameProperty().get());
 
 
-        getItemList().add(new PropertySheetTextWrapper(viewProperties, nameProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), nameProperty));
 
         ObservableList<PremiseType> premiseTypes =
                 FXCollections.observableArrayList(PremiseType.INFERRED, PremiseType.STATED);
@@ -79,36 +74,4 @@ public class ManifoldCoordinateItemPanel extends AbstractPreferences implements 
         this.nameProperty.set(getPreferencesNode().get(PreferenceGroup.Keys.GROUP_NAME, getGroupName()));
     }
 
-
-    private static class ComponentProxyEditorStub implements PropertyEditor<ComponentProxy> {
-
-        private final Manifold manifold;
-
-        ComponentProxy value;
-
-        public ComponentProxyEditorStub(Object manifold) {
-            this.manifold = (Manifold) manifold;
-        }
-
-        @Override
-        public Node getEditor() {
-            return new Label("ComponentProxyEditorStub: ");
-        }
-
-        @Override
-        public ComponentProxy getValue() {
-            return value;
-        }
-
-        @Override
-        public void setValue(ComponentProxy value) {
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return value.toString();
-        }
-
-    }
 }

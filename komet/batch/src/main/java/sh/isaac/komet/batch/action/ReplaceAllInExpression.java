@@ -12,6 +12,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicalExpression;
@@ -78,7 +79,7 @@ public class ReplaceAllInExpression extends ActionItem {
     }
 
     @Override
-    public void setupItemForGui(ViewProperties manifoldForDisplay) {
+    public void setupItemForGui(ManifoldCoordinate manifoldForDisplay) {
         getPropertySheet().getItems().add(new PropertySheetItemConceptWrapper(manifoldForDisplay, "Search in",
                 expressionAssemblageProperty, TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE));
 

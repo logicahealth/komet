@@ -25,16 +25,14 @@ public final class NavigationCoordinateImmutable implements NavigationCoordinate
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
-    private static final int marshalVersion = 4;
+    private static final int marshalVersion = 5;
 
-    private final LogicCoordinateImmutable logicCoordinate;
-    private final ImmutableIntSet digraphConceptNids;
+    private final ImmutableIntSet navigationConceptNids;
 
     private NavigationCoordinateImmutable() {
         // No arg constructor for HK2 managed instance
         // This instance just enables reset functionality...
-        this.logicCoordinate = null;
-        this.digraphConceptNids = null;
+        this.navigationConceptNids = null;
      }
 
     /**
@@ -47,41 +45,37 @@ public final class NavigationCoordinateImmutable implements NavigationCoordinate
 
     /**
      *
-     * @param logicCoordinate
-     * @param digraphConceptNids
+     * @param navigationConceptNids
      */
-    private NavigationCoordinateImmutable(LogicCoordinateImmutable logicCoordinate,
-                                          ImmutableIntSet digraphConceptNids) {
-        this.logicCoordinate = logicCoordinate;
-        this.digraphConceptNids = digraphConceptNids;
+    private NavigationCoordinateImmutable(ImmutableIntSet navigationConceptNids) {
+        this.navigationConceptNids = navigationConceptNids;
     }
-    public static NavigationCoordinateImmutable make(LogicCoordinateImmutable logicCoordinate,
-                                                     ImmutableIntSet digraphConceptNids) {
-        return SINGLETONS.computeIfAbsent(new NavigationCoordinateImmutable(logicCoordinate, digraphConceptNids),
+    public static NavigationCoordinateImmutable make(ImmutableIntSet digraphConceptNids) {
+        return SINGLETONS.computeIfAbsent(new NavigationCoordinateImmutable(digraphConceptNids),
                 digraphCoordinateImmutable -> digraphCoordinateImmutable);
     }
 
     public static NavigationCoordinateImmutable makeInferred() {
         return SINGLETONS.computeIfAbsent(new NavigationCoordinateImmutable(
-                        Coordinates.Logic.ElPlusPlus(), IntSets.immutable.of(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid())),
+                        IntSets.immutable.of(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid())),
                 digraphCoordinateImmutable -> digraphCoordinateImmutable);
     }
 
     public static NavigationCoordinateImmutable makeStated() {
         return SINGLETONS.computeIfAbsent(new NavigationCoordinateImmutable(
-                        Coordinates.Logic.ElPlusPlus(), IntSets.immutable.of(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid())),
+                        IntSets.immutable.of(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid())),
                 digraphCoordinateImmutable -> digraphCoordinateImmutable);
     }
 
     public static NavigationCoordinateImmutable makeInferred(LogicCoordinate logicCoordinate) {
         return SINGLETONS.computeIfAbsent(new NavigationCoordinateImmutable(
-                        logicCoordinate.toLogicCoordinateImmutable(), IntSets.immutable.of(logicCoordinate.getInferredAssemblageNid())),
+                        IntSets.immutable.of(logicCoordinate.getInferredAssemblageNid())),
                 digraphCoordinateImmutable -> digraphCoordinateImmutable);
     }
 
     public static NavigationCoordinateImmutable makeStated(LogicCoordinate logicCoordinate) {
         return SINGLETONS.computeIfAbsent(new NavigationCoordinateImmutable(
-                        logicCoordinate.toLogicCoordinateImmutable(), IntSets.immutable.of(logicCoordinate.getStatedAssemblageNid())),
+                        IntSets.immutable.of(logicCoordinate.getStatedAssemblageNid())),
                 digraphCoordinateImmutable -> digraphCoordinateImmutable);
     }
 
@@ -89,24 +83,25 @@ public final class NavigationCoordinateImmutable implements NavigationCoordinate
         if (objectMarshalVersion < 4) {
             PremiseType.valueOf(in.getUTF());
         }
-        this.logicCoordinate  = MarshalUtil.unmarshal(in);
-        this.digraphConceptNids = IntSets.immutable.of(in.getNidArray());
+        if (objectMarshalVersion < 5) {
+            // logicCoordinate
+            MarshalUtil.unmarshal(in);
+        }
+        this.navigationConceptNids = IntSets.immutable.of(in.getNidArray());
     }
 
-    public static NavigationCoordinateImmutable make(PremiseType premiseType,
-                                                     LogicCoordinateImmutable logicCoordinate) {
+    public static NavigationCoordinateImmutable make(PremiseType premiseType) {
         if (premiseType == PremiseType.INFERRED) {
-            return makeInferred(logicCoordinate);
+            return makeInferred(Coordinates.Logic.ElPlusPlus());
         }
-         return makeStated(logicCoordinate);
+         return makeStated(Coordinates.Logic.ElPlusPlus());
      }
 
     @Override
     @Marshaler
     public void marshal(ByteArrayDataBuffer out) {
         out.putInt(marshalVersion);
-        MarshalUtil.marshal(this.logicCoordinate, out);
-        out.putNidArray(this.digraphConceptNids.toArray());
+        out.putNidArray(this.navigationConceptNids.toArray());
     }
 
     @Unmarshaler
@@ -114,6 +109,7 @@ public final class NavigationCoordinateImmutable implements NavigationCoordinate
         int objectMarshalVersion = in.getInt();
         switch (objectMarshalVersion) {
             case 1:
+            case 4:
             case marshalVersion:
                 return SINGLETONS.computeIfAbsent(new NavigationCoordinateImmutable(in, objectMarshalVersion),
                         digraphCoordinateImmutable -> digraphCoordinateImmutable);
@@ -123,13 +119,8 @@ public final class NavigationCoordinateImmutable implements NavigationCoordinate
     }
 
     @Override
-    public LogicCoordinateImmutable getLogicCoordinate() {
-        return this.logicCoordinate;
-    }
-
-    @Override
     public ImmutableIntSet getNavigationConceptNids() {
-        return this.digraphConceptNids;
+        return this.navigationConceptNids;
     }
 
     @Override
@@ -142,13 +133,18 @@ public final class NavigationCoordinateImmutable implements NavigationCoordinate
         if (this == o) return true;
         if (!(o instanceof NavigationCoordinateImmutable)) return false;
         NavigationCoordinateImmutable that = (NavigationCoordinateImmutable) o;
-        return getLogicCoordinate().equals(that.getLogicCoordinate()) &&
-                getNavigationConceptNids().equals(that.getNavigationConceptNids());
+        return getNavigationConceptNids().equals(that.getNavigationConceptNids());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getLogicCoordinate(), getNavigationConceptNids());
+        return Objects.hash(getNavigationConceptNids());
     }
 
+    @Override
+    public String toString() {
+        return "NavigationCoordinateImmutable{" +
+                "navigationConcepts=" + navigationConceptNids +
+                '}';
+    }
 }

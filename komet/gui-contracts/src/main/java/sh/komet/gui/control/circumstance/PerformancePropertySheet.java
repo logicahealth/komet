@@ -18,6 +18,7 @@ package sh.komet.gui.control.circumstance;
 
 import java.util.List;
 import org.controlsfx.control.PropertySheet;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.statement.CircumstanceImpl;
 import sh.isaac.model.statement.PerformanceCircumstanceImpl;
 import sh.komet.gui.control.property.ViewProperties;
@@ -29,8 +30,8 @@ import sh.komet.gui.control.result.PropertySheetResultWrapper;
  */
 public class PerformancePropertySheet extends CircumstancePropertySheet {
 
-    public PerformancePropertySheet(ViewProperties viewProperties) {
-        super(viewProperties);
+    public PerformancePropertySheet(ManifoldCoordinate manifoldCoordinate) {
+        super(manifoldCoordinate);
     }
 
     @Override
@@ -38,7 +39,7 @@ public class PerformancePropertySheet extends CircumstancePropertySheet {
             List<PropertySheet.Item> itemList) {
         PerformanceCircumstanceImpl performance = (PerformanceCircumstanceImpl) circumstance;
         
-        itemList.add(new PropertySheetResultWrapper(viewProperties, performance.resultProperty()));
+        itemList.add(new PropertySheetResultWrapper(manifoldCoordinate, performance.resultProperty()));
         
     }
     

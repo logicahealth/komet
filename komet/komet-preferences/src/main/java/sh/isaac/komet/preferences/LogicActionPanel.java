@@ -71,12 +71,12 @@ public class LogicActionPanel extends AbstractPreferences implements LogicItem {
         });
         revertFields();
         save();
-        getItemList().add(new PropertySheetTextWrapper(viewProperties, actionNameProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), actionNameProperty));
 
-        PropertySheetItemConceptWrapper roleTypeWrapper = new PropertySheetItemConceptWrapper(viewProperties, roleTypeProperty);
+        PropertySheetItemConceptWrapper roleTypeWrapper = new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), roleTypeProperty);
         getItemList().add(roleTypeWrapper);
         
-        PropertySheetItemConceptWrapper assemblageForConstraintWrapper = new PropertySheetItemConceptWrapper(viewProperties, assemblageForConstraintProperty);
+        PropertySheetItemConceptWrapper assemblageForConstraintWrapper = new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), assemblageForConstraintProperty);
         getItemList().add(assemblageForConstraintWrapper);
     }
 

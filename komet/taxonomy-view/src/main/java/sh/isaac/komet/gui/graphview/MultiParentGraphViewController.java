@@ -68,7 +68,7 @@ import java.util.concurrent.CountDownLatch;
 import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
 
 public class MultiParentGraphViewController implements RefreshListener {
-    private ObservableManifoldCoordinateWithOverride manifoldCoordinateWithOverride;
+    private ObservableManifoldCoordinate manifoldCoordinate;
 
     public enum Keys {
         ACTIVITY_FEED
@@ -200,21 +200,21 @@ public class MultiParentGraphViewController implements RefreshListener {
         this.navigationMultiChoiceBox.getItems().setAll(FxGet.navigationOptions());
         IndexedCheckModel<ConceptSpecification> checkModel = this.navigationMultiChoiceBox.getCheckModel();
         checkModel.clearChecks();
-        ImmutableSet<ConceptSpecification> navConcepts = this.manifoldCoordinateWithOverride.getNavigationCoordinate().getNavigationIdentifierConcepts();
+        ImmutableSet<ConceptSpecification> navConcepts = this.manifoldCoordinate.getNavigationCoordinate().getNavigationIdentifierConcepts();
         for (ConceptSpecification navConcept: navConcepts) {
             checkModel.check(checkModel.getItemIndex(navConcept));
         }
 
         this.navigationCoordinateMenu.getItems().clear();
-        FxGet.makeCoordinateDisplayMenu(this.manifoldCoordinateWithOverride,
+        FxGet.makeCoordinateDisplayMenu(this.manifoldCoordinate,
                 this.navigationCoordinateMenu.getItems(),
-                this.manifoldCoordinateWithOverride);
+                this.manifoldCoordinate);
         this.navigationMultiChoiceBox.getCheckModel().getCheckedItems().addListener(this.navigationSelectionListener);
     }
 
     private void navigationSelectionChanged(ListChangeListener.Change<? extends ConceptSpecification> c) {
         ImmutableSet<ConceptSpecification> newNavigationConcepts = Sets.immutable.withAll(c.getList());
-        SetProperty<ConceptSpecification> navigationConcepts = this.manifoldCoordinateWithOverride.getNavigationCoordinate().navigatorIdentifierConceptsProperty();
+        SetProperty<ConceptSpecification> navigationConcepts = this.manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty();
         navigationConcepts.clear();
         navigationConcepts.addAll(newNavigationConcepts.castToSet());
         refreshTaxonomy();
@@ -223,7 +223,7 @@ public class MultiParentGraphViewController implements RefreshListener {
     public void setProperties(ViewProperties viewProperties, IsaacPreferences nodePreferences) {
         this.nodePreferences = nodePreferences;
         this.viewProperties = viewProperties;
-        this.manifoldCoordinateWithOverride = new ObservableManifoldCoordinateWithOverride(this.viewProperties.getManifoldCoordinate());
+        this.manifoldCoordinate = this.viewProperties.getManifoldCoordinate();
         this.navigationMultiChoiceBox.setConverter(new StringConverter<ConceptSpecification>() {
             @Override
             public String toString(ConceptSpecification object) {
@@ -237,7 +237,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         });
         this.menuUpdate();
         FxGet.pathCoordinates().addListener(this::updateMenus);
-        this.manifoldCoordinateWithOverride.addListener(this::updateMenus);
+        this.manifoldCoordinate.addListener(this::updateMenus);
 
         String activityFeedKey = nodePreferences.get(Keys.ACTIVITY_FEED, this.viewProperties.getViewUuid() + ":" + ViewProperties.NAVIGATION);
         this.activityFeedProperty.set(this.viewProperties.getActivityFeed(activityFeedKey));
@@ -293,7 +293,7 @@ public class MultiParentGraphViewController implements RefreshListener {
 
 
     public ObservableManifoldCoordinate getManifoldCoordinate() {
-        return this.manifoldCoordinateWithOverride;
+        return this.manifoldCoordinate;
     }
 
     private void dragDropped(DragEvent event) {

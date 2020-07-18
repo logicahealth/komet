@@ -18,15 +18,15 @@ public class ObservableNavigationCoordinateImpl extends ObservableNavigationCoor
     }
 
     @Override
+    public void setExceptOverrides(NavigationCoordinateImmutable updatedCoordinate) {
+        setValue(updatedCoordinate);
+    }
+
+    @Override
     protected SimpleEqualityBasedSetProperty<ConceptSpecification> makeNavigatorIdentifierConceptsProperty(NavigationCoordinate navigationCoordinate) {
         return new SimpleEqualityBasedSetProperty<>(this,
                 ObservableFields.DIGRAPH_SPECIFICATION_SET.toExternalString(),
                 FXCollections.observableSet(navigationCoordinate.getNavigationConceptNids()
                         .collect(nid -> Get.conceptSpecification(nid)).toSet()));
-    }
-
-    @Override
-    protected ObservableLogicCoordinateBase makeLogicCoordinate(NavigationCoordinate navigationCoordinate) {
-        return new ObservableLogicCoordinateImpl(navigationCoordinate.getLogicCoordinate());
     }
 }

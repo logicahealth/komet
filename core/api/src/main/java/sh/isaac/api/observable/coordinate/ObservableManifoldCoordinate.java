@@ -69,12 +69,12 @@ public interface ObservableManifoldCoordinate
 
    default ObservableCoordinate<?>[] getCompositeCoordinates() {
       return new ObservableCoordinate<?>[] {
+              getLanguageCoordinate(),
+              getNavigationCoordinate(),
               getEdgeStampFilter(),
               getLanguageStampFilter(),
               getVertexStampFilter(),
-              getLanguageCoordinate(),
-              getLogicCoordinate(),
-              getNavigationCoordinate()};
+              getLogicCoordinate()};
    }
 
    @Override
@@ -104,12 +104,8 @@ public interface ObservableManifoldCoordinate
    ObjectProperty<LanguageCoordinateImmutable> languageCoordinateProperty();
 
    @Override
-   default ObservableLogicCoordinate getLogicCoordinate() {
-      return getNavigationCoordinate().getLogicCoordinate();
-   }
-   default ObjectProperty<LogicCoordinateImmutable> logicCoordinateProperty() {
-      return getNavigationCoordinate().logicCoordinateProperty();
-   }
+   ObservableLogicCoordinate getLogicCoordinate();
+   ObjectProperty<LogicCoordinateImmutable> logicCoordinateProperty();
 
    /**
     *
@@ -124,11 +120,7 @@ public interface ObservableManifoldCoordinate
       changeManifoldPath(Get.concept(pathConceptNid));
    }
 
-   default void changeManifoldPath(ConceptSpecification pathConcept) {
-      getEdgeStampFilter().pathConceptProperty().set(pathConcept);
-      getLanguageStampFilter().pathConceptProperty().set(pathConcept);
-      getVertexStampFilter().pathConceptProperty().set(pathConcept);
-   }
+   void changeManifoldPath(ConceptSpecification pathConcept);
 
    default void setPremiseType(PremiseType premiseType) {
       getNavigationCoordinate().setPremiseType(premiseType);

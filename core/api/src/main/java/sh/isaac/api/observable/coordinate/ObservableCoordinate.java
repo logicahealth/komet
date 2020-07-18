@@ -50,4 +50,6 @@ public interface ObservableCoordinate<T extends ImmutableCoordinate> extends Pro
             }
         }
     }
+
+    void setExceptOverrides(T updatedCoordinate);
 }

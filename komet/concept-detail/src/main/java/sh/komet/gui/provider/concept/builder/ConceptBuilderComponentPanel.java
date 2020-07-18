@@ -161,7 +161,7 @@ public class ConceptBuilderComponentPanel
                 "\n" + conceptVersion.getStatus() + " in " + getViewProperties().getPreferredDescriptionText(
                 conceptVersion.getModuleNid()) + " on " + getViewProperties().getPreferredDescriptionText(
                 conceptVersion.getPathNid()));
-        conceptEditor = new NewConceptVersionEditor(viewProperties);
+        conceptEditor = new NewConceptVersionEditor(viewProperties.getManifoldCoordinate());
         conceptEditor.setValue(conceptVersion);
         this.editorPane = conceptEditor.getEditor();
     }
@@ -173,12 +173,12 @@ public class ConceptBuilderComponentPanel
         badges.add(statedLabel);
         componentType.setText(" EL++");
 
-        this.logicDetailTree = AxiomView.create(logicGraphVersion, premiseType, viewProperties);
+        this.logicDetailTree = AxiomView.create(logicGraphVersion, premiseType, viewProperties.getManifoldCoordinate());
         this.editorPane = this.logicDetailTree;
     }
 
     protected final void setupDescription(ObservableDescriptionDialect descriptionDialect) {
-        DescriptionDialectEditor editor = new DescriptionDialectEditor(this.viewProperties);
+        DescriptionDialectEditor editor = new DescriptionDialectEditor(this.viewProperties.getManifoldCoordinate());
         editor.setValue(descriptionDialect);
         this.editorPane = editor.getEditor();
         componentText.setText(descriptionDialect.getDescription().getText());

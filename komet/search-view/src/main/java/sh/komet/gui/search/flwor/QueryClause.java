@@ -91,7 +91,7 @@ public class QueryClause {
         clausePropertySheet.getStyleClass().setAll("clause-properties");
         clausePropertySheet.setSearchBoxVisible(false);
         clausePropertySheet.setModeSwitcherVisible(false);
-        clausePropertySheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties));
+        clausePropertySheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties.getManifoldCoordinate()));
         switch (this.clauseProperty.get().getClauseSemantic()) {
             case AND:
                 return new Label("and");
@@ -141,7 +141,7 @@ public class QueryClause {
                     descriptionLuceneMatch.let(descriptionLuceneMatch.getQueryStringKey(), newValue);
                 });
 
-                clausePropertySheet.getItems().add(new PropertySheetTextWrapper(viewProperties, queryText));
+                clausePropertySheet.getItems().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), queryText));
                 return clausePropertySheet;
             }
             case DESCRIPTION_REGEX_MATCH:
@@ -296,7 +296,7 @@ public class QueryClause {
             letPropertySheet.getLetItemObjectMap().put(queryKeyProperty.get(), newValue);
         });
 
-        clausePropertySheet.getItems().add(new PropertySheetTextWrapper(viewProperties,
+        clausePropertySheet.getItems().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(),
                 queryStringProperty));
 
         SimpleBooleanProperty regexProperty = new SimpleBooleanProperty(this, MetaData.QUERY_STRING_IS_REGEX____SOLOR.toExternalString(), queryStringClause.isRegex());
@@ -364,7 +364,7 @@ public class QueryClause {
         SimpleBooleanProperty booleanProperty = new SimpleBooleanProperty(this, MetaData.BOOLEAN_FIELD____SOLOR.toExternalString());
         booleanProperty.set((Boolean) letPropertySheet.getLetItemObjectMap().get(undirectedTaxonomyKey));
         this.clauseSpecificProperties.add(booleanProperty);
-        this.clausePropertySheet.getItems().add(new PropertySheetBooleanWrapper(this.viewProperties, booleanProperty));
+        this.clausePropertySheet.getItems().add(new PropertySheetBooleanWrapper(this.viewProperties.getManifoldCoordinate(), booleanProperty));
         return clausePropertySheet;
     }
 
@@ -426,7 +426,7 @@ public class QueryClause {
 
         conceptSpecificationKeyProperty.set(conceptKey);
 
-        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties,
+        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(),
                 "concept", conceptSpecProperty));
         conceptSpecProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -472,7 +472,7 @@ public class QueryClause {
 
         conceptSpecificationKeyProperty.set(referencedComponentKey);
 
-        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties,
+        clausePropertySheet.getItems().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(),
                 "concept", conceptSpecProperty));
         conceptSpecProperty.addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {

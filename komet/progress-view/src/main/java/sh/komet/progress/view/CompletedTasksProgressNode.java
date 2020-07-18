@@ -27,8 +27,7 @@ public class CompletedTasksProgressNode extends TaskProgressNode {
         completedTasks.addListener(this::taskListener);
         taskProgressView.getTasks()
                 .addAll(completedTasks.get());
-        this.title.setValue(TasksCompletedNodeFactory.TITLE_BASE);
-        this.titledNodeTitle.setValue(TasksCompletedNodeFactory.TITLE_BASE);
+        this.titleProperty.setValue(TasksCompletedNodeFactory.TITLE_BASE);
     }
 
     @Override
@@ -45,8 +44,7 @@ public class CompletedTasksProgressNode extends TaskProgressNode {
     public Optional<Node> getTitleNode() {
         titleLabel = new Label();
         titleLabel.graphicProperty().setValue(Iconography.CHECKERED_FLAG.getIconographic());
-        titleLabel.textProperty().setValue("Completions");
-        title.setValue("");
+        titleLabel.textProperty().setValue("");
         return Optional.of(titleLabel);
     }
 

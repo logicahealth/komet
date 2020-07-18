@@ -8,7 +8,7 @@ import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.isaac.komet.preferences.ParentPanel;
 import sh.isaac.komet.preferences.personas.PersonaItemPanel;
 import sh.komet.gui.contract.preferences.WindowsParentPreferences;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.Optional;
@@ -27,7 +27,7 @@ public class WindowsPanel extends ParentPanel implements WindowsParentPreference
             IsaacPreferences windowPreferences = addChild(UUID.randomUUID().toString(), WindowPreferencePanel.class);
 
 
-            WindowPreferencesItem windowPreferencesItem = PersonaItemPanel.createNewDefaultWindowPreferences(windowPreferences, viewProperties, kpc);
+            WindowPreferences windowPreferencesItem = PersonaItemPanel.createNewDefaultWindowPreferences(windowPreferences, viewProperties, kpc);
             windowPreferencesItem.save();
         }
         revert();

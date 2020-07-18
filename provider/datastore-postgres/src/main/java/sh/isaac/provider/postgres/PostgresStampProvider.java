@@ -556,6 +556,7 @@ public class PostgresStampProvider
         this.cacheStampObjectToStampSequenceMap.clear();
         this.cacheStampSequenceToPathNidMap.clear();
         this.cacheStampSequenceToStampObjectMap.clear();
+        LOG.info("Stopped PostgresStampProvider pre-destroy. ");
 
     }
 

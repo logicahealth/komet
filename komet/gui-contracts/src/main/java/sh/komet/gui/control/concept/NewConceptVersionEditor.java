@@ -37,9 +37,11 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.control.property.*;
 import sh.komet.gui.util.FxGet;
  
@@ -65,7 +67,7 @@ public class NewConceptVersionEditor implements PropertyEditor<ObservableConcept
             
     private UUID conceptUuid = null;
     
-    private final ViewProperties viewProperties;
+    private final ManifoldCoordinate manifoldCoordinate;
     
     private final PropertyEditorFactory propertyEditorFactory;
     private final List<PropertySheet.Item> wrappedProperties = new ArrayList<>();
@@ -74,14 +76,14 @@ public class NewConceptVersionEditor implements PropertyEditor<ObservableConcept
             = new SimpleBooleanProperty(false);
 
     
-    public NewConceptVersionEditor(ViewProperties viewProperties) {
-        this(null, viewProperties);
+    public NewConceptVersionEditor(ManifoldCoordinate manifoldCoordinate) {
+        this(null, manifoldCoordinate);
     }
     
-    public NewConceptVersionEditor(UUID conceptUuid, ViewProperties viewProperties) {
-        this.viewProperties = viewProperties;
+    public NewConceptVersionEditor(UUID conceptUuid, ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
         this.conceptUuid = conceptUuid;
-        this.propertyEditorFactory = new PropertyEditorFactory(viewProperties);
+        this.propertyEditorFactory = new PropertyEditorFactory(manifoldCoordinate);
         if (conceptUuid != null) {
             setupWithConceptUuid();
         }
@@ -155,11 +157,13 @@ public class NewConceptVersionEditor implements PropertyEditor<ObservableConcept
             PropertySheetItem assemblageProperty = createPropertyItem(conceptIsAssemblageProperty);
             PropertySheetItem semanticTypeProperty = createPropertyItem(semanticTypeForAssemblageProperty);
             PropertySheetItem nameForFieldProperty = createPropertyItem(nameForAssemblageFieldProperty);
-            
-            
+
+            WindowPreferences windowPreferences = FxGet.windowPreferences(this.editorNode);
+
+
             FxGet.rulesDrivenKometService().populateWrappedProperties(wrappedProperties,
-                    viewProperties.getManifoldCoordinate().getValue(),
-                    viewProperties.getEditCoordinate().getValue());
+                    manifoldCoordinate.toManifoldCoordinateImmutable(),
+                    windowPreferences.getViewPropertiesForWindow().getEditCoordinate().getValue());
 
             PropertyEditor<?> modulePropEditor = propertyEditorFactory.call(moduleProperty);
             PropertyEditor<?> pathPropertyEditor = propertyEditorFactory.call(pathProperty);
@@ -217,7 +221,7 @@ public class NewConceptVersionEditor implements PropertyEditor<ObservableConcept
     }
 
     private PropertySheetItem createConceptPropertyItem(IntegerProperty property) {
-        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, viewProperties, PropertySheetPurpose.UNSPECIFIED);
+        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, manifoldCoordinate, PropertySheetPurpose.UNSPECIFIED);
         wrappedProperty.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);
         wrappedProperties.add(wrappedProperty);
         return wrappedProperty;
@@ -225,7 +229,7 @@ public class NewConceptVersionEditor implements PropertyEditor<ObservableConcept
     
             
     private PropertySheetItem createPropertyItem(Property<?> property) {
-        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, viewProperties, PropertySheetPurpose.UNSPECIFIED);
+        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, manifoldCoordinate, PropertySheetPurpose.UNSPECIFIED);
         wrappedProperties.add(wrappedProperty);
         return wrappedProperty;
     }

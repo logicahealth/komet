@@ -25,7 +25,6 @@ public interface NavigationCoordinate {
         for (int nid: navigationCoordinate.getNavigationConceptNids().toArray()) {
             UUIDUtil.addSortedUuids(uuidList, nid);
         }
-        uuidList.add(navigationCoordinate.getLogicCoordinate().getLogicCoordinateUuid());
         return UUID.nameUUIDFromBytes(uuidList.toString().getBytes());
     }
 
@@ -40,10 +39,6 @@ public interface NavigationCoordinate {
 
     //---------------------------
 
-    //---------------------------
-
-    LogicCoordinate getLogicCoordinate();
-
     ImmutableIntSet getNavigationConceptNids();
 
     default ImmutableSet<ConceptSpecification> getNavigationIdentifierConcepts() {
@@ -57,7 +52,6 @@ public interface NavigationCoordinate {
         for (int nid: getNavigationConceptNids().toArray()) {
             sb.append("\n     ").append(Get.conceptDescriptionText(nid));
         }
-        sb.append("\n\nLogic coordinate:\n").append(getLogicCoordinate().toUserString());
         return sb.toString();
     }
 

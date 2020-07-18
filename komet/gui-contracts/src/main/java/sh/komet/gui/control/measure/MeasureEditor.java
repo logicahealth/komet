@@ -38,6 +38,7 @@ import org.controlsfx.control.action.ActionUtils;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.statement.MeasureImpl;
@@ -66,12 +67,12 @@ public class MeasureEditor implements PropertyEditor<MeasureImpl> {
     private final UpperBoundToggle includeUpperBound = new UpperBoundToggle();
     private final LowerBoundToggle includeLowerBound = new LowerBoundToggle();
     private final ConceptLabel measureSemantic;
-    private final ViewProperties viewProperties;
+    private final ManifoldCoordinate manifoldCoordinate;
 
-    public MeasureEditor(ViewProperties viewProperties) {
-        this.viewProperties = viewProperties;
+    public MeasureEditor(ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
         this.measureEditorPane.getStyleClass().add(StyleClasses.MEASURE.toString());
-        this.measureSemantic = new ConceptLabel(viewProperties,
+        this.measureSemantic = new ConceptLabel(manifoldCoordinate,
                 ConceptLabel::setPreferredText, (label) -> {
                     ConceptAction iso8601 = new ConceptAction(TermAux.ISO_8601, this::handleMeasureSemanticChange);
                     ConceptAction iso8601After = new ConceptAction(TermAux.ISO_8601_AFTER, this::handleMeasureSemanticChange);

@@ -83,6 +83,11 @@ public class ObservableStampPathImpl
         super(stampPathImmutable, "Stamp path");
     }
 
+    @Override
+    public void setExceptOverrides(StampPathImmutable updatedCoordinate) {
+        setValue(updatedCoordinate);
+    }
+
     public static ObservableStampPathImpl make(StampPathImmutable stampPathImmutable) {
         return new ObservableStampPathImpl(stampPathImmutable);
     }

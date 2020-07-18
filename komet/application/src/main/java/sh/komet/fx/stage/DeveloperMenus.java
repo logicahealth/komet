@@ -26,7 +26,6 @@ import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.util.time.DurationUtil;
@@ -35,10 +34,8 @@ import sh.isaac.solor.direct.LogicGraphTransformerAndWriter;
 import sh.isaac.solor.direct.TransformationGroup;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.menu.MenuItemWithText;
-import sh.komet.gui.util.FxGet;
 
 import javax.inject.Singleton;
 import java.time.Duration;
@@ -62,7 +59,7 @@ public class DeveloperMenus implements MenuProvider {
     }
 
     @Override
-    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferencesItem windowPreference) {
+    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferences windowPreference) {
         if (parentMenu == AppMenu.EDIT) {
             
             MenuItem debugConversion = new MenuItemWithText("Debug Respiratory region of nose conversion");
@@ -253,14 +250,14 @@ public class DeveloperMenus implements MenuProvider {
 
     private void testTaxonomyDistance(ActionEvent event) {
 
-        WindowPreferencesItem windowPreferencesItem = (WindowPreferencesItem) ((MenuItem) event.getSource()).getUserData();
+        WindowPreferences windowPreferences = (WindowPreferences) ((MenuItem) event.getSource()).getUserData();
         Instant startInstant = Instant.now();
 
         // minimal common ancestor = new ConceptProxy("Disorder of body system (disorder)", UUID.fromString("1088bacb-ed50-3fa0-8f75-6b7b9030487e"))
         ConceptProxy concept1 = new ConceptProxy("Renal anasarca (disorder)", UUID.fromString("fb334dc1-c6fd-3136-9f56-0b1dfeb417c2"));
         ConceptProxy concept2 = new ConceptProxy("Hearing loss of bilateral ears caused by noise (disorder)", UUID.fromString("749ad125-b01a-3973-afbb-04bb9d599e98"));
 
-        TaxonomySnapshot snapshot = Get.taxonomyService().getSnapshot(windowPreferencesItem.getViewPropertiesForWindow().getManifoldCoordinate());
+        TaxonomySnapshot snapshot = Get.taxonomyService().getSnapshot(windowPreferences.getViewPropertiesForWindow().getManifoldCoordinate());
 
         Tree snapshotTree = snapshot.getTaxonomyTree();
 

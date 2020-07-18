@@ -68,7 +68,7 @@ public class PromoteComponentAction extends ActionItem {
     }
 
     @Override
-    public void setupItemForGui(ViewProperties manifoldForDisplay) {
+    public void setupItemForGui(ManifoldCoordinate manifoldForDisplay) {
         getPropertySheet().getItems().add(new PropertySheetItemConceptWrapper(manifoldForDisplay, "Source path",
                 sourcePathProperty, TermAux.DEVELOPMENT_PATH, TermAux.MASTER_PATH));
 

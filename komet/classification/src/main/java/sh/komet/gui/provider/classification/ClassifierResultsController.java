@@ -1,12 +1,5 @@
 package sh.komet.gui.provider.classification;
 
-import java.net.URL;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
-
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -16,8 +9,13 @@ import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.util.FxGet;
+
+import java.net.URL;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 public class ClassifierResultsController {
 

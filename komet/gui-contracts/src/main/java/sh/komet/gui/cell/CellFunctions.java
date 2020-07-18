@@ -16,8 +16,6 @@ public interface CellFunctions {
 
     ManifoldCoordinate getManifoldCoordinate();
 
-    ViewProperties getViewProperties();
-
     double getWidth();
 
     ReadOnlyDoubleProperty widthProperty();

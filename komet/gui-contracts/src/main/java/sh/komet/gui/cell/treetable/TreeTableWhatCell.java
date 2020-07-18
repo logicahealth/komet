@@ -23,6 +23,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
@@ -34,10 +35,10 @@ import static sh.komet.gui.style.PseudoClasses.INACTIVE_PSEUDO_CLASS;
  * @author kec
  */
 public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedVersion> {
-   private final ViewProperties viewProperties;
+   private final ManifoldCoordinate manifoldCoordinate;
 
-   public TreeTableWhatCell(ViewProperties viewProperties) {
-      this.viewProperties = viewProperties;
+   public TreeTableWhatCell(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
       getStyleClass().add("komet-version-what-cell");
       getStyleClass().add("isaac-version");
    }
@@ -56,7 +57,7 @@ public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedV
               } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
                  setText("DEF");
               } else {
-                 setText(viewProperties.getPreferredDescriptionText(descriptionType));
+                 setText(this.manifoldCoordinate.getPreferredDescriptionText(descriptionType));
               } 
               
               break;
@@ -68,7 +69,7 @@ public class TreeTableWhatCell extends KometTreeTableCell<ObservableCategorizedV
               }
         }
         pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, semanticVersion.getStatus() != Status.ACTIVE);
-        String toolTipText = Get.stampService().describeStampSequenceForTooltip(semanticVersion.getStampSequence(), viewProperties.getManifoldCoordinate());
+        String toolTipText = Get.stampService().describeStampSequenceForTooltip(semanticVersion.getStampSequence(), this.manifoldCoordinate);
         Tooltip stampTip = new Tooltip(toolTipText);
         this.setTooltip(stampTip);
 

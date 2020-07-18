@@ -71,6 +71,7 @@ import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.DataToBytesUtils;
 import sh.isaac.model.ChronologyImpl;
@@ -1038,25 +1039,79 @@ public class CommitProvider
         LOG.info("Stopping CommitProvider pre-destroy for change to runlevel: " + LookupService.getProceedingToRunLevel());
 
         try {
-            sync().get();
-            this.writeCompletionService.stop();
-            this.dataStoreId = Optional.empty();
-            this.lastCommitTime.set(Instant.MIN);
-            this.changeListeners.clear();
-            this.checkers.clear();
-            this.lastCommit = Long.MIN_VALUE;
-            this.deferredImportNoCheckNids.get().clear();
-            this.stampAliasMap = null;
-            this.stampCommentMap = null;
-            this.databaseSequence.set(0);
-            this.uncommittedConceptsWithChecksNidSet.clear();
-            this.uncommittedConceptsNoChecksNidSet.clear();
-            this.uncommittedSemanticsWithChecksNidSet.clear();
-            this.uncommittedSemanticsNoChecksNidSet.clear();
-            this.pendingCommitTasks.clear();
+            StopMeTask stopMeTask = new StopMeTask();
+            Get.workExecutors().getExecutor().submit(stopMeTask);
+            stopMeTask.get();
         } catch (Exception ex) {
             LOG.error("error stopping commit provider", ex);
             throw new RuntimeException(ex);
+        }
+        LOG.info("Stopped CommitProvider pre-destroy");
+    }
+
+    private class StopMeTask extends TimedTaskWithProgressTracker {
+        public StopMeTask() {
+            updateTitle("Stopping commit provider");
+            addToTotalWork(16);
+            Get.activeTasks().add(this);
+        }
+
+        @Override
+        protected Object call() throws Exception {
+            try {
+                this.updateMessage("CommitProvider sync");
+                sync().get();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider write completion service stop");
+                CommitProvider.this.writeCompletionService.stop();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider datastore id reset");
+                CommitProvider.this.dataStoreId = Optional.empty();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider last commit time reset");
+                CommitProvider.this.lastCommitTime.set(Instant.MIN);
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider change listeners reset");
+                CommitProvider.this.changeListeners.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider checkers reset");
+                CommitProvider.this.checkers.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider last commit reset");
+                CommitProvider.this.lastCommit = Long.MIN_VALUE;
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider deferred import no checks reset");
+                CommitProvider.this.deferredImportNoCheckNids.get().clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider stamp alias map reset");
+                CommitProvider.this.stampAliasMap = null;
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider stamp commit map reset");
+                CommitProvider.this.stampCommentMap = null;
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider database sequence reset");
+                CommitProvider.this.databaseSequence.set(0);
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider uncommitted concepts with checks");
+                CommitProvider.this.uncommittedConceptsWithChecksNidSet.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider uncommitted concepts no checks");
+                CommitProvider.this.uncommittedConceptsNoChecksNidSet.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider uncommitted semantics with checks");
+                CommitProvider.this.uncommittedSemanticsWithChecksNidSet.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider uncommitted semantics no checks");
+                CommitProvider.this.uncommittedSemanticsNoChecksNidSet.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider pending commit tasks");
+                CommitProvider.this.pendingCommitTasks.clear();
+                this.completedUnitOfWork();
+                return null;
+            } finally {
+                Get.activeTasks().remove(this);
+            }
+
         }
     }
 

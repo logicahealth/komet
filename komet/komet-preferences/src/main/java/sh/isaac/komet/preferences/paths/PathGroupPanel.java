@@ -64,7 +64,7 @@ public class PathGroupPanel extends ParentPanel implements CommitListener {
 
     public PathGroupPanel(IsaacPreferences preferencesNode, ViewProperties viewProperties, KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "Paths"), viewProperties, kpc);
-        this.pathConcepts = FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, viewProperties);
+        this.pathConcepts = FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, viewProperties.getManifoldCoordinate());
         Get.commitService().addCommitListener(this);
         Platform.runLater(() -> refreshChildren());
     }
@@ -72,7 +72,7 @@ public class PathGroupPanel extends ParentPanel implements CommitListener {
     @Override
     public void handleCommit(CommitRecord commitRecord) {
         Platform.runLater(() -> {
-            this.pathConcepts = FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, getViewProperties());
+            this.pathConcepts = FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, getViewProperties().getManifoldCoordinate());
             refreshChildren();
         });
     }

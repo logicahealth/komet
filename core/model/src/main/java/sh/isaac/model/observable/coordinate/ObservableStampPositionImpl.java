@@ -78,6 +78,11 @@ public class ObservableStampPositionImpl
       super(stampPosition, "Stamp position");
    }
 
+   @Override
+   public void setExceptOverrides(StampPositionImmutable updatedCoordinate) {
+      setValue(updatedCoordinate);
+   }
+
    protected ObjectProperty<ConceptSpecification> makePathConceptProperty(StampPosition stampPosition) {
       return new SimpleEqualityBasedObjectProperty(this,
               ObservableFields.PATH_FOR_PATH_COORDINATE.toExternalString(),

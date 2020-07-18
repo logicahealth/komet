@@ -42,7 +42,7 @@ public interface PersonaItem {
 
     SimpleListProperty<ConceptSpecification> rightPaneDefaultsProperty();
 
-    WindowPreferencesItem createNewWindowPreferences();
+    WindowPreferences createNewWindowPreferences();
 
     /**
      * If pane is enabled, but getAllowedOptionsForPane is empty, it should

@@ -30,6 +30,8 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.controlsfx.property.editor.PropertyEditor;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.query.properties.ManifoldClause;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.property.ViewProperties;
 
@@ -43,17 +45,17 @@ public class ListEditorCell<T extends Object> extends ListCell<T> {
     VBox buttonBox = new VBox(cancelButton, duplicateButton);
     GridPane gridPane = new GridPane();
     private final ListView listView;
-    private final ViewProperties viewProperties;
+    private final ManifoldCoordinate manifoldCoordinate;
     private PropertyEditor<T> propertyEditor;
-    private final Function<ViewProperties, PropertyEditor<T>> newEditorSupplier;
+    private final Function<ManifoldCoordinate, PropertyEditor<T>> newEditorSupplier;
     private final Supplier<T> newObjectSupplier;
 
     public ListEditorCell(ListView listView,
-                          Function<ViewProperties, PropertyEditor<T>> newEditorSupplier,
+                          Function<ManifoldCoordinate, PropertyEditor<T>> newEditorSupplier,
                           Supplier<T> newObjectSupplier,
-                          ViewProperties viewProperties) {
+                          ManifoldCoordinate manifoldCoordinate) {
         this.listView = listView;
-        this.viewProperties = viewProperties;
+        this.manifoldCoordinate = manifoldCoordinate;
         this.cancelButton.setOnAction(this::cancel);
         this.newEditorSupplier = newEditorSupplier;
         this.newObjectSupplier = newObjectSupplier;
@@ -79,7 +81,7 @@ public class ListEditorCell<T extends Object> extends ListCell<T> {
         } else {
             if (this.newEditorSupplier != null) {
                 if (this.propertyEditor == null) {
-                    this.propertyEditor = newEditorSupplier.apply(viewProperties);
+                    this.propertyEditor = newEditorSupplier.apply(manifoldCoordinate);
                     Node editorNode = propertyEditor.getEditor();
                     GridPane.setConstraints(this.buttonBox,
                             0,

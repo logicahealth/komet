@@ -41,7 +41,7 @@ public interface KometPreferences {
     ObservableList<SynchronizationItem> getSynchronizationItems();
     ObservableList<GraphConfigurationItem> getGraphConfigurationItems();
     ObservableList<UserPreferenceItems> getUserPreferenceItems();
-    ObservableList<WindowPreferencesItem> getWindowPreferenceItems();
+    ObservableList<WindowPreferences> getWindowPreferenceItems();
     WindowsParentPreferences getWindowParentPreferences();
     ObservableList<PersonaItem> getPersonaPreferences();
     default Optional<PersonaItem> getPersona(UUID personaUuid) {

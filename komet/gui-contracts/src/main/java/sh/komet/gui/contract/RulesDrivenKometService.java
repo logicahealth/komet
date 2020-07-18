@@ -27,6 +27,7 @@ import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.BusinessRulesService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinateImmutable;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
@@ -46,11 +47,11 @@ public interface RulesDrivenKometService extends BusinessRulesService {
                                                       Consumer<LogicalExpression> expressionUpdater,
                                                       MouseEvent mouseEvent);
    
-   List<MenuItem> getEditVersionMenuItems(ViewProperties viewProperties,
+   List<MenuItem> getEditVersionMenuItems(ManifoldCoordinate manifoldCoordinate,
                                           ObservableCategorizedVersion categorizedVersion,
                                           Consumer<PropertySheetMenuItem> propertySheetConsumer);
    
-   List<MenuItem> getAddAttachmentMenuItems(ViewProperties viewProperties,
+   List<MenuItem> getAddAttachmentMenuItems(ManifoldCoordinate manifoldCoordinate,
                                             ObservableCategorizedVersion categorizedVersion,
                                             BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer);
    

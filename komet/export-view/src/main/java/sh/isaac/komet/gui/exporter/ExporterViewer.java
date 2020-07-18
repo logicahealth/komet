@@ -54,7 +54,7 @@ import sh.isaac.api.Get;
 import sh.isaac.misc.exporters.TableExporter;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.menu.MenuItemWithText;
 
 /**
@@ -127,7 +127,7 @@ public class ExporterViewer implements MenuProvider {
      * {@inheritDoc}
      */
     @Override
-    public MenuItem[] getMenuItems(AppMenu appMenu, Window window, WindowPreferencesItem windowPreference) {
+    public MenuItem[] getMenuItems(AppMenu appMenu, Window window, WindowPreferences windowPreference) {
         if (appMenu == AppMenu.TOOLS) {
             this.window_ = window;
             MenuItem mi = new MenuItemWithText("Table Exporter");

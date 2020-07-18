@@ -214,23 +214,23 @@ public class AssemblageDetailController {
       //@TODO maybe just refresh cells instead of creating new factories? This is leftover from change to
       // ViewProperties from Manifold.
 
-      this.assemblageCellFactory = new TreeTableConceptCellFactory(this.viewProperties);
+      this.assemblageCellFactory = new TreeTableConceptCellFactory(this.viewProperties.getManifoldCoordinate());
       this.assemblageAuthorColumn.setCellFactory(this.assemblageCellFactory::call);
       this.assemblageModuleColumn.setCellFactory(this.assemblageCellFactory::call);
 
-      this.whatCellFactory = new TreeTableWhatCellFactory(this.viewProperties);
+      this.whatCellFactory = new TreeTableWhatCellFactory(this.viewProperties.getManifoldCoordinate());
       this.assemblageWhatColumn.setCellValueFactory(this.whatCellFactory::getCellValue);
       this.assemblageWhatColumn.setCellFactory(this.whatCellFactory::call);
 
-      this.generalCellFactory = new TreeTableGeneralCellFactory(this.viewProperties);
+      this.generalCellFactory = new TreeTableGeneralCellFactory(this.viewProperties.getManifoldCoordinate());
       this.assemblageGeneralColumn.setCellValueFactory(this.generalCellFactory::getCellValue);
       this.assemblageGeneralColumn.setCellFactory(this.generalCellFactory::call);
 
-      this.modulePathCellFactory = new TreeTableModulePathCellFactory(this.viewProperties);
+      this.modulePathCellFactory = new TreeTableModulePathCellFactory(this.viewProperties.getManifoldCoordinate());
       this.assemblageModulePathColumn.setCellValueFactory(this.modulePathCellFactory::getCellValue);
       this.assemblageModulePathColumn.setCellFactory(this.modulePathCellFactory::call);
 
-      this.authorTimeCellFactory = new TreeTableAuthorTimeCellFactory(this.viewProperties);
+      this.authorTimeCellFactory = new TreeTableAuthorTimeCellFactory(this.viewProperties.getManifoldCoordinate());
       this.assemblageAuthorTimeColumn.setCellValueFactory(this.authorTimeCellFactory::getCellValue);
       this.assemblageAuthorTimeColumn.setCellFactory(this.authorTimeCellFactory::call);
    }

@@ -39,7 +39,7 @@ public class ActiveTasksProgressNode extends TaskProgressNode {
                 .addAll(activeTasks.get());
 
 
-        this.rotation = new RotateTransition(Duration.seconds(2), progressIcon);
+        this.rotation = new RotateTransition(Duration.seconds(1.5), progressIcon);
         rotation.setCycleCount(Animation.INDEFINITE);
         rotation.setByAngle(360);
         rotation.setInterpolator(Interpolator.LINEAR);
@@ -64,8 +64,7 @@ public class ActiveTasksProgressNode extends TaskProgressNode {
     public Optional<Node> getTitleNode() {
         titleLabel = new Label();
         titleLabel.graphicProperty().setValue(progressIcon);
-        titleLabel.textProperty().bind(titledNodeTitle);
-        title.setValue("");
+        //titleLabel.textProperty().bind(titledNodeTitle);
         return Optional.of(titleLabel);
     }
 
@@ -84,26 +83,17 @@ public class ActiveTasksProgressNode extends TaskProgressNode {
                 rotation.stop();
 
                 activeTasksTooltip.set("No tasks");
-                if (titleLabel == null) {
-                    title.set(TaskProgressNodeFactory.TITLE_BASE);
-                }
-                titledNodeTitle.set(TaskProgressNodeFactory.TITLE_BASE);
+                titleProperty.set("No " + TaskProgressNodeFactory.TITLE_BASE);
             } else {
                 rotation.play();
                 int taskCount = change.getSet()
                         .size();
                 if (taskCount == 1) {
                     activeTasksTooltip.set(taskCount + " task");
-                    if (titleLabel == null) {
-                        title.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE_SINGULAR);
-                    }
-                    titledNodeTitle.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE_SINGULAR);
+                    titleProperty.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE_SINGULAR);
                 } else {
                     activeTasksTooltip.set(taskCount + " tasks");
-                    if (titleLabel == null) {
-                        title.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE);
-                    }
-                    titledNodeTitle.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE);
+                    titleProperty.set(taskCount + " " + TaskProgressNodeFactory.TITLE_BASE);
                 }
             }
         });

@@ -37,8 +37,12 @@
 package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.transaction.Transaction;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.control.image.PropertySheetImageWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import java.util.ArrayList;
@@ -56,7 +60,6 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ChangeListener;
-import org.apache.logging.log4j.LogManager;
 
 import org.controlsfx.control.PropertySheet;
 import org.controlsfx.control.PropertySheet.Item;
@@ -85,21 +88,21 @@ import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 public class PropertySheetMenuItem
         implements EditInFlight {
 
-    protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
+    protected static final Logger LOG = LogManager.getLogger();
 
     PropertySheet propertySheet = new PropertySheet();
     List<PropertySpec> propertiesToEdit = new ArrayList<>();
     private final ArrayList<ChangeListener<CommitStates>> completionListeners = new ArrayList<>();
     Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap;
     ObservableVersion observableVersion;
-    ViewProperties viewProperties;
+    ManifoldCoordinate manifoldCoordinate;
 
     //~--- constructors --------------------------------------------------------
-    public PropertySheetMenuItem(ViewProperties viewProperties,
+    public PropertySheetMenuItem(ManifoldCoordinate manifoldCoordinate,
                                  ObservableCategorizedVersion categorizedVersion) {
-        this.viewProperties = viewProperties;
+        this.manifoldCoordinate = manifoldCoordinate;
         this.observableVersion = categorizedVersion;
-        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties));
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifoldCoordinate));
         this.propertySheet.setMode(PropertySheet.Mode.NAME);
         this.propertySheet.setSearchBoxVisible(false);
         this.propertySheet.setModeSwitcherVisible(false);
@@ -159,7 +162,6 @@ public class PropertySheetMenuItem
                         .populatePropertySheetEditors(this);
             });
         }
-        this.viewProperties.addEditInFlight(this);
     }
 
     private Item addItem(Item item) {
@@ -187,7 +189,7 @@ public class PropertySheetMenuItem
             throw new IllegalStateException("No property for: " + propertyConceptSpecification);
         }
         PropertySheetItemConceptWrapper item = new PropertySheetItemConceptWrapper(
-                viewProperties,
+                manifoldCoordinate,
                 nameForProperty,
                 conceptProperty);
         item.setSpecification(propertyConceptSpecification);
@@ -232,7 +234,7 @@ public class PropertySheetMenuItem
             int assemblageNid = observableVersion.getAssemblageNid();
             OptionalInt propertyIndex = Get.assemblageService().getPropertyIndexForSemanticField(
                     propertyConceptSpecification.getNid(),
-                    assemblageNid, viewProperties.getManifoldCoordinate().getVertexStampFilter());
+                    assemblageNid, manifoldCoordinate.getVertexStampFilter());
             if (propertyIndex.isPresent()) {
                 property = observableVersion.getProperties().get(propertyIndex.getAsInt());
             }

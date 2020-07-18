@@ -73,9 +73,8 @@ import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.PersonaChangeListener;
 import sh.komet.gui.contract.preferences.PersonaItem;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.PersonaChangeListeners;
@@ -165,7 +164,7 @@ public class MainApp
     }
 
 
-    protected Parent setupStageMenus(Stage stage, BorderPane root, WindowPreferencesItem windowPreference) throws MultiException {
+    protected Parent setupStageMenus(Stage stage, BorderPane root, WindowPreferences windowPreference) throws MultiException {
         BorderPane stageRoot = root;
         // Get the toolkit
         MenuToolkit tk = MenuToolkit.toolkit();  //Note, this only works on Mac....
@@ -338,7 +337,7 @@ public class MainApp
         AppMenu.NEW_WINDOW.getMenu().getItems().addAll(menuItems);
     }
 
-    private void updateNewWindowMenu(WindowPreferencesItem windowPreference) {
+    private void updateNewWindowMenu(WindowPreferences windowPreference) {
         Menu newWindowMenu = AppMenu.NEW_WINDOW.getMenu();
         newWindowMenu.getItems().clear();
         List<MenuItem> itemsToAdd = new ArrayList<>();
@@ -400,7 +399,7 @@ public class MainApp
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
             BorderPane root = loader.load();
             KometStageController controller = loader.getController();
-            WindowPreferencesItem personaWindowPreferences = personaItem.createNewWindowPreferences();
+            WindowPreferences personaWindowPreferences = personaItem.createNewWindowPreferences();
 
             root.setId(UUID.randomUUID().toString());
 
@@ -415,6 +414,7 @@ public class MainApp
             }
 
             stage.setScene(scene);
+            stage.getProperties().put(FxGet.PROPERTY_KEYS.WINDOW_PREFERENCES, personaWindowPreferences);
             controller.setWindowPreferenceItem(personaWindowPreferences, stage);
             stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
             stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));

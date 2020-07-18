@@ -60,11 +60,12 @@ import sh.komet.gui.interfaces.ExplorationNodeAbstract;
  */
 public abstract class TaskProgressNode
         extends ExplorationNodeAbstract {
+    {
+        this.titleProperty.setValue(TaskProgressNodeFactory.TITLE_BASE);
+    }
 
    final TaskProgressView<Task<?>> taskProgressView = new TaskProgressView<>();
    final SimpleStringProperty activeTasksTooltip = new SimpleStringProperty("No tasks...");
-   final SimpleStringProperty title = new SimpleStringProperty(TaskProgressNodeFactory.TITLE_BASE);
-   final SimpleStringProperty titledNodeTitle = new SimpleStringProperty(TaskProgressNodeFactory.TITLE_BASE);
    final AnchorPane anchorPane = new AnchorPane();
    final ScrollPane scrollPane;
    protected Label titleLabel = null;

@@ -21,9 +21,11 @@
                     <items>
                         <Menu fx:id="navigationMenu" mnemonicParsing="false" text="Navigation coordinates" />
                         <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem fx:id="listCount" mnemonicParsing="false" text="Count: 0" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
                         <MenuItem mnemonicParsing="false" onAction="#copyItems" text="Copy selected items" />
                         <MenuItem mnemonicParsing="false" onAction="#pasteItems" text="Paste items" />
-                        <MenuItem mnemonicParsing="false" text="Delete selected items" />
+                        <MenuItem mnemonicParsing="false" onAction="#deleteSelectedItems" text="Delete selected items" />
                         <SeparatorMenuItem mnemonicParsing="false" />
                         <Menu fx:id="addConceptsInModuleMenu" mnemonicParsing="false" text="Add concepts in module" />
                         <Menu fx:id="addConceptsOnPathMenu" mnemonicParsing="false" text="Add concepts on path" />

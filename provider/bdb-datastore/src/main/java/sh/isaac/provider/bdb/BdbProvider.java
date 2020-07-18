@@ -523,6 +523,7 @@ public class BdbProvider
          LOG.error(ex);
          throw new RuntimeException(ex);
       }
+      LOG.info("Stopped BDB Provider.");
    }
 
    private void writeMapToBdb(SpinedNidNidSetMap map) {

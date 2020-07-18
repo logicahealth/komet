@@ -156,7 +156,7 @@ public class TransactionViewNodeController implements ComponentList {
     public void setViewProperties(ViewProperties viewProperties) {
         this.viewProperties = viewProperties;
         this.activityFeed = viewProperties.getActivityFeed(ViewProperties.LIST);
-        this.versionTable = new VersionTable(viewProperties);
+        this.versionTable = new VersionTable(viewProperties.getManifoldCoordinate());
         this.versionTable.getRootNode().getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         this.versionTable.getRootNode().getSelectionModel().getSelectedItems().addListener(this::selectionChanged);
 

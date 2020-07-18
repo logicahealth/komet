@@ -279,6 +279,7 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 		{
 			LOG.error("Unexpected error shutting down mvStore", e);
 		}
+		LOG.info("Stopped MV Data Store.");
 	}
 	
 	private MVMap<Integer, int[]> getTaxonomyMap(int assemblageNid)

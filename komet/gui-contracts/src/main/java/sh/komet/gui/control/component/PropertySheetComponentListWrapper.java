@@ -6,7 +6,7 @@ import javafx.collections.ObservableList;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.ConceptProxy;
-import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 import java.util.Optional;
 
@@ -36,9 +36,9 @@ public class PropertySheetComponentListWrapper implements PropertySheet.Item {
     private final ListProperty<ComponentProxy> componentListProperty;
     private final String name;
 
-    public PropertySheetComponentListWrapper(Manifold manifold, ListProperty<ComponentProxy> componentListProperty) {
+    public PropertySheetComponentListWrapper(ManifoldCoordinate manifoldCoordinate, ListProperty<ComponentProxy> componentListProperty) {
         this.componentListProperty = componentListProperty;
-        this.name = manifold.getPreferredDescriptionText(new ConceptProxy(componentListProperty.getName()));
+        this.name = manifoldCoordinate.getPreferredDescriptionText(new ConceptProxy(componentListProperty.getName()));
     }
 
 

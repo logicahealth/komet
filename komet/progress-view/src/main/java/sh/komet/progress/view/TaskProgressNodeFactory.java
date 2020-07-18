@@ -39,12 +39,8 @@
 
 package sh.komet.progress.view;
 
-import javax.inject.Singleton;
-import org.jvnet.hk2.annotations.Service;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import javafx.scene.Node;
+import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
@@ -52,7 +48,10 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+
+import javax.inject.Singleton;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 

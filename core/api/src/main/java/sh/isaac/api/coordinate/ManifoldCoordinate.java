@@ -186,9 +186,7 @@ public interface ManifoldCoordinate {
 
     NavigationCoordinate getNavigationCoordinate();
 
-    default LogicCoordinate getLogicCoordinate() {
-        return getNavigationCoordinate().getLogicCoordinate();
-    }
+    LogicCoordinate getLogicCoordinate();
 
     default LanguageCoordinate getLanguageCoordinate() {
         return getLanguageCoordinate();

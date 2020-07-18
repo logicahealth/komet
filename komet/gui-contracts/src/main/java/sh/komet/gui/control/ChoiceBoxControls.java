@@ -16,6 +16,7 @@
  */
 package sh.komet.gui.control;
 
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.komet.gui.control.concept.ConceptForControlWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -29,20 +30,20 @@ import sh.komet.gui.control.property.ViewProperties;
  * @author kec 
  */
 public class ChoiceBoxControls {
-   public static ChoiceBox<ConceptSpecification> getDescriptionTypeForDisplay(ViewProperties viewProperties) {
-      return makeChoiceBox(viewProperties, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
+   public static ChoiceBox<ConceptSpecification> getDescriptionTypeForDisplay(ManifoldCoordinate manifoldCoordinate) {
+      return makeChoiceBox(manifoldCoordinate, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
    }
 
-   public static ChoiceBox<ConceptSpecification> getTaxonomyPremiseTypes(ViewProperties viewProperties) {
-      return makeChoiceBox(viewProperties, MetaData.INFERRED_PREMISE_TYPE____SOLOR, MetaData.STATED_PREMISE_TYPE____SOLOR);
+   public static ChoiceBox<ConceptSpecification> getTaxonomyPremiseTypes(ManifoldCoordinate manifoldCoordinate) {
+      return makeChoiceBox(manifoldCoordinate, MetaData.INFERRED_PREMISE_TYPE____SOLOR, MetaData.STATED_PREMISE_TYPE____SOLOR);
    }
    
    
-   public static ChoiceBox<ConceptSpecification> makeChoiceBox(ViewProperties viewProperties, ConceptSpecification... choices) {
+   public static ChoiceBox<ConceptSpecification> makeChoiceBox(ManifoldCoordinate manifoldCoordinate, ConceptSpecification... choices) {
 
       ObservableList<ConceptSpecification> choiceList = FXCollections.observableArrayList();
       for (ConceptSpecification choice: choices) {
-         choiceList.add(new ConceptForControlWrapper(viewProperties, choice.getNid()));
+         choiceList.add(new ConceptForControlWrapper(manifoldCoordinate, choice.getNid()));
       }
       ChoiceBox<ConceptSpecification> choiceBox = new ChoiceBox<>(choiceList);
       choiceBox.setValue(choiceList.get(0));

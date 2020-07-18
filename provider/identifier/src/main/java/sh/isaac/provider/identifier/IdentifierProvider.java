@@ -154,6 +154,7 @@ public class IdentifierProvider
             LOG.error("Unexpected error while stopping identifier provider", ex);
             throw new RuntimeException(ex);
         }
+        LOG.info("Stopped identifier provider. ");
     }
 
     @Override

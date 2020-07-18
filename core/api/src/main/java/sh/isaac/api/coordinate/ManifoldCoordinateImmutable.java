@@ -27,7 +27,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
-    private static final int marshalVersion = 3;
+    private static final int marshalVersion = 4;
 
 
     private final StampFilterImmutable edgeStampFilter;
@@ -36,6 +36,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
     private final VertexSort vertexSort;
     private final StampFilterImmutable vertexStampFilter;
     private final NavigationCoordinateImmutable navigationCoordinateImmutable;
+    private final LogicCoordinateImmutable logicCoordinateImmutable;
     private TaxonomySnapshot digraphSnapshot;
 
     private ManifoldCoordinateImmutable() {
@@ -47,6 +48,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         this.edgeStampFilter = null;
         this.languageStampFilter = null;
         this.languageCoordinate = null;
+        this.logicCoordinateImmutable = null;
     }
     /**
      * {@inheritDoc}
@@ -61,7 +63,8 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
                                         StampFilterImmutable languageStampFilter,
                                         VertexSort vertexSort,
                                         StampFilterImmutable vertexStampFilter,
-                                        NavigationCoordinateImmutable navigationCoordinateImmutable) {
+                                        NavigationCoordinateImmutable navigationCoordinateImmutable,
+                                        LogicCoordinateImmutable logicCoordinateImmutable) {
 
         this.edgeStampFilter = edgeStampFilter;
         this.languageCoordinate = languageCoordinate;
@@ -69,6 +72,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         this.vertexSort = vertexSort;
         this.vertexStampFilter = vertexStampFilter;
         this.navigationCoordinateImmutable = navigationCoordinateImmutable;
+        this.logicCoordinateImmutable = logicCoordinateImmutable;
     }
 
     private ManifoldCoordinateImmutable(ByteArrayDataBuffer in, int objectMarshalVersion) {
@@ -80,6 +84,16 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
                 this.languageStampFilter  = MarshalUtil.unmarshal(in);
                 this.languageCoordinate  = MarshalUtil.unmarshal(in);
                 this.navigationCoordinateImmutable = MarshalUtil.unmarshal(in);
+                this.logicCoordinateImmutable = MarshalUtil.unmarshal(in);
+                break;
+            case 3:
+                this.vertexSort = MarshalUtil.unmarshal(in);
+                this.vertexStampFilter = MarshalUtil.unmarshal(in);
+                this.edgeStampFilter = MarshalUtil.unmarshal(in);
+                this.languageStampFilter  = MarshalUtil.unmarshal(in);
+                this.languageCoordinate  = MarshalUtil.unmarshal(in);
+                this.navigationCoordinateImmutable = MarshalUtil.unmarshal(in);
+                this.logicCoordinateImmutable = Coordinates.Logic.ElPlusPlus();
                 break;
             default:
                 throw new IllegalStateException("Can't handle marshalVersion: " + objectMarshalVersion);
@@ -98,20 +112,21 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         MarshalUtil.marshal(this.languageStampFilter, out);
         MarshalUtil.marshal(this.languageCoordinate, out);
         MarshalUtil.marshal(this.navigationCoordinateImmutable, out);
+        MarshalUtil.marshal(this.logicCoordinateImmutable, out);
     }
 
     @Override
-    public NavigationCoordinate getNavigationCoordinate() {
+    public NavigationCoordinateImmutable getNavigationCoordinate() {
         return this.navigationCoordinateImmutable;
     }
 
     @Override
-    public LogicCoordinate getLogicCoordinate() {
-        return getNavigationCoordinate().getLogicCoordinate();
+    public LogicCoordinateImmutable getLogicCoordinate() {
+        return this.logicCoordinateImmutable;
     }
 
     @Override
-    public LanguageCoordinate getLanguageCoordinate() {
+    public LanguageCoordinateImmutable getLanguageCoordinate() {
         return this.languageCoordinate;
     }
 
@@ -124,6 +139,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         int objectMarshalVersion = in.getInt();
         switch (objectMarshalVersion) {
             case 1:
+            case 3:
             case marshalVersion:
                 return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(in, objectMarshalVersion),
                         manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
@@ -136,13 +152,15 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
                                                    StampFilter languageStampFilter,
                                                    VertexSort vertexSort,
                                                    StampFilter vertexStampFilter,
-                                                   NavigationCoordinate navigationCoordinate) {
+                                                   NavigationCoordinate navigationCoordinate,
+                                                   LogicCoordinate logicCoordinate) {
          return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(edgeStampFilter.toStampFilterImmutable(),
                  languageCoordinate.toLanguageCoordinateImmutable(),
                  languageStampFilter.toStampFilterImmutable(),
                  vertexSort,
                  vertexStampFilter.toStampFilterImmutable(),
-                 navigationCoordinate.toNavigationCoordinateImmutable()),
+                 navigationCoordinate.toNavigationCoordinateImmutable(),
+                 logicCoordinate.toLogicCoordinateImmutable()),
                         manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
     }
 
@@ -152,7 +170,8 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
                         languageCoordinate.toLanguageCoordinateImmutable(),
                         stampFilter.toStampFilterImmutable(),
                         VertexSortNaturalOrder.SINGLETON,
-                        stampFilter.toStampFilterImmutable(), dci),
+                        stampFilter.toStampFilterImmutable(), dci,
+                        Coordinates.Logic.ElPlusPlus()),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
     }
 
@@ -162,7 +181,8 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
                         languageCoordinate.toLanguageCoordinateImmutable(),
                         stampFilter.toStampFilterImmutable(),
                         VertexSortNaturalOrder.SINGLETON,
-                        stampFilter.toStampFilterImmutable(), dci),
+                        stampFilter.toStampFilterImmutable(), dci,
+                        Coordinates.Logic.ElPlusPlus()),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
     }
 
@@ -174,7 +194,8 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
                         languageCoordinate.toLanguageCoordinateImmutable(),
                         stampFilter.toStampFilterImmutable(),
                         VertexSortNaturalOrder.SINGLETON,
-                        stampFilter.toStampFilterImmutable(), dci),
+                        stampFilter.toStampFilterImmutable(), dci,
+                        Coordinates.Logic.ElPlusPlus()),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
     }
 
@@ -208,17 +229,17 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
     }
 
     @Override
-    public StampFilter getVertexStampFilter() {
+    public StampFilterImmutable getVertexStampFilter() {
         return this.vertexStampFilter;
     }
 
     @Override
-    public StampFilter getEdgeStampFilter() {
+    public StampFilterImmutable getEdgeStampFilter() {
         return this.edgeStampFilter;
     }
 
     @Override
-    public StampFilter getLanguageStampFilter() {
+    public StampFilterImmutable getLanguageStampFilter() {
         return this.languageStampFilter;
     }
 

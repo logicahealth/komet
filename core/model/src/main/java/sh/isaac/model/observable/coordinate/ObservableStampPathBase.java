@@ -96,7 +96,7 @@ public abstract class ObservableStampPathBase
     }
 
     @Override
-    public final ObjectProperty<ConceptSpecification> pathConceptProperty() {
+    public ObjectProperty<ConceptSpecification> pathConceptProperty() {
         return this.pathConceptProperty;
     }
 
@@ -123,7 +123,7 @@ public abstract class ObservableStampPathBase
     }
 
     @Override
-    public final SetProperty<StampPositionImmutable> pathOriginsProperty() {
+    public SetProperty<StampPositionImmutable> pathOriginsProperty() {
         return this.pathOriginsProperty;
     }
 

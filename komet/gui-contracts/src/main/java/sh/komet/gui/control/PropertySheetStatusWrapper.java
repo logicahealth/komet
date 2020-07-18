@@ -22,6 +22,7 @@ import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Status;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.komet.gui.control.property.ViewProperties;
 
 /**
@@ -38,8 +39,8 @@ public class PropertySheetStatusWrapper implements PropertySheet.Item {
       this.stateProperty = stateProperty;
    }
 
-   public PropertySheetStatusWrapper(ViewProperties viewProperties, ObjectProperty<Status> stateProperty) {
-      this.name = viewProperties.getPreferredDescriptionText(new ConceptProxy(stateProperty.getName()));
+   public PropertySheetStatusWrapper(ManifoldCoordinate manifoldCoordinate, ObjectProperty<Status> stateProperty) {
+      this.name = manifoldCoordinate.getPreferredDescriptionText(new ConceptProxy(stateProperty.getName()));
       this.stateProperty = stateProperty;
    }
 

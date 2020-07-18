@@ -31,7 +31,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -58,7 +58,7 @@ public interface MenuProvider {
      * @param window the window this menu will be part of
      * @return the menu item to add to the app level menu
      */
-    MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferencesItem windowPreference);
+    MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferences windowPreference);
 
     static void handleCloseRequest(WindowEvent e) {
         Optional<String> absolutePath = Optional.ofNullable((String) ((Stage) e.getTarget()).getScene()

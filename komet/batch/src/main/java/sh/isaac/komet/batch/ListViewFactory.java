@@ -9,7 +9,6 @@ import sh.isaac.komet.batch.iconography.PluginIcons;
 import sh.komet.gui.contract.ExplorationNodeFactory;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
 import javax.inject.Singleton;
@@ -27,7 +26,7 @@ public class ListViewFactory implements ExplorationNodeFactory<ListViewNode> {
 
     @Override
     public ListViewNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences nodePreferences) {
-        return new ListViewNode(viewProperties, nodePreferences);
+        return new ListViewNode(viewProperties.makeOverride(), nodePreferences);
     }
 
     @Override

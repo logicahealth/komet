@@ -46,6 +46,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinateImmutable;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
@@ -139,6 +140,7 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
         LOG.info("Stopping Drools Rules Provider.");
         this.classPathContainer = null;
         this.staticSession = null;
+        LOG.info("Stopped Drools Rules Provider.");
     }
     
     @Override
@@ -156,9 +158,9 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     }
     
     @Override
-    public List<MenuItem> getEditVersionMenuItems(ViewProperties viewProperties, ObservableCategorizedVersion categorizedVersion,
+    public List<MenuItem> getEditVersionMenuItems(ManifoldCoordinate manifoldCoordinate, ObservableCategorizedVersion categorizedVersion,
                                                   Consumer<PropertySheetMenuItem> propertySheetConsumer) {
-        AddEditVersionMenuItems executionItem = new AddEditVersionMenuItems(viewProperties, categorizedVersion, propertySheetConsumer);
+        AddEditVersionMenuItems executionItem = new AddEditVersionMenuItems(manifoldCoordinate, categorizedVersion, propertySheetConsumer);
         this.staticSession.execute(executionItem);
         if (this.dynamicSession != null) {
             this.dynamicSession.execute(executionItem);
@@ -167,9 +169,9 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     }
     
     @Override
-    public List<MenuItem> getAddAttachmentMenuItems(ViewProperties viewProperties, ObservableCategorizedVersion categorizedVersion,
+    public List<MenuItem> getAddAttachmentMenuItems(ManifoldCoordinate manifoldCoordinate, ObservableCategorizedVersion categorizedVersion,
                                                     BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
-        AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(viewProperties, categorizedVersion, newAttachmentConsumer);
+        AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifoldCoordinate, categorizedVersion, newAttachmentConsumer);
         this.staticSession.execute(executionItem);
         if (this.dynamicSession != null) {
             this.dynamicSession.execute(executionItem);

@@ -22,10 +22,6 @@ public interface ObservableNavigationCoordinate extends ObservableCoordinate<Nav
         return new ObservableCoordinate<?>[] {};
     }
 
-    @Override
-    ObservableLogicCoordinate getLogicCoordinate();
-    ObjectProperty<LogicCoordinateImmutable> logicCoordinateProperty();
-
     default void setPremiseType(PremiseType premiseType) {
         switch (premiseType) {
             case STATED:

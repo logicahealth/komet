@@ -3,6 +3,7 @@ package sh.isaac.model.observable.coordinate;
 import javafx.beans.property.ObjectProperty;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinateImmutable;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedObjectProperty;
 
@@ -21,6 +22,11 @@ public class ObservableLogicCoordinateImpl extends ObservableLogicCoordinateBase
         return new SimpleEqualityBasedObjectProperty(this,
                 ObservableFields.CLASSIFIER_NID_FOR_LOGIC_COORDINATE.toExternalString(),
                 logicCoordinate.getClassifier());
+    }
+
+    @Override
+    public void setExceptOverrides(LogicCoordinateImmutable updatedCoordinate) {
+        setValue(updatedCoordinate);
     }
 
     @Override

@@ -157,11 +157,11 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
         folderOptions = new String[] {"changesets", "preferences"};
         revertFields();
         save();
-        getItemList().add(new PropertySheetTextWrapper(viewProperties, nameProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(viewProperties, activeProperty));
-        getItemList().add(new PropertySheetTextWrapper(viewProperties, gitUserName));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), nameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), activeProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), gitUserName));
         getItemList().add(new PropertySheetPasswordWrapper(viewProperties, gitPassword));
-        getItemList().add(new PropertySheetTextWrapper(viewProperties, gitUrl));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), gitUrl));
         getItemList().add(new PropertySheetItemStringListWrapper(viewProperties, localFolder,
                 Arrays.asList(folderOptions)));
         setupSyncButtons();

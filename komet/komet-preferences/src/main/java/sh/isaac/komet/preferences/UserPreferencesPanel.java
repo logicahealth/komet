@@ -92,13 +92,13 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
                                 KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "User"), viewProperties,
                 kpc);
-        this.userConceptWrapper = new PropertySheetItemConceptWrapper(viewProperties, userConceptProperty);
+        this.userConceptWrapper = new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), userConceptProperty);
         this.userConceptWrapper.setAllowedValues(userConceptOptions);
         
-        this.moduleConceptWrapper = new PropertySheetItemConceptWrapper(viewProperties, moduleConceptProperty);
+        this.moduleConceptWrapper = new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), moduleConceptProperty);
         this.moduleConceptWrapper.setAllowedValues(moduleConceptOptions);
         
-        this.pathConceptWrapper = new PropertySheetItemConceptWrapper(viewProperties, pathConceptProperty);
+        this.pathConceptWrapper = new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), pathConceptProperty);
         this.pathConceptWrapper.setAllowedValues(pathConceptOptions);
         revertFields();
         save();
@@ -107,8 +107,8 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
             userConceptOptionNids[i] = userConceptOptions.get(i).getNid();
         }
 
-        getItemList().add(new PropertySheetItemConceptConstraintWrapper(userConceptWrapper, viewProperties, "User"));
-        getItemList().add(new PropertySheetItemConceptConstraintWrapper(moduleConceptWrapper, viewProperties, "Module"));
+        getItemList().add(new PropertySheetItemConceptConstraintWrapper(userConceptWrapper, viewProperties.getManifoldCoordinate(), "User"));
+        getItemList().add(new PropertySheetItemConceptConstraintWrapper(moduleConceptWrapper, viewProperties.getManifoldCoordinate(), "Module"));
 
         login();
     }
@@ -267,7 +267,6 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         b.append("import sh.isaac.api.Status;\n");
         b.append("import sh.isaac.provider.drools.AddEditLogicalExpressionNodeMenuItems;\n");
         b.append("import sh.komet.gui.control.PropertySheetMenuItem;\n");
-        b.append("import sh.komet.gui.manifold.Manifold;\n");
         b.append("import sh.isaac.MetaData;\n");
         b.append("import sh.isaac.api.bootstrap.TermAux;\n");
         b.append("import sh.isaac.api.chronicle.VersionCategory;\n");

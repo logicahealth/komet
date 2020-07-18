@@ -7,7 +7,6 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.DetailNode;
-import sh.komet.gui.manifold.Manifold;
 
 import javax.inject.Singleton;
 
@@ -28,7 +27,7 @@ public class ConceptDetailClassificationResultsLinkedPanelProviderFactory extend
     public DetailNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
         // Check preferences...
         preferencesNode.put(ConceptDetailPanelNode.Keys.ACTIVITY_FEED_NAME,
-                preferencesNode.get(ConceptDetailPanelNode.Keys.ACTIVITY_FEED_NAME, Manifold.ManifoldGroup.CLASSIFICATON.getGroupName()));
+            preferencesNode.get(ConceptDetailPanelNode.Keys.ACTIVITY_FEED_NAME, ViewProperties.CLASSIFICATION));
 
         return new ConceptDetailPanelNode(viewProperties, activityFeed, preferencesNode);
     }
