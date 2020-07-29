@@ -132,10 +132,30 @@ public class ConceptSnapshotImpl
     * @return the author nid
     */
    @Override
-   public int getAuthorNid() {
+   public int getAuthorNidForChanges() {
       return this.snapshotVersion.get()
                                  .getAuthorNid();
    }
+
+    @Override
+    public int getPathNidForFilter() {
+        return this.snapshotVersion.get().getPathNid();
+    }
+
+    @Override
+    public EditCoordinate getEditCoordinate() {
+        return this.manifoldCoordinate.getEditCoordinate();
+    }
+
+    @Override
+    public Activity getCurrentActivity() {
+        return this.manifoldCoordinate.getCurrentActivity();
+    }
+
+    @Override
+    public int getAuthorNid() {
+        return this.snapshotVersion.get().getAuthorNid();
+    }
 
     @Override
     public int getPathNid() {
@@ -359,6 +379,11 @@ public class ConceptSnapshotImpl
     @Override
     public StampFilter getLanguageStampFilter() {
         return this.manifoldCoordinate.getLanguageStampFilter();
+    }
+
+    @Override
+    public ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis) {
+        return this.manifoldCoordinate.makeCoordinateAnalog(classifyTimeInEpochMillis);
     }
 }
 

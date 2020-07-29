@@ -5,9 +5,8 @@ import java.util.List;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.transaction.Transaction;
 
 /**
@@ -83,24 +82,24 @@ public interface SemanticBuildListenerI
    default void applyAfter(int stampSequence, SemanticVersion builtSemantic, List<Chronology> builtObjects) {}
 
    /**
-    * A listener method that applies to a SemanticBuilder before building a component with a state of ACTIVE. 
-    * @param editCoordinate the edit coordinate that determines the author, module and path for the change
+    * A listener method that applies to a SemanticBuilder before building a component with a state of ACTIVE.
+    * @param manifoldCoordinate the edit coordinate that determines the author, module and path for the change
      * @param builtObjects
     */
    default void applyBefore(
-         Transaction transaction,
-         EditCoordinate editCoordinate, 
-         List<Chronology> builtObjects) {}
+           Transaction transaction,
+           ManifoldCoordinate manifoldCoordinate,
+           List<Chronology> builtObjects) {}
 
    /**
-    * A listener method that applies to a SemanticBuilder after building a component with a state of ACTIVE. 
-    * @param editCoordinate the edit coordinate that determines the author, module and path for the change
+    * A listener method that applies to a SemanticBuilder after building a component with a state of ACTIVE.
+    * @param manifoldCoordinate the edit coordinate that determines the author, module and path for the change
     * @param builtSemanticVersion
     * @param builtObjects
     */
    default void applyAfter(
-         Transaction transaction,
-         EditCoordinate editCoordinate,
-         SemanticVersion builtSemanticVersion,
-         List<Chronology> builtObjects) {}
+           Transaction transaction,
+           ManifoldCoordinate manifoldCoordinate,
+           SemanticVersion builtSemanticVersion,
+           List<Chronology> builtObjects) {}
 }

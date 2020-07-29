@@ -58,7 +58,7 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.transaction.Transaction;
@@ -132,12 +132,12 @@ public class ObservableDescriptionVersionImpl
    }
 
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableDescriptionVersionImpl analog = new ObservableDescriptionVersionImpl(this, getChronology());
         copyLocalFields(analog);
-        analog.setModuleNid(ec.getModuleNid());
-        analog.setAuthorNid(ec.getAuthorNid());
-        analog.setPathNid(ec.getPathNid());
+        analog.setModuleNid(mc.getModuleNidForAnalog(this));
+        analog.setAuthorNid(mc.getAuthorNidForChanges());
+        analog.setPathNid(mc.getPathNidForAnalog(this));
         return (V) analog;
     }
 
@@ -258,21 +258,8 @@ public class ObservableDescriptionVersionImpl
    }
 
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-        DescriptionVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-        ObservableDescriptionVersionImpl newObservableVersion = new ObservableDescriptionVersionImpl(
-                newVersion,
-                (ObservableSemanticChronology) chronology);
-
-        ((ObservableChronologyImpl) chronology).getVersionList()
-                .add(newObservableVersion);
-        return (V) newObservableVersion;
-    }
-
-
-    @Override
-    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-        DescriptionVersion newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+    public <V extends Version> V setupAnalog(int stampSequence) {
+       DescriptionVersionImpl newVersion = getStampedVersion().setupAnalog(stampSequence);
         ObservableDescriptionVersionImpl newObservableVersion = new ObservableDescriptionVersionImpl(
                 newVersion,
                 (ObservableSemanticChronology) chronology);

@@ -54,12 +54,11 @@ import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidFactory;
@@ -213,13 +212,13 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
    /**
     * Builds the.
     *
-    * @param editCoordinate the edit coordinate
+    * @param manifoldCoordinate the edit coordinate
     * @param builtObjects the built objects
     * @return the optional wait task
     * @throws IllegalStateException the illegal state exception
     */
    @Override
-   public OptionalWaitTask<T> build(Transaction transaction, EditCoordinate editCoordinate,
+   public OptionalWaitTask<T> build(Transaction transaction, ManifoldCoordinate manifoldCoordinate,
                                     List<Chronology> builtObjects)
             throws IllegalStateException {
       if (this.conceptNid == Integer.MAX_VALUE) {
@@ -243,7 +242,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
       
 
       final OptionalWaitTask<SemanticChronology> newDescription =
-         (OptionalWaitTask<SemanticChronology>) descBuilder.setStatus(this.state).build(transaction, editCoordinate,
+         (OptionalWaitTask<SemanticChronology>) descBuilder.setStatus(this.state).build(transaction, manifoldCoordinate,
                                                                                           builtObjects);
 
       nestedBuilders.add(newDescription);
@@ -253,7 +252,7 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
                 builder.setModule(moduleSpec);
             });
           
-            nestedBuilders.add(builder.build(transaction, editCoordinate,
+            nestedBuilders.add(builder.build(transaction, manifoldCoordinate,
             builtObjects));
                       });
       return new OptionalWaitTask<>(null, (T) newDescription.getNoWait(), nestedBuilders);

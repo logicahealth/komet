@@ -190,6 +190,21 @@ public class ActivityFeed implements ManifoldCoordinate {
     }
 
     @Override
+    public EditCoordinate getEditCoordinate() {
+        return this.owningViewForActivityFeed.getManifoldCoordinate().getEditCoordinate();
+    }
+
+    @Override
+    public Activity getCurrentActivity() {
+        return this.owningViewForActivityFeed.getManifoldCoordinate().getCurrentActivity();
+    }
+
+    @Override
+    public ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis) {
+        return this.owningViewForActivityFeed.getManifoldCoordinate().makeCoordinateAnalog(classifyTimeInEpochMillis);
+    }
+
+    @Override
     public String toString() {
         return "ActivityFeed{" +
                 "feedName='" + feedName + '\'' +

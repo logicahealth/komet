@@ -23,6 +23,8 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.*;
 import sh.isaac.api.UserConfigurationInternalImpl.ConfigurationOption;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.coordinate.Activity;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.coordinate.*;
@@ -116,10 +118,10 @@ public class UserConfigurationImpl implements UserConfiguration
 		
 		//Configure our cached objects
 		editCoordinate = globalConfig.getDefaultEditCoordinate();
-		editCoordinate.authorProperty().set(userConcept.isPresent() ? Get.conceptSpecification(userConcept.get())
-				: globalConfig.getDefaultEditCoordinate().authorProperty().get());
-		editCoordinate.moduleProperty().set(Get.conceptSpecification((Integer) getOption(ConfigurationOption.EDIT_MODULE)));
-		editCoordinate.pathProperty().set(Get.conceptSpecification((Integer) getOption(ConfigurationOption.EDIT_PATH)));
+		editCoordinate.authorForChangesProperty().set(userConcept.isPresent() ? Get.conceptSpecification(userConcept.get())
+				: globalConfig.getDefaultEditCoordinate().authorForChangesProperty().get());
+		editCoordinate.defaultModuleProperty().set(Get.conceptSpecification((Integer) getOption(ConfigurationOption.EDIT_MODULE)));
+		editCoordinate.promotionPathProperty().set(Get.conceptSpecification((Integer) getOption(ConfigurationOption.EDIT_PATH)));
 		
 		//TODO add setters / options for things below that aren't yet being set?
 		languageCoordinate = (ObservableLanguageCoordinateImpl) globalConfig.getDefaultLanguageCoordinate();
@@ -142,7 +144,7 @@ public class UserConfigurationImpl implements UserConfiguration
 		//pathCoordinate.getStampFilter().getStampPosition()..get().timeProperty().set(getOption(ConfigurationOption.TIME));
 		//stampCoordinate.stampPrecedenceProperty()
 		
-		manifoldCoordinate = new ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable.makeStated(pathCoordinate.getStampFilter(), languageCoordinate, logicCoordinate));
+		manifoldCoordinate = new ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable.makeStated(pathCoordinate.getStampFilter(), languageCoordinate, logicCoordinate, Activity.VIEWING, Coordinates.Edit.Default()));
 		//manifoldCoordinate.uuidProperty();
 	}
 
@@ -356,10 +358,10 @@ public class UserConfigurationImpl implements UserConfiguration
 						languageCoordinate.setDialectAssemblagePreferenceList((int[])getOption(ConfigurationOption.DIALECT_ASSEMBLAGE_PREFERENCE_LIST));
 						break;
 					case EDIT_MODULE:
-						editCoordinate.moduleProperty().set(getOption(ConfigurationOption.EDIT_MODULE));
+						editCoordinate.defaultModuleProperty().set(getOption(ConfigurationOption.EDIT_MODULE));
 						break;
 					case EDIT_PATH:
-						editCoordinate.pathProperty().set(getOption(ConfigurationOption.EDIT_PATH));
+						editCoordinate.promotionPathProperty().set(getOption(ConfigurationOption.EDIT_PATH));
 						break;
 					case INFERRED_ASSEMBLAGE:
 						logicCoordinate.inferredAssemblageProperty().set(new ConceptProxy((Integer)getOption(ConfigurationOption.INFERRED_ASSEMBLAGE)));
@@ -416,10 +418,10 @@ public class UserConfigurationImpl implements UserConfiguration
 						languageCoordinate.setDialectAssemblagePreferenceList((int[])objectValue);
 						break;
 					case EDIT_MODULE:
-						editCoordinate.moduleProperty().set(Get.conceptSpecification((Integer)objectValue));
+						editCoordinate.defaultModuleProperty().set(Get.conceptSpecification((Integer)objectValue));
 						break;
 					case EDIT_PATH:
-						editCoordinate.pathProperty().set(Get.conceptSpecification((Integer)objectValue));
+						editCoordinate.promotionPathProperty().set(Get.conceptSpecification((Integer)objectValue));
 						break;
 					case INFERRED_ASSEMBLAGE:
 						logicCoordinate.inferredAssemblageProperty().set(new ConceptProxy((Integer)objectValue));

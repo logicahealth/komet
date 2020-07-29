@@ -60,13 +60,18 @@ public class ObservableManifoldCoordinateImpl extends ObservableManifoldCoordina
         super(manifoldCoordinate, name);
     }
 
+    public ObservableManifoldCoordinateImpl(ManifoldCoordinate manifoldCoordinate) {
+        super(manifoldCoordinate);
+    }
+
+    @Override
+    public ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis) {
+        return new ObservableManifoldCoordinateImpl(getValue().makeCoordinateAnalog(classifyTimeInEpochMillis));
+    }
+
     @Override
     public void setExceptOverrides(ManifoldCoordinateImmutable updatedCoordinate) {
         setValue(updatedCoordinate);
-    }
-
-    public ObservableManifoldCoordinateImpl(ManifoldCoordinate manifoldCoordinate) {
-        super(manifoldCoordinate);
     }
 
     @Override
@@ -97,6 +102,12 @@ public class ObservableManifoldCoordinateImpl extends ObservableManifoldCoordina
                 manifoldCoordinate.getVertexSort());
     }
 
+    @Override
+    protected SimpleObjectProperty<Activity> makeActivityProperty(ManifoldCoordinate manifoldCoordinate) {
+        return new SimpleObjectProperty<>(this,
+                ObservableFields.CURRENT_ACTIVITY_PROPERTY.toExternalString(),
+                manifoldCoordinate.getCurrentActivity());
+    }
 
     @Override
     protected ObservableLanguageCoordinateBase makeLanguageCoordinate(ManifoldCoordinate manifoldCoordinate) {
@@ -106,6 +117,11 @@ public class ObservableManifoldCoordinateImpl extends ObservableManifoldCoordina
     @Override
     protected ObservableLogicCoordinateBase makeLogicCoordinate(ManifoldCoordinate manifoldCoordinate) {
         return new ObservableLogicCoordinateImpl(manifoldCoordinate.getLogicCoordinate());
+    }
+
+    @Override
+    protected ObservableEditCoordinateBase makeEditCoordinate(ManifoldCoordinate manifoldCoordinate) {
+        return new ObservableEditCoordinateImpl(manifoldCoordinate.getEditCoordinate());
     }
 }
 

@@ -48,7 +48,7 @@ import java.util.UUID;
 
 import sh.isaac.api.Status;
 import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.transaction.Transaction;
 
 //~--- classes ----------------------------------------------------------------
@@ -95,8 +95,8 @@ public class CategorizedVersion
    }
 
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      return delegate.makeAnalog(ec);
+   public <V extends Version> V makeAnalog(ManifoldCoordinate mc) {
+      return delegate.makeAnalog(mc);
    }
 
    @Override
@@ -245,8 +245,8 @@ public class CategorizedVersion
     }
 
    @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      return delegate.makeAnalog(transaction, authorNid);
+   public <V extends Version> V makeAnalog(Transaction transaction, ManifoldCoordinate mc) {
+      return delegate.makeAnalog(transaction, mc);
    }
 
    @Override

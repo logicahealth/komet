@@ -4,6 +4,7 @@ import com.opencsv.CSVReader;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TaskCountManager;
@@ -91,7 +92,7 @@ public class RxNormDirectImporter extends TimedTaskWithProgressTracker<Void>
                             foundRxNorm = true;
                             fileCount++;
                             RxNormDomImporter.importRxNorm(new BufferedInputStream(zipFile.getInputStream(entry)),
-                                this.transaction, Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate()
+                                this.transaction, Coordinates.Manifold.DevelopmentInferredRegularNameSort()
                             );
                         } catch (Exception e) {
                             LOG.error("Processing: " + entry.getName(), e);

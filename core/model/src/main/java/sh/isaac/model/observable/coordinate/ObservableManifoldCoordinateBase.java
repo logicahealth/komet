@@ -33,6 +33,11 @@ public abstract class ObservableManifoldCoordinateBase
     protected final ObservableStampFilterBase languageStampFilterObservable;
 
     protected final ObservableLanguageCoordinateBase languageCoordinateObservable;
+
+    protected final SimpleObjectProperty<Activity> activityProperty;
+
+    protected final ObservableEditCoordinateBase editCoordinateObservable;
+
     /**
      * Note that if you don't declare a listener as final in this way, and just use method references, or
      * a direct lambda expression, you will not be able to remove the listener, since each method reference will create
@@ -46,6 +51,8 @@ public abstract class ObservableManifoldCoordinateBase
     private final ChangeListener<LanguageCoordinateImmutable> languageCoordinateListener = this::languageCoordinateChanged;
     private final ChangeListener<VertexSort> vertexSortChangeListener = this::vertexSortChanged;
     private final ChangeListener<LogicCoordinateImmutable> logicCoordinateListener = this::logicCoordinateChanged;
+    private final ChangeListener<Activity> activityChangeListener = this::activityChanged;
+    private final ChangeListener<EditCoordinateImmutable> editCoordinateListener = this::editCoordinateChanged;
 
 
     //~--- constructors --------------------------------------------------------
@@ -58,8 +65,14 @@ public abstract class ObservableManifoldCoordinateBase
         this.vertexStampFilterObservable = makeVertexStampFilterProperty(manifoldCoordinate);
         this.languageStampFilterObservable = makeLanguageStampFilterProperty(manifoldCoordinate);
         this.logicCoordinateObservable = makeLogicCoordinate(manifoldCoordinate);
+        this.activityProperty = makeActivityProperty(manifoldCoordinate);
+        this.editCoordinateObservable = makeEditCoordinate(manifoldCoordinate);
         addListeners();
     }
+
+    protected abstract ObservableEditCoordinateBase makeEditCoordinate(ManifoldCoordinate manifoldCoordinate);
+
+    protected abstract SimpleObjectProperty<Activity> makeActivityProperty(ManifoldCoordinate manifoldCoordinate);
 
     /**
      * Instantiates a new observable taxonomy coordinate impl.
@@ -83,9 +96,37 @@ public abstract class ObservableManifoldCoordinateBase
                 getVertexSort(),
                 getVertexStampFilter().toStampFilterImmutable(),
                 getNavigationCoordinate().toNavigationCoordinateImmutable(),
-                getLogicCoordinate().toLogicCoordinateImmutable());
+                getLogicCoordinate().toLogicCoordinateImmutable(),
+                getCurrentActivity(),
+                getEditCoordinate());
         this.addListeners();
         this.setValue(manifoldCoordinateImmutable);
+    }
+
+    private void editCoordinateChanged(ObservableValue<? extends EditCoordinateImmutable> observableValue, EditCoordinateImmutable oldEditCoordinate, EditCoordinateImmutable newEditCoordinate) {
+        this.setValue(ManifoldCoordinateImmutable.make(
+                getEdgeStampFilter().toStampFilterImmutable(),
+                getLanguageCoordinate().toLanguageCoordinateImmutable(),
+                getLanguageStampFilter().toStampFilterImmutable(),
+                getVertexSort(),
+                getVertexStampFilter().toStampFilterImmutable(),
+                getNavigationCoordinate().toNavigationCoordinateImmutable(),
+                getLogicCoordinate().toLogicCoordinateImmutable(),
+                getCurrentActivity(),
+                newEditCoordinate));
+    }
+
+    private void activityChanged(ObservableValue<? extends Activity> observableValue, Activity oldActivity, Activity newActivity) {
+        this.setValue(ManifoldCoordinateImmutable.make(
+                getEdgeStampFilter().toStampFilterImmutable(),
+                getLanguageCoordinate().toLanguageCoordinateImmutable(),
+                getLanguageStampFilter().toStampFilterImmutable(),
+                getVertexSort(),
+                getVertexStampFilter().toStampFilterImmutable(),
+                getNavigationCoordinate().toNavigationCoordinateImmutable(),
+                getLogicCoordinate().toLogicCoordinateImmutable(),
+                newActivity,
+                getEditCoordinate()));
     }
 
     @Override
@@ -95,6 +136,10 @@ public abstract class ObservableManifoldCoordinateBase
         this.edgeStampFilterObservable.setValue(newValue.getEdgeStampFilter().toStampFilterImmutable());
         this.vertexStampFilterObservable.setValue(newValue.getVertexStampFilter().toStampFilterImmutable());
         this.languageStampFilterObservable.setValue(newValue.getLanguageStampFilter().toStampFilterImmutable());
+        this.logicCoordinateObservable.setValue(newValue.getLogicCoordinate().toLogicCoordinateImmutable());
+        this.vertexSortProperty.setValue(newValue.getVertexSort());
+        this.activityProperty.setValue(newValue.getCurrentActivity());
+        this.editCoordinateObservable.setValue(newValue.getEditCoordinate().toEditCoordinateImmutable());
     }
 
     @Override
@@ -106,6 +151,8 @@ public abstract class ObservableManifoldCoordinateBase
         this.languageStampFilterObservable.baseCoordinateProperty().addListener(this.languageStampFilterListener);
         this.logicCoordinateObservable.baseCoordinateProperty().addListener(this.logicCoordinateListener);
         this.vertexSortProperty.addListener(this.vertexSortChangeListener);
+        this.activityProperty.addListener(this.activityChangeListener);
+        this.editCoordinateObservable.baseCoordinateProperty().addListener(this.editCoordinateListener);
         listening.set(true);
     }
 
@@ -118,6 +165,8 @@ public abstract class ObservableManifoldCoordinateBase
         this.languageStampFilterObservable.baseCoordinateProperty().removeListener(this.languageStampFilterListener);
         this.logicCoordinateObservable.baseCoordinateProperty().removeListener(this.logicCoordinateListener);
         this.vertexSortProperty.removeListener(this.vertexSortChangeListener);
+        this.activityProperty.removeListener(this.activityChangeListener);
+        this.editCoordinateObservable.baseCoordinateProperty().removeListener(this.editCoordinateListener);
         listening.set(false);
     }
 
@@ -148,7 +197,9 @@ public abstract class ObservableManifoldCoordinateBase
                 getVertexSort(),
                 getVertexStampFilter().toStampFilterImmutable(),
                 getNavigationCoordinate().toNavigationCoordinateImmutable(),
-                getLogicCoordinate().toLogicCoordinateImmutable()));
+                getLogicCoordinate().toLogicCoordinateImmutable(),
+                getCurrentActivity(),
+                getEditCoordinate()));
     }
 
     private void vertexFilterChanged(ObservableValue<? extends StampFilterImmutable> observable,
@@ -161,7 +212,9 @@ public abstract class ObservableManifoldCoordinateBase
                 getVertexSort(),
                 newValue,
                 getNavigationCoordinate().toNavigationCoordinateImmutable(),
-                getLogicCoordinate().toLogicCoordinateImmutable()));
+                getLogicCoordinate().toLogicCoordinateImmutable(),
+                getCurrentActivity(),
+                getEditCoordinate()));
     }
 
     private void vertexSortChanged(ObservableValue<? extends VertexSort> observable,
@@ -174,7 +227,9 @@ public abstract class ObservableManifoldCoordinateBase
                 newValue,
                 getVertexStampFilter().toStampFilterImmutable(),
                 getNavigationCoordinate().toNavigationCoordinateImmutable(),
-                getLogicCoordinate().toLogicCoordinateImmutable()));
+                getLogicCoordinate().toLogicCoordinateImmutable(),
+                getCurrentActivity(),
+                getEditCoordinate()));
     }
 
 
@@ -188,7 +243,9 @@ public abstract class ObservableManifoldCoordinateBase
                 getVertexSort(),
                 getVertexStampFilter().toStampFilterImmutable(),
                 getNavigationCoordinate().toNavigationCoordinateImmutable(),
-                getLogicCoordinate().toLogicCoordinateImmutable()));
+                getLogicCoordinate().toLogicCoordinateImmutable(),
+                getCurrentActivity(),
+                getEditCoordinate()));
     }
 
     private void languageCoordinateChanged(ObservableValue<? extends LanguageCoordinateImmutable> observable,
@@ -201,7 +258,9 @@ public abstract class ObservableManifoldCoordinateBase
                 getVertexSort(),
                 getVertexStampFilter().toStampFilterImmutable(),
                 getNavigationCoordinate().toNavigationCoordinateImmutable(),
-                getLogicCoordinate().toLogicCoordinateImmutable()));
+                getLogicCoordinate().toLogicCoordinateImmutable(),
+                getCurrentActivity(),
+                getEditCoordinate()));
     }
 
     private void navigationChanged(ObservableValue<? extends NavigationCoordinateImmutable> observable,
@@ -214,7 +273,9 @@ public abstract class ObservableManifoldCoordinateBase
                 getVertexSort(),
                 getVertexStampFilter().toStampFilterImmutable(),
                 newValue,
-                getLogicCoordinate().toLogicCoordinateImmutable()));
+                getLogicCoordinate().toLogicCoordinateImmutable(),
+                getCurrentActivity(),
+                getEditCoordinate()));
     }
 
     private void logicCoordinateChanged(ObservableValue<? extends LogicCoordinateImmutable> observable,
@@ -227,7 +288,9 @@ public abstract class ObservableManifoldCoordinateBase
                 getVertexSort(),
                 getVertexStampFilter().toStampFilterImmutable(),
                 getNavigationCoordinate().toNavigationCoordinateImmutable(),
-                newValue));
+                newValue,
+                getCurrentActivity(),
+                getEditCoordinate()));
     }
 
 
@@ -282,6 +345,11 @@ public abstract class ObservableManifoldCoordinateBase
     }
 
     @Override
+    public ObjectProperty<EditCoordinateImmutable> editCoordinateProperty() {
+        return editCoordinateObservable.baseCoordinateProperty();
+    }
+
+    @Override
     public ObjectProperty<StampFilterImmutable> edgeStampFilterProperty() {
         return edgeStampFilterObservable.baseCoordinateProperty();
     }
@@ -316,5 +384,20 @@ public abstract class ObservableManifoldCoordinateBase
         return this.getClass().getSimpleName() + "{\n" +
                 getValue().toString() +
                 "\n}";
+    }
+
+    @Override
+    public ObjectProperty<Activity> activityProperty() {
+        return this.activityProperty;
+    }
+
+    @Override
+    public ObservableEditCoordinateBase getEditCoordinate() {
+        return this.editCoordinateObservable;
+    }
+
+    @Override
+    public Activity getCurrentActivity() {
+        return null;
     }
 }

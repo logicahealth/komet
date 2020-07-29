@@ -41,12 +41,9 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.value.ObservableValue;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.EditCoordinateImmutable;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedObjectProperty;
 
@@ -67,8 +64,8 @@ public class ObservableEditCoordinateImpl
     *
     * @param editCoordinate the edit coordinate
     */
-   public ObservableEditCoordinateImpl(EditCoordinateImmutable editCoordinate, String coordinateName) {
-       super(editCoordinate, coordinateName);
+   public ObservableEditCoordinateImpl(EditCoordinate editCoordinate, String coordinateName) {
+       super(editCoordinate.toEditCoordinateImmutable(), coordinateName);
    }
 
     @Override
@@ -76,29 +73,36 @@ public class ObservableEditCoordinateImpl
         setValue(updatedCoordinate);
     }
 
-    public ObservableEditCoordinateImpl(EditCoordinateImmutable editCoordinate) {
-        super(editCoordinate, "Edit coordinate");
+    public ObservableEditCoordinateImpl(EditCoordinate editCoordinate) {
+        super(editCoordinate.toEditCoordinateImmutable(), "Edit coordinate");
     }
 
     @Override
-    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makePathProperty(EditCoordinate editCoordinate) {
+    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makePromotionPathProperty(EditCoordinate editCoordinate) {
         return new SimpleEqualityBasedObjectProperty(this,
                 ObservableFields.PATH_NID_FOR_EDIT_CORDINATE.toExternalString(),
-                editCoordinate.getPath());
+                editCoordinate.getPromotionPath());
     }
 
     @Override
-    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makeModuleProperty(EditCoordinate editCoordinate) {
+    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makeDefaultModuleProperty(EditCoordinate editCoordinate) {
         return new SimpleEqualityBasedObjectProperty(this,
                 ObservableFields.MODULE_NID_FOR_EDIT_COORDINATE.toExternalString(),
-                editCoordinate.getModule());
+                editCoordinate.getDefaultModule());
     }
 
     @Override
-    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makeAuthorProperty(EditCoordinate editCoordinate) {
+    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makeAuthorForChangesProperty(EditCoordinate editCoordinate) {
         return new SimpleEqualityBasedObjectProperty<>(this,
                 ObservableFields.AUTHOR_NID_FOR_EDIT_COORDINATE.toExternalString(),
-                editCoordinate.getAuthor());
+                editCoordinate.getAuthorForChanges());
+    }
+
+    @Override
+    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makeDestinationModuleProperty(EditCoordinate editCoordinate) {
+        return new SimpleEqualityBasedObjectProperty<>(this,
+                ObservableFields.DESTINATION_MODULE_NID_FOR_EDIT_COORDINATE.toExternalString(),
+                editCoordinate.getDestinationModule());
     }
 }
 

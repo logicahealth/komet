@@ -68,8 +68,9 @@ public enum ObservableFields
    AUTHOR_NID_FOR_EDIT_COORDINATE("Author nid for edit coordinate", "Author nid for edit coordinate"),
 
    /** The module nid for edit coordinate. */
-   MODULE_NID_FOR_EDIT_COORDINATE("Module nid for edit coordinate", "Module nid for edit coordinate"),
+   MODULE_NID_FOR_EDIT_COORDINATE("Default module nid for edit coordinate", "Default module nid for edit coordinate"),
 
+   DESTINATION_MODULE_NID_FOR_EDIT_COORDINATE("Destination module nid for edit coordinate", "Destination module nid for edit coordinate"),
    /** The module nid for edit coordinate. */
    MODULE_OPTIONS_FOR_EDIT_COORDINATE("Module options for edit coordinate", "Module options for edit coordinate"),
 
@@ -181,6 +182,7 @@ public enum ObservableFields
    /** The logic coordinate for taxonomy coordinate. */
    LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE("Logic coordinate for taxonomy coordinate", "Logic coordinate"),
 
+   CURRENT_ACTIVITY_PROPERTY("Current activity", "Activity"),
    VERTEX_SORT_PROPERTY("Vertex sort", "Sort"),
    DIGRAPH_PROPERTY("Digraph for manifold", "Digraph"),
    EDGE_FILTER_FOR_DIGRAPH("Edge STAMP filter for manifold", "Edge filter"),

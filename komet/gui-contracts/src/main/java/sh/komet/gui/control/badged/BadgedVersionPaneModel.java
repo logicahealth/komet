@@ -739,7 +739,8 @@ public abstract class BadgedVersionPaneModel {
     }
 
     public final List<MenuItem> getEditMenuItems() {
-        return FxGet.rulesDrivenKometService().getEditVersionMenuItems(viewProperties.getManifoldCoordinate(), this.categorizedVersion, (propertySheetMenuItem) -> {
+        return FxGet.rulesDrivenKometService().getEditVersionMenuItems(viewProperties.getManifoldCoordinate(),
+                this.categorizedVersion, (propertySheetMenuItem) -> {
             addEditingPropertySheet(propertySheetMenuItem);
         });
     }
@@ -762,6 +763,11 @@ public abstract class BadgedVersionPaneModel {
             observableVersion.removeUserObject(PROPERTY_SHEET_ATTACHMENT);
         });
         redoLayout();
+        Platform.runLater(() ->
+                Platform.runLater(() ->
+                        propertySheetMenuItem.getItemEditorList().stream().findFirst().ifPresent(node -> node.requestFocus())
+                )
+        );
     }
 
     public final List<MenuItem> getAttachmentMenuItems() {

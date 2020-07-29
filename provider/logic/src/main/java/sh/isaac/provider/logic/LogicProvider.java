@@ -53,9 +53,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicService;
@@ -231,28 +229,24 @@ public class LogicProvider
     /**
      * Gets the classifier service.
      *
-     * @param stampFilter the stamp coordinate
-     * @param logicCoordinate the logic coordinate
-     * @param editCoordinate  the edit coordinate
+     * @param manifoldCoordinate the stamp coordinate
      * @return the classifier service
      */
     @Override
-    public ClassifierService getClassifierService(StampFilter stampFilter,
-                                                  LogicCoordinate logicCoordinate,
-                                                  EditCoordinate editCoordinate) {
-        StampFilter stampFilterAnalog;
-        if (stampFilter.getStampPosition().getTime() == Long.MAX_VALUE) {
+    public ClassifierService getClassifierService(ManifoldCoordinate manifoldCoordinate) {
+        ManifoldCoordinate manifoldAnalog;
+        if (manifoldCoordinate.getViewFilter().getTime() == Long.MAX_VALUE) {
             LOG.info("changing classify coordinate time to now, rather that latest");
-            stampFilterAnalog = stampFilter.makeCoordinateAnalog(System.currentTimeMillis());
+            manifoldAnalog = manifoldCoordinate.makeCoordinateAnalog(System.currentTimeMillis());
         }
         else {
-            stampFilterAnalog = stampFilter;
+            manifoldAnalog = manifoldCoordinate;
         }
-        final ClassifierServiceKey key = new ClassifierServiceKey(stampFilterAnalog, logicCoordinate, editCoordinate);
+        final ClassifierServiceKey key = new ClassifierServiceKey(manifoldAnalog);
 
         if (!classifierServiceMap.containsKey(key)) {
             classifierServiceMap.putIfAbsent(key,
-                    new ClassifierProvider(stampFilterAnalog, logicCoordinate, editCoordinate));
+                    new ClassifierProvider(manifoldAnalog));
         }
 
         return classifierServiceMap.get(key);
@@ -321,32 +315,17 @@ public class LogicProvider
         /**
          * The stamp coordinate.
          */
-        StampFilter stampCoordinate;
-
-        /**
-         * The logic coordinate.
-         */
-        LogicCoordinate logicCoordinate;
-
-        /**
-         * The edit coordinate.
-         */
-        EditCoordinate editCoordinate;
+        ManifoldCoordinateImmutable manifoldCoordinateImmutable;
 
         //~--- constructors -----------------------------------------------------
 
         /**
          * Instantiates a new classifier service key.
-         *  @param stampFilter the stamp coordinate
-         * @param logicCoordinate the logic coordinate
-         * @param editCoordinate  the edit coordinate
+         * @param manifoldCoordinate the stamp coordinate
+         *
          */
-        public ClassifierServiceKey(StampFilter stampFilter,
-                                    LogicCoordinate logicCoordinate,
-                                    EditCoordinate editCoordinate) {
-            this.stampCoordinate = stampFilter;
-            this.logicCoordinate = logicCoordinate;
-            this.editCoordinate = editCoordinate;
+        public ClassifierServiceKey(ManifoldCoordinate manifoldCoordinate) {
+            this.manifoldCoordinateImmutable = manifoldCoordinate.toManifoldCoordinateImmutable();
         }
 
         //~--- methods ----------------------------------------------------------
@@ -369,15 +348,7 @@ public class LogicProvider
 
             final ClassifierServiceKey other = (ClassifierServiceKey) obj;
 
-            if (!Objects.equals(this.stampCoordinate, other.stampCoordinate)) {
-                return false;
-            }
-
-            if (!Objects.equals(this.logicCoordinate, other.logicCoordinate)) {
-                return false;
-            }
-
-            return Objects.equals(this.editCoordinate, other.editCoordinate);
+            return Objects.equals(this.manifoldCoordinateImmutable, other.manifoldCoordinateImmutable);
         }
 
         /**
@@ -389,7 +360,7 @@ public class LogicProvider
         public int hashCode() {
             int hash = 3;
 
-            hash = 59 * hash + Objects.hashCode(this.logicCoordinate);
+            hash = 59 * hash + Objects.hashCode(this.manifoldCoordinateImmutable);
             return hash;
         }
     }
@@ -406,7 +377,7 @@ public class LogicProvider
 
     @Override
     public void addClassifierResults(ClassifierResults classifierResults) {
-        Instant classifierTime = classifierResults.getStampFilter().getStampPosition().getTimeAsInstant();
+        Instant classifierTime = classifierResults.getManifoldCoordinate().getViewFilter().getTimeAsInstant();
         if (Platform.isFxApplicationThread()) {
             classifierInstants.add(classifierTime);
         } else {

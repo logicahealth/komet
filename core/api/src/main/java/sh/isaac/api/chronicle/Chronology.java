@@ -61,7 +61,7 @@ import sh.isaac.api.Status;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.identity.StampedVersion;
@@ -98,10 +98,10 @@ public interface Chronology
     *
     * @param <V> the mutable version type
     * @param state state of the created mutable version
-    * @param ec edit coordinate to provide the author, module, and path for the mutable version
+    * @param mc Manifold coordinate to provide the author, module, and path for the mutable version
     * @return the mutable version
     */
-   <V extends Version> V createMutableVersion(Transaction transaction, Status state, EditCoordinate ec);
+   <V extends Version> V createMutableVersion(Transaction transaction, Status state, ManifoldCoordinate mc);
    
    /**
     * Create a mutable version with Long.MAX_VALUE as the time, indicating
@@ -111,19 +111,19 @@ public interface Chronology
     *
     * @param <V> the mutable version type
     * @param state state of the created mutable version
-    * @param ec edit coordinate to provide the author, module, and path for the mutable version
+    * @param mc Manifold coordinate to provide the author, module, and path for the mutable version
     * @param moduleOverride create version on this module, instead of the edit coordinates module. 
     * @return the mutable version
     */
-   default <V extends Version> V createMutableVersion(Transaction transaction, Status state, EditCoordinate ec, ConceptSpecification moduleOverride) {
-       return createMutableVersion(transaction, state, ec, moduleOverride.getNid());
+   default <V extends Version> V createMutableVersion(Transaction transaction, Status state, ManifoldCoordinate mc, ConceptSpecification moduleOverride) {
+       return createMutableVersion(transaction, state, mc, moduleOverride.getNid());
    }
 
-   default <V extends Version> V createMutableVersion(Transaction transaction, Status state, EditCoordinate ec, Optional<ConceptSpecification> moduleOverride) {
+   default <V extends Version> V createMutableVersion(Transaction transaction, Status state, ManifoldCoordinate mc, Optional<ConceptSpecification> moduleOverride) {
        if (moduleOverride.isPresent()) {
-           return createMutableVersion(transaction, state, ec, moduleOverride.get());
+           return createMutableVersion(transaction, state, mc, moduleOverride.get());
        }
-       return createMutableVersion(transaction, state, ec);
+       return createMutableVersion(transaction, state, mc);
    }
 
    /**
@@ -134,19 +134,19 @@ public interface Chronology
     *
     * @param <V> the mutable version type
     * @param state state of the created mutable version
-    * @param ec edit coordinate to provide the author, module, and path for the mutable version
+    * @param mc Manifold coordinate to provide the author, module, and path for the mutable version
     * @param moduleOverrideNid create version on this module, instead of the edit coordinates module. 
     * @return the mutable version
     */
-   default <V extends Version> V createMutableVersion(Transaction transaction, Status state, EditCoordinate ec, int moduleOverrideNid) {
+   default <V extends Version> V createMutableVersion(Transaction transaction, Status state, ManifoldCoordinate mc, int moduleOverrideNid) {
       final int stampSequence = Get.stampService()
                                    .getStampSequence(
                                        transaction,
                                        state,
                                        Long.MAX_VALUE,
-                                       ec.getAuthorNid(),
+                                       mc.getAuthorNidForChanges(),
                                        moduleOverrideNid,
-                                       ec.getPathNid());
+                                       mc.getPathNidForFilter());
        return createMutableVersion(stampSequence);
    }
 
@@ -311,11 +311,11 @@ public interface Chronology
      * Returns a mutable version for editing. Will return an existing uncommitted version if the
      * transaction identifier matches, if not it will clone the latest version according to the stamp
      * coordinate.
-     * @param stampFilter
      * @param transaction
+     * @param mc
      * @return a mutable version
      */
-   default <V extends Version> V getVersionToEdit(StampFilter stampFilter, int authorNid, int pathNid, Transaction transaction) {
+   default <V extends Version> V getVersionToEdit(Transaction transaction, ManifoldCoordinate mc) {
        for (Version version: getVersionList()) {
            if (version.getCommitState() == CommitStates.UNCOMMITTED &&
                    transaction.containsTransactionId(Get.stampService().getTransactionIdForStamp(version.getStampSequence()))) {
@@ -324,14 +324,13 @@ public interface Chronology
            }
        }
 
-       LatestVersion<V> latestVersion = getLatestVersion(stampFilter);
+       LatestVersion<V> latestVersion = getLatestVersion(mc.getViewFilter());
        if (latestVersion.isPresent()) {
-           V v = ((Version) latestVersion.get()).makeAnalog(transaction, authorNid);
-           v.setPathNid(pathNid);
+           V v = ((Version) latestVersion.get()).makeAnalog(transaction, mc);
            transaction.addVersionToTransaction(v);
            return v;
        }
-       throw new IllegalStateException("No latest version for stamp: " + stampFilter + "\n\n" + this);
+       throw new IllegalStateException("No latest version for stamp: " + mc.getViewFilter() + "\n\n" + this);
    }
 }
 

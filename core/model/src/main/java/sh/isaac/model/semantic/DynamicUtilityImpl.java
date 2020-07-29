@@ -62,7 +62,6 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
@@ -78,7 +77,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -312,14 +311,14 @@ public class DynamicUtilityImpl
     */
    @Override
    public SemanticChronology[] configureConceptAsDynamicSemantic(Transaction transaction, int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
-         IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, EditCoordinate editCoord) {
+                                                                 IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, ManifoldCoordinate manifoldCoordinate) {
       if (StringUtils.isBlank(semanticDescription)) {
          throw new RuntimeException("Semantic description is required");
       }
 
-      final EditCoordinate localEditCoord = ((editCoord == null) ? 
-            Get.configurationService().getUserConfiguration(Optional.empty()).getEditCoordinate()
-            : editCoord);
+      final ManifoldCoordinate localManifoldCoordinate = ((manifoldCoordinate == null) ?
+            Get.configurationService().getUserConfiguration(Optional.empty()).getManifoldCoordinate()
+            : manifoldCoordinate);
 
       ArrayList<SemanticChronology> builtSemantics = new ArrayList<>();
 
@@ -333,13 +332,13 @@ public class DynamicUtilityImpl
       definitionBuilder.addPreferredInDialectAssemblage(TermAux.US_DIALECT_ASSEMBLAGE);
       definitionBuilder.setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null);
 
-      final SemanticChronology definitionSemantic = definitionBuilder.build(transaction, localEditCoord).getNoThrow();
+      final SemanticChronology definitionSemantic = definitionBuilder.build(transaction, localManifoldCoordinate).getNoThrow();
       builtSemantics.add(definitionSemantic);
 
       builtSemantics.add(Get.semanticBuilderService()
             .getDynamicBuilder(definitionSemantic.getNid(), DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), null)
             .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null)
-            .build(transaction, localEditCoord).getNoThrow());
+            .build(transaction, localManifoldCoordinate).getNoThrow());
 
       // define the data columns (if any)
       if (columns != null) {
@@ -352,7 +351,7 @@ public class DynamicUtilityImpl
             builtSemantics
                   .add(Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getNid(), data)
                         .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null)
-                        .build(transaction, localEditCoord).getNoThrow());
+                        .build(transaction, localManifoldCoordinate).getNoThrow());
          }
       }
 
@@ -362,7 +361,7 @@ public class DynamicUtilityImpl
          builtSemantics.add(
                Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getNid(), data)
                   .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null)
-                  .build(transaction, localEditCoord).getNoThrow());
+                  .build(transaction, localManifoldCoordinate).getNoThrow());
       }
       return builtSemantics.toArray(new SemanticChronology[builtSemantics.size()]);
    }
@@ -372,7 +371,7 @@ public class DynamicUtilityImpl
     */
    @Override
    public ArrayList<Chronology> buildUncommittedNewDynamicSemanticColumnInfoConcept(Transaction transaction, String columnName, String columnDescription,
-                                                                                    EditCoordinate editCoordinate, UUID[] extraParents) {
+                                                                                    ManifoldCoordinate manifoldCoordinate, UUID[] extraParents) {
          if (StringUtils.isBlank(columnName)) {
             throw new RuntimeException("Column name is required");
          }
@@ -425,7 +424,7 @@ public class DynamicUtilityImpl
          }
 
          builder.build(transaction,
-                 editCoordinate == null ? Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate() : editCoordinate,
+                 manifoldCoordinate == null ? Get.configurationService().getGlobalDatastoreConfiguration().getDefaultManifoldCoordinate() : manifoldCoordinate,
                  builtObjects).getNoThrow();
 
          return builtObjects;

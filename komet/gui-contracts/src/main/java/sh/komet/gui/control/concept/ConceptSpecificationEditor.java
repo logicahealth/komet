@@ -75,7 +75,6 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         
         this.menuButton.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                System.out.println("Adding meta f to " + menuButton.getText());
                 findItem.setAccelerator(new KeyCodeCombination(KeyCode.F, KeyCombination.META_DOWN));
                 ControlAcceleratorSupport.addAcceleratorsIntoScene(menuButton.getItems(), menuButton);
 
@@ -92,8 +91,8 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
             fixedWidthFindSeperator.setWidth(newValue.doubleValue() - 16);
             fixedWidthManifoldSeperator.setWidth(newValue.doubleValue() - 16);
         });
-        this.menuButton.armedProperty().addListener((observable, oldValue, armed) -> {
-            if (armed) {
+        this.menuButton.sceneProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
                 addMenuItems(wrapper, manifoldCoordinate);
             }
         });

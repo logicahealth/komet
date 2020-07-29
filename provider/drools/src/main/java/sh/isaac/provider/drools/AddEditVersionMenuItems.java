@@ -82,7 +82,7 @@ public class AddEditVersionMenuItems {
         MenuItem menuItem = new MenuItemWithText(menuText);
         menuItem.setOnAction((event) -> {
             // create version to edit here
-            ObservableVersion uncommittedVersion = categorizedVersion.makeAutonomousAnalog(FxGet.editCoordinate());
+            ObservableVersion uncommittedVersion = categorizedVersion.makeAutonomousAnalog(this.manifoldCoordinate);
             propertySheetMenuItem.setVersionInFlight(uncommittedVersion);
             propertySheetMenuItem.prepareToExecute();
             propertySheetConsumer.accept(propertySheetMenuItem);

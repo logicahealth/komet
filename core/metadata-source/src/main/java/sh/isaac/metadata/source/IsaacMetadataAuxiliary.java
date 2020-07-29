@@ -953,6 +953,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept(AUTHOR_NID_FOR_EDIT_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_NID_FOR_EDIT_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(DESTINATION_MODULE_NID_FOR_EDIT_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_OPTIONS_FOR_EDIT_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(PATH_NID_FOR_EDIT_CORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(PATH_OPTIONS_FOR_EDIT_COORDINATE).setModule(TermAux.KOMET_MODULE);
@@ -993,6 +994,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(VERTEX_SORT_PROPERTY).setModule(TermAux.KOMET_MODULE);
+                  createConcept(CURRENT_ACTIVITY_PROPERTY).setModule(TermAux.KOMET_MODULE);
                   createConcept(DIGRAPH_PROPERTY).setModule(TermAux.KOMET_MODULE);
                   createConcept(EDGE_FILTER_FOR_DIGRAPH).setModule(TermAux.KOMET_MODULE);
                   createConcept(VERTEX_FILTER_FOR_DIGRAPH).setModule(TermAux.KOMET_MODULE);

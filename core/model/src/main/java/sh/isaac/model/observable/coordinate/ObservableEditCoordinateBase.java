@@ -7,19 +7,21 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.EditCoordinateImmutable;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedObjectProperty;
 
 public abstract class ObservableEditCoordinateBase extends ObservableCoordinateImpl<EditCoordinateImmutable>
         implements ObservableEditCoordinate {
     /** The author property. */
-    private final SimpleEqualityBasedObjectProperty<ConceptSpecification> authorProperty;
+    private final SimpleEqualityBasedObjectProperty<ConceptSpecification> authorForChangesProperty;
 
-    /** The module property. */
-    private final SimpleEqualityBasedObjectProperty<ConceptSpecification> moduleProperty;
+    /** The default module property. */
+    private final SimpleEqualityBasedObjectProperty<ConceptSpecification> defaultModuleProperty;
+
+    /** The promotion module property. */
+    private final SimpleEqualityBasedObjectProperty<ConceptSpecification> destinationModuleProperty;
 
     /** The path property. */
-    private final SimpleEqualityBasedObjectProperty<ConceptSpecification> pathProperty;
+    private final SimpleEqualityBasedObjectProperty<ConceptSpecification> promotionPathProperty;
 
     /**
      * Note that if you don't declare a listener as final in this way, and just use method references, or
@@ -27,9 +29,10 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateI
      * a new object, and they won't compare equal using object identity.
      * https://stackoverflow.com/questions/42146360/how-do-i-remove-lambda-expressions-method-handles-that-are-used-as-listeners
      */
-    private final ChangeListener<ConceptSpecification> authorListener = this::authorConceptChanged;
-    private final ChangeListener<ConceptSpecification> moduleListener = this::moduleConceptChanged;
-    private final ChangeListener<ConceptSpecification> pathListener = this::pathConceptChanged;
+    private final ChangeListener<ConceptSpecification> authorForChangesListener = this::authorForChangesConceptChanged;
+    private final ChangeListener<ConceptSpecification> defaultModuleListener = this::defaultModuleConceptChanged;
+    private final ChangeListener<ConceptSpecification> destinationModuleListener = this::destinationModuleConceptChanged;
+    private final ChangeListener<ConceptSpecification> promotionPathListener = this::promotionPathConceptChanged;
 
     //~--- constructors --------------------------------------------------------
 
@@ -40,68 +43,94 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateI
      */
     public ObservableEditCoordinateBase(EditCoordinate editCoordinate, String coordinateName) {
         super(editCoordinate.toEditCoordinateImmutable(), "Edit coordinate");
-        this.authorProperty = makeAuthorProperty(editCoordinate);
-        this.moduleProperty = makeModuleProperty(editCoordinate);
-        this.pathProperty = makePathProperty(editCoordinate);
+        this.authorForChangesProperty = makeAuthorForChangesProperty(editCoordinate);
+        this.defaultModuleProperty = makeDefaultModuleProperty(editCoordinate);
+        this.destinationModuleProperty = makeDestinationModuleProperty(editCoordinate);
+        this.promotionPathProperty = makePromotionPathProperty(editCoordinate);
         addListeners();
     }
 
-    protected abstract SimpleEqualityBasedObjectProperty<ConceptSpecification> makePathProperty(EditCoordinate editCoordinate);
+    protected abstract SimpleEqualityBasedObjectProperty<ConceptSpecification> makePromotionPathProperty(EditCoordinate editCoordinate);
 
-    protected abstract SimpleEqualityBasedObjectProperty<ConceptSpecification> makeModuleProperty(EditCoordinate editCoordinate);
+    protected abstract SimpleEqualityBasedObjectProperty<ConceptSpecification> makeDefaultModuleProperty(EditCoordinate editCoordinate);
 
-    protected abstract SimpleEqualityBasedObjectProperty<ConceptSpecification> makeAuthorProperty(EditCoordinate editCoordinate);
+    protected abstract SimpleEqualityBasedObjectProperty<ConceptSpecification> makeDestinationModuleProperty(EditCoordinate editCoordinate);
+
+    protected abstract SimpleEqualityBasedObjectProperty<ConceptSpecification> makeAuthorForChangesProperty(EditCoordinate editCoordinate);
 
     protected void removeListeners() {
-        this.moduleProperty.removeListener(this.moduleListener);
-        this.authorProperty.removeListener(this.authorListener);
-        this.pathProperty.removeListener(this.pathListener);
+        this.authorForChangesProperty.removeListener(this.authorForChangesListener);
+        this.defaultModuleProperty.removeListener(this.defaultModuleListener);
+        this.destinationModuleProperty.removeListener(this.destinationModuleListener);
+        this.promotionPathProperty.removeListener(this.promotionPathListener);
     }
 
     protected void addListeners() {
-        this.moduleProperty.addListener(this.moduleListener);
-        this.authorProperty.addListener(this.authorListener);
-        this.pathProperty.addListener(this.pathListener);
+        this.authorForChangesProperty.addListener(this.authorForChangesListener);
+        this.defaultModuleProperty.addListener(this.defaultModuleListener);
+        this.destinationModuleProperty.addListener(this.destinationModuleListener);
+        this.promotionPathProperty.addListener(this.promotionPathListener);
     }
 
     @Override
     protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends EditCoordinateImmutable> observable, EditCoordinateImmutable oldValue, EditCoordinateImmutable newValue) {
-        this.authorProperty.setValue(newValue.getAuthor());
-        this.moduleProperty.setValue(newValue.getModule());
-        this.pathProperty.setValue(newValue.getPath());
+        this.authorForChangesProperty.setValue(newValue.getAuthorForChanges());
+        this.defaultModuleProperty.setValue(newValue.getDefaultModule());
+        this.destinationModuleProperty.setValue(newValue.getDestinationModule());
+        this.promotionPathProperty.setValue(newValue.getPromotionPath());
     }
 
-    private void pathConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
-                                    ConceptSpecification old,
-                                    ConceptSpecification newPathConcept) {
-        this.setValue(EditCoordinateImmutable.make(getAuthorNid(), getModuleNid(), newPathConcept.getNid()));
+    private void promotionPathConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
+                                             ConceptSpecification old,
+                                             ConceptSpecification newPathConcept) {
+        this.setValue(EditCoordinateImmutable.make(getAuthorNidForChanges(),
+                getDefaultModuleNid(),
+                newPathConcept.getNid(),
+                getDestinationModuleNid()));
     }
 
-    private void authorConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
-                                      ConceptSpecification oldAuthorConcept,
-                                      ConceptSpecification newAuthorConcept) {
-        this.setValue(EditCoordinateImmutable.make(newAuthorConcept.getNid(), getModuleNid(), getPathNid()));
+    private void authorForChangesConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
+                                                ConceptSpecification oldAuthorConcept,
+                                                ConceptSpecification newAuthorConcept) {
+        this.setValue(EditCoordinateImmutable.make(newAuthorConcept.getNid(), getDefaultModuleNid(),
+                getPromotionPath().getNid(),
+                getDestinationModuleNid()));
     }
 
-    private void moduleConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
-                                      ConceptSpecification old,
-                                      ConceptSpecification newModuleConcept) {
-        this.setValue(EditCoordinateImmutable.make(getAuthorNid(), newModuleConcept.getNid(), getPathNid()));
+    private void defaultModuleConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
+                                             ConceptSpecification old,
+                                             ConceptSpecification newModuleConcept) {
+        this.setValue(EditCoordinateImmutable.make(getAuthorNidForChanges(), newModuleConcept.getNid(),
+                getPromotionPath().getNid(),
+                getDestinationModuleNid()));
+    }
+
+    private void destinationModuleConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
+                                             ConceptSpecification old,
+                                             ConceptSpecification newModuleConcept) {
+        this.setValue(EditCoordinateImmutable.make(getAuthorNidForChanges(), getDefaultModule().getNid(),
+                getPromotionPath().getNid(),
+                newModuleConcept.getNid()));
     }
 
     @Override
-    public ObjectProperty<ConceptSpecification> authorProperty() {
-        return this.authorProperty;
+    public ObjectProperty<ConceptSpecification> authorForChangesProperty() {
+        return this.authorForChangesProperty;
     }
 
     @Override
-    public ObjectProperty<ConceptSpecification> moduleProperty() {
-        return this.moduleProperty;
+    public ObjectProperty<ConceptSpecification> defaultModuleProperty() {
+        return this.defaultModuleProperty;
     }
 
     @Override
-    public ObjectProperty<ConceptSpecification> pathProperty() {
-        return this.pathProperty;
+    public ObjectProperty<ConceptSpecification> promotionPathProperty() {
+        return this.promotionPathProperty;
+    }
+
+    @Override
+    public ObjectProperty<ConceptSpecification> destinationModuleProperty() {
+        return this.destinationModuleProperty;
     }
 
     @Override

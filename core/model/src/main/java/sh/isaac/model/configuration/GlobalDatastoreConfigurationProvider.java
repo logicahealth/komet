@@ -328,10 +328,10 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 					defaultCoordinateProvider.setDefaultLanguage(dcp.getDefaultLanguageCoordinate().getLanguageConceptNid());
 					break;
 				case EDIT_MODULE:
-					defaultCoordinateProvider.setDefaultModule(dcp.getDefaultEditCoordinate().getModuleNid());
+					defaultCoordinateProvider.setDefaultModule(dcp.getDefaultEditCoordinate().getDefaultModuleNid());
 					break;
 				case EDIT_PATH:
-					defaultCoordinateProvider.setDefaultPath(dcp.getDefaultEditCoordinate().getPath());
+					defaultCoordinateProvider.setDefaultPath(dcp.getDefaultManifoldCoordinate().getViewFilter().getPathConceptForFilter());
 					break;
 				case STATED_ASSEMBLAGE:
 					defaultCoordinateProvider.setDefaultStatedAssemblage(dcp.getDefaultLogicCoordinate().getStatedAssemblageNid());
@@ -343,7 +343,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 					defaultCoordinateProvider.setDefaultPremiseType(dcp.getDefaultManifoldCoordinate().getPremiseType());
 					break;
 				case USER:
-					defaultCoordinateProvider.setDefaultUser(dcp.getDefaultEditCoordinate().getAuthorNid());
+					defaultCoordinateProvider.setDefaultUser(dcp.getDefaultEditCoordinate().getAuthorNidForChanges());
 					break;
 				default :
 					throw new RuntimeException("Oops");
@@ -514,9 +514,9 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 			case LANGUAGE:
 				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultLanguageCoordinate().getLanguageConceptNid());
 			case EDIT_MODULE:
-				return(T) Integer.valueOf(defaultCoordinateProvider.getDefaultEditCoordinate().getModuleNid());
+				return(T) Integer.valueOf(defaultCoordinateProvider.getDefaultEditCoordinate().getDefaultModuleNid());
 			case EDIT_PATH:
-				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultEditCoordinate().getPathNid());
+				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultManifoldCoordinate().getViewFilter().getPathNidForFilter());
 			case STATED_ASSEMBLAGE:
 				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultLogicCoordinate().getStatedAssemblageNid());
 			case TIME:
@@ -524,7 +524,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 			case PREMISE_TYPE:
 				return (T)defaultCoordinateProvider.getDefaultManifoldCoordinate().getPremiseType();
 			case USER:
-				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultEditCoordinate().getAuthorNid());
+				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultEditCoordinate().getAuthorNidForChanges());
 			default :
 				throw new RuntimeException("Oops");
 		}

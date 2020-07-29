@@ -57,6 +57,7 @@ import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.api.util.UuidStringKey;
 import sh.isaac.api.util.time.DateTimeUtil;
+import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
@@ -431,10 +432,6 @@ public class FxGet implements StaticIsaacCache {
 
     public static ObservableList<ConceptSpecification> navigationOptions() {
         return NAVIGATION_OPTIONS;
-    }
-
-    public static ObservableEditCoordinate editCoordinate() {
-        return EditCoordinate.get();
     }
 
     private static boolean makeRecursiveOverrideMenu(ManifoldCoordinate manifoldCoordinate, ObservableList<MenuItem> menuItems,
@@ -1146,7 +1143,7 @@ public class FxGet implements StaticIsaacCache {
         if (preferenceViewProperties == null) {
             preferenceViewProperties = ViewProperties.make(UUID.fromString("1db21f81-c884-4dd7-8bf5-2befc955c887"), "Preferences view",
                     new ObservableManifoldCoordinateImpl(Coordinates.Manifold.DevelopmentInferredRegularNameSort()),
-                    editCoordinate());
+                    new ObservableEditCoordinateImpl(Coordinates.Edit.Default()));
         }
         return preferenceViewProperties;
     }
@@ -1154,10 +1151,10 @@ public class FxGet implements StaticIsaacCache {
     public static ViewProperties newDefaultViewProperties() {
         return ViewProperties.make(UUID.randomUUID(), "Default view",
                 new ObservableManifoldCoordinateImpl(Coordinates.Manifold.DevelopmentInferredRegularNameSort()),
-                editCoordinate());
+                new ObservableEditCoordinateImpl(Coordinates.Edit.Default()));
     }
 
     public static WindowPreferences windowPreferences(Node node) {
-        return (WindowPreferences) node.getScene().getProperties().get(PROPERTY_KEYS.WINDOW_PREFERENCES);
+        return (WindowPreferences) node.getScene().getWindow().getProperties().get(PROPERTY_KEYS.WINDOW_PREFERENCES);
     }
 }

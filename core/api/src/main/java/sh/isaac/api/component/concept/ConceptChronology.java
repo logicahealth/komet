@@ -102,11 +102,11 @@ public interface ConceptChronology
     * add the mutable version to the commit manager when changes are complete
     * prior to committing the component.
     * @param state state of the created mutable version
-    * @param ec edit coordinate to provide the author, module, and path for the mutable version
+    * @param mc Manifold coordinate to provide the author, module, and path for the mutable version
     * @return the mutable version
     */
    @Override
-   ConceptVersion createMutableVersion(Transaction transaction, Status state, EditCoordinate ec);
+   ConceptVersion createMutableVersion(Transaction transaction, Status state, ManifoldCoordinate mc);
 
    //~--- get methods ---------------------------------------------------------
 

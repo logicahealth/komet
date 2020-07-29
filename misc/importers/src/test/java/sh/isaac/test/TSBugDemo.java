@@ -77,8 +77,7 @@ public class TSBugDemo
 			
 			dwh.processTaxonomyUpdates();
 			
-			TaxonomySnapshot tss = Get.taxonomyService().getSnapshot(ManifoldCoordinateImmutable.makeStated(Coordinates.Filter.DevelopmentLatest(),
-                    Coordinates.Language.UsEnglishPreferredName()));
+			TaxonomySnapshot tss = Get.taxonomyService().getSnapshot(Coordinates.Manifold.DevelopmentStatedRegularNameSort());
 			Assert.assertEquals(tss.getTaxonomyParentConceptNids(Get.identifierService().getNidForUuids(concept)).length, 3);
 			
 			byte[][] data = ((LogicGraphVersion)Get.assemblageService().getSemanticChronology(Get.identifierService().getNidForUuids(parentGraph))
@@ -87,7 +86,7 @@ public class TSBugDemo
 			//retire the 3-parent graph
 			MutableLogicGraphVersion v = Get.assemblageService().getSemanticChronology(Get.identifierService().getNidForUuids(parentGraph))
 					.createMutableVersion(transaction, Status.INACTIVE,
-					EditCoordinates.getDefaultUserSolorOverlay());
+							Coordinates.Manifold.DevelopmentStatedRegularNameSort());
 			v.setGraphData(data);
 			transaction.commit("test commit").get();
 
@@ -95,8 +94,7 @@ public class TSBugDemo
 	//		Assert.assertEquals(tss.getTaxonomyParentConceptNids(Get.identifierService().getNidForUuids(concept)).length, 0);
 			
 			Get.taxonomyService().notifyTaxonomyListenersToRefresh();
-			tss = Get.taxonomyService().getSnapshot(ManifoldCoordinateImmutable.makeStated(Coordinates.Filter.DevelopmentLatest(),
-                    Coordinates.Language.UsEnglishPreferredName()));
+			tss = Get.taxonomyService().getSnapshot(Coordinates.Manifold.DevelopmentStatedRegularNameSort());
 			
 			//TODO still broken after forced cache clear, and regen of TSS:
 	//		Assert.assertEquals(tss.getTaxonomyParentConceptNids(Get.identifierService().getNidForUuids(concept)).length, 0);

@@ -64,22 +64,16 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 	private Logger log = LogManager.getLogger();
 	private ManifoldCoordinate mc;
 	private HashSet<Integer> orphans = new HashSet<>();
-	private final StampFilter stampCoordinate;
-	private final LogicCoordinate logicCoordinate;
-	private final EditCoordinate editCoordinate;
-	
+
 	/**
 	 * Set up a new cycle checker task
-	 * @param stampFilter
-	 * @param logicCoordinate
+	 * @param manifoldCoordinate
+	 *
 	 */
-	public CycleCheck(StampFilter stampFilter, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate)
+	public CycleCheck(ManifoldCoordinate manifoldCoordinate)
 	{
-		this.stampCoordinate = stampFilter;
-		this.logicCoordinate = logicCoordinate;
-		this.editCoordinate = editCoordinate;
 		updateTitle("Cycle Check");
-		mc = ManifoldCoordinateImmutable.makeStated(stampFilter, Coordinates.Language.UsEnglishPreferredName(), logicCoordinate);
+		mc = manifoldCoordinate.toManifoldCoordinateImmutable();
 	}
 
 	/**
@@ -106,7 +100,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 			if (results.size() > 0)
 			{
 				log.info("Found {} concepts with cycles in their path to root", results.size());
-				return new ClassifierResultsImpl(results, orphans, stampCoordinate, logicCoordinate, editCoordinate);
+				return new ClassifierResultsImpl(results, orphans, mc);
 			}
 			else
 			{

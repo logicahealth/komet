@@ -33,6 +33,7 @@ import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -138,8 +139,8 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
    }
 
    @Override
-   public <V extends Version> V createMutableVersion(Transaction transaction, Status state, EditCoordinate ec) {
-      return getChronology().createMutableVersion(transaction, state, ec);
+   public <V extends Version> V createMutableVersion(Transaction transaction, Status state, ManifoldCoordinate mc) {
+      return getChronology().createMutableVersion(transaction, state, mc);
    }
 
    @Override

@@ -9,6 +9,17 @@ import sh.isaac.api.bootstrap.TermAux;
 import java.util.List;
 
 public class Coordinates {
+
+    public static class  Edit {
+        public static EditCoordinateImmutable Default() {
+            return EditCoordinateImmutable.make(
+            TermAux.USER.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(),
+                TermAux.DEVELOPMENT_PATH.getNid(),
+                TermAux.SOLOR_OVERLAY_MODULE.getNid()
+            );
+        }
+    }
+
     public static class Logic {
         public static LogicCoordinateImmutable ElPlusPlus() {
             return LogicCoordinateImmutable.make(TermAux.SNOROCKET_CLASSIFIER,
@@ -201,7 +212,6 @@ public class Coordinates {
         public static StampPathImmutable Development() {
             return StampPathImmutable.make(TermAux.DEVELOPMENT_PATH, Sets.immutable.of(StampPositionImmutable.make(Long.MAX_VALUE, TermAux.PRIMORDIAL_PATH.getNid())));
         }
-
     }
 
     public static class Manifold {
@@ -209,13 +219,13 @@ public class Coordinates {
             return ManifoldCoordinateImmutable.makeInferred(
                     Path.Development().getStampFilter(),
                     Language.UsEnglishPreferredName(),
-                    Logic.ElPlusPlus());
+                    Logic.ElPlusPlus(), Activity.DEVELOPING, Edit.Default());
         }
         public static final ManifoldCoordinateImmutable DevelopmentStatedRegularNameSort() {
             return ManifoldCoordinateImmutable.makeStated(
                     Path.Development().getStampFilter(),
                     Language.UsEnglishPreferredName(),
-                    Logic.ElPlusPlus());
+                    Logic.ElPlusPlus(), Activity.DEVELOPING, Edit.Default());
         }
     }
 

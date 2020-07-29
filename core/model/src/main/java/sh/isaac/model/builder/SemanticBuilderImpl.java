@@ -53,11 +53,10 @@ import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.transaction.Transaction;
@@ -354,14 +353,14 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
     /**
      * Builds the.
      *
-     * @param editCoordinate the edit coordinate
+     * @param manifoldCoordinate the edit coordinate
      * @param builtObjects the built objects
      * @return the optional wait task
      * @throws IllegalStateException the illegal state exception
      */
     @Override
-    public OptionalWaitTask<C> build(Transaction transaction, EditCoordinate editCoordinate,
-            List<Chronology> builtObjects)
+    public OptionalWaitTask<C> build(Transaction transaction, ManifoldCoordinate manifoldCoordinate,
+                                     List<Chronology> builtObjects)
             throws IllegalStateException {
         
         List<SemanticBuildListenerI> semanticBuildListeners = LookupService.get().getAllServices(SemanticBuildListenerI.class);
@@ -370,7 +369,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                 if (listener.isEnabled()) {
                     // LOG.info("Calling " + listener.getListenerName() + ".applyBefore(...)");
                     try {
-                        listener.applyBefore(transaction, editCoordinate, builtObjects);
+                        listener.applyBefore(transaction, manifoldCoordinate, builtObjects);
                     } catch (RuntimeException e) {
                         LOG.error("FAILED running " + listener.getListenerName() + ".applyBefore(...): ", e);
                     }
@@ -411,21 +410,21 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             case COMPONENT_NID:
                 final ComponentNidVersionImpl cnsi
                         = semanticChronology.createMutableVersion(transaction, this.state,
-                                editCoordinate, getModule());
+                        manifoldCoordinate, getModule());
                 version = cnsi;
                 cnsi.setComponentNid((Integer) this.parameters[0]);
                 break;
             
             case LONG:
                 final LongVersionImpl lsi = semanticChronology.createMutableVersion(transaction, this.state,
-                        editCoordinate, getModule());
+                        manifoldCoordinate, getModule());
                 version = lsi;
                 lsi.setLongValue((Long) this.parameters[0]);
                 break;
 
             case Nid1_Long2:
                 final Nid1_Long2_VersionImpl nid1_long2_version = semanticChronology.createMutableVersion(transaction, this.state,
-                        editCoordinate, getModule());
+                        manifoldCoordinate, getModule());
                 version = nid1_long2_version;
                 nid1_long2_version.setNid1((Integer) this.parameters[0]);
                 nid1_long2_version.setLong2((Long) this.parameters[1]);
@@ -434,19 +433,19 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             case LOGIC_GRAPH:
                 final LogicGraphVersionImpl lgsi
                         = semanticChronology.createMutableVersion(transaction, this.state,
-                                editCoordinate, getModule());
+                        manifoldCoordinate, getModule());
                 version = lgsi;
                 lgsi.setGraphData(((LogicalExpression) this.parameters[0]).getData(DataTarget.INTERNAL));
                 break;
             
             case MEMBER:
-                final SemanticVersionImpl svi = semanticChronology.createMutableVersion(transaction, this.state, editCoordinate, getModule());
+                final SemanticVersionImpl svi = semanticChronology.createMutableVersion(transaction, this.state, manifoldCoordinate, getModule());
                 version = svi;
                 break;
             
             case STRING:
                 final StringVersionImpl ssi = semanticChronology.createMutableVersion(transaction, this.state,
-                        editCoordinate, getModule());
+                        manifoldCoordinate, getModule());
                 version = ssi;
                 ssi.setString((String) this.parameters[0]);
                 break;
@@ -454,7 +453,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             case DESCRIPTION: {
                 final DescriptionVersionImpl dsi
                         = semanticChronology.createMutableVersion(transaction, this.state,
-                                editCoordinate, getModule());
+                        manifoldCoordinate, getModule());
                 version = dsi;
                 dsi.setCaseSignificanceConceptNid((Integer) this.parameters[0]);
                 dsi.setDescriptionTypeConceptNid((Integer) this.parameters[1]);
@@ -465,7 +464,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             
             case DYNAMIC: {
                 final DynamicImpl dsi = semanticChronology.createMutableVersion(transaction, this.state,
-                        editCoordinate, getModule());
+                        manifoldCoordinate, getModule());
                 
                 if ((this.parameters != null) && (this.parameters.length > 0)) {
                     // See notes in SemanticBuilderProvider - this casting / wrapping nonesense it to work around Java being stupid.
@@ -488,7 +487,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             getModule().ifPresent((moduleSpec) -> {
                 builder.setModule(moduleSpec);
             });
-            nested.add(builder.build(transaction, editCoordinate,
+            nested.add(builder.build(transaction, manifoldCoordinate,
                     builtObjects));
         });
         builtObjects.add(semanticChronology);
@@ -496,7 +495,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             if (listener != null) {
                 if (listener.isEnabled()) {
                     // LOG.info("Calling " + listener.getListenerName() + ".applyAfter(...)");
-                    listener.applyAfter(transaction, editCoordinate, version, builtObjects);
+                    listener.applyAfter(transaction, manifoldCoordinate, version, builtObjects);
                 } else {
                     LOG.info("NOT calling " + listener.getListenerName() + ".applyAfter(...) because listener has been disabled");
                 }

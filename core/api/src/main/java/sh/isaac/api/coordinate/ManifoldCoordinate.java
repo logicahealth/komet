@@ -52,6 +52,7 @@ import sh.isaac.api.Edge;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -60,8 +61,10 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.util.NaturalOrder;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.util.time.DateTimeUtil;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.function.Function;
 
@@ -77,19 +80,22 @@ public interface ManifoldCoordinate {
 
     static UUID getManifoldCoordinateUuid(ManifoldCoordinate manifoldCoordinate) {
         ArrayList<UUID> uuidList = new ArrayList<>();
+        uuidList.add(manifoldCoordinate.getEditCoordinate().getEditCoordinateUuid());
         uuidList.add(manifoldCoordinate.getNavigationCoordinate().getNavigationCoordinateUuid());
         uuidList.add(manifoldCoordinate.getVertexSort().getVertexSortUUID());
         uuidList.add(manifoldCoordinate.getVertexStampFilter().getStampFilterUuid());
         uuidList.add(manifoldCoordinate.getEdgeStampFilter().getStampFilterUuid());
         uuidList.add(manifoldCoordinate.getLanguageStampFilter().getStampFilterUuid());
         uuidList.add(manifoldCoordinate.getLanguageCoordinate().getLanguageCoordinateUuid());
+        uuidList.add(UuidT5Generator.get(manifoldCoordinate.getCurrentActivity().name()));
         StringBuilder sb = new StringBuilder(uuidList.toString());
         return UUID.nameUUIDFromBytes(sb.toString().getBytes());
     }
 
     default String toUserString() {
         StringBuilder sb = new StringBuilder("Manifold coordinate: ");
-        sb.append("\nDigraph: ").append(getNavigationCoordinate().toUserString());
+        sb.append("\nActivity: ").append(getCurrentActivity().toUserString());
+        sb.append("\nNavigation: ").append(getNavigationCoordinate().toUserString());
         sb.append("\n\nEdge filter:\n").append(getEdgeStampFilter().toUserString());
         sb.append("\n\nLanguage coordinate:\n").append(getLanguageCoordinate().toUserString());
         sb.append("\n\nLanguage filter:\n").append(getLanguageStampFilter().toUserString());
@@ -97,6 +103,12 @@ public interface ManifoldCoordinate {
         sb.append("\n\nSort:\n").append(getVertexSort().getVertexSortName());
         return sb.toString();
     }
+
+    default StampFilter getViewFilter() {
+        return getEdgeStampFilter();
+    }
+
+    EditCoordinate getEditCoordinate();
 
     TaxonomySnapshot getNavigationSnapshot();
 
@@ -107,6 +119,18 @@ public interface ManifoldCoordinate {
     }
 
     VertexSort getVertexSort();
+
+    default int getAuthorNidForChanges() {
+        return getEditCoordinate().getAuthorNidForChanges();
+    }
+
+    default int getPathNidForFilter() {
+        return getEdgeStampFilter().getPathNidForFilter();
+    }
+
+    default int getPathNidForChanges() {
+        return getPathNidForFilter();
+    }
 
     default int[] sortVertexes(int[] vertexConceptNids) {
         return getVertexSort().sortVertexes(vertexConceptNids, toManifoldCoordinateImmutable());
@@ -442,7 +466,7 @@ public interface ManifoldCoordinate {
         }
     }
 
-
+    Activity getCurrentActivity();
 
     default int[] getRootNids() {
         return this.getNavigationSnapshot().getRootNids();
@@ -524,6 +548,64 @@ public interface ManifoldCoordinate {
             sb.append(", " + this.getPreferredDescriptionText(lastPath));
         }
         return sb.toString();
+    }
+
+    /**
+     * Gets the module nid.
+     *
+     * @return the module nid
+     */
+    default int getModuleNidForAnalog(Version version) {
+        switch (getCurrentActivity()) {
+            case DEVELOPING:
+            case PROMOTING:
+                if (version == null) {
+                    return getEditCoordinate().getDefaultModuleNid();
+                }
+                return version.getModuleNid();
+            case MODULARIZING:
+                return getEditCoordinate().getDestinationModuleNid();
+            case VIEWING:
+                throw new IllegalStateException("Cannot make analog when viewing [1]. ");
+            default:
+                throw new UnsupportedOperationException(getCurrentActivity().name());
+        }
+    }
+
+    default ConceptSpecification getModuleForAnalog(Version version) {
+        return Get.conceptSpecification(getModuleNidForAnalog(version));
+    }
+
+    /**
+     * Gets the path nid.
+     *
+     * @return the path nid
+     */
+    default int getPathNidForAnalog(Version version) {
+        switch (getCurrentActivity()) {
+            case DEVELOPING:
+            case MODULARIZING:
+                if (version == null) {
+                    return getViewFilter().getPathNidForFilter();
+                }
+                return version.getPathNid();
+            case PROMOTING:
+                return getEditCoordinate().getPromotionPathNid();
+            case VIEWING:
+                throw new IllegalStateException("Cannot make analog when viewing [2]. ");
+            default:
+                throw new UnsupportedOperationException(getCurrentActivity().name());
+        }
+    }
+
+    default ConceptSpecification getPathForAnalog(Version version) {
+        return Get.conceptSpecification(getPathNidForAnalog(version));
+    }
+
+    ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis);
+
+    default ManifoldCoordinate makeCoordinateAnalog(Instant classifyInstant) {
+        return makeCoordinateAnalog(classifyInstant.toEpochMilli());
     }
 
 }

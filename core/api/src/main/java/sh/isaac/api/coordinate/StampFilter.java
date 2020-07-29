@@ -12,6 +12,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.util.UUIDUtil;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.NoSuchElementException;
@@ -118,6 +119,10 @@ public interface StampFilter extends StampFilterTemplate, TimeBasedAnalogMaker<S
 
     default long getTime() {
         return getStampPosition().getTime();
+    }
+
+    default Instant getTimeAsInstant() {
+        return getStampPosition().getTimeAsInstant();
     }
 
     RelativePositionCalculator getRelativePositionCalculator();

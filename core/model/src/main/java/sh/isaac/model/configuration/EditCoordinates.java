@@ -57,8 +57,9 @@ public class EditCoordinates {
     */
    public static EditCoordinateImmutable getClassifierSolorOverlay() {
       return  EditCoordinateImmutable.make(TermAux.IHTSDO_CLASSIFIER.getNid(),
-                                                                   TermAux.SOLOR_OVERLAY_MODULE.getNid(),
-                                                                   TermAux.DEVELOPMENT_PATH.getNid());
+                                           TermAux.SOLOR_OVERLAY_MODULE.getNid(),
+                                           TermAux.DEVELOPMENT_PATH.getNid(),
+                                           TermAux.SOLOR_OVERLAY_MODULE.getNid());
    }
 
    /**
@@ -68,8 +69,9 @@ public class EditCoordinates {
     */
    public static EditCoordinateImmutable getDefaultUserMetadata() {
       return  EditCoordinateImmutable.make(TermAux.USER,
-                                                                   TermAux.SOLOR_MODULE,
-                                                                   TermAux.DEVELOPMENT_PATH);
+              TermAux.SOLOR_MODULE,
+              TermAux.DEVELOPMENT_PATH,
+              TermAux.SOLOR_OVERLAY_MODULE);
 
    }
 
@@ -80,8 +82,9 @@ public class EditCoordinates {
     */
    public static EditCoordinateImmutable getDefaultUserSolorOverlay() {
       return  EditCoordinateImmutable.make(TermAux.USER,
-                                                                   TermAux.SOLOR_OVERLAY_MODULE,
-                                                                   TermAux.DEVELOPMENT_PATH);
+              TermAux.SOLOR_OVERLAY_MODULE,
+              TermAux.DEVELOPMENT_PATH,
+              TermAux.SOLOR_OVERLAY_MODULE);
 
    }
 }

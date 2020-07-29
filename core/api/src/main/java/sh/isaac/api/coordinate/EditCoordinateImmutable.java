@@ -3,7 +3,7 @@ package sh.isaac.api.coordinate;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.StaticIsaacCache;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -11,7 +11,6 @@ import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 
 import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
 import java.util.Objects;
 
 @Service
@@ -19,21 +18,25 @@ import java.util.Objects;
 // Singleton from the perspective of HK2 managed instances, there will be more than one
 // StampFilterImmutable created in normal use.
 public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordinate {
+    private static final int marshalVersion = 2;
+
     private static final ConcurrentReferenceHashMap<EditCoordinateImmutable, EditCoordinateImmutable> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
     private final int authorNid;
-    private final int moduleNid;
-    private final int pathNid;
+    private final int defaultModuleNid;
+    private final int promotionPathNid;
+    private final int destinationModuleNid;
 
 
     private EditCoordinateImmutable() {
         // No arg constructor for HK2 managed instance
         // This instance just enables reset functionality...
         this.authorNid = Integer.MAX_VALUE;
-        this.moduleNid = Integer.MAX_VALUE;
-        this.pathNid = Integer.MAX_VALUE;
+        this.defaultModuleNid = Integer.MAX_VALUE;
+        this.promotionPathNid = Integer.MAX_VALUE;
+        this.destinationModuleNid = Integer.MAX_VALUE;
     }
     /**
      * {@inheritDoc}
@@ -43,20 +46,21 @@ public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordin
         SINGLETONS.clear();
     }
 
-    private EditCoordinateImmutable(int authorNid, int moduleNid, int pathNid) {
+    private EditCoordinateImmutable(int authorNid, int defaultModuleNid, int promotionPathNid, int destinationModuleNid) {
         this.authorNid = authorNid;
-        this.moduleNid = moduleNid;
-        this.pathNid = pathNid;
+        this.defaultModuleNid = defaultModuleNid;
+        this.promotionPathNid = promotionPathNid;
+        this.destinationModuleNid = destinationModuleNid;
     }
-    private static final int marshalVersion = 1;
 
-    public static EditCoordinateImmutable make(int authorNid, int moduleNid, int pathNid) {
-        return SINGLETONS.computeIfAbsent(new EditCoordinateImmutable(authorNid, moduleNid, pathNid),
+    public static EditCoordinateImmutable make(int authorNid, int defaultModuleNid, int promotionPathNid, int destinationModuleNid) {
+        return SINGLETONS.computeIfAbsent(new EditCoordinateImmutable(authorNid, defaultModuleNid, promotionPathNid, destinationModuleNid),
                 editCoordinateImmutable -> editCoordinateImmutable);
     }
 
-    public static EditCoordinateImmutable make(ConceptSpecification author, ConceptSpecification module, ConceptSpecification path) {
-        return make(author.getNid(), module.getNid(), path.getNid());
+    public static EditCoordinateImmutable make(ConceptSpecification author, ConceptSpecification defaultModule, ConceptSpecification promotionPath,
+                                               ConceptSpecification destinationModule) {
+        return make(author.getNid(), defaultModule.getNid(), promotionPath.getNid(), destinationModule.getNid());
     }
 
     @Unmarshaler
@@ -64,7 +68,10 @@ public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordin
         int objectMarshalVersion = in.getInt();
         switch (objectMarshalVersion) {
             case marshalVersion:
-                return SINGLETONS.computeIfAbsent(new EditCoordinateImmutable(in.getNid(), in.getNid(), in.getNid()),
+                return SINGLETONS.computeIfAbsent(new EditCoordinateImmutable(in.getNid(), in.getNid(), in.getNid(), in.getNid()),
+                        editCoordinateImmutable -> editCoordinateImmutable);
+            case 1:
+                return SINGLETONS.computeIfAbsent(new EditCoordinateImmutable(in.getNid(), in.getNid(), in.getNid(), TermAux.UNSPECIFIED_MODULE.getNid()),
                         editCoordinateImmutable -> editCoordinateImmutable);
             default:
                 throw new UnsupportedOperationException("Unsupported version: " + objectMarshalVersion);
@@ -76,23 +83,29 @@ public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordin
     public void marshal(ByteArrayDataBuffer out) {
         out.putInt(marshalVersion);
         out.putNid(this.authorNid);
-        out.putNid(this.moduleNid);
-        out.putNid(this.pathNid);
+        out.putNid(this.defaultModuleNid);
+        out.putNid(this.promotionPathNid);
+        out.putNid(this.destinationModuleNid);
     }
 
     @Override
-    public int getAuthorNid() {
+    public int getAuthorNidForChanges() {
         return this.authorNid;
     }
 
     @Override
-    public int getModuleNid() {
-        return this.moduleNid;
+    public int getDefaultModuleNid() {
+        return this.defaultModuleNid;
     }
 
     @Override
-    public int getPathNid() {
-        return this.pathNid;
+    public int getPromotionPathNid() {
+        return this.promotionPathNid;
+    }
+
+    @Override
+    public int getDestinationModuleNid() {
+        return this.destinationModuleNid;
     }
 
     @Override
@@ -105,13 +118,14 @@ public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordin
         if (this == o) return true;
         if (!(o instanceof EditCoordinateImmutable)) return false;
         EditCoordinateImmutable that = (EditCoordinateImmutable) o;
-        return getAuthorNid() == that.getAuthorNid() &&
-                getModuleNid() == that.getModuleNid() &&
-                getPathNid() == that.getPathNid();
+        return getAuthorNidForChanges() == that.getAuthorNidForChanges() &&
+                getDefaultModuleNid() == that.getDefaultModuleNid() &&
+                getPromotionPathNid() == that.getPromotionPathNid() &&
+                getDestinationModuleNid() == that.getDestinationModuleNid();
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAuthorNid(), getModuleNid(), getPathNid());
+        return Objects.hash(getAuthorNidForChanges(), getDefaultModuleNid(), getPromotionPathNid(), getDestinationModuleNid());
     }
 }

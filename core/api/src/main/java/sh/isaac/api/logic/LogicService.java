@@ -50,8 +50,6 @@ import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 
@@ -72,19 +70,10 @@ public interface LogicService {
     * 
     * Implementors should likely override the provided StampCoordinate time with NOW, if it is passed in with latest.
     *
-    * @param stampFilter the stamp coordinate
-    * @param logicCoordinate the logic coordinate
-    * @param editCoordinate the edit coordinate
+    * @param manifoldCoordinate the stamp coordinate
     * @return the classifier service
     */
-   ClassifierService getClassifierService(StampFilter stampFilter,
-                                          LogicCoordinate logicCoordinate,
-                                          EditCoordinate editCoordinate);
-   
-   default ClassifierService getClassifierService(ManifoldCoordinate coordinate,
-                                                  EditCoordinate editCoordinate) {
-      return getClassifierService(coordinate.getLanguageStampFilter(), coordinate.getLogicCoordinate(), editCoordinate);
-   }
+   ClassifierService getClassifierService(ManifoldCoordinate manifoldCoordinate);
 
    /**
     * Gets the logical expression.

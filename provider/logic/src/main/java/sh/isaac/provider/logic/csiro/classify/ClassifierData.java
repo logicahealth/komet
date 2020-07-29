@@ -49,6 +49,8 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.axioms.GraphToAxiomTranslator;
@@ -118,24 +120,10 @@ public class ClassifierData
      */
     ClassificationType lastClassifyType;
 
-    /**
-     * The stamp coordinate.
-     */
-    StampFilter stampFilter;
+    ManifoldCoordinateImmutable manifoldCoordinate;
 
-    /**
-     * The logic coordinate.
-     */
-    LogicCoordinate logicCoordinate;
-
-    /**
-     * Instantiates a new classifier data.
-     *  @param stampFilter the stamp coordinate
-     * @param logicCoordinate the logic coordinate
-     */
-    private ClassifierData(StampFilter stampFilter, LogicCoordinate logicCoordinate) {
-        this.stampFilter = stampFilter;
-        this.logicCoordinate = logicCoordinate;
+    private ClassifierData(ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate.toManifoldCoordinateImmutable();
     }
 
     //~--- methods -------------------------------------------------------------
@@ -190,20 +178,20 @@ public class ClassifierData
      */
     @Override
     public void handleChange(SemanticChronology sc) {
-        if (sc.getAssemblageNid() == this.logicCoordinate.getStatedAssemblageNid()) {
+        if (sc.getAssemblageNid() == this.manifoldCoordinate.getLogicCoordinate().getStatedAssemblageNid()) {
             LOG.info("Stated form change: " + sc);
 
             // only process if incremental is a possibility.
             if (this.incrementalAllowed) {
                 final LatestVersion<LogicGraphVersionImpl> optionalLatest
-                        = sc.getLatestVersion(this.stampFilter);
+                        = sc.getLatestVersion(this.manifoldCoordinate.getViewFilter());
 
                 if (optionalLatest.isPresent()) {
                     final LatestVersion<LogicGraphVersionImpl> latest = optionalLatest;
 
                     // get stampCoordinate for last classify.
                     final StampFilter stampToCompare
-                            = this.stampFilter.makeCoordinateAnalog(this.lastClassifyInstant.toEpochMilli());
+                            = this.manifoldCoordinate.getViewFilter().makeCoordinateAnalog(this.lastClassifyInstant.toEpochMilli());
 
                     // See if there is a change in the optionalLatest vs the last classify.
                     final LatestVersion<LogicGraphVersionImpl> optionalPrevious
@@ -265,8 +253,7 @@ public class ClassifierData
         return "ClassifierData{" + "graphToAxiomTranslator=" + this.allGraphsToAxiomTranslator
                 + ",\n incrementalToAxiomTranslator=" + this.incrementalToAxiomTranslator + ",\n reasoner="
                 + this.reasoner + ",\n lastClassifyInstant=" + this.lastClassifyInstant + ",\n lastClassifyType="
-                + this.lastClassifyType + ",\n stampCoordinate=" + this.stampFilter + ",\n logicCoordinate="
-                + this.logicCoordinate + '}';
+                + this.lastClassifyType + ",\n manifoldCoordinate=" + this.manifoldCoordinate + '}';
     }
 
     /**
@@ -327,22 +314,19 @@ public class ClassifierData
     /**
      * Gets the.
      *
-     * @param stampFilter the stamp coordinate
-     * @param logicCoordinate the logic coordinate
      * @return the classifier data
      */
-    public static ClassifierData get(StampFilter stampFilter, LogicCoordinate logicCoordinate) {
+    public static ClassifierData get(ManifoldCoordinate manifoldCoordinate) {
         if (SINGLETON.get() == null) {
-            SINGLETON.compareAndSet(null, new ClassifierData(stampFilter, logicCoordinate));
+            SINGLETON.compareAndSet(null, new ClassifierData(manifoldCoordinate));
         } else {
             ClassifierData classifierData = SINGLETON.get();
 
-            while (!classifierData.stampFilter.equals(stampFilter)
-                    || !classifierData.logicCoordinate.equals(logicCoordinate)) {
+            while (!classifierData.manifoldCoordinate.equals(manifoldCoordinate)) {
                 Get.commitService()
                         .removeChangeListener(classifierData);
 
-                final ClassifierData newClassifierData = new ClassifierData(stampFilter, logicCoordinate);
+                final ClassifierData newClassifierData = new ClassifierData(manifoldCoordinate);
 
                 SINGLETON.compareAndSet(classifierData, newClassifierData);
                 classifierData = SINGLETON.get();
@@ -378,10 +362,10 @@ public class ClassifierData
     }
     
     public LogicCoordinate getLogicCoordinate() {
-        return logicCoordinate;
+        return this.manifoldCoordinate.getLogicCoordinate();
     }
     
     public StampFilter getStampFilter() {
-        return stampFilter;
+        return this.manifoldCoordinate.getViewFilter();
     }
 }

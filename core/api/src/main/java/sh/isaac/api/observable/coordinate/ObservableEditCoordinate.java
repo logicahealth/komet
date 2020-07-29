@@ -41,12 +41,9 @@ package sh.isaac.api.observable.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.IntegerProperty;
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.EditCoordinateImmutable;
 import sh.isaac.api.coordinate.EditCoordinateProxy;
 
@@ -64,21 +61,28 @@ public interface ObservableEditCoordinate
     *
     * @return the integer property
     */
-   ObjectProperty<ConceptSpecification> authorProperty();
+   ObjectProperty<ConceptSpecification> authorForChangesProperty();
 
    /**
     * Module nid property.
     *
     * @return the integer property
     */
-   ObjectProperty<ConceptSpecification> moduleProperty();
+   ObjectProperty<ConceptSpecification> defaultModuleProperty();
+
+   /**
+    * Module nid property.
+    *
+    * @return the integer property
+    */
+   ObjectProperty<ConceptSpecification> destinationModuleProperty();
 
    /**
     * Path nid property.
     *
     * @return the integer property
     */
-   ObjectProperty<ConceptSpecification> pathProperty();
+   ObjectProperty<ConceptSpecification> promotionPathProperty();
 
    @Override
    default EditCoordinateImmutable toEditCoordinateImmutable() {
@@ -88,9 +92,10 @@ public interface ObservableEditCoordinate
 
    default Property<?>[] getBaseProperties() {
       return new Property<?>[] {
-              authorProperty(),
-              moduleProperty(),
-              pathProperty()
+              authorForChangesProperty(),
+              defaultModuleProperty(),
+              destinationModuleProperty(),
+              promotionPathProperty()
       };
    }
 

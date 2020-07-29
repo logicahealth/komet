@@ -53,10 +53,9 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.Status;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.transaction.Transaction;
@@ -132,14 +131,14 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    /**
     * Builds the.
     *
-    * @param editCoordinate the edit coordinate
+    * @param manifoldCoordinate the edit coordinate
     * @return the optional wait task
     * @throws IllegalStateException the illegal state exception
     */
    @Override
-   public final OptionalWaitTask<T> build(Transaction transaction, EditCoordinate editCoordinate)
+   public final OptionalWaitTask<T> build(Transaction transaction, ManifoldCoordinate manifoldCoordinate)
             throws IllegalStateException {
-      return build(transaction, editCoordinate, new ArrayList<>());
+      return build(transaction, manifoldCoordinate, new ArrayList<>());
    }
 
    //~--- set methods ---------------------------------------------------------

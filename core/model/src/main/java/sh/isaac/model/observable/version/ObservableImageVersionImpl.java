@@ -5,7 +5,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.*;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.transaction.Transaction;
@@ -13,8 +13,10 @@ import sh.isaac.api.observable.semantic.version.ObservableImageVersion;
 import sh.isaac.model.observable.commitaware.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_VersionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ImageVersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,12 +50,12 @@ public class ObservableImageVersionImpl
 
 
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableImageVersionImpl analog = new ObservableImageVersionImpl(this, getChronology());
         copyLocalFields(analog);
-        analog.setModuleNid(ec.getModuleNid());
-        analog.setAuthorNid(ec.getAuthorNid());
-        analog.setPathNid(ec.getPathNid());
+        analog.setModuleNid(mc.getModuleNidForAnalog(this));
+        analog.setAuthorNid(mc.getAuthorNidForChanges());
+        analog.setPathNid(mc.getPathNidForAnalog(this));
         return (V) analog;
     }
 
@@ -87,24 +89,12 @@ public class ObservableImageVersionImpl
     }
 
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-        ImageVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-        return setupAnalog(newVersion);
-    }
-
-
-    @Override
-    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-        ImageVersion newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
-        return setupAnalog(newVersion);
-    }
-
-    private <V extends Version> V setupAnalog(ImageVersion newVersion) {
+    public <V extends Version> V setupAnalog(int stampSequence) {
+        ImageVersion newVersion = getStampedVersion().setupAnalog(stampSequence);
         ObservableImageVersionImpl newObservableVersion = new ObservableImageVersionImpl(
                 newVersion,
-                (ObservableSemanticChronology) chronology);
-
-        ((ObservableChronologyImpl) chronology).getVersionList()
+                getChronology());
+        chronology.getVersionList()
                 .add(newObservableVersion);
         return (V) newObservableVersion;
     }

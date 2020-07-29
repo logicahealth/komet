@@ -15,6 +15,7 @@ import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.MemoryConfiguration;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
@@ -136,17 +137,8 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
 
                 if (Get.metadataService()
                         .wasMetadataImported()) {
-                    final StampFilter developmentLatestStampFilter = Get.coordinateFactory()
-                            .createDevelopmentLatestStampFilter();
-                    final LogicCoordinate logicCoordinate = Get.coordinateFactory()
-                            .createStandardElProfileLogicCoordinate();
-                    final EditCoordinate editCoordinate = Get.coordinateFactory()
-                            .createClassifierSolorOverlayEditCoordinate();
                     final ClassifierService logicService = Get.logicService()
-                            .getClassifierService(
-                                    developmentLatestStampFilter,
-                                    logicCoordinate,
-                                    editCoordinate);
+                            .getClassifierService(Coordinates.Manifold.DevelopmentInferredRegularNameSort());
                     final Task<ClassifierResults> classifyTask = logicService.classify();
                     final ClassifierResults classifierResults = classifyTask.get();
                 }
@@ -156,6 +148,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
                 kometPreferences.reloadPreferences();
                 boolean replacePrimaryStage = true;
                 for (WindowPreferences windowPreference : kometPreferences.getWindowPreferenceItems()) {
+                    LOG.info("Opening " + windowPreference.getWindowName().get());
                     this.updateMessage("Opening " + windowPreference.getWindowName().get());
                     try {
                         UUID stageUuid = windowPreference.getWindowUuid();
@@ -164,6 +157,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
                         KometStageController controller = loader.getController();
                         root.setId(stageUuid.toString());
                         Stage stage = new Stage(StageStyle.UNIFIED);
+                        stage.getProperties().put(FxGet.PROPERTY_KEYS.WINDOW_PREFERENCES, windowPreference);
                         Scene scene = new Scene(mainApp.setupStageMenus(stage, root, windowPreference));
 
                         stage.setScene(scene);

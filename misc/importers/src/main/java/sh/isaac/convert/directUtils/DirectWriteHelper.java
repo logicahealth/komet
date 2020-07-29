@@ -1821,8 +1821,8 @@ public class DirectWriteHelper
 			throw new RuntimeException("The concept " + concept + " " + name + " does not exist!");
 		}
 		
-		if (!Get.taxonomyService().getSnapshotNoTree(ManifoldCoordinateImmutable.makeStated(Coordinates.Filter.DevelopmentLatest(),
-				Coordinates.Language.UsEnglishPreferredName())).isChildOf(typeNid, Get.nidForUuids(parentTypesNode)))
+		if (!Get.taxonomyService().getSnapshotNoTree(Coordinates.Manifold.DevelopmentStatedRegularNameSort())
+				.isChildOf(typeNid, Get.nidForUuids(parentTypesNode)))
 		{
 			throw new RuntimeException("The existing concept " + concept + " " + name + " must be a child of the parentTypesNode " + parentTypesNode);
 		}	

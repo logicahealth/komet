@@ -45,7 +45,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.VersionImpl;
 
@@ -81,35 +81,9 @@ public class ConceptVersionImpl
       return (ConceptChronology) this.chronicle;
    }
 
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
-
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(transaction,
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      authorNid,
-                      this.getModuleNid(),
-                      this.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
    public <V extends Version> V setupAnalog(int stampSequence) {
       ConceptChronologyImpl chronologyImpl = (ConceptChronologyImpl) this.chronicle;
       final ConceptVersionImpl newVersion = new ConceptVersionImpl(chronologyImpl, stampSequence);
-
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;
    }

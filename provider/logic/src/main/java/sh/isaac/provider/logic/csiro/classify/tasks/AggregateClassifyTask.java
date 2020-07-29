@@ -44,8 +44,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.SequentialAggregateTask;
@@ -70,15 +69,14 @@ public class AggregateClassifyTask
    
    /**
     * Instantiates a new aggregate classify task.
-    *  @param stampFilter the stamp coordinate
-    * @param logicCoordinate the logic coordinate
+    * @param manifoldCoordinate the logic coordinate
     */
-   private AggregateClassifyTask(StampFilter stampFilter, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate, boolean cycleCheckFirst) {
+   private AggregateClassifyTask(ManifoldCoordinate manifoldCoordinate, boolean cycleCheckFirst) {
       super("Classify",
-            new Task[] { new ExtractAxioms(stampFilter,logicCoordinate), new LoadAxioms(), new ClassifyAxioms(),
-                    new ProcessClassificationResults(stampFilter, logicCoordinate, editCoordinate)});
+            new Task[] { new ExtractAxioms(manifoldCoordinate), new LoadAxioms(), new ClassifyAxioms(),
+                    new ProcessClassificationResults(manifoldCoordinate)});
       if (cycleCheckFirst) {
-         cc = new CycleCheck(stampFilter, logicCoordinate, editCoordinate);
+         cc = new CycleCheck(manifoldCoordinate);
       }
    }
 
@@ -114,15 +112,14 @@ public class AggregateClassifyTask
      * When this method returns, the task is already executing, or will be shortly, if another classifier execution is already running.  
      * You do not need to execute the task.
      *
-     * @param stampFilter the stamp coordinate
-     * @param logicCoordinate the logic coordinate
+     * @param manifoldCoordinate the stamp coordinate
      * @param cycleCheckFirst true, to do a cycle check on the stated taxonomy prior to classify.  Will abort classify if a cycle is detected.
      * @return an {@code AggregateClassifyTask} already submitted to an executor.
      */
-    public static AggregateClassifyTask get(StampFilter stampFilter, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate, boolean cycleCheckFirst) {
+    public static AggregateClassifyTask get(ManifoldCoordinate manifoldCoordinate, boolean cycleCheckFirst) {
        Instant classifyCommitTime = Get.commitService().getTimeForCommit();
-       stampFilter = stampFilter.makeCoordinateAnalog(classifyCommitTime.toEpochMilli());
-        final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampFilter, logicCoordinate, editCoordinate, cycleCheckFirst);
+       manifoldCoordinate = manifoldCoordinate.makeCoordinateAnalog(classifyCommitTime.toEpochMilli());
+        final AggregateClassifyTask classifyTask = new AggregateClassifyTask(manifoldCoordinate, cycleCheckFirst);
         Get.workExecutors()
                 .getExecutor()
                 .execute(classifyTask);

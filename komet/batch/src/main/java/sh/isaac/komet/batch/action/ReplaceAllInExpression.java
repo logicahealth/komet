@@ -11,9 +11,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.marshal.Marshaler;
@@ -22,7 +20,6 @@ import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.VersionChangeListener;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.List;
 import java.util.UUID;
@@ -94,17 +91,17 @@ public class ReplaceAllInExpression extends ActionItem {
     }
 
     @Override
-    protected void setupForApply(ConcurrentHashMap<Enum, Object> cache, Transaction transaction, StampFilter stampFilter, EditCoordinate editCoordinate) {
+    protected void setupForApply(ConcurrentHashMap<Enum, Object> cache, Transaction transaction, ManifoldCoordinate manifoldCoordinate) {
         // Setup snapshot...
         SingleAssemblageSnapshot<LogicGraphVersion> snapshot =
                 Get.assemblageService().getSingleAssemblageSnapshot(expressionAssemblageProperty.get().getNid(),
-                        LogicGraphVersion.class, stampFilter);
+                        LogicGraphVersion.class, manifoldCoordinate.getViewFilter());
         cache.put(Keys.EXPRESSION_SNAPSHOT, snapshot);
     }
 
     @Override
     protected void apply(Chronology chronology, ConcurrentHashMap<Enum, Object> cache, Transaction transaction,
-                         StampFilter stampFilter, EditCoordinate editCoordinate, VersionChangeListener versionChangeListener) {
+                         ManifoldCoordinate manifoldCoordinate, VersionChangeListener versionChangeListener) {
         SingleAssemblageSnapshot<LogicGraphVersion> snapshot = (SingleAssemblageSnapshot<LogicGraphVersion>) cache.get(Keys.EXPRESSION_SNAPSHOT);
         List<LatestVersion<LogicGraphVersion>> latestVersionList = snapshot.getLatestSemanticVersionsForComponentFromAssemblage(chronology.getNid());
         for (LatestVersion<LogicGraphVersion> latestVersion: latestVersionList) {
@@ -114,7 +111,7 @@ public class ReplaceAllInExpression extends ActionItem {
                 if (expression.containsConcept(conceptToFindProperty.get())) {
                     LogicalExpression newExpression = expression.replaceAllConceptOccurences(conceptToFindProperty.get(),
                             replaceWithProperty.get());
-                    LogicGraphVersionImpl mutableVersion = latest.getChronology().createMutableVersion(transaction, Status.ACTIVE, editCoordinate);
+                    LogicGraphVersionImpl mutableVersion = latest.getChronology().createMutableVersion(transaction, Status.ACTIVE, manifoldCoordinate);
                     mutableVersion.setLogicalExpression(newExpression);
                     versionChangeListener.versionChanged(latest, mutableVersion);
                     Get.identifiedObjectService().putChronologyData(mutableVersion.getChronology());

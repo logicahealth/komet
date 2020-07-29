@@ -27,6 +27,11 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
     }
 
     @Override
+    public ManifoldCoordinateImmutable makeCoordinateAnalog(long classifyTimeInEpochMillis) {
+        return getValue().makeCoordinateAnalog(classifyTimeInEpochMillis);
+    }
+
+    @Override
     public void setExceptOverrides(ManifoldCoordinateImmutable updatedCoordinate) {
         if (hasOverrides()) {
             VertexSort vertexSort = updatedCoordinate.getVertexSort();
@@ -73,7 +78,7 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
                     vertexSort,
                     vertexStampFilter,
                     navigationCoordinate,
-                    logicCoordinate));
+                    logicCoordinate, Activity.DEVELOPING, Coordinates.Edit.Default()));
         } else {
             this.setValue(updatedCoordinate);
         }
@@ -133,8 +138,25 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
     }
 
     @Override
+    protected SimpleObjectProperty<Activity> makeActivityProperty(ManifoldCoordinate manifoldCoordinate) {
+        ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
+        return new ObjectPropertyWithOverride<>(observableManifoldCoordinate.activityProperty(), this);
+    }
+
+    @Override
+    public ObjectPropertyWithOverride<Activity> activityProperty() {
+        return (ObjectPropertyWithOverride) super.activityProperty();
+    }
+
+    @Override
     protected ObservableLanguageCoordinateBase makeLanguageCoordinate(ManifoldCoordinate manifoldCoordinate) {
         ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
         return new ObservableLanguageCoordinateWithOverride(observableManifoldCoordinate.getLanguageCoordinate());
+    }
+
+    @Override
+    protected ObservableEditCoordinateBase makeEditCoordinate(ManifoldCoordinate manifoldCoordinate) {
+        ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
+        return new ObservableEditCoordinateWithOverride(observableManifoldCoordinate.getEditCoordinate());
     }
 }

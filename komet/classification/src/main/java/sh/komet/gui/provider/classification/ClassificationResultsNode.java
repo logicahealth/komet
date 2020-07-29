@@ -113,8 +113,8 @@ public class ClassificationResultsNode extends ExplorationNodeAbstract {
             if (compare != 0) {
                 return compare;
             }
-            String editModule1 = Get.conceptDescriptionText(o1.getEditCoordinate().getModuleNid());
-            String editModule2 = Get.conceptDescriptionText(o2.getEditCoordinate().getModuleNid());
+            String editModule1 = Get.conceptDescriptionText(o1.getEditCoordinate().getDefaultModuleNid());
+            String editModule2 = Get.conceptDescriptionText(o2.getEditCoordinate().getDefaultModuleNid());
             return editModule1.compareTo(editModule2);
         });
 

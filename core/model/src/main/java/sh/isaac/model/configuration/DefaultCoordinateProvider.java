@@ -91,7 +91,7 @@ public class DefaultCoordinateProvider {
       this.observableManifoldCoordinate = new ObservableManifoldCoordinateImpl(
               ManifoldCoordinateImmutable.makeInferred(this.observableStampPath.getStampFilter(),
                       this.observableLanguageCoordinate,
-                      this.observableLogicCoordinate));
+                      this.observableLogicCoordinate, Activity.DEVELOPING, Coordinates.Edit.Default()));
    }
 
    /**
@@ -199,7 +199,7 @@ public class DefaultCoordinateProvider {
     * @param conceptId the new default module
     */
    public void setDefaultModule(int conceptId) {
-      this.observableEditCoordinate.moduleProperty().setValue(Get.conceptSpecification(conceptId));
+      this.observableEditCoordinate.defaultModuleProperty().setValue(Get.conceptSpecification(conceptId));
    }
 
    /**
@@ -209,7 +209,7 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultPath(ConceptSpecification pathSpecification) {
       this.observableStampPosition.pathConceptProperty().set(pathSpecification);
-      this.observableEditCoordinate.pathProperty().set(pathSpecification);
+      this.observableEditCoordinate.promotionPathProperty().set(pathSpecification);
    }
 
    /**
@@ -274,7 +274,7 @@ public class DefaultCoordinateProvider {
     * @param conceptId the new default user
     */
    public void setDefaultUser(int conceptId) {
-      this.observableEditCoordinate.authorProperty().setValue(Get.conceptSpecification(conceptId));
+      this.observableEditCoordinate.authorForChangesProperty().setValue(Get.conceptSpecification(conceptId));
    }
 }
 

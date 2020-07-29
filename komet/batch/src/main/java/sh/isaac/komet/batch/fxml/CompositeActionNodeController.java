@@ -17,7 +17,6 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.StampPathImmutable;
 import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
@@ -274,8 +273,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
             return;
         }
         StampPathImmutable stampPathImmutable = FxGet.pathCoordinates().get(stampKey);
-        EditCoordinate editCoordinate = FxGet.editCoordinate();
-        if (listKey != null) {
+         if (listKey != null) {
             try {
                 this.affectedConceptsTitledPane.setText("affected concepts");
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/ListViewNode.fxml"));
@@ -293,7 +291,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
                 CompositeAction compositeAction = getCompositeAction();
                 ComponentList componentList = FxGet.componentList(listKey);
                 compositeAction.apply(componentList.listSize(), componentList.getComponentStream(), this.transaction,
-                        stampPathImmutable.getStampFilter(), editCoordinate, this);
+                        this.viewProperties.getManifoldCoordinate(), this);
             } catch (IOException e) {
                 FxGet.dialogs().showErrorDialog(e);
             }

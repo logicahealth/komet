@@ -45,7 +45,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -87,7 +87,16 @@ public class Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
    public Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
    }
-
+   public Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl old, int stampSequence) {
+      super(old.getChronology(), stampSequence);
+      this.setInt1(old.int1);
+      this.setInt2(old.int2);
+      this.setStr3(old.str3);
+      this.setStr4(old.str4);
+      this.setStr5(old.str5);
+      this.setNid6(old.nid6);
+      this.setNid7(old.nid7);
+   }
    public Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(SemanticChronology container, 
            int stampSequence, ByteArrayDataBuffer data) {
       super(container, stampSequence);
@@ -119,42 +128,9 @@ public class Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
 
    //~--- methods -------------------------------------------------------------
 
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
-
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(transaction,
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      authorNid,
-                      this.getModuleNid(),
-                      this.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
    public <V extends Version> V setupAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newVersion = new Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl((SemanticChronology) this, stampSequence);
-      newVersion.setInt1(this.int1);
-      newVersion.setInt2(this.int2);
-      newVersion.setStr3(this.str3);
-      newVersion.setStr4(this.str4);
-      newVersion.setStr5(this.str5);
-      newVersion.setNid6(this.nid6);
-      newVersion.setNid7(this.nid7);
-      chronologyImpl.addVersion(newVersion);
+      final Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newVersion = new Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(this, stampSequence);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 

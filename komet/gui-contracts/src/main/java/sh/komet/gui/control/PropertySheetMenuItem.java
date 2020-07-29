@@ -37,12 +37,13 @@
 package sh.komet.gui.control;
 
 //~--- JDK imports ------------------------------------------------------------
+import javafx.scene.Node;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.transaction.Transaction;
-import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.control.image.PropertySheetImageWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import java.util.ArrayList;
@@ -73,7 +74,6 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 
-import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.EditInFlight;
 import sh.komet.gui.util.FxGet;
 import sh.isaac.model.observable.commitaware.CommitAwareConceptSpecificationProperty;
@@ -90,22 +90,33 @@ public class PropertySheetMenuItem
 
     protected static final Logger LOG = LogManager.getLogger();
 
-    PropertySheet propertySheet = new PropertySheet();
-    List<PropertySpec> propertiesToEdit = new ArrayList<>();
+    final PropertySheet propertySheet = new PropertySheet();
+    final List<PropertySpec> propertiesToEdit = new ArrayList<>();
     private final ArrayList<ChangeListener<CommitStates>> completionListeners = new ArrayList<>();
     Map<ConceptSpecification, ReadOnlyProperty<?>> propertyMap;
     ObservableVersion observableVersion;
-    ManifoldCoordinate manifoldCoordinate;
+    final ManifoldCoordinate manifoldCoordinate;
+    final List<Node> itemEditorList = new ArrayList();
+    final PropertyEditorFactory propertyEditorFactory;
 
     //~--- constructors --------------------------------------------------------
     public PropertySheetMenuItem(ManifoldCoordinate manifoldCoordinate,
                                  ObservableCategorizedVersion categorizedVersion) {
         this.manifoldCoordinate = manifoldCoordinate;
         this.observableVersion = categorizedVersion;
-        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifoldCoordinate));
+        this.propertyEditorFactory = new PropertyEditorFactory(manifoldCoordinate);
+        this.propertySheet.setPropertyEditorFactory((PropertySheet.Item param) -> {
+            PropertyEditor node = propertyEditorFactory.call(param);
+            itemEditorList.add(node.getEditor());
+            return node;
+        });
         this.propertySheet.setMode(PropertySheet.Mode.NAME);
         this.propertySheet.setSearchBoxVisible(false);
         this.propertySheet.setModeSwitcherVisible(false);
+    }
+
+    public List<Node> getItemEditorList() {
+        return itemEditorList;
     }
 
     //~--- methods -------------------------------------------------------------

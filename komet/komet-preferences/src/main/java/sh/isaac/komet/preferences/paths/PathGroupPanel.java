@@ -15,14 +15,13 @@ import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.EditCoordinateImmutable;
-import sh.isaac.api.coordinate.StampPositionImmutable;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.preferences.ParentPanel;
+import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.control.property.ViewProperties;
@@ -102,8 +101,13 @@ public class PathGroupPanel extends ParentPanel implements CommitListener {
         // Maybe can also be retired in sandbox module on foundation path?
 
         List<IdentifiedComponentBuilder> builders = new ArrayList<>();
-        EditCoordinate editCoordinate = EditCoordinateImmutable.make(TermAux.USER,
-                TermAux.SANDBOX_MODULE, TermAux.SANDBOX_PATH);
+        // int authorNid, int defaultModuleNid, int promotionPathNid, int destinationModuleNid
+
+        EditCoordinateImmutable editCoordinate = EditCoordinateImmutable.make(TermAux.USER,
+                TermAux.SANDBOX_MODULE, TermAux.SANDBOX_PATH, TermAux.SANDBOX_MODULE);
+        ObservableManifoldCoordinateImpl manifoldCoordinate =
+                new ObservableManifoldCoordinateImpl(Coordinates.Manifold.DevelopmentInferredRegularNameSort());
+        manifoldCoordinate.editCoordinateProperty().setValue(editCoordinate);
 
         // 1. Create new concept/description, in sandbox module
         LogicalExpressionBuilder expressionBuilder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
@@ -133,7 +137,7 @@ public class PathGroupPanel extends ParentPanel implements CommitListener {
         Transaction transaction = Get.commitService().newTransaction(Optional.of("Path from preference panel"), ChangeCheckerMode.INACTIVE);
         builders.forEach(identifiedComponentBuilder -> {
             final List<Chronology> builtObjects = new ArrayList<>();
-            identifiedComponentBuilder.build(transaction, editCoordinate, builtObjects);
+            identifiedComponentBuilder.build(transaction, manifoldCoordinate, builtObjects);
         });
         transaction.commit();
         setupButtonsForNew();

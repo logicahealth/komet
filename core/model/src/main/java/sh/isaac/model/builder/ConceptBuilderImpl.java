@@ -57,16 +57,14 @@ import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.task.OptionalWaitTask;
@@ -344,13 +342,13 @@ public class ConceptBuilderImpl
     /**
      * Builds the.
      *
-     * @param editCoordinate the edit coordinate
+     * @param manifoldCoordinate the edit coordinate
      * @param builtObjects   the built objects
      * @return the optional wait task
      * @throws IllegalStateException the illegal state exception
      */
     @Override
-    public OptionalWaitTask<ConceptChronology> build(Transaction transaction, EditCoordinate editCoordinate,
+    public OptionalWaitTask<ConceptChronology> build(Transaction transaction, ManifoldCoordinate manifoldCoordinate,
                                                      List<Chronology> builtObjects)
             throws IllegalStateException {
         final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
@@ -361,16 +359,16 @@ public class ConceptBuilderImpl
         }
         Version version;
         if (getModule().isPresent()) {
-            version = conceptChronology.createMutableVersion(transaction, this.state, editCoordinate, getModule().get());
+            version = conceptChronology.createMutableVersion(transaction, this.state, manifoldCoordinate, getModule().get());
         } else {
-            version = conceptChronology.createMutableVersion(transaction, this.state, editCoordinate);
+            version = conceptChronology.createMutableVersion(transaction, this.state, manifoldCoordinate);
         }
         transaction.addVersionToTransaction(version);
 
         builtObjects.add(conceptChronology);
 
-        getDescriptionBuilders().forEach((builder) -> nestedBuilders.add(builder.build(transaction, editCoordinate, builtObjects)));
-        getSemanticBuilders().forEach((builder) -> nestedBuilders.add(builder.build(transaction, editCoordinate, builtObjects)));
+        getDescriptionBuilders().forEach((builder) -> nestedBuilders.add(builder.build(transaction, manifoldCoordinate, builtObjects)));
+        getSemanticBuilders().forEach((builder) -> nestedBuilders.add(builder.build(transaction, manifoldCoordinate, builtObjects)));
 
 
         Task<Void> primaryNested = Get.commitService()

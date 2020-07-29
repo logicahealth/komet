@@ -36,17 +36,9 @@ rule "Setup module"
 when
    $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.MODULE_NID_FOR_VERSION____SOLOR.getNid());
 then
-   $propertySheetItem.setDefaultValue(editCoordinate.getModule());
-   $propertySheetItem.getAllowedValues().add(editCoordinate.getModule());
-end
-
-rule "Setup path"
-   lock-on-active true
-when
-   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.PATH_NID_FOR_VERSION____SOLOR.getNid());
-then
-   $propertySheetItem.setDefaultValue(editCoordinate.getPath());
-   $propertySheetItem.getAllowedValues().add(editCoordinate.getPath());
+   $propertySheetItem.setDefaultValue(editCoordinate.getDefaultModuleNid());
+   $propertySheetItem.getAllowedValues().add(editCoordinate.getDefaultModuleNid());
+   $propertySheetItem.getAllowedValues().add(editCoordinate.getDestinationModuleNid());
 end
 
 rule "Setup language"

@@ -139,11 +139,11 @@ public class ObservableConceptChronologyImpl
     * Creates the mutable version.
     *
     * @param state the state
-    * @param ec the ec
+    * @param mc the ManifoldCoordinate
     * @return the observable concept version impl
     */
    @Override
-   public ObservableConceptVersionImpl createMutableVersion(Transaction transaction, Status state, EditCoordinate ec) {
+   public ObservableConceptVersionImpl createMutableVersion(Transaction transaction, Status state, ManifoldCoordinate mc) {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }

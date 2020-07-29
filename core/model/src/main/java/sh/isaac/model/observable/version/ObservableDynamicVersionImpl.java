@@ -55,17 +55,19 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableDynamicVersion;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.commitaware.CommitAwareDynamicProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_VersionImpl;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.model.semantic.DynamicUtilityImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.DynamicImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 
 /**
  * 
@@ -99,34 +101,23 @@ public class ObservableDynamicVersionImpl extends ObservableAbstractSemanticVers
 	}
 
 	@Override
-	public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec)
+	public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc)
 	{
 		ObservableDynamicVersionImpl analog = new ObservableDynamicVersionImpl(this, getChronology());
 		copyLocalFields(analog);
-		analog.setModuleNid(ec.getModuleNid());
-		analog.setAuthorNid(ec.getAuthorNid());
-		analog.setPathNid(ec.getPathNid());
+		analog.setModuleNid(mc.getModuleNidForAnalog(this));
+		analog.setAuthorNid(mc.getAuthorNidForChanges());
+		analog.setPathNid(mc.getPathNidForAnalog(this));
 		return (V) analog;
 	}
 
 	@Override
-	public <V extends Version> V makeAnalog(EditCoordinate ec)
-	{
-		DynamicVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-		ObservableDynamicVersionImpl newObservableVersion = new ObservableDynamicVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
-
-		((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
-		return (V) newObservableVersion;
-	}
-
-	@Override
-	public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-		DynamicVersion newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
+	public <V extends Version> V setupAnalog(int stampSequence) {
+		DynamicVersion newVersion = getStampedVersion().setupAnalog(stampSequence);
 		ObservableDynamicVersionImpl newObservableVersion = new ObservableDynamicVersionImpl(
 				newVersion,
-				(ObservableSemanticChronology) chronology);
-
-		((ObservableChronologyImpl) chronology).getVersionList()
+				getChronology());
+		chronology.getVersionList()
 				.add(newObservableVersion);
 		return (V) newObservableVersion;
 	}

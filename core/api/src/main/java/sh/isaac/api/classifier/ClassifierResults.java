@@ -43,6 +43,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.util.time.DateTimeUtil;
 
@@ -112,7 +113,7 @@ public interface ClassifierResults {
     */
    Set<Integer> getOrphans();
 
-   StampFilter getStampFilter();
+   ManifoldCoordinate getManifoldCoordinate();
 
    LogicCoordinate getLogicCoordinate();
 
@@ -124,7 +125,7 @@ public interface ClassifierResults {
       StringBuilder sb = new StringBuilder();
       sb.append(TEXT_FORMAT_WITH_ZONE.format(getCommitTime().atZone(ZoneOffset.systemDefault())));
       sb.append(" written to the ");
-      sb.append(Get.conceptDescriptionText(getEditCoordinate().getModuleNid()));
+      sb.append(Get.conceptDescriptionText(getEditCoordinate().getDefaultModuleNid()));
       return sb.toString();
    }
 }

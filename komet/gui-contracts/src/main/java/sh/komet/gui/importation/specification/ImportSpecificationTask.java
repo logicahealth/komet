@@ -8,7 +8,6 @@ import sh.isaac.api.transaction.Transaction;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.direct.*;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.util.FxGet;
 
 import java.util.List;
 import java.util.concurrent.Future;
@@ -84,7 +83,7 @@ public class ImportSpecificationTask extends TimedTaskWithProgressTracker<Void> 
 
             if(this.isClassfied) {
                 updateMessage("Classifying new content...");
-                ClassifierService classifierService = Get.logicService().getClassifierService(viewProperties.getManifoldCoordinate(), FxGet.editCoordinate());
+                ClassifierService classifierService = Get.logicService().getClassifierService(viewProperties.getManifoldCoordinate());
                 Future<?> classifyTask = classifierService.classify();
                 classifyTask.get();
             }

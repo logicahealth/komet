@@ -36,7 +36,6 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.model.observable.version.*;
 import sh.komet.gui.control.PropertySheetMenuItem;
-import sh.komet.gui.control.property.ViewProperties;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
@@ -162,9 +161,9 @@ public class AddAttachmentMenuItems {
 
     protected void setupWithChronicle(ObservableVersionImpl version) throws NoSuchElementException {
         version.setStatus(Status.ACTIVE);
-        version.setAuthorNid(FxGet.editCoordinate().getAuthorNid());
-        version.setModuleNid(FxGet.editCoordinate().getModuleNid());
-        version.setPathNid(FxGet.editCoordinate().getPathNid());
+        version.setAuthorNid(this.manifoldCoordinate.getAuthorNidForChanges());
+        version.setModuleNid(this.manifoldCoordinate.getModuleNidForAnalog(version));
+        version.setPathNid(this.manifoldCoordinate.getPathNidForAnalog(version));
         version.setChronology(new ObservableSemanticChronologyImpl((SemanticChronology) version.createIndependentChronicle()));
     }
 

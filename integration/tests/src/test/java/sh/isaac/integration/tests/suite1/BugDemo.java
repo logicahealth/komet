@@ -44,6 +44,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
@@ -94,7 +95,7 @@ public class BugDemo
 		// build the description and the extended type
 		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 		try {
-			descriptionSemanticBuilder.build(transaction, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate()).get();
+			descriptionSemanticBuilder.build(transaction, Coordinates.Manifold.DevelopmentInferredRegularNameSort()).get();
 			transaction.commit();
 			Assert.fail("build worked when it shouldn't have");
 		} catch (Exception e) {
@@ -129,7 +130,7 @@ public class BugDemo
 		cb.setLogicalExpression(parentDef);
 
 		Transaction transaction1 = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
-		cb.build(transaction1, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
+		cb.build(transaction1, Coordinates.Manifold.DevelopmentInferredRegularNameSort());
 
 		Optional<CommitRecord> cr = transaction1.commit("created extended type concept").get();
 
@@ -153,7 +154,7 @@ public class BugDemo
 		Transaction transaction2 = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
 
 		// build the description and the extended type
-		SemanticChronology newDescription = descriptionSemanticBuilder.build(transaction2, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate())
+		SemanticChronology newDescription = descriptionSemanticBuilder.build(transaction2, Coordinates.Manifold.DevelopmentInferredRegularNameSort())
 				.get();
 
 		// commit them.
@@ -188,7 +189,7 @@ public class BugDemo
 		SemanticChronology lg = Frills.getLogicGraphChronology(MetaData.ACTION_PURPOSE____SOLOR.getNid(), true).get();
 
 		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
-		MutableLogicGraphVersion mlg = lg.createMutableVersion(transaction, Status.ACTIVE, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
+		MutableLogicGraphVersion mlg = lg.createMutableVersion(transaction, Status.ACTIVE, Coordinates.Manifold.DevelopmentInferredRegularNameSort());
 
 		LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class).getLogicalExpressionBuilder();
 		NecessarySet(And(new Assertion[] { ConceptAssertion(MetaData.ACTION_PURPOSE____SOLOR.getNid(), defBuilder),

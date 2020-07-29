@@ -60,7 +60,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -198,7 +198,7 @@ public interface ObservableVersion
     */
    <T extends Object> Optional<T> removeUserObject(String objectKey);
    
-   <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec);
+   <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc);
    
    /**
     * 

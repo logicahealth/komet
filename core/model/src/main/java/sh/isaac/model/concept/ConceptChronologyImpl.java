@@ -148,27 +148,34 @@ public class ConceptChronologyImpl
       return newVersion;
    }
 
-   /**
-    * Creates the mutable version.
-    *
-    * @param state the state
-    * @param ec the ec
-    * @return the concept version impl
-    */
+
    @Override
-   public ConceptVersionImpl createMutableVersion(Transaction transaction, Status state, EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-                                   .getStampSequence(
-                                       transaction,
-                                       state,
-                                       Long.MAX_VALUE,
-                                       ec.getAuthorNid(),
-                                       ec.getModuleNid(),
-                                       ec.getPathNid());
-      final ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence);
-      transaction.addVersionToTransaction(newVersion);
-      addVersion(newVersion);
-      return newVersion;
+   public ConceptVersionImpl createMutableVersion(Transaction transaction, Status status, ManifoldCoordinate mc) {
+      LatestVersion<ConceptVersionImpl> latest = this.getLatestVersion(mc.getViewFilter());
+      final int stampSequence;
+      if (latest.isPresent()) {
+         stampSequence = Get.stampService()
+                 .getStampSequence(
+                         transaction,
+                         status,
+                         Long.MAX_VALUE,
+                         mc.getAuthorNidForChanges(),
+                         mc.getModuleNidForAnalog(latest.get()),
+                         mc.getPathNidForAnalog(latest.get()));
+      } else {
+         stampSequence = Get.stampService()
+                 .getStampSequence(
+                         transaction,
+                         status,
+                         Long.MAX_VALUE,
+                         mc.getAuthorNidForChanges(),
+                         mc.getModuleNidForAnalog(null),
+                         mc.getPathNidForAnalog(null));
+      }
+      final ConceptVersionImpl version = new ConceptVersionImpl(this, stampSequence);
+      transaction.addVersionToTransaction(version);
+      addVersion(version);
+      return version;
    }
 
    /**

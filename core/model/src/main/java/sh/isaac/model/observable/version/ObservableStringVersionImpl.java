@@ -57,7 +57,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.MutableStringVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
 import sh.isaac.api.transaction.Transaction;
@@ -103,12 +103,13 @@ public class ObservableStringVersionImpl
    
 
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableStringVersionImpl analog = new ObservableStringVersionImpl(this, getChronology());
         copyLocalFields(analog);
-        analog.setModuleNid(ec.getModuleNid());
-        analog.setAuthorNid(ec.getAuthorNid());
-        analog.setPathNid(ec.getPathNid());
+        analog.setModuleNid(mc.getModuleNidForAnalog(this));
+        analog.setAuthorNid(mc.getAuthorNidForChanges());
+        analog.setPathNid(mc.getPathNidForAnalog(this));
+        analog.setString(this.getString());
         return (V) analog;
     }
 
@@ -116,8 +117,8 @@ public class ObservableStringVersionImpl
    //~--- methods -------------------------------------------------------------
 
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-        StringVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+    public <V extends Version> V setupAnalog(int stampSequence) {
+        StringVersion newVersion = getStampedVersion().setupAnalog(stampSequence);
         ObservableStringVersionImpl newObservableVersion = new ObservableStringVersionImpl(
                 newVersion,
                 (ObservableSemanticChronology) chronology);
@@ -127,17 +128,6 @@ public class ObservableStringVersionImpl
         return (V) newObservableVersion;
     }
 
-    @Override
-    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-        StringVersion newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
-        ObservableStringVersionImpl newObservableVersion = new ObservableStringVersionImpl(
-                newVersion,
-                (ObservableSemanticChronology) chronology);
-
-        ((ObservableChronologyImpl) chronology).getVersionList()
-                .add(newObservableVersion);
-        return (V) newObservableVersion;
-    }
    /**
     * string property.
     *

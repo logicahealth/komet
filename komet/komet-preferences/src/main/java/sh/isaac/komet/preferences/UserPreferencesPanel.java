@@ -38,6 +38,7 @@ import sh.isaac.api.BusinessRulesResource;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.preferences.IsaacPreferences;
 
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
@@ -45,7 +46,6 @@ import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import sh.isaac.model.observable.ObservableFields;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.UserPreferenceItems;
-import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.SessionProperty;
@@ -123,7 +123,7 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
             Subject currentUser = SecurityUtils.getSubject();
             UsernamePasswordToken token = new UsernamePasswordToken("admin", "mtn.dog");
             currentUser.login(token);
-            currentUser.getSession().setAttribute(SessionProperty.EDIT_COORDINATE, FxGet.editCoordinate());
+            currentUser.getSession().setAttribute(SessionProperty.EDIT_COORDINATE, Coordinates.Edit.Default());
 
             LOG.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
 
@@ -163,9 +163,6 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         
         // For modules and paths, read/write constraints 
         FxGet.rulesDrivenKometService().addResourcesAndUpdate(getBusinessRulesResources());
-        FxGet.editCoordinate().authorProperty().set(userConceptProperty.get());
-        FxGet.editCoordinate().moduleProperty().set(moduleConceptProperty.get());
-        FxGet.editCoordinate().pathProperty().set(pathConceptProperty.get());
     }
 
     @Override

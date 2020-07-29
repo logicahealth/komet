@@ -7,7 +7,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.transaction.Transaction;
 
 import javax.xml.parsers.*;
@@ -23,8 +23,8 @@ public class RxNormDomImporter {
     private static final Logger LOG = LogManager.getLogger();
 
 
-    public static void importRxNorm(InputStream inputStream, Transaction transaction, EditCoordinate editCoordinate) {
-        RxNormDomImporter rxNormDomImporter = new RxNormDomImporter(inputStream, transaction, editCoordinate);
+    public static void importRxNorm(InputStream inputStream, Transaction transaction, ManifoldCoordinate manifoldCoordinate) {
+        RxNormDomImporter rxNormDomImporter = new RxNormDomImporter(inputStream, transaction, manifoldCoordinate);
         rxNormDomImporter.process();
     }
 
@@ -36,8 +36,8 @@ public class RxNormDomImporter {
     final RxNormClassHandler rxNormClassHandler;
     final InputStream inputStream;
 
-    public RxNormDomImporter(InputStream inputStream, Transaction transaction, EditCoordinate editCoordinate) {
-        this.rxNormClassHandler = new RxNormClassHandler(transaction, editCoordinate);
+    public RxNormDomImporter(InputStream inputStream, Transaction transaction, ManifoldCoordinate manifoldCoordinate) {
+        this.rxNormClassHandler = new RxNormClassHandler(transaction, manifoldCoordinate);
         this.inputStream = inputStream;
     }
 

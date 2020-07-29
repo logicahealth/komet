@@ -82,13 +82,12 @@ public class FullClassification
          final LogicCoordinate logicCoordinate = Coordinates.Logic.ElPlusPlus();
 
          editCoordinate = EditCoordinateImmutable.make(logicCoordinate.getClassifierNid(),
-               editCoordinate.getModuleNid(),
-               editCoordinate.getModuleNid());
+               editCoordinate.getDefaultModuleNid(),
+               editCoordinate.getPromotionPathNid(),
+                 editCoordinate.getDestinationModuleNid());
 
          final Task<ClassifierResults> classifyTask =
-            logicService.getClassifierService(Coordinates.Filter.DevelopmentLatestActiveOnly(),
-                    Coordinates.Logic.ElPlusPlus(),
-                                              editCoordinate)
+            logicService.getClassifierService(Coordinates.Manifold.DevelopmentStatedRegularNameSort())
                         .classify();
 
          classifyTask.get();

@@ -7,16 +7,13 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.VersionChangeListener;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -47,17 +44,17 @@ public class InactivateComponent extends ActionItem {
     }
 
     @Override
-    protected void setupForApply(ConcurrentHashMap<Enum, Object> cache, Transaction transaction, StampFilter stampFilter, EditCoordinate editCoordinate) {
+    protected void setupForApply(ConcurrentHashMap<Enum, Object> cache, Transaction transaction, ManifoldCoordinate manifoldCoordinate) {
         Optional<? extends Chronology> optionalChronology = Get.identifiedObjectService().getChronology(conceptToInactivateProperty.get().getNid());
         if (optionalChronology.isPresent()) {
             Chronology chronology = optionalChronology.get();
-            chronology.createMutableVersion(transaction, Status.INACTIVE, editCoordinate);
+            chronology.createMutableVersion(transaction, Status.INACTIVE, manifoldCoordinate);
             Get.identifiedObjectService().putChronologyData(chronology);
         }
     }
 
     @Override
-    protected void apply(Chronology chronology, ConcurrentHashMap<Enum, Object> cache, Transaction transaction, StampFilter stampFilter, EditCoordinate editCoordinate, VersionChangeListener versionChangeListener) {
+    protected void apply(Chronology chronology, ConcurrentHashMap<Enum, Object> cache, Transaction transaction, ManifoldCoordinate manifoldCoordinate, VersionChangeListener versionChangeListener) {
         // nothing to do..
     }
 

@@ -45,7 +45,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -75,6 +75,13 @@ public class Nid1_Int2_VersionImpl
       this.nid1 = data.getNid();
       this.int2 = data.getInt();
    }
+
+   public Nid1_Int2_VersionImpl(Nid1_Int2_VersionImpl old,
+                                int stampSequence) {
+      super(old.getChronology(), stampSequence);
+      this.setNid1(old.nid1);
+      this.setInt2(old.int2);
+   }
    /**
     * Write version data.
     *
@@ -88,38 +95,10 @@ public class Nid1_Int2_VersionImpl
    }
    //~--- methods -------------------------------------------------------------
 
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
-
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(transaction,
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      authorNid,
-                      this.getModuleNid(),
-                      this.getPathNid());
-      return setupAnalog(stampSequence);
-   }
 
    public <V extends Version> V setupAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final Nid1_Int2_VersionImpl newVersion = new Nid1_Int2_VersionImpl(this.getChronology(), stampSequence);
-      newVersion.setNid1(this.nid1);
-      newVersion.setInt2(this.int2);
-
-      chronologyImpl.addVersion(newVersion);
+      final Nid1_Int2_VersionImpl newVersion = new Nid1_Int2_VersionImpl(this, stampSequence);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 

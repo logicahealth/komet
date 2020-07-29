@@ -48,6 +48,7 @@ import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.index.SearchResult;
@@ -80,17 +81,17 @@ public class AssociationUtilities
    /**
     * Get a particular associations 
     * @param associationNid
-    * @param stampFilter - optional - if not provided, uses the default from the config service
+    * @param manifoldCoordinate - optional - if not provided, uses the default from the config service
     * @return the found associationInstance, if present on the provided stamp path
     */
-   public static Optional<AssociationInstance> getAssociation(int associationNid, StampFilter stampFilter)
+   public static Optional<AssociationInstance> getAssociation(int associationNid, ManifoldCoordinate manifoldCoordinate)
    {
-      StampFilter localStamp = stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter;
+      ManifoldCoordinate localManifold = manifoldCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getManifoldCoordinate() : manifoldCoordinate;
       SemanticChronology sc = Get.assemblageService().getSemanticChronology(associationNid);
-      LatestVersion<Version> latest = sc.getLatestVersion(localStamp);
+      LatestVersion<Version> latest = sc.getLatestVersion(localManifold.getViewFilter());
       if (latest.isPresent())
       {
-         return Optional.of(AssociationInstance.read((DynamicVersion)latest.get(), stampFilter));
+         return Optional.of(AssociationInstance.read((DynamicVersion)latest.get(), manifoldCoordinate));
       }
       return Optional.empty();
    }
@@ -98,13 +99,13 @@ public class AssociationUtilities
    /**
     * Get all associations that originate on the specified componentNid
     * @param componentNid
-    * @param stampFilter - optional - if not provided, uses the default from the config service
+    * @param manifoldCoordinate - optional - if not provided, uses the default from the config service
     * @return the associations
     */
-   public static List<AssociationInstance> getSourceAssociations(int componentNid, StampFilter stampFilter)
+   public static List<AssociationInstance> getSourceAssociations(int componentNid, ManifoldCoordinate manifoldCoordinate)
    {
       ArrayList<AssociationInstance> results = new ArrayList<>();
-      StampFilter localStamp = stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter;
+      ManifoldCoordinate localManifold = manifoldCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getManifoldCoordinate() : manifoldCoordinate;
       
       Set<Integer> associationTypes = getAssociationConceptNids();
       if (associationTypes.size() == 0) 
@@ -114,12 +115,12 @@ public class AssociationUtilities
       Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(componentNid, associationTypes)
          .forEach(associationC -> 
             {
-               LatestVersion<Version> latest = associationC.getLatestVersion(localStamp);
+               LatestVersion<Version> latest = associationC.getLatestVersion(localManifold.getViewFilter());
                if (latest.isPresent())
                {
                   if (latest.get().getSemanticType() == VersionType.DYNAMIC) 
                   {
-                     results.add(AssociationInstance.read((DynamicVersion)latest.get(), stampFilter));
+                     results.add(AssociationInstance.read((DynamicVersion)latest.get(), manifoldCoordinate));
                   }
                   else
                   {
@@ -134,11 +135,11 @@ public class AssociationUtilities
    /**
     * Get all association instances that have a target of the specified componentNid
     * @param componentNid
-    * @param stampFilter - optional - if not provided, uses the default from the config service
+    * @param manifoldCoordinate - optional - if not provided, uses the default from the config service
     * @return  the association instances
     */
    //TODO [DAN 3] should probably have a method here that takes in a target UUID, since that seems to be how I stored them?
-   public static List<AssociationInstance> getTargetAssociations(int componentNid, StampFilter stampFilter)
+   public static List<AssociationInstance> getTargetAssociations(int componentNid, ManifoldCoordinate manifoldCoordinate)
    {
       ArrayList<AssociationInstance> result = new ArrayList<>();
 
@@ -167,13 +168,16 @@ public class AssociationUtilities
                false, associationTypes.stream().mapToInt(i->i).toArray(), null, null, null, null, null, null);
          for (SearchResult sr : refexes)
          {
+            if (manifoldCoordinate == null) {
+               manifoldCoordinate = Get.configurationService().getUserConfiguration(Optional.empty()).getManifoldCoordinate();
+            }
             @SuppressWarnings("rawtypes")
-            LatestVersion<DynamicVersion> latest = Get.assemblageService().getSnapshot(DynamicVersion.class, 
-                  stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter).getLatestSemanticVersion(sr.getNid());
+            LatestVersion<DynamicVersion> latest = Get.assemblageService().getSnapshot(DynamicVersion.class,
+                    manifoldCoordinate.getViewFilter()).getLatestSemanticVersion(sr.getNid());
             
             if (latest.isPresent())
             {
-               result.add(AssociationInstance.read(latest.get(), stampFilter));
+               result.add(AssociationInstance.read(latest.get(), manifoldCoordinate));
             }
          }
       }
@@ -187,20 +191,20 @@ public class AssociationUtilities
    /**
     * 
     * @param associationTypeConceptNid
-    * @param stampFilter - optional - if not provided, uses the default from the config service
+    * @param manifoldCoordinate - optional - if not provided, uses the default from the config service
     * @return the associations of the specified type
     */
-   public static List<AssociationInstance> getAssociationsOfType(int associationTypeConceptNid, StampFilter stampFilter)
+   public static List<AssociationInstance> getAssociationsOfType(int associationTypeConceptNid, ManifoldCoordinate manifoldCoordinate)
    {
       ArrayList<AssociationInstance> results = new ArrayList<>();
-      StampFilter localFilter = stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter;
+      ManifoldCoordinate localFilter = manifoldCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getManifoldCoordinate() : manifoldCoordinate;
       Get.assemblageService().getSemanticChronologyStream(associationTypeConceptNid)
          .forEach(associationC -> 
             {
-               LatestVersion<Version> latest = associationC.getLatestVersion(localFilter);
+               LatestVersion<Version> latest = associationC.getLatestVersion(localFilter.getViewFilter());
                if (latest.isPresent())
                {
-                  results.add(AssociationInstance.read((DynamicVersion)latest.get(), stampFilter));
+                  results.add(AssociationInstance.read((DynamicVersion)latest.get(), manifoldCoordinate));
                }
                
             });

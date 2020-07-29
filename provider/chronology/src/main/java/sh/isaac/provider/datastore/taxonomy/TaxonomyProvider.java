@@ -398,7 +398,7 @@ public class TaxonomyProvider
     public TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, Set<Status> allowedStates, boolean computeTree) {
 
         ManifoldCoordinate statedManifold = ManifoldCoordinateImmutable.makeStated(StampFilterImmutable.make(StatusSet.of(allowedStates), pathNid, modules),
-                Coordinates.Language.UsEnglishPreferredName());
+                Coordinates.Language.UsEnglishPreferredName(), Activity.DEVELOPING, Coordinates.Edit.Default());
 
         return computeTree ?
                 getSnapshot(statedManifold) :

@@ -14,8 +14,8 @@ import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.VersionChangeListener;
+import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -48,8 +48,7 @@ import static sh.isaac.komet.batch.action.PromoteComponentActionFactory.PROMOTE_
 public class PromoteComponentAction extends ActionItem {
     public static final int marshalVersion = 1;
     private enum PromoteKeys {
-        PROMOTION_PATH,
-        PROMOTION_EDIT_COORDINATE
+        PROMOTION_MANIFOLD
     }
     // origin path
     SimpleObjectProperty<ConceptSpecification> sourcePathProperty = new SimpleObjectProperty<>(this,
@@ -98,31 +97,25 @@ public class PromoteComponentAction extends ActionItem {
 
 
     @Override
-    protected void setupForApply(ConcurrentHashMap<Enum, Object> cache, Transaction transaction, StampFilter stampFilter, EditCoordinate editCoordinate) {
-        StampFilterImmutable promotionFilter = StampFilterImmutable.make(stampFilter.getAllowedStates(),
-                StampPositionImmutable.make(stampFilter.getTime(), promotionPathProperty.get()),
-                stampFilter.getModuleNids(),
-                stampFilter.getModulePriorityOrder());
-        cache.put(PromoteKeys.PROMOTION_PATH, promotionFilter);
+    protected void setupForApply(ConcurrentHashMap<Enum, Object> cache, Transaction transaction, ManifoldCoordinate manifoldCoordinate) {
+        ObservableManifoldCoordinateImpl promotionManifold = new ObservableManifoldCoordinateImpl(manifoldCoordinate.toManifoldCoordinateImmutable());
+        promotionManifold.activityProperty().setValue(Activity.PROMOTING);
+        cache.put(PromoteKeys.PROMOTION_MANIFOLD, promotionManifold.getValue());
 
-        EditCoordinateImmutable promotionPathEditCoordinate = EditCoordinateImmutable.make(editCoordinate.getAuthorNid(), editCoordinate.getModuleNid(), promotionPathProperty.get().getNid());
-        cache.put(PromoteKeys.PROMOTION_EDIT_COORDINATE, promotionPathEditCoordinate);
     }
 
 
     @Override
     public void apply(Chronology chronology, ConcurrentHashMap<Enum, Object> cache, Transaction transaction,
-                      StampFilter stampFilter, EditCoordinate editCoordinate, VersionChangeListener versionChangeListener) {
-        LatestVersion<Version> latestVersion = chronology.getLatestVersion(stampFilter);
+                      ManifoldCoordinate manifoldCoordinate, VersionChangeListener versionChangeListener) {
+        LatestVersion<Version> latestVersion = chronology.getLatestVersion(manifoldCoordinate.getViewFilter());
         if (latestVersion.isAbsent()) {
             LOG.warn("Batch editing requires a latest version to update. None found for: " + chronology);
             // Nothing to do.
             return;
         }
         // See if the latest on the promotion path is different...
-        StampPath promotionPath = (StampPath) cache.get(PromoteKeys.PROMOTION_PATH);
-        EditCoordinate promotionPathEditCoordinate = (EditCoordinate) cache.get(PromoteKeys.PROMOTION_EDIT_COORDINATE);
-        LatestVersion<Version> promotionPathVersion = chronology.getLatestVersion(promotionPath.getStampFilter());
+        LatestVersion<Version> promotionPathVersion = chronology.getLatestVersion(manifoldCoordinate.getViewFilter());
         if (promotionPathVersion.isPresent()) {
             // need to compare and see if different...
             LOG.info("Test for promotion: \n" + latestVersion.get() + "\n" + promotionPathVersion.get());
@@ -130,7 +123,7 @@ public class PromoteComponentAction extends ActionItem {
             // need to promote.
             LOG.info("Promote: " + Get.conceptDescriptionText(latestVersion.get().getNid()) + " " + latestVersion.get());
             Version version = latestVersion.get();
-            Version analog = version.makeAnalog(transaction, promotionPathEditCoordinate);
+            Version analog = version.makeAnalog(transaction, manifoldCoordinate);
             Get.commitService().addUncommitted(transaction, analog);
             versionChangeListener.versionChanged(version, analog);
         }

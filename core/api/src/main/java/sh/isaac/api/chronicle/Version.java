@@ -20,7 +20,7 @@ import java.util.UUID;
 
 import sh.isaac.api.Get;
 import sh.isaac.api.commit.IdentifiedStampedVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.transaction.Transaction;
 
 /**
@@ -40,31 +40,24 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
      * Create a analog version with Long.MAX_VALUE as the time, indicating
      * the version is uncommitted. It is the responsibility of the caller to
      * add the mutable version to the commit manager when changes are complete
-     * prior to committing the component. Values for all properties except time & author
-     * will be copied from this version.
-     *
-     * @param <V>         the mutable version type
-     * @param authorNid   the nid for the author concept
-     * @param transaction the transaction that will govern persistence of the analog.
-     * @return the mutable version
-     */
-    <V extends Version> V makeAnalog(Transaction transaction, int authorNid);
-
-    /**
-     * Create a analog version with Long.MAX_VALUE as the time, indicating
-     * the version is uncommitted. It is the responsibility of the caller to
-     * add the mutable version to the commit manager when changes are complete
      * prior to committing the component. Values for all properties except author,
      * time, and path (which are provided by the edit coordinate) will be copied
      * from this version.
      *
      * @param <V> the mutable version type
-     * @param ec  edit coordinate to provide the author and path for the mutable version
+     * @param mc  edit coordinate to provide the author and path for the mutable version
      * @return the mutable version
      * @deprecated use the make analog with the transaction instead.
      */
-    @Deprecated
-    <V extends Version> V makeAnalog(EditCoordinate ec);
+    default <V extends Version> V makeAnalog(ManifoldCoordinate mc) {
+        final int stampSequence = Get.stampService()
+                .getStampSequence(this.getStatus(),
+                        Long.MAX_VALUE,
+                        mc.getEditCoordinate().getAuthorNidForChanges(),
+                        mc.getModuleNidForAnalog(this),
+                        mc.getPathNidForAnalog(this));
+        return setupAnalog(stampSequence);
+    }
 
     /**
      * Create a analog version with Long.MAX_VALUE as the time, indicating
@@ -74,18 +67,18 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
      * author, and path will be copied from this version.
      *
      * @param <V>         the mutable version type
-     * @param ec   the edit coordinate
+     * @param mc   the manifold coordinate to determine author, module, path for the analog.
      * @param transaction the transaction that will govern persistence of the analog.
      * @return the mutable version
      */
-    default <V extends Version> V makeAnalog(Transaction transaction, EditCoordinate ec) {
+    default <V extends Version> V makeAnalog(Transaction transaction, ManifoldCoordinate mc) {
         final int stampSequence = Get.stampService()
                 .getStampSequence(transaction,
                         this.getStatus(),
                         Long.MAX_VALUE,
-                        ec.getAuthorNid(),
-                        this.getModuleNid(),
-                        ec.getPathNid());
+                        mc.getEditCoordinate().getAuthorNidForChanges(),
+                        mc.getModuleNidForAnalog(this),
+                        mc.getPathNidForAnalog(this));
         return setupAnalog(stampSequence);
     }
 

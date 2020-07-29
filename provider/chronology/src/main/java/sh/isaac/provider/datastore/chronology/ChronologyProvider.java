@@ -254,7 +254,7 @@ public class ChronologyProvider
       Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
       Get.semanticBuilderService()
             .getStringSemanticBuilder(getDataStoreId().get().toString(), TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
-            .build(transaction, EditCoordinates.getDefaultUserMetadata()).get();
+            .build(transaction, Coordinates.Manifold.DevelopmentInferredRegularNameSort()).get();
       transaction.commit("Storing database ID on root concept").get();
     }
 
@@ -432,7 +432,7 @@ public class ChronologyProvider
                          + "  Updating the semantic store to match the file store id.", temp, fromFile);
 
                    Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
-                   MutableStringVersion sv = sdic.get().createMutableVersion(transaction, Status.ACTIVE, EditCoordinates.getDefaultUserMetadata());
+                   MutableStringVersion sv = sdic.get().createMutableVersion(transaction, Status.ACTIVE, Coordinates.Manifold.DevelopmentInferredRegularNameSort());
                    sv.setString(fromFile.toString());
                    Get.commitService().addUncommitted(transaction, sv);
                    transaction.commit("Updating database ID on root concept").get();

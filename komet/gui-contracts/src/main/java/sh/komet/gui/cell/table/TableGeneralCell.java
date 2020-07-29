@@ -190,8 +190,8 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
         if (editPanel.getChildren().isEmpty()) {
             if (this.version != null) {
                 if (this.version instanceof ObservableVersion) {
-                    ObservableVersion currentVersion = (ObservableVersion) this.version;
-                    mutableVersion = currentVersion.makeAutonomousAnalog(FxGet.editCoordinate());
+                    ObservableVersion currentVersion = this.version;
+                    mutableVersion = currentVersion.makeAutonomousAnalog(manifoldCoordinate);
 
                     List<Property<?>> propertiesToEdit = mutableVersion.getEditableProperties();
                     PropertySheet propertySheet = new PropertySheet();

@@ -171,7 +171,7 @@ public class Frills
     * @param referencedComponentRestriction - optional - if specified, this semantic may only be applied to the specified type of referenced components.
     * @param referencedComponentSubRestriction - optional - if specified, and the referencedComponentRestriction is of type semantic, then this can further restrice
     * the type of semantic this can be applied to. See {@link DynamicUtility#configureDynamicRestrictionData(IsaacObjectType, VersionType)}
-    * @param editCoord the edit coord
+    * @param manifoldCoordinate the edit coord
     * @return the concept chronology that represents the new dynamic semantic type.
     */
    public static ConceptChronology buildUncommittedNewDynamicSemanticUsageDescription(Transaction transaction, String semanticFQN,
@@ -181,10 +181,10 @@ public class Frills
          Integer parentConceptNid,
          IsaacObjectType referencedComponentRestriction,
          VersionType referencedComponentSubRestriction,
-         EditCoordinate editCoord) {
+         ManifoldCoordinate manifoldCoordinate) {
       try {
-         final EditCoordinate localEditCoord = ((editCoord == null) ? 
-               Get.configurationService().getUserConfiguration(Optional.empty()).getEditCoordinate() : editCoord);
+         final ManifoldCoordinate localManifoldCoordinate = ((manifoldCoordinate == null) ?
+               Get.configurationService().getUserConfiguration(Optional.empty()).getManifoldCoordinate() : manifoldCoordinate);
          final ConceptBuilderService conceptBuilderService = LookupService.getService(ConceptBuilderService.class);
 
          conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____SOLOR);
@@ -215,11 +215,11 @@ public class Frills
          definitionBuilder.addPreferredInDialectAssemblage(MetaData.US_ENGLISH_DIALECT____SOLOR);
          builder.addDescription(definitionBuilder);
 
-         final ConceptChronology newCon = builder.build(transaction, localEditCoord, new ArrayList<>())
+         final ConceptChronology newCon = builder.build(transaction, localManifoldCoordinate, new ArrayList<>())
                                                  .getNoThrow();
 
          LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(transaction, newCon.getNid(), semanticDescription,
-            columns, referencedComponentRestriction, referencedComponentSubRestriction, localEditCoord);
+            columns, referencedComponentRestriction, referencedComponentSubRestriction, localManifoldCoordinate);
 
          return newCon;
       } catch (final IllegalStateException e) {
@@ -245,17 +245,17 @@ public class Frills
     * UUID that is set for the referenced component in an instance of this semantic.  If {@link IsaacObjectType#UNKNOWN} is passed, it is ignored, as
     * if it were null.
     * @param referencedComponentSubRestriction - optional - may be null - subtype restriction for {@link IsaacObjectType#SEMANTIC} restrictions
-    * @param editCoord - optional - the coordinate to use during create of the semantic concept (and related descriptions) - if not provided, uses system default.
+    * @param manifoldCoordinate - optional - the coordinate to use during create of the semantic concept (and related descriptions) - if not provided, uses system default.
     * @return a reference to the newly created semantic item
     */
    public static DynamicUsageDescription createNewDynamicSemanticUsageDescriptionConcept(String semanticFQN,
-         String semanticPreferredTerm,
-         String semanticDescription,
-         DynamicColumnInfo[] columns,
-         Integer parentConceptNid,
-         IsaacObjectType referencedComponentRestriction,
-         VersionType referencedComponentSubRestriction,
-         EditCoordinate editCoord) {
+                                                                                         String semanticPreferredTerm,
+                                                                                         String semanticDescription,
+                                                                                         DynamicColumnInfo[] columns,
+                                                                                         Integer parentConceptNid,
+                                                                                         IsaacObjectType referencedComponentRestriction,
+                                                                                         VersionType referencedComponentSubRestriction,
+                                                                                         ManifoldCoordinate manifoldCoordinate) {
       Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
       final ConceptChronology newDynamicSemanticUsageDescriptionConcept =
          buildUncommittedNewDynamicSemanticUsageDescription(transaction, semanticFQN,
@@ -265,7 +265,7 @@ public class Frills
              parentConceptNid,
              referencedComponentRestriction,
              referencedComponentSubRestriction,
-             editCoord);
+                 manifoldCoordinate);
 
       try {
          transaction.commit("creating new dynamic assemblage (DynamicSemanticUsageDescription): NID=" +
@@ -400,7 +400,7 @@ public class Frills
          final LanguageCoordinate fqnCoord = Coordinates.Language.UsEnglishFullyQualifiedName();
          
          //iterate the children, find one that has a FQN than ends with "Edit (SOLOR)"
-         int[] termTypeChildren = Get.taxonomyService().getSnapshotNoTree(ManifoldCoordinateImmutable.makeStated(stamp, fqnCoord)).getTaxonomyChildConceptNids(termTypeConcept);
+         int[] termTypeChildren = Get.taxonomyService().getSnapshotNoTree(ManifoldCoordinateImmutable.makeStated(stamp, fqnCoord, Activity.DEVELOPING, Coordinates.Edit.Default())).getTaxonomyChildConceptNids(termTypeConcept);
          for (int nid : termTypeChildren) {
             String fqn = fqnCoord.getFullyQualifiedNameText(nid, stamp).orElseGet(() -> "");
             int index = fqn.indexOf("Edit (" + ConceptProxy.METADATA_SEMANTIC_TAG + ")"); 
@@ -427,7 +427,7 @@ public class Frills
             Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
             int nid = Get.conceptBuilderService().getDefaultConceptBuilder(termTypeFQN, ConceptProxy.METADATA_SEMANTIC_TAG, defBuilder.build(), 
                  MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid()).setT5UuidNested(Get.concept(module).getPrimordialUuid()).build(transaction,
-                    EditCoordinateImmutable.make(TermAux.USER.getNid(),  TermAux.PRIMORDIAL_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid())).get().getNid();
+                    Coordinates.Manifold.DevelopmentInferredRegularNameSort()).get().getNid();
              commitCheck(transaction.commit("creating new edit module for terminology type " + Get.conceptDescriptionText(termTypeConcept)));
              return nid;
          }
@@ -467,7 +467,7 @@ public class Frills
       }
       
       int[] parents = Get.taxonomyService().getSnapshotNoTree(
-              ManifoldCoordinateImmutable.makeStated(stampToUse, Coordinates.Language.UsEnglishPreferredName()))
+              ManifoldCoordinateImmutable.makeStated(stampToUse, Coordinates.Language.UsEnglishPreferredName(), Activity.DEVELOPING, Coordinates.Edit.Default()))
             .getTaxonomyParentConceptNids(conceptModuleNid);
       for (int current : parents)
       {
@@ -782,11 +782,11 @@ public class Frills
    }
    
    /**
-    * calls {@link Frills#resetStatus(Transaction, Status, Chronology, EditCoordinate, StampFilter...)} but has types specified for concepts
+    * calls {@link Frills#resetStatus(Transaction, Status, Chronology, ManifoldCoordinate, StampFilter...)} but has types specified for concepts
     */
    private static VersionUpdatePair<ConceptVersion> resetConceptState(Transaction transaction, Status status, ConceptChronology chronology,
-                                                                      EditCoordinate editCoordinate, StampFilter... stampFilters) throws Exception {
-      return resetStatus(transaction, status, chronology, editCoordinate, stampFilters);
+                                                                      ManifoldCoordinate manifoldCoordinate, StampFilter... stampFilters) throws Exception {
+      return resetStatus(transaction, status, chronology, manifoldCoordinate, stampFilters);
    }
    
    /**
@@ -797,7 +797,7 @@ public class Frills
     *           - state to which to set new version of chronology
     * @param chronology
     *           - the chronology of the object that we want to create a new version of with the specified state
-    * @param editCoordinate
+    * @param manifoldCoordinate
     *           - where to create the new version
     * @param readFilters
     *           - (optional) the read coordinates to read the current state from. Defaults to the system default if not provided. When more than one is provided,
@@ -807,7 +807,8 @@ public class Frills
     * @throws Exception
     */
    @SuppressWarnings({"unchecked" })
-   private static <T extends Version> VersionUpdatePair<T> resetStatus(Transaction transaction, Status status, Chronology chronology, EditCoordinate editCoordinate,
+   private static <T extends Version> VersionUpdatePair<T> resetStatus(Transaction transaction, Status status,
+                                                                       Chronology chronology, ManifoldCoordinate manifoldCoordinate,
                                                                        StampFilter... readFilters) throws Exception {
       String detail = chronology.getIsaacObjectType() + " " + chronology.getClass().getSimpleName() + " (UUID=" + chronology.getPrimordialUuid() + ")";
       LatestVersion<Version> latestVersion = null;
@@ -834,9 +835,9 @@ public class Frills
 
       VersionUpdatePair<T> versionsHolder = new VersionUpdatePair<>();
       if (chronology instanceof SemanticChronology) {
-         versionsHolder.set((T) ((SemanticChronology) chronology).<T>createMutableVersion(transaction, status, editCoordinate), (T)latestVersion.get());
+         versionsHolder.set((T) ((SemanticChronology) chronology).<T>createMutableVersion(transaction, status, manifoldCoordinate), (T)latestVersion.get());
       } else if (chronology instanceof ConceptChronology) {
-         versionsHolder.set((T)((ConceptChronology) chronology).createMutableVersion(transaction, status, editCoordinate), (T)latestVersion.get());
+         versionsHolder.set((T)((ConceptChronology) chronology).createMutableVersion(transaction, status, manifoldCoordinate), (T)latestVersion.get());
       } else {
          throw new RuntimeException("Unsupported ObjectChronology type " + detail);
       }
@@ -852,7 +853,7 @@ public class Frills
     *           - The desired new state
     * @param componentToModify
     *           - the id of the object to change the state of
-    * @param editCoordinate
+    * @param manifoldCoordinate
     *           - where to write the new state.
     * @param stampFilters
     *           - (optional) the read coordinates to read the current state from. Defaults to the system default if not provided. When more than one is provided,
@@ -860,7 +861,7 @@ public class Frills
     * @return - empty optional, if no change, or the uncommitted chronology of the object that was changed.
     * @throws Exception
     */
-   public static Optional<Chronology> resetStatusWithNoCommit(Transaction transaction, Status status, int componentToModify, EditCoordinate editCoordinate, StampFilter... stampFilters) throws Exception {
+   public static Optional<Chronology> resetStatusWithNoCommit(Transaction transaction, Status status, int componentToModify, ManifoldCoordinate manifoldCoordinate, StampFilter... stampFilters) throws Exception {
 
       final IsaacObjectType type = Get.identifierService().getObjectTypeForComponent(componentToModify);
 
@@ -874,7 +875,7 @@ public class Frills
             ConceptChronology cc = Get.conceptService().getConceptChronology(componentToModify);
             nid = cc.getNid();
 
-            VersionUpdatePair<ConceptVersion> updatePair = resetConceptState(transaction, status, cc, editCoordinate, stampFilters);
+            VersionUpdatePair<ConceptVersion> updatePair = resetConceptState(transaction, status, cc, manifoldCoordinate, stampFilters);
             if (updatePair != null) {
                priorState = updatePair.latest.getStatus();
                objectToCommit = cc;
@@ -887,7 +888,7 @@ public class Frills
             nid = semantic.getNid();
             switch (semantic.getVersionType()) {
                case DESCRIPTION: {
-                  VersionUpdatePair<DescriptionVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, stampFilters);
+                  VersionUpdatePair<DescriptionVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, manifoldCoordinate, stampFilters);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -900,7 +901,7 @@ public class Frills
                   break;
                }
                case STRING: {
-                  VersionUpdatePair<StringVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, stampFilters);
+                  VersionUpdatePair<StringVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, manifoldCoordinate, stampFilters);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -911,7 +912,7 @@ public class Frills
                   break;
                }
                case DYNAMIC: {
-                  VersionUpdatePair<DynamicImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, stampFilters);
+                  VersionUpdatePair<DynamicImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, manifoldCoordinate, stampFilters);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -921,7 +922,7 @@ public class Frills
                   break;
                }
                case COMPONENT_NID: {
-                  VersionUpdatePair<ComponentNidVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, stampFilters);
+                  VersionUpdatePair<ComponentNidVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, manifoldCoordinate, stampFilters);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -931,7 +932,7 @@ public class Frills
                   break;
                }
                case LOGIC_GRAPH: {
-                  VersionUpdatePair<LogicGraphVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, stampFilters);
+                  VersionUpdatePair<LogicGraphVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, manifoldCoordinate, stampFilters);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -941,7 +942,7 @@ public class Frills
                   break;
                }
                case LONG: {
-                  VersionUpdatePair<LongVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, stampFilters);
+                  VersionUpdatePair<LongVersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, manifoldCoordinate, stampFilters);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -951,7 +952,7 @@ public class Frills
                   break;
                }
                case MEMBER:
-                  VersionUpdatePair<VersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, editCoordinate, stampFilters);
+                  VersionUpdatePair<VersionImpl> semanticUpdatePair = resetStatus(transaction, status, semantic, manifoldCoordinate, stampFilters);
 
                   if (semanticUpdatePair != null) {
                      priorState = semanticUpdatePair.latest.getStatus();
@@ -1007,7 +1008,7 @@ public class Frills
       public static Set<Integer> getAllChildrenOfConcept(int conceptNid, boolean recursive, boolean leafOnly, StampFilter stampFilter) {
       
       TaxonomySnapshot tss = Get.taxonomyService().getSnapshotNoTree(
-              ManifoldCoordinateImmutable.makeStated((stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter), Coordinates.Language.UsEnglishPreferredName()));
+              Coordinates.Manifold.DevelopmentInferredRegularNameSort());
       
       Set<Integer> temp = getAllChildrenOfConcept(new HashSet<Integer>(), conceptNid, recursive, leafOnly, tss);
       if (leafOnly && temp.size() == 1) {
@@ -1314,9 +1315,7 @@ public class Frills
 
       if (c.isPresent()) {
          try {
-               return Optional.of(Get.conceptService().getSnapshot(ManifoldCoordinateImmutable.makeStated(
-                     stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter,
-                     langCoord == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate() : langCoord))
+               return Optional.of(Get.conceptService().getSnapshot(Coordinates.Manifold.DevelopmentStatedRegularNameSort())
                         .getConceptSnapshot(c.get().getNid()));
          } catch (final Exception e) {
             // TODO DAN defaultConceptSnapshotService APIs are currently broken, provide no means of detecting if a concept doesn't exist on a given coordinate
@@ -1604,7 +1603,7 @@ public class Frills
          }
 
          if (nid != null) {
-            idInfo.put("DESC", Get.conceptService().getSnapshot(ManifoldCoordinateImmutable.makeStated(sc, lc)).conceptDescriptionText(nid));
+            idInfo.put("DESC", Get.conceptService().getSnapshot(Coordinates.Manifold.DevelopmentStatedRegularNameSort()).conceptDescriptionText(nid));
             if (typeOfPassedId == IsaacObjectType.CONCEPT) {
                Optional<Long> optSctId = Frills.getSctId(nid, sc);
                if (optSctId.isPresent()) {
@@ -1967,13 +1966,13 @@ public class Frills
                                                                   EditCoordinate editCoordinate) {
       StampFilter scLocal = stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter;
 
-      final StampPosition stampPosition = StampPositionImmutable.make(scLocal.getStampPosition().getTime(), editCoordinate.getPathNid());
+      final StampPosition stampPosition = StampPositionImmutable.make(scLocal.getStampPosition().getTime(), stampFilter.getPathNidForFilter());
       StampFilter temp = StampFilterImmutable.make(scLocal.getAllowedStates(), stampPosition, scLocal.getModuleNids(),
             IntLists.immutable.empty());
 
       if (temp.getModuleNids().size() > 0) {
          MutableIntSet moduleNids = IntSets.mutable.of(temp.getModuleNids().toArray());
-         moduleNids.add(editCoordinate.getModuleNid());
+         moduleNids.add(editCoordinate.getDefaultModuleNid());
          temp = StampFilterImmutable.make(scLocal.getAllowedStates(), stampPosition, moduleNids.toImmutable(),
                  IntLists.immutable.empty());
       }

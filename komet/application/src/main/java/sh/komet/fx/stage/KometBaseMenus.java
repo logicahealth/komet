@@ -283,7 +283,7 @@ public class KometBaseMenus implements MenuProvider {
                 completeClassify.setOnAction((ActionEvent event) -> {
                     //TODO change how we get the edit coordinate. 
                     EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-                    ClassifierService classifierService = Get.logicService().getClassifierService(windowPreference.getViewPropertiesForWindow().getManifoldCoordinate(), editCoordinate);
+                    ClassifierService classifierService = Get.logicService().getClassifierService(windowPreference.getViewPropertiesForWindow().getManifoldCoordinate());
                     classifierService.classify();
                 });
 

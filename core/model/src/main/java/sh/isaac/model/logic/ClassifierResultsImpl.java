@@ -31,11 +31,7 @@ public class ClassifierResultsImpl implements ClassifierResults {
 
     private HashSet<Integer> orphanedConcepts = new HashSet<>();
 
-    private StampFilterImmutable stampFilter;
-
-    private LogicCoordinateImmutable logicCoordinate;
-
-    private EditCoordinateImmutable editCoordinate;
+    private final ManifoldCoordinateImmutable manifoldCoordinate;
 
     private ClassifierResultsImpl(ByteArrayDataBuffer data) {
         this.classificationConceptSet = new HashSet<>();
@@ -73,9 +69,7 @@ public class ClassifierResultsImpl implements ClassifierResults {
         for (int orphanNid: data.getNidArray()) {
             orphanedConcepts.add(orphanNid);
         }
-        this.stampFilter = StampFilterImmutable.make(data);
-        this.logicCoordinate = LogicCoordinateImmutable.make(data);
-        this.editCoordinate = EditCoordinateImmutable.make(data);
+        this.manifoldCoordinate = ManifoldCoordinateImmutable.make(data);
     }
 
     private void convertToConceptsWithInferredChanges() {
@@ -125,10 +119,7 @@ public class ClassifierResultsImpl implements ClassifierResults {
             out.putBoolean(false);
         }
         out.putNidArray(orphanedConcepts);
-        this.stampFilter.marshal(out);
-        this.logicCoordinate.toLogicCoordinateImmutable().marshal(out);
-        this.editCoordinate.marshal(out);
-
+        this.manifoldCoordinate.marshal(out);
     }
 
     public static final ClassifierResultsImpl make(ByteArrayDataBuffer data) {
@@ -137,17 +128,15 @@ public class ClassifierResultsImpl implements ClassifierResults {
 
     /**
      * Instantiates a new classifier results.
-     *  @param classificationConceptSet the affected concepts
+     * @param classificationConceptSet the affected concepts
      * @param equivalentSets the equivalent sets
      * @param commitRecord the commit record
-     * @param stampFilter
+     * @param manifoldCoordinate
      */
     public ClassifierResultsImpl(Set<Integer> classificationConceptSet,
                                  Set<IntArrayList> equivalentSets,
                                  Optional<CommitRecord> commitRecord,
-                                 StampFilter stampFilter,
-                                 LogicCoordinate logicCoordinate,
-                                 EditCoordinate editCoordinate) {
+                                 ManifoldCoordinate manifoldCoordinate) {
         this.classificationConceptSet = classificationConceptSet;
         this.equivalentSets = new HashSet<>();
         for (IntArrayList set: equivalentSets) {
@@ -159,43 +148,32 @@ public class ClassifierResultsImpl implements ClassifierResults {
         if (this.commitRecord.isPresent()) {
             convertToConceptsWithInferredChanges();
         }
-        assignCoordinates(stampFilter, logicCoordinate, editCoordinate);
+        this.manifoldCoordinate = manifoldCoordinate.toManifoldCoordinateImmutable();
+        verifyCoordinates();
     }
 
     /**
      * This constructor is only intended to be used when a classification wasn't performed, because there were cycles present.
      * @param conceptsWithCycles
      * @param orphans
-     * @param stampFilter
+     * @param manifoldCoordinate
      */
     public ClassifierResultsImpl(Map<Integer, Set<int[]>> conceptsWithCycles, Set<Integer> orphans,
-                                 StampFilter stampFilter,
-                                 LogicCoordinate logicCoordinate,
-                                 EditCoordinate editCoordinate) {
+                                 ManifoldCoordinate manifoldCoordinate) {
         this.classificationConceptSet = new HashSet<>();
         this.equivalentSets   = new HashSet<>();
         this.commitRecord     = Optional.empty();
         this.conceptsWithCycles = Optional.of(conceptsWithCycles);
         this.orphanedConcepts.addAll(orphans);
-
-        assignCoordinates(stampFilter, logicCoordinate, editCoordinate);
+        this.manifoldCoordinate = manifoldCoordinate.toManifoldCoordinateImmutable();
+        verifyCoordinates();
     }
 
-    private final void assignCoordinates(StampFilter stampFilter, LogicCoordinate logicCoordinate,
-                                         EditCoordinate editCoordinate) {
-        if (stampFilter.getStampPosition().getTime() == Long.MAX_VALUE) {
+    private final void verifyCoordinates() {
+        if (manifoldCoordinate.getViewFilter().getStampPosition().getTime() == Long.MAX_VALUE) {
             throw new IllegalStateException("Filter position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
         }
-        if (editCoordinate == null) {
-            throw new NullPointerException("Edit coordinate cannot be null. ");
-        }
-
-        this.stampFilter = stampFilter.toStampFilterImmutable();
-        this.logicCoordinate  = logicCoordinate.toLogicCoordinateImmutable();
-        this.editCoordinate = editCoordinate.toEditCoordinateImmutable();
-
-
-        if (stampFilter.getStampPosition().getTime() == Long.MAX_VALUE) {
+        if (manifoldCoordinate.getViewFilter().getTime() == Long.MAX_VALUE) {
             throw new IllegalStateException("Filter position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
         }
 
@@ -241,23 +219,23 @@ public class ClassifierResultsImpl implements ClassifierResults {
     }
 
     @Override
-    public StampFilter getStampFilter() {
-        return stampFilter;
+    public ManifoldCoordinate getManifoldCoordinate() {
+        return manifoldCoordinate;
     }
 
     @Override
     public LogicCoordinate getLogicCoordinate() {
-        return logicCoordinate;
+        return manifoldCoordinate.getLogicCoordinate();
     }
 
     @Override
     public EditCoordinate getEditCoordinate() {
-        return this.editCoordinate;
+        return manifoldCoordinate.getEditCoordinate();
     }
 
     @Override
     public Instant getCommitTime() {
-        return this.stampFilter.getStampPosition().getTimeAsInstant();
+        return this.manifoldCoordinate.getViewFilter().getTimeAsInstant();
     }
 
     @Override

@@ -66,6 +66,7 @@ import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.VersionImpl;
+import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.commitaware.CommitAwareLongProperty;
 import sh.isaac.model.observable.commitaware.CommitAwareObjectProperty;
@@ -139,7 +140,7 @@ public abstract class ObservableVersionImpl
     /**
      * The chronology.
      */
-    protected ObservableChronology chronology;
+    protected ObservableChronologyImpl chronology;
 
     protected final VersionType versionType;
 
@@ -201,12 +202,12 @@ public abstract class ObservableVersionImpl
         } else {
             this.stampedVersionProperty = null;
         }
-        this.chronology = chronology;
+        this.chronology = (ObservableChronologyImpl) chronology;
         this.versionType = stampedVersion.getSemanticType();
     }
 
     protected ObservableVersionImpl(ObservableChronology chronology) {
-        this.chronology = chronology;
+        this.chronology = (ObservableChronologyImpl) chronology;
         this.stampedVersionProperty = null;
         this.versionType = chronology.getVersionType();
     }
@@ -215,7 +216,7 @@ public abstract class ObservableVersionImpl
         if (this.chronology != null) {
             throw new IllegalStateException("Chronology is not null. Cannot change.");
         }
-        this.chronology = chronology;
+        this.chronology = (ObservableChronologyImpl) chronology;
     }
 
     //~--- methods -------------------------------------------------------------
@@ -939,10 +940,5 @@ public abstract class ObservableVersionImpl
             return this.getStampedVersion().deepEquals(otherObservable.getStampedVersion());
         }
         return this.getStampedVersion().deepEquals(other);
-    }
-
-    @Override
-    public <V extends Version> V setupAnalog(int stampSequence) {
-        throw new UnsupportedOperationException(); // should only be called in the non-observable version.
     }
 }

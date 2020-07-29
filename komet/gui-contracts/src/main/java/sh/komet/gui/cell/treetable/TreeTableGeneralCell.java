@@ -192,8 +192,8 @@ public class TreeTableGeneralCell
         if (editPanel.getChildren().isEmpty()) {
             if (this.version != null) {
                 if (this.version instanceof ObservableVersion) {
-                    ObservableVersion currentVersion = (ObservableVersion) this.version;
-                    mutableVersion = currentVersion.makeAutonomousAnalog(FxGet.editCoordinate());
+                    ObservableVersion currentVersion = this.version;
+                    mutableVersion = currentVersion.makeAutonomousAnalog(this.manifoldCoordinate);
 
                     List<Property<?>> propertiesToEdit = mutableVersion.getEditableProperties();
                     PropertySheet propertySheet = new PropertySheet();

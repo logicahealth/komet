@@ -44,13 +44,12 @@ package sh.isaac.model.semantic.version;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.component.semantic.version.MutableDescriptionVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -122,34 +121,6 @@ public class DescriptionVersionImpl
       this.descriptionTypeConceptNid  = other.descriptionTypeConceptNid;
    }
 
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final DescriptionVersionImpl newVersion = new DescriptionVersionImpl(this, stampSequence);
-
-      chronologyImpl.addVersion(newVersion);
-      return (V) newVersion;
-   }
-
-
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(transaction,
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      authorNid,
-                      this.getModuleNid(),
-                      this.getPathNid());
-      return (V) setupAnalog(stampSequence);
-   }
    public <V extends Version> V setupAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final DescriptionVersionImpl newVersion = new DescriptionVersionImpl(this, stampSequence);

@@ -54,7 +54,7 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.ObservableRf2Relationship;
@@ -65,6 +65,7 @@ import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -97,12 +98,12 @@ public class ObservableRf2RelationshipImpl
    }
 
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableRf2RelationshipImpl analog = new ObservableRf2RelationshipImpl(this, getChronology());
         copyLocalFields(analog);
-        analog.setModuleNid(ec.getModuleNid());
-        analog.setAuthorNid(ec.getAuthorNid());
-        analog.setPathNid(ec.getPathNid());
+        analog.setModuleNid(mc.getModuleNidForAnalog(this));
+        analog.setAuthorNid(mc.getAuthorNidForChanges());
+        analog.setPathNid(mc.getPathNidForAnalog(this));
         return (V) analog;
     }
 
@@ -439,21 +440,13 @@ public class ObservableRf2RelationshipImpl
     }
 
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-        Rf2RelationshipImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-        return setupAnalog(newVersion);
-    }
-
-    @Override
-    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-        Rf2RelationshipImpl newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
-        return setupAnalog(newVersion);
-    }
-
-    private <V extends Version> V setupAnalog(Rf2RelationshipImpl newVersion) {
-        ObservableRf2RelationshipImpl newObservableVersion =
-                new ObservableRf2RelationshipImpl(newVersion, (ObservableSemanticChronology) chronology);
-        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+    public <V extends Version> V setupAnalog(int stampSequence) {
+        Rf2RelationshipImpl newVersion = getStampedVersion().setupAnalog(stampSequence);
+        ObservableRf2RelationshipImpl newObservableVersion = new ObservableRf2RelationshipImpl(
+                newVersion,
+                getChronology());
+        chronology.getVersionList()
+                .add(newObservableVersion);
         return (V) newObservableVersion;
     }
 }

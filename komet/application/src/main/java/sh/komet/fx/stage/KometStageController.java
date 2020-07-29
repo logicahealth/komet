@@ -298,7 +298,7 @@ public class KometStageController
             completeClassify.setOnAction((ActionEvent event) -> {
                 //TODO change how we get the edit coordinate. 
                 EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-                ClassifierService classifierService = Get.logicService().getClassifierService(this.viewProperties.getManifoldCoordinate(), editCoordinate);
+                ClassifierService classifierService = Get.logicService().getClassifierService(this.viewProperties.getManifoldCoordinate());
                 classifierService.classify();
             });
             items.add(completeClassify);

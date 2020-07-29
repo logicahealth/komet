@@ -51,7 +51,6 @@ import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitService;
@@ -60,10 +59,7 @@ import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
-import sh.isaac.api.coordinate.StampFilterImmutable;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
@@ -97,23 +93,20 @@ public class ProcessClassificationResults
 
     int classificationDuplicateCount = -1;
     int classificationCountDuplicatesToNote = 10;
-    private final StampFilterImmutable stampFilter;
-    private final LogicCoordinate logicCoordinate;
-    private final EditCoordinate editCoordinate;
+    private final ManifoldCoordinate manifoldCoordinate;
     private final Instant effectiveCommitTime;
 
     /**
      * Instantiates a new process classification results task.
      *
+     * @param manifoldCoordinate
      */
-    public ProcessClassificationResults(StampFilter stampFilter, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate) {
-        if (stampFilter.getStampPosition().getTime() == Long.MAX_VALUE) {
+    public ProcessClassificationResults(ManifoldCoordinate manifoldCoordinate) {
+        if (manifoldCoordinate.getVertexStampFilter().getTime() == Long.MAX_VALUE) {
             throw new IllegalStateException("Filter position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
         }
-        this.stampFilter = stampFilter.toStampFilterImmutable();
-        this.effectiveCommitTime = stampFilter.getStampPosition().getTimeAsInstant();
-        this.logicCoordinate = logicCoordinate;
-        this.editCoordinate = editCoordinate;
+        this.manifoldCoordinate = manifoldCoordinate;
+        this.effectiveCommitTime = manifoldCoordinate.getVertexStampFilter().getTimeAsInstant();
         updateTitle("Retrieve inferred axioms");
     }
     
@@ -217,7 +210,7 @@ public class ProcessClassificationResults
 //        }
         return new ClassifierResultsImpl(affectedConcepts,
                 equivalentSets,
-                writeBackInferred(transaction, classifiedResult, affectedConcepts), stampFilter, logicCoordinate, editCoordinate);
+                writeBackInferred(transaction, classifiedResult, affectedConcepts), manifoldCoordinate);
     }
 
     /**
@@ -367,7 +360,7 @@ public class ProcessClassificationResults
                                                 this.inputData.getLogicCoordinate().getInferredAssemblageNid());
 
                                 // get classifier edit coordinate...
-                                builder.build(transaction, EditCoordinates.getClassifierSolorOverlay());
+                                builder.build(transaction, this.manifoldCoordinate);
                                 
                                 if (Get.configurationService().isVerboseDebugEnabled() && TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
                                     LOG.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
@@ -388,7 +381,7 @@ public class ProcessClassificationResults
                                         final MutableLogicGraphVersion newVersion
                                                 = ((SemanticChronology) inferredChronology).createMutableVersion(transaction,
                                                         Status.ACTIVE,
-                                                        EditCoordinates.getClassifierSolorOverlay());
+                                                        this.manifoldCoordinate);
 
                                         newVersion.setGraphData(
                                                 inferredExpression.getData(DataTarget.INTERNAL));

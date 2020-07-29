@@ -63,7 +63,8 @@ public interface ObservableManifoldCoordinate
 
    default Property<?>[] getBaseProperties() {
       return new Property<?>[] {
-              vertexSortProperty()
+              vertexSortProperty(),
+              activityProperty()
       };
    }
 
@@ -74,7 +75,9 @@ public interface ObservableManifoldCoordinate
               getEdgeStampFilter(),
               getLanguageStampFilter(),
               getVertexStampFilter(),
-              getLogicCoordinate()};
+              getLogicCoordinate(),
+              getEditCoordinate()
+      };
    }
 
    @Override
@@ -107,11 +110,17 @@ public interface ObservableManifoldCoordinate
    ObservableLogicCoordinate getLogicCoordinate();
    ObjectProperty<LogicCoordinateImmutable> logicCoordinateProperty();
 
+   @Override
+   ObservableEditCoordinate getEditCoordinate();
+   ObjectProperty<EditCoordinateImmutable> editCoordinateProperty();
+
    /**
     *
     * @return the vertexSort property.
     */
    ObjectProperty<VertexSort> vertexSortProperty();
+
+   ObjectProperty<Activity> activityProperty();
 
    /**
     * Will change all contained paths (vertex, edge, and language), to the provided path.

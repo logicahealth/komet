@@ -45,7 +45,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.LoincVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -108,6 +108,21 @@ public class LoincVersionImpl
       this.system = data.getUTF();
       this.timeAspect = data.getUTF();
    }
+
+   public LoincVersionImpl(LoincVersionImpl old,
+                           int stampSequence) {
+      super(old.getChronology(), stampSequence);
+      this.component = old.component;
+      this.loincNum = old.loincNum;
+      this.longCommonName = old.longCommonName;
+      this.methodType = old.methodType;
+      this.property = old.property;
+      this.scaleType = old.scaleType;
+      this.shortName = old.shortName;
+      this.loincStatus = old.loincStatus;
+      this.system = old.system;
+      this.timeAspect = old.timeAspect;
+   }
    /**
     * Write version data.
     *
@@ -129,46 +144,9 @@ public class LoincVersionImpl
    }
    //~--- methods -------------------------------------------------------------
 
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
-
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(transaction,
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      authorNid,
-                      this.getModuleNid(),
-                      this.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
    public <V extends Version> V setupAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final LoincVersionImpl newVersion = new LoincVersionImpl((SemanticChronology) this, stampSequence);
-      newVersion.setComponent(this.component);
-      newVersion.setLoincNum(this.loincNum);
-      newVersion.setLoincStatus(loincStatus);
-      newVersion.setLongCommonName(longCommonName);
-      newVersion.setMethodType(methodType);
-      newVersion.setProperty(property);
-      newVersion.setScaleType(scaleType);
-      newVersion.setShortName(shortName);
-      newVersion.setSystem(system);
-      newVersion.setTimeAspect(timeAspect);
-
-      chronologyImpl.addVersion(newVersion);
+      final LoincVersionImpl newVersion = new LoincVersionImpl(this, stampSequence);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 

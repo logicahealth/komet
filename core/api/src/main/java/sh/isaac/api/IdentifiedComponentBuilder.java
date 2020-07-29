@@ -46,7 +46,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.transaction.Transaction;
@@ -103,12 +103,12 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     * Create a component with a state of ACTIVE.
     *
     * @param transaction the transaction governing the component builder
-    * @param editCoordinate the edit coordinate that determines the author, module and path for the change
+    * @param manifoldCoordinate the edit coordinate that determines the author, module and path for the change
     * @return a task which will return the constructed component after it has been added to the commit manager -
     * the write to the commit manager is not complete until the task is complete (the task has already been launched)
     * @throws IllegalStateException the illegal state exception
     */
-   OptionalWaitTask<T> build(Transaction transaction, EditCoordinate editCoordinate)
+   OptionalWaitTask<T> build(Transaction transaction, ManifoldCoordinate manifoldCoordinate)
             throws IllegalStateException;
 
    /**
@@ -131,13 +131,13 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     * Create a component with a state of ACTIVE.
     *
     * @param transaction the transaction governing the component builder
-    * @param editCoordinate the edit coordinate that determines the author, module (unless overridden) and path for the change
+    * @param manifoldCoordinate the edit coordinate that determines the author, module (unless overridden) and path for the change
     * @param subordinateBuiltObjects a list of subordinate objects also build as a result of building this object.  Includes top-level object being built.
     * @return a task which will return the constructed component after it has been added to the commit manager -
     * the write to the commit manager is not complete until the task is complete (the task has already been launched)
     * @throws IllegalStateException the illegal state exception
     */
-   OptionalWaitTask<T> build(Transaction transaction, EditCoordinate editCoordinate,
+   OptionalWaitTask<T> build(Transaction transaction, ManifoldCoordinate manifoldCoordinate,
                              List<Chronology> subordinateBuiltObjects)
             throws IllegalStateException;
 
@@ -172,8 +172,8 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     * define the state that the component will be created with.  if setState is not called,
     * the component will be build as active.  Note, this will not impact any nested builders.
     * Nested builders should have their own state set, if you wish to override the default
-    * active value.  This is only used for calls to {@link #build(Transaction, EditCoordinate)}
-    * or {@link #build(Transaction, EditCoordinate, List)} (where a active state would otherwise be assumed)
+    * active value.  This is only used for calls to {@link #build(Transaction, ManifoldCoordinate)}
+    * or {@link #build(Transaction, ManifoldCoordinate, List)} (where a active state would otherwise be assumed)
     * It is not used with a call to {@link #build(Transaction, int, List)}
     *
     * @param state the state

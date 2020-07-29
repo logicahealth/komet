@@ -40,6 +40,7 @@ import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.task.TimedTask;
@@ -53,43 +54,25 @@ import sh.isaac.provider.logic.csiro.classify.tasks.AggregateClassifyTask;
 public class ClassifierProvider
         implements ClassifierService {
 
-   /**
-    * The stamp coordinate.
-    */
-   StampFilter stampFilter;
-
-   /**
-    * The logic coordinate.
-    */
-   LogicCoordinate logicCoordinate;
-
-   /**
-    * The edit coordinate.
-    */
-   EditCoordinate editCoordinate;
+   ManifoldCoordinate manifoldCoordinate;
 
    /**
     * Instantiates a new classifier provider.
-    *  @param stampFilter the stamp coordinate
-    * @param logicCoordinate the logic coordinate
-    * @param editCoordinate the edit coordinate
+    * @param manifoldCoordinate the stamp coordinate
+    *
     */
-   public ClassifierProvider(StampFilter stampFilter,
-                             LogicCoordinate logicCoordinate,
-                             EditCoordinate editCoordinate) {
-      this.stampFilter = stampFilter;
-      this.logicCoordinate = logicCoordinate;
-      this.editCoordinate = editCoordinate;
+   public ClassifierProvider(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
    }
 
    @Override
    public TimedTask<ClassifierResults> classify() {
-      return AggregateClassifyTask.get(this.stampFilter, this.logicCoordinate, this.editCoordinate, true);
+      return AggregateClassifyTask.get(this.manifoldCoordinate, true);
    }
    
    @Override
    public TimedTask<ClassifierResults> classify(boolean cycleCheck) {
-      return AggregateClassifyTask.get(this.stampFilter, this.logicCoordinate, this.editCoordinate, cycleCheck);
+      return AggregateClassifyTask.get(this.manifoldCoordinate, cycleCheck);
    }
 
    //~--- get methods ---------------------------------------------------------
@@ -97,17 +80,16 @@ public class ClassifierProvider
     * Gets the concept nid for expression.
     *
     * @param expression the expression
-    * @param editCoordinate the edit coordinate
+    * @param manifoldCoordinate the edit coordinate
     * @return the concept nid for expression
     */
    @Override
-   public TimedTask<Integer> getConceptNidForExpression(LogicalExpression expression, EditCoordinate editCoordinate) {
-      return GetConceptNidForExpressionTask.create(expression, this, editCoordinate);
+   public TimedTask<Integer> getConceptNidForExpression(LogicalExpression expression, ManifoldCoordinate manifoldCoordinate) {
+      return GetConceptNidForExpressionTask.create(expression, this, manifoldCoordinate);
    }
 
    @Override
    public String toString() {
-      return "ClassifierProvider stamp: {" + stampFilter.toString() + "} logicCoord: {" + logicCoordinate.toString() + "} editCoord: {"
-            + editCoordinate.toString() + "}";
+      return "ClassifierProvider ManifoldCoordinate: {" + this.manifoldCoordinate.toString() + "}";
    }
 }

@@ -59,6 +59,7 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
@@ -132,12 +133,12 @@ public class ObservableSemanticChronologyImpl
     * Creates the mutable version.
     *
     * @param status the status
-    * @param ec the ec
-    * @return the m
+    * @param mc the Manifold coordinate
+    * @return the mutable version
     */
    @Override
-   public <V extends Version> V createMutableVersion(Transaction transaction, Status status, EditCoordinate ec) {
-      return (V) wrapInObservable(getSemanticChronology().createMutableVersion(transaction, status, ec));
+   public <V extends Version> V createMutableVersion(Transaction transaction, Status status, ManifoldCoordinate mc) {
+      return (V) wrapInObservable(getSemanticChronology().createMutableVersion(transaction, status, mc));
    }
 
    /**

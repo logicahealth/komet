@@ -4,14 +4,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.marshal.Marshalable;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.VersionChangeListener;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -45,26 +42,23 @@ public abstract class ActionItem implements Marshalable {
      * ActionItems should use enum keys defined within their own class so that there is no duplicate assignment
      * of a key.
      * @param cache
-     * @param stampFilter
+     * @param manifoldCoordinate
      */
     protected abstract void setupForApply(ConcurrentHashMap<Enum, Object> cache,
                                           Transaction transaction,
-                                          StampFilter stampFilter,
-                                          EditCoordinate editCoordinate);
+                                          ManifoldCoordinate manifoldCoordinate);
 
     /**
      * This is the call that actually performs the action.
      * @param chronology
      * @param cache
      * @param transaction
-     * @param stampFilter
-     * @param editCoordinate
+     * @param manifoldCoordinate
      */
     protected abstract void apply(Chronology chronology,
                                   ConcurrentHashMap<Enum, Object> cache,
                                   Transaction transaction,
-                                  StampFilter stampFilter,
-                                  EditCoordinate editCoordinate,
+                                  ManifoldCoordinate manifoldCoordinate,
                                   VersionChangeListener versionChangeListener);
 
     public abstract String getTitle();
