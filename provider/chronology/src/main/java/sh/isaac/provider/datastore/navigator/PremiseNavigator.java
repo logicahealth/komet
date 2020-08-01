@@ -22,21 +22,7 @@ public class PremiseNavigator implements Navigator, RefreshListener {
 
     public PremiseNavigator(ManifoldCoordinate manifoldCoordinate, int navigatorNid) {
         this.manifoldCoordinate = manifoldCoordinate.toManifoldCoordinateImmutable();
-        if (navigatorNid == this.manifoldCoordinate.getLogicCoordinate().getStatedAssemblageNid()) {
-            if (this.manifoldCoordinate.getPremiseType() == PremiseType.STATED) {
-                this.definingTaxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldCoordinate);
-            } else {
-                throw new IllegalStateException("Premise type inconsistent with navigatorNid" + this.manifoldCoordinate);
-            }
-        } else if (navigatorNid == manifoldCoordinate.getLogicCoordinate().getInferredAssemblageNid()) {
-            if (this.manifoldCoordinate.getPremiseType() == PremiseType.INFERRED) {
-                this.definingTaxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldCoordinate);
-            } else {
-                throw new IllegalStateException("Premise type inconsistent with navigatorNid" + this.manifoldCoordinate);
-            }
-        } else {
-            throw new IllegalStateException("NavigatorNid " + navigatorNid + " is neither stated nor inferred. " + manifoldCoordinate);
-        }
+        this.definingTaxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldCoordinate);
         Get.taxonomyService().addTaxonomyRefreshListener(this);
     }
 

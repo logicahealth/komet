@@ -80,18 +80,13 @@ public class ObservableManifoldCoordinateImpl extends ObservableManifoldCoordina
     }
 
     @Override
-    protected ObservableStampFilterBase makeLanguageStampFilterProperty(ManifoldCoordinate manifoldCoordinate) {
-        return ObservableStampFilterImpl.make(manifoldCoordinate.getLanguageStampFilter(), ObservableFields.LANGUAGE_FILTER_FOR_DIGRAPH.toExternalString());
-    }
-
-    @Override
     protected ObservableStampFilterBase makeVertexStampFilterProperty(ManifoldCoordinate manifoldCoordinate) {
-        return  ObservableStampFilterImpl.make(manifoldCoordinate.getVertexStampFilter(), ObservableFields.VERTEX_FILTER_FOR_DIGRAPH.toExternalString());
+        return  ObservableStampFilterImpl.make(manifoldCoordinate.getVertexStampFilter(), ObservableFields.VERTEX_FILTER_FOR_NAVIGATION.toExternalString());
     }
 
     @Override
     protected ObservableStampFilterBase makeEdgeStampFilterProperty(ManifoldCoordinate manifoldCoordinate) {
-        return ObservableStampFilterImpl.make(manifoldCoordinate.getEdgeStampFilter(), ObservableFields.EDGE_FILTER_FOR_DIGRAPH.toExternalString());
+        return ObservableStampFilterImpl.make(manifoldCoordinate.getViewStampFilter(), ObservableFields.VIEW_FILTER_FOR_NAVIGATION.toExternalString());
     }
 
 

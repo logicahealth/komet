@@ -98,7 +98,7 @@ public class EquivalencyWriter extends TimedTaskWithProgressTracker<Void> {
                         int versionStamp = stampService.getStampSequence(
                                 Status.ACTIVE,
                                 this.time,
-                                MetaData.UMLS_USER____SOLOR.getNid(),
+                                MetaData.UMLS_AUTHOR____SOLOR.getNid(),
                                 MetaData.SOLOR_UMLS_MODULE____SOLOR.getNid(),
                                 MetaData.DEVELOPMENT_PATH____SOLOR.getNid()
                         );

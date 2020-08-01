@@ -81,7 +81,7 @@ public class AssociationType
       at.associationName_ = Get.conceptService().getSnapshot(manifoldCoordinate).conceptDescriptionText(conceptNid);
       
       //Find the inverse name
-      for (DescriptionVersion desc : Frills.getDescriptionsOfType(conceptNid, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR, localManifoldCoordinate.getViewFilter().makeCoordinateAnalog(Status.ACTIVE)))
+      for (DescriptionVersion desc : Frills.getDescriptionsOfType(conceptNid, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR, localManifoldCoordinate.getViewStampFilter().makeCoordinateAnalog(Status.ACTIVE)))
       {
          
          if (Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(desc.getNid(), 
@@ -89,7 +89,7 @@ public class AssociationType
          {
             if (nestedSemantic.getVersionType() == VersionType.DYNAMIC)
             {
-               return nestedSemantic.getLatestVersion(localManifoldCoordinate.getViewFilter()).isPresent();
+               return nestedSemantic.getLatestVersion(localManifoldCoordinate.getViewStampFilter()).isPresent();
             }
             return false;
          }))
@@ -100,15 +100,15 @@ public class AssociationType
       
       //find the description
       for (DescriptionVersion desc : Frills.getDescriptionsOfType(at.getAssociationType(),
-            MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR, localManifoldCoordinate.getViewFilter().makeCoordinateAnalog(Status.ACTIVE)))
+            MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR, localManifoldCoordinate.getViewStampFilter().makeCoordinateAnalog(Status.ACTIVE)))
       {
-         if (Frills.isDescriptionPreferred(desc.getNid(), localManifoldCoordinate.getViewFilter()) &&
+         if (Frills.isDescriptionPreferred(desc.getNid(), localManifoldCoordinate.getViewStampFilter()) &&
                Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(desc.getNid(), 
                      DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid()).anyMatch(nestedSemantic ->
          {
             if (nestedSemantic.getVersionType() == VersionType.DYNAMIC)
             {
-               return nestedSemantic.getLatestVersion(localManifoldCoordinate.getViewFilter()).isPresent();
+               return nestedSemantic.getLatestVersion(localManifoldCoordinate.getViewStampFilter()).isPresent();
             }
             return false;
          }))

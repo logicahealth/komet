@@ -1,14 +1,11 @@
 package sh.isaac.model.observable.coordinate;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampFilter;
-import sh.isaac.api.observable.coordinate.PropertyWithOverride;
 import sh.isaac.model.observable.override.ObjectPropertyWithOverride;
 
 public class ObservableManifoldCoordinateWithOverride extends ObservableManifoldCoordinateBase {
@@ -38,9 +35,9 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
             if (vertexSortProperty().isOverridden()) {
                 vertexSort = getVertexSort();
             }
-            StampFilterImmutable edgeStampFilter = updatedCoordinate.getEdgeStampFilter();
-            if (getEdgeStampFilter().hasOverrides()) {
-                ObservableStampFilter filter = getEdgeStampFilter();
+            StampFilterImmutable edgeStampFilter = updatedCoordinate.getViewStampFilter();
+            if (getViewStampFilter().hasOverrides()) {
+                ObservableStampFilter filter = getViewStampFilter();
                 filter.setExceptOverrides(edgeStampFilter);
                 edgeStampFilter = filter.toStampFilterImmutable();
             }
@@ -50,13 +47,7 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
                 coordinate.setExceptOverrides(languageCoordinate);
                 languageCoordinate = coordinate.toLanguageCoordinateImmutable();
             }
-            StampFilterImmutable languageStampFilter = updatedCoordinate.getLanguageStampFilter();
-            if (getLanguageStampFilter().hasOverrides()) {
-                ObservableStampFilter filter = getLanguageStampFilter();
-                filter.setExceptOverrides(languageStampFilter);
-                languageStampFilter = filter.toStampFilterImmutable();
-            }
-            StampFilterImmutable vertexStampFilter = updatedCoordinate.getVertexStampFilter();
+             StampFilterImmutable vertexStampFilter = updatedCoordinate.getVertexStampFilter();
             if (getVertexStampFilter().hasOverrides()) {
                 ObservableStampFilter filter = getVertexStampFilter();
                 filter.setExceptOverrides(vertexStampFilter);
@@ -74,7 +65,6 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
             }
             this.setValue(ManifoldCoordinateImmutable.make(edgeStampFilter,
                     languageCoordinate,
-                    languageStampFilter,
                     vertexSort,
                     vertexStampFilter,
                     navigationCoordinate,
@@ -109,12 +99,6 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
     }
 
     @Override
-    protected ObservableStampFilterBase makeLanguageStampFilterProperty(ManifoldCoordinate manifoldCoordinate) {
-        ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
-        return new ObservableStampFilterWithOverride(observableManifoldCoordinate.getLanguageStampFilter());
-    }
-
-    @Override
     protected ObservableStampFilterBase makeVertexStampFilterProperty(ManifoldCoordinate manifoldCoordinate) {
         ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
         return new ObservableStampFilterWithOverride(observableManifoldCoordinate.getVertexStampFilter());
@@ -123,7 +107,7 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
     @Override
     protected ObservableStampFilterBase makeEdgeStampFilterProperty(ManifoldCoordinate manifoldCoordinate) {
         ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
-        return new ObservableStampFilterWithOverride(observableManifoldCoordinate.getEdgeStampFilter());
+        return new ObservableStampFilterWithOverride(observableManifoldCoordinate.getViewStampFilter());
     }
 
     @Override
@@ -159,4 +143,6 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
         ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
         return new ObservableEditCoordinateWithOverride(observableManifoldCoordinate.getEditCoordinate());
     }
+
+
 }

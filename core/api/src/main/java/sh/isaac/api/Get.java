@@ -406,7 +406,7 @@ public class Get
       if (Get.identifierService().getObjectTypeForComponent(conceptNid) == IsaacObjectType.SEMANTIC) {
          SemanticChronology sc = Get.assemblageService().getSemanticChronology(conceptNid);
          if (sc.getVersionType() == VersionType.DESCRIPTION) {
-            LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate().getLanguageStampFilter());
+            LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate().getViewStampFilter());
             if (latestDescription.isPresent()) {
                return "Desc: " + latestDescription.get().getText();
             }
@@ -1072,20 +1072,20 @@ public class Get
    }
 
    public static String getTextForComponent(Chronology component) {
-      return Get.getTextForComponent(component, Get.defaultCoordinate().getLanguageStampFilter(),
+      return Get.getTextForComponent(component, Get.defaultCoordinate().getViewStampFilter(),
               Get.defaultCoordinate().getLanguageCoordinate());
    }
 
 
    public static String getTextForComponent(Chronology component, ManifoldCoordinate manifoldCoordinate) {
-      return Get.getTextForComponent(component, manifoldCoordinate.getLanguageStampFilter(),
+      return Get.getTextForComponent(component, manifoldCoordinate.getViewStampFilter(),
               manifoldCoordinate.getLanguageCoordinate());
    }
 
    public static String getTextForComponent(int componentNid, ManifoldCoordinate manifoldCoordinate) {
       Optional<? extends Chronology> optionalComponent = Get.identifiedObjectService().getChronology(componentNid);
       if (optionalComponent.isPresent()) {
-         return Get.getTextForComponent(optionalComponent.get(), manifoldCoordinate.getLanguageStampFilter(),
+         return Get.getTextForComponent(optionalComponent.get(), manifoldCoordinate.getViewStampFilter(),
                  manifoldCoordinate.getLanguageCoordinate());
       }
       return "No component for: " + componentNid + " uuids: " + Get.identifierService().getUuidsForNid(componentNid);

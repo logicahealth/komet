@@ -140,7 +140,7 @@ public class GetConceptNidForExpressionTask
       try {
          final SemanticSnapshotService<LogicGraphVersionImpl> semanticSnapshot = Get.assemblageService()
                                                                                .getSnapshot(LogicGraphVersionImpl.class,
-                                                                                           this.manifoldCoordinate.getViewFilter());
+                                                                                           this.manifoldCoordinate.getViewStampFilter());
 
          updateMessage("Searching existing definitions...");
 

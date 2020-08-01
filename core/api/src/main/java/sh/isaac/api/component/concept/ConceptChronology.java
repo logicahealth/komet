@@ -135,7 +135,7 @@ public interface ConceptChronology
     * @return the fully specified description
     */
    default LatestVersion<? extends DescriptionVersion> getFullySpecifiedDescription(ManifoldCoordinate coordinate) {
-      return getFullyQualifiedNameDescription(coordinate.getLanguageCoordinate(), coordinate.getLanguageStampFilter());
+      return getFullyQualifiedNameDescription(coordinate.getLanguageCoordinate(), coordinate.getViewStampFilter());
    }
 
    /**
@@ -192,7 +192,7 @@ public interface ConceptChronology
     * @return the preferred description
     */
    default LatestVersion<? extends DescriptionVersion> getPreferredDescription(ManifoldCoordinate coordinate) {
-      return getPreferredDescription(coordinate.getLanguageCoordinate(), coordinate.getLanguageStampFilter());
+      return getPreferredDescription(coordinate.getLanguageCoordinate(), coordinate.getViewStampFilter());
    }
 
    /**

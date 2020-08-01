@@ -108,14 +108,14 @@ public class PromoteComponentAction extends ActionItem {
     @Override
     public void apply(Chronology chronology, ConcurrentHashMap<Enum, Object> cache, Transaction transaction,
                       ManifoldCoordinate manifoldCoordinate, VersionChangeListener versionChangeListener) {
-        LatestVersion<Version> latestVersion = chronology.getLatestVersion(manifoldCoordinate.getViewFilter());
+        LatestVersion<Version> latestVersion = chronology.getLatestVersion(manifoldCoordinate.getViewStampFilter());
         if (latestVersion.isAbsent()) {
             LOG.warn("Batch editing requires a latest version to update. None found for: " + chronology);
             // Nothing to do.
             return;
         }
         // See if the latest on the promotion path is different...
-        LatestVersion<Version> promotionPathVersion = chronology.getLatestVersion(manifoldCoordinate.getViewFilter());
+        LatestVersion<Version> promotionPathVersion = chronology.getLatestVersion(manifoldCoordinate.getViewStampFilter());
         if (promotionPathVersion.isPresent()) {
             // need to compare and see if different...
             LOG.info("Test for promotion: \n" + latestVersion.get() + "\n" + promotionPathVersion.get());

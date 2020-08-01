@@ -88,7 +88,7 @@ public class AssociationUtilities
    {
       ManifoldCoordinate localManifold = manifoldCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getManifoldCoordinate() : manifoldCoordinate;
       SemanticChronology sc = Get.assemblageService().getSemanticChronology(associationNid);
-      LatestVersion<Version> latest = sc.getLatestVersion(localManifold.getViewFilter());
+      LatestVersion<Version> latest = sc.getLatestVersion(localManifold.getViewStampFilter());
       if (latest.isPresent())
       {
          return Optional.of(AssociationInstance.read((DynamicVersion)latest.get(), manifoldCoordinate));
@@ -115,7 +115,7 @@ public class AssociationUtilities
       Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(componentNid, associationTypes)
          .forEach(associationC -> 
             {
-               LatestVersion<Version> latest = associationC.getLatestVersion(localManifold.getViewFilter());
+               LatestVersion<Version> latest = associationC.getLatestVersion(localManifold.getViewStampFilter());
                if (latest.isPresent())
                {
                   if (latest.get().getSemanticType() == VersionType.DYNAMIC) 
@@ -173,7 +173,7 @@ public class AssociationUtilities
             }
             @SuppressWarnings("rawtypes")
             LatestVersion<DynamicVersion> latest = Get.assemblageService().getSnapshot(DynamicVersion.class,
-                    manifoldCoordinate.getViewFilter()).getLatestSemanticVersion(sr.getNid());
+                    manifoldCoordinate.getViewStampFilter()).getLatestSemanticVersion(sr.getNid());
             
             if (latest.isPresent())
             {
@@ -201,7 +201,7 @@ public class AssociationUtilities
       Get.assemblageService().getSemanticChronologyStream(associationTypeConceptNid)
          .forEach(associationC -> 
             {
-               LatestVersion<Version> latest = associationC.getLatestVersion(localFilter.getViewFilter());
+               LatestVersion<Version> latest = associationC.getLatestVersion(localFilter.getViewStampFilter());
                if (latest.isPresent())
                {
                   results.add(AssociationInstance.read((DynamicVersion)latest.get(), manifoldCoordinate));

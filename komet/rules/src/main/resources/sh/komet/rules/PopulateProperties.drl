@@ -34,7 +34,7 @@ global ManifoldCoordinateImmutable manifoldCoordinate;
 rule "Setup module"
    lock-on-active true
 when
-   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.MODULE_NID_FOR_VERSION____SOLOR.getNid());
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.MODULE_FOR_VERSION____SOLOR.getNid());
 then
    $propertySheetItem.setDefaultValue(editCoordinate.getDefaultModuleNid());
    $propertySheetItem.getAllowedValues().add(editCoordinate.getDefaultModuleNid());
@@ -124,7 +124,7 @@ end
 rule "Setup dialect acceptability"
    lock-on-active true
 when
-   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.COMPONENT_NID_FOR_SEMANTIC____SOLOR.getNid(), 
+   $propertySheetItem : PropertySheetItem(getSpecification().getNid() == MetaData.COMPONENT_FOR_SEMANTIC____SOLOR.getNid(),
    getPropertySheetPurpose() == PropertySheetPurpose.DESCRIPTION_DIALECT);
 then
    $propertySheetItem.setEditorType(EditorType.CONCEPT_SPEC_CHOICE_BOX);

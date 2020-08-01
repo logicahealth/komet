@@ -32,7 +32,7 @@ public class VertexSortNaturalOrder implements VertexSort, Marshalable {
             return vertexConceptNids;
         }
         final LanguageCoordinate languageCoordinate = manifold.getLanguageCoordinate();
-        final StampFilter stampFilter = manifold.getLanguageStampFilter();
+        final StampFilter stampFilter = manifold.getViewStampFilter();
         return IntLists.immutable.of(vertexConceptNids).primitiveStream().mapToObj(vertexConceptNid ->
                 new VertexItem(vertexConceptNid, getVertexLabel(vertexConceptNid, languageCoordinate, stampFilter)))
                 .sorted().mapToInt(value -> value.nid).toArray();
@@ -60,6 +60,9 @@ public class VertexSortNaturalOrder implements VertexSort, Marshalable {
 
     @Override
     public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
         return obj.getClass().equals(this.getClass());
     }
 

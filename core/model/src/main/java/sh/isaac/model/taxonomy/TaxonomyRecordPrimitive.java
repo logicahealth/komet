@@ -53,6 +53,7 @@ import sh.isaac.api.collections.NidSet;
 
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilterImmutable;
+import sh.isaac.api.coordinate.TaxonomyFlag;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
 //~--- classes ----------------------------------------------------------------
@@ -349,7 +350,7 @@ public class TaxonomyRecordPrimitive {
          if (recordConceptNid == conceptNid) {
             // TODO see if containsConceptNidViaTypeWithAllowedStatus can be computed from TaxonomyRecordPrimitive
             final TypeStampTaxonomyRecords records = new TypeStampTaxonomyRecords(taxonomyData, index);
-            return records.containsConceptNidViaTypeWithAllowedStatus(conceptNid, TaxonomyFlag.CONCEPT_STATUS.bits, calculator);
+            return records.containsConceptNidViaTypeWithAllowedStatus(conceptNid, new int[] {TaxonomyFlag.CONCEPT_STATUS.bits}, calculator);
          }
 
          index += length;
@@ -371,7 +372,7 @@ public class TaxonomyRecordPrimitive {
     * @param flags the flags
     * @return true, if successful
     */
-   public boolean containsNidViaType(int conceptNid, NidSet typeNidSet, int flags) {
+   public boolean containsNidViaType(int conceptNid, NidSet typeNidSet, int[] flags) {
       return getTaxonomyRecordUnpacked().containsConceptNidViaType(conceptNid, typeNidSet, flags);
    }
 
@@ -413,7 +414,7 @@ public class TaxonomyRecordPrimitive {
    public boolean containsNidViaType(int conceptNid,
          NidSet typeNidSet,
          ManifoldCoordinate tc,
-         int flags) {
+         int[] flags) {
       return getTaxonomyRecordUnpacked().containsConceptNidViaType(conceptNid, typeNidSet, tc, flags);
    }
 
@@ -426,7 +427,7 @@ public class TaxonomyRecordPrimitive {
     * @param flags the flags
     * @return true, if successful
     */
-   public boolean containsNidViaType(int conceptNid, int typeNid, ManifoldCoordinate tc, int flags) {
+   public boolean containsNidViaType(int conceptNid, int typeNid, ManifoldCoordinate tc, int[] flags) {
       return getTaxonomyRecordUnpacked().containsConceptNidViaType(conceptNid, typeNid, tc, flags);
    }
 
@@ -438,7 +439,7 @@ public class TaxonomyRecordPrimitive {
     * @param flags the flags
     * @return true, if successful
     */
-   public boolean containsNidViaTypeWithFlags(int conceptNid, int typeNid, int flags) {
+   public boolean containsNidViaTypeWithFlags(int conceptNid, int typeNid, int[] flags) {
       return getTaxonomyRecordUnpacked().containsNidViaTypeWithFlags(conceptNid, typeNid, flags);
    }
 
@@ -450,7 +451,7 @@ public class TaxonomyRecordPrimitive {
     * @return true if found.
     */
 
-   public boolean containsStampOfTypeWithFlags(int typeNid, int flags) {
+   public boolean containsStampOfTypeWithFlags(int typeNid, int[] flags) {
       return getTaxonomyRecordUnpacked().containsStampOfTypeWithFlags(typeNid, flags);
    }
 
@@ -541,7 +542,7 @@ public class TaxonomyRecordPrimitive {
          final int length = taxonomyData[index];
          if (recordConceptNid == conceptNid) {
             final TypeStampTaxonomyRecords records = new TypeStampTaxonomyRecords(taxonomyData, index);
-            int[] stampValues = records.latestStampsForConceptNidViaTypeWithAllowedStatus(conceptNid, TaxonomyFlag.CONCEPT_STATUS.bits, relativePositionCalculator);
+            int[] stampValues = records.latestStampsForConceptNidViaTypeWithAllowedStatus(conceptNid, new int[] {TaxonomyFlag.CONCEPT_STATUS.bits}, relativePositionCalculator);
             for (int stamp: stampValues) {
                if (Get.stampService().isStampActive(stamp)) {
                   return true;
@@ -664,7 +665,7 @@ public class TaxonomyRecordPrimitive {
          int typeNid,
          final int[] taxonomyData,
          ManifoldCoordinate vp,
-         int flags) {
+         int[] flags) {
 
       if (taxonomyData != null) {
          TaxonomyRecordPrimitive record = new TaxonomyRecordPrimitive(taxonomyData);
@@ -690,7 +691,7 @@ public class TaxonomyRecordPrimitive {
 
       if (taxonomyData != null) {
          TaxonomyRecordPrimitive record = new TaxonomyRecordPrimitive(taxonomyData);
-         if (record.containsNidViaType(conceptNid, conceptNid, vp, TaxonomyFlag.CONCEPT_STATUS.bits)) {
+         if (record.containsNidViaType(conceptNid, conceptNid, vp, new int[] {TaxonomyFlag.CONCEPT_STATUS.bits})) {
             return Optional.of(record);
          }
       }

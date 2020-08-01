@@ -445,7 +445,7 @@ public class StampProvider
             sb.append("CANCELED");
         } else {
             ZonedDateTime stampTime = Instant.ofEpochMilli(time)
-                    .atZone(ZoneOffset.UTC);
+                    .atZone(ZoneOffset.systemDefault());
             sb.append(stampTime.format(FORMATTER));
         }
 

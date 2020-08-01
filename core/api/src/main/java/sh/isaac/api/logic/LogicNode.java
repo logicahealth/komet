@@ -215,7 +215,7 @@ public interface LogicNode
     * @return the preferred description. 
     */
    default LatestVersion<DescriptionVersion> getPreferredDescription(ManifoldCoordinate manifoldCoordinate) {
-      return getPreferredDescription(manifoldCoordinate.getLanguageStampFilter(), manifoldCoordinate.getLanguageCoordinate());
+      return getPreferredDescription(manifoldCoordinate.getViewStampFilter(), manifoldCoordinate.getLanguageCoordinate());
    }
    
    /**

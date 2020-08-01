@@ -832,15 +832,15 @@ public class ChronologyProvider
 
         @Override
         public String conceptDescriptionText(int conceptNid) {
-            Optional<String> description = this.manifoldCoordinate.getLanguageCoordinate().getPreferredDescriptionText(conceptNid, this.manifoldCoordinate.getLanguageStampFilter());
+            Optional<String> description = this.manifoldCoordinate.getLanguageCoordinate().getPreferredDescriptionText(conceptNid, this.manifoldCoordinate.getViewStampFilter());
             if (description.isPresent()) {
                 return description.get();
             }
-            description = this.manifoldCoordinate.getLanguageCoordinate().getFullyQualifiedNameText(conceptNid, this.manifoldCoordinate.getLanguageStampFilter());
+            description = this.manifoldCoordinate.getLanguageCoordinate().getFullyQualifiedNameText(conceptNid, this.manifoldCoordinate.getViewStampFilter());
             if (description.isPresent()) {
                 return description.get();
             }
-            return this.manifoldCoordinate.getLanguageCoordinate().getAnyName(conceptNid, this.manifoldCoordinate.getLanguageStampFilter());
+            return this.manifoldCoordinate.getLanguageCoordinate().getAnyName(conceptNid, this.manifoldCoordinate.getViewStampFilter());
         }
 
         @Override
@@ -851,7 +851,7 @@ public class ChronologyProvider
             LatestVersion<DescriptionVersion> lv = this.manifoldCoordinate.getDescription(conceptNid);
             if (lv.isAbsent()) {
                 //Use a coordinate that will return anything
-                return regNameCoord.getDescription(Get.assemblageService().getDescriptionsForComponent(conceptNid), this.manifoldCoordinate.getLanguageStampFilter());
+                return regNameCoord.getDescription(Get.assemblageService().getDescriptionsForComponent(conceptNid), this.manifoldCoordinate.getViewStampFilter());
             } else {
                 return lv;
             }

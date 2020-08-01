@@ -324,13 +324,13 @@ public interface Chronology
            }
        }
 
-       LatestVersion<V> latestVersion = getLatestVersion(mc.getViewFilter());
+       LatestVersion<V> latestVersion = getLatestVersion(mc.getViewStampFilter());
        if (latestVersion.isPresent()) {
            V v = ((Version) latestVersion.get()).makeAnalog(transaction, mc);
            transaction.addVersionToTransaction(v);
            return v;
        }
-       throw new IllegalStateException("No latest version for stamp: " + mc.getViewFilter() + "\n\n" + this);
+       throw new IllegalStateException("No latest version for stamp: " + mc.getViewStampFilter() + "\n\n" + this);
    }
 }
 

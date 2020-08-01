@@ -136,7 +136,7 @@ public class SemanticChronologyImpl
     */
    @Override
    public <V extends Version> V createMutableVersion(Transaction transaction, Status status, ManifoldCoordinate mc) {
-      LatestVersion<V> latest = this.getLatestVersion(mc.getViewFilter());
+      LatestVersion<V> latest = this.getLatestVersion(mc.getViewStampFilter());
       final int stampSequence;
       if (latest.isPresent()) {
          stampSequence = Get.stampService()

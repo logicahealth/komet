@@ -170,10 +170,10 @@ public class ClassifierResultsImpl implements ClassifierResults {
     }
 
     private final void verifyCoordinates() {
-        if (manifoldCoordinate.getViewFilter().getStampPosition().getTime() == Long.MAX_VALUE) {
+        if (manifoldCoordinate.getViewStampFilter().getStampPosition().getTime() == Long.MAX_VALUE) {
             throw new IllegalStateException("Filter position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
         }
-        if (manifoldCoordinate.getViewFilter().getTime() == Long.MAX_VALUE) {
+        if (manifoldCoordinate.getViewStampFilter().getTime() == Long.MAX_VALUE) {
             throw new IllegalStateException("Filter position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
         }
 
@@ -235,7 +235,7 @@ public class ClassifierResultsImpl implements ClassifierResults {
 
     @Override
     public Instant getCommitTime() {
-        return this.manifoldCoordinate.getViewFilter().getTimeAsInstant();
+        return this.manifoldCoordinate.getViewStampFilter().getTimeAsInstant();
     }
 
     @Override

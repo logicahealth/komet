@@ -55,7 +55,7 @@ public class SemanticWriter extends TimedTaskWithProgressTracker<Void> {
 
             final Status status = Status.ACTIVE;
             final long time = System.currentTimeMillis();
-            int authorNid = MetaData.CLINVAR_USER____SOLOR.getNid();
+            int authorNid = MetaData.CLINVAR_AUTHOR____SOLOR.getNid();
             int moduleNid = MetaData.SOLOR_GENOMIC_MODULE____SOLOR.getNid();
             int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
 

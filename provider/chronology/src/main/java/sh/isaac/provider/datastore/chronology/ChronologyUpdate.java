@@ -41,7 +41,6 @@ package sh.isaac.provider.datastore.chronology;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.StaticIsaacCache;
@@ -60,7 +59,7 @@ import sh.isaac.model.logic.IsomorphicResultsFromPathHash;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
-import sh.isaac.model.taxonomy.TaxonomyFlag;
+import sh.isaac.api.coordinate.TaxonomyFlag;
 import sh.isaac.model.taxonomy.TaxonomyRecord;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
@@ -69,7 +68,6 @@ import javax.inject.Singleton;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.TreeSet;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
 
 //~--- non-JDK imports --------------------------------------------------------

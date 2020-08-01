@@ -72,8 +72,7 @@ public interface ObservableManifoldCoordinate
       return new ObservableCoordinate<?>[] {
               getLanguageCoordinate(),
               getNavigationCoordinate(),
-              getEdgeStampFilter(),
-              getLanguageStampFilter(),
+              getViewStampFilter(),
               getVertexStampFilter(),
               getLogicCoordinate(),
               getEditCoordinate()
@@ -95,12 +94,8 @@ public interface ObservableManifoldCoordinate
    ObjectProperty<StampFilterImmutable> vertexStampFilterProperty();
 
    @Override
-   ObservableStampFilter getEdgeStampFilter();
+   ObservableStampFilter getViewStampFilter();
    ObjectProperty<StampFilterImmutable> edgeStampFilterProperty();
-
-   @Override
-   ObservableStampFilter getLanguageStampFilter();
-   ObjectProperty<StampFilterImmutable> languageStampFilterProperty();
 
    @Override
    ObservableLanguageCoordinate getLanguageCoordinate();

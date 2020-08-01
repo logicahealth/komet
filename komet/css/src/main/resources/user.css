@@ -859,9 +859,17 @@ limitations under the License.
    -fx-font-weight: bold;
    -fx-font-size:13;
 }
-
+.alert-description .scroll-pane {
+    -fx-background-color: -komet-error-background ;
+    -fx-border-color:-komet-error-background;
+}
+.alert-description .content {
+    -fx-background-color: -komet-error-background ;
+    -fx-border-color:-komet-error-background;
+}
 .alert-description {
-   -fx-fill: white;
+     -fx-border-color:-komet-error-background;
+    -fx-text-fill: white;
    -fx-font-size:13;
 }
 

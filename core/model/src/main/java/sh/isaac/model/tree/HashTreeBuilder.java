@@ -47,7 +47,6 @@ import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.set.OpenIntHashSet;
 
-import org.checkerframework.checker.units.qual.s;
 import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.Get;
 import sh.isaac.api.ProgressTracker;
@@ -207,7 +206,7 @@ public class HashTreeBuilder
             }
 
             Alert.publishAddition(
-                    new TreeCycleError(cycle, visitData, this, manifoldCoordinate.getPremiseType() + " Cycle found", cycleDescription.toString(), AlertType.ERROR));
+                    new TreeCycleError(cycle, visitData, this, manifoldCoordinate.getPremiseTypes() + " Cycle found", cycleDescription.toString(), AlertType.ERROR));
         }
 
         LOG.debug("Nodes visited: " + visitData.getNodesVisited());

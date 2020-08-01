@@ -181,6 +181,9 @@ public class MultiParentGraphItemImpl
     }
 
     public boolean shouldDisplay() {
+        if (graphView == null || graphView.getDisplayPolicies() == null) {
+            return false;
+        }
         return graphView.getDisplayPolicies()
                 .shouldDisplay(this);
     }

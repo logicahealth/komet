@@ -240,10 +240,10 @@ public class VetsExporter {
             Terminology.Subsets.Subset xmlSubset = new Terminology.Subsets.Subset();
             xmlSubset.setAction(determineAction(concept, startDate, endDate));
             xmlSubset.setName(getPreferredNameDescriptionType(concept.getNid()));
-            xmlSubset.setActive(concept.isLatestVersionActive(STAMP_COORDINATES.getViewFilter()));
+            xmlSubset.setActive(concept.isLatestVersionActive(STAMP_COORDINATES.getViewStampFilter()));
 
             //read VUID
-            xmlSubset.setVUID(Frills.getVuId(concept.getNid(), STAMP_COORDINATES.getViewFilter()).orElse(null));
+            xmlSubset.setVUID(Frills.getVuId(concept.getNid(), STAMP_COORDINATES.getViewStampFilter()).orElse(null));
 
             if (xmlSubset.getVUID() == null)
             {
@@ -305,26 +305,26 @@ public class VetsExporter {
             {
                Terminology.CodeSystem.Version.MapSets.MapSet xmlMapSet = new Terminology.CodeSystem.Version.MapSets.MapSet();
                xmlMapSet.setAction(determineAction(concept, startDate, endDate));
-               xmlMapSet.setActive(concept.isLatestVersionActive(STAMP_COORDINATES.getViewFilter()));
+               xmlMapSet.setActive(concept.isLatestVersionActive(STAMP_COORDINATES.getViewStampFilter()));
                xmlMapSet.setCode(getCodeFromNid(concept.getNid()));
                xmlMapSet.setName(getPreferredNameDescriptionType(concept.getNid()));
-               xmlMapSet.setVUID(Frills.getVuId(concept.getNid(), STAMP_COORDINATES.getViewFilter()).orElse(null));
+               xmlMapSet.setVUID(Frills.getVuId(concept.getNid(), STAMP_COORDINATES.getViewStampFilter()).orElse(null));
 
                // Source and Target CodeSystem
-               LatestVersion<DynamicVersion> mappingSemanticVersion = mappingSemantic.getLatestVersion(STAMP_COORDINATES.getViewFilter());
+               LatestVersion<DynamicVersion> mappingSemanticVersion = mappingSemantic.getLatestVersion(STAMP_COORDINATES.getViewStampFilter());
 
                if (mappingSemanticVersion.isPresent()) 
                {
                   // Get referenced component for the MapSet values
                   ConceptChronology cc = Get.conceptService().getConceptChronology(mappingSemanticVersion.get().getReferencedComponentNid());
 
-                  LatestVersion<ConceptVersion> cv = cc.getLatestVersion(STAMP_COORDINATES.getViewFilter());
+                  LatestVersion<ConceptVersion> cv = cc.getLatestVersion(STAMP_COORDINATES.getViewStampFilter());
 
                   if (cv.isPresent()) 
                   {
                      Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(cv.get().getChronology().getNid(),
                            IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getNid()).forEach(mappingStrExt -> {
-                        LatestVersion<DynamicVersion> mappingStrExtVersion = mappingStrExt.getLatestVersion(STAMP_COORDINATES.getViewFilter());
+                        LatestVersion<DynamicVersion> mappingStrExtVersion = mappingStrExt.getLatestVersion(STAMP_COORDINATES.getViewStampFilter());
 
                         // TODO:DA review
                         if (mappingStrExtVersion.isPresent())
@@ -432,9 +432,9 @@ public class VetsExporter {
                      = new Terminology.CodeSystem.Version.CodedConcepts.CodedConcept();
                xmlCodedConcept.setAction(determineAction(concept, startDate, endDate));
                xmlCodedConcept.setName(getPreferredNameDescriptionType(conceptNid));
-               xmlCodedConcept.setVUID(Frills.getVuId(conceptNid, STAMP_COORDINATES.getViewFilter()).orElse(null));
+               xmlCodedConcept.setVUID(Frills.getVuId(conceptNid, STAMP_COORDINATES.getViewStampFilter()).orElse(null));
                xmlCodedConcept.setCode(getCodeFromNid(conceptNid));
-               xmlCodedConcept.setActive(Boolean.valueOf(concept.isLatestVersionActive(STAMP_COORDINATES.getViewFilter())));
+               xmlCodedConcept.setActive(Boolean.valueOf(concept.isLatestVersionActive(STAMP_COORDINATES.getViewStampFilter())));
 
                Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Designations xmlDesignations =
                      new Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Designations();
@@ -547,14 +547,14 @@ public class VetsExporter {
       
       Get.assemblageService().getSemanticChronologyStream(componentNid).forEach(semantic ->
       {
-         LatestVersion<DynamicVersion> semanticVersion = semantic.getLatestVersion(STAMP_COORDINATES.getViewFilter());
+         LatestVersion<DynamicVersion> semanticVersion = semantic.getLatestVersion(STAMP_COORDINATES.getViewStampFilter());
          if (semanticVersion.isPresent() && semanticVersion.get().getData() != null && semanticVersion.get().getData().length > 0)
          {
             try {
                Terminology.CodeSystem.Version.MapSets.MapSet.MapEntries.MapEntry me = new Terminology.CodeSystem.Version.MapSets.MapSet.MapEntries.MapEntry();
                
                me.setAction(ActionType.ADD); // TODO: There is currently no requirement or ability to deploy MapSet deltas, this if for the full export only
-               me.setVUID(Frills.getVuId(semantic.getNid(), STAMP_COORDINATES.getViewFilter()).orElse(null));
+               me.setVUID(Frills.getVuId(semantic.getNid(), STAMP_COORDINATES.getViewStampFilter()).orElse(null));
                String code = getCodeFromNid(semanticVersion.get().getReferencedComponentNid());
                if (null == code)
                {
@@ -665,11 +665,11 @@ public class VetsExporter {
       boolean isActive = false;
       if (semantic.getVersionType() == VersionType.DYNAMIC)
       {
-         LatestVersion<DynamicVersion> semanticVersion = semantic.getLatestVersion(STAMP_COORDINATES.getViewFilter());
+         LatestVersion<DynamicVersion> semanticVersion = semantic.getLatestVersion(STAMP_COORDINATES.getViewStampFilter());
          if (semanticVersion.isPresent() && semanticVersion.get().getData() != null && semanticVersion.get().getData().length > 0)
          {
             newValue = semanticVersion.get().getData()[0] == null ? null : semanticVersion.get().getData()[0].dataToString();
-            List<DynamicVersion> coll = semantic.getVisibleOrderedVersionList(STAMP_COORDINATES.getViewFilter());
+            List<DynamicVersion> coll = semantic.getVisibleOrderedVersionList(STAMP_COORDINATES.getViewStampFilter());
             Collections.reverse(coll);
             for(DynamicVersion s : coll)
             {
@@ -684,11 +684,11 @@ public class VetsExporter {
       }
       else if (semantic.getVersionType() == VersionType.STRING)
       {
-         LatestVersion<StringVersion> semanticVersion = semantic.getLatestVersion(STAMP_COORDINATES.getViewFilter());
+         LatestVersion<StringVersion> semanticVersion = semantic.getLatestVersion(STAMP_COORDINATES.getViewStampFilter());
          if (semanticVersion.isPresent())
          {
             newValue = semanticVersion.get().getString();
-            List<StringVersion> coll = semantic.getVisibleOrderedVersionList(STAMP_COORDINATES.getViewFilter());
+            List<StringVersion> coll = semantic.getVisibleOrderedVersionList(STAMP_COORDINATES.getViewStampFilter());
             Collections.reverse(coll);
             for(StringVersion s : coll)
             {
@@ -763,7 +763,7 @@ public class VetsExporter {
          if (semantic.getVersionType() == VersionType.DESCRIPTION)
          {
             boolean hasChild = false;
-            LatestVersion<DescriptionVersion> descriptionVersion = semantic.getLatestVersion( STAMP_COORDINATES.getViewFilter());
+            LatestVersion<DescriptionVersion> descriptionVersion = semantic.getLatestVersion( STAMP_COORDINATES.getViewStampFilter());
             if (descriptionVersion.isPresent())
             {
                DesignationType d = constructor.get();
@@ -772,7 +772,7 @@ public class VetsExporter {
                
                if (d.getAction() != ActionType.ADD)
                {
-                  List<DescriptionVersion> coll = semantic.getVisibleOrderedVersionList(STAMP_COORDINATES.getViewFilter());
+                  List<DescriptionVersion> coll = semantic.getVisibleOrderedVersionList(STAMP_COORDINATES.getViewStampFilter());
                   Collections.reverse(coll);
                   for(DescriptionVersion s : coll)
                   {
@@ -794,11 +794,11 @@ public class VetsExporter {
                }
                
                d.setCode(getCodeFromNid(semantic.getNid()));
-               d.setVUID(Frills.getVuId(semantic.getNid(), STAMP_COORDINATES.getViewFilter()).orElse(null));
+               d.setVUID(Frills.getVuId(semantic.getNid(), STAMP_COORDINATES.getViewStampFilter()).orElse(null));
                d.setActive(descriptionVersion.get().getStatus() == Status.ACTIVE);
 
                //Get the extended type
-               Optional<UUID> descType = Frills.getDescriptionExtendedTypeConcept(STAMP_COORDINATES.getViewFilter(), semantic.getNid(), true);
+               Optional<UUID> descType = Frills.getDescriptionExtendedTypeConcept(STAMP_COORDINATES.getViewStampFilter(), semantic.getNid(), true);
                if (descType.isPresent())
                {
                   d.setTypeName(designationTypes.get(descType.get()));
@@ -880,7 +880,7 @@ public class VetsExporter {
       if (semantic.getVersionType() == VersionType.DYNAMIC)
       {
             SubsetMembership subsetMembership = new SubsetMembership();
-            subsetMembership.setActive(semantic.isLatestVersionActive(STAMP_COORDINATES.getViewFilter()));
+            subsetMembership.setActive(semantic.isLatestVersionActive(STAMP_COORDINATES.getViewStampFilter()));
             subsetMembership.setAction(determineAction(semantic, startDate, endDate));
             
             if (subsetMembership.getAction() == ActionType.NONE)
@@ -888,7 +888,7 @@ public class VetsExporter {
                return null;
             }
             
-            Optional<Long> vuid = Frills.getVuId(semantic.getAssemblageNid(),STAMP_COORDINATES.getViewFilter());
+            Optional<Long> vuid = Frills.getVuId(semantic.getAssemblageNid(),STAMP_COORDINATES.getViewStampFilter());
             if (vuid.isPresent())
             {
                subsetMembership.setVUID(vuid.get());
@@ -950,7 +950,7 @@ public class VetsExporter {
             else if (action != ActionType.ADD)
             {
                // Get the old target value
-               List<DynamicVersion> coll = sc.getVisibleOrderedVersionList(STAMP_COORDINATES.getViewFilter());
+               List<DynamicVersion> coll = sc.getVisibleOrderedVersionList(STAMP_COORDINATES.getViewStampFilter());
                Collections.reverse(coll);
                for(DynamicVersion s : coll)
                {
@@ -1007,10 +1007,10 @@ public class VetsExporter {
       ArrayList<String> inActiveDescriptions = new ArrayList<>(1);
       Get.assemblageService().getDescriptionsForComponent(conceptNid).forEach(semanticChronology ->
       {
-         LatestVersion<DescriptionVersion> latestVersion = semanticChronology.getLatestVersion(STAMP_COORDINATES.getViewFilter());
+         LatestVersion<DescriptionVersion> latestVersion = semanticChronology.getLatestVersion(STAMP_COORDINATES.getViewStampFilter());
          if (latestVersion.isPresent()
                && VHATConstants.VHAT_PREFERRED_NAME.getPrimordialUuid()
-                  .equals(Frills.getDescriptionExtendedTypeConcept(STAMP_COORDINATES.getViewFilter(), semanticChronology.getNid(), true).orElse(null)))
+                  .equals(Frills.getDescriptionExtendedTypeConcept(STAMP_COORDINATES.getViewStampFilter(), semanticChronology.getNid(), true).orElse(null)))
          {
             if (latestVersion.get().getStatus() == Status.ACTIVE)
             {
@@ -1031,7 +1031,7 @@ public class VetsExporter {
       {
          //This doesn't happen for concept that represent subsets, for example.
          log.debug("Failed to find a description flagged as preferred on concept " + Get.identifierService().getUuidPrimordialForNid(conceptNid));
-         String description = Frills.getDescription(conceptNid, STAMP_COORDINATES.getViewFilter(),
+         String description = Frills.getDescription(conceptNid, STAMP_COORDINATES.getViewStampFilter(),
                  Coordinates.Language.UsEnglishPreferredName()).orElse("ERROR!");
          if (description.equals("ERROR!"))
          {
@@ -1147,7 +1147,7 @@ public class VetsExporter {
     */
    private boolean wasConceptOrNestedValueModifiedInDateRange(ConceptChronology concept, long startDate)
    {
-      LatestVersion<ConceptVersion> cv = concept.getLatestVersion(STAMP_COORDINATES.getViewFilter());
+      LatestVersion<ConceptVersion> cv = concept.getLatestVersion(STAMP_COORDINATES.getViewStampFilter());
       if (cv.isPresent())
       {
          if (cv.get().getTime() >= startDate)
@@ -1170,7 +1170,7 @@ public class VetsExporter {
       //Check all the nested semantics
       return Get.assemblageService().getSemanticChronologyStreamForComponent(nid).anyMatch(sc ->
       {
-         LatestVersion<Version> sv = sc.getLatestVersion(STAMP_COORDINATES.getViewFilter());
+         LatestVersion<Version> sv = sc.getLatestVersion(STAMP_COORDINATES.getViewStampFilter());
          if (sv.isPresent())
          {
             if (sv.get().getTime() > startDate)
@@ -1204,7 +1204,7 @@ public class VetsExporter {
 
          if (sc.get().getVersionType() == VersionType.STRING)
          {
-            LatestVersion<StringVersion> sv = sc.get().getLatestVersion(STAMP_COORDINATES.getViewFilter());
+            LatestVersion<StringVersion> sv = sc.get().getLatestVersion(STAMP_COORDINATES.getViewStampFilter());
             if (sv.isPresent())
             {
                return sv.get().getString();
@@ -1212,7 +1212,7 @@ public class VetsExporter {
          }
          else if (sc.get().getVersionType() == VersionType.DYNAMIC)  //this path will become dead code, after the data is fixed.
          {
-            LatestVersion<DynamicVersion> sv = sc.get().getLatestVersion(STAMP_COORDINATES.getViewFilter());
+            LatestVersion<DynamicVersion> sv = sc.get().getLatestVersion(STAMP_COORDINATES.getViewStampFilter());
             if (sv.isPresent())
             {
                if (sv.get().getData() != null && sv.get().getData().length == 1)

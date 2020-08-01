@@ -305,13 +305,13 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
         }
 
         if (showModuleProperty.get()) {
-            b.append("   propertySheetMenuItem.addPropertyToEdit(\"module\", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);\n");
+            b.append("   propertySheetMenuItem.addPropertyToEdit(\"module\", MetaData.MODULE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);\n");
         }
         if (showStatusProperty.get()) {
             b.append("   propertySheetMenuItem.addPropertyToEdit(\"status\", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);\n");
         }
         if (showPathProperty.get()) {
-            b.append("   propertySheetMenuItem.addPropertyToEdit(\"path\", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);\n");
+            b.append("   propertySheetMenuItem.addPropertyToEdit(\"path\", MetaData.PATH_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);\n");
         }
         b.append("end\n\n");
 

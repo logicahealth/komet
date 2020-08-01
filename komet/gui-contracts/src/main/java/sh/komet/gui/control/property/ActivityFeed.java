@@ -180,13 +180,8 @@ public class ActivityFeed implements ManifoldCoordinate {
     }
 
     @Override
-    public StampFilter getEdgeStampFilter() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getEdgeStampFilter();
-    }
-
-    @Override
-    public StampFilter getLanguageStampFilter() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getLanguageStampFilter();
+    public StampFilter getViewStampFilter() {
+        return this.owningViewForActivityFeed.getManifoldCoordinate().getViewStampFilter();
     }
 
     @Override
@@ -202,6 +197,11 @@ public class ActivityFeed implements ManifoldCoordinate {
     @Override
     public ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis) {
         return this.owningViewForActivityFeed.getManifoldCoordinate().makeCoordinateAnalog(classifyTimeInEpochMillis);
+    }
+
+    @Override
+    public PremiseSet getPremiseTypes() {
+        return this.owningViewForActivityFeed.getManifoldCoordinate().getPremiseTypes();
     }
 
     @Override

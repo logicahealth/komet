@@ -107,7 +107,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public boolean containsActiveDescription(String descriptionText) {
-      return this.conceptChronology.containsDescription(descriptionText, this.manifoldCoordinate.getLanguageStampFilter());
+      return this.conceptChronology.containsDescription(descriptionText, this.manifoldCoordinate.getViewStampFilter());
    }
 
    /**
@@ -122,7 +122,7 @@ public class ConceptSnapshotImpl
 
    @Override
    public String toString() {
-      return this.getLanguageCoordinate().getAnyName(this.getNid(), this.getLanguageStampFilter());
+      return this.getLanguageCoordinate().getAnyName(this.getNid(), this.getViewStampFilter());
    }
    //~--- get methods ---------------------------------------------------------
 
@@ -188,7 +188,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public String getFullyQualifiedName() {
-      return getLanguageCoordinate().getFullyQualifiedNameText(getNid(), getLanguageStampFilter()).orElse("No FQN description for: " + getNid());
+      return getLanguageCoordinate().getFullyQualifiedNameText(getNid(), getViewStampFilter()).orElse("No FQN description for: " + getNid());
    }
 
    /**
@@ -209,7 +209,7 @@ public class ConceptSnapshotImpl
    @Override
    public LatestVersion<DescriptionVersion> getFullyQualifiedDescription() {
       return getLanguageCoordinate().getFullyQualifiedDescription(getNid(),
-            getLanguageStampFilter());
+              getViewStampFilter());
    }
 
    /**
@@ -239,7 +239,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getPreferredDescription() {
-      return getLanguageCoordinate().getPreferredDescription(getNid(), getLanguageStampFilter());
+      return getLanguageCoordinate().getPreferredDescription(getNid(), getViewStampFilter());
    }
 
    /**
@@ -295,7 +295,7 @@ public class ConceptSnapshotImpl
 
    @Override
    public Optional<String> getRegularName() {
-     return getLanguageCoordinate().getPreferredDescriptionText(getNid(), getLanguageStampFilter());
+     return getLanguageCoordinate().getPreferredDescriptionText(getNid(), getViewStampFilter());
    }
 
    @Override
@@ -310,7 +310,7 @@ public class ConceptSnapshotImpl
 
     @Override
     public LatestVersion<DescriptionVersion> getDefinition() {
-        return this.manifoldCoordinate.getLanguageCoordinate().getDefinitionDescription(this.conceptChronology.getConceptDescriptionList(), getLanguageStampFilter());
+        return this.manifoldCoordinate.getLanguageCoordinate().getDefinitionDescription(this.conceptChronology.getConceptDescriptionList(), getViewStampFilter());
     }
 
     @Override
@@ -318,7 +318,7 @@ public class ConceptSnapshotImpl
         List<SemanticChronology> descriptionChronologies = this.conceptChronology.getConceptDescriptionList();
         List<DescriptionVersion> versions = new ArrayList<>();
         for (SemanticChronology descriptionChronology: descriptionChronologies) {
-           LatestVersion<DescriptionVersion> latestVersion = descriptionChronology.getLatestVersion(getLanguageStampFilter());
+           LatestVersion<DescriptionVersion> latestVersion = descriptionChronology.getLatestVersion(getViewStampFilter());
            latestVersion.ifPresent((dv) -> {
                versions.add(dv);
            });
@@ -372,18 +372,18 @@ public class ConceptSnapshotImpl
     }
 
     @Override
-    public StampFilter getEdgeStampFilter() {
-        return this.manifoldCoordinate.getEdgeStampFilter();
-    }
-
-    @Override
-    public StampFilter getLanguageStampFilter() {
-        return this.manifoldCoordinate.getLanguageStampFilter();
+    public StampFilter getViewStampFilter() {
+        return this.manifoldCoordinate.getViewStampFilter();
     }
 
     @Override
     public ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis) {
         return this.manifoldCoordinate.makeCoordinateAnalog(classifyTimeInEpochMillis);
+    }
+
+    @Override
+    public PremiseSet getPremiseTypes() {
+        return this.manifoldCoordinate.getPremiseTypes();
     }
 }
 

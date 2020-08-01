@@ -445,12 +445,12 @@ public class TaxonomyProvider
 
     private class SnapshotCacheKey {
 
-        final PremiseType taxPremiseType;
+        final PremiseSet taxPremiseTypes;
         final UUID manifoldCoordinateUuid;
         final int customSortHash;
 
         public SnapshotCacheKey(ManifoldCoordinate mc) {
-            this.taxPremiseType = mc.getPremiseType();
+            this.taxPremiseTypes = mc.getPremiseTypes();
             this.manifoldCoordinateUuid = mc.getManifoldCoordinateUuid();
             this.customSortHash = mc.getVertexSort().hashCode();
         }
@@ -458,7 +458,7 @@ public class TaxonomyProvider
         @Override
         public int hashCode() {
             int hash = 7;
-            hash = 29 * hash + Objects.hashCode(this.taxPremiseType);
+            hash = 29 * hash + Objects.hashCode(this.taxPremiseTypes);
             hash = 29 * hash + this.manifoldCoordinateUuid.hashCode();
             hash = 29 * hash + customSortHash;
             return hash;
@@ -467,7 +467,7 @@ public class TaxonomyProvider
         @Override
         public String toString() {
             return "SnapshotCacheKey{" +
-                    "taxPremiseType=" + taxPremiseType +
+                    "taxPremiseType=" + taxPremiseTypes +
                     ",\n   stampCoordinate=" + manifoldCoordinateUuid +
                     ",\n   customSortHash=" + customSortHash +
                     '}';
@@ -485,7 +485,7 @@ public class TaxonomyProvider
                 return false;
             }
             final SnapshotCacheKey other = (SnapshotCacheKey) obj;
-            if (this.taxPremiseType != other.taxPremiseType) {
+            if (!this.taxPremiseTypes.equals(other.taxPremiseTypes)) {
                 return false;
             }
             if (!Objects.equals(this.manifoldCoordinateUuid, other.manifoldCoordinateUuid)) {

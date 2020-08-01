@@ -46,16 +46,16 @@ when
    $addAttachmentToVersion : AddAttachmentMenuItems()
 then
    PropertySheetMenuItem contentIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add content issue", MetaData.CONTENT_ISSUE_ASSEMBLAGE____SOLOR);
-   contentIssuePropertySheetMenuItem.addPropertyToEdit("content issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   contentIssuePropertySheetMenuItem.addPropertyToEdit("content issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
    contentIssuePropertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
-   contentIssuePropertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
-   contentIssuePropertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   contentIssuePropertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   contentIssuePropertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
    /* */
    PropertySheetMenuItem kometIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add KOMET issue", MetaData.KOMET_ISSUE_ASSEMBLAGE____SOLOR);
-   kometIssuePropertySheetMenuItem.addPropertyToEdit("KOMET issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   kometIssuePropertySheetMenuItem.addPropertyToEdit("KOMET issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
    /* */
    PropertySheetMenuItem clinicalStatementIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add clinical statement issue", MetaData.CLINICAL_STATEMENT_ISSUE_ASSEMBLAGE____SOLOR);
-   clinicalStatementIssuePropertySheetMenuItem.addPropertyToEdit("clinical statement issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   clinicalStatementIssuePropertySheetMenuItem.addPropertyToEdit("clinical statement issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
    /* */
 end
 
@@ -77,16 +77,16 @@ when
 then
    /* */
    PropertySheetMenuItem snomedIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add SNOMED issue", MetaData.SNOMED_ISSUE_ASSEMBLAGE____SOLOR);
-   snomedIssuePropertySheetMenuItem.addPropertyToEdit("SNOMED issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   snomedIssuePropertySheetMenuItem.addPropertyToEdit("SNOMED issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
    /* */
    PropertySheetMenuItem loincIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add LOINC issue", MetaData.LOINC_ISSUE_ASSEMBLAGE____SOLOR);
-   loincIssuePropertySheetMenuItem.addPropertyToEdit("LOINC issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   loincIssuePropertySheetMenuItem.addPropertyToEdit("LOINC issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
    /* */
    PropertySheetMenuItem rxNormIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add RxNorm issue", MetaData.RXNORM_ISSUE_ASSEMBLAGE____SOLOR);
-   rxNormIssuePropertySheetMenuItem.addPropertyToEdit("RxNorm issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   rxNormIssuePropertySheetMenuItem.addPropertyToEdit("RxNorm issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
    /* */
    PropertySheetMenuItem solorIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add SOLOR issue", MetaData.SOLOR_ISSUE_ASSEMBLAGE____SOLOR);
-   solorIssuePropertySheetMenuItem.addPropertyToEdit("SOLOR issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   solorIssuePropertySheetMenuItem.addPropertyToEdit("SOLOR issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
 
 end
 
@@ -96,7 +96,7 @@ when
 then
    /* */
    PropertySheetMenuItem automationPropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add automation issue", MetaData.AUTOMATION_ISSUE_ASSEMBLAGE____SOLOR);
-   automationPropertySheetMenuItem.addPropertyToEdit("automation issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   automationPropertySheetMenuItem.addPropertyToEdit("automation issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
 
 end
 
@@ -106,6 +106,6 @@ when
 then
    /* */
    PropertySheetMenuItem qaRuleIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add QA rule issue", MetaData.QUALITY_ASSURANCE_RULE_ISSUE_ASSEMBLAGE____SOLOR);
-   qaRuleIssuePropertySheetMenuItem.addPropertyToEdit("QA rule issue", MetaData.STRING_VALUE_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   qaRuleIssuePropertySheetMenuItem.addPropertyToEdit("QA rule issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
 
 end

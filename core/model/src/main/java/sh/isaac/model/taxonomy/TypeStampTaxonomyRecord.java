@@ -18,6 +18,7 @@ package sh.isaac.model.taxonomy;
 
 import java.util.EnumSet;
 import sh.isaac.api.Get;
+import sh.isaac.api.coordinate.TaxonomyFlag;
 
 /**
  * The Class TypeStampTaxonomyRecord.

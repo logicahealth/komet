@@ -151,7 +151,7 @@ public class ConceptChronologyImpl
 
    @Override
    public ConceptVersionImpl createMutableVersion(Transaction transaction, Status status, ManifoldCoordinate mc) {
-      LatestVersion<ConceptVersionImpl> latest = this.getLatestVersion(mc.getViewFilter());
+      LatestVersion<ConceptVersionImpl> latest = this.getLatestVersion(mc.getViewStampFilter());
       final int stampSequence;
       if (latest.isPresent()) {
          stampSequence = Get.stampService()

@@ -99,7 +99,7 @@ public class LIVDAssemblageWriter extends TimedTaskWithProgressTracker<Void> {
 
             this.versionStamp = stampService.getStampSequence(
                     Status.ACTIVE, time,
-                    MetaData.LIVD_USER____SOLOR.getNid(),
+                    MetaData.LIVD_AUTHOR____SOLOR.getNid(),
                     MetaData.SOLOR_LIVD_MODULE____SOLOR.getNid(),
                     TermAux.DEVELOPMENT_PATH.getNid());
 

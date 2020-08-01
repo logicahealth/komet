@@ -331,7 +331,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 					defaultCoordinateProvider.setDefaultModule(dcp.getDefaultEditCoordinate().getDefaultModuleNid());
 					break;
 				case EDIT_PATH:
-					defaultCoordinateProvider.setDefaultPath(dcp.getDefaultManifoldCoordinate().getViewFilter().getPathConceptForFilter());
+					defaultCoordinateProvider.setDefaultPath(dcp.getDefaultManifoldCoordinate().getViewStampFilter().getPathConceptForFilter());
 					break;
 				case STATED_ASSEMBLAGE:
 					defaultCoordinateProvider.setDefaultStatedAssemblage(dcp.getDefaultLogicCoordinate().getStatedAssemblageNid());
@@ -340,7 +340,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 					defaultCoordinateProvider.setDefaultTime(dcp.getDefaultStampCoordinate().getStampFilter().getStampPosition().getTime());
 					break;
 				case PREMISE_TYPE:
-					defaultCoordinateProvider.setDefaultPremiseType(dcp.getDefaultManifoldCoordinate().getPremiseType());
+					defaultCoordinateProvider.setDefaultPremiseType(dcp.getDefaultManifoldCoordinate().getPremiseTypes().toArray()[0]);
 					break;
 				case USER:
 					defaultCoordinateProvider.setDefaultUser(dcp.getDefaultEditCoordinate().getAuthorNidForChanges());
@@ -516,13 +516,13 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 			case EDIT_MODULE:
 				return(T) Integer.valueOf(defaultCoordinateProvider.getDefaultEditCoordinate().getDefaultModuleNid());
 			case EDIT_PATH:
-				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultManifoldCoordinate().getViewFilter().getPathNidForFilter());
+				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultManifoldCoordinate().getViewStampFilter().getPathNidForFilter());
 			case STATED_ASSEMBLAGE:
 				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultLogicCoordinate().getStatedAssemblageNid());
 			case TIME:
 				return (T) Long.valueOf(defaultCoordinateProvider.getDefaultStampCoordinate().getStampFilter().getStampPosition().getTime());
 			case PREMISE_TYPE:
-				return (T)defaultCoordinateProvider.getDefaultManifoldCoordinate().getPremiseType();
+				return (T)defaultCoordinateProvider.getDefaultManifoldCoordinate().getPremiseTypes();
 			case USER:
 				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultEditCoordinate().getAuthorNidForChanges());
 			default :

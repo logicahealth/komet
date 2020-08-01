@@ -34,7 +34,7 @@
  * Licensed under the Apache License, Version 2.0.
  *
  */
-package sh.isaac.model.taxonomy;
+package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
@@ -42,7 +42,6 @@ import java.util.EnumSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.coordinate.PremiseType;
 
 //~--- enums ------------------------------------------------------------------
 
@@ -191,6 +190,21 @@ public enum TaxonomyFlag {
         }
 
         return flags;
+    }
+
+    public static void main(String[] args) {
+        System.out.println("STATED: " + STATED.bits);
+        System.out.println("INFERRED: " + INFERRED.bits);
+        System.out.println("SEMANTIC: " + SEMANTIC.bits);
+        System.out.println("NON_DL_REL: " + NON_DL_REL.bits);
+        System.out.println("CONCEPT_STATUS: " + CONCEPT_STATUS.bits);
+        System.out.println("RESERVED_FUTURE_USE_1: " + RESERVED_FUTURE_USE_1.bits);
+        System.out.println("RESERVED_FUTURE_USE_2: " + RESERVED_FUTURE_USE_2.bits);
+        int sum = 0;
+        for (TaxonomyFlag taxonomyFlag: values()) {
+            sum = sum + taxonomyFlag.bits;
+        }
+
     }
 }
 

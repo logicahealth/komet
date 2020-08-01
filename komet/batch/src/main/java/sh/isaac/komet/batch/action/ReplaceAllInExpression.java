@@ -95,7 +95,7 @@ public class ReplaceAllInExpression extends ActionItem {
         // Setup snapshot...
         SingleAssemblageSnapshot<LogicGraphVersion> snapshot =
                 Get.assemblageService().getSingleAssemblageSnapshot(expressionAssemblageProperty.get().getNid(),
-                        LogicGraphVersion.class, manifoldCoordinate.getViewFilter());
+                        LogicGraphVersion.class, manifoldCoordinate.getViewStampFilter());
         cache.put(Keys.EXPRESSION_SNAPSHOT, snapshot);
     }
 

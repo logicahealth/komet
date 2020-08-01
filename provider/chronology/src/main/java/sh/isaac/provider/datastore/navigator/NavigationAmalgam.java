@@ -54,7 +54,7 @@ public class NavigationAmalgam implements Navigator {
                     this.roots.add(Get.concept(rootNid));
                 }
             } else {
-                SingleAssemblageSnapshot< ComponentNidVersion > navigationSnapshot = Get.assemblageService().getSingleAssemblageSnapshot(navigatorNid, ComponentNidVersion.class, this.manifoldCoordinate.getEdgeStampFilter());
+                SingleAssemblageSnapshot< ComponentNidVersion > navigationSnapshot = Get.assemblageService().getSingleAssemblageSnapshot(navigatorNid, ComponentNidVersion.class, this.manifoldCoordinate.getViewStampFilter());
                 ComponentNidAssemblageNavigator navigator = new ComponentNidAssemblageNavigator(navigationSnapshot, this.manifoldCoordinate);
                 this.navigators.add(navigator);
                 for (int rootNid: navigator.getRootNids()) {

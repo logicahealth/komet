@@ -184,14 +184,14 @@ public class ClassifierData
             // only process if incremental is a possibility.
             if (this.incrementalAllowed) {
                 final LatestVersion<LogicGraphVersionImpl> optionalLatest
-                        = sc.getLatestVersion(this.manifoldCoordinate.getViewFilter());
+                        = sc.getLatestVersion(this.manifoldCoordinate.getViewStampFilter());
 
                 if (optionalLatest.isPresent()) {
                     final LatestVersion<LogicGraphVersionImpl> latest = optionalLatest;
 
                     // get stampCoordinate for last classify.
                     final StampFilter stampToCompare
-                            = this.manifoldCoordinate.getViewFilter().makeCoordinateAnalog(this.lastClassifyInstant.toEpochMilli());
+                            = this.manifoldCoordinate.getViewStampFilter().makeCoordinateAnalog(this.lastClassifyInstant.toEpochMilli());
 
                     // See if there is a change in the optionalLatest vs the last classify.
                     final LatestVersion<LogicGraphVersionImpl> optionalPrevious
@@ -366,6 +366,6 @@ public class ClassifierData
     }
     
     public StampFilter getStampFilter() {
-        return this.manifoldCoordinate.getViewFilter();
+        return this.manifoldCoordinate.getViewStampFilter();
     }
 }

@@ -44,6 +44,7 @@ package sh.isaac.api.coordinate;
 import org.eclipse.collections.api.set.ImmutableSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.util.time.DateTimeUtil;
 
 import java.time.Instant;
 
@@ -115,11 +116,11 @@ public interface StampPosition
       } else if (this.getTime() == Long.MIN_VALUE) {
          sb.append("CANCELED");
       } else {
-         sb.append(getTimeAsInstant());
+         sb.append(DateTimeUtil.format(getTime()));
       }
 
-      sb.append(" on '")
-              .append(Get.conceptDescriptionText(this.getPathForPositionNid())).append("'");
+      sb.append(" on ")
+              .append(Get.conceptDescriptionText(this.getPathForPositionNid()));
       return sb.toString();
    }
 }

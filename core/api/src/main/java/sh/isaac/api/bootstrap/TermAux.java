@@ -499,9 +499,9 @@ public class TermAux implements StaticIsaacCache {
 
    public static ConceptProxy STATUS_FOR_VERSION = new ConceptProxy("Status for version", "Status for version", UUID.fromString("0608e233-d79d-5076-985b-9b1ea4e14b4c"));
    public static ConceptProxy TIME_FOR_VERSION = new ConceptProxy("Time for version", "Time for version", UUID.fromString("a9b0dfb2-f463-5dae-8ba8-7f2e8385571b"));
-   public static ConceptProxy AUTHOR_NID_FOR_VERSION = new ConceptProxy("Author nid for version", "Author nid for version", UUID.fromString("4eb9de0d-7486-5f18-a9b4-82e3432f4103"));
-   public static ConceptProxy MODULE_NID_FOR_VERSION = new ConceptProxy("Module nid for version", "Module nid for version", UUID.fromString("67cd64f1-96d7-5110-b847-556c055ac063"));
-   public static ConceptProxy PATH_NID_FOR_VERSION = new ConceptProxy("Path nid for version", "Path nid for version", UUID.fromString("ad3dd2dd-ddb0-584c-bea4-c6d9b91d461f"));
+   public static ConceptProxy AUTHOR_FOR_VERSION = new ConceptProxy("Author for version", "Author", UUID.fromString("4eb9de0d-7486-5f18-a9b4-82e3432f4103"));
+   public static ConceptProxy MODULE_FOR_VERSION = new ConceptProxy("Module for version", "Module", UUID.fromString("67cd64f1-96d7-5110-b847-556c055ac063"));
+   public static ConceptProxy PATH_FOR_VERSION = new ConceptProxy("Path for version", "Path", UUID.fromString("ad3dd2dd-ddb0-584c-bea4-c6d9b91d461f"));
    public static ConceptProxy COMMITTED_STATE_FOR_VERSION = new ConceptProxy("Committed state for version", UUID.fromString("cc1e1cd7-0627-513d-aba6-f2a6a1326906"));
    public static ConceptProxy STAMP_SEQUENCE_FOR_VERSION = new ConceptProxy("Filter sequence for version", "Filter sequence for version", UUID.fromString("0b026997-e0c6-59b1-871f-8486710f7ac1"));
    public static ConceptProxy ASSEMBLAGE_NID_FOR_COMPONENT = new ConceptProxy("Assemblage nid for component", "Assemblage for component", UUID.fromString("3de7b91a-d384-5651-95eb-161f13cde990"));

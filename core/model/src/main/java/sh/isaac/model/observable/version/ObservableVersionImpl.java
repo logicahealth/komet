@@ -262,13 +262,13 @@ public abstract class ObservableVersionImpl
         if (this.stampedVersionProperty == null && this.authorNidProperty == null) {
             this.authorNidProperty = new CommitAwareIntegerProperty(
                     this,
-                    TermAux.AUTHOR_NID_FOR_VERSION.toExternalString(),
+                    TermAux.AUTHOR_FOR_VERSION.toExternalString(),
                     0);
         }
         if (this.authorNidProperty == null) {
             this.authorNidProperty = new CommitAwareIntegerProperty(
                     this,
-                    TermAux.AUTHOR_NID_FOR_VERSION.toExternalString(),
+                    TermAux.AUTHOR_FOR_VERSION.toExternalString(),
                     getAuthorNid());
             this.authorNidProperty.addListener(
                     (observable, oldValue, newValue) -> {
@@ -350,13 +350,13 @@ public abstract class ObservableVersionImpl
         if (this.stampedVersionProperty == null && this.moduleNidProperty == null) {
             this.moduleNidProperty = new CommitAwareIntegerProperty(
                     this,
-                    TermAux.MODULE_NID_FOR_VERSION.toExternalString(),
+                    TermAux.MODULE_FOR_VERSION.toExternalString(),
                     0);
         }
         if (this.moduleNidProperty == null) {
             this.moduleNidProperty = new CommitAwareIntegerProperty(
                     this,
-                    TermAux.MODULE_NID_FOR_VERSION.toExternalString(),
+                    TermAux.MODULE_FOR_VERSION.toExternalString(),
                     getModuleNid());
             this.moduleNidProperty.addListener(
                     (observable, oldValue, newValue) -> {
@@ -381,13 +381,13 @@ public abstract class ObservableVersionImpl
         if (this.stampedVersionProperty == null && this.pathNidProperty == null) {
             this.pathNidProperty = new CommitAwareIntegerProperty(
                     this,
-                    TermAux.PATH_NID_FOR_VERSION.toExternalString(),
+                    TermAux.PATH_FOR_VERSION.toExternalString(),
                     0);
         }
         if (this.pathNidProperty == null) {
             this.pathNidProperty = new CommitAwareIntegerProperty(
                     this,
-                    TermAux.PATH_NID_FOR_VERSION.toExternalString(),
+                    TermAux.PATH_FOR_VERSION.toExternalString(),
                     getPathNid());
             this.pathNidProperty.addListener(
                     (observable, oldValue, newValue) -> {

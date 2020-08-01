@@ -27,7 +27,6 @@ import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.set.OpenIntHashSet;
-import org.controlsfx.control.CheckComboBox;
 import org.controlsfx.control.IndexedCheckModel;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -53,7 +52,6 @@ import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateWithOverride;
 import sh.komet.gui.alert.AlertPanel;
 import sh.komet.gui.clipboard.ClipboardHelper;
 import sh.komet.gui.control.property.ActivityFeed;
@@ -92,9 +90,7 @@ public class MultiParentGraphViewController implements RefreshListener {
     @FXML
     Menu navigationCoordinateMenu;
 
-    private final ListChangeListener<ConceptSpecification> navigationSelectionListener = this::navigationSelectionChanged;
-
-    private final CheckComboBox<ConceptSpecification> navigationMultiChoiceBox = new CheckComboBox<>();
+    private final Label navigationLabel = new Label();
 
     //~--- fields --------------------------------------------------------------
     private MultiParentGraphItemDisplayPolicies displayPolicies;
@@ -174,7 +170,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         this.topBorderPane.getStyleClass().setAll(MULTI_PARENT_TREE_NODE.toString());
 
         this.topBorderPane.setCenter(this.treeView);
-        toolBar.getItems().add(this.navigationMultiChoiceBox);
+        toolBar.getItems().add(this.navigationLabel);
     }
 
     @FXML
@@ -196,27 +192,14 @@ public class MultiParentGraphViewController implements RefreshListener {
         menuUpdate();
     }
     private void menuUpdate() {
-        this.navigationMultiChoiceBox.getCheckModel().getCheckedItems().removeListener(this.navigationSelectionListener);
-        this.navigationMultiChoiceBox.getItems().setAll(FxGet.navigationOptions());
-        IndexedCheckModel<ConceptSpecification> checkModel = this.navigationMultiChoiceBox.getCheckModel();
-        checkModel.clearChecks();
-        ImmutableSet<ConceptSpecification> navConcepts = this.manifoldCoordinate.getNavigationCoordinate().getNavigationIdentifierConcepts();
-        for (ConceptSpecification navConcept: navConcepts) {
-            checkModel.check(checkModel.getItemIndex(navConcept));
-        }
-
         this.navigationCoordinateMenu.getItems().clear();
         FxGet.makeCoordinateDisplayMenu(this.manifoldCoordinate,
                 this.navigationCoordinateMenu.getItems(),
                 this.manifoldCoordinate);
-        this.navigationMultiChoiceBox.getCheckModel().getCheckedItems().addListener(this.navigationSelectionListener);
-    }
 
-    private void navigationSelectionChanged(ListChangeListener.Change<? extends ConceptSpecification> c) {
-        ImmutableSet<ConceptSpecification> newNavigationConcepts = Sets.immutable.withAll(c.getList());
-        SetProperty<ConceptSpecification> navigationConcepts = this.manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty();
-        navigationConcepts.clear();
-        navigationConcepts.addAll(newNavigationConcepts.castToSet());
+        this.navigationLabel.setText(
+                Get.conceptDescriptionTextListFromSpecList(this.manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty())
+        );
         refreshTaxonomy();
     }
 
@@ -224,17 +207,6 @@ public class MultiParentGraphViewController implements RefreshListener {
         this.nodePreferences = nodePreferences;
         this.viewProperties = viewProperties;
         this.manifoldCoordinate = this.viewProperties.getManifoldCoordinate();
-        this.navigationMultiChoiceBox.setConverter(new StringConverter<ConceptSpecification>() {
-            @Override
-            public String toString(ConceptSpecification object) {
-                return viewProperties.getPreferredDescriptionText(object);
-            }
-
-            @Override
-            public ConceptSpecification fromString(String string) {
-                return null;
-            }
-        });
         this.menuUpdate();
         FxGet.pathCoordinates().addListener(this::updateMenus);
         this.manifoldCoordinate.addListener(this::updateMenus);

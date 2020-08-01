@@ -11,7 +11,7 @@ import sh.isaac.api.alert.Alert;
 import sh.isaac.api.alert.AlertType;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.constants.SystemPropertyConstants;
-import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.PremiseSet;
 import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.collections.MergeIntArray;
@@ -49,12 +49,12 @@ public class HashTreeBuilderIsolated extends HashTreeWithIntArraySetsIsolated {
     /**
      * Instantiates a new hash tree builder.
      *
-     * @param premiseType
+     * @param premiseTypes
      * @param assemblageNid the assemblage nid which specifies the assemblage
      * where the concepts in this tree where created within.
      */
-    public HashTreeBuilderIsolated(StampFilterImmutable vertexFilter, String coordinateString, PremiseType premiseType, int assemblageNid) {
-        super(vertexFilter, coordinateString, premiseType, assemblageNid);
+    public HashTreeBuilderIsolated(StampFilterImmutable vertexFilter, String coordinateString, PremiseSet premiseTypes, int assemblageNid) {
+        super(vertexFilter, coordinateString, premiseTypes, assemblageNid);
         this.builderId = BUILDER_COUNT.getAndIncrement();
 
         for (String uuidStr : watchUuids) {
@@ -159,7 +159,7 @@ public class HashTreeBuilderIsolated extends HashTreeWithIntArraySetsIsolated {
             }
 
             Alert.publishAddition(
-                    new TreeCycleError(cycle, visitData, this, premiseType + " Cycle found", cycleDescription.toString(), AlertType.ERROR));
+                    new TreeCycleError(cycle, visitData, this, premiseTypes + " Cycle found", cycleDescription.toString(), AlertType.ERROR));
         }
 
         LOG.debug("Nodes visited: " + visitData.getNodesVisited());

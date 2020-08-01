@@ -1008,7 +1008,7 @@ public class HashTreeWithIntArraySets
                          .append(" ")
                          .append(Get.conceptDescriptionText(nidToTest));
                } else {
-                  builder.append(manifoldCoordinate.getPremiseType()).append(" Cycle found: \n");
+                  builder.append(manifoldCoordinate.getPremiseTypes()).append(" Cycle found: \n");
 
                   if (cycleArray.length == 1) {
                      builder.append("\n   SELF REFERENCE");
@@ -1135,7 +1135,7 @@ public class HashTreeWithIntArraySets
             printWatch(nid, "root: ");
          }
          String title = roots.size() + " " +
-                 manifoldCoordinate.getPremiseType().toString() +
+                 manifoldCoordinate.getPremiseTypes().toUserString() +
                  " roots";
          if (roots.isEmpty()) {
             title = "No taxonomy roots";

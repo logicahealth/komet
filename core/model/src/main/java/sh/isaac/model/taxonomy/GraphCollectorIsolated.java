@@ -7,6 +7,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.TaxonomyFlag;
 import sh.isaac.api.coordinate.VertexSort;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.tree.HashTreeBuilderIsolated;
@@ -35,7 +36,7 @@ public class GraphCollectorIsolated
     private final VertexSort sort;
 
     /** The taxonomy flags. */
-    private final int taxonomyFlags;
+    private final int[] taxonomyFlags;
 
     //~--- constructors --------------------------------------------------------
     /**
@@ -62,9 +63,9 @@ public class GraphCollectorIsolated
         }
         this.taxonomyDataProvider = taxonomyDataProvider;
         this.digraph = manifoldCoordinateImmutable;
-        this.edgeComputer = manifoldCoordinateImmutable.getEdgeStampFilter().getRelativePositionCalculator();
+        this.edgeComputer = manifoldCoordinateImmutable.getViewStampFilter().getRelativePositionCalculator();
         this.vertexComputer = manifoldCoordinateImmutable.getVertexStampFilter().getRelativePositionCalculator();
-        this.taxonomyFlags = TaxonomyFlag.getFlagsFromPremiseType(manifoldCoordinateImmutable.getPremiseType());
+        this.taxonomyFlags = manifoldCoordinateImmutable.getPremiseTypes().getFlags();
         this.sort = sort;
      }
 
@@ -161,7 +162,7 @@ public class GraphCollectorIsolated
         final StringBuilder buff = new StringBuilder();
 
         buff.append("GraphCollectorIsolated{");
-        buff.append(TaxonomyFlag.getTaxonomyFlags(this.taxonomyFlags));
+        buff.append(digraph.toUserString());
         buff.append("}");
         return buff.toString();
     }

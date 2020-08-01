@@ -194,7 +194,7 @@ public interface ConceptSnapshot
        List<LatestVersion<V>> semanticList = new ArrayList<>(semanticNids.size());
        for (int semanticNid: semanticNids.toArray()) {
            SemanticChronology chronology = Get.assemblageService().getSemanticChronology(semanticNid);
-           LatestVersion<V> latestVersion = chronology.getLatestVersion(this.getLanguageStampFilter());
+           LatestVersion<V> latestVersion = chronology.getLatestVersion(this.getViewStampFilter());
            if (latestVersion.isPresent()) {
                semanticList.add(latestVersion);
            }
@@ -214,7 +214,7 @@ public interface ConceptSnapshot
        ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(getNid(), assemblageConceptNid);
        for (int semanticNid: semanticNids.toArray()) {
            SemanticChronology chronology = Get.assemblageService().getSemanticChronology(semanticNid);
-           LatestVersion<V> latestVersion = chronology.getLatestVersion(this.getLanguageStampFilter());
+           LatestVersion<V> latestVersion = chronology.getLatestVersion(this.getViewStampFilter());
            if (latestVersion.isPresent()) {
                return latestVersion;
            }

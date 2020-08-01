@@ -111,7 +111,8 @@ public class TreeBuilderTask
                                    .getNidsForAssemblage(conceptAssemblageNid)
                                    .count();
       this.addToTotalWork(conceptCount * 2); // once to construct tree, ones to traverse tree
-      this.updateTitle("Generating " + manifoldCoordinate.getPremiseType() + " snapshot for path: " + manifoldCoordinate.getPathString());
+      this.updateTitle("Generating " + manifoldCoordinate.getPremiseTypes().toUserString() + " navigator for: " +
+              manifoldCoordinate.getViewStampFilter().getStampPosition().toUserString());
       this.setProgressMessageGenerator(
           (task) -> {
              updateMessage(message);
@@ -167,7 +168,7 @@ public class TreeBuilderTask
                return true;
             }).collect(() -> new HashTreeBuilderIsolated(this.manifoldCoordinate.getVertexStampFilter().toStampFilterImmutable(),
                                                          this.manifoldCoordinate.toUserString(),
-                                                         this.manifoldCoordinate.getPremiseType(),
+                                                         this.manifoldCoordinate.getPremiseTypes(),
                                                          this.conceptAssemblageNid),
                                                          collector, collector);
 

@@ -120,7 +120,7 @@ public interface ObservableConceptChronology
    @Override
    default LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
            ManifoldCoordinate manifoldCoordinate) {
-      return getFullyQualifiedNameDescription(manifoldCoordinate.getLanguageCoordinate(), manifoldCoordinate.getLanguageStampFilter());
+      return getFullyQualifiedNameDescription(manifoldCoordinate.getLanguageCoordinate(), manifoldCoordinate.getViewStampFilter());
       
    }
 
@@ -144,7 +144,7 @@ public interface ObservableConceptChronology
    @Override
    default LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            ManifoldCoordinate manifoldCoordinate) {
-      return getPreferredDescription(manifoldCoordinate.getLanguageCoordinate(), manifoldCoordinate.getLanguageStampFilter());
+      return getPreferredDescription(manifoldCoordinate.getLanguageCoordinate(), manifoldCoordinate.getViewStampFilter());
    }
 }
 //~--- JDK imports ------------------------------------------------------------

@@ -107,11 +107,11 @@ public class ExtractAxioms
                                          AtomicInteger logicGraphMembers) {
       final SemanticSnapshotService<LogicGraphVersionImpl> semanticSnapshot = Get.assemblageService()
                                                                             .getSnapshot(LogicGraphVersionImpl.class,
-                                                                                    manifoldCoordinate.getViewFilter());
+                                                                                    manifoldCoordinate.getViewStampFilter());
 
       AtomicInteger inactiveConcepts = new AtomicInteger(0);
 
-       StampFilterImmutable viewFilter = manifoldCoordinate.getViewFilter().toStampFilterImmutable();
+       StampFilterImmutable viewFilter = manifoldCoordinate.getViewStampFilter().toStampFilterImmutable();
 
       semanticSnapshot.getLatestSemanticVersionsFromAssemblage(manifoldCoordinate.getLogicCoordinate().getStatedAssemblageNid(), this)
                     .forEach((LatestVersion<LogicGraphVersionImpl> latest) -> {

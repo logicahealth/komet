@@ -350,7 +350,7 @@ public class DescriptionIndexer extends LuceneIndexer
 				if (chronology.isPresent() && chronology.get().getIsaacObjectType() == IsaacObjectType.SEMANTIC) {
 					if (((SemanticChronology)chronology.get()).getVersionType() == VersionType.DESCRIPTION) {
 
-						LatestVersion<DescriptionVersion> dv = chronology.get().getLatestVersion(Get.defaultCoordinate().getLanguageStampFilter());
+						LatestVersion<DescriptionVersion> dv = chronology.get().getLatestVersion(Get.defaultCoordinate().getViewStampFilter());
 						if (dv.isPresent()) {
 							float adjustValue = 0f;
 							String matchingString = dv.get().getText().toLowerCase(Locale.ENGLISH);

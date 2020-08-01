@@ -83,9 +83,6 @@ public class GraphCollector
    /** The taxonomy coordinate. */
    final ManifoldCoordinate manifoldCoordinate;
 
-   /** The taxonomy flags. */
-   final int taxonomyFlags;
-
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -100,7 +97,6 @@ public class GraphCollector
       }
       this.taxonomyDataProvider = taxonomyDataProvider;
       this.manifoldCoordinate = manifoldCoordinate;
-      this.taxonomyFlags      = TaxonomyFlag.getFlagsFromPremiseType(manifoldCoordinate.getPremiseType());
 
 //    addToWatchList("779ece66-7e95-323e-a261-214caf48c408");
 //    addToWatchList("778a75c9-8264-36aa-9ad6-b9c6e5ee9187");
@@ -197,7 +193,7 @@ public class GraphCollector
       final StringBuilder buff = new StringBuilder();
 
       buff.append("GraphCollector{");
-      buff.append(TaxonomyFlag.getTaxonomyFlags(this.taxonomyFlags));
+      buff.append(this.manifoldCoordinate);
       buff.append("}");
       return buff.toString();
    }

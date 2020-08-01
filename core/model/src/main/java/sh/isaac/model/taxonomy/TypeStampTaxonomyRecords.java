@@ -50,6 +50,7 @@ import sh.isaac.api.Status;
 
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.TaxonomyFlag;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
 //~--- classes ----------------------------------------------------------------
@@ -193,12 +194,12 @@ public class TypeStampTaxonomyRecords {
      * @param computer the computer
      * @return true, if successful
      */
-    public boolean containsConceptNidViaTypeWithAllowedStatus(int typeNid, int flags, RelativePositionCalculator computer) {
+    public boolean containsConceptNidViaTypeWithAllowedStatus(int typeNid, int[] flags, RelativePositionCalculator computer) {
         final int[] latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeNid, flags));
 
         return latestStamps.length > 0;
     }
-    public int[] latestStampsForConceptNidViaTypeWithAllowedStatus(int typeNid, int flags, RelativePositionCalculator computer) {
+    public int[] latestStampsForConceptNidViaTypeWithAllowedStatus(int typeNid, int[] flags, RelativePositionCalculator computer) {
         return computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeNid, flags));
     }
 
@@ -210,7 +211,7 @@ public class TypeStampTaxonomyRecords {
      * @return An EnumSet<Status>. If there is a contradiction, then more than one status is returned. If there
      * is no contradiction, then only a single status is in the EnumSet.
      */
-    public EnumSet<Status> getConceptStates(int typeNid, int flags, RelativePositionCalculator computer) {
+    public EnumSet<Status> getConceptStates(int typeNid, int[] flags, RelativePositionCalculator computer) {
         final int[] latestStamps = computer.getLatestStampSequencesAsSet(getStampsOfTypeWithFlags(typeNid, flags));
         EnumSet<Status> statusSet = EnumSet.noneOf(Status.class);
         for (int stamp : latestStamps) {
@@ -228,7 +229,7 @@ public class TypeStampTaxonomyRecords {
      * @return true, if successful
      */
     public boolean containsConceptNidViaTypeWithAllowedStatus(int typeNid, ManifoldCoordinate tc, RelativePositionCalculator computer) {
-        final int flags = TaxonomyFlag.getFlagsFromPremiseType(tc.getPremiseType());
+        final int[] flags = tc.getPremiseTypes().getFlags();
 
         return TypeStampTaxonomyRecords.this.containsConceptNidViaTypeWithAllowedStatus(typeNid, flags, computer);
     }
@@ -241,7 +242,7 @@ public class TypeStampTaxonomyRecords {
      * @param computer the computer
      * @return true, if successful
      */
-    public boolean containsConceptNidViaTypeWithAllowedStatus(NidSet typeNidSet, int flags, RelativePositionCalculator computer) {
+    public boolean containsConceptNidViaTypeWithAllowedStatus(NidSet typeNidSet, int[] flags, RelativePositionCalculator computer) {
 
         final int[] latestStamps = computer.getLatestStampSequencesAsSet(
                 getStampsOfTypeWithFlags(typeNidSet, flags));
@@ -260,7 +261,7 @@ public class TypeStampTaxonomyRecords {
     public boolean containsConceptNidViaTypeWithAllowedStatus(NidSet typeNidSet,
                                                               ManifoldCoordinate tc,
                                                               RelativePositionCalculator computer) {
-        final int flags = TaxonomyFlag.getFlagsFromPremiseType(tc.getPremiseType());
+        final int[] flags = tc.getPremiseTypes().getFlags();
 
         return TypeStampTaxonomyRecords.this.containsConceptNidViaTypeWithAllowedStatus(typeNidSet, flags, computer);
     }
@@ -272,19 +273,21 @@ public class TypeStampTaxonomyRecords {
      * @param flags the flags
      * @return true if found.
      */
-    public boolean containsStampOfTypeWithFlags(int typeNid, int flags) {
-        for (TypeStampTaxonomyRecord record : this.typeStamp_flag_map.values()) {
-            if (typeNid == Integer.MAX_VALUE) {  // wildcard
-                if (flags == 0) {                 // taxonomy flag wildcard--inferred, stated, non-defining, ...
-                    return true;                   // finish search
-                } else if (flags == (flags & record.taxonomyFlagBits)) {
-                    return true;                   // finish search.
-                }
-            } else if (record.getTypeNid() == typeNid) {
-                if (flags == 0) {                 // taxonomy flag wildcard--inferred, stated, non-defining, ...
-                    return true;                   // finish search
-                } else if (flags == (flags & record.taxonomyFlagBits)) {
-                    return true;                   // finish search.
+    public boolean containsStampOfTypeWithFlags(int typeNid, int[] flags) {
+        for (int flag: flags) {
+            for (TypeStampTaxonomyRecord record : this.typeStamp_flag_map.values()) {
+                if (typeNid == Integer.MAX_VALUE) {  // wildcard
+                    if (flag == 0) {                 // taxonomy flag wildcard--inferred, stated, non-defining, ...
+                        return true;                   // finish search
+                    } else if ((flag & record.taxonomyFlagBits) == flag) {
+                        return true;                   // finish search.
+                    }
+                } else if (record.getTypeNid() == typeNid) {
+                    if (flag == 0) {                 // taxonomy flag wildcard--inferred, stated, non-defining, ...
+                        return true;                   // finish search
+                    } else if ((flag & record.taxonomyFlagBits) == flag) {
+                        return true;                   // finish search.
+                    }
                 }
             }
         }
@@ -299,15 +302,17 @@ public class TypeStampTaxonomyRecords {
      * @param flags the flags
      * @return true if found.
      */
-    public boolean containsStampOfTypeWithFlags(NidSet typeNidSet, int flags) {
-        for (TypeStampTaxonomyRecord record : this.typeStamp_flag_map.values()) {
-            if (typeNidSet.isEmpty()) {  // wildcard
-                if (flags == (flags & record.taxonomyFlagBits)) {
-               return true;
-                }
-            } else if (typeNidSet.contains(record.typeNid)) {
-                if (flags == (flags & record.taxonomyFlagBits)) {
-               return true;
+    public boolean containsStampOfTypeWithFlags(NidSet typeNidSet, int[] flags) {
+        for (int flag: flags) {
+            for (TypeStampTaxonomyRecord record : this.typeStamp_flag_map.values()) {
+                if (typeNidSet.isEmpty()) {  // wildcard
+                    if ((flag & record.taxonomyFlagBits) == flag) {
+                        return true;
+                    }
+                } else if (typeNidSet.contains(record.typeNid)) {
+                    if ((flag & record.taxonomyFlagBits) == flag) {
+                        return true;
+                    }
                 }
             }
         }
@@ -389,7 +394,7 @@ public class TypeStampTaxonomyRecords {
      * @param flags the flags
      * @return true, if present
      */
-    public boolean isPresent(NidSet typeNidSet, int flags) {
+    public boolean isPresent(NidSet typeNidSet, int[] flags) {
         return containsStampOfTypeWithFlags(typeNidSet, flags);
     }
 
@@ -400,16 +405,18 @@ public class TypeStampTaxonomyRecords {
      * @param flags the flags
      * @return the stamps of type with flags
      */
-    public int[] getStampsOfTypeWithFlags(int typeNid, int flags) {
+    public int[] getStampsOfTypeWithFlags(int typeNid, int[] flags) {
         final IntArrayList stampList = new IntArrayList();
-        for (TypeStampTaxonomyRecord record : typeStamp_flag_map.values()) {
-            if (typeNid == Integer.MAX_VALUE) {  // wildcard
-                if (flags == (flags & record.taxonomyFlagBits)) {
-                    stampList.add(record.stamp);
-                }
-            } else if (record.typeNid == typeNid) {
-                if (flags == (flags & record.taxonomyFlagBits)) {
-                    stampList.add(record.stamp);
+        for (int flag: flags) {
+            for (TypeStampTaxonomyRecord record : typeStamp_flag_map.values()) {
+                if (typeNid == Integer.MAX_VALUE) {  // wildcard
+                    if ((flag & record.taxonomyFlagBits) == flag) {
+                        stampList.add(record.stamp);
+                    }
+                } else if (record.typeNid == typeNid) {
+                    if ((flag & record.taxonomyFlagBits) == flag) {
+                        stampList.add(record.stamp);
+                    }
                 }
             }
         }
@@ -424,16 +431,18 @@ public class TypeStampTaxonomyRecords {
      * @param flags the flags
      * @return the stamps of type with flags
      */
-    public int[] getStampsOfTypeWithFlags(NidSet typeNidSet, int flags) {
+    public int[] getStampsOfTypeWithFlags(NidSet typeNidSet, int[] flags) {
         final IntArrayList stampList = new IntArrayList();
-        for (TypeStampTaxonomyRecord record : typeStamp_flag_map.values()) {
-            if (typeNidSet.isEmpty()) {  // wildcard
-                if (record.getTaxonomyFlags() == flags) {
-                    stampList.add(record.getTypeNid());
-                }
-            } else if (typeNidSet.contains(record.typeNid)) {
-                if (flags == (flags & record.taxonomyFlagBits)) {
-                    stampList.add(record.getTypeNid());
+        for (int flag: flags) {
+            for (TypeStampTaxonomyRecord record : typeStamp_flag_map.values()) {
+                if (typeNidSet.isEmpty()) {  // wildcard
+                    if (record.getTaxonomyFlags() == flag) {
+                        stampList.add(record.getTypeNid());
+                    }
+                } else if (typeNidSet.contains(record.typeNid)) {
+                    if ((flag & record.taxonomyFlagBits) == flag) {
+                        stampList.add(record.getTypeNid());
+                    }
                 }
             }
         }

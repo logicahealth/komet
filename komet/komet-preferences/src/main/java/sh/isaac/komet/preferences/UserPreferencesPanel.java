@@ -277,9 +277,9 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         b.append("import sh.komet.gui.control.property.EditorType;\n");
         b.append("import sh.isaac.api.logic.NodeSemantic;\n");
         b.append("\n");
-        b.append("rule \"if property specification is PATH_NID_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
+        b.append("rule \"if property specification is PATH_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
         b.append("when\n");
-        b.append("   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.PATH_NID_FOR_VERSION____SOLOR)\n");
+        b.append("   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.PATH_FOR_VERSION____SOLOR)\n");
         b.append("then\n");
         b.append("   $property.setDefaultValue(new ").append(new ConceptProxy(pathConceptProperty.get()).toString()).append(");\n");
         
@@ -288,9 +288,9 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         }
         b.append("end\n\n");
 
-        b.append("rule \"if property specification is MODULE_NID_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
+        b.append("rule \"if property specification is MODULE_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
         b.append("when\n");
-        b.append("   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.MODULE_NID_FOR_VERSION____SOLOR)\n");
+        b.append("   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.MODULE_FOR_VERSION____SOLOR)\n");
         b.append("then\n");
         b.append("   $property.setDefaultValue(new ").append(new ConceptProxy(moduleConceptProperty.get()).toString()).append(");\n");
         
@@ -303,9 +303,9 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
 //
 //
 
-        b.append("rule \"DEPRECATED if property specification is PATH_NID_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
+        b.append("rule \"DEPRECATED if property specification is PATH_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
         b.append("when\n");
-        b.append("   $property: PropertySheetItem(getSpecification() == MetaData.PATH_NID_FOR_VERSION____SOLOR)\n");
+        b.append("   $property: PropertySheetItem(getSpecification() == MetaData.PATH_FOR_VERSION____SOLOR)\n");
         b.append("then\n");
         b.append("   $property.setDefaultValue(new ").append(new ConceptProxy(pathConceptProperty.get()).toString()).append(");\n");
         
@@ -314,9 +314,9 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         }
         b.append("end\n\n");
 
-        b.append("rule \"DEPRECATED if property specification is MODULE_NID_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
+        b.append("rule \"DEPRECATED if property specification is MODULE_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
         b.append("when\n");
-        b.append("   $property: PropertySheetItem(getSpecification() == MetaData.MODULE_NID_FOR_VERSION____SOLOR)\n");
+        b.append("   $property: PropertySheetItem(getSpecification() == MetaData.MODULE_FOR_VERSION____SOLOR)\n");
         b.append("then\n");
         b.append("   $property.setDefaultValue(new ").append(new ConceptProxy(moduleConceptProperty.get()).toString()).append(");\n");
         

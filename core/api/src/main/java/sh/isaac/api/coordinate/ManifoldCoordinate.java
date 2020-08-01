@@ -84,8 +84,7 @@ public interface ManifoldCoordinate {
         uuidList.add(manifoldCoordinate.getNavigationCoordinate().getNavigationCoordinateUuid());
         uuidList.add(manifoldCoordinate.getVertexSort().getVertexSortUUID());
         uuidList.add(manifoldCoordinate.getVertexStampFilter().getStampFilterUuid());
-        uuidList.add(manifoldCoordinate.getEdgeStampFilter().getStampFilterUuid());
-        uuidList.add(manifoldCoordinate.getLanguageStampFilter().getStampFilterUuid());
+        uuidList.add(manifoldCoordinate.getViewStampFilter().getStampFilterUuid());
         uuidList.add(manifoldCoordinate.getLanguageCoordinate().getLanguageCoordinateUuid());
         uuidList.add(UuidT5Generator.get(manifoldCoordinate.getCurrentActivity().name()));
         StringBuilder sb = new StringBuilder(uuidList.toString());
@@ -96,16 +95,11 @@ public interface ManifoldCoordinate {
         StringBuilder sb = new StringBuilder("Manifold coordinate: ");
         sb.append("\nActivity: ").append(getCurrentActivity().toUserString());
         sb.append("\nNavigation: ").append(getNavigationCoordinate().toUserString());
-        sb.append("\n\nEdge filter:\n").append(getEdgeStampFilter().toUserString());
+        sb.append("\n\nView filter:\n").append(getViewStampFilter().toUserString());
         sb.append("\n\nLanguage coordinate:\n").append(getLanguageCoordinate().toUserString());
-        sb.append("\n\nLanguage filter:\n").append(getLanguageStampFilter().toUserString());
         sb.append("\n\nVertex filter:\n").append(getVertexStampFilter().toUserString());
         sb.append("\n\nSort:\n").append(getVertexSort().getVertexSortName());
         return sb.toString();
-    }
-
-    default StampFilter getViewFilter() {
-        return getEdgeStampFilter();
     }
 
     EditCoordinate getEditCoordinate();
@@ -125,7 +119,7 @@ public interface ManifoldCoordinate {
     }
 
     default int getPathNidForFilter() {
-        return getEdgeStampFilter().getPathNidForFilter();
+        return getViewStampFilter().getPathNidForFilter();
     }
 
     default int getPathNidForChanges() {
@@ -137,43 +131,37 @@ public interface ManifoldCoordinate {
     }
 
     /**
-     * In most cases, this coordinate will be the same object that is returned by {@link #getEdgeStampFilter()},
+     * The coordinate that controls most aspects of the view. In some cases, the language stamp filter may provide
+     * different status values, for example to allow display of retired descriptions or of retired concepts when pointed
+     * to by active relationships in the view.
+     *
+     * This filter is used on the edges (relationships) in navigation operations, while {@link #getVertexStampFilter()}
+     * is used on the vertexes (concepts) themselves.
+     *
+     * @return The view stamp filter,
+     */
+    StampFilter getViewStampFilter();
+
+    /**
+     * In most cases, this coordinate will be the equal to the coordinate returned by {@link #getViewStampFilter()},
      * But, it may be a different, depending on the construction - for example, a use case like returning inactive
      * vertexes (concepts) linked by active edges (relationships).
      *
      * This filter is used on the vertexes (source and destination concepts)
-     * in digraph operations, while {@link #getEdgeStampFilter()} is used
+     * in navigation operations, while {@link #getViewStampFilter()} is used
      * on the edges (relationships) themselves.
      *
      * @return The vertex stamp filter,
      */
     StampFilter getVertexStampFilter();
 
-    /**
-     * In most cases, this coordinate will be the same object that is returned by {@link #getVertexStampFilter()},
-     * But, it may be a different, depending on the construction - for example, a use case like returning inactive
-     * vertexes (concepts) linked by active edges (relationships).
-     *
-     * This filter is used on the edges (relationships) in digraph operations, while {@link #getVertexStampFilter()}
-     * is used on the vertexes (concepts) themselves.
-     *
-     * @return The edge stamp filter,
-     */
-    StampFilter getEdgeStampFilter();
-
-    /**
-     * In most cases, this coordinate will be the same object that is returned by {@link #getVertexStampFilter()}
-     * and {@link #getEdgeStampFilter()}.
-     * @return the language stamp filter.
-     */
-    StampFilter getLanguageStampFilter();
-
     default LatestVersion<DescriptionVersion> getDescription(
             ConceptSpecification concept) {
-        return this.getLanguageCoordinate().getDescription(concept.getNid(), this.getLanguageStampFilter());
+        return this.getLanguageCoordinate().getDescription(concept.getNid(), this.getViewStampFilter());
     }
+
     default Optional<String> getDescriptionText(int conceptNid) {
-        getLanguageCoordinate().getDescriptionText(conceptNid, this.getLanguageStampFilter());
+        getLanguageCoordinate().getDescriptionText(conceptNid, this.getViewStampFilter());
         LatestVersion<DescriptionVersion> latestVersion = getDescription(conceptNid);
         if (latestVersion.isPresent()) {
             return Optional.of(latestVersion.get().getText());
@@ -188,21 +176,16 @@ public interface ManifoldCoordinate {
 
     default LatestVersion<DescriptionVersion> getDescription(
             int conceptNid) {
-        return this.getLanguageCoordinate().getDescription(conceptNid, this.getLanguageStampFilter());
+        return this.getLanguageCoordinate().getDescription(conceptNid, this.getViewStampFilter());
     }
 
 
     default LatestVersion<DescriptionVersion> getDescription(
             List<SemanticChronology> descriptionList) {
-        return this.getLanguageCoordinate().getDescription(descriptionList, this.getLanguageStampFilter());
+        return this.getLanguageCoordinate().getDescription(descriptionList, this.getViewStampFilter());
     }
 
-    default PremiseType getPremiseType() {
-        if (getNavigationCoordinate().getNavigationConceptNids().contains(getLogicCoordinate().getInferredAssemblageNid())) {
-            return PremiseType.INFERRED;
-        }
-        return PremiseType.STATED;
-    }
+    PremiseSet getPremiseTypes();
 
     default NavigationCoordinateImmutable toNavigationCoordinateImmutable() {
         return getNavigationCoordinate().toNavigationCoordinateImmutable();
@@ -250,13 +233,13 @@ public interface ManifoldCoordinate {
 
 
     default Optional<String> getFullyQualifiedName(int nid) {
-        return this.getLanguageCoordinate().getFullyQualifiedNameText(nid, this.getLanguageStampFilter());
+        return this.getLanguageCoordinate().getFullyQualifiedNameText(nid, this.getViewStampFilter());
     }
 
     default String getVertexLabel(int vertexConceptNid) {
         return getVertexSort().getVertexLabel(vertexConceptNid,
                 getLanguageCoordinate().toLanguageCoordinateImmutable(),
-                getLanguageStampFilter().toStampFilterImmutable());
+                getViewStampFilter().toStampFilterImmutable());
     }
 
     default String getVertexLabel(ConceptSpecification vertexConcept) {
@@ -298,7 +281,7 @@ public interface ManifoldCoordinate {
 
     default String getPreferredDescriptionText(int conceptNid) {
         try {
-            return getLanguageCoordinate().getPreferredDescriptionText(conceptNid, getLanguageStampFilter())
+            return getLanguageCoordinate().getPreferredDescriptionText(conceptNid, getViewStampFilter())
                     .orElse("No desc for: " + Get.conceptDescriptionText(conceptNid));
         } catch (NoSuchElementException ex) {
             return ex.getLocalizedMessage();
@@ -310,7 +293,7 @@ public interface ManifoldCoordinate {
     }
 
     default String getFullyQualifiedDescriptionText(int conceptNid) {
-        return getLanguageCoordinate().getFullyQualifiedNameText(conceptNid, getLanguageStampFilter())
+        return getLanguageCoordinate().getFullyQualifiedNameText(conceptNid, getViewStampFilter())
                 .orElse("No desc for: " + Get.conceptDescriptionText(conceptNid));
     }
 
@@ -319,7 +302,7 @@ public interface ManifoldCoordinate {
     }
 
     default LatestVersion<DescriptionVersion> getFullyQualifiedDescription(int conceptNid) {
-        return getLanguageCoordinate().getFullyQualifiedDescription(conceptNid, getLanguageStampFilter());
+        return getLanguageCoordinate().getFullyQualifiedDescription(conceptNid, getViewStampFilter());
     }
 
     default LatestVersion<DescriptionVersion> getFullyQualifiedDescription(ConceptSpecification concept) {
@@ -328,7 +311,7 @@ public interface ManifoldCoordinate {
 
 
     default LatestVersion<DescriptionVersion> getPreferredDescription(int conceptNid) {
-        return getLanguageCoordinate().getPreferredDescription(conceptNid, getLanguageStampFilter());
+        return getLanguageCoordinate().getPreferredDescription(conceptNid, getViewStampFilter());
     }
 
     default LatestVersion<DescriptionVersion> getPreferredDescription(ConceptSpecification concept) {
@@ -341,7 +324,7 @@ public interface ManifoldCoordinate {
 
         for (int acceptabilityChronologyNid: acceptabilityChronologyNids.toArray()) {
             SemanticChronology acceptabilityChronology = Get.assemblageService().getSemanticChronology(acceptabilityChronologyNid);
-            LatestVersion<ComponentNidVersion> latestAcceptability = acceptabilityChronology.getLatestVersion(getLanguageStampFilter());
+            LatestVersion<ComponentNidVersion> latestAcceptability = acceptabilityChronology.getLatestVersion(getViewStampFilter());
             if (latestAcceptability.isPresent()) {
                 return OptionalInt.of(latestAcceptability.get().getComponentNid());
             }
@@ -367,15 +350,15 @@ public interface ManifoldCoordinate {
 
     default LatestVersion<LogicGraphVersion> getLogicGraphVersion(int conceptNid, PremiseType premiseType) {
         ConceptChronology concept = Get.concept(conceptNid);
-        return concept.getLogicalDefinition(getEdgeStampFilter(), premiseType, this.getLogicCoordinate());
+        return concept.getLogicalDefinition(getViewStampFilter(), premiseType, this.getLogicCoordinate());
     }
 
     default Optional<LogicalExpression> getInferredLogicalExpression(ConceptSpecification spec) {
-        return getLogicCoordinate().getInferredLogicalExpression(spec.getNid(), this.getEdgeStampFilter());
+        return getLogicCoordinate().getInferredLogicalExpression(spec.getNid(), this.getViewStampFilter());
     }
 
     default Optional<LogicalExpression> getInferredLogicalExpression(int conceptNid) {
-        return getLogicCoordinate().getLogicalExpression(conceptNid, PremiseType.INFERRED, this.getEdgeStampFilter());
+        return getLogicCoordinate().getLogicalExpression(conceptNid, PremiseType.INFERRED, this.getViewStampFilter());
     }
 
     default String toFqnConceptString(Object object) {
@@ -537,12 +520,12 @@ public interface ManifoldCoordinate {
         StringBuilder sb = new StringBuilder();
         ConceptSpecification lastPath = this.getVertexStampFilter().getPathConceptForFilter();
         sb.append(this.getPreferredDescriptionText(lastPath));
-        ConceptSpecification nextPath = this.getEdgeStampFilter().getPathConceptForFilter();
+        ConceptSpecification nextPath = this.getViewStampFilter().getPathConceptForFilter();
         if (!nextPath.equals(lastPath)) {
             lastPath = nextPath;
             sb.append(", " + this.getPreferredDescriptionText(lastPath));
         }
-        nextPath = this.getLanguageStampFilter().getPathConceptForFilter();
+        nextPath = this.getViewStampFilter().getPathConceptForFilter();
         if (!nextPath.equals(lastPath)) {
             lastPath = nextPath;
             sb.append(", " + this.getPreferredDescriptionText(lastPath));
@@ -586,7 +569,7 @@ public interface ManifoldCoordinate {
             case DEVELOPING:
             case MODULARIZING:
                 if (version == null) {
-                    return getViewFilter().getPathNidForFilter();
+                    return getViewStampFilter().getPathNidForFilter();
                 }
                 return version.getPathNid();
             case PROMOTING:

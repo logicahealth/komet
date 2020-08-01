@@ -235,7 +235,7 @@ public class LogicProvider
     @Override
     public ClassifierService getClassifierService(ManifoldCoordinate manifoldCoordinate) {
         ManifoldCoordinate manifoldAnalog;
-        if (manifoldCoordinate.getViewFilter().getTime() == Long.MAX_VALUE) {
+        if (manifoldCoordinate.getViewStampFilter().getTime() == Long.MAX_VALUE) {
             LOG.info("changing classify coordinate time to now, rather that latest");
             manifoldAnalog = manifoldCoordinate.makeCoordinateAnalog(System.currentTimeMillis());
         }
@@ -377,7 +377,7 @@ public class LogicProvider
 
     @Override
     public void addClassifierResults(ClassifierResults classifierResults) {
-        Instant classifierTime = classifierResults.getManifoldCoordinate().getViewFilter().getTimeAsInstant();
+        Instant classifierTime = classifierResults.getManifoldCoordinate().getViewStampFilter().getTimeAsInstant();
         if (Platform.isFxApplicationThread()) {
             classifierInstants.add(classifierTime);
         } else {
