@@ -242,7 +242,7 @@ public class MultiParentGraphViewController implements RefreshListener {
             }
         });
 
-        this.displayPolicies = new DefaultMultiParentGraphItemDisplayPolicies(this.getManifoldCoordinate());
+        this.displayPolicies = new DefaultMultiParentGraphItemDisplayPolicies();
 
 
 

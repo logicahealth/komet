@@ -20,6 +20,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
 import sh.isaac.komet.preferences.UserPreferencesPanel;
@@ -61,6 +62,9 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
                     stage.getScene()
                             .getStylesheets()
                             .add(MainApp.class.getResource("/user.css").toString());
+                    stage.getScene()
+                            .getStylesheets()
+                            .add(Iconography.class.getResource("/sh/isaac/komet/iconography/Iconography.css").toString());
                     stage.show();
                     mainApp.replacePrimaryStage(stage);
                 } catch (IOException e) {

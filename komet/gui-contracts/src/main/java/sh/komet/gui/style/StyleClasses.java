@@ -38,7 +38,9 @@ public enum StyleClasses {
    
    INTERVAL_BOUND, MEASURE,
 
-   RESET_SEARCH, NEXT_MATCH, PREVIOUS_MATCH, SEARCH_MAGNIFY;
+   RESET_SEARCH, NEXT_MATCH, PREVIOUS_MATCH, SEARCH_MAGNIFY,
+
+   NAVIGATION_BADGE;
    
    @Override   
    public String toString() {

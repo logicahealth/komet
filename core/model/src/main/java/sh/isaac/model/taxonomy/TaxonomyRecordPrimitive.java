@@ -54,6 +54,7 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.coordinate.TaxonomyFlag;
+import sh.isaac.api.navigation.NavigationRecord;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
 //~--- classes ----------------------------------------------------------------
@@ -767,5 +768,7 @@ public class TaxonomyRecordPrimitive {
    public int[] getTypesForRelationship(int destinationId, ManifoldCoordinate tc) {
       return getTaxonomyRecordUnpacked().getTypesForRelationship(destinationId, tc);
    }
+
+
 }
 

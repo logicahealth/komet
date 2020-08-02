@@ -7,7 +7,6 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
-import sh.isaac.api.coordinate.TaxonomyFlag;
 import sh.isaac.api.coordinate.VertexSort;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.tree.HashTreeBuilderIsolated;
@@ -17,6 +16,15 @@ import java.util.function.BiConsumer;
 import java.util.function.IntFunction;
 import java.util.function.ObjIntConsumer;
 
+
+/**
+ * Stream-based, parallelizable,  collector to create a graph, which represents a
+ * particular point in time, and a particular semantic state (stated or inferred)
+ * of a taxonomy. The HashTreeBuilder does not require concurrent access, since there is one
+ * HashTreeBuilder per thread, and then when the process completes, the HashTreeBuilders are
+ * merged in a single thread.
+ * @author kec
+ */
 public class GraphCollectorIsolated
         implements ObjIntConsumer<HashTreeBuilderIsolated>, BiConsumer<HashTreeBuilderIsolated, HashTreeBuilderIsolated> {
 

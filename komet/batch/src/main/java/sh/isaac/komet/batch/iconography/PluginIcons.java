@@ -50,4 +50,10 @@ public enum PluginIcons implements Icons {
         return getStyledIconographic(getClass().getResource("/sh/isaac/komet/batch/fxml/ListViewNode.css").toString());
     }
 
+    @Override
+    public AnchorPane getIconographicWithStyleClasses(String... styleClasses) {
+        return getStyledIconographic(getClass().getResource("/sh/isaac/komet/batch/fxml/ListViewNode.css").toString(),
+                styleClasses);
+    }
+
 }

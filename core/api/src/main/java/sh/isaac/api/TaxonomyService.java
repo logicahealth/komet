@@ -55,6 +55,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.navigation.NavigationRecord;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 
@@ -80,6 +81,8 @@ public interface TaxonomyService
     * @return The taxonomy data
     */
    int[] getTaxonomyData(int assemblageNid, int conceptNid);
+
+   NavigationRecord getNavigationRecord(int conceptNid);
    /**
     * Update the taxonomy by extracting relationships from the logical
     * definitions in the {@code logicGraphChronology}. This method will be

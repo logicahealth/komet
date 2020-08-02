@@ -899,21 +899,19 @@ limitations under the License.
 
 .alert-icon {
    -icons-color: white;
-   -glyph-size: 22;
+   -glyph-size: 22;tion=b
 }
+
 
 .alert-pane:alert-warn .alert-icon {
    -icons-color: black;
    -glyph-size: 24;
 }
 
-
 .alert-pane:alert-success .alert-icon {
    -icons-color: white;
    -glyph-size: 20;
 }
-
-
 
 .titled-pane > *.content {
     -fx-background-color: whitesmoke;

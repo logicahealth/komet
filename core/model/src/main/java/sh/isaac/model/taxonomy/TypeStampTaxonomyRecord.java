@@ -19,11 +19,12 @@ package sh.isaac.model.taxonomy;
 import java.util.EnumSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.coordinate.TaxonomyFlag;
+import sh.isaac.api.navigation.TypeStampNavigationRecord;
 
 /**
  * The Class TypeStampTaxonomyRecord.
  */
-public class TypeStampTaxonomyRecord {
+public class TypeStampTaxonomyRecord implements sh.isaac.api.navigation.TypeStampNavigationRecord {
 
    /** The type sequence. */
    int typeNid;
@@ -50,6 +51,7 @@ public class TypeStampTaxonomyRecord {
       this.taxonomyFlagBits = taxonomyFlags;
    }
    
+   @Override
    public long getTypeStampKey() {
        return (long)this.typeNid << 32 | this.stamp & 0xFFFFFFFFL;
    }
@@ -108,46 +110,30 @@ public class TypeStampTaxonomyRecord {
       return sb.toString();
    }
 
-   /**
-    * Gets the stamp sequence.
-    *
-    * @return the stamp sequence
-    */
+   @Override
    public int getStampSequence() {
       return this.stamp;
    }
 
-   /**
-    * Gets the taxonomy flags.
-    *
-    * @return the taxonomy flags
-    */
+   @Override
    public int getTaxonomyFlags() {
       return this.taxonomyFlagBits;
    }
 
-   /**
-    * Gets the taxonomy flags as enum.  Do NOT modify the contents of the returned enumset!
-    *
-    * @return the taxonomy flags as enum
-    */
+   @Override
    public EnumSet<TaxonomyFlag> getTaxonomyFlagsAsEnum() {
       return TaxonomyFlag.getTaxonomyFlags(this.taxonomyFlagBits);
    }
 
-   /**
-    * Gets the type sequence.
-    *
-    * @return the type sequence
-    */
+   @Override
    public int getTypeNid() {
       return this.typeNid;
    }
    
-   public boolean merge(TypeStampTaxonomyRecord another) {
-       if (this.typeNid == another.typeNid &&
-               this.stamp ==  another.stamp) {
-           this.taxonomyFlagBits = this.taxonomyFlagBits | another.taxonomyFlagBits;
+   public boolean merge(TypeStampNavigationRecord another) {
+       if (this.typeNid == another.getTypeNid() &&
+               this.stamp ==  another.getStampSequence()) {
+           this.taxonomyFlagBits = this.taxonomyFlagBits | another.getTaxonomyFlags();
            return true;
        }
        return false;

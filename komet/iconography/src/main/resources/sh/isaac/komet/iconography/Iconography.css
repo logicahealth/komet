@@ -846,7 +846,6 @@ limitations under the License.
 .inferred-form {
    -glyph-name: "GEARS";
    -glyph-size: 18;
-    
 }
 
 .inferred-form:hover{
@@ -954,4 +953,15 @@ limitations under the License.
    -glyph-name: "SCRIPT";
    -glyph-size: 18;
    -icons-color: #52646d;
+}
+
+
+.navigation-badge {
+   -glyph-size: 10;
+   -icons-color: darkgrey;
+}
+
+.tree-cell:selected * .navigation-badge  {
+   -glyph-size: 10;
+   -icons-color: lightgrey;
 }

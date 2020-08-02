@@ -194,11 +194,15 @@ public class KometStageController
         // "Feature" to make css editing/testing easy in the dev environment. 
         vanityBox.getScene()
                 .getStylesheets()
-                .remove(FxGet.fxConfiguration().getUserCSSURL().toString());
+                .clear();
         vanityBox.getScene()
                 .getStylesheets()
                 .add(FxGet.fxConfiguration().getUserCSSURL().toString());
-        System.out.println("Updated css: " + FxGet.fxConfiguration().getUserCSSURL().toString());
+        vanityBox.getScene()
+                .getStylesheets()
+                .add(FxGet.fxConfiguration().getIconographyCSSURL().toString());
+        System.out.println("Updated user css: " + FxGet.fxConfiguration().getUserCSSURL().toString());
+        System.out.println("Updated Iconography css: " + FxGet.fxConfiguration().getIconographyCSSURL().toString());
     }
 
     @Override

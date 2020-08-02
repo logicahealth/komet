@@ -64,6 +64,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.navigation.NavigationRecord;
 import sh.isaac.api.navigation.NavigationService;
 import sh.isaac.api.navigation.Navigator;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
@@ -141,6 +142,11 @@ public class TaxonomyProvider
     @Override
     public void addTaxonomyRefreshListener(RefreshListener refreshListener) {
         refreshListeners.add(new WeakReferenceRefreshListener(refreshListener));
+    }
+
+    @Override
+    public NavigationRecord getNavigationRecord(int conceptNid) {
+        return getTaxonomyRecord(conceptNid).getTaxonomyRecordUnpacked();
     }
 
     @Override
