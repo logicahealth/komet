@@ -27,7 +27,7 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>sh.isaac.uts-core.misc</groupId>
+            <groupId>sh.isaac.misc</groupId>
             <artifactId>util</artifactId>
             <version>${project.parent.version}</version>
             <scope>compile</scope>
