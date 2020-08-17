@@ -12,13 +12,8 @@ A dynamic semantic architecture for the analysis of models, logic, and language.
 * Maven  3.5 or newer
 
 ## JDK 11 notes
-Crazy command to launch in eclipse, or any other env where you need to construct the run command:
-Also had to add javafx controls, base, and graphics as "modules" in the run configuration.
-Someday... will figure out if its even possible to properly integrate this information into the maven build, so Eclipse finds it...
+Launch the GUI using sh.komet.fx.stage.Komet, rather than MainApp, to avoid all sorts of JavaFX problems with modular java.
 
-```
--DSHOW_BETA_FEATURES=true --add-modules=javafx.controls --add-exports javafx.graphics/com.sun.glass.ui=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.iio=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.iio.common=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.application=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.util=ALL-UNNAMED --add-exports javafx.base/com.sun.javafx.reflect=ALL-UNNAMED --add-exports javafx.base/com.sun.javafx.beans=ALL-UNNAMED --add-exports javafx.base/com.sun.javafx.runtime=ALL-UNNAMED --add-exports javafx.base/com.sun.javafx.collections=ALL-UNNAMED --add-exports javafx.graphics/com.sun.javafx.tk=ALL-UNNAMED --add-exports javafx.base/com.sun.javafx.binding=ALL-UNNAMED --add-exports javafx.base/com.sun.javafx.logging=ALL-UNNAMED --add-exports javafx.controls/com.sun.javafx.scene.control.behavior=ALL-UNNAMED --add-opens javafx.graphics/javafx.concurrent=ALL-UNNAMED
-```
 
 ## Linux Issues
 To allow the debugger to work properly when debugging an FX GUI app, you likely will need to disable screengrab.
@@ -33,7 +28,10 @@ To enable the GUI to load content directly from your Maven repository, set the p
 ```
  -DM2_PATH=/mnt/STORAGE/Work/Maven/repository/
 ```
-
+## developer flags...
+```
+-DSHOW_BETA_FEATURES=true 
+```
 
 ## Apple Issues
 

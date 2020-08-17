@@ -795,6 +795,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept("Window width").setModule(TermAux.KOMET_MODULE);
                   createConcept("Window height").setModule(TermAux.KOMET_MODULE);
                   popParent();
+               
+               //TODO Dan Notes, the fact that any of these exist as concepts boggles my mind.  And having java class paths hard coded into the metadata?  Can we say brittle?
+               //I have no idea what happened to our notion of modularity, HK2, with the integration of Personas.  Something went completely off the rails, if this is where it went....
                createConcept("Komet panels").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
                      createConcept("Exploration nodes").setModule(TermAux.KOMET_MODULE);

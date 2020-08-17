@@ -57,12 +57,12 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
 import com.sun.javafx.collections.ObservableMapWrapper;
-import com.sun.javafx.tk.Toolkit;
 import com.sun.javafx.tk.FontLoader;
+import com.sun.javafx.tk.Toolkit;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
 import javafx.beans.binding.FloatBinding;
 import javafx.beans.property.BooleanProperty;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyProperty;
@@ -1790,7 +1790,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	@Override
 	public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode)
 	{
-		manifoldConcept_= new SimpleObjectProperty<>(manifold);
+		manifoldConcept_ = new SimpleObjectProperty<>(manifold);
 		titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, selectionIndexProperty_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
 		titleLabel.setGraphic(Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic());
 
@@ -1799,7 +1799,8 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 			setComponent(manifoldConcept_.get().manifoldSelectionProperty().get(0).getNid(), null, null, null, true);
 		}
 		
-		manifoldConcept_.get().manifoldSelectionProperty().addListener((ListChangeListener<ComponentProxy>)(change) ->
+		//TODO this is broken, listener needs to change when selected manifold changes, somehow
+		manifoldConcept_.get().manifoldSelectionProperty().addListener((InvalidationListener) change ->
 		{
 			if (manifoldConcept_.get().manifoldSelectionProperty().size() > 0)
 			{
@@ -1896,7 +1897,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	@Override
 	public ManifoldGroup[] getDefaultManifoldGroups()
 	{
-		return new ManifoldGroup[] {ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE};
+		return new ManifoldGroup[] {ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES};
 	}
 
 	@Override

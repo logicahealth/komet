@@ -430,7 +430,8 @@ public class KometStageController
             for (int paneIndex = 0; paneIndex < newTabMenuButtons.size(); paneIndex++) {
                 newTabMenuButtons.get(paneIndex).getItems().clear();
                 ObservableList<TabSpecification> nodeListForPaneIndex = windowPreferencesItem.getNodesList(paneIndex);
-                Set<ConceptSpecification> allowedOptions = personaItem.getAllowedOptionsForPane(paneIndex);
+                //Ignore all of these silly hard-coded persona settings when we are debug mode, since they are completely mis-designed for modular plugin GUI components
+                Set<ConceptSpecification> allowedOptions = FxGet.fxConfiguration().isShowBetaFeaturesEnabled() ? new HashSet<>() : personaItem.getAllowedOptionsForPane(paneIndex);
                 if (allowedOptions.isEmpty()) {
                     allowedOptions.addAll(NODE_FACTORY_MAP.keySet());
                 }
