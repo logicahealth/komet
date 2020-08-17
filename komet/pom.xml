@@ -22,7 +22,7 @@
          <module>scripting</module>
          <module>rules</module>
         <module>statement-view</module>
-<!--        <module>semantic-view</module>-->
+        <module>semantic-view</module>
         <module>countries-flags</module>
         <module>export-view</module>
 <!--        <module>open-jdk-fixes</module>-->

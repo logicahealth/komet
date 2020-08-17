@@ -62,11 +62,14 @@ import com.sun.javafx.tk.FontLoader;
 import javafx.application.Platform;
 import javafx.beans.binding.FloatBinding;
 import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
@@ -102,6 +105,7 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
 import sh.isaac.MetaData;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
@@ -167,7 +171,8 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 
 	ViewFocus viewFocus_;
 	int viewFocusNid_;
-	private Manifold manifoldConcept_;
+	private SimpleObjectProperty<Manifold> manifoldConcept_;
+	private SimpleIntegerProperty selectionIndexProperty_ = new SimpleIntegerProperty(0);
 	private ManifoldLinkedConceptLabel titleLabel = null;
 	private final SimpleStringProperty titleProperty = new SimpleStringProperty("-");
 	private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("-");
@@ -254,7 +259,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 			rootNode_.getStylesheets().add(SemanticViewer.class.getResource("/css/semantic-view.css").toString());
 			rootNode_.setFillWidth(true);
 			
-			clt = ConceptLabelToolbar.make(manifoldConcept_, this, ((viewFocus_ == null || viewFocus_ == ViewFocus.REFERENCED_COMPONENT) ?
+			clt = ConceptLabelToolbar.make(manifoldConcept_, selectionIndexProperty_, this, ((viewFocus_ == null || viewFocus_ == ViewFocus.REFERENCED_COMPONENT) ?
 					Optional.of(false) : Optional.empty()));
 			rootNode_.getChildren().add(clt.getToolbarNode());
 			
@@ -397,9 +402,8 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 				try
 				{
 					SemanticViewer driv = Get.service(SemanticViewer.class);
-					Manifold mf = manifoldConcept_.deepClone();
-					mf.setFocusedConceptChronology(Get.concept(viewFocusNid_));
-					driv.setAssemblage(viewFocusNid_, mf, null, null, null, true);
+					manifoldConcept_.get().manifoldSelectionProperty().setAll(new ComponentProxy(Get.concept(viewFocusNid_)));
+					driv.setAssemblage(viewFocusNid_, manifoldConcept_.get(), null, null, null, true);
 					driv.showView(null);
 				}
 				catch (Exception e)
@@ -691,8 +695,8 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	{
 		//disable refresh, as the bindings mucking causes many refresh calls
 		noRefresh_.getAndIncrement();
-		titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
-		titleProperty.set(manifoldConcept_.getRegularName(componentNid).orElse(manifoldConcept_.getFullySpecifiedDescriptionText(componentNid)));
+		titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, selectionIndexProperty_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
+		titleProperty.set(manifoldConcept_.get().getPreferredDescriptionText(componentNid));
 		viewFocus_ = ViewFocus.REFERENCED_COMPONENT;
 		viewFocusNid_ = componentNid;
 		initialInit();
@@ -711,11 +715,11 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 			throw new RuntimeException("bad code path");
 		}
 		else {
-			manifoldConcept_ = manifold;
-			titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
+			manifoldConcept_ = new SimpleObjectProperty<>(manifold);
+			titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, selectionIndexProperty_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
 			titleLabel.setGraphic(Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic());
 		}
-		titleProperty.set(manifoldConcept_.getRegularName(assemblageConceptNid).orElse(manifoldConcept_.getFullySpecifiedDescriptionText(assemblageConceptNid)));
+		titleProperty.set(manifoldConcept_.get().getPreferredDescriptionText(assemblageConceptNid));
 		viewFocus_ = ViewFocus.ASSEMBLAGE;
 		viewFocusNid_ = assemblageConceptNid;
 		initialInit();
@@ -1030,7 +1034,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 					}
 					
 					//Handle any nested columns
-					Get.assemblageService().getSemanticNidsFromAssemblage(viewFocusNid_).stream().forEach(semanticNid ->
+					Get.assemblageService().getSemanticNidsFromAssemblage(viewFocusNid_).forEach(semanticNid ->
 					{
 						Hashtable<UUID, Hashtable<UUID, List<DynamicColumnInfo>>> nested = getUniqueColumns(semanticNid);
 						for (Entry<UUID, Hashtable<UUID, List<DynamicColumnInfo>>> nestedItem : nested.entrySet())
@@ -1779,37 +1783,29 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 		return DetailType.Concept;
 	}
 	
-	/**
-	 * 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public boolean isEnabled()
-	{
-		return FxGet.fxConfiguration().isShowBetaFeaturesEnabled();
-	}
+
 	/** 
 	 * {@inheritDoc}
 	 */
 	@Override
 	public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode)
 	{
-		manifoldConcept_= manifold;
-		titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
+		manifoldConcept_= new SimpleObjectProperty<>(manifold);
+		titleLabel = new ManifoldLinkedConceptLabel(manifoldConcept_, selectionIndexProperty_, ManifoldLinkedConceptLabel::setPreferredText, () -> new ArrayList<>());
 		titleLabel.setGraphic(Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic());
 
-		if (manifold.getFocusedConcept().isPresent())
+		if (manifoldConcept_.get().manifoldSelectionProperty().size() > 0)
 		{
-			setComponent(manifold.getFocusedConcept().get().getNid(), null, null, null, true);
+			setComponent(manifoldConcept_.get().manifoldSelectionProperty().get(0).getNid(), null, null, null, true);
 		}
 		
-		manifoldConcept_.focusedConceptProperty().addListener((change) ->
+		manifoldConcept_.get().manifoldSelectionProperty().addListener((ListChangeListener<ComponentProxy>)(change) ->
 		{
-			if (manifoldConcept_.getFocusedConcept().isPresent())
+			if (manifoldConcept_.get().manifoldSelectionProperty().size() > 0)
 			{
-				setComponent(manifold.getFocusedConcept().get().getNid(), null, null, null, true);
-				toolTipProperty.set("attached semantics for: " + this.manifoldConcept_.getFullySpecifiedDescriptionText(manifold.getFocusedConcept().get()));
-				displayFSN_.set(manifoldConcept_.getLanguageCoordinate().isFQNPreferred());
+				setComponent(manifoldConcept_.get().manifoldSelectionProperty().get(0).getNid(), null, null, null, true);
+				toolTipProperty.set("attached semantics for: " + this.manifoldConcept_.get().getFullyQualifiedDescriptionText(manifoldConcept_.get().manifoldSelectionProperty().get(0).getNid()));
+				displayFSN_.set(manifoldConcept_.get().getLanguageCoordinate().isFQNPreferred());
 			}
 			else
 			{
@@ -1822,14 +1818,16 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 		
 		return new DetailNode()
 		{
-	/** 
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Node getMenuIcon()
-	{
-		return Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic();
-	}
+			private final SimpleObjectProperty<Node> menuIconProperty = new SimpleObjectProperty<>(Iconography.TAXONOMY_CLICK_TO_OPEN.getIconographic());
+
+			/** 
+			 * {@inheritDoc}
+			 */
+			@Override
+			public SimpleObjectProperty<Node> getMenuIconProperty()
+			{
+				return menuIconProperty;
+			}
 			@Override
 			public boolean selectInTabOnChange()
 			{
@@ -1857,13 +1855,29 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 			@Override
 			public Manifold getManifold()
 			{
-				return manifoldConcept_;
+				return manifoldConcept_.get();
 			}
 
 			@Override
 			public Node getNode()
 			{
 				return getView();
+			}
+
+			@Override
+			public void close()
+			{
+				//noop
+			}
+			@Override
+			public boolean canClose()
+			{
+				return true;
+			}
+			@Override
+			public void savePreferences()
+			{
+				// TODO Auto-generated method stub
 			}
 		};
 	}
@@ -1882,7 +1896,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	@Override
 	public ManifoldGroup[] getDefaultManifoldGroups()
 	{
-		return new ManifoldGroup[] {ManifoldGroup.TAXONOMY};
+		return new ManifoldGroup[] {ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE};
 	}
 
 	@Override

@@ -42,7 +42,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
@@ -140,16 +142,14 @@ public class AssemblageViewer implements ExplorationNodeFactory
 
 		return new ExplorationNode()
 		{
+			private final SimpleObjectProperty<Node> menuIconProperty = new SimpleObjectProperty<>(Iconography.PAPERCLIP.getIconographic());
 
-			/**
-			 * {@inheritDoc}
-			 */
 			@Override
-			public Node getMenuIcon()
+			public ObjectProperty<Node> getMenuIconProperty()
 			{
-				return Iconography.PAPERCLIP.getIconographic();
+				return menuIconProperty;
 			}
-
+			
 			@Override
 			public ReadOnlyProperty<String> getToolTip()
 			{
@@ -178,6 +178,25 @@ public class AssemblageViewer implements ExplorationNodeFactory
 			public Manifold getManifold()
 			{
 				return manifold_;
+			}
+
+			@Override
+			public void close()
+			{
+				// noop
+			}
+
+			@Override
+			public boolean canClose()
+			{
+				return true;
+			}
+
+			@Override
+			public void savePreferences()
+			{
+				// TODO Auto-generated method stub
+				
 			}
 		};
 	}

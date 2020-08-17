@@ -44,6 +44,7 @@ import java.util.function.ToIntFunction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.Arrays;
+import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
@@ -105,11 +106,11 @@ public class SemanticGUI
 	private boolean referenceIsAssemblyNid_;
 	private Manifold manifold_;
 	
-	protected SemanticGUI(SemanticVersion refex, boolean isCurrent, Manifold manifold)
+	protected SemanticGUI(SemanticVersion refex, boolean isCurrent, SimpleObjectProperty<Manifold> manifold)
 	{
 		refex_ = refex;
 		isCurrent_ = isCurrent;
-		manifold_ = manifold;
+		manifold_ = manifold.get();
 	}
 	
 	protected SemanticGUI(int buildFromReferenceNid, boolean referenceIsAssemblyNid, Manifold manifold)
@@ -434,7 +435,7 @@ public class SemanticGUI
 			}
 			else if (oc.get() instanceof ConceptChronology)
 			{
-				Optional<String> conDesc = Frills.getDescription(oc.get().getNid(), manifold_.getStampCoordinate(), manifold_.getLanguageCoordinate());
+				Optional<String> conDesc = Frills.getDescription(oc.get().getNid(), manifold_.getStampFilter(), manifold_.getLanguageCoordinate());
 				text = (conDesc.isPresent() ? conDesc.get() : "off path [NID]:" + oc.get().getNid());
 			}
 			else if (oc.get() instanceof SemanticChronology)
@@ -445,7 +446,7 @@ public class SemanticGUI
 						text = "Component NID Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null).orElse(sc.getAssemblageNid() + "");
 						break;
 					case DESCRIPTION:
-						LatestVersion<DescriptionVersion> ds = sc.getLatestVersion(manifold_.getStampCoordinate());
+						LatestVersion<DescriptionVersion> ds = sc.getLatestVersion(manifold_.getStampFilter());
 						text = "Description Semantic: " + (ds.isPresent() ? ds.get().getText() : "off path [NID]: " + sc.getNid());
 						break;
 					case DYNAMIC:
@@ -455,14 +456,14 @@ public class SemanticGUI
 						text = "Logic Graph Semantic [NID]: " + oc.get().getNid();
 						break;
 					case LONG:
-						LatestVersion<LongVersion> sl = sc.getLatestVersion(manifold_.getStampCoordinate());
+						LatestVersion<LongVersion> sl = sc.getLatestVersion(manifold_.getStampFilter());
 						text = "String Semantic: " + (sl.isPresent() ? sl.get().getLongValue() : "off path [NID]: " + sc.getNid());
 						break;
 					case MEMBER:
 						text = "Member Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null).orElse(sc.getAssemblageNid() + "");
 						break;
 					case STRING:
-						LatestVersion<StringVersion> ss = sc.getLatestVersion(manifold_.getStampCoordinate());
+						LatestVersion<StringVersion> ss = sc.getLatestVersion(manifold_.getStampFilter());
 						text = "String Semantic: " + (ss.isPresent() ? ss.get().getString() : "off path [NID]: " + sc.getNid());
 						break;
 
@@ -480,7 +481,7 @@ public class SemanticGUI
 					case Str1_Str2_Nid3_Nid4:
 					case Str1_Str2_Nid3_Nid4_Nid5:
 					case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
-						LatestVersion<BrittleVersion> bv = sc.getLatestVersion(manifold_.getStampCoordinate());
+						LatestVersion<BrittleVersion> bv = sc.getLatestVersion(manifold_.getStampFilter());
 						text = "Brittle Semantic: " + (bv.isPresent() ? Arrays.toString(bv.get().getDataFields()) : "off path [NID]: " + sc.getNid());
 						break;
 					case UNKNOWN:

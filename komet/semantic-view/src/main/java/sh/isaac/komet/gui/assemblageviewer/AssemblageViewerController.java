@@ -204,10 +204,9 @@ public class AssemblageViewerController
 			if (sdc != null)
 			{
 				SemanticViewer driv = LookupService.get().getService(SemanticViewer.class);
-				Manifold mf = manifold_.deepClone();
 				ConceptChronology selectedConcept = Get.concept(semanticList.getSelectionModel().getSelectedItem().getNid());
-				mf.manifoldSelectionProperty().setAll(new ComponentProxy(selectedConcept));
-				driv.setAssemblage(sdc.getNid(), mf, null, null, null, true);
+				manifold_.manifoldSelectionProperty().setAll(new ComponentProxy(selectedConcept));
+				driv.setAssemblage(sdc.getNid(), manifold_, null, null, null, true);
 				driv.showView(null);
 			}
 		});
@@ -256,10 +255,9 @@ public class AssemblageViewerController
 		viewUsage.setDisable(true);
 		viewUsage.setOnAction((event) -> {
 			SemanticViewer driv = LookupService.get().getService(SemanticViewer.class);
-			Manifold mf = manifold_.deepClone();
 			ConceptChronology selectedConcept = Get.concept(semanticList.getSelectionModel().getSelectedItem().getNid());
-			mf.manifoldSelectionProperty().setAll(new ComponentProxy(selectedConcept));
-			driv.setAssemblage(semanticList.getSelectionModel().getSelectedItem().getNid(), mf, null, null, null, true);
+			manifold_.manifoldSelectionProperty().setAll(new ComponentProxy(selectedConcept));
+			driv.setAssemblage(semanticList.getSelectionModel().getSelectedItem().getNid(), manifold_, null, null, null, true);
 			driv.showView(null);
 		});
 		extensionFields.setCellFactory(new Callback<ListView<DynamicColumnInfo>, ListCell<DynamicColumnInfo>>()
