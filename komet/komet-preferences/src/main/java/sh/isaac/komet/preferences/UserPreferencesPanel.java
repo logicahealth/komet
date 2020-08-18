@@ -187,9 +187,6 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         List<String> userConceptOptionExternalStrings = preferencesNode.getList(Keys.USER_CONCEPT_OPTIONS);
         if (userConceptOptionExternalStrings.isEmpty()) {
             userConceptOptionExternalStrings.add(MetaData.USER____SOLOR.toExternalString());
-            userConceptOptionExternalStrings.add(MetaData.BOOTSTRAP_ADMINISTRATOR____SOLOR.toExternalString());
-            userConceptOptionExternalStrings.add(MetaData.KEITH_EUGENE_CAMPBELL____SOLOR.toExternalString());
-            userConceptOptionExternalStrings.add(MetaData.DELOITTE_USER____SOLOR.toExternalString());
         }
         userConceptOptions.clear();
         for (String externalString: userConceptOptionExternalStrings) {

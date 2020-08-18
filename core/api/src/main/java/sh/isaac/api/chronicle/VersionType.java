@@ -91,8 +91,8 @@ public enum VersionType {
    /** An RF2 relationship for backwards compatibility. */
    RF2_RELATIONSHIP((byte) 10, "RF2 Relationship", "REL"),
 
-   /** An LOINC record. */
-   LOINC_RECORD((byte) 11, "LOINC Record", "LOINC"),
+   /* deprecated/removed. */
+   //LOINC_RECORD((byte) 11, "LOINC Record", "LOINC"),
 
    IMAGE((byte) 12, "Image", "IMG"),
 
@@ -242,9 +242,6 @@ public enum VersionType {
 
       case 10:
          return RF2_RELATIONSHIP;
-
-      case 11:
-          return LOINC_RECORD;
 
       case 12:
           return IMAGE;

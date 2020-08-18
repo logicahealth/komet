@@ -76,7 +76,7 @@ public class ClassifierData
     /**
      * The Constant singletonReference.
      */
-    private static final AtomicReference<ClassifierData> SINGLETON = new AtomicReference<>();
+//    private static final AtomicReference<ClassifierData> SINGLETON = new AtomicReference<>();
 
     /**
      * The listener uuid.
@@ -86,7 +86,7 @@ public class ClassifierData
     /**
      * The incremental allowed.
      */
-    private boolean incrementalAllowed = false;
+    //private boolean incrementalAllowed = false;
 
     /**
      * The all graphs to axiom translator.
@@ -96,7 +96,7 @@ public class ClassifierData
     /**
      * The incremental to axiom translator.
      */
-    GraphToAxiomTranslator incrementalToAxiomTranslator = new GraphToAxiomTranslator();
+    //GraphToAxiomTranslator incrementalToAxiomTranslator = new GraphToAxiomTranslator();
 
     /**
      * The reasoner.
@@ -116,7 +116,7 @@ public class ClassifierData
     /**
      * The last classify type.
      */
-    ClassificationType lastClassifyType;
+    //ClassificationType lastClassifyType;
 
     /**
      * The stamp coordinate.
@@ -150,17 +150,17 @@ public class ClassifierData
         this.allGraphsToAxiomTranslator.clear();
         this.lastClassifyInstant = Instant.now();
 
-        if (this.lastClassifyType == null) {
-            this.lastClassifyType = ClassificationType.COMPLETE;
-            this.incrementalAllowed = true;
-        } else {
-            if (this.incrementalAllowed) {
-                this.lastClassifyType = ClassificationType.INCREMENTAL;
-                this.incrementalToAxiomTranslator.clear();
-            } else {
-                this.lastClassifyType = ClassificationType.COMPLETE;
-            }
-        }
+//        if (this.lastClassifyType == null) {
+//            this.lastClassifyType = ClassificationType.COMPLETE;
+//            this.incrementalAllowed = true;
+//        } else {
+//            if (this.incrementalAllowed) {
+//                this.lastClassifyType = ClassificationType.INCREMENTAL;
+//                this.incrementalToAxiomTranslator.clear();
+//            } else {
+//                this.lastClassifyType = ClassificationType.COMPLETE;
+//            }
+//        }
 
         return this.reasoner.classify();
     }
@@ -170,7 +170,7 @@ public class ClassifierData
      */
     public void clearAxioms() {
         this.allGraphsToAxiomTranslator.clear();
-        this.incrementalToAxiomTranslator.clear();
+//        this.incrementalToAxiomTranslator.clear();
     }
 
     /**
@@ -194,48 +194,48 @@ public class ClassifierData
             LOG.info("Stated form change: " + sc);
 
             // only process if incremental is a possibility.
-            if (this.incrementalAllowed) {
-                final LatestVersion<LogicGraphVersionImpl> optionalLatest
-                        = sc.getLatestVersion(this.stampFilter);
-
-                if (optionalLatest.isPresent()) {
-                    final LatestVersion<LogicGraphVersionImpl> latest = optionalLatest;
-
-                    // get stampCoordinate for last classify.
-                    final StampFilter stampToCompare
-                            = this.stampFilter.makeCoordinateAnalog(this.lastClassifyInstant.toEpochMilli());
-
-                    // See if there is a change in the optionalLatest vs the last classify.
-                    final LatestVersion<LogicGraphVersionImpl> optionalPrevious
-                            = sc.getLatestVersion(stampToCompare);
-
-                    if (optionalPrevious.isPresent()) {
-                        // See if the change has deletions, if so then incremental is not allowed.
-                        final LatestVersion<LogicGraphVersionImpl> previous = optionalPrevious;
-                        boolean deletions = false;
-
-                        if (latest.get()
-                                .getGraphData().length <= previous.get().getGraphData().length) {
-                            // If nodes where deleted, or an existing node was changed but the size remains the same assume deletions
-                            deletions = true;
-
-                            // TODO use a real subtree isomorphism algorithm.
-                        }
-
-                        if (deletions) {
-                            this.incrementalAllowed = false;
-                            this.incrementalToAxiomTranslator.clear();
-                            this.reasoner = new SnorocketReasoner();
-                        } else {
-                            // Otherwise add axioms...
-                            this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.get());
-                        }
-                    } else {
-                        // Otherwise add axioms...
-                        this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.get());
-                    }
-                }
-            }
+//            if (this.incrementalAllowed) {
+//                final LatestVersion<LogicGraphVersionImpl> optionalLatest
+//                        = sc.getLatestVersion(this.stampFilter);
+//
+//                if (optionalLatest.isPresent()) {
+//                    final LatestVersion<LogicGraphVersionImpl> latest = optionalLatest;
+//
+//                    // get stampFilter for last classify.
+//                    final StampFilter stampToCompare
+//                            = this.stampFilter.makeCoordinateAnalog(this.lastClassifyInstant.toEpochMilli());
+//
+//                    // See if there is a change in the optionalLatest vs the last classify.
+//                    final LatestVersion<LogicGraphVersionImpl> optionalPrevious
+//                            = sc.getLatestVersion(stampToCompare);
+//
+//                    if (optionalPrevious.isPresent()) {
+//                        // See if the change has deletions, if so then incremental is not allowed.
+//                        final LatestVersion<LogicGraphVersionImpl> previous = optionalPrevious;
+//                        boolean deletions = false;
+//
+//                        if (latest.get()
+//                                .getGraphData().length <= previous.get().getGraphData().length) {
+//                            // If nodes where deleted, or an existing node was changed but the size remains the same assume deletions
+//                            deletions = true;
+//
+//                            // TODO use a real subtree isomorphism algorithm.
+//                        }
+//
+//                        if (deletions) {
+//                            this.incrementalAllowed = false;
+//                            this.incrementalToAxiomTranslator.clear();
+//                            this.reasoner = new SnorocketReasoner();
+//                        } else {
+//                            // Otherwise add axioms...
+//                            this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.get());
+//                        }
+//                    } else {
+//                        // Otherwise add axioms...
+//                        this.incrementalToAxiomTranslator.convertToAxiomsAndAdd(latest.get());
+//                    }
+//                }
+//            }
         }
     }
 
@@ -248,24 +248,24 @@ public class ClassifierData
      * Load axioms.
      */
     public void loadAxioms() {
-        if (this.incrementalAllowed) {
-            this.reasoner.loadAxioms(this.incrementalToAxiomTranslator.getAxioms());
-            this.loadedConcepts = this.incrementalToAxiomTranslator.getLoadedConcepts();
-            LOG.info("Incremental load of " + this.incrementalToAxiomTranslator.getAxioms().size() + " axioms. ");
-        } else {
+//        if (this.incrementalAllowed) {
+//            this.reasoner.loadAxioms(this.incrementalToAxiomTranslator.getAxioms());
+//            this.loadedConcepts = this.incrementalToAxiomTranslator.getLoadedConcepts();
+//            LOG.info("Incremental load of " + this.incrementalToAxiomTranslator.getAxioms().size() + " axioms. ");
+//        } else {
             this.reasoner.loadAxioms(this.allGraphsToAxiomTranslator.getAxioms());
             this.loadedConcepts = this.allGraphsToAxiomTranslator.getLoadedConcepts();
             LOG.info("Complete load of " + this.allGraphsToAxiomTranslator.getAxioms().size() + " axioms. ");
-        }
+//        }
 
     }
 
     @Override
     public String toString() {
         return "ClassifierData{" + "graphToAxiomTranslator=" + this.allGraphsToAxiomTranslator
-                + ",\n incrementalToAxiomTranslator=" + this.incrementalToAxiomTranslator + ",\n reasoner="
+                + ",\n incrementalToAxiomTranslator=" + "this.incrementalToAxiomTranslator" + ",\n reasoner="
                 + this.reasoner + ",\n lastClassifyInstant=" + this.lastClassifyInstant + ",\n lastClassifyType="
-                + this.lastClassifyType + ",\n stampCoordinate=" + this.stampFilter + ",\n logicCoordinate="
+                + "this.lastClassifyType" + ",\n stampFilter=" + this.stampFilter + ",\n logicCoordinate="
                 + this.logicCoordinate + '}';
     }
 
@@ -286,25 +286,23 @@ public class ClassifierData
      */
     public Set<Integer> getAffectedConceptNidSet() {
 
-        if (this.lastClassifyType == ClassificationType.COMPLETE) {
+//        if (this.lastClassifyType == ClassificationType.COMPLETE) {
             return this.loadedConcepts;
         }
 
-        final Set<Integer> affectedConceptNids = new ConcurrentSkipListSet<>();
-
-
-        for (Node node : this.reasoner.getClassifiedOntology().getAffectedNodes()) {
-            if (node != null) {
-                // TODO why does the classifier include null in the affected node set.
-                for (String equivalent : node.getEquivalentConcepts()) {
-                    int nid = Integer.parseInt(equivalent);
-                    affectedConceptNids.add(nid);
-                }
-            }
-        }
-
-        return affectedConceptNids;
-    }
+//        final Set<Integer> affectedConceptNids = new ConcurrentSkipListSet<>();
+//
+//        for (Node node : this.reasoner.getClassifiedOntology().getAffectedNodes()) {
+//            if (node != null) {
+//                // TODO why does the classifier include null in the affected node set.
+//                for (String equivalent : node.getEquivalentConcepts()) {
+//                    affectedConceptNids.add(Integer.parseInt(equivalent));
+//                }
+//            }
+//        }
+//
+//        return affectedConceptNids;
+//    }
 
     /**
      * Checks if classified.
@@ -332,26 +330,27 @@ public class ClassifierData
      * @return the classifier data
      */
     public static ClassifierData get(StampFilter stampFilter, LogicCoordinate logicCoordinate) {
-        if (SINGLETON.get() == null) {
-            SINGLETON.compareAndSet(null, new ClassifierData(stampFilter, logicCoordinate));
-        } else {
-            ClassifierData classifierData = SINGLETON.get();
-
-            while (!classifierData.stampFilter.equals(stampFilter)
-                    || !classifierData.logicCoordinate.equals(logicCoordinate)) {
-                Get.commitService()
-                        .removeChangeListener(classifierData);
-
-                final ClassifierData newClassifierData = new ClassifierData(stampFilter, logicCoordinate);
-
-                SINGLETON.compareAndSet(classifierData, newClassifierData);
-                classifierData = SINGLETON.get();
-            }
-        }
-
-        Get.commitService()
-                .addChangeListener(SINGLETON.get());
-        return SINGLETON.get();
+//        if (SINGLETON.get() == null) {
+//            SINGLETON.compareAndSet(null, new ClassifierData(stampFilter, logicCoordinate));
+//        } else {
+//            ClassifierData classifierData = SINGLETON.get();
+//
+//            while (!classifierData.stampFilter.equals(stampFilter)
+//                    || !classifierData.logicCoordinate.equals(logicCoordinate)) {
+//                Get.commitService()
+//                        .removeChangeListener(classifierData);
+//
+//                final ClassifierData newClassifierData = new ClassifierData(stampFilter, logicCoordinate);
+//
+//                SINGLETON.compareAndSet(classifierData, newClassifierData);
+//                classifierData = SINGLETON.get();
+//            }
+//        }
+//
+//        Get.commitService()
+//                .addChangeListener(SINGLETON.get());
+//        return SINGLETON.get();
+        return new ClassifierData(stampFilter, logicCoordinate);
     }
 
     /**
@@ -360,7 +359,8 @@ public class ClassifierData
      * @return true, if incremental allowed
      */
     public boolean isIncrementalAllowed() {
-        return this.incrementalAllowed;
+        //return this.incrementalAllowed;
+        return false;
     }
 
     /**

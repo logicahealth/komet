@@ -39,7 +39,7 @@ import sh.isaac.api.transaction.Transaction;
  */
 public class ObservableCategorizedVersion extends CategorizedVersion implements ObservableVersion {
 
-   public ObservableCategorizedVersion(ObservableVersion delegate, CategorizedVersions categorizedVersions) {
+   public ObservableCategorizedVersion(ObservableVersion delegate, CategorizedVersions<CategorizedVersion> categorizedVersions) {
       super(delegate, categorizedVersions);
    }
       

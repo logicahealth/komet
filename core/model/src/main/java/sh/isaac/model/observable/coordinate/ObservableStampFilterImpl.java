@@ -156,8 +156,8 @@ public class ObservableStampFilterImpl extends ObservableCoordinateImpl<StampFil
     }
 
     @Override
-    public ObservableStampFilter makeModuleAnalog(Collection<ConceptSpecification> modules) {
-        return new ObservableStampFilterImpl(getValue().makeModuleAnalog(modules));
+    public ObservableStampFilter makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
+        return new ObservableStampFilterImpl(getValue().makeModuleAnalog(modules, add));
     }
 
     @Override

@@ -31,6 +31,7 @@ import sh.isaac.api.observable.coordinate.ObservableStampPath;
  * and apply to any other database that is opened.  {@link ConfigurationStore#PROFILE}
  * 
  * On reads, the implementation will return the value from the most-specific services that is applicable.
+ * userConfigPerDB {@link ConfigurationStore#DATABASE} -> user Config per OS {@link ConfigurationStore#PROFILE} -> Global config per DB
  * 
  * An option set in the database store has the highest priority, followed by an option set on the profile store, 
  * followed by the system default value.  Default values come from an implementation of the {@link GlobalDatastoreConfiguration}

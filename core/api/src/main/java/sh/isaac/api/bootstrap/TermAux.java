@@ -400,7 +400,6 @@ public class TermAux implements StaticIsaacCache {
          UUID.fromString("005d1366-7865-5055-9cd7-2b40a0396326"));
    public static ConceptProxy INFORMATICS_INC_COPYRIGHT = new ConceptProxy("© Informatics, Incorporated", "© Informatics, Inc.",
          UUID.fromString("f892783f-4aa4-5ba8-a0bf-8a99c4149155"));
-   public static ConceptProxy KEITH_CAMPBELL = new ConceptProxy("Keith Eugene Campbell", "kec", UUID.fromString("5e47881c-9e27-5578-a1c1-5535a9400bc6"));
 
    // SNOMED CT High Level Taxonomy Classes
    public static ConceptProxy BODY_STRUCTURE = new ConceptProxy("Body structure", "Body structure", UUID.fromString("4be3f62e-28d5-3bb4-a424-9aa7856a1790"));
@@ -453,7 +452,6 @@ public class TermAux implements StaticIsaacCache {
 
     public static ConceptProxy RXNORM_CUI = new ConceptProxy("RxNorm CUI", "RxNorm CUI", UUID.fromString("492b1a88-dbce-56a0-a405-6c7742f3be86"));
 
-    public static ConceptProxy DELOITTE_USER = new ConceptProxy("Deloitte User", "Deloitte User", UUID.fromString("871b89e1-cbd3-5071-8162-7c09b8d45977"));
     public static ConceptProxy SRF_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE = new ConceptProxy("SRF legacy relationship implication assemblage",
             "SRF legacy relationship implication", UUID.fromString("d16114d4-5df9-58d9-bafd-216bf336cf18"));
     public static ConceptProxy SRF_INFERRED_RELATIONSHIP_ASSEMBLAGE = new ConceptProxy("SRF inferred relationship assemblage", "SRF inferred relationships",

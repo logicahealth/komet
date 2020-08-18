@@ -342,11 +342,9 @@ public class KometStageController
                     Get.executor().execute(() -> {
                         try {
                             Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
-                            TurtleImportHK2Direct timd = new TurtleImportHK2Direct(transaction);
-                            timd.configure(null, beer.toPath(), "0.8", null);
-                            timd.convertContent(transaction, update -> {
-                            }, (work, totalWork) -> {
-                            });
+                            TurtleImportHK2Direct timd = Get.service(TurtleImportHK2Direct.class);
+                            timd.configure(null, beer.toPath(), "0.8", null, transaction);
+                            timd.convertContent(update -> {}, (work, totalWork) -> {});
                             transaction.commit("Beer has arrived!");
                             Get.indexDescriptionService().refreshQueryEngine();
                             Platform.runLater(() -> {

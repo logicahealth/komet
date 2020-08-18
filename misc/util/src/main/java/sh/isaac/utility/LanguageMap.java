@@ -39,21 +39,20 @@
 
 package sh.isaac.utility;
 
-//~--- JDK imports ------------------------------------------------------------
-
+import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
 import sh.isaac.MetaData;
-
-//~--- non-JDK imports --------------------------------------------------------
-
+import sh.isaac.api.Get;
 import sh.isaac.api.LanguageCode;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * It would be nice if these were part of the LanguageCode class itself... but there are dependency problems preventing that.
+ * 
+ * Then again, the fact that this class exists at all in its current form is rather silly.  This should all be a data table loaded into the system...
+ * rather than this hard coded mess.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
@@ -240,6 +239,182 @@ public class LanguageMap {
       }
    }
    
+   /**
+    * Concept nid to iso 639.
+    *
+    * @param nid the nid
+    * @return the string
+    */
+   public static String conceptNidToIso639(int nid) {
+      if (nid >= 0) {
+         throw new IllegalStateException("Nids must be negative: " + nid);
+      }
+
+      if (TermAux.ENGLISH_LANGUAGE.getNid() == nid) {
+         return "en";
+      }
+
+      if (TermAux.SPANISH_LANGUAGE.getNid() == nid) {
+         return "es";
+      }
+
+      if (TermAux.FRENCH_LANGUAGE.getNid() == nid) {
+         return "fr";
+      }
+
+      if (TermAux.DANISH_LANGUAGE.getNid() == nid) {
+         return "da";
+      }
+
+      if (TermAux.POLISH_LANGUAGE.getNid() == nid) {
+         return "pl";
+      }
+
+      if (TermAux.DUTCH_LANGUAGE.getNid() == nid) {
+         return "nl";
+      }
+
+      if (TermAux.LITHUANIAN_LANGUAGE.getNid() == nid) {
+         return "lt";
+      }
+
+      if (TermAux.CHINESE_LANGUAGE.getNid() == nid) {
+         return "zh";
+      }
+
+      if (TermAux.JAPANESE_LANGUAGE.getNid() == nid) {
+         return "ja";
+      }
+
+      if (TermAux.SWEDISH_LANGUAGE.getNid() == nid) {
+         return "sv";
+      }
+      
+      if (MetaData.KOREAN_LANGUAGE____SOLOR.getNid() == nid) {
+         return "ko";
+      }
+
+      if (MetaData.RUSSIAN_LANGUAGE____SOLOR.getNid() == nid) {
+         return "ru";
+      }
+
+      if (MetaData.IRISH_LANGUAGE____SOLOR.getNid() == nid) {
+         return "ga";
+      }
+      
+      if (MetaData.CZECH_LANGUAGE____SOLOR.getNid() == nid) {
+          return "cs";
+      }
+      
+      if (MetaData.ITALIAN_LANGUAGE____SOLOR.getNid() == nid) {
+          return "it";
+      }
+      
+      if (MetaData.GERMAN_LANGUAGE____SOLOR.getNid() == nid) {
+          return "de";
+      }
+
+      throw new UnsupportedOperationException("Can't convert " + nid + " to an iso639 code");
+   }
+
+   /**
+    * Iso 639 to concept nid.
+    *
+    * @param iso639text the iso 639 text
+    * @return the int
+    */
+   public static int iso639toConceptNid(String iso639text) {
+     //TODO we should really get rid of all of this hard-coded stuff and replace it with putting proper language codes 
+     //directly into the metadata concept definitions, where they should be, so this can just be a query.... 
+     //SeeAlso LanguageMap, for yet another implementation of all of this stuff...
+      switch (iso639text.toLowerCase(Locale.ENGLISH)) {
+      case "en":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.ENGLISH_LANGUAGE.getUuids());
+
+      case "es":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.SPANISH_LANGUAGE.getUuids());
+
+      case "fr":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.FRENCH_LANGUAGE.getUuids());
+
+      case "da":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.DANISH_LANGUAGE.getUuids());
+
+      case "pl":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.POLISH_LANGUAGE.getUuids());
+
+      case "nl":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.DUTCH_LANGUAGE.getUuids());
+
+      case "lt":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.LITHUANIAN_LANGUAGE.getUuids());
+
+      case "zh":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.CHINESE_LANGUAGE.getUuids());
+
+      case "ja":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.JAPANESE_LANGUAGE.getUuids());
+
+      case "sv":
+         return Get.identifierService()
+                   .getNidForUuids(TermAux.SWEDISH_LANGUAGE.getUuids());
+
+      default:
+         throw new UnsupportedOperationException("s Can't handle: " + iso639text);
+      }
+   }
+
+   /**
+    * Iso 639 to assemblage nid.
+    *
+    * @param iso639text the iso 639 text
+    * @return the int
+    */
+   public static int iso639toDescriptionAssemblageNid(String iso639text) {
+      switch (iso639text.toLowerCase(Locale.ENGLISH)) {
+      case "en":
+         return TermAux.ENGLISH_LANGUAGE.getNid();
+
+      case "es":
+         return TermAux.SPANISH_LANGUAGE.getNid();
+
+      case "fr":
+         return TermAux.FRENCH_LANGUAGE.getNid();
+
+      case "da":
+         return TermAux.DANISH_LANGUAGE.getNid();
+
+      case "pl":
+         return TermAux.POLISH_LANGUAGE.getNid();
+
+      case "nl":
+         return TermAux.DUTCH_LANGUAGE.getNid();
+
+      case "lt":
+         return TermAux.LITHUANIAN_LANGUAGE.getNid();
+
+      case "zh":
+         return TermAux.CHINESE_LANGUAGE.getNid();
+
+      case "ja":
+         return TermAux.JAPANESE_LANGUAGE.getNid();
+
+      case "sv":
+         return TermAux.SWEDISH_LANGUAGE.getNid();
+
+      default:
+         throw new UnsupportedOperationException("Can't handle: " + iso639text);
+      }
+   }
    
 
    /**

@@ -26,19 +26,22 @@ import java.util.concurrent.Semaphore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
-import sh.isaac.api.*;
+import sh.isaac.api.AssemblageService;
+import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -54,7 +57,6 @@ import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
-import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
 
 /**
  *
@@ -198,12 +200,10 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
     @Override
     protected Void call() throws Exception {
         try {
-            ConceptService conceptService = Get.conceptService();
             StampService stampService = Get.stampService();
             int authorNid = TermAux.USER.getNid();
             int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
             int moduleNid = MetaData.LOINC_MODULES____SOLOR.getNid();
-            int conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
 
             List<String[]> noSuchElementList = new ArrayList<>();
 
@@ -233,8 +233,15 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                             LogicalExpression logicalExpression = builder.build();
                             logicalExpression.getNodeCount();
                             addLogicGraph(transaction, loincRecord[LOINC_NUM],
-                                    logicalExpression);
-
+                                    logicalExpression, moduleNid, status);
+                        }
+                        else if (status != Status.ACTIVE && optionalConcept.get().getLatestVersion(Coordinates.Filter.DevelopmentLatest())
+                                      .isPresentAnd(v -> v.getStatus() == Status.ACTIVE))
+                        {
+                            //Concept is present, but is active when our record says it shouldn't be.
+                             optionalConcept.get().createMutableVersion(recordStamp);
+                             Get.conceptService().writeConcept(optionalConcept.get());
+                             index(optionalConcept.get());
                         }
                         // make 2 LOINC descriptions
                         String longCommonName = loincRecord[LONG_COMMON_NAME];
@@ -253,53 +260,31 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                             shortName = longCommonName + " with no sn";
                         }
 
-                    if (!shortName.equals(longCommonName)){
-                        addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, descriptionStamp, false);
-                    }
+                        if (!shortName.equals(longCommonName)){
+                            addDescription(loincRecord, shortName, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, conceptUuid, descriptionStamp, false);
+                        }
 
-                        // make a LOINC semantic
-                        UUID loincRecordUuid = UuidT5Generator.get(TermAux.LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(),
+                        // make a LOINC semantic dynamic representation
+                        UUID dynamicLoincRecordUuid = UuidT5Generator.get(DirectImportDynamicConstants.get().LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(),
                                 loincRecord[LOINC_NUM]);
-                    // brittle representation
-
-                        SemanticChronologyImpl recordToWrite
-                                = new SemanticChronologyImpl(VersionType.LOINC_RECORD, loincRecordUuid,
-                                        TermAux.LOINC_RECORD_ASSEMBLAGE.getNid(), conceptNid);
-                        LoincVersionImpl recordVersion = recordToWrite.createMutableVersion(recordStamp);
-                        recordVersion.setComponent(loincRecord[COMPONENT]);
-                        recordVersion.setLoincNum(loincRecord[LOINC_NUM]);
-                        recordVersion.setLoincStatus(loincRecord[STATUS]);
-                        recordVersion.setLongCommonName(loincRecord[LONG_COMMON_NAME]);
-                        recordVersion.setMethodType(loincRecord[METHOD_TYP]);
-                        recordVersion.setProperty(loincRecord[PROPERTY]);
-                        recordVersion.setScaleType(loincRecord[SCALE_TYP]);
-                        recordVersion.setShortName(loincRecord[SHORTNAME]);
-                        recordVersion.setSystem(loincRecord[SYSTEM]);
-                        recordVersion.setTimeAspect(loincRecord[TIME_ASPCT]);
+    
+                        SemanticChronologyImpl recordToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC, dynamicLoincRecordUuid,
+                                DirectImportDynamicConstants.get().LOINC_RECORD_ASSEMBLAGE.getNid(), conceptNid);
+                        MutableDynamicVersion dynamicRecordVersion = recordToWrite.createMutableVersion(recordStamp);
+                        DynamicData[] data = new DynamicData[] {
+                                new DynamicStringImpl(loincRecord[COMPONENT]),
+                                new DynamicStringImpl(loincRecord[LOINC_NUM]),
+                                new DynamicStringImpl(loincRecord[STATUS]),
+                                new DynamicStringImpl(loincRecord[LONG_COMMON_NAME]),
+                                new DynamicStringImpl(loincRecord[METHOD_TYP]),
+                                new DynamicStringImpl(loincRecord[PROPERTY]),
+                                new DynamicStringImpl(loincRecord[SCALE_TYP]),
+                                new DynamicStringImpl(loincRecord[SHORTNAME]),
+                                new DynamicStringImpl(loincRecord[SYSTEM]),
+                                new DynamicStringImpl(loincRecord[TIME_ASPCT])};
+                        dynamicRecordVersion.setData(data);
                         assemblageService.writeSemanticChronology(recordToWrite);
-
-                        // dynamic representation
-
-                    UUID dynamicLoincRecordUuid = UuidT5Generator.get(DirectImportDynamicConstants.get().LOINC_RECORD_ASSEMBLAGE.getPrimordialUuid(),
-                            loincRecord[LOINC_NUM]);
-
-                    recordToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC, dynamicLoincRecordUuid,
-                            DirectImportDynamicConstants.get().LOINC_RECORD_ASSEMBLAGE.getNid(), conceptNid);
-                    MutableDynamicVersion dynamicRecordVersion = recordToWrite.createMutableVersion(recordStamp);
-                    DynamicData[] data = new DynamicData[] {
-                            new DynamicStringImpl(loincRecord[COMPONENT]),
-                            new DynamicStringImpl(loincRecord[LOINC_NUM]),
-                            new DynamicStringImpl(loincRecord[STATUS]),
-                            new DynamicStringImpl(loincRecord[LONG_COMMON_NAME]),
-                            new DynamicStringImpl(loincRecord[METHOD_TYP]),
-                            new DynamicStringImpl(loincRecord[PROPERTY]),
-                            new DynamicStringImpl(loincRecord[SCALE_TYP]),
-                            new DynamicStringImpl(loincRecord[SHORTNAME]),
-                            new DynamicStringImpl(loincRecord[SYSTEM]),
-                            new DynamicStringImpl(loincRecord[TIME_ASPCT])};
-                    dynamicRecordVersion.setData(data);
-                    assemblageService.writeSemanticChronology(recordToWrite);
-                    count++;
+                        count++;
 
                 } catch (NoSuchElementException ex) {
                     noSuchElementList.add(loincRecord);
@@ -375,10 +360,12 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
      *
      * @param loincCode the LOINC code
      * @param logicalExpression the logical expression
+     * @param module to use to create a concept, if concept is needed
+     * @param status to use to create a concept, if concept is needed
      * @return the semantic chronology
      */
     public SemanticChronology addLogicGraph(Transaction transaction, String loincCode,
-                                            LogicalExpression logicalExpression) {
+                                            LogicalExpression logicalExpression, int module, Status status) {
 
         int stamp = Get.stampService().getStampSequence(Status.ACTIVE,
                 commitTime, TermAux.USER.getNid(),
@@ -387,9 +374,10 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
         UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincCode);
         Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
         if (!optionalConcept.isPresent()) {
+            int conceptStamp = Get.stampService().getStampSequence(status, commitTime, TermAux.USER.getNid(), module,TermAux.DEVELOPMENT_PATH.getNid()); 
             ConceptChronologyImpl conceptToWrite
                     = new ConceptChronologyImpl(conceptUuid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
-            conceptToWrite.createMutableVersion(stamp);
+            conceptToWrite.createMutableVersion(conceptStamp);
             Get.conceptService().writeConcept(conceptToWrite);
             index(conceptToWrite);
 

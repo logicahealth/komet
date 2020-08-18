@@ -190,7 +190,7 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	 *
 	 * @param conceptId the nid of a concept
 	 */
-	public default void setDefaultModule(int conceptId)
+	public default void setDefaultEditModule(int conceptId)
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -202,7 +202,7 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	 *
 	 * @param pathConceptId
 	 */
-	public default void setDefaultPath(int pathConceptId)
+	public default void setDefaultEditPath(int pathConceptId)
 	{
 		throw new UnsupportedOperationException();
 	}

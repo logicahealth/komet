@@ -92,7 +92,7 @@ public class PositionListEditor implements PropertyEditor<ObservableList<StampPo
                 super.updateItem(item, empty);
                 if (!empty) {
                     this.setText(DateTimeUtil.format(item.position.getTime(), EASY_TO_READ_DATE_TIME_FORMAT) + "\non path: " +
-                            manifold.getPreferredDescriptionText(item.position.getPathConcept()));
+                            manifold.getPreferredDescriptionText(item.position.getPathForPositionConcept()));
                 } else {
                     this.setText("");
                 }

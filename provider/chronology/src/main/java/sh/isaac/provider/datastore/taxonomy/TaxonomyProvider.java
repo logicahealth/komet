@@ -36,8 +36,6 @@
  */
 package sh.isaac.provider.datastore.taxonomy;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
@@ -85,7 +83,6 @@ import java.util.function.IntFunction;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
-//~--- classes ----------------------------------------------------------------
 /**
  *
  * @author kec
@@ -95,45 +92,26 @@ import java.util.stream.IntStream;
 public class TaxonomyProvider
         implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener {
 
-    /**
-     * The Constant LOG.
-     */
     private static final Logger LOG = LogManager.getLogger();
 
-    //~--- fields --------------------------------------------------------------
     private final TaskCountManager taskCountManager = Get.taskCountManager();
 
-    /**
-     * The semantic nids for unhandled changes.
-     */
     private final ConcurrentSkipListSet<Integer> semanticNidsForUnhandledChanges = new ConcurrentSkipListSet<>();
-
     private final Set<Task<?>> pendingUpdateTasks = ConcurrentHashMap.newKeySet();
-    /**
-     * The tree cache.
-     */
     private final ConcurrentHashMap<SnapshotCacheKey, Task<Tree>> snapshotCache = new ConcurrentHashMap<>(5);
-    private final ConcurrentHashMap<SnapshotCacheKey, TaxonomySnapshot> noTreeSnapshotCache = new ConcurrentHashMap<>(5);
+    private final ConcurrentHashMap<SnapshotCacheKey, TaxonomySnapshot> noTreeSnapshotCache = new ConcurrentHashMap<>(50);  //These have a low footprint, can cache many
     private final NidSet isANidSet = new NidSet();  //init in startup
     private final NidSet childOfTypeNidSet = new NidSet();  //init in startup
     private final UUID listenerUUID = UUID.randomUUID();
 
-    /**
-     * The change listeners.
-     */
     ConcurrentSkipListSet<WeakReference<RefreshListener>> refreshListeners = new ConcurrentSkipListSet<>();
 
-    /**
-     * The identifier service.
-     */
     private IdentifierService identifierService;
     private DataStore store;
 
-    //~--- constructors --------------------------------------------------------
     public TaxonomyProvider() {
     }
 
-    //~--- methods -------------------------------------------------------------
     @Override
     public void addTaxonomyRefreshListener(RefreshListener refreshListener) {
         refreshListeners.add(new WeakReferenceRefreshListener(refreshListener));
@@ -220,8 +198,6 @@ public class TaxonomyProvider
     public void updateStatus(ConceptChronology conceptChronology) {
         ChronologyUpdate.handleStatusUpdate(conceptChronology);
     }
-    
-       
 
     @Override
     public void updateTaxonomy(SemanticChronology logicGraphChronology) {
@@ -234,11 +210,6 @@ public class TaxonomyProvider
         }
     }
 
-//    @Override
-//    public boolean wasEverKindOf(int childId, int parentId) {
-//        throw new UnsupportedOperationException(
-//                "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-//    }
     /**
      * Start me.
      */
@@ -300,7 +271,6 @@ public class TaxonomyProvider
         LOG.info("BdbTaxonomyProvider stopped");
     }
 
-    //~--- get methods ---------------------------------------------------------
     @Override
     public IntStream getAllRelationshipOriginNidsOfType(int destinationId, IntSet typeSequenceSet) {
         throw new UnsupportedOperationException(
@@ -583,21 +553,16 @@ public class TaxonomyProvider
         return getTaxonomyRecord(parentNid).getTaxonomyRecordUnpacked().getDestinationConceptNidsOfType(childOfTypeNidSet).toArray();
     }
 
-    //~--- inner classes -------------------------------------------------------
-    /**
+   /**
      * The Class TaxonomySnapshotProvider.
      */
     private class TaxonomySnapshotProvider
             implements TaxonomySnapshot {
 
-        /**
-         * The manifoldCoordinate.
-         */
         final ManifoldCoordinate manifoldCoordinate;
         Tree treeSnapshot;
         final Task<Tree> treeTask;
 
-        //~--- constructors -----------------------------------------------------
         public TaxonomySnapshotProvider(ManifoldCoordinate manifoldCoordinate, Task<Tree> treeTask) {
             this.manifoldCoordinate = manifoldCoordinate;
             this.treeTask = treeTask;
@@ -676,14 +641,6 @@ public class TaxonomyProvider
             }
         }
 
-        //~--- get methods ------------------------------------------------------
-        /**
-         * Checks if child of.
-         *
-         * @param childId the child id
-         * @param parentId the parent id
-         * @return true, if child of
-         */
         @Override
         public boolean isChildOf(int childId, int parentId) {
             if (treeSnapshot != null) {
@@ -699,13 +656,6 @@ public class TaxonomyProvider
             return taxonomyRecordPrimitive.containsNidViaType(parentId, TermAux.IS_A.getNid(), manifoldCoordinate);
         }
 
-        /**
-         * Checks if kind of.
-         *
-         * @param childId the child id
-         * @param kindofNid the parent id
-         * @return true, if kind of
-         */
         @Override
         public boolean isKindOf(int childId, int kindofNid) {
             if (childId == kindofNid) {
@@ -760,12 +710,7 @@ public class TaxonomyProvider
             return false;
         }
 
-        /**
-         * Gets the kind of sequence set.
-         *
-         * @param rootId the root id
-         * @return the kind of sequence set
-         */
+
         @Override
         public ImmutableIntSet getKindOfConcept(int rootId) {
             MutableIntSet kindNids = IntSets.mutable.empty();
@@ -791,11 +736,6 @@ public class TaxonomyProvider
             return this.manifoldCoordinate;
         }
 
-        /**
-         * Gets the roots.
-         *
-         * @return the roots
-         */
         @Override
         public int[] getRootNids() {
             if (treeSnapshot != null) {
@@ -805,12 +745,6 @@ public class TaxonomyProvider
             return new int[]{TermAux.SOLOR_ROOT.getNid()};
         }
 
-        /**
-         * Gets the taxonomy child sequences.
-         *
-         * @param parentId the parent id
-         * @return the taxonomy child sequences
-         */
         @Override
         public int[] getTaxonomyChildConceptNids(int parentId) {
             if (treeSnapshot != null) {
@@ -831,12 +765,6 @@ public class TaxonomyProvider
             return !taxonomyRecordPrimitive.hasDestinationNidsOfType(childOfTypeNidSet, manifoldCoordinate);
         }
 
-        /**
-         * Gets the taxonomy parent sequences.
-         *
-         * @param childId the child id
-         * @return the taxonomy parent sequences
-         */
         @Override
         public int[] getTaxonomyParentConceptNids(int childId) {
             if (treeSnapshot != null) {
@@ -848,11 +776,6 @@ public class TaxonomyProvider
             return taxonomyRecordPrimitive.getDestinationNidsOfType(isANidSet, manifoldCoordinate);
         }
 
-        /**
-         * Gets the taxonomy tree.
-         *
-         * @return the taxonomy tree
-         */
         @Override
         public Tree getTaxonomyTree() {
             try {
@@ -888,6 +811,7 @@ public class TaxonomyProvider
         public boolean isChildOf(int childId, int parentId) {
             return childOfCache.computeIfAbsent(childId + ":" + parentId, (key) -> 
             {
+                //TODO shouldn't IS_A come from manifold coord?
                 TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
                 return taxonomyRecordPrimitive.containsNidViaType(parentId, TermAux.IS_A.getNid(), mc);
             });

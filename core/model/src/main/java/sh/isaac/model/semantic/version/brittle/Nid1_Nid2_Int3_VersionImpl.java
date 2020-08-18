@@ -39,19 +39,13 @@
 
 package sh.isaac.model.semantic.version.brittle;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Int3_Version;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -63,6 +57,7 @@ public class Nid1_Nid2_Int3_VersionImpl
    int nid1 = Integer.MAX_VALUE;
    int nid2 = Integer.MAX_VALUE;
    int int3 = Integer.MAX_VALUE;
+   
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
@@ -73,8 +68,6 @@ public class Nid1_Nid2_Int3_VersionImpl
                       .describeStampSequence(this.getStampSequence())).append("}");
       return builder;
    }
-
-   //~--- constructors --------------------------------------------------------
 
    public Nid1_Nid2_Int3_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
@@ -87,11 +80,7 @@ public class Nid1_Nid2_Int3_VersionImpl
       this.nid2 = data.getNid();
       this.int3 = data.getInt();
    }
-   /**
-    * Write version data.
-    *
-    * @param data the data
-    */
+
    @Override
    public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
@@ -100,33 +89,9 @@ public class Nid1_Nid2_Int3_VersionImpl
       data.putInt(this.int3);
    }
 
-   //~--- methods -------------------------------------------------------------
-
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(transaction,
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      authorNid,
-                      this.getModuleNid(),
-                      this.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
-   public <V extends Version> V setupAnalog(int stampSequence) {
+   @SuppressWarnings("unchecked")
+   public <V extends Version> V makeAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final Nid1_Nid2_Int3_VersionImpl newVersion = new Nid1_Nid2_Int3_VersionImpl((SemanticChronology) this, stampSequence);
       newVersion.setNid1(this.nid1);
@@ -158,42 +123,30 @@ public class Nid1_Nid2_Int3_VersionImpl
       return editDistance;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getInt3() {
       return int3;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setInt3(int int3) {
       this.int3 = int3;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid1() {
       return nid1;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid1(int nid1) {
       this.nid1 = nid1;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid2() {
       return nid2;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid2(int nid2) {

@@ -107,7 +107,7 @@ public class AuthorModulePathRestriction {
       AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
       ar.authors = new NidSet();
       ar.modules = NidSet.of(stampFilter.getModuleNids().toArray());
-      ar.paths = NidSet.of(new int[] { stampFilter.getStampPosition().getPathConcept().getNid() });
+      ar.paths = NidSet.of(new int[] { stampFilter.getStampPosition().getPathForPositionConcept().getNid() });
       return ar;
    }
 

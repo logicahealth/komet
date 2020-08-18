@@ -39,18 +39,11 @@
 
 package sh.isaac.model.semantic.version;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 /**
  * The Class SemanticVersionImpl.
@@ -74,48 +67,18 @@ public class SemanticVersionImpl
       super(other.getChronology(), stampSequence);
    }
 
+   @SuppressWarnings("unchecked")
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
+   public <V extends Version> V makeAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final SemanticVersionImpl newVersion = new SemanticVersionImpl(this, stampSequence);
 
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;
    }
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(transaction,
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      authorNid,
-                      this.getModuleNid(),
-                      this.getPathNid());
-      return (V) setupAnalog(stampSequence);
-   }
-
-   @Override
-   public <V extends Version> V setupAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final SemanticVersionImpl newVersion = new SemanticVersionImpl(this, stampSequence);
-
-      chronologyImpl.addVersion(newVersion);
-      return (V) newVersion;
-   }
-
-   //~--- methods -------------------------------------------------------------
 
    /**
-    * To string.
-    *
-    * @return the string
+    * {@inheritDoc}
     */
    @Override
    public String toString() {
@@ -123,38 +86,37 @@ public class SemanticVersionImpl
    }
 
    /**
-    * Write version data.
-    *
-    * @param data the data
+    * {@inheritDoc}
     */
    @Override
    public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the semantic type.
-    *
-    * @return the semantic type
+    * {@inheritDoc}
     */
    @Override
    public final VersionType getSemanticType() {
       return VersionType.MEMBER;
    }
    
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected final boolean deepEquals3(AbstractVersionImpl other) {
       // no new fields
       return other instanceof SemanticVersionImpl;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected final int editDistance3(AbstractVersionImpl other, int editDistance) {
       // no new fields
       return editDistance;
    }
-   
 }
 

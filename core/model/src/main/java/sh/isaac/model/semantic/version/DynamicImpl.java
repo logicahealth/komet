@@ -49,22 +49,20 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.model.semantic.DynamicUtilityImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.types.DynamicNidImpl;
 import sh.isaac.model.semantic.types.DynamicTypeToClassUtility;
 import sh.isaac.model.semantic.types.DynamicUUIDImpl;
-import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
-import sh.isaac.api.constants.DynamicConstants;
 
 /**
  * {@link DynamicImpl}.
@@ -147,41 +145,16 @@ public class DynamicImpl
    public void setReferencedComponentVersionType(VersionType versionType) {
       this.referencedComponentVersionType = versionType;
    }
-
+   
    /**
     * {@inheritDoc}
     */
+   @SuppressWarnings("unchecked")
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
+   public <V extends Version> V makeAnalog(int stampSequence)
+   {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final DynamicImpl newVersion = new DynamicImpl(this, stampSequence);
-
-      chronologyImpl.addVersion(newVersion);
-      return (V) newVersion;
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(transaction,
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      authorNid,
-                      this.getModuleNid(),
-                      this.getPathNid());
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final DynamicImpl newVersion = new DynamicImpl(this, stampSequence);
-
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;
    }
@@ -365,11 +338,6 @@ public class DynamicImpl
       }
       DynamicImpl otherImpl = (DynamicImpl) other;
       return Arrays.equals(this.data, otherImpl.data);
-   }
-
-   @Override
-   public <V extends Version> V setupAnalog(int stampSequence) {
-      throw new UnsupportedOperationException();
    }
 }
 

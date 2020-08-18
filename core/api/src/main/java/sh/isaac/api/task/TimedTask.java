@@ -36,30 +36,18 @@
  */
 package sh.isaac.api.task;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.time.Duration;
 import java.time.Instant;
-
-import java.util.concurrent.Callable;
+import java.util.UUID;
 import java.util.concurrent.CancellationException;
 import java.util.function.Consumer;
-import java.util.concurrent.atomic.AtomicInteger;
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.application.Platform;
-
-import javafx.concurrent.Task;
-
-import javafx.concurrent.Worker;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import sh.isaac.api.util.FxTimer;
-
 import sh.isaac.api.util.time.DurationUtil;
 
-import static javafx.concurrent.Worker.State.*;
-
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class TimedTask.
  *
@@ -69,73 +57,32 @@ import static javafx.concurrent.Worker.State.*;
 public abstract class TimedTask<T>
         extends Task<T> {
 
-    /**
-     * The Constant log.
-     */
     protected static final Logger LOG = LogManager.getLogger();
 
-    /**
-     * The progress update interval.
-     */
     public Duration progressUpdateDuration = Duration.ofMillis(10);
 
-    /**
-     * Seconds per minute.
-     */
     static final int SECONDS_PER_MINUTE = 60;
-
-    /**
-     * Minutes per hour.
-     */
     static final int MINUTES_PER_HOUR = 60;
-
-    /**
-     * Seconds per hour.
-     */
     static final int SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
 
-    static final AtomicInteger TASK_SEQUENCE = new AtomicInteger();
-
-    //~--- fields --------------------------------------------------------------
-    /**
-     * The update ticker.
-     */
     private final FxTimer updateTimer = FxTimer.createPeriodic(progressUpdateDuration, this::generateProgressMessage);
 
-    /**
-     * The start time.
-     */
     private Instant startTime;
-
-    /**
-     * The end time.
-     */
     private Instant endTime;
 
     private boolean suppressCompletionLogIfLessThanSpecifiedDuration = true;
-
     private long suppressionTimeDurationInSeconds = 5;
-
     private static int suppressionCount = 0;
-
     private static final int suppressionStartCount = 11;
 
+    private Consumer<TimedTask<T>> completeMessageGenerator;
+    private Consumer<TimedTask<T>> progressMessageGenerator;
 
-    /**
-     * The complete message generator.
-     */
-    Consumer<TimedTask<T>> completeMessageGenerator;
-
-    /**
-     * The progress message generator.
-     */
-    Consumer<TimedTask<T>> progressMessageGenerator;
-
-    protected final int taskSequenceId = TASK_SEQUENCE.incrementAndGet();
+    protected final UUID taskId = UUID.randomUUID();
 
     private boolean canCancel = false;
 
-    String simpleTitle = this.getClass().getSimpleName();
+    protected String simpleTitle = this.getClass().getSimpleName();
     {
         titleProperty().addListener((observable, oldValue, newValue) ->  simpleTitle = newValue);
     }
@@ -163,9 +110,6 @@ public abstract class TimedTask<T>
         this.suppressionTimeDurationInSeconds = suppressionTimeDurationInSeconds;
     }
 
-    /**
-     * Done.
-     */
     @Override
     protected void done() {
         super.done();
@@ -177,19 +121,23 @@ public abstract class TimedTask<T>
                 updateMessage(getSimpleName() + " completed in " + DurationUtil.format(getDuration()));
             });
         }
+        
+        //TODO DAN[1] notes, this is odd.  Typically, if you are suppressing logs, you only suppress identical logs in a certain time frame.
+        //Not ALL logs after X.... Not to mention most of the performance issues caused by this logging could be properly handled with TRACE
+        //And using the proper logging pattern, so it isn't calculating values when they aren't logged, as I have updated it below.
         if (suppressCompletionLogIfLessThanSpecifiedDuration) {
             if (getDuration().getSeconds() > suppressionTimeDurationInSeconds) {
-                LOG.info(getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
+                LOG.trace("{} {} completed in: {}", (() -> getSimpleName()),  (() -> taskId), (() -> DurationUtil.format(getDuration())));
             } else {
                 if (suppressionCount < suppressionStartCount) {
                     suppressionCount++;
-                    LOG.info(getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
-                    LOG.info("Suppression of task completion logging for tasks shorter than " + suppressionTimeDurationInSeconds +
+                    LOG.trace("{} {} completed in: {}", (() -> getSimpleName()),  (() -> taskId), (() -> DurationUtil.format(getDuration())));
+                    LOG.trace("Suppression of task completion logging for tasks shorter than " + suppressionTimeDurationInSeconds +
                             " seconds will occur after "+ (suppressionStartCount - suppressionCount) + " more completions.");
                 }
             }
         } else {
-            LOG.info(getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
+            LOG.trace("{} {} completed in: {}", (() -> getSimpleName()),  (() -> taskId), (() -> DurationUtil.format(getDuration())));
         }
 
 
@@ -210,19 +158,14 @@ public abstract class TimedTask<T>
         return getClass().getSimpleName();
     }
 
-    /**
-     * Failed.
-     */
     @Override
     protected void failed() {
         Throwable throwable = this.getException();
         if (throwable instanceof CancellationException) {
-            LOG.info("Timed task " + taskSequenceId + " " + this.getSimpleName() + " canceled");
+            LOG.info("Timed task " + taskId + " " + this.getSimpleName() + " canceled");
         } else {
-            LOG.warn("Timed task " + taskSequenceId + " failed!", throwable);
+            LOG.warn("Timed task " + taskId + " failed!", throwable);
         }
-
-
      }
 
     protected void generateProgressMessage() {
@@ -231,9 +174,6 @@ public abstract class TimedTask<T>
         }
     }
 
-    /**
-     * Running.
-     */
     @Override
     protected void running() {
         super.running();
@@ -300,15 +240,16 @@ public abstract class TimedTask<T>
     }
     
     /**
-     * @return a unique ID (within this JVM) for the task being executed.
+     * @return a unique ID for the task being executed.
      */
-    public int getTaskId() {
-        return taskSequenceId;
+    public UUID getTaskId() {
+        return taskId;
     }
 
-    public String toString() {
+    @Override
+	public String toString() {
 
-        return simpleTitle + " " + taskSequenceId + " " + getState();
+        return simpleTitle + " " + taskId + " " + getState();
     }
 
     public boolean canCancel() {

@@ -100,7 +100,7 @@ public interface StampPosition
     *
     * @return the stamp path concept nid
     */
-   default ConceptSpecification getPathConcept() {
+   default ConceptSpecification getPathForPositionConcept() {
       return Get.conceptSpecification(getPathForPositionNid());
    }
 

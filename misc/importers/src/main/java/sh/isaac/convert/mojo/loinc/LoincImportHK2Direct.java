@@ -83,16 +83,13 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 	HashSet<String> skippable = new HashSet<>();
 
 	/**
-	 * This constructor is for maven and HK2 and should not be used at runtime.  You should
-	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter)} method on it.
-	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
+	 * This constructor is for HK2 and should not be used at runtime.  You should 
+	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter, Transaction)} method on it.
 	 */
-	protected LoincImportHK2Direct() {
-	}
-	protected LoincImportHK2Direct(Transaction transaction)
+	protected LoincImportHK2Direct() 
 	{
-		super(transaction);
 		//For maven and hk2
+		super();
 	}
 
 	@Override
@@ -118,22 +115,6 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		}
 	}
 
-	/**
-	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent(Transaction, Consumer, BiConsumer)}
-	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
-	 * 
-	 * @see DirectConverter#configure(File, Path, String, StampFilter)
-	 */
-	@Override
-	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter)
-	{
-		this.outputDirectory = outputDirectory;
-		this.inputFileLocationPath = inputFolder;
-		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
-		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		this.readbackCoordinate = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
-	}
-
 	@Override
 	public SupportedConverterTypes[] getSupportedTypes()
 	{
@@ -141,11 +122,11 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer)
-	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer)
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer)
+	 * @see DirectConverter#convertContent(Consumer, BiConsumer)
 	 */
 	@Override
-	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		if ("solor".equals(this.converterOutputArtifactClassifier))
 		{

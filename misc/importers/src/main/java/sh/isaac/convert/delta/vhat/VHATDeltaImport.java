@@ -151,7 +151,8 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 	 */
 	public VHATDeltaImport(Transaction transaction, String xmlData, UUID author, UUID module, UUID path, LongSupplier vuidSupplier, File debugOutputFolder) throws IOException
 	{
-		super(transaction);
+		super();
+		this.transaction = transaction;
 		this.vuidSupplier = vuidSupplier;
 		this.xmlData = xmlData;
 		this.outputDirectory = debugOutputFolder;
@@ -182,14 +183,14 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 		//Set up our metadata hierarchy - this call likely wont need to build concepts, but does need to init the internal placeholders
 		dwh.makeMetadataHierarchy(transaction, true, true, true, true, true, true, time);
 		
-		convertContent(transaction, string -> {}, (progress, total) -> {});
+		convertContent(string -> {}, (progress, total) -> {});
 	}
 
 	/**
 	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		try
 		{

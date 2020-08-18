@@ -39,32 +39,22 @@
 
 package sh.isaac.provider.datastore.taxonomy;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.coordinate.*;
-import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
-
-import java.util.Optional;
 import java.util.concurrent.CancellationException;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.coordinate.DigraphCoordinateImmutable;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.VertexSort;
 import sh.isaac.api.progress.Stoppable;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.model.taxonomy.GraphCollectorIsolated;
-import sh.isaac.model.taxonomy.TaxonomyFlag;
 import sh.isaac.model.tree.HashTreeBuilderIsolated;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -83,24 +73,14 @@ public class TreeBuilderTask
    private final DigraphCoordinateImmutable digraph;
    private final VertexSort vertexSort;
 
-/*
-    public GraphCollectorIsolated(IntFunction<int[]> taxonomyDataProvider,
-                                  RelativePositionCalculator relativePositionCalculator,
-                                  int taxonomyFlags,
-                                  Optional<RelativePositionCalculator> optionalDestinationCalculator,
-                                  Optional<Function<int[],int[]>> optionalSortFunction) {
-
- */
-
-
    private static final Logger LOG = LogManager.getLogger();
 
-   //~--- constructors --------------------------------------------------------
    public TreeBuilderTask(IntFunction<int[]> taxonomyDataProvider,
                           ManifoldCoordinate manifoldCoordinate) {
       this(taxonomyDataProvider, manifoldCoordinate.toDigraphImmutable(), manifoldCoordinate.getVertexSort());
    }
 
+   //TODO [DAN 2] - not sure if this comment is relevant any longer: this tree builder doesn't properly pay attention to the DestinationStampCoordiante
    public TreeBuilderTask(IntFunction<int[]> taxonomyDataProvider,
                           DigraphCoordinateImmutable digraph, VertexSort vertexSort) {
       if (taxonomyDataProvider == null) {
@@ -127,8 +107,6 @@ public class TreeBuilderTask
       Get.activeTasks()
          .add(this);
    }
-
-   //~--- methods -------------------------------------------------------------
 
    @Override
    protected Tree call()

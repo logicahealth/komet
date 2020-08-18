@@ -25,7 +25,6 @@ import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
-import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.RecursiveDelete;
@@ -80,7 +79,7 @@ public class VhatXmlTests
         File db = new File("target/suite3");
         RecursiveDelete.delete(db);
         db.mkdirs();
-        System.setProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY, db.getCanonicalPath());
+        Get.configurationService().setDataStoreFolderPath(db.toPath());
         Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
         LookupService.startupIsaac();
 

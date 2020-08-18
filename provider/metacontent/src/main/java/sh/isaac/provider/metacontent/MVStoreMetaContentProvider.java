@@ -69,7 +69,8 @@ import sh.isaac.api.metacontent.MetaContentService;
 public class MVStoreMetaContentProvider
          implements MetaContentService {
 
-   //~--- fields --------------------------------------------------------------
+   //TODO extend this API to provide an option to persist things stored here into the git folders, so they are 
+   //persisted and rebuilt upon re-opening.
 
    private final Logger LOG = LogManager.getLogger();
    

@@ -4,9 +4,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
@@ -19,8 +17,6 @@ public class Nid1_Long2_VersionImpl
         implements Nid1_Long2_Version {
     int nid1 = Integer.MAX_VALUE;
     long long2 = Long.MIN_VALUE;
-
-    //~--- constructors --------------------------------------------------------
 
     public Nid1_Long2_VersionImpl(SemanticChronology container, int stampSequence) {
         super(container, stampSequence);
@@ -43,34 +39,10 @@ public class Nid1_Long2_VersionImpl
         data.putNid(this.nid1);
         data.putLong(this.long2);
     }
-    //~--- methods -------------------------------------------------------------
 
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-        final int stampSequence = Get.stampService()
-                .getStampSequence(
-                        this.getStatus(),
-                        Long.MAX_VALUE,
-                        ec.getAuthorNid(),
-                        this.getModuleNid(),
-                        ec.getPathNid());
-        return setupAnalog(stampSequence);
-    }
-
-
-    @Override
-    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-        final int stampSequence = Get.stampService()
-                .getStampSequence(transaction,
-                        this.getStatus(),
-                        Long.MAX_VALUE,
-                        authorNid,
-                        this.getModuleNid(),
-                        this.getPathNid());
-        return setupAnalog(stampSequence);
-    }
-
-    public <V extends Version> V setupAnalog(int stampSequence) {
+    @SuppressWarnings("unchecked")
+    public <V extends Version> V makeAnalog(int stampSequence) {
         SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
         final Nid1_Long2_VersionImpl newVersion = new Nid1_Long2_VersionImpl(this.getChronology(), stampSequence);
         newVersion.setNid1(this.nid1);
@@ -98,28 +70,20 @@ public class Nid1_Long2_VersionImpl
         return editDistance;
     }
 
-    //~--- get methods ---------------------------------------------------------
-
     @Override
     public long getLong2() {
         return long2;
     }
-
-    //~--- set methods ---------------------------------------------------------
 
     @Override
     public void setLong2(long long2) {
         this.long2 = long2;
     }
 
-    //~--- get methods ---------------------------------------------------------
-
     @Override
     public int getNid1() {
         return nid1;
     }
-
-    //~--- set methods ---------------------------------------------------------
 
     @Override
     public void setNid1(int nid1) {
@@ -141,7 +105,5 @@ public class Nid1_Long2_VersionImpl
                         .describeStampSequence(this.getStampSequence())).append("}");
         return builder;
     }
-
-
 }
 

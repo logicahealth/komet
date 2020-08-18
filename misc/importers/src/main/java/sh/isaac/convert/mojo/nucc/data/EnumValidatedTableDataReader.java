@@ -44,6 +44,7 @@ import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.logging.log4j.LogManager;
+import com.opencsv.exceptions.CsvValidationException;
 
 /**
  * 
@@ -91,7 +92,14 @@ public class EnumValidatedTableDataReader<COLUMNS extends Enum<COLUMNS>>
 
 		LogManager.getLogger().info("Prepared to process: " + file.get());
 
-		this.fileReader = new EnumValidatedCsvFileReader<>(file.get(), columnsEnumClass, headerExists, validateHeaderAgainstColumnsEnum);
+		try
+		{
+			this.fileReader = new EnumValidatedCsvFileReader<>(file.get(), columnsEnumClass, headerExists, validateHeaderAgainstColumnsEnum);
+		}
+		catch (CsvValidationException e)
+		{
+			throw new IOException(e);
+		}
 	}
 
 	public EnumValidatedTableData<COLUMNS> process() throws IOException
@@ -103,6 +111,10 @@ public class EnumValidatedTableDataReader<COLUMNS extends Enum<COLUMNS>>
 				terminology.rows().add(row);
 			}
 			return terminology;
+		}
+		catch (CsvValidationException e)
+		{
+			throw new IOException(e);
 		}
 		finally
 		{

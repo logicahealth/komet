@@ -84,7 +84,7 @@ public class ClassifierProvider
 
    @Override
    public TimedTask<ClassifierResults> classify() {
-      return AggregateClassifyTask.get(this.stampFilter, this.logicCoordinate, this.editCoordinate, true);
+      return AggregateClassifyTask.get(this.stampFilter, this.logicCoordinate, this.editCoordinate, false);
    }
    
    @Override
@@ -92,7 +92,6 @@ public class ClassifierProvider
       return AggregateClassifyTask.get(this.stampFilter, this.logicCoordinate, this.editCoordinate, cycleCheck);
    }
 
-   //~--- get methods ---------------------------------------------------------
    /**
     * Gets the concept nid for expression.
     *

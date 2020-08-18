@@ -16,15 +16,12 @@
  */
 package sh.isaac.model.statement.constraint;
 
-import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.BrittleVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.statement.constraints.MeasureConstraints;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
@@ -96,54 +93,30 @@ public class MeasureConstraintImpl
       data.putBoolean(this.showIncludeBounds);
       data.putNid(this.measureSemanticConstraintAssemblageNid);
    }
-   //~--- methods -------------------------------------------------------------
 
-    @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-        final int stampSequence = Get.stampService()
-                .getStampSequence(
-                        this.getStatus(),
-                        Long.MAX_VALUE,
-                        ec.getAuthorNid(),
-                        this.getModuleNid(),
-                        ec.getPathNid());
-        return setupAnalog(stampSequence);
-    }
-
-
-    @Override
-    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-        final int stampSequence = Get.stampService()
-                .getStampSequence(transaction,
-                        this.getStatus(),
-                        Long.MAX_VALUE,
-                        authorNid,
-                        this.getModuleNid(),
-                        this.getPathNid());
-        return setupAnalog(stampSequence);
-    }
-
-    public <V extends Version> V setupAnalog(int stampSequence) {
-        SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-        final MeasureConstraintImpl newVersion = new MeasureConstraintImpl((SemanticChronology) this, stampSequence);
-        newVersion.setConstraintDescription(constraintDescription);
-        newVersion.setInitialLowerBound(initialLowerBound);
-        newVersion.setInitialUpperBound(initialUpperBound);
-        newVersion.setInitialGranularity(initialGranularity);
-        newVersion.setInitialIncludeUpperBound(initialIncludeUpperBound);
-        newVersion.setInitialIncludeLowerBound(initialIncludeLowerBound);
-        newVersion.setMinimumValue(minimumValue);
-        newVersion.setMaximumValue(maximumValue);
-        newVersion.setMinimumGranularity(minimumGranularity);
-        newVersion.setMaximumGranularity(maximumGranularity);
-        newVersion.setShowRange(showRange);
-        newVersion.setShowGranularity(showGranularity);
-        newVersion.setShowIncludeBounds(showIncludeBounds);
-        newVersion.setMeasureSemanticConstraintAssemblageNid(measureSemanticConstraintAssemblageNid);
-
-        chronologyImpl.addVersion(newVersion);
-        return (V) newVersion;
-    }
+   @SuppressWarnings("unchecked")
+   @Override
+   public <V extends Version> V makeAnalog(int stampSequence) {
+      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
+      final MeasureConstraintImpl newVersion = new MeasureConstraintImpl((SemanticChronology) this, stampSequence);
+      newVersion.setConstraintDescription(constraintDescription);
+      newVersion.setInitialLowerBound(initialLowerBound);
+      newVersion.setInitialUpperBound(initialUpperBound);
+      newVersion.setInitialGranularity(initialGranularity);
+      newVersion.setInitialIncludeUpperBound(initialIncludeUpperBound);
+      newVersion.setInitialIncludeLowerBound(initialIncludeLowerBound);
+      newVersion.setMinimumValue(minimumValue);
+      newVersion.setMaximumValue(maximumValue);
+      newVersion.setMinimumGranularity(minimumGranularity);
+      newVersion.setMaximumGranularity(maximumGranularity);
+      newVersion.setShowRange(showRange);
+      newVersion.setShowGranularity(showGranularity);
+      newVersion.setShowIncludeBounds(showIncludeBounds);
+      newVersion.setMeasureSemanticConstraintAssemblageNid(measureSemanticConstraintAssemblageNid);
+      
+      chronologyImpl.addVersion(newVersion);
+      return (V) newVersion;
+   }
 
     @Override
    protected boolean deepEquals3(AbstractVersionImpl other) {

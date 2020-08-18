@@ -158,7 +158,6 @@ public interface CoordinateFactory
     * @return a new instance that implements {@code StampCoordinate} with the provided temporal information
     */
    StampFilter createStampFilter(ConceptSpecification stampPath, List<ConceptSpecification> moduleSpecificationList, List<ConceptSpecification> modulePriorityList, EnumSet<Status> allowedStateSet, CharSequence dateTimeText);
-
    /**
     * Creates a new ImmutableCoordinate object.
     *

@@ -83,7 +83,7 @@ public class FullClassification
 
          editCoordinate = EditCoordinateImmutable.make(logicCoordinate.getClassifierNid(),
                editCoordinate.getModuleNid(),
-               editCoordinate.getModuleNid());
+               editCoordinate.getPathNid());
 
          final Task<ClassifierResults> classifyTask =
             logicService.getClassifierService(Coordinates.Filter.DevelopmentLatestActiveOnly(),

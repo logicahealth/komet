@@ -39,10 +39,16 @@
 
 package sh.isaac.api.coordinate;
 
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Set;
+import javax.annotation.PreDestroy;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import org.eclipse.collections.api.list.primitive.ImmutableIntList;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.runlevel.RunLevel;
@@ -55,11 +61,6 @@ import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
-
-import javax.annotation.PreDestroy;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -294,11 +295,14 @@ public class StampFilterImmutable
 
 
     @Override
-    public StampFilterImmutable makeModuleAnalog(Collection<ConceptSpecification> modules) {
-        ImmutableIntSet moduleNidSet = IntSets.immutable.ofAll(modules.stream().mapToInt(conceptSpecification -> conceptSpecification.getNid()));
+    public StampFilterImmutable makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
+        MutableIntSet mis = IntSets.mutable.ofAll(modules.stream().mapToInt(conceptSpecification -> conceptSpecification.getNid()));
+        if (add) {
+            mis.addAll(this.moduleNids);
+        }
         return make(this.allowedStates,
                 this.stampPosition,
-                moduleNidSet, this.excludedModuleNids, IntLists.immutable.empty());
+                mis.toImmutable(), this.excludedModuleNids, IntLists.immutable.empty());
     }
 
     @Override

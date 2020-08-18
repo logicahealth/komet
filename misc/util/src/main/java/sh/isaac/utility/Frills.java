@@ -391,13 +391,16 @@ public class Frills
     * @return the "Edit" module for this terminology type, which will be created, if necessary.  This concept will also be used for the namespace
     * when generating the UUID(s) for the new concept.
     */
-   public static int createAndGetDefaultEditModule(int module) {
+   public static int createAndGetDefaultEditModule(final int module) {
 
       return EDIT_MODULE_FOR_TERMINOLOGY_CACHE.get(module, moduleAgain -> {
-         
-         final int termTypeConcept = findTermTypeConcept(moduleAgain, Coordinates.Filter.DevelopmentLatest());
+
          final StampFilter stamp = Coordinates.Filter.DevelopmentLatest();
          final LanguageCoordinate fqnCoord = Coordinates.Language.UsEnglishFullyQualifiedName();
+         final Integer termTypeConcept = findTermTypeConcept(module, null);
+         if (termTypeConcept == null) {
+             throw new RuntimeException("Couldn't determine term type of module " + module);
+         }
          
          //iterate the children, find one that has a FQN than ends with "Edit (SOLOR)"
          int[] termTypeChildren = Get.taxonomyService().getSnapshotNoTree(ManifoldCoordinateImmutable.makeStated(stamp, fqnCoord)).getTaxonomyChildConceptNids(termTypeConcept);
@@ -405,7 +408,7 @@ public class Frills
             String fqn = fqnCoord.getFullyQualifiedNameText(nid, stamp).orElseGet(() -> "");
             int index = fqn.indexOf("Edit (" + ConceptProxy.METADATA_SEMANTIC_TAG + ")"); 
             if (index > 0) {
-               LOG.debug("Returning existing default edit module nid of {} for {}", Get.conceptDescriptionText(nid), Get.conceptDescriptionText(moduleAgain));
+               LOG.debug("Returning existing default edit module nid of {} for {}", Get.conceptDescriptionText(nid), Get.conceptDescriptionText(module));
                return nid;
             }
          }
@@ -447,43 +450,43 @@ public class Frills
     */
    private static Integer findTermTypeConcept(int conceptModuleNid, StampFilter stampFilter) {
       StampFilter stampToUse = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
-      
-      if (stampFilter != null) {
-         //ensure the provided stamp includes the metadata module
-         if (stampFilter.getModuleNids().size() > 0 && !stampFilter.getModuleNids().contains(MetaData.CORE_METADATA_MODULE____SOLOR.getNid()))
-         {
-            MutableIntSet moduleNids = IntSets.mutable.of(stampFilter.getModuleNids().toArray());
-            moduleNids.add(MetaData.CORE_METADATA_MODULE____SOLOR.getNid());
-
-
-            stampToUse = StampFilterImmutable.make(stampToUse.getAllowedStates(), stampToUse.getStampPosition(),
-                    moduleNids.toImmutable(),
-                    stampToUse.getModulePriorityOrder());
-         }
-         if (stampFilter.getStampPosition().getTime() != Long.MAX_VALUE)
-         {
-             stampToUse = stampToUse.makeCoordinateAnalog(Long.MAX_VALUE);
-         }
-      }
-      
-      int[] parents = Get.taxonomyService().getSnapshotNoTree(
-              ManifoldCoordinateImmutable.makeStated(stampToUse, Coordinates.Language.UsEnglishPreferredName()))
-            .getTaxonomyParentConceptNids(conceptModuleNid);
-      for (int current : parents)
+      try
       {
-         if (current == MetaData.MODULE____SOLOR.getNid()) {
-            return conceptModuleNid;
-         }
-         else {
-            Integer recursive = findTermTypeConcept(current, stampToUse);
-            if (recursive != null) {  //only return this one if it had a path to MODULE_SOLOR, otherwise, let the loop continue.
-               return recursive;
+         if (stampFilter != null) {
+            //ensure the provided stamp includes the metadata module
+            if (stampFilter.getModuleNids().size() > 0 && !stampFilter.getModuleNids().contains(MetaData.CORE_METADATA_MODULE____SOLOR.getNid()))
+            {
+               stampToUse = stampFilter.makeModuleAnalog(Arrays.asList(new ConceptSpecification[] {MetaData.CORE_METADATA_MODULE____SOLOR}), true);
+            }
+            if (stampFilter.getStampPosition().getTime() != Long.MAX_VALUE)
+            {
+                stampToUse = stampToUse.makeCoordinateAnalog(Long.MAX_VALUE);
             }
          }
+         
+         int[] parents = Get.taxonomyService().getSnapshotNoTree(
+               ManifoldCoordinateImmutable.makeStated(stampToUse, null))
+               .getTaxonomyParentConceptNids(conceptModuleNid);
+         for (int current : parents)
+         {
+            if (current == MetaData.MODULE____SOLOR.getNid()) {
+               return conceptModuleNid;
+            }
+            else {
+               Integer recursive = findTermTypeConcept(current, stampToUse);
+               if (recursive != null) {  //only return this one if it had a path to MODULE_SOLOR, otherwise, let the loop continue.
+                  return recursive;
+               }
+            }
+         }
+      }
+      catch (Exception e) {
+         LOG.error("Problem looking up termTypeConcept for module {} at stamp {}", conceptModuleNid, stampFilter);
       }
       //None of the parents has a path to MODULE_SOLOR
       return null;
    }
+
 
    /**
     * Checks if the SemanticChronology represents a mapping.  Passes the assemblageNid to {@link #definesMapping(int)}
@@ -2395,5 +2398,26 @@ public class Frills
       return (conceptNid == MetaData.SOLOR_CONCEPT____SOLOR.getNid() || conceptNid == MetaData.MODEL_CONCEPT____SOLOR.getNid() ||
             Get.taxonomyService().wasEverKindOf(conceptNid, MetaData.MODEL_CONCEPT____SOLOR.getNid()));
    }
+   
+   /**
+    * @return the nids of the terminology types that should follow snomed rules for content, descriptions, validation, etc.
+    */
+   public static HashSet<Integer> getSCTRulesTermTypes()
+   {
+      //TODO the SCT loaders will need to mark modules for this, so other extensions can be handled properly
+      HashSet<Integer> result = new HashSet<>(6);
+      result.add(MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getNid());
+      result.add(MetaData.US_EXTENSION_MODULES____SOLOR.getNid());
+      result.add(MetaData.METADATA_MODULES____SOLOR.getNid());
+      result.add(MetaData.SOLOR_MODULE____SOLOR.getNid());
+      if (Get.identifierService().hasUuid(UUID.fromString("eaaf13dc-67f5-3299-8c6d-0f08f9ed8158")))  //IHTSDO maintained module
+      {
+         result.add(Get.identifierService().getNidForUuids(UUID.fromString("eaaf13dc-67f5-3299-8c6d-0f08f9ed8158")));
+      }
+      if (Get.identifierService().hasUuid(UUID.fromString("bf291637-8f18-38a3-8cc9-fc28927d68ad")))  //US National Library of Medicine maintained module
+      {
+         result.add(Get.identifierService().getNidForUuids(UUID.fromString("bf291637-8f18-38a3-8cc9-fc28927d68ad")));
+      }
+      return result;
+   }
 }
-

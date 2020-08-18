@@ -54,6 +54,7 @@ import org.apache.commons.io.input.BOMInputStream;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 
 /**
  * The Class LoincExpressionReader.
@@ -75,8 +76,9 @@ public class LoincExpressionReader
 	 * @param zipFile the zip file
 	 * @throws ZipException the zip exception
 	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws CsvValidationException 
 	 */
-	public LoincExpressionReader(Path zipPath) throws ZipException, IOException
+	public LoincExpressionReader(Path zipPath) throws ZipException, IOException, CsvValidationException
 	{
 		try (ZipInputStream zis = new ZipInputStream(Files.newInputStream(zipPath, StandardOpenOption.READ)))
 		{
@@ -107,8 +109,9 @@ public class LoincExpressionReader
 	 *
 	 * @param is the is
 	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws CsvValidationException 
 	 */
-	public LoincExpressionReader(InputStream is) throws IOException
+	public LoincExpressionReader(InputStream is) throws IOException, CsvValidationException
 	{
 		readData(is);
 	}
@@ -133,8 +136,9 @@ public class LoincExpressionReader
 	 *
 	 * @param is the is
 	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws CsvValidationException 
 	 */
-	private void readData(InputStream is) throws IOException
+	private void readData(InputStream is) throws IOException, CsvValidationException
 	{
 		CSVReader reader = new CSVReaderBuilder(new BufferedReader(new InputStreamReader(new BOMInputStream(is))))
 				.withCSVParser(new CSVParserBuilder().withSeparator('\t').build()).build();

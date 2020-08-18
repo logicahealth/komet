@@ -27,8 +27,9 @@ import org.apache.lucene.index.LeafReaderContext;
 import org.apache.lucene.search.Collector;
 import org.apache.lucene.search.CollectorManager;
 import org.apache.lucene.search.LeafCollector;
+import org.apache.lucene.search.Scorable;
 import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.Scorer;
+import org.apache.lucene.search.ScoreMode;
 import org.apache.lucene.search.TopDocs;
 import org.apache.lucene.search.TopScoreDocCollector;
 import sh.isaac.api.Get;
@@ -84,7 +85,7 @@ public class IsaacFilteredCollectorManager implements CollectorManager<IsaacFilt
 
    public class IsaacFilteredCollector implements Collector {
       HashMap<LeafReaderContext, LeafCollector> leafDelegates = new HashMap<>();
-      TopScoreDocCollector delegateCollector = TopScoreDocCollector.create(sizeLimit, after);
+      TopScoreDocCollector delegateCollector = TopScoreDocCollector.create(sizeLimit, after, Integer.MAX_VALUE);
       
       @Override
       public LeafCollector getLeafCollector(LeafReaderContext context) throws IOException {
@@ -95,7 +96,7 @@ public class IsaacFilteredCollectorManager implements CollectorManager<IsaacFilt
                LeafCollector internalDelegate = delegateCollector.getLeafCollector(context);
                
                @Override
-               public void setScorer(Scorer scorer) throws IOException {
+               public void setScorer(Scorable scorer) throws IOException {
                   internalDelegate.setScorer(scorer);
                   
                }
@@ -146,13 +147,14 @@ public class IsaacFilteredCollectorManager implements CollectorManager<IsaacFilt
          return leafDelegates.get(context);
       }
 
-      @Override
-      public boolean needsScores() {
-         return delegateCollector.needsScores();
-      }
       
       public TopDocs topDocs() {
          return delegateCollector.topDocs();
+      }
+
+      @Override
+      public ScoreMode scoreMode() {
+         return delegateCollector.scoreMode();
       }
    }
 }

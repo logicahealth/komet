@@ -36,8 +36,6 @@
  */
 package sh.isaac.provider.commit;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
@@ -66,9 +64,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- classes ----------------------------------------------------------------
 /**
  * {@link ChangeSetLoadProvider} This will load all .ibdf files in the database
  * directory. It will rename the ChangeSet.ibdf and ChangeSet.json files so they
@@ -144,7 +139,8 @@ public class ChangeSetLoadProvider
         final CancelUncommittedStamps stampProvider = (CancelUncommittedStamps) Get.stampService();
         stampProvider.setCancelUncommittedStamps(true);
 
-        ArrayList<String> files = new ArrayList();
+        ArrayList<String> files = new ArrayList<>();
+
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(this.changesetPath, path -> path.toFile().isFile()
                 && path.toString().endsWith(".ibdf")
                 && path.toFile().length() > 0)) {

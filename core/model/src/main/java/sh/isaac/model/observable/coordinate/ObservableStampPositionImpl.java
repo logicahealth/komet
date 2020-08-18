@@ -83,7 +83,7 @@ public class ObservableStampPositionImpl
 
       this.pathConceptProperty = new SimpleEqualityBasedObjectProperty(this,
               ObservableFields.PATH_FOR_PATH_COORDINATE.toExternalString(),
-              stampPosition.getPathConcept());
+              stampPosition.getPathForPositionConcept());
 
       this.timeProperty = new SimpleLongProperty(this,
               ObservableFields.TIME_FOR_STAMP_POSITION.toExternalString(),
@@ -95,7 +95,7 @@ public class ObservableStampPositionImpl
    @Override
    protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends StampPositionImmutable> observable,
                                                         StampPositionImmutable oldValue, StampPositionImmutable newValue) {
-      this.pathConceptProperty.setValue(newValue.getPathConcept());
+      this.pathConceptProperty.setValue(newValue.getPathForPositionConcept());
       this.timeProperty.set(newValue.getTime());
    }
 

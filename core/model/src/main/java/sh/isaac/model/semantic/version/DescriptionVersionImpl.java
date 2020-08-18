@@ -39,8 +39,6 @@
 
 package sh.isaac.model.semantic.version;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
@@ -51,8 +49,6 @@ import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class DescriptionVersionImpl.
@@ -85,8 +81,6 @@ public class DescriptionVersionImpl
       return builder;
    }
 
-   //~--- constructors --------------------------------------------------------
-
    /**
     * Instantiates a new description semantic impl.
     *
@@ -114,6 +108,7 @@ public class DescriptionVersionImpl
       this.text                       = data.getUTF();
       this.descriptionTypeConceptNid  = data.getNid();
    }
+   
    private DescriptionVersionImpl(DescriptionVersionImpl other, int stampSequence) {
       super(other.getChronology(), stampSequence);
       this.caseSignificanceConceptNid = other.caseSignificanceConceptNid;
@@ -122,6 +117,17 @@ public class DescriptionVersionImpl
       this.descriptionTypeConceptNid  = other.descriptionTypeConceptNid;
    }
 
+   @SuppressWarnings("unchecked")
+   @Override
+   public <V extends Version> V makeAnalog(int stampSequence) {
+      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
+      final DescriptionVersionImpl newVersion = new DescriptionVersionImpl(this, stampSequence);
+
+      chronologyImpl.addVersion(newVersion);
+      return (V) newVersion;
+   }
+   
+   @SuppressWarnings("unchecked")
    @Override
    public <V extends Version> V makeAnalog(EditCoordinate ec) {
       final int stampSequence = Get.stampService()
@@ -131,6 +137,7 @@ public class DescriptionVersionImpl
                       ec.getAuthorNid(),
                       this.getModuleNid(),
                       ec.getPathNid());
+
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final DescriptionVersionImpl newVersion = new DescriptionVersionImpl(this, stampSequence);
 
@@ -157,13 +164,8 @@ public class DescriptionVersionImpl
       return (V) newVersion;
    }
 
-
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * To string.
-    *
-    * @return the string
+    * {@inheritDoc}
     */
    @Override
    public String toString() {
@@ -192,9 +194,7 @@ public class DescriptionVersionImpl
    }
 
    /**
-    * Write version data.
-    *
-    * @param data the data
+    * {@inheritDoc}
     */
    @Override
    public void writeVersionData(ByteArrayDataBuffer data) {
@@ -205,31 +205,21 @@ public class DescriptionVersionImpl
       data.putNid(this.descriptionTypeConceptNid);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the case significance concept nid.
-    *
-    * @return the case significance concept nid
+    * {@inheritDoc}
     */
    @Override
    public int getCaseSignificanceConceptNid() {
       return this.caseSignificanceConceptNid;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
-    * Sets the case significance concept nid.
-    *
-    * @param caseSignificanceConceptNid the new case significance concept nid
+    * {@inheritDoc}
     */
    @Override
    public void setCaseSignificanceConceptNid(int caseSignificanceConceptNid) {
       this.caseSignificanceConceptNid = caseSignificanceConceptNid;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the description type concept nid.
@@ -241,48 +231,32 @@ public class DescriptionVersionImpl
       return this.descriptionTypeConceptNid;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
-    * Sets the description type concept nid.
-    *
-    * @param descriptionTypeConceptNid the new description type concept nid
+    * {@inheritDoc}
     */
    @Override
    public void setDescriptionTypeConceptNid(int descriptionTypeConceptNid) {
       this.descriptionTypeConceptNid = descriptionTypeConceptNid;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the language concept nid.
-    *
-    * @return the language concept nid
+    * {@inheritDoc}
     */
    @Override
    public int getLanguageConceptNid() {
       return this.languageConceptNid;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
-    * Sets the language concept nid.
-    *
-    * @param languageConceptNid the new language concept nid
+    * {@inheritDoc}
     */
    @Override
    public void setLanguageConceptNid(int languageConceptNid) {
       this.languageConceptNid = languageConceptNid;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the semantic type.
-    *
-    * @return the semantic type
+    * {@inheritDoc}
     */
    @Override
    public VersionType getSemanticType() {
@@ -290,26 +264,24 @@ public class DescriptionVersionImpl
    }
 
    /**
-    * Gets the text.
-    *
-    * @return the text
+    * {@inheritDoc}
     */
    @Override
    public String getText() {
       return this.text;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
-    * Sets the text.
-    *
-    * @param text the new text
+    * {@inheritDoc}
     */
    @Override
    public void setText(String text) {
       this.text = text;
    }
+   
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected int editDistance3(AbstractVersionImpl other, int editDistance) {
       DescriptionVersionImpl otherImpl = (DescriptionVersionImpl) other;
@@ -328,6 +300,9 @@ public class DescriptionVersionImpl
       return editDistance;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected boolean deepEquals3(AbstractVersionImpl other) {
       if (!(other instanceof DescriptionVersionImpl)) {
@@ -345,6 +320,4 @@ public class DescriptionVersionImpl
       }
       return this.text.equals(otherImpl.text);
    }
-   
 }
-

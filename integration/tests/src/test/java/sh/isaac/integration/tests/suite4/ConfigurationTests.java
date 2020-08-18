@@ -47,16 +47,16 @@ import sh.isaac.model.configuration.DefaultCoordinateProvider;
 public class ConfigurationTests {
 
 	private static final Logger LOG = LogManager.getLogger();
+	private File db = new File("target/suite4");
 
 	@BeforeClass
 	public void configure() throws Exception {
 		LOG.info("Suite 4 setup");
-		File db = new File("target/suite4");
 		RecursiveDelete.delete(db);
 		//Don't overwrite "real" config
 		UserConfigurationPerOSProvider.nodeName = "userConfigForTest";
 		db.mkdirs();
-		System.setProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY, db.getCanonicalPath());
+		Get.configurationService().setDataStoreFolderPath(db.toPath());
 		LookupService.startupPreferenceProvider();
 		//Make sure remnants from any previous test are gone
 		IsaacPreferences mainDataStore = Get.preferencesService().getUserPreferences();
@@ -150,15 +150,15 @@ public class ConfigurationTests {
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultDialectAssemblagePreferenceList(new int[] { -4 });
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultInferredAssemblage(-5);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultLanguage( -6 );
-		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultModule(-7);
-		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPath(-8);
+		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultEditModule(-7);
+		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultEditPath(-8);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultPremiseType(PremiseType.STATED);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultStatedAssemblage(-9);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultTime(10);
 		Get.configurationService().getGlobalDatastoreConfiguration().setDefaultUser(-11);
 		
 		LookupService.shutdownIsaac();
-		
+		Get.configurationService().setDataStoreFolderPath(db.toPath());
 		LookupService.startupIsaac();
 		
 		GlobalDatastoreConfiguration c = Get.configurationService().getGlobalDatastoreConfiguration();

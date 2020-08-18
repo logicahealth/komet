@@ -100,17 +100,6 @@ public class CoordinateFactoryProvider
     }
 
     /**
-     * Concept id to iso 639.
-     *
-     * @param nid the nid
-     * @return the string
-     */
-    @Override
-    public String conceptIdToIso639(int nid) {
-        return LanguageCoordinates.conceptNidToIso639(nid);
-    }
-
-    /**
      * Creates the classifier solor overlay edit coordinate.
      *
      * @return the edits the coordinate
@@ -333,18 +322,6 @@ public class CoordinateFactoryProvider
         return ManifoldCoordinateImmutable.makeStated(stampFilter, languageCoordinate, logicCoordinate);
     }
 
-    /**
-     * Iso 639 to concept nid.
-     *
-     * @param iso639text the iso 639 text
-     * @return the int
-     */
-    @Override
-    public int iso639toConceptNid(String iso639text) {
-        return LanguageCoordinates.iso639toConceptNid(iso639text);
-    }
-
-    //~--- get methods ---------------------------------------------------------
     /**
      * Gets the acceptable concept nid.
      *

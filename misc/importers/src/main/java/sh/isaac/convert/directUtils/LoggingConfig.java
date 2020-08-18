@@ -46,10 +46,10 @@ public class LoggingConfig
 			((org.apache.logging.log4j.core.Logger)lc.getRootLogger()).removeAppender(a);
 		}
 		
-		FileAppender fa = FileAppender.newBuilder().withName("mylogger").withAppend(false)
+		FileAppender fa = FileAppender.newBuilder().setName("mylogger").withAppend(false)
 				.withFileName(new File(outputDirectory, 
 						(StringUtils.isBlank(converterOutputArtifactClassifier) ? "" : converterOutputArtifactClassifier + "-") + "ConsoleOutput.txt").toString())
-				.withLayout(PatternLayout.newBuilder().withPattern("%-5p %d  [%t] %C{2} (%F:%L) - %m%n").build())
+				.setLayout(PatternLayout.newBuilder().withPattern("%-5p %d  [%t] %C{2} (%F:%L) - %m%n").build())
 				.setConfiguration(lc.getConfiguration()).build();
 		fa.start();
 		lc.getConfiguration().addAppender(fa);

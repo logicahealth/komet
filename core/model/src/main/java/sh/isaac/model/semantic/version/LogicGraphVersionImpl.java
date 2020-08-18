@@ -39,8 +39,6 @@
 
 package sh.isaac.model.semantic.version;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import java.util.Arrays;
 import org.glassfish.hk2.api.MultiException;
 
@@ -53,13 +51,9 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionByteArrayConverter;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class LogicGraphVersionImpl.
@@ -69,12 +63,9 @@ import sh.isaac.api.coordinate.EditCoordinate;
 public class LogicGraphVersionImpl
         extends AbstractVersionImpl
          implements MutableLogicGraphVersion {
-   /** The converter. */
+
    private static LogicalExpressionByteArrayConverter converter;
 
-   //~--- fields --------------------------------------------------------------
-
-   /** The graph data. */
    byte[][] graphData = null;
    @Override
    public StringBuilder toString(StringBuilder builder) {
@@ -84,8 +75,6 @@ public class LogicGraphVersionImpl
                       .describeStampSequence(this.getStampSequence())).append("}");
       return builder;
    }
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new logic graph semantic impl.
@@ -126,6 +115,7 @@ public class LogicGraphVersionImpl
          this.graphData = getExternalDataConverter().convertLogicGraphForm(this.graphData, DataTarget.INTERNAL);
       }
    }
+   
    private LogicGraphVersionImpl(LogicGraphVersionImpl other, int stampSequence) {
       super(other.getChronology(), stampSequence);
       this.graphData = new byte[other.graphData.length][];
@@ -134,32 +124,7 @@ public class LogicGraphVersionImpl
       }
    }
 
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
-
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(transaction,
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      authorNid,
-                      this.getModuleNid(),
-                      this.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
-   public <V extends Version> V setupAnalog(int stampSequence) {
+   public <V extends Version> V makeAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final LogicGraphVersionImpl newVersion = new LogicGraphVersionImpl(this, stampSequence);
 
@@ -167,13 +132,8 @@ public class LogicGraphVersionImpl
       return (V) newVersion;
    }
 
-
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * To string.
-    *
-    * @return the string
+    * {@inheritDoc}
     */
    @Override
    public String toString() {
@@ -192,9 +152,7 @@ public class LogicGraphVersionImpl
    }
 
    /**
-    * Write version data.
-    *
-    * @param data the data
+    * {@inheritDoc}
     */
    @Override
    public void writeVersionData(ByteArrayDataBuffer data) {
@@ -213,8 +171,6 @@ public class LogicGraphVersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the external data converter.
     *
@@ -232,9 +188,7 @@ public class LogicGraphVersionImpl
    }
 
    /**
-    * Gets the external graph data.
-    *
-    * @return the external graph data
+    * {@inheritDoc}
     */
    @Override
    public byte[][] getExternalGraphData() {
@@ -242,21 +196,15 @@ public class LogicGraphVersionImpl
    }
 
    /**
-    * Gets the graph data.
-    *
-    * @return the graph data
+    * {@inheritDoc}
     */
    @Override
    public byte[][] getGraphData() {
       return this.graphData;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
-    * Sets the graph data.
-    *
-    * @param graphData the new graph data
+    * {@inheritDoc}
     */
    @Override
    public void setGraphData(byte[][] graphData) {
@@ -267,12 +215,8 @@ public class LogicGraphVersionImpl
       this.graphData = graphData;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the logical expression.
-    *
-    * @return the logical expression
+    * {@inheritDoc}
     */
    @Override
    public LogicalExpression getLogicalExpression() {
@@ -280,9 +224,7 @@ public class LogicGraphVersionImpl
    }
 
    /**
-    * Gets the semantic type.
-    *
-    * @return the semantic type
+    * {@inheritDoc}
     */
    @Override
    public VersionType getSemanticType() {
@@ -290,6 +232,9 @@ public class LogicGraphVersionImpl
    }
    
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected int editDistance3(AbstractVersionImpl other, int editDistance) {
       LogicGraphVersionImpl otherImpl = (LogicGraphVersionImpl) other;
@@ -299,6 +244,9 @@ public class LogicGraphVersionImpl
       return editDistance;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected boolean deepEquals3(AbstractVersionImpl other) {
       if (!(other instanceof LogicGraphVersionImpl)) {
@@ -307,6 +255,4 @@ public class LogicGraphVersionImpl
       LogicGraphVersionImpl otherImpl = (LogicGraphVersionImpl) other;
       return Arrays.deepEquals(this.graphData, otherImpl.graphData);
    }
-   
 }
-

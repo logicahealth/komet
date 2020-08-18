@@ -39,19 +39,13 @@
 
 package sh.isaac.model.semantic.version.brittle;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -81,8 +75,6 @@ public class Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
                       .describeStampSequence(this.getStampSequence())).append("}");
       return builder;
    }
-
-   //~--- constructors --------------------------------------------------------
 
    public Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
@@ -117,34 +109,9 @@ public class Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
       data.putNid(this.nid7);
    }
 
-   //~--- methods -------------------------------------------------------------
-
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
-
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(transaction,
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      authorNid,
-                      this.getModuleNid(),
-                      this.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
-   public <V extends Version> V setupAnalog(int stampSequence) {
+   @SuppressWarnings("unchecked")
+   public <V extends Version> V makeAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newVersion = new Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl((SemanticChronology) this, stampSequence);
       newVersion.setInt1(this.int1);
@@ -190,102 +157,73 @@ public class Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
       return editDistance;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getInt1() {
       return int1;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setInt1(int int1) {
       this.int1 = int1;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getInt2() {
       return int2;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setInt2(int int2) {
       this.int2 = int2;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid6() {
       return nid6;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid6(int nid6) {
       this.nid6 = nid6;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid7() {
       return nid7;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid7(int nid7) {
       this.nid7 = nid7;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr3() {
       return str3;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setStr3(String str3) {
       this.str3 = str3;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr4() {
       return str4;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setStr4(String str4) {
       this.str4 = str4;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr5() {
       return str5;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setStr5(String str5) {
       this.str5 = str5;
    }
 }
-

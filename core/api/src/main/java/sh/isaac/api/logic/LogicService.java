@@ -39,14 +39,8 @@
 
 package sh.isaac.api.logic;
 
-//~--- JDK imports ------------------------------------------------------------
-
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import javafx.collections.ObservableList;
 import org.jvnet.hk2.annotations.Contract;
-
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
@@ -57,8 +51,6 @@ import sh.isaac.api.coordinate.StampFilter;
 
 import java.time.Instant;
 import java.util.Optional;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface LogicService.
@@ -71,6 +63,7 @@ public interface LogicService {
     * Gets the classifier service.
     * 
     * Implementors should likely override the provided StampCoordinate time with NOW, if it is passed in with latest.
+    * Implementors may want to override the user of the provided edit coordinate with a implementation specific user.
     *
     * @param stampFilter the stamp coordinate
     * @param logicCoordinate the logic coordinate
@@ -113,6 +106,5 @@ public interface LogicService {
    Optional<ClassifierResults[]> getClassificationResultsForInstant(Instant instant);
 
    void addClassifierResults(ClassifierResults classifierResults);
-
 }
 

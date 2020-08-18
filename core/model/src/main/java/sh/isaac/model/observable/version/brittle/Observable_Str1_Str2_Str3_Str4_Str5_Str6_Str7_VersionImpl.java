@@ -39,8 +39,6 @@
 
 package sh.isaac.model.observable.version.brittle;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import java.util.ArrayList;
 import java.util.List;
 import javafx.beans.property.Property;
@@ -48,21 +46,17 @@ import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
-
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -79,8 +73,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
    StringProperty str6Property;
    StringProperty str7Property;
 
-   //~--- constructors --------------------------------------------------------
-
    public Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(SemanticVersion stampedVersion,
          ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
@@ -96,6 +88,7 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
       setStr7(versionToClone.getStr7());
    }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl analog = new Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(this, getChronology());
@@ -105,8 +98,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
         analog.setPathNid(ec.getPathNid());
         return (V) analog;
     }
-
-   //~--- methods -------------------------------------------------------------
 
    @Override
    public StringProperty str1Property() {
@@ -227,8 +218,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
       return this.str7Property;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr1() {
       if (this.str1Property != null) {
@@ -237,8 +226,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
 
       return getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version().getStr1();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setStr1(String value) {
@@ -254,8 +241,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    private Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version() {
       return (Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl) this.stampedVersionProperty.get();
    }
@@ -268,8 +253,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
 
       return getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version().getStr2();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setStr2(String value) {
@@ -285,8 +268,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr3() {
       if (this.str3Property != null) {
@@ -295,8 +276,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
 
       return getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version().getStr3();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setStr3(String value) {
@@ -312,8 +291,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr4() {
       if (this.str4Property != null) {
@@ -322,8 +299,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
 
       return getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version().getStr4();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setStr4(String value) {
@@ -339,8 +314,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr5() {
       if (this.str5Property != null) {
@@ -349,8 +322,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
 
       return getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version().getStr5();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setStr5(String value) {
@@ -366,8 +337,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr6() {
       if (this.str6Property != null) {
@@ -376,8 +345,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
 
       return getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version().getStr6();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setStr6(String value) {
@@ -393,8 +360,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr7() {
       if (this.str7Property != null) {
@@ -403,8 +368,6 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
 
       return getStr1_Str2_Str3_Str4_Str5_Str6_Str7_Version().getStr7();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setStr7(String value) {
@@ -506,23 +469,14 @@ public class Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-        Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-        return setupAnalog(newVersion);
-    }
-
-    @Override
-    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-        Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
-        return setupAnalog(newVersion);
-    }
-
-    private <V extends Version> V setupAnalog(Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl newVersion) {
-        Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl newObservableVersion =
-                new Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
-        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
-        return (V) newObservableVersion;
+    public <V extends Version> V makeAnalog(int stampSequence) {
+      Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
+      Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl newObservableVersion = 
+              new Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
     }
 }
 

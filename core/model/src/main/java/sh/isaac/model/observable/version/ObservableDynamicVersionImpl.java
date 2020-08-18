@@ -49,7 +49,6 @@ import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
@@ -60,7 +59,6 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableDynamicVersion;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.CommitAwareDynamicProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
@@ -83,15 +81,13 @@ public class ObservableDynamicVersionImpl extends ObservableAbstractSemanticVers
 	 * @param stampedVersion the stamped version
 	 * @param chronology the chronology
 	 */
-	public ObservableDynamicVersionImpl(DynamicVersion stampedVersion, ObservableSemanticChronology chronology)
+	public ObservableDynamicVersionImpl(DynamicVersion<?> stampedVersion, ObservableSemanticChronology chronology)
 	{
 		super(stampedVersion, chronology);
-	}
-
-	public ObservableDynamicVersionImpl(ObservableDynamicVersionImpl versionToClone, ObservableSemanticChronology chronology)
-	{
-		super(versionToClone, chronology);
-		setData(versionToClone.getData());
+		if (stampedVersion instanceof ObservableDynamicVersionImpl)
+		{
+			setData(((ObservableDynamicVersionImpl)stampedVersion).getData());
+		}
 	}
 
 	public ObservableDynamicVersionImpl(UUID primordialUuid, UUID referencedComponentUuid, int assemblageNid)
@@ -99,6 +95,7 @@ public class ObservableDynamicVersionImpl extends ObservableAbstractSemanticVers
 		super(VersionType.STRING, primordialUuid, referencedComponentUuid, assemblageNid);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec)
 	{
@@ -110,28 +107,16 @@ public class ObservableDynamicVersionImpl extends ObservableAbstractSemanticVers
 		return (V) analog;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public <V extends Version> V makeAnalog(EditCoordinate ec)
+	public <V extends Version> V makeAnalog(int stampSequence)
 	{
-		DynamicVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
+		DynamicVersion<?> newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
 		ObservableDynamicVersionImpl newObservableVersion = new ObservableDynamicVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
 
 		((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
 		return (V) newObservableVersion;
 	}
-
-	@Override
-	public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-		DynamicVersion newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
-		ObservableDynamicVersionImpl newObservableVersion = new ObservableDynamicVersionImpl(
-				newVersion,
-				(ObservableSemanticChronology) chronology);
-
-		((ObservableChronologyImpl) chronology).getVersionList()
-				.add(newObservableVersion);
-		return (V) newObservableVersion;
-	}
-
 
 	@Override
 	public ObjectProperty<DynamicData[]> dataProperty()
@@ -251,7 +236,7 @@ public class ObservableDynamicVersionImpl extends ObservableAbstractSemanticVers
 			return this.dataProperty.get();
 		}
 
-		return ((DynamicVersion) this.stampedVersionProperty.get()).getData();
+		return ((DynamicVersion<?>) this.stampedVersionProperty.get()).getData();
 	}
 
 	@Override

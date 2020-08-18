@@ -3,6 +3,7 @@ package sh.isaac.solor.mojo;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -336,7 +337,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     }
 
     private void readHo(Transaction transaction, CSVReader reader, ZipEntry entry)
-            throws IOException {
+            throws IOException, CsvValidationException {
         long commitTime = System.currentTimeMillis();
         AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;

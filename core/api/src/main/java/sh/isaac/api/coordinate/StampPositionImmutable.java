@@ -145,7 +145,7 @@ public final class StampPositionImmutable
      *
      * @return the stamp path concept nid
      */
-    public ConceptSpecification getPathConcept() {
+    public ConceptSpecification getPathForPositionConcept() {
         return Get.conceptSpecification(this.pathForPositionNid);
     }
 

@@ -72,6 +72,7 @@ public class AggregateClassifyTask
     * Instantiates a new aggregate classify task.
     *  @param stampFilter the stamp coordinate
     * @param logicCoordinate the logic coordinate
+    * @param editCoodinate
     */
    private AggregateClassifyTask(StampFilter stampFilter, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate, boolean cycleCheckFirst) {
       super("Classify",
@@ -116,17 +117,13 @@ public class AggregateClassifyTask
      *
      * @param stampFilter the stamp coordinate
      * @param logicCoordinate the logic coordinate
+     * @param editCoordinate 
      * @param cycleCheckFirst true, to do a cycle check on the stated taxonomy prior to classify.  Will abort classify if a cycle is detected.
      * @return an {@code AggregateClassifyTask} already submitted to an executor.
      */
     public static AggregateClassifyTask get(StampFilter stampFilter, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate, boolean cycleCheckFirst) {
-       Instant classifyCommitTime = Get.commitService().getTimeForCommit();
-       stampFilter = stampFilter.makeCoordinateAnalog(classifyCommitTime.toEpochMilli());
-        final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampFilter, logicCoordinate, editCoordinate, cycleCheckFirst);
-        Get.workExecutors()
-                .getExecutor()
-                .execute(classifyTask);
-        Get.service(LogicProvider.class).getPendingLogicTasks().add(classifyTask);
+        final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampFilter.makeCoordinateAnalog(Get.commitService().getTimeForCommit().toEpochMilli()), 
+                logicCoordinate, editCoordinate, cycleCheckFirst);
         //The execution of this classify operation may block, if another classification is already running.
         //Don't want to (potentially) lose all of the work executor slots to blocked classifications - so spawn a new thread here, if necessary, 
         //to wait.

@@ -29,7 +29,6 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Str1_Str2_Nid3_Nid4_Nid5_Version;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
@@ -51,8 +50,6 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
    IntegerProperty nid4Property;
   IntegerProperty nid5Property;
 
-   //~--- constructors --------------------------------------------------------
-
    public Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(SemanticVersion stampedVersion,
          ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
@@ -66,6 +63,7 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       setNid5(versionToClone.getNid5());
    }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl analog = new Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(this, getChronology());
@@ -75,8 +73,6 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
         analog.setPathNid(ec.getPathNid());
         return (V) analog;
     }
-
-   //~--- methods -------------------------------------------------------------
 
    @Override
    public IntegerProperty nid3Property() {
@@ -129,6 +125,7 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
 
       return this.nid4Property;
    }
+   
    @Override
    public StringProperty str1Property() {
       if (this.stampedVersionProperty == null  && this.str1Property == null) {
@@ -163,8 +160,6 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       return this.str2Property;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid3() {
       if (this.nid3Property != null) {
@@ -173,8 +168,6 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
 
       return getStr1_Str2_Nid3_Nid4_Nid5_Version().getNid3();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setNid3(int nid) {
@@ -190,8 +183,6 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid4() {
       if (this.nid4Property != null) {
@@ -200,8 +191,6 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
 
       return getStr1_Str2_Nid3_Nid4_Nid5_Version().getNid4();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setNid4(int nid) {
@@ -239,8 +228,6 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       return getStr1_Str2_Nid3_Nid4_Nid5_Version().getNid5();
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr1() {
       if (this.str1Property != null) {
@@ -249,8 +236,6 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
 
       return getStr1_Str2_Nid3_Nid4_Nid5_Version().getStr1();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setStr1(String value) {
@@ -266,8 +251,6 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    private Str1_Str2_Nid3_Nid4_Nid5_VersionImpl getStr1_Str2_Nid3_Nid4_Nid5_Version() {
       return (Str1_Str2_Nid3_Nid4_Nid5_VersionImpl) this.stampedVersionProperty.get();
    }
@@ -280,8 +263,6 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
 
       return getStr1_Str2_Nid3_Nid4_Nid5_Version().getStr2();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setStr2(String value) {
@@ -374,23 +355,14 @@ public class Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-        Str1_Str2_Nid3_Nid4_Nid5_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-        return setupAnalog(newVersion);
-    }
-
-    @Override
-    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-        Str1_Str2_Nid3_Nid4_Nid5_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
-        return setupAnalog(newVersion);
-    }
-
-    private <V extends Version> V setupAnalog(Str1_Str2_Nid3_Nid4_Nid5_VersionImpl newVersion) {
-        Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl newObservableVersion =
-                new Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
-        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
-        return (V) newObservableVersion;
+    public <V extends Version> V makeAnalog(int stampSequence) {
+      Str1_Str2_Nid3_Nid4_Nid5_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
+      Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl newObservableVersion = 
+              new Observable_Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
     }
 }
 

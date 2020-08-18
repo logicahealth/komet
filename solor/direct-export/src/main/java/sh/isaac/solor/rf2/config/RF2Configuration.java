@@ -28,6 +28,7 @@ import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.solor.rf2.utility.PreExportUtility;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
+import sh.isaac.utility.LanguageMap;
 
 public class RF2Configuration {
 
@@ -90,7 +91,7 @@ public class RF2Configuration {
         this.rf2ReleaseType = rf2ReleaseType;
         this.localDateTime = localDateTime;
         this.fileHeader = rf2ConfigType.getFileHeader();
-        this.message = rf2ConfigType.getMessage() + " - " + LanguageCoordinates.conceptNidToIso639(languageNid);
+        this.message = rf2ConfigType.getMessage() + " - " + LanguageMap.conceptNidToIso639(languageNid);
         this.parentDirectory = "/SnomedCT_SolorRF2_PRODUCTION_TIME1/"
                 .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(this.localDateTime));
         this.exportDirectory = exportDirectory.toString();
@@ -327,7 +328,7 @@ public class RF2Configuration {
         this.filePath = Paths.get(this.exportDirectory + this.parentDirectory +  this.rf2FileType.getFilePath()
                 .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(localDateTime))
                 .replace("TIME2", DateTimeFormatter.ofPattern("uuuuMMdd").format(localDateTime))
-                .replace("LANGUAGE1", LanguageCoordinates.conceptNidToIso639(languageNid))
+                .replace("LANGUAGE1", LanguageMap.conceptNidToIso639(languageNid))
                 .replace("RELEASETYPE", this.rf2ReleaseType.toString()));
     }
 

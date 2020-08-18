@@ -104,7 +104,9 @@ public class ProcessClassificationResults
 
     /**
      * Instantiates a new process classification results task.
-     *
+     * @param stampFilter 
+     * @param logicCoordinate 
+     * @param editCoordinate 
      */
     public ProcessClassificationResults(StampFilter stampFilter, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate) {
         if (stampFilter.getStampPosition().getTime() == Long.MAX_VALUE) {
@@ -148,7 +150,7 @@ public class ProcessClassificationResults
             final ClassifierResults classifierResults = collectResults(transaction, inferredAxioms, affectedConceptNids);
             transaction.commit("Classifier").get();
             Get.logicService().addClassifierResults(classifierResults);
-            LOG.info("Adding classifier results to logic service...");
+            log.info("Adding classifier results to logic service...");
             return classifierResults;
         } finally {
             log.info("Notify taxonomy update");
@@ -172,8 +174,8 @@ public class ProcessClassificationResults
             final Node node = classifiedResult.getNode(Integer.toString(conceptNid));
 
             if (node == null) {
-                LOG.error("Null node for: " + conceptNid + " " + Get.conceptDescriptionText(conceptNid)
-                        + " " + Get.identifierService().getUuidPrimordialStringForNid(conceptNid));
+                log.error("Null node for: {} {} {} will be skipped in classifier results collect", conceptNid, 
+                    Get.identifierService().getUuidPrimordialStringForNid(conceptNid), Get.conceptDescriptionText(conceptNid));
                 // TODO possibly propagate error in gui...
             } else {
                 final Set<String> equivalentConcepts = node.getEquivalentConcepts();
@@ -205,14 +207,14 @@ public class ProcessClassificationResults
             }
         });
 //        if (!equivalentSets.isEmpty()) {
-//            LOG.info("Equivalent set count: " + equivalentSets.size());
+//            log.info("Equivalent set count: " + equivalentSets.size());
 //            int setCount = 1;
 //            for (IntArrayList equivalentSet: equivalentSets) {
 //                StringBuilder sb = new StringBuilder("Set " + setCount++ + ":\n");
 //                for (int nid: equivalentSet.elements()) {
 //                    sb.append(Get.conceptDescriptionText(nid)).append("\n");
 //                }
-//                LOG.info(sb.toString());
+//                log.info(sb.toString());
 //            }
 //        }
         return new ClassifierResultsImpl(affectedConcepts,
@@ -237,7 +239,7 @@ public class ProcessClassificationResults
         if (inferredSemanticSequences.size() > 1) {
             classificationDuplicateCount++;
             if (classificationDuplicateCount < classificationCountDuplicatesToNote) {
-                LOG.error("Cannot have more than one inferred definition per concept. Found: "
+                log.error("Cannot have more than one inferred definition per concept. Found: "
                         + inferredSemanticSequences + "\n\nProcessing concept: " + Get.conceptService().getConceptChronology(conceptNid).toUserString());
             }
         }
@@ -267,7 +269,7 @@ public class ProcessClassificationResults
                             .append("\n");
                 });
             }
-            LOG.error(builder.toString());
+            log.error(builder.toString());
         }
     }
 
@@ -290,7 +292,7 @@ public class ProcessClassificationResults
         affectedConcepts.parallelStream().forEach((conceptNid) -> {
             try {
                 if (Get.configurationService().isVerboseDebugEnabled() && TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
-                    LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
+                    log.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
                 }
 
                 final ImmutableIntSet inferredSemanticNids
@@ -367,10 +369,10 @@ public class ProcessClassificationResults
                                                 this.inputData.getLogicCoordinate().getInferredAssemblageNid());
 
                                 // get classifier edit coordinate...
-                                builder.build(transaction, EditCoordinates.getClassifierSolorOverlay());
+                                builder.build(transaction, editCoordinate);
                                 
                                 if (Get.configurationService().isVerboseDebugEnabled() && TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
-                                    LOG.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
+                                    log.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
                                     TestConcept.WATCH_NID_SET.add(builder.getNid());
                                 }
                             } else {
@@ -388,7 +390,7 @@ public class ProcessClassificationResults
                                         final MutableLogicGraphVersion newVersion
                                                 = ((SemanticChronology) inferredChronology).createMutableVersion(transaction,
                                                         Status.ACTIVE,
-                                                        EditCoordinates.getClassifierSolorOverlay());
+                                                        editCoordinate);
 
                                         newVersion.setGraphData(
                                                 inferredExpression.getData(DataTarget.INTERNAL));
@@ -417,17 +419,17 @@ public class ProcessClassificationResults
             final Optional<CommitRecord> commitRecord = commitTask.get();
 
             if (commitRecord.isPresent()) {
-                LOG.info("Commit record: " + commitRecord.get());
+                log.info("Commit record: " + commitRecord.get());
             } else {
-                LOG.info("No commit record.");
+                log.info("No commit record.");
             }
 
             if (classificationDuplicateCount > 0) {
-                LOG.warn("Inferred duplicates found: " + classificationDuplicateCount);
+                log.warn("Inferred duplicates found: " + classificationDuplicateCount);
             }
-            LOG.info("Processed " + sufficientSets + " sufficient sets.");
-            LOG.info("stampCoordinate: " + this.inputData.getStampFilter());
-            LOG.info("logicCoordinate: " + this.inputData.getLogicCoordinate());
+            log.info("Processed " + sufficientSets + " sufficient sets.");
+            log.info("stampCoordinate: " + this.inputData.getStampFilter());
+            log.info("logicCoordinate: " + this.inputData.getLogicCoordinate());
             return commitRecord;
         } catch (InterruptedException | ExecutionException e) {
             throw new RuntimeException(e);

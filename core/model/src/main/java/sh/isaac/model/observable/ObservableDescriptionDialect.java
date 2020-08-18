@@ -47,12 +47,12 @@ import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
  */
 public class ObservableDescriptionDialect implements ObservableVersion {
     SimpleObjectProperty<ObservableDescriptionVersionImpl> descriptionProperty = 
-            new SimpleObjectProperty(
+            new SimpleObjectProperty<>(
                  this,
                  ObservableFields.DESCRIPTION_DIALECT_DESCRIPTION.toExternalString(),
                  null);
     SimpleObjectProperty<ObservableComponentNidVersionImpl> dialectProperty = 
-            new SimpleObjectProperty(
+            new SimpleObjectProperty<>(
                  this,
                  ObservableFields.DESCRIPTION_DIALECT_DIALECT.toExternalString(),
                  null);
@@ -171,13 +171,7 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     }
 
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-
-    @Override
-    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+    public <V extends Version> V makeAnalog(int stampSequence) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -254,10 +248,5 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     @Override
     public boolean deepEquals(Object other) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public <V extends Version> V setupAnalog(int stampSequence) {
-        throw new UnsupportedOperationException();
     }
 }

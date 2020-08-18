@@ -13,7 +13,7 @@ import java.util.Arrays;
 public class ImageVersionImpl
         extends AbstractVersionImpl
         implements MutableImageVersion {
-    /** The image data. */
+
     byte[] imageData = null;
     @Override
     public StringBuilder toString(StringBuilder builder) {
@@ -99,7 +99,7 @@ public class ImageVersionImpl
                         ec.getAuthorNid(),
                         this.getModuleNid(),
                         ec.getPathNid());
-        return setupAnalog(stampSequence);
+        return makeAnalog(stampSequence);
     }
 
     @Override
@@ -111,14 +111,14 @@ public class ImageVersionImpl
                         authorNid,
                         this.getModuleNid(),
                         this.getPathNid());
-        return setupAnalog(stampSequence);
+        return makeAnalog(stampSequence);
     }
 
-    public <V extends Version> V setupAnalog(int stampSequence) {
+    public <V extends Version> V makeAnalog(int stampSequence) {
         SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
         final ImageVersionImpl newVersion = new ImageVersionImpl(this, stampSequence);
 
         chronologyImpl.addVersion(newVersion);
         return (V) newVersion;
-    }
+   }
 }

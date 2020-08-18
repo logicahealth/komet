@@ -27,6 +27,12 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>sh.isaac.misc</groupId>
+            <artifactId>util</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>sh.isaac.core</groupId>
             <artifactId>api</artifactId>
             <version>${project.parent.version}</version>

@@ -40,7 +40,7 @@ public class PathItemPanel implements PreferenceGroup {
                 super.updateItem(item, empty);
                 if (!empty) {
                     this.setText(DateTimeUtil.format(item.getTime(), EASY_TO_READ_DATE_TIME_FORMAT) + "\non path: " +
-                            pathConcept.getPreferredDescriptionText(item.getPathConcept()));
+                            pathConcept.getPreferredDescriptionText(item.getPathForPositionConcept()));
                 } else {
                     this.setText("");
                 }

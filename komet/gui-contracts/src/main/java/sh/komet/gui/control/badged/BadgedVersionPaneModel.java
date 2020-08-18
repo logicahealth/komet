@@ -50,7 +50,6 @@ import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.LongVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.component.semantic.version.brittle.LoincVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
@@ -501,38 +500,6 @@ public abstract class BadgedVersionPaneModel {
                     }
                     componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember");
                     break;
-
-                case LOINC_RECORD: {
-                    if (isLatestPanel()) {
-                        componentType.setText("LNC");
-                    } else {
-                        componentType.setText("");
-                    }
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
-                    LoincVersion lv = (LoincVersion) semanticVersion;
-                    sb.append("\nstatus: ");
-                    sb.append(lv.getLoincStatus());
-                    sb.append("\nlcn: ");
-                    sb.append(lv.getLongCommonName());
-                    sb.append("\nshort name: ");
-                    sb.append(lv.getShortName());
-                    sb.append("\ncomponent: ");
-                    sb.append(lv.getComponent());
-                    sb.append("\nmethod: ");
-                    sb.append(lv.getMethodType());
-                    sb.append("\nproperty: ");
-                    sb.append(lv.getProperty());
-                    sb.append("\nscale: ");
-                    sb.append(lv.getScaleType());
-                    sb.append("\nsystem: ");
-                    sb.append(lv.getSystem());
-                    sb.append("\ntiming: ");
-                    sb.append(lv.getTimeAspect());
-                    componentText.setText(sb.toString());
-
-                }
-                break;
 
                 case DYNAMIC:
                     if (isLatestPanel()) {

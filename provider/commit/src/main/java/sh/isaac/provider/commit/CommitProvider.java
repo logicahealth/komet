@@ -705,7 +705,7 @@ public class CommitProvider
      *
      * @param commitRecord the commit record
      */
-    protected void handleCommitNotification(CommitRecord commitRecord) {
+    public void handleCommitNotification(CommitRecord commitRecord) {
         this.changeListeners.forEach((listenerRef) -> {
             final ChronologyChangeListener listener = listenerRef.get();
 
@@ -718,11 +718,11 @@ public class CommitProvider
     }
 
     /**
-     * Handle commit notification.
+     * Handle change notification.
      *
      * @param chronology
      */
-    protected void handleChangeNotification(Chronology chronology) {
+    public void handleChangeNotification(Chronology chronology) {
         this.changeListeners.forEach((listenerRef) -> {
             final ChronologyChangeListener listener = listenerRef.get();
 

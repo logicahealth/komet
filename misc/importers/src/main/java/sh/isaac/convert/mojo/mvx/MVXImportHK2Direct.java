@@ -36,29 +36,6 @@
  */
 package sh.isaac.convert.mojo.mvx;
 
-import org.apache.commons.lang3.StringUtils;
-import org.glassfish.hk2.api.PerLookup;
-import org.jvnet.hk2.annotations.Service;
-import sh.isaac.MetaData;
-import sh.isaac.api.Get;
-import sh.isaac.api.Status;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.coordinate.Coordinates;
-import sh.isaac.api.coordinate.StampFilter;
-import sh.isaac.api.transaction.Transaction;
-import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.convert.directUtils.DirectConverter;
-import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
-import sh.isaac.convert.directUtils.DirectWriteHelper;
-import sh.isaac.convert.mojo.mvx.data.MVXCodes;
-import sh.isaac.convert.mojo.mvx.data.MVXCodes.MVXInfo;
-import sh.isaac.convert.mojo.mvx.data.MVXCodesHelper;
-import sh.isaac.convert.mojo.mvx.reader.MVXReader;
-import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
-import sh.isaac.pombuilder.converter.ConverterOptionParam;
-import sh.isaac.pombuilder.converter.SupportedConverterTypes;
-
-import javax.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -67,6 +44,25 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import javax.xml.bind.JAXBException;
+import org.apache.commons.lang3.StringUtils;
+import org.glassfish.hk2.api.PerLookup;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.MetaData;
+import sh.isaac.api.Get;
+import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.convert.directUtils.DirectConverter;
+import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
+import sh.isaac.convert.directUtils.DirectWriteHelper;
+import sh.isaac.convert.mojo.mvx.data.MVXCodes;
+import sh.isaac.convert.mojo.mvx.data.MVXCodes.MVXInfo;
+import sh.isaac.convert.mojo.mvx.data.MVXCodesHelper;
+import sh.isaac.convert.mojo.mvx.reader.MVXReader;
+import sh.isaac.pombuilder.converter.ConverterOptionParam;
+import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 
 /**
  * {@link MVXImportHK2Direct}
@@ -80,15 +76,12 @@ public class MVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	private int conceptCount = 0;
 
 	/**
-	 * This constructor is for maven and HK2 and should not be used at runtime.  You should
-	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter)} method on it.
-	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
+	 * This constructor is for HK2 and should not be used at runtime.  You should 
+	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter, Transaction)} method on it.
 	 */
-	protected MVXImportHK2Direct() {
-	}
-	protected MVXImportHK2Direct(Transaction transaction)
+	protected MVXImportHK2Direct() 
 	{
-		super(transaction);
+		super();
 	}
 	
 	@Override
@@ -103,22 +96,7 @@ public class MVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		//noop, we don't require any.
 	}
 	
-	/**
-	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent()}
-	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
-	 * 
-	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String, sh.isaac.api.coordinate.StampFilter)
-	 */
-	@Override
-	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter)
-	{
-		this.outputDirectory = outputDirectory;
-		this.inputFileLocationPath = inputFolder;
-		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
-		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		this.readbackCoordinate = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
-	}
-	
+
 	@Override
 	public SupportedConverterTypes[] getSupportedTypes()
 	{
@@ -126,11 +104,11 @@ public class MVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer)
+	 * @see DirectConverter#convertContent(Consumer, BiConsumer)
 	 */
 	@Override
-	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		
 		final MVXReader importer = new MVXReader(inputFileLocationPath);

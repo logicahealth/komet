@@ -309,12 +309,12 @@ public class VersionManagmentPathProvider
    private RelativePosition traverseOrigins(int stamp, StampPath path) {
       StampService stampService = Get.stampService();
       for (final StampPosition origin: path.getPathOrigins()) {
-         if (origin.getPathConcept().getNid() == stampService.getPathNidForStamp(stamp)) {
+         if (origin.getPathForPositionConcept().getNid() == stampService.getPathNidForStamp(stamp)) {
             if (stampService.getTimeForStamp(stamp) <= origin.getTime()) {
                return RelativePosition.BEFORE;
             }
          } else {
-            traverseOrigins(stamp, StampPathImmutable.make(origin.getPathConcept().getNid()));
+            traverseOrigins(stamp, StampPathImmutable.make(origin.getPathForPositionConcept().getNid()));
          }
       }
       return RelativePosition.UNREACHABLE;

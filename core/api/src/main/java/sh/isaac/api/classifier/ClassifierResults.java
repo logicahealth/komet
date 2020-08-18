@@ -53,12 +53,11 @@ import java.util.Optional;
 import java.util.Set;
 
 /**
- * The Class ClassifierResults.
+ * The interface ClassifierResults.
  *
  * @author kec
  */
 public interface ClassifierResults {
-
 
    /**
     * Get the set of concepts sent to the classifier for evaluation.

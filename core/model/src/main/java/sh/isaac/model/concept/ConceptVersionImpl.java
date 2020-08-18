@@ -39,17 +39,12 @@
 
 package sh.isaac.model.concept;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.VersionImpl;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class ConceptVersionImpl.
@@ -69,8 +64,6 @@ public class ConceptVersionImpl
       super(chronicle, stampSequence);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the chronology.
     *
@@ -81,18 +74,15 @@ public class ConceptVersionImpl
       return (ConceptChronology) this.chronicle;
    }
 
+   @SuppressWarnings("unchecked")
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
-      return setupAnalog(stampSequence);
-   }
+   public <V extends Version> V makeAnalog(int stampSequence) {
+      ConceptChronologyImpl chronologyImpl = (ConceptChronologyImpl) this.chronicle;
+      final ConceptVersionImpl newVersion = new ConceptVersionImpl(chronologyImpl, stampSequence);
 
+      chronologyImpl.addVersion(newVersion);
+      return (V) newVersion;
+   }
 
    @Override
    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
@@ -103,15 +93,7 @@ public class ConceptVersionImpl
                       authorNid,
                       this.getModuleNid(),
                       this.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
-   public <V extends Version> V setupAnalog(int stampSequence) {
-      ConceptChronologyImpl chronologyImpl = (ConceptChronologyImpl) this.chronicle;
-      final ConceptVersionImpl newVersion = new ConceptVersionImpl(chronologyImpl, stampSequence);
-
-      chronologyImpl.addVersion(newVersion);
-      return (V) newVersion;
+      return makeAnalog(stampSequence);
    }
 
    @Override

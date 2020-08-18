@@ -39,21 +39,16 @@
 
 package sh.isaac.model.semantic.version.brittle;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -80,8 +75,6 @@ public class Rf2RelationshipImpl
       return builder;
    }
 
-   //~--- constructors --------------------------------------------------------
-
    public Rf2RelationshipImpl(Rf2RelationshipImpl another, int stampSequence) {
       super(another.getChronology(), stampSequence);
       this.typeNid           = another.typeNid;
@@ -104,44 +97,17 @@ public class Rf2RelationshipImpl
       this.modifierNid       = data.getNid();
    }
 
-   //~--- methods -------------------------------------------------------------
-
+   @SuppressWarnings("unchecked")
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
-   public <V extends Version> V setupAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final Rf2RelationshipImpl newVersion = new Rf2RelationshipImpl(this, stampSequence);
-
+   public <V extends Version> V makeAnalog(int stampSequence) {
+      SemanticChronologyImpl    chronologyImpl = (SemanticChronologyImpl) this.chronicle;
+      final Rf2RelationshipImpl newVersion     = new Rf2RelationshipImpl(this, stampSequence);
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;
    }
 
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(transaction,
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      authorNid,
-                      this.getModuleNid(),
-                      this.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
    /**
-    * To string.
-    *
-    * @return the string
+    * {@inheritDoc}
     */
    @Override
    public String toString() {
@@ -244,63 +210,45 @@ public class Rf2RelationshipImpl
       data.putNid(this.modifierNid);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getCharacteristicNid() {
       return characteristicNid;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setCharacteristicNid(int nid) {
       this.characteristicNid = nid;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getDestinationNid() {
       return destinationNid;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setDestinationNid(int nid) {
       this.destinationNid = nid;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getModifierNid() {
       return modifierNid;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setModifierNid(int nid) {
       this.modifierNid = nid;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getRelationshipGroup() {
       return relationshipGroup;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    @Override
    public void setRelationshipGroup(int group) {
       this.relationshipGroup = group;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public VersionType getSemanticType() {
@@ -311,8 +259,6 @@ public class Rf2RelationshipImpl
    public int getTypeNid() {
       return typeNid;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setTypeNid(int nid) {

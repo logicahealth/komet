@@ -48,23 +48,35 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
      * @param transaction the transaction that will govern persistence of the analog.
      * @return the mutable version
      */
-    <V extends Version> V makeAnalog(Transaction transaction, int authorNid);
+    default <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
+        final int stampSequence = Get.stampService()
+                .getStampSequence(transaction,
+                        this.getStatus(),
+                        Long.MAX_VALUE,
+                        authorNid,
+                        this.getModuleNid(),
+                        this.getPathNid());
+        return makeAnalog(stampSequence);
+    }
+    
 
     /**
      * Create a analog version with Long.MAX_VALUE as the time, indicating
      * the version is uncommitted. It is the responsibility of the caller to
      * add the mutable version to the commit manager when changes are complete
      * prior to committing the component. Values for all properties except author,
-     * time, and path (which are provided by the edit coordinate) will be copied
-     * from this version.
+     * module, and path (which are provided by the edit coordinate) will be copied 
+     * from this version, and time is set to latest. 
      *
      * @param <V> the mutable version type
-     * @param ec  edit coordinate to provide the author and path for the mutable version
+     * @param ec edit coordinate to provide the author, module, and path for the mutable version
      * @return the mutable version
      * @deprecated use the make analog with the transaction instead.
      */
-    @Deprecated
-    <V extends Version> V makeAnalog(EditCoordinate ec);
+     @Deprecated
+    default <V extends Version> V makeAnalog(EditCoordinate ec) {
+       return makeAnalog(Get.stampService().getStampSequence(this.getStatus(), Long.MAX_VALUE, ec.getAuthorNid(), ec.getModuleNid(), ec.getPathNid()));
+    }
 
     /**
      * Create a analog version with Long.MAX_VALUE as the time, indicating
@@ -86,19 +98,21 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
                         ec.getAuthorNid(),
                         this.getModuleNid(),
                         ec.getPathNid());
-        return setupAnalog(stampSequence);
+        return makeAnalog(stampSequence);
     }
 
     /**
-     * Values for all properties except time,
-     * author, and path will be copied from this version.
+     * Create a analog version with the specified stamp.
+     * It is the responsibility of the caller to directly write the chronology to the store after 
+     * making any further changes.  Values for all properties except the STAMP properties will be copied 
+     * from this version. 
      *
-     * @param stampSequence
-     * @param <V>
+     * @param <V> the mutable version type
+     * @param stampSequence the complete stamp for the mutable version
      * @return the mutable version
      */
-    <V extends Version> V setupAnalog(int stampSequence);
-
+    <V extends Version> V makeAnalog(int stampSequence);
+    
     /**
      * Adds the additional uuids.
      *

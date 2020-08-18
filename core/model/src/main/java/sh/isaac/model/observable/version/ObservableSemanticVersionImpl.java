@@ -25,7 +25,6 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.SemanticVersionImpl;
@@ -48,6 +47,7 @@ public class ObservableSemanticVersionImpl extends ObservableAbstractSemanticVer
         super(VersionType.MEMBER, primordialUuid, referencedComponentUuid, assemblageNid);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
         ObservableSemanticVersionImpl analog = new ObservableSemanticVersionImpl(this, getChronology());
@@ -63,24 +63,14 @@ public class ObservableSemanticVersionImpl extends ObservableAbstractSemanticVer
         // nothing to update
     }
 
-
+    @SuppressWarnings("unchecked")
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-        SemanticVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-        return setupAnalog(newVersion);
-    }
-
-    @Override
-    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-        SemanticVersion newVersion = this.stampedVersionProperty.get().makeAnalog(transaction, authorNid);
-        return setupAnalog(newVersion);
-    }
-
-    private <V extends Version> V setupAnalog(SemanticVersion newVersion) {
-        ObservableAbstractSemanticVersionImpl newObservableVersion =
-                new ObservableSemanticVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
-        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
-        return (V) newObservableVersion;
+    public <V extends Version> V makeAnalog(int stampSequence) {
+      SemanticVersion newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
+      ObservableAbstractSemanticVersionImpl newObservableVersion = 
+              new ObservableSemanticVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
+      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
     }
 
     @Override

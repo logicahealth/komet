@@ -39,19 +39,13 @@
 
 package sh.isaac.model.semantic.version.brittle;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Version;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -71,8 +65,6 @@ public class Str1_Str2_VersionImpl
                       .describeStampSequence(this.getStampSequence())).append("}");
       return builder;
    }
-
-   //~--- constructors --------------------------------------------------------
 
    public Str1_Str2_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
@@ -97,40 +89,15 @@ public class Str1_Str2_VersionImpl
       data.putUTF(this.str2);
    }
 
-   //~--- methods -------------------------------------------------------------
-
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
-   public <V extends Version> V setupAnalog(int stampSequence) {
+   @SuppressWarnings("unchecked")
+   public <V extends Version> V makeAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final Str1_Str2_VersionImpl newVersion = new Str1_Str2_VersionImpl((SemanticChronology) this, stampSequence);
       newVersion.setStr1(this.str1);
       newVersion.setStr2(this.str2);
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;
-   }
-
-
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(transaction,
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      authorNid,
-                      this.getModuleNid(),
-                      this.getPathNid());
-      return setupAnalog(stampSequence);
    }
 
    @Override
@@ -150,32 +117,23 @@ public class Str1_Str2_VersionImpl
       return editDistance;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr1() {
       return str1;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setStr1(String str1) {
       this.str1 = str1;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr2() {
       return str2;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setStr2(String str2) {
       this.str2 = str2;
    }
 }
-

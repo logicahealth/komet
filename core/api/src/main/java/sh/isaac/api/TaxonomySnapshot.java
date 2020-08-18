@@ -39,20 +39,11 @@
 
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
-
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import java.util.Collection;
 
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.tree.Tree;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface TaxonomySnapshot.
@@ -69,7 +60,7 @@ public interface TaxonomySnapshot {
    boolean isLeaf(int conceptNid);
    
    /**
-    * Checks if child of.
+    * true if child is an immediate descendent of parent, and child != parent
     *
     * @param childConceptNid the child id
     * @param parentConceptNid the parent id
@@ -78,7 +69,7 @@ public interface TaxonomySnapshot {
    boolean isChildOf(int childConceptNid, int parentConceptNid);
 
    /**
-    * Checks if kind of.
+    * true if child is any level descendent of parent, or child == parent
     *
     * @param childConceptNid the child id
     * @param parentConceptNid the parent id
@@ -92,7 +83,7 @@ public interface TaxonomySnapshot {
    }
    
    /**
-    * Checks if descendant  of.
+    * same as {@link #isKindOf(int, int)}, except doesn't allow descendentConceptNid == parentConceptNid
     *
     * @param descendantConceptNid the descendant id
     * @param ancestorConceptNid the parent id

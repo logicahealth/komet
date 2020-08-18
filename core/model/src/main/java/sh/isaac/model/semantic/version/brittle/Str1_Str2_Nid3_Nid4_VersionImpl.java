@@ -39,19 +39,14 @@
 
 package sh.isaac.model.semantic.version.brittle;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Version;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -75,8 +70,6 @@ public class Str1_Str2_Nid3_Nid4_VersionImpl
                       .describeStampSequence(this.getStampSequence())).append("}");
       return builder;
    }
-
-   //~--- constructors --------------------------------------------------------
 
    public Str1_Str2_Nid3_Nid4_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
@@ -105,21 +98,9 @@ public class Str1_Str2_Nid3_Nid4_VersionImpl
       data.putNid(this.nid4);
    }
 
-   //~--- methods -------------------------------------------------------------
-
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
-      return setupAnalog(stampSequence);
-   }
-
-   public <V extends Version> V setupAnalog(int stampSequence) {
+   @SuppressWarnings("unchecked")
+   public <V extends Version> V makeAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final Str1_Str2_Nid3_Nid4_VersionImpl newVersion = new Str1_Str2_Nid3_Nid4_VersionImpl((SemanticChronology) this, stampSequence);
       newVersion.setStr1(this.str1);
@@ -128,19 +109,6 @@ public class Str1_Str2_Nid3_Nid4_VersionImpl
       newVersion.setNid4(this.nid4);
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;
-   }
-
-
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(transaction,
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      authorNid,
-                      this.getModuleNid(),
-                      this.getPathNid());
-      return setupAnalog(stampSequence);
    }
 
    @Override
@@ -167,60 +135,43 @@ public class Str1_Str2_Nid3_Nid4_VersionImpl
       return editDistance;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid3() {
       return nid3;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid3(int nid3) {
       this.nid3 = nid3;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid4() {
       return nid4;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid4(int nid4) {
       this.nid4 = nid4;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr1() {
       return str1;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setStr1(String str1) {
       this.str1 = str1;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr2() {
       return str2;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setStr2(String str2) {
       this.str2 = str2;
    }
 }
-

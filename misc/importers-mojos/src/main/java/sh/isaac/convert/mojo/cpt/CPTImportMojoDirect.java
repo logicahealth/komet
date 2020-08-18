@@ -51,7 +51,7 @@ import org.apache.maven.plugins.annotations.Mojo;
 public class CPTImportMojoDirect extends CPTImportHK2Direct 
 {
 	/**
-	 * This constructor is for maven and should not be used at runtime.  You should 
+	 * This constructor is for maven and should not be used at runtime.
 	 */
 	public CPTImportMojoDirect()
 	{
