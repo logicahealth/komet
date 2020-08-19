@@ -741,14 +741,14 @@ public class HL7v3ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		}
 		catch (Exception ex)
 		{
-			System.out.println("Dieing .... dumping UUID debug file: ");
+			log.error("Dieing .... dumping UUID debug file: ");
 			try
 			{
 				converterUUID.dump(outputDirectory, "vhatUuid");
 			}
 			catch (IOException e)
 			{
-				System.out.println("Failed dumping debug file...");
+				log.error("Failed dumping debug file...", e);
 			}
 			throw new RuntimeException(ex.getLocalizedMessage(), ex);
 		}

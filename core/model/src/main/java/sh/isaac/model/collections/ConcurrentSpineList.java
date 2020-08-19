@@ -3,8 +3,11 @@ package sh.isaac.model.collections;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.Supplier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ConcurrentSpineList<E extends Object> {
+    private static final Logger LOG = LogManager.getLogger();
     private final int incrementSize = 4096;
     private final AtomicReference<AtomicReferenceArray<E>> spineArrayReference = new AtomicReference<>();
     private final Supplier<E> supplier;
@@ -49,10 +52,10 @@ public class ConcurrentSpineList<E extends Object> {
     public void setSpine(int spineIndex, E spine) {
         AtomicReferenceArray<E> spineArray = spineArrayReference.get();
         if (spineIndex >= spineArray.length()) {
-            System.out.println("Growing for length: " + spineIndex);
+            LOG.debug("Growing for length: " + spineIndex);
             growArray(spineIndex);
             spineArray = spineArrayReference.get();
-            System.out.println("new length: " + spineArray.length());
+            LOG.debug("new length: " + spineArray.length());
         }
         spineArray.set(spineIndex, spine);
     }

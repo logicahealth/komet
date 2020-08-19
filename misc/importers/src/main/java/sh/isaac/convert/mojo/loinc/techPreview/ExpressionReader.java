@@ -52,7 +52,8 @@ import java.util.stream.Stream;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.antlr.v4.runtime.tree.ParseTree;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import se.liu.imt.mi.snomedct.expression.tools.SNOMEDCTParserUtil;
 
 //~--- classes ----------------------------------------------------------------
@@ -64,6 +65,8 @@ import se.liu.imt.mi.snomedct.expression.tools.SNOMEDCTParserUtil;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class ExpressionReader {
+
+    private static final Logger LOG = LogManager.getLogger();
    /** The Constant necessarySctid. */
    private static final String necessarySctid = "900000000000074008";
 
@@ -116,7 +119,7 @@ public class ExpressionReader {
                              // if(! strTokens[6].equals("25491-2")) {
                              // continue;
                              // }
-                             System.out.println("\n\nLOINC EXPRESSION SERVICE> " + lineCount + ". LOINC CODE " +
+                             LOG.debug("\n\nLOINC EXPRESSION SERVICE> " + lineCount + ". LOINC CODE " +
                              strTokens[6] + " = " + strTokens[7] + "; STATUS = " + strTokens[8] + "\n");
 
                              final String definitionSctid = strTokens[8];

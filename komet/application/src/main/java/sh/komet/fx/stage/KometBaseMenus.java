@@ -255,7 +255,7 @@ public class KometBaseMenus implements MenuProvider {
                         .filter(entry -> !entry.getName().contains("__MACOSX") && !entry.getName().contains("._") && !entry.getName().contains(".DS_Store"))
                         .forEach((ZipEntry zipEntry) -> {
                             if (zipEntry.getName().equals("SnomedCT_InternationalRF2_PRODUCTION_20190731T120000Z/Full/Terminology/sct2_sRefset_OWLExpressionFull_INT_20190731.txt")) {
-                                System.out.println("SCT Entry: " + zipEntry.getName());
+                                LOG.info("SCT Entry: " + zipEntry.getName());
                                 try (BufferedReader br = new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipEntry)))) {
 
                                     final int ID = 0;
@@ -270,10 +270,9 @@ public class KometBaseMenus implements MenuProvider {
                                     // id	effectiveTime	active	moduleId	refsetId	referencedComponentId	owlExpression
                                     while((line = br.readLine()) != null) {
                                         String[] fields = line.split("\t");
-                                        System.out.println(fields[OWL_EXPRESSION]);
+                                        LOG.info(fields[OWL_EXPRESSION]);
                                         //LogicalExpression expression = SctOwlUtilities.sctToLogicalExpression(fields[REFERENCED_COMPONENT_ID], new BufferedReader(new StringReader(fields[OWL_EXPRESSION])));
-                                        //System.out.println(expression);
-                                        System.out.println();
+                                        //LOG.info(expression);
                                     }
 
                                 } catch (IOException ex) {
@@ -294,7 +293,7 @@ public class KometBaseMenus implements MenuProvider {
                         .filter(entry -> !entry.getName().contains("__MACOSX") && !entry.getName().contains("._") && !entry.getName().contains(".DS_Store"))
                         .forEach((ZipEntry zipEntry) -> {
                             if (zipEntry.getName().equals("RxNorm-defined-with-SNCT-classes-20190719.owl")) {
-                                System.out.println("RxNorm Entry: " + zipEntry.getName());
+                                LOG.info("RxNorm Entry: " + zipEntry.getName());
                                 try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
 
                                 } catch (IOException ex) {

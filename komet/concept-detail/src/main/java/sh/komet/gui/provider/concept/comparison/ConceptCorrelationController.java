@@ -16,14 +16,12 @@
  */
 package sh.komet.gui.provider.concept.comparison;
 
-import sh.isaac.komet.iconography.IconographyHelper;
-import sh.isaac.model.logic.IsomorphicResultsFromPathHash;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.ResourceBundle;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -34,7 +32,9 @@ import javafx.scene.layout.BorderPane;
 import sh.isaac.api.Get;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.model.logic.IsomorphicResultsBottomUp;
+import sh.isaac.model.logic.IsomorphicResultsFromPathHash;
 import sh.isaac.model.observable.ObservableFields;
 import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
@@ -45,6 +45,7 @@ import sh.komet.gui.util.FxGet;
  * @author kec
  */
 public class ConceptCorrelationController {
+    private static final Logger LOG = LogManager.getLogger();
 
     ObjectProperty<LogicalExpression> referenceExpressionProperty = new SimpleObjectProperty<>(this,
             ObservableFields.CORELATION_REFERENCE_EXPRESSION.toExternalString(), null);
@@ -152,26 +153,26 @@ public class ConceptCorrelationController {
             IsomorphicResults bottomUpSolution = Get.executor().submit(bottomUpResults).get();
             
             long duration1 = System.currentTimeMillis() - startTime;
-            System.out.println("\n\nBottom up results: ");
-            System.out.println(bottomUpResults.toString());
+            LOG.debug("\n\nBottom up results: ");
+            LOG.debug(bottomUpResults.toString());
             
-            System.out.println(bottomUpResults.getIsomorphicSolution());
+            LOG.debug(bottomUpResults.getIsomorphicSolution());
             startTime = System.currentTimeMillis();
             
             IsomorphicResultsFromPathHash pathHashResults = new IsomorphicResultsFromPathHash(referenceExpression, comparisonExpression);
             IsomorphicResults pathHashSolution = Get.executor().submit(pathHashResults).get();
             
             long duration2 = System.currentTimeMillis() - startTime;
-            System.out.println("\n\nPath hash results: ");
-            System.out.println(pathHashResults.toString());
-            System.out.println("\n\n");
-            System.out.println("Solutions equal is " + Arrays.equals(bottomUpResults.getIsomorphicSolution().getSolution(), 
+            LOG.debug("\n\nPath hash results: ");
+            LOG.debug(pathHashResults.toString());
+            LOG.debug("\n\n");
+            LOG.debug("Solutions equal is " + Arrays.equals(bottomUpResults.getIsomorphicSolution().getSolution(), 
                     pathHashResults.getIsomorphicSolution().getSolution()));
-            System.out.println("duration1: " + duration1);
-            System.out.println("duration2: " + duration2);
+            LOG.debug("duration1: " + duration1);
+            LOG.debug("duration2: " + duration2);
             
         } catch (InterruptedException | ExecutionException ex) {
-            Logger.getLogger(ConceptCorrelationController.class.getName()).log(Level.SEVERE, null, ex);
+            LOG.error(ex);
         }
     }
 
@@ -199,7 +200,7 @@ public class ConceptCorrelationController {
         referenceBorderPane.getScene().getStylesheets()
                 .add(IconographyHelper.getStyleSheetStringUrl());
 
-        System.out.println("Updated css: " + FxGet.fxConfiguration().getUserCSSURL().toString());
+        LOG.debug("Updated css: " + FxGet.fxConfiguration().getUserCSSURL().toString());
 
     }
 

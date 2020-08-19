@@ -223,7 +223,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
 
             for (String[] hoRec : hoRecords) {
                 if (hoRec[REFID].equals("3261")) {
-                    System.out.println("Found 3261");
+                    LOG.debug("Found 3261");
                 }
                 if (hoRec.length < SNOMED_SIB_CHILD_3 + 1) {
                     String[] newRec = new String[SNOMED_SIB_CHILD_3 + 1];

@@ -36,9 +36,12 @@ import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ListViewNodeController implements ComponentList {
 
+    private static final Logger LOG = LogManager.getLogger();
     @FXML
     private ResourceBundle resources;
 
@@ -258,7 +261,7 @@ public class ListViewNodeController implements ComponentList {
 
 
     public void close() {
-        System.out.println("Closing ListViewNodeController");
+        LOG.debug("Closing ListViewNodeController");
         FxGet.removeComponentList(this);
     }
 

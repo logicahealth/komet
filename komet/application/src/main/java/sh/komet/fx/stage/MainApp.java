@@ -437,7 +437,7 @@ public class MainApp
 
     private void handleAbout(ActionEvent event) {
         event.consume();
-        System.out.println("Handle about...");
+        LOG.debug("Handle about...");
         //create stage which has set stage style transparent
         final Stage stage = new Stage(StageStyle.TRANSPARENT);
 

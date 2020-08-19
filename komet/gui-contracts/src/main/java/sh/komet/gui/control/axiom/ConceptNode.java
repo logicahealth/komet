@@ -16,8 +16,10 @@
  */
 package sh.komet.gui.control.axiom;
 
-import java.util.NoSuchElementException;
 import java.util.Optional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.PopOver;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.input.DragEvent;
@@ -26,7 +28,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
-import org.controlsfx.control.PopOver;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -45,6 +46,7 @@ import sh.komet.gui.style.StyleClasses;
  */
 public class ConceptNode extends Label {
 
+    private static final Logger LOG = LogManager.getLogger();
     private final int conceptNid;
     private final Button openConceptButton = new Button("", Iconography.LINK_EXTERNAL.getIconographic());
     private final Manifold manifold;
@@ -100,7 +102,7 @@ public class ConceptNode extends Label {
     }
 
     private void handleDragDetected(MouseEvent event) {
-        System.out.println("Drag detected: " + event);
+        LOG.debug("Drag detected: " + event);
 
         DragImageMaker dragImageMaker = new DragImageMaker(this);
         Dragboard db = this.startDragAndDrop(TransferMode.COPY);
@@ -113,6 +115,6 @@ public class ConceptNode extends Label {
     }
 
     private void handleDragDone(DragEvent event) {
-        System.out.println("Dragging done: " + event);
+        LOG.debug("Dragging done: " + event);
     }
 }

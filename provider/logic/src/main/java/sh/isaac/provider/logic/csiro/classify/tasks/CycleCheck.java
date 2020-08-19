@@ -184,7 +184,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 			sb.append("\nnidOnPathToRoot: ").append(nidOnPathToRoot).append(" ").append(Get.conceptDescriptionText(nidOnPathToRoot));
 			sb.append("\npath: ").append(Get.conceptDescriptionTextList(path.toArray()));
 			sb.append("\nparents: ").append(Get.conceptDescriptionTextList(parents));
-			System.out.println(sb.toString());
+			LOG.debug(sb.toString());
 		}
 		for (int parent : parents)
 		{

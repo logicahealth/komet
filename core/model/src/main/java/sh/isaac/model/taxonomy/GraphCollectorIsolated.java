@@ -99,7 +99,7 @@ public class GraphCollectorIsolated
             TaxonomyRecordPrimitive isaacPrimitiveTaxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);
             // For debugging.
             if (Get.configurationService().isVerboseDebugEnabled() && this.watchList.contains(originNid)) {
-                System.out.println("Found watch: " + isaacPrimitiveTaxonomyRecord);
+                LOG.debug("Found watch: " + isaacPrimitiveTaxonomyRecord);
             }
 
             final TaxonomyRecord taxonomyRecordUnpacked = isaacPrimitiveTaxonomyRecord.getTaxonomyRecordUnpacked();

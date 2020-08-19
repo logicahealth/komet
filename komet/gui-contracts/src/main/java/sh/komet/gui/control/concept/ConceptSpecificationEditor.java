@@ -17,6 +17,10 @@
 package sh.komet.gui.control.concept;
 
 import java.util.Collection;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.PopOver;
+import org.controlsfx.property.editor.PropertyEditor;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
@@ -32,8 +36,6 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
-import org.controlsfx.control.PopOver;
-import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
@@ -50,6 +52,7 @@ import sh.komet.gui.util.FxGet;
  * @author kec
  */
 public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecification> {
+    private static final Logger LOG = LogManager.getLogger();
 
     private final SimpleObjectProperty<ConceptSpecification> conceptSpecificationValue;
     private final MenuButton menuButton = new MenuButton();
@@ -73,7 +76,7 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         
         this.menuButton.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                System.out.println("Adding meta f to " + menuButton.getText());
+                LOG.debug("Adding meta f to " + menuButton.getText());
                 findItem.setAccelerator(new KeyCodeCombination(KeyCode.F, KeyCombination.META_DOWN));
                 menuButton.getScene().getAccelerators().put(new KeyCodeCombination(KeyCode.F, KeyCombination.META_DOWN), () -> {
                     showFindPopup(null);

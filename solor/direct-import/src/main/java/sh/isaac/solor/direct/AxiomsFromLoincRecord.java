@@ -17,12 +17,10 @@
 package sh.isaac.solor.direct;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
@@ -36,6 +34,8 @@ import sh.isaac.api.logic.assertions.Assertion;
  */
 public class AxiomsFromLoincRecord {
 
+    private static final Logger LOG = LogManager.getLogger();
+    
     private final Set<String> methods = new ConcurrentSkipListSet<>();
     private final Set<String> unknownMethods = new ConcurrentSkipListSet<>();
 
@@ -4881,7 +4881,7 @@ public class AxiomsFromLoincRecord {
         }
     }
     public void listMethods() {
-        System.out.println("\nUnknown Methods: " + unknownMethods);
-        System.out.println("\n\nMethods: " + methods + "\n");
+        LOG.info("\nUnknown Methods: " + unknownMethods);
+        LOG.info("\n\nMethods: " + methods + "\n");
     }
 }

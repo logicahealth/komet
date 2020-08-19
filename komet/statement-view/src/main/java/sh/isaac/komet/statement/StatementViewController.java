@@ -19,6 +19,8 @@ package sh.isaac.komet.statement;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -30,6 +32,8 @@ import sh.komet.gui.util.FxGet;
 
 public class StatementViewController {
 
+    private static final Logger LOG = LogManager.getLogger();
+    
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
 
@@ -82,6 +86,6 @@ public class StatementViewController {
         rootPane.getScene()
                 .getStylesheets()
                 .add(FxGet.fxConfiguration().getUserCSSURL().toString());
-        System.out.println("Updated css for statement: " + FxGet.fxConfiguration().getUserCSSURL().toString());
+        LOG.debug("Updated css for statement: " + FxGet.fxConfiguration().getUserCSSURL().toString());
     }
 }

@@ -192,7 +192,7 @@ public class KometStageController
         vanityBox.getScene()
                 .getStylesheets()
                 .add(FxGet.fxConfiguration().getUserCSSURL().toString());
-        System.out.println("Updated css: " + FxGet.fxConfiguration().getUserCSSURL().toString());
+        LOG.debug("Updated css: " + FxGet.fxConfiguration().getUserCSSURL().toString());
     }
 
     @Override
@@ -618,9 +618,9 @@ public class KometStageController
                 }
 
                 if (Get.configurationService().isVerboseDebugEnabled()) {
-                    System.out.println(buff.toString());
+                    LOG.info(() -> buff.toString());
                 } else {
-                    LOG.debug(buff.toString());
+                    LOG.trace(() -> buff.toString());
                 }
             }
         });

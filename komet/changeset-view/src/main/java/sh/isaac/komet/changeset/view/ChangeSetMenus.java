@@ -21,7 +21,10 @@ import java.io.IOException;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
+import javax.inject.Singleton;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.jvnet.hk2.annotations.Service;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -30,14 +33,9 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import javafx.stage.Window;
-
-import javax.inject.Singleton;
-
-import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
-import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.menu.MenuItemWithText;
@@ -50,6 +48,8 @@ import sh.komet.gui.util.FxGet;
 @Singleton
 public class ChangeSetMenus implements MenuProvider {
 
+    private static final Logger LOG = LogManager.getLogger();
+    
     @Override
     public EnumSet<AppMenu> getParentMenus() {
         return EnumSet.of(AppMenu.FILE);
@@ -144,10 +144,10 @@ public class ChangeSetMenus implements MenuProvider {
                                         }
                                     });
                 } catch (IOException | UnsupportedOperationException ex) {
-                    System.out.println("Error at: Import " + conceptCount + " concepts, " + semanticCount + " semantics");
+                    LOG.error("Error at: Import " + conceptCount + " concepts, " + semanticCount + " semantics", ex);
                     throw new RuntimeException(ex);
                 }
-                System.out.println("Imported " + conceptCount + " concepts, " + semanticCount + " semantics");
+                LOG.info("Imported " + conceptCount + " concepts, " + semanticCount + " semantics");
                 commitService.postProcessImportNoChecks();
             }
         }

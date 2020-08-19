@@ -53,7 +53,6 @@ public class NaturalOrderTest {
     */
    @Test
    public void testCompare() {
-      System.out.println("compare");
       String s1 = "i";
       String s2 = "I";
       int expResult = 0;

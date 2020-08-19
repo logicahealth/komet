@@ -108,7 +108,6 @@ public class DirectImporter
      */
     protected static final SimpleDateFormat DATE_PARSER = new SimpleDateFormat("yyyyMMdd");
 
-    //~--- fields --------------------------------------------------------------
     protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
 
     protected final ImportType importType;
@@ -117,7 +116,6 @@ public class DirectImporter
     protected File importDirectory;
     private HashMap<String, ArrayList<DynamicColumnInfo>> refsetColumnInfo = null;  //refset SCTID to column information from the refset spec
     private final Transaction transaction;
-    //~--- constructors --------------------------------------------------------
     public DirectImporter(Transaction transaction, ImportType importType) {
         this.transaction = transaction;
         this.importType = importType;
@@ -153,7 +151,7 @@ public class DirectImporter
         this.entriesToImport = null;
         this.importDirectory = importDirectory;
 
-        updateTitle("Importing from RF2 from" + importDirectory.getAbsolutePath());
+        updateTitle("Importing from " + importDirectory.getAbsolutePath());
         Get.activeTasks()
                 .add(this);
     }
@@ -181,12 +179,12 @@ public class DirectImporter
             } else {
                 File importDirectory = this.importDirectory == null ? Get.configurationService().getIBDFImportPath().toFile() : this.importDirectory;
 
-                System.out.println("Importing from: " + importDirectory.getAbsolutePath());
+                LOG.info("Importing from: " + importDirectory.getAbsolutePath());
 
                 int fileCount = loadDatabase(importDirectory, time, solorReleaseFormat);
 
                 if (fileCount == 0) {
-                    System.out.println("Import from: " + importDirectory.getAbsolutePath() + " failed.");
+                    LOG.info("Import from: " + importDirectory.getAbsolutePath() + " failed.");
                 }
             }
 
@@ -352,7 +350,7 @@ public class DirectImporter
             updateMessage(message);
             LOG.info("\n\n" + message + "\n");
             if (message.toLowerCase().contains("loinc.csv")) {
-                System.out.println("About to import loinc...");
+                LOG.info("About to import loinc...");
             }
 
             try (ContentStreamProvider csp = importSpecification.contentProvider.get()) {

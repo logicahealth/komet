@@ -149,9 +149,6 @@ public class ChronologyUpdate implements StaticIsaacCache {
         }
         final List<Graph<LogicGraphVersion>> versionGraphList = logicGraphChronology.getVersionGraphList();
 
-//   System.out.println("Taxonomy update " + taxonomyUpdateCount.getAndIncrement() + " for: " + 
-//         referencedComponentNid + " index: " + 
-//         ModelGet.identifierService().getElementSequenceForNid(referencedComponentNid));
         TaxonomyFlag taxonomyFlags;
 
         if (logicGraphChronology.getAssemblageNid() == INFERRED_ASSEMBLAGE_NID) {
@@ -204,22 +201,8 @@ public class ChronologyUpdate implements StaticIsaacCache {
         if (update == null || update.length == 0) {
             return existing;
         }
-        //TaxonomyRecord existingRec = new TaxonomyRecord(existing);
-        //TaxonomyRecord updateRec = new TaxonomyRecord(update);
-        //existingRec.merge(updateRec);
-        //int[] oldMethod = existingRec.pack();
         int[] newMethod = TaxonomyRecordPrimitive.merge(existing, update);
 
-//        if (!Arrays.equals(oldMethod, newMethod)) {
-//            StringBuilder builder = new StringBuilder("ERROR! Merge gives different results: \n");
-//            builder.append("existing: ").append(Arrays.toString(existing)).append("\n");
-//            builder.append("update: ").append(Arrays.toString(update)).append("\n");
-//            builder.append("oldMethod: ").append(Arrays.toString(oldMethod)).append("\n");
-//            builder.append("newMethod: ").append(Arrays.toString(newMethod)).append("\n");
-//            builder.append("mergedRec: ").append(existingRec.toString()).append("\n");
-//            System.out.println(builder.toString());
-//            newMethod = TaxonomyRecordPrimitive.merge(existing, update);
-//        }
         return newMethod;
     }
 

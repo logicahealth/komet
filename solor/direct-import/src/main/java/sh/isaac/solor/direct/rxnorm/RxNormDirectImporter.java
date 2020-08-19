@@ -48,12 +48,12 @@ public class RxNormDirectImporter extends TimedTaskWithProgressTracker<Void>
     protected Void call() throws Exception {
         try {
             File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
-            System.out.println("Importing from: " + importDirectory.getAbsolutePath());
+            LOG.info("Importing from: " + importDirectory.getAbsolutePath());
 
             int fileCount = loadDatabase(importDirectory);
 
             if (fileCount == 0) {
-                System.out.println("Import from: " + importDirectory.getAbsolutePath() + " failed.");
+                LOG.info("Import from: " + importDirectory.getAbsolutePath() + " failed.");
             }
 
             return null;

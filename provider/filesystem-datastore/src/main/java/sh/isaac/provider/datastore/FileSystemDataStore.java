@@ -617,8 +617,8 @@ public class FileSystemDataStore
    @Override
    public int[] accumulateAndGetTaxonomyData(int assemblageId, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction)
    {
-       if (conceptNid == TermAux.SOLOR_ROOT.getNid()) {
-           System.out.println(" root update watch... ");
+       if (conceptNid == TermAux.SOLOR_ROOT.getNid() && Get.configurationService().isVerboseDebugEnabled()) {
+           LOG.info(" root update watch");
        }
       return getTaxonomyMap(assemblageId).accumulateAndGet(conceptNid, newData, accumulatorFunction);
    }

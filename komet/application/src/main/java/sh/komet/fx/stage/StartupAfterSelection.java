@@ -86,7 +86,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
             UserPreferencesPanel.login();
 
             if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-                System.out.println("Beta features enabled");
+                LOG.info("Beta features enabled");
             }
 
 

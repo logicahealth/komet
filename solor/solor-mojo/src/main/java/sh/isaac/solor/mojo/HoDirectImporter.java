@@ -294,7 +294,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
                     HDX_REVIEW_REQUIRED.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());
 
             File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
-            System.out.println("Importing from: " + importDirectory.getAbsolutePath());
+            LOG.info("Importing from: " + importDirectory.getAbsolutePath());
 
             int fileCount = loadDatabase(transaction, importDirectory);
             transaction.commit("Health Ontology Import");

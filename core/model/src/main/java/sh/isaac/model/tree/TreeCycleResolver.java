@@ -44,6 +44,8 @@ package sh.isaac.model.tree;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -66,6 +68,7 @@ import sh.isaac.api.tree.TreeNodeVisitData;
 public class TreeCycleResolver
          implements Resolver {
    final TreeCycleError treeCycleError;
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- constructors --------------------------------------------------------
 
@@ -128,8 +131,8 @@ public class TreeCycleResolver
             parentConceptIndex = treeCycleError.getAffectedComponents()[1];
          }
 
-         System.out.println("Parent concept in cycle is: " + Get.conceptDescriptionText(parentConceptIndex));
-         System.out.println("Bottom concept in cycle is: " + Get.conceptDescriptionText(bottomConceptSequence));
+         LOG.debug("Parent concept in cycle is: " + Get.conceptDescriptionText(parentConceptIndex));
+         LOG.debug("Bottom concept in cycle is: " + Get.conceptDescriptionText(bottomConceptSequence));
          treeCycleError.tree.removeParent(bottomConceptSequence, parentConceptIndex);
 
          // test resolution
@@ -140,9 +143,9 @@ public class TreeCycleResolver
 
          if (!visitData.getCycleSet()
                        .isEmpty()) {
-            System.out.println("Cycle found: " + Arrays.asList(visitData.getCycleSet()));
+            LOG.debug("Cycle found: " + Arrays.asList(visitData.getCycleSet()));
          } else {
-            System.out.println("Cycle fixed. ");
+            LOG.debug("Cycle fixed. ");
             Alert.publishRetraction(treeCycleError);
             SuccessAlert alert = new SuccessAlert("Cycle fixed.", "Cycle temporarily fixed in computed tree. ", AlertCategory.TAXONOMY);
             Alert.publishAddition(alert);

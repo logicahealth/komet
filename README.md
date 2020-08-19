@@ -31,6 +31,7 @@ To enable the GUI to load content directly from your Maven repository, set the p
 ## developer flags...
 ```
 -DSHOW_BETA_FEATURES=true 
+-DISAAC_DEBUG=true
 ```
 
 ## Apple Issues

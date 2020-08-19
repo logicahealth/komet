@@ -28,15 +28,6 @@ public class HashTreeBuilderIsolated extends HashTreeWithIntArraySetsIsolated {
 
     private static final Logger LOG = LogManager.getLogger();
 
-    //~--- fields --------------------------------------------------------------
-    /**
-     * The concept nids.
-     */
-    {
-        System.setProperty(SystemPropertyConstants.ISAAC_DEBUG, "true");
-
-    }
-
     String[] watchUuids = new String[]{ };
     IntArrayList watchNids = new IntArrayList();
 
