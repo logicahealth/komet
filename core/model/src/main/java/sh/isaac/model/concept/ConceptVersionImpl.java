@@ -85,18 +85,6 @@ public class ConceptVersionImpl
    }
 
    @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(transaction,
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      authorNid,
-                      this.getModuleNid(),
-                      this.getPathNid());
-      return makeAnalog(stampSequence);
-   }
-
-   @Override
    public final boolean dataEquals(VersionImpl other) {
       // no additional fields to check. 
       return true;

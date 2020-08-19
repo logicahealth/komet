@@ -442,7 +442,7 @@ public class Frills
    
    /**
     * Walk up the module tree, looking for the module concept nid directly under {@link MetaData#MODULE____SOLOR} - return it if found, otherwise, return null.
-    *  @param conceptModuleNid the module to look up
+    * @param conceptModuleNid the module to look up
     * @param stampFilter - optional - uses default if not provided.  If provided, and doesn't include the metadata modules, it will use a modified stamp
     * that includes the metadata module, since that module is required to read the module hierarchy.  It also modifies the time, to always use the latest
     * time when evaluating the parents, because 1) the parent hierarchy of the modules shouldn't ever change from one version to another and

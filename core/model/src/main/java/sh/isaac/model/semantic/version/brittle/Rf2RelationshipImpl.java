@@ -196,9 +196,7 @@ public class Rf2RelationshipImpl
    }
 
    /**
-    * Write version data.
-    *
-    * @param data the data
+    * {@inheritDoc}
     */
    @Override
    public void writeVersionData(ByteArrayDataBuffer data) {

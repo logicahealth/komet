@@ -1,6 +1,7 @@
 package sh.isaac.api.coordinate;
 
 import java.util.Objects;
+import java.util.Optional;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
@@ -149,9 +150,16 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
     }
 
 
+    /**
+     * @param stampFilter
+     * @param languageCoordinate - optional - uses default if not provided
+     * @return
+     */
     public static DigraphCoordinateImmutable makeStated(StampFilter stampFilter, LanguageCoordinate languageCoordinate) {
         return SINGLETONS.computeIfAbsent(new DigraphCoordinateImmutable(stampFilter.toStampFilterImmutable(),
-                        PremiseType.STATED, languageCoordinate.toLanguageCoordinateImmutable(),
+                        PremiseType.STATED, 
+                        (languageCoordinate == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate() 
+                                : languageCoordinate).toLanguageCoordinateImmutable(),
                         Coordinates.Logic.ElPlusPlus(), IntSets.immutable.of(TermAux.EL_PLUS_PLUS_DIGRAPH.getNid())),
                 digraphCoordinateImmutable -> digraphCoordinateImmutable);
     }

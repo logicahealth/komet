@@ -54,7 +54,8 @@ public class PersonaItemPanel extends AbstractPreferences implements PersonaItem
     //TODO Dan Notes - This is pretty much an abomination of the entire notion of using HK2 and extendability.  No idea why on earth we are now hard coding UUIDs and concepts for 
     //implementations of GUI widgets.... its rather insane.  None of this belongs here....  If you wnt to have a default set for a particular persona (and don't mind breaking
     //the modular portions) then just link to them via code... this makes NO sense at all.  Massively brittle, terrible to extend / use / do anything with. We really _dont_ need
-    //concepts for every single last thing in the GUI... espcially if we are no longer allowing it to be modular.
+    //concepts for every single last thing in the GUI... especially if we are no longer allowing it to be modular, since you could just code to the classes... instead of this round
+    //about brittle mess of code to hard coded UUIDs to Concepts in metadata and back to code
     private static final ConceptSpecification[] standardTabFactoryList = new ConceptSpecification[] {
             MetaData.ACTIVITIES_PANEL____SOLOR,
             MetaData.ASSEMBLAGE_PANEL____SOLOR,

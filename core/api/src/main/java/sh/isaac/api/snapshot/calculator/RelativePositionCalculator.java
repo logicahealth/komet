@@ -533,7 +533,6 @@ public class RelativePositionCalculator implements StaticIsaacCache {
       return pathNidSegmentMapToSetup;
    }
 
-   //~--- get methods ---------------------------------------------------------
    private StampService getStampService() {
       if (this.stampService == null) {
          this.stampService = Get.stampService();

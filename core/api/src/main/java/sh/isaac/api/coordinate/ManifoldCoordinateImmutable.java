@@ -107,6 +107,11 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
                         manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
     }
 
+    /**
+     * @param stampFilter
+     * @param languageCoordinate - optional - uses default if not provided
+     * @return
+     */
     public static ManifoldCoordinateImmutable makeStated(StampFilter stampFilter, LanguageCoordinate languageCoordinate) {
         DigraphCoordinateImmutable dci = DigraphCoordinateImmutable.makeStated(stampFilter, languageCoordinate);
         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(VertexSortFullyQualifiedName.SINGLETON, dci, stampFilter.toStampFilterImmutable()),
