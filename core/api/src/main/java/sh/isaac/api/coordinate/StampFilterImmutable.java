@@ -42,11 +42,14 @@ package sh.isaac.api.coordinate;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
+import org.eclipse.collections.api.factory.set.primitive.ImmutableIntSetFactory;
 import org.eclipse.collections.api.list.primitive.ImmutableIntList;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
+import org.eclipse.collections.impl.list.immutable.primitive.ImmutableIntListFactoryImpl;
+import org.eclipse.collections.impl.set.immutable.primitive.ImmutableIntSetFactoryImpl;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
@@ -115,9 +118,9 @@ public class StampFilterImmutable
                                 ImmutableIntList modulePreferenceOrder) {
         this.allowedStates = allowedStates;
         this.stampPosition = stampPosition;
-        this.moduleNids = moduleNids;
+        this.moduleNids = moduleNids == null ? ImmutableIntSetFactoryImpl.INSTANCE.empty() : moduleNids;
         this.excludedModuleNids = excludedModuleNids;
-        this.modulePreferenceOrder = modulePreferenceOrder;
+        this.modulePreferenceOrder = modulePreferenceOrder == null ? ImmutableIntListFactoryImpl.INSTANCE.empty() : modulePreferenceOrder;
     }
 
     @Override

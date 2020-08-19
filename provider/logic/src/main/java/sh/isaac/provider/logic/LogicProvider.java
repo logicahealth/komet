@@ -116,7 +116,7 @@ public class LogicProvider
         pendingLogicTasks.clear();
         // read from disk...
         DataStore store = Get.service(DataStore.class);
-        //TODO DAN[1], once again, an ad-hoc store that completely ignores the fact that we have backing providers.  This should be going to 
+        //TODO [DAN 1], once again, an ad-hoc store that completely ignores the fact that we have backing providers.  This should be going to 
         //MVStore, Or File, or Postgres, depending on the configuration.  Completely broken/unusable.
         File logicProviderDir = new File(store.getDataStorePath().toAbsolutePath().toFile(), "logic-provider");
         logicProviderDir.mkdirs();
@@ -164,7 +164,7 @@ public class LogicProvider
         }
         this.classifierServiceMap.clear();
         this.pendingLogicTasks.clear();
-        //TODO Dan[1] fragile mess of only saving on shutdown needs to be fixed too....
+        //TODO [Dan 1] fragile mess of only saving on shutdown needs to be fixed too....
         ByteArrayDataBuffer buff = new ByteArrayDataBuffer();
         Set<Map.Entry<Instant, ClassifierResults[]>> classifierResultsEntrySet = classifierResultMap.entrySet();
         buff.putInt(classifierResultsEntrySet.size());

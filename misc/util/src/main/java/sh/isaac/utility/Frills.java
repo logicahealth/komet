@@ -1322,7 +1322,7 @@ public class Frills
                      langCoord == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getLanguageCoordinate() : langCoord))
                         .getConceptSnapshot(c.get().getNid()));
          } catch (final Exception e) {
-            // TODO DAN defaultConceptSnapshotService APIs are currently broken, provide no means of detecting if a concept doesn't exist on a given coordinate
+            // TODO [DAN 3] defaultConceptSnapshotService APIs are currently broken, provide no means of detecting if a concept doesn't exist on a given coordinate
             // See slack convo https://informatics-arch.slack.com/archives/dev-isaac/p1440568057000512
             //need to retest in the new env
          

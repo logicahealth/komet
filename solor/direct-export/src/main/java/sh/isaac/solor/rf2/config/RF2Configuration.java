@@ -193,7 +193,6 @@ public class RF2Configuration {
                         
                         StringBuilder descriptor = new StringBuilder();
                         descriptor.append(createDescriptorBaseString(version, assemblageNid, descriptorStringBuilder));
-                        //TODO I'm not sure this idString thing really does the right thing here... 
                         //Add the 'attributeDescription'
                         descriptor.append(rf2ExportHelper.getIdString(Get.nidForUuids(dci.getColumnDescriptionConcept())));
                         descriptor.append("\t");

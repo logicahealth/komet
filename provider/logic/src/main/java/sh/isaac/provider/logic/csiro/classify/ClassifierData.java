@@ -294,7 +294,7 @@ public class ClassifierData
 //
 //        for (Node node : this.reasoner.getClassifiedOntology().getAffectedNodes()) {
 //            if (node != null) {
-//                // TODO why does the classifier include null in the affected node set.
+//                // why does the classifier include null in the affected node set?.
 //                for (String equivalent : node.getEquivalentConcepts()) {
 //                    affectedConceptNids.add(Integer.parseInt(equivalent));
 //                }

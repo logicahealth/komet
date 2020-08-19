@@ -294,7 +294,7 @@ public class StampAliasMap {
                 builder.add(alias);
                 getAliasesReverse(alias, builder);
             }
-        } else {  //TODO Keith is looking at this, the impl / naming don't make sense to me.
+        } else {
             Integer currentAlias = aliasToStamp.get(stamp);
             if (currentAlias != null) {
                 builder.add(currentAlias.intValue());

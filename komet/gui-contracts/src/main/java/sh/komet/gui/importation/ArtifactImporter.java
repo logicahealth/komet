@@ -1,25 +1,5 @@
 package sh.komet.gui.importation;
 
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.scene.control.*;
-import javafx.scene.control.Alert.AlertType;
-import javafx.stage.Window;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.commit.ChangeCheckerMode;
-import sh.isaac.api.task.TimedTask;
-import sh.isaac.api.transaction.Transaction;
-import sh.isaac.api.util.StringUtils;
-import sh.isaac.dbConfigBuilder.artifacts.MavenArtifactUtils;
-import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
-import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
-import sh.isaac.pombuilder.converter.ConverterOptionParam;
-import sh.isaac.pombuilder.converter.SupportedConverterTypes;
-import sh.komet.gui.util.FxUtils;
-
 import java.io.File;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
@@ -27,6 +7,30 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Optional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.SelectionMode;
+import javafx.stage.Window;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.StringUtils;
+import sh.isaac.convert.directUtils.DirectConverter;
+import sh.isaac.dbConfigBuilder.artifacts.MavenArtifactUtils;
+import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
+import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
+import sh.isaac.pombuilder.converter.ConverterOptionParam;
+import sh.isaac.pombuilder.converter.SupportedConverterTypes;
+import sh.komet.gui.util.FxUtils;
 
 public class ArtifactImporter
 {
@@ -34,8 +38,6 @@ public class ArtifactImporter
 
 	public static void startArtifactImport(Window parentWindow)
 	{
-		throw new UnsupportedOperationException();
-		/*
 		//TODO tie this to a real StoredPrefs in the GUI.  For now, just a default, so we can at least read a local .m2 folder
 		//make this system property read go away.  Need to integrate this with the rest of the prefs system...
 		StoredPrefs storedPrefs = new StoredPrefs("".toCharArray());
@@ -118,7 +120,6 @@ public class ArtifactImporter
 				{
 					Get.activeTasks().add(this);
 					Transaction transaction = Get.commitService().newTransaction(Optional.of("importing " + local),ChangeCheckerMode.INACTIVE );
-					dc.setTransaction(transaction);
 					try
 					{
 						this.updateTitle("Importing " + sdo.toString());
@@ -135,7 +136,7 @@ public class ArtifactImporter
 							root = p;
 						}
 
-						dc.configure(null, root, sdo.getVersion(), Get.defaultCoordinate().getStampFilter());
+						dc.configure(null, root, sdo.getVersion(), Get.defaultCoordinate().getStampFilter(), transaction);
 
 						//TODO in the future, add the GUI widgets that let the users specify the options.
 						//Use the defaults for now, just to get things working...
@@ -150,7 +151,7 @@ public class ArtifactImporter
 							}
 						}
 
-						dc.convertContent(transaction, string -> updateTitle(string), (work, total) -> updateProgress(work, total));
+						dc.convertContent(string -> updateTitle(string), (work, total) -> updateProgress(work, total));
 						transaction.commit();
 						fs.close();
 						Get.indexDescriptionService().refreshQueryEngine();
@@ -175,7 +176,5 @@ public class ArtifactImporter
 			};
 			Get.workExecutors().getExecutor().execute(tt);
 		}
-		*
-		 */
 	}
 }

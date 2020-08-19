@@ -1073,7 +1073,6 @@ public abstract class LuceneIndexer implements IndexBuilderService
 				}
 				catch (IndexFormatTooOldException e)
 				{
-					//TODO [DAN 1] test we should be able to catch other corrupt index issues here, and also solve by just reindexing... need to test
 					LOG.warn("Lucene index format was too old or didn't match the assemblage service in'" + getIndexerName() + "'.  Reindexing!");
 					RecursiveDelete.delete(this.indexFolder);
 					this.databaseValidity = DataStoreStartState.NO_DATASTORE;

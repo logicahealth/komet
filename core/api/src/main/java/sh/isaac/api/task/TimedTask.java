@@ -122,7 +122,7 @@ public abstract class TimedTask<T>
             });
         }
         
-        //TODO DAN[1] notes, this is odd.  Typically, if you are suppressing logs, you only suppress identical logs in a certain time frame.
+        //TODO [DAN 1] notes, this is odd.  Typically, if you are suppressing logs, you only suppress identical logs in a certain time frame.
         //Not ALL logs after X.... Not to mention most of the performance issues caused by this logging could be properly handled with TRACE
         //And using the proper logging pattern, so it isn't calculating values when they aren't logged, as I have updated it below.
         if (suppressCompletionLogIfLessThanSpecifiedDuration) {

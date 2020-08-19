@@ -69,6 +69,12 @@
         </dependency>
         <dependency>
             <groupId>sh.isaac.misc</groupId>
+            <artifactId>importers</artifactId>
+            <version>${project.parent.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.misc</groupId>
             <artifactId>util</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -82,12 +88,6 @@
             <artifactId>mojo</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>sh.isaac.komet</groupId>-->
-<!--            <artifactId>open-jdk-fixes</artifactId>-->
-<!--            <version>${project.parent.version}</version>-->
-<!--        </dependency>-->
-        <!-- TODO move dependency version to top pom if component is successful. -->
         <dependency>
             <groupId>org.fxmisc.richtext</groupId>
             <artifactId>richtextfx</artifactId>

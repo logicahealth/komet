@@ -811,7 +811,7 @@ public class TaxonomyProvider
         public boolean isChildOf(int childId, int parentId) {
             return childOfCache.computeIfAbsent(childId + ":" + parentId, (key) -> 
             {
-                //TODO shouldn't IS_A come from manifold coord?
+                //TODO [KEITH] shouldn't IS_A come from manifold coord?
                 TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
                 return taxonomyRecordPrimitive.containsNidViaType(parentId, TermAux.IS_A.getNid(), mc);
             });

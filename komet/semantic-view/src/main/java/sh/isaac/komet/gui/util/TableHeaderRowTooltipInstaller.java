@@ -52,7 +52,6 @@ import sh.isaac.api.Get;
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-@SuppressWarnings("restriction")
 public class TableHeaderRowTooltipInstaller
 {
 	private static Logger logger_ = LogManager.getLogger(TableHeaderRowTooltipInstaller.class);

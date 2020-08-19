@@ -80,7 +80,7 @@ public class TreeBuilderTask
       this(taxonomyDataProvider, manifoldCoordinate.toDigraphImmutable(), manifoldCoordinate.getVertexSort());
    }
 
-   //TODO [DAN 2] - not sure if this comment is relevant any longer: this tree builder doesn't properly pay attention to the DestinationStampCoordiante
+   //TODO - not sure if this comment is relevant any longer: this tree builder doesn't properly pay attention to the DestinationStampCoordiante
    public TreeBuilderTask(IntFunction<int[]> taxonomyDataProvider,
                           DigraphCoordinateImmutable digraph, VertexSort vertexSort) {
       if (taxonomyDataProvider == null) {

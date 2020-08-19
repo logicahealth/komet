@@ -212,7 +212,6 @@ public class MainApp
                         }
                         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
                             MenuItem prefsItem = new MenuItemWithText("KOMET Preferences...");
-                            //TODO TEMP to do  something. Need to make it do something better.
                             prefsItem.setOnAction(this::handlePrefs);
                             ap.getMenu().getItems().add(prefsItem);
                             ap.getMenu().getItems().add(new SeparatorMenuItem());

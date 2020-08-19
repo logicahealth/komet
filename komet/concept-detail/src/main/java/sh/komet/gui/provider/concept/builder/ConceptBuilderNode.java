@@ -298,7 +298,6 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
                 componentPanelBox.getChildren().clear();
             });
         } else {
-            // TODO show errors. 
             for (AlertObject alert : commitTask.getAlerts()) {
                 switch (alert.getAlertType()) {
                     case ERROR:
@@ -313,9 +312,7 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
                         FxGet.dialogs().showInformationDialog(alert.getAlertTitle(),
                                 alert.getAlertDescription(), componentPanelBox.getScene().getWindow());
                         break;
-
                 }
-
             }
         }
 

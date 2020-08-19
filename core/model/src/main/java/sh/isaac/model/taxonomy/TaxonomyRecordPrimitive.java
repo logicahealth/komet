@@ -518,19 +518,6 @@ public class TaxonomyRecordPrimitive {
       return this.taxonomyData;
    }
 
-   /**
-    * Checks if concept active.
-    *
-    * @param conceptNid the concept nid
-    * @param stampFilter the stamp coordinate
-    * @return true, if concept active
-    * @deprecated replace with calls that use RelativePositionCalculator
-    * TODO replace with calls that use RelativePositionCalculator
-    */
-   public boolean isConceptActive(int conceptNid, StampFilterImmutable stampFilter) {
-      return isConceptActive(conceptNid, stampFilter.getRelativePositionCalculator());
-   }
-
    public boolean isConceptActive(int conceptNid, RelativePositionCalculator relativePositionCalculator) {
       int index = 0;
 
@@ -554,29 +541,6 @@ public class TaxonomyRecordPrimitive {
             throw new IllegalStateException("Index: " + index);
          }
       }
-      return false;
-   }
-
-   /**
-    * Checks if concept active.
-    *
-    * @param conceptNid the concept nid
-    * @param taxonomyData the taxonomy map
-    * @param stampFilter the sc
-    * @return true, if concept active
-    * @deprecated replace with calls that use RelativePositionCalculator
-    * TODO replace with calls that use RelativePositionCalculator
-    */
-   public static boolean isConceptActive(int conceptNid,
-                                         final int[] taxonomyData,
-                                         StampFilterImmutable stampFilter) {
-
-      if (taxonomyData != null) {
-         if (new TaxonomyRecordPrimitive(taxonomyData).isConceptActive(conceptNid, stampFilter)) {
-            return true;
-         }
-      }
-
       return false;
    }
 

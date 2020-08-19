@@ -951,22 +951,15 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
 
         //Listen for changes in the outside language coordinate in the things we pass through.
         outsideManifold.getLanguageCoordinate().addListener((invalidation) -> resetReadManifold());
-        // TODO update
-        //outsideManifold.getStampCoordinate().stampPrecedenceProperty().addListener((invalidation) -> resetReadManifold());
-        //outsideManifold.getStampCoordinate().stampPositionProperty().get().stampPathConceptSpecificationProperty().addListener((invalidation) -> resetReadManifold());
+        outsideManifold.getStampFilter().addListener((invalidation) -> resetReadManifold());
         timeStatusRestriction = new TimeStatusRestriction(null, null, Status.makeActiveOnlySet(), outsideManifold);
-        updateStampLabels();        
+        updateStampLabels();
     }
 
     private void resetReadManifold() {
-        // TODO update
-        /*
-        StampFilter stamp = StampFilterImmutable.make(
-                StampPositionImmutable.make(Long.MAX_VALUE, outsideManifold.getStampCoordinate().getStampPosition().getStampPathSpecification()),
-                new HashSet(), new ArrayList(), Status.ANY_STATUS_SET);
+        StampFilter stamp = StampFilterImmutable.make(StatusSet.ACTIVE_AND_INACTIVE, StampPositionImmutable.make(Long.MAX_VALUE, 
+                outsideManifold.getStampFilter().getStampPosition().getPathForPositionConcept()), null, null);
         readManifoldCoordinate = ManifoldCoordinateImmutable.makeStated(stamp, outsideManifold.getLanguageCoordinate());
-
-         */
     }
 
     /**

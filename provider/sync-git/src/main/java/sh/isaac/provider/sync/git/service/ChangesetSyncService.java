@@ -87,7 +87,7 @@ public class ChangesetSyncService {
    private static final Logger LOG = LogManager.getLogger();
 
    /** The sync JSON files. */
-   public static boolean syncJSONFiles = false;  // TODO we can turn this off later
+   public static boolean syncJSONFiles = false;
 
    //~--- fields --------------------------------------------------------------
 

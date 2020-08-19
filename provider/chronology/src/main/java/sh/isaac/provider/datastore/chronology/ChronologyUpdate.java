@@ -36,12 +36,14 @@
  */
 package sh.isaac.provider.datastore.chronology;
 
-//~--- JDK imports ------------------------------------------------------------
-
+import java.util.List;
+import java.util.OptionalInt;
+import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicLong;
+import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.StaticIsaacCache;
@@ -65,23 +67,10 @@ import sh.isaac.model.taxonomy.TaxonomyRecord;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
 
-import javax.inject.Singleton;
-import java.util.List;
-import java.util.OptionalInt;
-import java.util.TreeSet;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicLong;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- classes ----------------------------------------------------------------
 /**
  *
  * @author kec
  *
- * TODO why is all of the important stuff in this class static? Why aren't we
- * just handling this as a Singleton with HK2? Seems to be just creating
- * unnecessary logic and potential problems.
  */
 @Service
 @Singleton

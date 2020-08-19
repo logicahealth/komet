@@ -105,7 +105,7 @@ public class EquivalencyWriter extends TimedTaskWithProgressTracker<Void> {
 
                         SemanticChronologyImpl nidStrSemantic = new SemanticChronologyImpl(
                                 VersionType.Nid1_Str2,
-                                this.identifierService.getUuidPrimordialForNid(nidSetEntry.getKey()), //TODO what is the componenentUUID here?
+                                this.identifierService.getUuidPrimordialForNid(nidSetEntry.getKey()), //TODO [KEITH] this is broken, its using the same ID twice.  Once for self, and once for ref.  No idea what it is supposed to be
                                 this.identifierService.getNidForUuids(MetaData.UMLS_EQUIVALENCY_ASSEMBLAGE____SOLOR.getPrimordialUuid()),
                                 nidSetEntry.getKey());
 

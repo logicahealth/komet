@@ -306,9 +306,8 @@ public class LookupService {
                               .append(" has an id of ").append(handle.getService().getDataStoreId())
                               .append(".  Expected ")
                               .append(expected);
-                      LOG.warn(builder);
-                   //TODO, add a configuration paramater. 
-                  // throw new RuntimeException(builder.toString());
+                      LOG.error(builder);
+                      throw new RuntimeException(builder.toString());
                   }
                }
             });
@@ -407,9 +406,8 @@ public class LookupService {
                            .append(handle.getService().getDataStoreStartState())
                            .append(".  Expected ")
                            .append(discoveredValidityValue);
-                   LOG.warn(builder);
-                   //TODO, add a configuration paramater. 
-                  // throw new RuntimeException(builder.toString());
+                   LOG.error(builder);
+                   throw new RuntimeException(builder.toString());
                }
             }
          });

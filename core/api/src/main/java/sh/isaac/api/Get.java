@@ -209,9 +209,6 @@ public class Get
    private static PreferencesService preferencesService;
    private static boolean useLuceneIndexes = true;
 
-   //TODO there is either a threading issue, with a load not waiting for a clean to complete, or, there is a bug in this IntObjectHashMap, 
-   //which leads to index out of bounds exceptions once in a while, during a build test.  Need to finish tracking down...
-   // Removed IntObjectHashMap and replaced with Eclipse Collections
    private static MutableIntObjectMap<ConceptSpecification> TERM_AUX_CACHE = null;
 
    /**
