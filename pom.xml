@@ -127,7 +127,7 @@
       <maven-war-plugin.version>3.2.3</maven-war-plugin.version>
       <opencsv.version>5.2</opencsv.version>
       <poi-ooxml.version>4.1.2</poi-ooxml.version>
-      <plexus-archiver.version>4.2.1</plexus-archiver.version>
+      <plexus-archiver.version>4.2.2</plexus-archiver.version>
       <plexus-classworlds.version>2.6.0</plexus-classworlds.version>
       <plexus-component-annotations.version>2.1.0</plexus-component-annotations.version>
       <plexus-container-default.version>2.1.0</plexus-container-default.version>
@@ -828,7 +828,7 @@
                 <dependency>
                     <groupId>org.apache.maven.shared</groupId>
                     <artifactId>maven-dependency-analyzer</artifactId>
-                    <version>1.11.1</version>
+                    <version>1.11.2</version>
                 </dependency>
                 </dependencies>
             </plugin>
