@@ -51,16 +51,14 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicInteger;
-import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
-import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.Status;
 import sh.isaac.api.VersionManagmentPathService;
 import sh.isaac.api.bootstrap.TermAux;
@@ -85,11 +83,9 @@ import sh.isaac.api.observable.ObservableVersion;
  *
  * @author kec
  */
+//This class is not treated as a service, however, it needs the annotation, so that the reset() gets fired at appropriate times.
 @Service
-@RunLevel(value = LookupService.SL_L2)
-// Singleton from the perspective of HK2 managed instances, there will be more than one
-// RelativePositionCalculator created in normal use.
-public class RelativePositionCalculator {
+public class RelativePositionCalculator implements StaticIsaacCache {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
@@ -903,11 +899,7 @@ public class RelativePositionCalculator {
       }
    }
 
-
-   /** 
-    * {@inheritDoc}
-    */
-   @PreDestroy
+   @Override
    public void reset() {
       SINGLETONS.clear();
    }

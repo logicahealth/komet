@@ -48,8 +48,8 @@ import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 //~--- non-JDK imports --------------------------------------------------------
 

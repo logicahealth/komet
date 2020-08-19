@@ -1,8 +1,7 @@
 package sh.isaac.api.coordinate;
 
-import org.glassfish.hk2.runlevel.RunLevel;
+import java.util.Objects;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -10,15 +9,9 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
-import java.util.Objects;
-
+//This class is not treated as a service, however, it needs the annotation, so that the reset() gets fired at appropriate times.
 @Service
-@RunLevel(value = LookupService.SL_L2)
-// Singleton from the perspective of HK2 managed instances, there will be more than one
-// StampFilterImmutable created in normal use.
-public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordinate {
+public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordinate, StaticIsaacCache{
     private static final ConcurrentReferenceHashMap<EditCoordinateImmutable, EditCoordinateImmutable> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
@@ -26,8 +19,7 @@ public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordin
     private final int authorNid;
     private final int moduleNid;
     private final int pathNid;
-
-
+    
     private EditCoordinateImmutable() {
         // No arg constructor for HK2 managed instance
         // This instance just enables reset functionality...
@@ -35,10 +27,8 @@ public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordin
         this.moduleNid = Integer.MAX_VALUE;
         this.pathNid = Integer.MAX_VALUE;
     }
-    /**
-     * {@inheritDoc}
-     */
-    @PreDestroy
+
+    @Override
     public void reset() {
         SINGLETONS.clear();
     }

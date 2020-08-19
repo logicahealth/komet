@@ -1,13 +1,18 @@
 package sh.isaac.api.coordinate;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import org.eclipse.collections.api.list.primitive.ImmutableIntList;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
@@ -23,18 +28,9 @@ import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 
-import javax.annotation.PreDestroy;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-
+//This class is not treated as a service, however, it needs the annotation, so that the reset() gets fired at appropriate times.
 @Service
-@RunLevel(value = LookupService.SL_L2)
-
-// Singleton from the perspective of HK2 managed instances, there will be more than one
-// StampFilterImmutable created in normal use.
-public final class LanguageCoordinateImmutable implements LanguageCoordinate, ImmutableCoordinate, ChronologyChangeListener {
+public final class LanguageCoordinateImmutable implements LanguageCoordinate, ImmutableCoordinate, ChronologyChangeListener, StaticIsaacCache {
 
     private static final ConcurrentReferenceHashMap<LanguageCoordinateImmutable, LanguageCoordinateImmutable> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
@@ -82,6 +78,7 @@ public final class LanguageCoordinateImmutable implements LanguageCoordinate, Im
         this.modulePreferenceListForLanguage = modulePreferenceListForLanguage;
         this.nextPriorityLanguageCoordinate = nextPriorityLanguageCoordinate;
     }
+    
     private LanguageCoordinateImmutable() {
         // No arg constructor for HK2 managed instance
         // This instance just enables reset functionality...
@@ -133,10 +130,7 @@ public final class LanguageCoordinateImmutable implements LanguageCoordinate, Im
         return getLanguageCoordinateUuid();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @PreDestroy
+    @Override
     public void reset() {
         SINGLETONS.clear();
     }

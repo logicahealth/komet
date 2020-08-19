@@ -61,8 +61,8 @@ import sh.isaac.api.util.DataToBytesUtils;
 import sh.isaac.provider.commit.CancelUncommittedStamps;
 import sh.isaac.provider.commit.TransactionImpl;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import javax.inject.Singleton;
 import java.io.*;
 import java.nio.file.Files;

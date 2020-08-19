@@ -60,8 +60,8 @@ import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.provider.commit.CancelUncommittedStamps;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.*;

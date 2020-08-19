@@ -68,8 +68,8 @@ import sh.isaac.model.observable.ObservableConceptChronologyImpl;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
 import sh.isaac.model.observable.ObservableSemanticChronologyWeakRefImpl;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 

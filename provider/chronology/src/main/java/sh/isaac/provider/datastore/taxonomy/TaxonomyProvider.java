@@ -72,8 +72,8 @@ import sh.isaac.model.TaxonomyDebugService;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.lang.ref.WeakReference;
 import java.nio.file.Path;
 import java.util.*;

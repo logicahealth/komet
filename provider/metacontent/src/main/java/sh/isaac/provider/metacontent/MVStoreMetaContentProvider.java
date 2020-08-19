@@ -42,8 +42,8 @@ package sh.isaac.provider.metacontent;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.concurrent.ConcurrentMap;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -167,7 +167,7 @@ public class MVStoreMetaContentProvider
       return this.store.<String, Boolean>openMap(PROCESSED_CHANGESETS_STORE);
    }
 
-/**
+   /**
     * Initialize.
     *
     * @param storageFolder the storage folder

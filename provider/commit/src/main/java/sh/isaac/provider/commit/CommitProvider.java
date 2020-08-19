@@ -78,8 +78,8 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.io.*;
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;

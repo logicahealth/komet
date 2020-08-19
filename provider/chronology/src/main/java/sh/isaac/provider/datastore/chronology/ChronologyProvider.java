@@ -84,8 +84,8 @@ import sh.isaac.model.concept.ConceptSnapshotImpl;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.nio.file.Path;

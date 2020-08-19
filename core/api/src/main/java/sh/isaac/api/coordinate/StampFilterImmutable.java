@@ -42,18 +42,13 @@ package sh.isaac.api.coordinate;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.Set;
-import javax.annotation.PreDestroy;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import org.eclipse.collections.api.list.primitive.ImmutableIntList;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
-import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.LookupService;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -61,10 +56,6 @@ import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * A filter that operates in coordinate with path coordinate and the version computer. After the version computer computes the
@@ -83,12 +74,11 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
  * Created by kec on 2/16/15.
  *
  */
+//This class is not treated as a service, however, it needs the annotation, so that the reset() gets fired at appropriate times.
 @Service
-@RunLevel(value = LookupService.SL_L2)
-// Singleton from the perspective of HK2 managed instances, there will be more than one
-// StampFilterImmutable created in normal use.
+
 public class StampFilterImmutable
-        implements StampFilter, ImmutableCoordinate {
+        implements StampFilter, ImmutableCoordinate, StaticIsaacCache {
 
     private static final ConcurrentReferenceHashMap<StampFilterImmutable, StampFilterImmutable> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
@@ -113,10 +103,7 @@ public class StampFilterImmutable
         this.modulePreferenceOrder = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @PreDestroy
+    @Override
     public void reset() {
         SINGLETONS.clear();
     }
