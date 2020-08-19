@@ -341,7 +341,9 @@ public class KometStageController
                 convertBeer.setOnAction((ActionEvent event) -> {
                     Get.executor().execute(() -> {
                         try {
-                            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+                            //TODO [DAN 2] change checker appears to be broken?  Yet allows the commit, kinda.  A whole lotta mess / broken stuff going on here.
+                            //Turned off changechecker for now.
+                            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
                             TurtleImportHK2Direct timd = Get.service(TurtleImportHK2Direct.class);
                             timd.configure(null, beer.toPath(), "0.8", null, transaction);
                             timd.convertContent(update -> {}, (work, totalWork) -> {});
