@@ -36,16 +36,41 @@
  */
 package sh.komet.fx.stage;
 
+import static sh.komet.gui.contract.MenuProvider.Keys.WINDOW_PREFERENCE_ABSOLUTE_PATH;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.UUID;
+import java.util.prefs.BackingStoreException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
-import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -53,12 +78,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
@@ -84,13 +108,6 @@ import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.UuidStringKey;
-
-import java.io.File;
-import java.net.URL;
-import java.util.*;
-import java.util.prefs.BackingStoreException;
-
-import static sh.komet.gui.contract.MenuProvider.Keys.WINDOW_PREFERENCE_ABSOLUTE_PATH;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -341,24 +358,34 @@ public class KometStageController
                 convertBeer.setOnAction((ActionEvent event) -> {
                     Get.executor().execute(() -> {
                         try {
-                            //TODO [DAN 2] change checker appears to be broken?  Yet allows the commit, kinda.  A whole lotta mess / broken stuff going on here.
-                            //Turned off changechecker for now.
+                            //TODO [DAN 2] change checker appears to be broken?  Turned off changechecker for now.
                             Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
                             TurtleImportHK2Direct timd = Get.service(TurtleImportHK2Direct.class);
                             timd.configure(null, beer.toPath(), "0.8", null, transaction);
                             timd.convertContent(update -> {}, (work, totalWork) -> {});
-                            transaction.commit("Beer has arrived!");
-                            Get.indexDescriptionService().refreshQueryEngine();
+                            Optional<CommitRecord> cr = transaction.commit("Beer has arrived!").get();  //TODO this is broken, it isn't returning a commit record
+                            LOG.error("commit record empty? {}", cr);
+                            //if (cr.isPresent()) {
+	                            Get.indexDescriptionService().refreshQueryEngine();
+	                            Platform.runLater(() -> {
+	                                Alert alert = new Alert(AlertType.INFORMATION);
+	                                alert.setTitle("Beer has arrived!");
+	                                alert.setHeaderText("Beer has been imported!");
+	                                alert.initOwner(topGridPane.getScene().getWindow());
+	                                alert.setResizable(true);
+	                                alert.showAndWait();
+	                            });
+                            //}
+                        } catch (Exception e) {
+                            LOG.error("Beer failure", e);
                             Platform.runLater(() -> {
-                                Alert alert = new Alert(AlertType.INFORMATION);
-                                alert.setTitle("Beer has arrived!");
-                                alert.setHeaderText("Beer has been imported!");
+                                Alert alert = new Alert(AlertType.ERROR);
+                                alert.setTitle("Party Foul!");
+                                alert.setHeaderText("Something went wrong loading beer!");
                                 alert.initOwner(topGridPane.getScene().getWindow());
                                 alert.setResizable(true);
                                 alert.showAndWait();
                             });
-                        } catch (Exception e) {
-                            LOG.error("Beer failure", e);
                         }
                     });
                 });
