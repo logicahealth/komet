@@ -463,7 +463,7 @@ public class FileSystemDataStore
                     if (directory.exists()) {
                         int filesRead = map.read(directory);
                         if (filesRead > 0) {
-                            LOG.debug("Read  " + filesRead + " element to nid files for assemblage: "
+                            LOG.trace("Read  " + filesRead + " element to nid files for assemblage: "
                                     + " " + properties.getProperty(Integer.toString(assemblageNid))
                                     + assemblageNid + " " + Integer.toUnsignedString(assemblageNid));
                         }

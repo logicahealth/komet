@@ -685,7 +685,9 @@ public class DirectWriteHelper
 		},
 		() -> {
 			StringBuilder sb = new StringBuilder();
-			Get.defaultConceptSnapshotService().getDescriptionOptional(moduleNid).ifPresent(d -> sb.append(d.getText()));
+			if (Get.conceptService().hasConcept(moduleNid)) {
+				Get.defaultConceptSnapshotService().getDescriptionOptional(moduleNid).ifPresent(d -> sb.append(d.getText()));
+			}
 			if (sb.length() > 0)
 			{
 				sb.append(" - ");

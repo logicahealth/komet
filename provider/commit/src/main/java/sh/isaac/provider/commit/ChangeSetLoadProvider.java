@@ -294,9 +294,9 @@ public class ChangeSetLoadProvider
             //Its possible that during initial startup, there will won't be a semantic ID at this point.  The lookupservice startup sequence 
             //will resolve this later.
             StringBuilder msg = new StringBuilder();
-            msg.append("Database identities at startup:\n   ChronicleDbId: ").append(chronicleDbId);
-            msg.append("\n   SemanticDbId: ").append(semanticDbId);
-            msg.append("\n   Changsets DbId: ").append(changesetsDbId);
+            msg.append("Database identities at startup:   ChronicleDbId: ").append(chronicleDbId);
+            msg.append(", SemanticDbId: ").append(semanticDbId);
+            msg.append(", Changsets DbId: ").append(changesetsDbId);
             LOG.info(msg.toString());
         } catch (final IOException | RuntimeException e) {
             LOG.error("Error ", e);

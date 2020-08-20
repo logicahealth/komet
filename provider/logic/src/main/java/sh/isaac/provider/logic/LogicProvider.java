@@ -128,7 +128,7 @@ public class LogicProvider
                 int instantCount = buff.getInt();
                 for (int i = 0; i < instantCount; i++) {
                   Instant instant = Instant.ofEpochMilli(buff.getLong());
-                  LOG.info("Reading classifier results for: " + instant);
+                  LOG.trace("Reading classifier results for: " + instant);
                   ClassifierResultsImpl[] resultsForInstant = new ClassifierResultsImpl[buff.getInt()];
                   for (int j = 0; j < resultsForInstant.length; j++) {
                      resultsForInstant[j] = ClassifierResultsImpl.make(buff);

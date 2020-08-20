@@ -408,8 +408,8 @@ public class TaxonomyProvider
         public String toString() {
             return "SnapshotCacheKey{" +
                     "taxPremiseType=" + taxPremiseType +
-                    ",\n   stampCoordinate=" + manifoldCoordinateUuid +
-                    ",\n   customSortHash=" + customSortHash +
+                    ", stampCoordinate=" + manifoldCoordinateUuid +
+                    ", customSortHash=" + customSortHash +
                     '}';
         }
 
@@ -469,7 +469,7 @@ public class TaxonomyProvider
             return previousTask;
         }
 
-        LOG.debug("Executing: " + snapshotCacheKey + "\n cache count is: " + this.snapshotCache.size());
+        LOG.debug("Executing: " + snapshotCacheKey + " -- cache count is: " + this.snapshotCache.size());
         Get.executor().execute(treeBuilderTask);
 
         return treeBuilderTask;
@@ -630,9 +630,10 @@ public class TaxonomyProvider
                 switch (newValue) {
                     case SUCCEEDED: {
                         this.treeSnapshot = treeTask.get();
+                        break;
                     }
                     default :
-                        LOG.debug("Unhandled case: {}", newValue);
+                        //noop
                         break;
                 }
             } catch (InterruptedException | ExecutionException ex) {

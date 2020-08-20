@@ -193,7 +193,7 @@ public class UuidIntMapMapFileBased
                     try (DataInputStream in = new DataInputStream(new BufferedInputStream(new FileInputStream(mapFile)))) {
                         this.maps[i] = new MemoryManagedReference<>(ConcurrentUuidToIntHashMap.deserialize(in), mapFile);
                         WriteToDiskCache.addToCache(this.maps[i]);
-                        LOG.debug("UuidIntMapMap restored: " + i + " from: " + this + " file: " + mapFile.getAbsolutePath());
+                        LOG.trace("UuidIntMapMap restored: " + i + " from: " + this + " file: " + mapFile.getAbsolutePath());
                      } finally {
                         DiskSemaphore.release();
                     }

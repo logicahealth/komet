@@ -40,9 +40,12 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import sh.isaac.api.util.FxTimer;
@@ -70,10 +73,18 @@ public abstract class TimedTask<T>
     private Instant startTime;
     private Instant endTime;
 
-    private boolean suppressCompletionLogIfLessThanSpecifiedDuration = true;
-    private long suppressionTimeDurationInSeconds = 5;
-    private static int suppressionCount = 0;
-    private static final int suppressionStartCount = 11;
+    private long suppressionForTasksShorterThan = 5;
+    private static final int SUPPRESSION_TIME = 30;
+    private static final int SUPPRESSION_AFTER_X_IN_SUPRESSION_TIME = 3;
+
+    //Note that these timed expirations are not done on a strict schedule, it may take further activity to trigger them
+    private static Cache<String, AtomicInteger> suppressCache = Caffeine.newBuilder().expireAfterWrite(Duration.ofSeconds(SUPPRESSION_TIME))
+            .removalListener((key, value, cause) -> {
+                if (((AtomicInteger)value).get() > SUPPRESSION_AFTER_X_IN_SUPRESSION_TIME) {
+                    LOG.debug("Suppressed {} task completion logs from {}, next will be logged normally.", ((AtomicInteger)value).get() - SUPPRESSION_AFTER_X_IN_SUPRESSION_TIME, 
+                    key, SUPPRESSION_TIME);
+                }
+            }).build(); 
 
     private Consumer<TimedTask<T>> completeMessageGenerator;
     private Consumer<TimedTask<T>> progressMessageGenerator;
@@ -94,20 +105,21 @@ public abstract class TimedTask<T>
         this.progressUpdateDuration = progressUpdateDuration;
     }
 
-    public boolean getSuppressCompletionLogIfLessThanSpecifiedDuration() {
-        return suppressCompletionLogIfLessThanSpecifiedDuration;
+    /**
+     * Tasks that execute more quickly than this will be suppressed from the logs, if too many occur in a short time.
+     * @return
+     */
+    public long getSuppressionForTasksShorterThanSeconds() {
+        return suppressionForTasksShorterThan;
     }
 
-    public void setSuppressCompletionLogIfLessThanSpecifiedDuration(boolean suppressCompletionLogIfLessThanSpecifiedDuration) {
-        this.suppressCompletionLogIfLessThanSpecifiedDuration = suppressCompletionLogIfLessThanSpecifiedDuration;
-    }
-
-    public long getSuppressionTimeDurationInSeconds() {
-        return suppressionTimeDurationInSeconds;
-    }
-
-    public void setSuppressionTimeDurationInSeconds(long suppressionTimeDurationInSeconds) {
-        this.suppressionTimeDurationInSeconds = suppressionTimeDurationInSeconds;
+    /**
+     * Tasks longer than this value always have their end times logs.  Shorter than this, may be suppressed from the logs, if they 
+     * occur in too short of a window.  Set to max value, to disable suppression 
+     * @param suppressionTimeDurationInSeconds
+     */
+    public void setSuppressionForTasksShorterThanSeconds(long suppressionTimeDurationInSeconds) {
+        this.suppressionForTasksShorterThan = suppressionTimeDurationInSeconds;
     }
 
     @Override
@@ -121,25 +133,21 @@ public abstract class TimedTask<T>
                 updateMessage(getSimpleName() + " completed in " + DurationUtil.format(getDuration()));
             });
         }
-        
-        //TODO [DAN 1] notes, this is odd.  Typically, if you are suppressing logs, you only suppress identical logs in a certain time frame.
-        //Not ALL logs after X.... Not to mention most of the performance issues caused by this logging could be properly handled with TRACE
-        //And using the proper logging pattern, so it isn't calculating values when they aren't logged, as I have updated it below.
-        if (suppressCompletionLogIfLessThanSpecifiedDuration) {
-            if (getDuration().getSeconds() > suppressionTimeDurationInSeconds) {
-                LOG.trace("{} {} completed in: {}", (() -> getSimpleName()),  (() -> taskId), (() -> DurationUtil.format(getDuration())));
-            } else {
-                if (suppressionCount < suppressionStartCount) {
-                    suppressionCount++;
-                    LOG.trace("{} {} completed in: {}", (() -> getSimpleName()),  (() -> taskId), (() -> DurationUtil.format(getDuration())));
-                    LOG.trace("Suppression of task completion logging for tasks shorter than " + suppressionTimeDurationInSeconds +
-                            " seconds will occur after "+ (suppressionStartCount - suppressionCount) + " more completions.");
+
+        if (getDuration().getSeconds() > suppressionForTasksShorterThan) {
+            LOG.debug("{} {} completed in: {}", (() -> getSimpleName()),  (() -> taskId), (() -> DurationUtil.format(getDuration())));
+        } else {
+            AtomicInteger hitCount = suppressCache.get(getSimpleName(), (nameAgain -> new AtomicInteger(0)));
+            int total = hitCount.getAndIncrement();
+            if (total >= SUPPRESSION_AFTER_X_IN_SUPRESSION_TIME) { //More than SUPRESSION_AFTER_X_IN_SUPRESSION_TIME, in SUPRESSION_TIME seconds, stop printing them.
+                if (total == SUPPRESSION_AFTER_X_IN_SUPRESSION_TIME) {
+                    LOG.debug(" Tasks of type {} rapidly executing, will suppress tasks of this type for up to {} seconds.", getSimpleName(), SUPPRESSION_TIME);
                 }
             }
-        } else {
-            LOG.trace("{} {} completed in: {}", (() -> getSimpleName()),  (() -> taskId), (() -> DurationUtil.format(getDuration())));
+            else {
+                LOG.debug("{} {} completed in: {}", (() -> getSimpleName()),  (() -> taskId), (() -> DurationUtil.format(getDuration())));
+            }
         }
-
 
         Platform.runLater(() -> {
             if (exceptionProperty().get() != null) {

@@ -1,29 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
-	<!-- TODO this needs to be configured properly for the komet application runtime, I'd expect, we want to log all debug info to a log file... -->
+<Configuration packages="sh.komet.fx.stage">
 	<Appenders>
 		<!-- Console logging -->
 		<!-- Pattern info: date priority{5 chars} thread logger{abbreviated} (file:line) - message -->
 		<Console name="STDOUT" target="SYSTEM_OUT">
-			<PatternLayout pattern = "%d %-5p [%t] (%F:%L) - %m%n" />
+			<PatternLayout pattern = "%d{HH:mm:ss,SSS}  %-5p (%F:%L) [%t] - %m%n" />
 			<Filters>
-				<ThresholdFilter level="INFO"/>
+				<!--Don't log these specific loggers to the console-->
+				<ThresholdFilter level="DEBUG"/>  <!--During non-dev, would probably set this to WARN -->
+				<LoggerNameFilter name="net.sagebits.HK2Utilities.ClassInfo" onMatch="DENY" onMismatch="NEUTRAL"/>
+				<LoggerNameFilter name="net.sagebits.HK2Utilities.HK2RuntimeInitializer" onMatch="DENY" onMismatch="NEUTRAL"/>
+				<LoggerNameFilter name="org.apache.commons.beanutils" onMatch="DENY" onMismatch="NEUTRAL"/>
+				<LoggerNameFilter name="org.apache.shiro" onMatch="DENY" onMismatch="NEUTRAL"/>
+				<LoggerNameFilter name="org.drools.core.common" onMatch="DENY" onMismatch="NEUTRAL"/>
+				<LoggerNameFilter name="sh.isaac.api.LookupService" onMatch="DENY" onMismatch="NEUTRAL"/>
 			</Filters>
 		</Console>
-		
-		<!-- Only prints INFO and worse -->
-		<File name="FILE-NORMAL" fileName="komet.log">
-			<PatternLayout pattern = "%d %-5p [%t] %logger (%F:%L) - %msg%n"/>
-			<Filters>
-				<ThresholdFilter level="INFO"/>
-			</Filters>
-		</File>
 		
 		<!-- Prints everything -->
 		<File name="FILE-DEBUG" fileName="komet-debug.log">
 			<PatternLayout pattern = "%d %-5p [%t] %logger (%F:%L) - %msg%n"/>
 			<Filters>
-				<ThresholdFilter level="ALL"/>
+				<ThresholdFilter level="DEBUG"/>  <!--Take to trace, if you want way too much stuff-->
 			</Filters>
 		</File>
 		
@@ -37,14 +35,8 @@
 		
 	</Appenders>
 	<Loggers>
-		<!-- To quiet down individual loggers, add entries like this -->
-		<Logger name="sh.isaac.api.LookupService" level="error" />
-		<Logger name="jetbrains.exodus.gc" level="warn" />
-		<Logger name="jetbrains.exodus.io" level="warn" />
-		<Logger name="jetbrains.exodus.env" level="warn"/>
-		<Root level="info">
+		<Root level="all">
 			<AppenderRef ref="STDOUT" />
-			<AppenderRef ref="FILE-NORMAL" />
 			<AppenderRef ref="FILE-DEBUG" />
 			<AppenderRef ref="FILE-ERROR" />
 		</Root>

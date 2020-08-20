@@ -1,5 +1,6 @@
 package sh.isaac.api.task;
 
+import org.apache.commons.lang3.StringUtils;
 import javafx.application.Platform;
 import sh.isaac.api.Get;
 
@@ -29,6 +30,6 @@ public class LabelTaskWithIndeterminateProgress extends TimedTaskWithProgressTra
     }
 
     protected String getSimpleName() {
-        return simpleTitle;
+        return StringUtils.isBlank(simpleTitle) ? super.getSimpleName() : simpleTitle;
     }
 }
