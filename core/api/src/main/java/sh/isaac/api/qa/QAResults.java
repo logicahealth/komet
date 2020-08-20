@@ -33,14 +33,12 @@ package sh.isaac.api.qa;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlRootElement;
 
 /**
  * Placeholder for QA results API
  * @author darmbrust
  *
  */
-@XmlRootElement
 public class QAResults
 {
 	private List<QAInfo> result;
@@ -64,5 +62,4 @@ public class QAResults
 	{
 		return result;
 	}
-
 }

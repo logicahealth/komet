@@ -28,6 +28,8 @@ import com.cedarsoftware.util.io.JsonReader;
 import com.cedarsoftware.util.io.JsonWriter;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.coordinate.StampFilterImmutable;
+import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.qa.QAResults;
 
 /**
@@ -41,6 +43,7 @@ public class QARunStorage
 {
 	private static Logger log = LogManager.getLogger();
 	private static final String QA_STORE = "qaStore";
+	private static final String QA_STORE_COORD = "qaStoreCoord";
 
 	private QARunStorage()
 	{
@@ -68,7 +71,10 @@ public class QARunStorage
 		}
 		else
 		{
-			return (QAResult) JsonReader.jsonToJava(temp);
+			
+			QAResult result = (QAResult) JsonReader.jsonToJava(temp);
+			result.coordinate = MarshalUtil.fromBytes(Get.metaContentService().<UUID, byte[]> openStore(QA_STORE_COORD).get(result.getQaId()));
+			return result;
 		}
 	}
 
@@ -81,6 +87,7 @@ public class QARunStorage
 		for (String s : Get.metaContentService().<UUID, String> openStore(QA_STORE).values())
 		{
 			QAResult rcr = (QAResult) JsonReader.jsonToJava(s);
+			rcr.coordinate = MarshalUtil.fromBytes(Get.metaContentService().<UUID, byte[]> openStore(QA_STORE_COORD).get(rcr.getQaId()));
 			results.add(rcr);
 		}
 		Collections.sort(results);
@@ -120,10 +127,11 @@ public class QARunStorage
 	 * 
 	 * @param id
 	 */
-	public void qaQueued(UUID id)
+	public void qaQueued(UUID id, StampFilterImmutable stamp)
 	{
 		String temp = JsonWriter.objectToJson(new QAResult(id));
 		Get.metaContentService().<UUID, String> openStore(QA_STORE).put(id, temp);
+		Get.metaContentService().<UUID, byte[]> openStore(QA_STORE_COORD).put(id, MarshalUtil.toBytes(stamp));
 	}
 
 	/**

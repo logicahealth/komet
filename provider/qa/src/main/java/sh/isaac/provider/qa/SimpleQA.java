@@ -44,6 +44,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.qa.QAInfo;
 import sh.isaac.api.qa.QAResults;
 import sh.isaac.api.qa.Severity;
@@ -143,5 +144,11 @@ public class SimpleQA extends QATask
 		{
 			results.addResult(result);
 		}
+	}
+
+	@Override
+	protected StampFilterImmutable getFilter()
+	{
+		return coordinate.toStampFilterImmutable();
 	}
 }

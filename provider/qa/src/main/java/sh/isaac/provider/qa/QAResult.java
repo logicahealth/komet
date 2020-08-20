@@ -21,6 +21,7 @@ import javax.xml.bind.annotation.XmlRootElement;
 import com.fasterxml.jackson.annotation.JsonAutoDetect;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.qa.QAInfo;
 import sh.isaac.api.qa.QAResults;
 
@@ -69,15 +70,13 @@ public class QAResult implements Comparable<QAResult>
 	@XmlElement
 	private QAInfo[] result;
 	
+	protected transient StampFilterImmutable coordinate;
+	
 	protected QAResult()
 	{
 		//For jaxb
 	}
 	
-	//TODO [DAN 1] after we merge upstream with Keith, need to store the ManifoldCoordinate here as well, waiting till 
-	//after ther merge, because the current coordinate structure has no serialization support, and I don't want 
-	// to implement it, or try to port it.  His branch has an API that will write it to a byte[], which we can hatchet 
-	//job into our json serialization here, as part of the QAResult.
 	public QAResult(UUID qaId)
 	{
 		this.qaId = qaId;
@@ -142,6 +141,15 @@ public class QAResult implements Comparable<QAResult>
 	public String getStatus()
 	{
 		return status;
+	}
+	
+	/**
+	 * The StampFilter used when launching the QA
+	 * @return
+	 */
+	public StampFilterImmutable getStampFilterImmutable()
+	{
+		return coordinate;
 	}
 
 	/**
