@@ -59,15 +59,11 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableDynamicVersion;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.commitaware.CommitAwareDynamicProperty;
-import sh.isaac.model.observable.ObservableChronologyImpl;
-import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_VersionImpl;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.model.semantic.DynamicUtilityImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.DynamicImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 
 /**
  * 
@@ -107,7 +103,7 @@ public class ObservableDynamicVersionImpl extends ObservableAbstractSemanticVers
 		copyLocalFields(analog);
 		analog.setModuleNid(mc.getModuleNidForAnalog(this));
 		analog.setAuthorNid(mc.getAuthorNidForChanges());
-		analog.setPathNid(mc.getPathNidForAnalog(this));
+		analog.setPathNid(mc.getPathNidForAnalog());
 		return (V) analog;
 	}
 

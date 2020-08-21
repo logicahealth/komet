@@ -51,6 +51,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Edge;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -83,7 +84,7 @@ public interface ManifoldCoordinate {
         uuidList.add(manifoldCoordinate.getEditCoordinate().getEditCoordinateUuid());
         uuidList.add(manifoldCoordinate.getNavigationCoordinate().getNavigationCoordinateUuid());
         uuidList.add(manifoldCoordinate.getVertexSort().getVertexSortUUID());
-        uuidList.add(manifoldCoordinate.getVertexStampFilter().getStampFilterUuid());
+        uuidList.add(manifoldCoordinate.getVertexStatusSet().getStatusSetUuid());
         uuidList.add(manifoldCoordinate.getViewStampFilter().getStampFilterUuid());
         uuidList.add(manifoldCoordinate.getLanguageCoordinate().getLanguageCoordinateUuid());
         uuidList.add(UuidT5Generator.get(manifoldCoordinate.getCurrentActivity().name()));
@@ -97,8 +98,10 @@ public interface ManifoldCoordinate {
         sb.append("\nNavigation: ").append(getNavigationCoordinate().toUserString());
         sb.append("\n\nView filter:\n").append(getViewStampFilter().toUserString());
         sb.append("\n\nLanguage coordinate:\n").append(getLanguageCoordinate().toUserString());
-        sb.append("\n\nVertex filter:\n").append(getVertexStampFilter().toUserString());
+        sb.append("\n\nVertex filter:\n").append(getVertexStatusSet().toUserString());
         sb.append("\n\nSort:\n").append(getVertexSort().getVertexSortName());
+        sb.append("\n\nLogic:\n").append(getLogicCoordinate().toUserString());
+        sb.append("\n\nEdit:\n").append(getEditCoordinate().toUserString());
         return sb.toString();
     }
 
@@ -135,7 +138,7 @@ public interface ManifoldCoordinate {
      * different status values, for example to allow display of retired descriptions or of retired concepts when pointed
      * to by active relationships in the view.
      *
-     * This filter is used on the edges (relationships) in navigation operations, while {@link #getVertexStampFilter()}
+     * This filter is used on the edges (relationships) in navigation operations, while {@link #getVertexStatusSet()}
      * is used on the vertexes (concepts) themselves.
      *
      * @return The view stamp filter,
@@ -147,11 +150,20 @@ public interface ManifoldCoordinate {
      * But, it may be a different, depending on the construction - for example, a use case like returning inactive
      * vertexes (concepts) linked by active edges (relationships).
      *
-     * This filter is used on the vertexes (source and destination concepts)
+     * This status set vertexes (source and destination concepts)
      * in navigation operations, while {@link #getViewStampFilter()} is used
      * on the edges (relationships) themselves.
      *
      * @return The vertex stamp filter,
+     */
+    StatusSet getVertexStatusSet();
+
+    /**
+     * All fields the same as the view stamp filter, except for the status set.
+     * Having a vertex and view stamp filter allows for active relationships to point
+     * to inactive concepts, as might be the case when you want to navigate retired concepts,
+     * or concepts considered equivalent to retired concepts.
+     * @return the filter to use for retrieving vertexes
      */
     StampFilter getVertexStampFilter();
 
@@ -228,7 +240,7 @@ public interface ManifoldCoordinate {
     }
 
     default LatestVersion<LogicGraphVersion> getLogicalDefinition(int conceptNid, PremiseType premiseType) {
-        return this.getLogicCoordinate().getLogicGraphVersion(conceptNid, premiseType, this.getVertexStampFilter());
+        return this.getLogicCoordinate().getLogicGraphVersion(conceptNid, premiseType, this.getViewStampFilter());
     }
 
 
@@ -371,7 +383,7 @@ public interface ManifoldCoordinate {
 
     default Optional<LogicalExpression> getLogicalExpression(int conceptNid, PremiseType premiseType) {
         ConceptChronology concept = Get.concept(conceptNid);
-        LatestVersion<LogicGraphVersion> logicalDef = concept.getLogicalDefinition(getVertexStampFilter(), premiseType, getLogicCoordinate());
+        LatestVersion<LogicGraphVersion> logicalDef = concept.getLogicalDefinition(getViewStampFilter(), premiseType, getLogicCoordinate());
         if (logicalDef.isPresent()) {
             return Optional.of(logicalDef.get().getLogicalExpression());
         }
@@ -518,18 +530,7 @@ public interface ManifoldCoordinate {
 
     default String getPathString() {
         StringBuilder sb = new StringBuilder();
-        ConceptSpecification lastPath = this.getVertexStampFilter().getPathConceptForFilter();
-        sb.append(this.getPreferredDescriptionText(lastPath));
-        ConceptSpecification nextPath = this.getViewStampFilter().getPathConceptForFilter();
-        if (!nextPath.equals(lastPath)) {
-            lastPath = nextPath;
-            sb.append(", " + this.getPreferredDescriptionText(lastPath));
-        }
-        nextPath = this.getViewStampFilter().getPathConceptForFilter();
-        if (!nextPath.equals(lastPath)) {
-            lastPath = nextPath;
-            sb.append(", " + this.getPreferredDescriptionText(lastPath));
-        }
+        sb.append(this.getPreferredDescriptionText(getViewStampFilter().getPathNidForFilter()));
         return sb.toString();
     }
 
@@ -542,7 +543,8 @@ public interface ManifoldCoordinate {
         switch (getCurrentActivity()) {
             case DEVELOPING:
             case PROMOTING:
-                if (version == null) {
+                if (version == null || version.getModuleNid() == 0 || version.getModuleNid() == Integer.MIN_VALUE ||
+                        version.getModuleNid() == Integer.MAX_VALUE || version.getModuleNid() == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()) {
                     return getEditCoordinate().getDefaultModuleNid();
                 }
                 return version.getModuleNid();
@@ -564,14 +566,11 @@ public interface ManifoldCoordinate {
      *
      * @return the path nid
      */
-    default int getPathNidForAnalog(Version version) {
+    default int getPathNidForAnalog() {
         switch (getCurrentActivity()) {
             case DEVELOPING:
             case MODULARIZING:
-                if (version == null) {
-                    return getViewStampFilter().getPathNidForFilter();
-                }
-                return version.getPathNid();
+                return getViewStampFilter().getPathNidForFilter();
             case PROMOTING:
                 return getEditCoordinate().getPromotionPathNid();
             case VIEWING:
@@ -581,8 +580,8 @@ public interface ManifoldCoordinate {
         }
     }
 
-    default ConceptSpecification getPathForAnalog(Version version) {
-        return Get.conceptSpecification(getPathNidForAnalog(version));
+    default ConceptSpecification getPathForAnalog() {
+        return Get.conceptSpecification(getPathNidForAnalog());
     }
 
     ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis);

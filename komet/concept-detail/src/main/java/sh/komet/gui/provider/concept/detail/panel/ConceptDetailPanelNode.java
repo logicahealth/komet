@@ -353,10 +353,8 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         populateVersionBranchGrid();
         componentPanelBox.getChildren().add(toolGrid);
 
-        Optional<IdentifiedObject> focusedConceptSpec = this.getFocusedObject();
-
-        if (focusedConceptSpec.isPresent()) {
-            ConceptChronology newValue = Get.concept(focusedConceptSpec.get().getNid());
+        getFocusedObject().ifPresent(identifiedObject -> {
+            ConceptChronology newValue = Get.concept(identifiedObject.getNid());
             if (titleLabel == null) {
                 titleProperty.set(this.viewProperties.getPreferredDescriptionText(newValue));
             } else {
@@ -423,7 +421,7 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
                                 } else {
                                     LatestVersion<SemanticVersion> latest
                                             = semanticChronology.getLatestVersion(
-                                            this.viewProperties.getManifoldCoordinate().getVertexStampFilter());
+                                            this.viewProperties.getManifoldCoordinate().getViewStampFilter());
 
                                     if (latest.isPresent()) {
                                         return latest.get()
@@ -490,7 +488,7 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
                                 addChronology(osc, parallelTransition);
                             });
             parallelTransition.play();
-        }
+        });
     }
 
     private void newDescription(Event event) {
@@ -658,7 +656,28 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
 
     @Override
     public void updateFocusedObject(IdentifiedObject component) {
-        Platform.runLater(() -> setConcept(component));
+        if (component != null) {
+            Platform.runLater(() -> {
+                Optional<? extends Chronology> optionalChronology = Get.identifiedObjectService().getChronology(component.getNid());
+                optionalChronology.ifPresent(chronology -> {
+                    if (chronology instanceof ConceptChronology) {
+                        setConcept(chronology);
+                    } else {
+                        SemanticChronology semanticChronology = (SemanticChronology) chronology;
+                        Optional<? extends Chronology> optionalReferencedComponent = Get.identifiedObjectService().getChronology(semanticChronology.getReferencedComponentNid());
+                        Chronology referencedComponent = optionalReferencedComponent.get();
+                        while (!(referencedComponent instanceof ConceptChronology)) {
+                            semanticChronology = (SemanticChronology) referencedComponent;
+                            optionalReferencedComponent = Get.identifiedObjectService().getChronology(semanticChronology.getReferencedComponentNid());
+                            referencedComponent = optionalReferencedComponent.get();
+                        }
+                        setConcept(referencedComponent);
+                    }
+                });
+            });
+        } else {
+            setConcept(null);
+        }
     }
 
     private void setConcept(IdentifiedObject component) {

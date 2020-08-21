@@ -175,8 +175,8 @@ public class ActivityFeed implements ManifoldCoordinate {
     }
 
     @Override
-    public StampFilter getVertexStampFilter() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getVertexStampFilter();
+    public StatusSet getVertexStatusSet() {
+        return this.owningViewForActivityFeed.getManifoldCoordinate().getVertexStatusSet();
     }
 
     @Override
@@ -202,6 +202,11 @@ public class ActivityFeed implements ManifoldCoordinate {
     @Override
     public PremiseSet getPremiseTypes() {
         return this.owningViewForActivityFeed.getManifoldCoordinate().getPremiseTypes();
+    }
+
+    @Override
+    public StampFilter getVertexStampFilter() {
+        return this.owningViewForActivityFeed.getManifoldCoordinate().getVertexStampFilter();
     }
 
     @Override

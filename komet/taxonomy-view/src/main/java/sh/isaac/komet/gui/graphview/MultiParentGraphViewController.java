@@ -214,32 +214,40 @@ public class MultiParentGraphViewController implements RefreshListener {
         String activityFeedKey = nodePreferences.get(Keys.ACTIVITY_FEED, this.viewProperties.getViewUuid() + ":" + ViewProperties.NAVIGATION);
         this.activityFeedProperty.set(this.viewProperties.getActivityFeed(activityFeedKey));
         this.treeView.getSelectionModel().getSelectedItems().addListener((ListChangeListener<TreeItem<ConceptChronology>>) c -> {
+
             ActivityFeed activityFeed = this.activityFeedProperty.get();
-            while (c.next()) {
-                if (c.wasPermutated()) {
-                    for (int i = c.getFrom(); i < c.getTo(); ++i) {
-                        //nothing to do...
-                    }
-                } else if (c.wasUpdated()) {
-                    //nothing to do
-                } else {
-                    for (TreeItem<ConceptChronology> remitem : c.getRemoved()) {
-                        activityFeed.feedSelectionProperty().remove(new ComponentProxy(remitem.getValue().toExternalString()));
-                    }
-                    for (TreeItem<ConceptChronology> additem : c.getAddedSubList()) {
-                        activityFeed.feedSelectionProperty().add(new ComponentProxy(additem.getValue().toExternalString()));
+            if (activityFeed != null) {
+                while (c.next()) {
+                    if (c.wasPermutated()) {
+                        for (int i = c.getFrom(); i < c.getTo(); ++i) {
+                            //nothing to do...
+                        }
+                    } else if (c.wasUpdated()) {
+                        //nothing to do
+                    } else {
+                        for (TreeItem<ConceptChronology> remitem : c.getRemoved()) {
+                            if (remitem.getValue() != null) {
+                                activityFeed.feedSelectionProperty().remove(new ComponentProxy(remitem.getValue().toExternalString()));
+                            }
+                        }
+                        for (TreeItem<ConceptChronology> additem : c.getAddedSubList()) {
+                            if (additem.getValue() != null) {
+                                activityFeed.feedSelectionProperty().add(new ComponentProxy(additem.getValue().toExternalString()));
+                            }
+                        }
                     }
                 }
-            }
-            // Check to make sure lists are equal in size/properly synchronized.
-            if (activityFeed.feedSelectionProperty().size() != c.getList().size()) {
-                // lists are out of sync, reset with fresh list.
-                ComponentProxy[] selectedItems = new ComponentProxy[c.getList().size()];
-                for (int i = 0; i < selectedItems.length; i++) {
-                    selectedItems[i] = new ComponentProxy(c.getList().get(i).getValue().toExternalString());
+                // Check to make sure lists are equal in size/properly synchronized.
+                if (activityFeed.feedSelectionProperty().size() != c.getList().size()) {
+                    // lists are out of sync, reset with fresh list.
+                    ComponentProxy[] selectedItems = new ComponentProxy[c.getList().size()];
+                    for (int i = 0; i < selectedItems.length; i++) {
+                        selectedItems[i] = new ComponentProxy(c.getList().get(i).getValue().toExternalString());
+                    }
+                    activityFeed.feedSelectionProperty().setAll(selectedItems);
                 }
-                activityFeed.feedSelectionProperty().setAll(selectedItems);
             }
+
         });
 
         this.displayPolicies = new DefaultMultiParentGraphItemDisplayPolicies();
@@ -261,8 +269,6 @@ public class MultiParentGraphViewController implements RefreshListener {
         this.getManifoldCoordinate().addListener(this.manifoldChangedListener);
         this.topBorderPane.sceneProperty().addListener(this.sceneChangedListener);
     }
-
-
 
     public ObservableManifoldCoordinate getManifoldCoordinate() {
         return this.manifoldCoordinate;

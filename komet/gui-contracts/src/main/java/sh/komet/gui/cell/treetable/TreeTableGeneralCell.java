@@ -64,11 +64,9 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.cell.CellFunctions;
 import sh.komet.gui.cell.CellHelper;
 import sh.komet.gui.control.FixedSizePane;
-import sh.komet.gui.control.PropertyToPropertySheetItem;
+import sh.komet.gui.control.property.PropertyToPropertySheetItem;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.style.StyleClasses;
-import sh.komet.gui.util.FxGet;
 
 import java.util.List;
 import java.util.Optional;

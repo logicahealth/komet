@@ -9,15 +9,20 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<AnchorPane fx:id="anchorPane" prefWidth="543.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.isaac.komet.batch.fxml.ActionNodeController">
+<AnchorPane fx:id="anchorPane" minWidth="350.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.isaac.komet.batch.fxml.ActionNodeController">
    <children>
-      <BorderPane fx:id="actionBorderPane" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+      <BorderPane fx:id="actionBorderPane" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
          <left>
-            <VBox alignment="CENTER_LEFT" BorderPane.alignment="CENTER">
+            <VBox alignment="TOP_CENTER" BorderPane.alignment="TOP_CENTER">
                <children>
-                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#moveUp" text="up" />
-                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#moveDown" text="down" />
-                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#delete" text="delete" />
+                  <Button fx:id="downButton" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#moveDown" prefHeight="24.0" prefWidth="24.0" text="down">
+                     <VBox.margin>
+                        <Insets bottom="1.0" left="6.0" right="1.0" top="1.0" />
+                     </VBox.margin></Button>
+                  <Button fx:id="deleteButton" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#delete" prefHeight="24.0" prefWidth="24.0" text="delete">
+                     <VBox.margin>
+                        <Insets bottom="1.0" left="6.0" right="1.0" top="4.0" />
+                     </VBox.margin></Button>
                </children>
             </VBox>
          </left>
@@ -29,14 +34,19 @@
             </Separator>
          </bottom>
          <top>
-            <Label fx:id="actionTitle" text="Action Title" BorderPane.alignment="TOP_LEFT">
-               <font>
-                  <Font name="System Bold" size="14.0" />
-               </font>
+            <AnchorPane maxHeight="24.0" minHeight="24.0" prefHeight="24.0" BorderPane.alignment="TOP_LEFT">
                <BorderPane.margin>
                   <Insets bottom="3.0" left="6.0" right="3.0" top="3.0" />
                </BorderPane.margin>
-            </Label>
+               <children>
+                  <Label fx:id="actionTitle" text="Action Title" AnchorPane.leftAnchor="32.0">
+                     <font>
+                        <Font name="System Bold" size="14.0" />
+                     </font>
+                  </Label>
+                <Button fx:id="upButton" layoutY="-1.0" maxHeight="24.0" maxWidth="24.0" minHeight="24.0" minWidth="24.0" mnemonicParsing="false" onAction="#moveUp" prefHeight="24.0" prefWidth="24.0" text="up" AnchorPane.leftAnchor="0.0" />
+               </children>
+            </AnchorPane>
          </top>
       </BorderPane>
    </children>

@@ -1008,6 +1008,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(VERTEX_SORT_PROPERTY).setModule(TermAux.KOMET_MODULE);
+                  createConcept(VERTEX_STATUS_SET_PROPERTY).setModule(TermAux.KOMET_MODULE);
                   createConcept(CURRENT_ACTIVITY_PROPERTY).setModule(TermAux.KOMET_MODULE);
                   createConcept(DIGRAPH_PROPERTY).setModule(TermAux.KOMET_MODULE);
                   createConcept(VIEW_FILTER_FOR_NAVIGATION).setModule(TermAux.KOMET_MODULE);

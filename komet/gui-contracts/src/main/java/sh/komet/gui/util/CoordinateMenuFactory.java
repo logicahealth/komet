@@ -148,7 +148,6 @@ public class CoordinateMenuFactory {
         addChangePositionMenu(menuItems, time -> {
             Platform.runLater(() -> {
                 observableCoordinate.getViewStampFilter().timeProperty().setValue(time);
-                observableCoordinate.getVertexStampFilter().timeProperty().setValue(time);
             });
         });
     }
@@ -353,7 +352,7 @@ public class CoordinateMenuFactory {
             item.setSelected(observableCoordinate.getDefaultModuleNid() == module.getNid());
             changeDefaultModuleMenu.getItems().add(item);
             item.setOnAction(event -> {
-                observableCoordinate.defaultModuleProperty().setValue(module);
+                Platform.runLater(() -> observableCoordinate.defaultModuleProperty().setValue(module));
                 event.consume();
             });
         }
@@ -367,7 +366,7 @@ public class CoordinateMenuFactory {
             item.setSelected(observableCoordinate.getDestinationModuleNid() == module.getNid());
             changeDestinationModuleMenu.getItems().add(item);
             item.setOnAction(event -> {
-                observableCoordinate.promotionPathProperty().setValue(module);
+                Platform.runLater(() -> observableCoordinate.promotionPathProperty().setValue(module));
                 event.consume();
             });
         }
@@ -380,7 +379,7 @@ public class CoordinateMenuFactory {
             item.setSelected(observableCoordinate.getPromotionPathNid() == path.getPathConceptNid());
             changePromotionPathMenu.getItems().add(item);
             item.setOnAction(event -> {
-                observableCoordinate.promotionPathProperty().setValue(Get.concept(path.getPathConceptNid()));
+                Platform.runLater(() -> observableCoordinate.promotionPathProperty().setValue(Get.concept(path.getPathConceptNid())));
                 event.consume();
             });
         }
@@ -486,6 +485,55 @@ public class CoordinateMenuFactory {
                 event.consume();
             });
         }
+        Menu changeAllowedStatusMenu = new Menu("Change allowed states");
+        menuItems.add(changeAllowedStatusMenu);
+
+        for (StatusSet statusSet: new StatusSet[] { StatusSet.ACTIVE_ONLY, StatusSet.ACTIVE_AND_INACTIVE, StatusSet.INACTIVE,
+                StatusSet.WITHDRAWN, StatusSet.INACTIVE_ONLY}) {
+            CheckMenuItem item = new CheckMenuItem(statusSet.toUserString());
+            item.setSelected(statusSet.equals(observableCoordinate.getViewStampFilter().getAllowedStates()) &&
+                    statusSet.equals(observableCoordinate.getVertexStatusSet()) );
+            item.setOnAction(event -> {
+                Platform.runLater(() -> {
+                    observableCoordinate.setAllowedStates(statusSet);
+                });
+                event.consume();
+            });
+            changeAllowedStatusMenu.getItems().add(item);
+        }
+
+        Menu changeAllowedViewStatesMenu = new Menu("Change allowed edge and language states");
+        menuItems.add(changeAllowedViewStatesMenu);
+
+        for (StatusSet statusSet: new StatusSet[] { StatusSet.ACTIVE_ONLY, StatusSet.ACTIVE_AND_INACTIVE, StatusSet.INACTIVE,
+                StatusSet.WITHDRAWN, StatusSet.INACTIVE_ONLY}) {
+            CheckMenuItem item = new CheckMenuItem(statusSet.toUserString());
+            item.setSelected(statusSet.equals(observableCoordinate.getViewStampFilter().getAllowedStates()));
+            item.setOnAction(event -> {
+                Platform.runLater(() -> {
+                    ObservableSet<Status> set = FXCollections.observableSet(statusSet.toArray());
+                    observableCoordinate.getViewStampFilter().allowedStatusProperty().setValue(set);
+                });
+                event.consume();
+            });
+            changeAllowedViewStatesMenu.getItems().add(item);
+        }
+
+        Menu changeAllowedVertexStatesMenu = new Menu("Change allowed vertex states");
+        menuItems.add(changeAllowedVertexStatesMenu);
+
+        for (StatusSet statusSet: new StatusSet[] { StatusSet.ACTIVE_ONLY, StatusSet.ACTIVE_AND_INACTIVE, StatusSet.INACTIVE,
+                StatusSet.WITHDRAWN, StatusSet.INACTIVE_ONLY}) {
+            CheckMenuItem item = new CheckMenuItem(statusSet.toUserString());
+            item.setSelected(statusSet.equals(observableCoordinate.getVertexStampFilter().getAllowedStates()));
+            item.setOnAction(event -> {
+                Platform.runLater(() -> {
+                    observableCoordinate.vertexStatusSetProperty().setValue(statusSet);
+                });
+                event.consume();
+            });
+            changeAllowedVertexStatesMenu.getItems().add(item);
+        }
 
         Menu changeDescriptionPreferenceMenu = new Menu("Change description preference");
         menuItems.add(changeDescriptionPreferenceMenu);
@@ -503,6 +551,28 @@ public class CoordinateMenuFactory {
             });
         }
 
+        addChangeItemsForNavigation(manifoldCoordinate,
+                menuItems,
+                observableCoordinate.getNavigationCoordinate());
+
+
+        Menu changePathMenu = new Menu("Change path");
+        menuItems.add(changePathMenu);
+        for (UuidStringKey key: FxGet.pathCoordinates().keySet()) {
+            CheckMenuItem item = new CheckMenuItem(key.getString());
+            StampPathImmutable pathCoordinate = FxGet.pathCoordinates().get(key);
+            int pathNid = pathCoordinate.getPathConceptNid();
+            item.setSelected(pathNid == observableCoordinate.getViewStampFilter().getPathNidForFilter());
+            item.setUserData(FxGet.pathCoordinates().get(key));
+            item.setOnAction(event -> {
+                StampPathImmutable path = (StampPathImmutable) item.getUserData();
+                Platform.runLater(() -> observableCoordinate.setManifoldPath(path.getPathConceptNid()));
+                event.consume();
+            });
+            changePathMenu.getItems().add(item);
+        }
+
+        addChangePositionForManifold(menuItems, observableCoordinate);
 
         Menu changeVertexSortMenu = new Menu("Change sort");
         menuItems.add(changeVertexSortMenu);
@@ -517,49 +587,7 @@ public class CoordinateMenuFactory {
             changeVertexSortMenu.getItems().add(item);
         }
 
-        Menu changePathMenu = new Menu("Change path");
-        menuItems.add(changePathMenu);
-        for (UuidStringKey key: FxGet.pathCoordinates().keySet()) {
-            CheckMenuItem item = new CheckMenuItem(key.getString());
-            StampPathImmutable pathCoordinate = FxGet.pathCoordinates().get(key);
-            int pathNid = pathCoordinate.getPathConceptNid();
-            item.setSelected(pathNid == observableCoordinate.getViewStampFilter().getPathNidForFilter() &&
-                    pathNid == observableCoordinate.getVertexStampFilter().getPathNidForFilter());
-            item.setUserData(FxGet.pathCoordinates().get(key));
-            item.setOnAction(event -> {
-                StampPathImmutable path = (StampPathImmutable) item.getUserData();
-                Platform.runLater(() -> observableCoordinate.changeManifoldPath(path.getPathConceptNid()));
-                event.consume();
-            });
-            changePathMenu.getItems().add(item);
-        }
 
-        addChangePositionForManifold(menuItems, observableCoordinate);
-
-
-        Menu changeAllowedStatusMenu = new Menu("Change allowed states");
-        menuItems.add(changeAllowedStatusMenu);
-
-        for (StatusSet statusSet: new StatusSet[] { StatusSet.ACTIVE_ONLY, StatusSet.ACTIVE_AND_INACTIVE, StatusSet.INACTIVE,
-                StatusSet.WITHDRAWN, StatusSet.INACTIVE_ONLY}) {
-            CheckMenuItem item = new CheckMenuItem(statusSet.toUserString());
-            item.setSelected(statusSet.equals(observableCoordinate.getViewStampFilter().getAllowedStates()) &&
-                    statusSet.equals(observableCoordinate.getVertexStampFilter().getAllowedStates()) );
-            item.setOnAction(event -> {
-                Platform.runLater(() -> {
-                    ObservableSet<Status> set = FXCollections.observableSet(statusSet.toArray());
-                    observableCoordinate.getViewStampFilter().allowedStatusProperty().setValue(set);
-                    observableCoordinate.getVertexStampFilter().allowedStatusProperty().setValue(set);
-                });
-                event.consume();
-            });
-            changeAllowedStatusMenu.getItems().add(item);
-        }
-
-
-        addChangeItemsForNavigation(manifoldCoordinate,
-                menuItems,
-                observableCoordinate.getNavigationCoordinate());
     }
 
     private static boolean makeRecursiveOverrideMenu(ManifoldCoordinate manifoldCoordinate, ObservableList<MenuItem> menuItems,
@@ -576,6 +604,11 @@ public class CoordinateMenuFactory {
                     }
                 }
             }
+            addRemoveOverrides(menuItems, observableCoordinate);
+
+            menuItems.add(overridesMenu);
+
+
             for (ObservableCoordinate compositeCoordinate: observableCoordinate.getCompositeCoordinates()) {
                 if (makeRecursiveOverrideMenu(manifoldCoordinate, overridesMenu.getItems(),
                         compositeCoordinate)) {
@@ -610,20 +643,23 @@ public class CoordinateMenuFactory {
                     manifoldCoordinate.toConceptString(value, manifoldCoordinate::getPreferredDescriptionText, collectionBuilder);
                     sb.append("\n").append(collectionBuilder);
                 } else {
-                    if (collection instanceof Set) {
-                        Object[] objects = collection.toArray();
-                        Arrays.sort(objects, (o1, o2) ->
-                                NaturalOrder.compareStrings(o1.toString(), o2.toString()));
-                        sb.append(Arrays.toString(objects));
-                    } else {
-                        sb.append(collection.toString());
-                    }
+                        if (collection instanceof Set) {
+                            Object[] objects = collection.toArray();
+                            Arrays.sort(objects, (o1, o2) ->
+                                    NaturalOrder.compareStrings(o1.toString(), o2.toString()));
+                            sb.append(Arrays.toString(objects));
+                        } else {
+                            sb.append(collection.toString());
+                        }
 
+                    }
                 }
-            }
+
         } else if (value instanceof Activity) {
             sb.append(((Activity) value).toUserString());
-        } else {
+        } else if (value instanceof StatusSet) {
+            sb.append(((StatusSet) value).toUserString());
+        }  else {
             manifoldCoordinate.toConceptString(value, manifoldCoordinate::getPreferredDescriptionText, sb);
         }
         return sb.toString();

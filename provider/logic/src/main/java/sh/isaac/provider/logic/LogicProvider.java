@@ -49,6 +49,7 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
@@ -58,9 +59,11 @@ import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.logic.ClassifierResultsImpl;
 import sh.isaac.model.logic.LogicalExpressionImpl;
+import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
 
@@ -233,20 +236,24 @@ public class LogicProvider
      * @return the classifier service
      */
     @Override
-    public ClassifierService getClassifierService(ManifoldCoordinate manifoldCoordinate) {
-        ManifoldCoordinate manifoldAnalog;
+    public ClassifierService getClassifierService(ManifoldCoordinateImmutable manifoldCoordinate) {
+        ObservableManifoldCoordinateImpl manifoldAnalog = new ObservableManifoldCoordinateImpl(manifoldCoordinate);
         if (manifoldCoordinate.getViewStampFilter().getTime() == Long.MAX_VALUE) {
             LOG.info("changing classify coordinate time to now, rather that latest");
-            manifoldAnalog = manifoldCoordinate.makeCoordinateAnalog(System.currentTimeMillis());
+            manifoldAnalog.getViewStampFilter().timeProperty().setValue(System.currentTimeMillis());
+         }
+
+        if (manifoldAnalog.getEditCoordinate().getAuthorForChanges().getNid() != TermAux.SNOROCKET_CLASSIFIER.getNid()) {
+            LOG.info("changing classify coordinate author to SNOROCKET, rather than " + Get.conceptDescriptionText(manifoldAnalog.getEditCoordinate().getAuthorNidForChanges()));
+            manifoldAnalog.getEditCoordinate().authorForChangesProperty().setValue(TermAux.SNOROCKET_CLASSIFIER);
         }
-        else {
-            manifoldAnalog = manifoldCoordinate;
-        }
-        final ClassifierServiceKey key = new ClassifierServiceKey(manifoldAnalog);
+
+        ManifoldCoordinateImmutable manifoldCoordinateImmutable = manifoldAnalog.toManifoldCoordinateImmutable();
+        final ClassifierServiceKey key = new ClassifierServiceKey(manifoldCoordinateImmutable);
 
         if (!classifierServiceMap.containsKey(key)) {
             classifierServiceMap.putIfAbsent(key,
-                    new ClassifierProvider(manifoldAnalog));
+                    new ClassifierProvider(manifoldCoordinateImmutable));
         }
 
         return classifierServiceMap.get(key);
@@ -324,8 +331,8 @@ public class LogicProvider
          * @param manifoldCoordinate the stamp coordinate
          *
          */
-        public ClassifierServiceKey(ManifoldCoordinate manifoldCoordinate) {
-            this.manifoldCoordinateImmutable = manifoldCoordinate.toManifoldCoordinateImmutable();
+        public ClassifierServiceKey(ManifoldCoordinateImmutable manifoldCoordinate) {
+            this.manifoldCoordinateImmutable = manifoldCoordinate;
         }
 
         //~--- methods ----------------------------------------------------------

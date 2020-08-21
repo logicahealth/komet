@@ -8,15 +8,11 @@ import sh.isaac.api.component.semantic.version.*;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.observable.semantic.version.ObservableImageVersion;
 import sh.isaac.model.observable.commitaware.CommitAwareObjectProperty;
-import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_VersionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ImageVersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +51,7 @@ public class ObservableImageVersionImpl
         copyLocalFields(analog);
         analog.setModuleNid(mc.getModuleNidForAnalog(this));
         analog.setAuthorNid(mc.getAuthorNidForChanges());
-        analog.setPathNid(mc.getPathNidForAnalog(this));
+        analog.setPathNid(mc.getPathNidForAnalog());
         return (V) analog;
     }
 

@@ -24,7 +24,7 @@ import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
 import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
-import sh.komet.gui.control.PropertySheetTextWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetTextWrapper;
 import sh.komet.gui.control.circumstance.PropertySheetCircumstanceWrapper;
 import sh.komet.gui.control.property.ViewProperties;
 

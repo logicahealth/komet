@@ -35,7 +35,6 @@ import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.concept.MenuSupplierForFocusConcept;
-import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.drag.drop.IsaacClipboard;
 import sh.komet.gui.style.StyleClasses;

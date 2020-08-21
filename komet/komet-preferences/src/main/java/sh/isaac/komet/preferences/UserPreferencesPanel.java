@@ -263,13 +263,13 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         b.append("import sh.isaac.api.component.concept.ConceptSpecification;\n");
         b.append("import sh.isaac.api.Status;\n");
         b.append("import sh.isaac.provider.drools.AddEditLogicalExpressionNodeMenuItems;\n");
-        b.append("import sh.komet.gui.control.PropertySheetMenuItem;\n");
+        b.append("import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;\n");
         b.append("import sh.isaac.MetaData;\n");
         b.append("import sh.isaac.api.bootstrap.TermAux;\n");
         b.append("import sh.isaac.api.chronicle.VersionCategory;\n");
         b.append("import sh.isaac.api.chronicle.VersionType;\n");
         b.append("import sh.isaac.provider.drools.AddAttachmentMenuItems;\n");
-        b.append("import sh.komet.gui.control.PropertyEditorType;\n");
+        b.append("import sh.komet.gui.control.property.PropertyEditorType;\n");
         b.append("import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;\n");
         b.append("import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;\n");
         b.append("import sh.komet.gui.control.property.PropertySheetItem;\n");

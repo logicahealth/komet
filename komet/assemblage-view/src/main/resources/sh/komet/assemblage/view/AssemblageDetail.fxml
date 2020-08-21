@@ -25,8 +25,8 @@
          <children>
             <TreeTableView fx:id="assemblageExtensionTreeTable" showRoot="false" tableMenuButtonVisible="true" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
               <columns>
-                  <TreeTableColumn fx:id="rowExpanderColumn" prefWidth="75.0" text="Column X" />
-                <TreeTableColumn fx:id="assemblageWhatColumn" minWidth="50.0" prefWidth="-1.0" />
+                  <TreeTableColumn fx:id="rowExpanderColumn" maxWidth="35.0" prefWidth="25.0" />
+                <TreeTableColumn fx:id="assemblageWhatColumn" minWidth="20.0" prefWidth="-1.0" />
                 <TreeTableColumn fx:id="assemblageGeneralColumn" minWidth="300.0" prefWidth="-1.0" />
                   <TreeTableColumn fx:id="assemblageStatusColumn" editable="false" maxWidth="100.0" minWidth="50.0" prefWidth="50.0" text="status" visible="false" />
                   <TreeTableColumn fx:id="assemblageAuthorTimeColumn" editable="false" maxWidth="225.0" minWidth="115.0" prefWidth="115.0" text="author/time" />

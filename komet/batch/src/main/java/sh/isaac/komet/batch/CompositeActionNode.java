@@ -3,6 +3,7 @@ package sh.isaac.komet.batch;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import sh.isaac.komet.batch.fxml.CompositeActionNodeController;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.property.ActivityFeed;
@@ -26,7 +27,7 @@ public class CompositeActionNode extends ExplorationNodeAbstract {
     }
 
 
-    final AnchorPane root;
+    final BorderPane root;
     final CompositeActionNodeController controller;
 
     public CompositeActionNode(ViewProperties manifold) {

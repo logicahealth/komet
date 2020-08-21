@@ -1,5 +1,7 @@
 package sh.isaac.api.coordinate;
 
+import org.eclipse.collections.api.list.primitive.ImmutableIntList;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
@@ -65,7 +67,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
     private ManifoldCoordinateImmutable(StampFilterImmutable viewStampFilter,
                                         LanguageCoordinateImmutable languageCoordinate,
                                         VertexSort vertexSort,
-                                        StampFilterImmutable vertexStampFilter,
+                                        StatusSet vertexStatusSet,
                                         NavigationCoordinateImmutable navigationCoordinateImmutable,
                                         LogicCoordinateImmutable logicCoordinateImmutable,
                                         Activity activity,
@@ -76,7 +78,11 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         this.viewStampFilter = viewStampFilter;
         this.languageCoordinate = languageCoordinate;
         this.vertexSort = vertexSort;
-        this.vertexStampFilter = vertexStampFilter;
+        this.vertexStampFilter = StampFilterImmutable.make(vertexStatusSet,
+                viewStampFilter.getStampPosition(),
+                viewStampFilter.getModuleNids(),
+                viewStampFilter.getExcludedModuleNids(),
+                viewStampFilter.getModulePriorityOrder());
         this.navigationCoordinateImmutable = navigationCoordinateImmutable;
         this.logicCoordinateImmutable = logicCoordinateImmutable;
         this.activity = activity;
@@ -189,7 +195,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
     public static ManifoldCoordinateImmutable make(StampFilter edgeStampFilter,
                                                    LanguageCoordinate languageCoordinate,
                                                    VertexSort vertexSort,
-                                                   StampFilter vertexStampFilter,
+                                                   StatusSet vertexStatusSet,
                                                    NavigationCoordinate navigationCoordinate,
                                                    LogicCoordinate logicCoordinate,
                                                    Activity activity,
@@ -197,7 +203,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
          return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(edgeStampFilter.toStampFilterImmutable(),
                  languageCoordinate.toLanguageCoordinateImmutable(),
                  vertexSort,
-                 vertexStampFilter.toStampFilterImmutable(),
+                 vertexStatusSet,
                  navigationCoordinate.toNavigationCoordinateImmutable(),
                  logicCoordinate.toLogicCoordinateImmutable(),
                          activity, editCoordinate.toEditCoordinateImmutable()),
@@ -210,7 +216,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(stampFilter.toStampFilterImmutable(),
                         languageCoordinate.toLanguageCoordinateImmutable(),
                         VertexSortNaturalOrder.SINGLETON,
-                        stampFilter.toStampFilterImmutable(), dci,
+                        stampFilter.getAllowedStates(), dci,
                         Coordinates.Logic.ElPlusPlus(),
                         activity, editCoordinate.toEditCoordinateImmutable()),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
@@ -222,7 +228,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(stampFilter.toStampFilterImmutable(),
                         languageCoordinate.toLanguageCoordinateImmutable(),
                         VertexSortNaturalOrder.SINGLETON,
-                        stampFilter.toStampFilterImmutable(), dci,
+                        stampFilter.getAllowedStates(), dci,
                         Coordinates.Logic.ElPlusPlus(),
                         activity, editCoordinate.toEditCoordinateImmutable()),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
@@ -236,7 +242,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(stampFilter.toStampFilterImmutable(),
                         languageCoordinate.toLanguageCoordinateImmutable(),
                         VertexSortNaturalOrder.SINGLETON,
-                        stampFilter.toStampFilterImmutable(), dci,
+                        stampFilter.getAllowedStates(), dci,
                         Coordinates.Logic.ElPlusPlus(),
                         activity, editCoordinate.toEditCoordinateImmutable()),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
@@ -292,8 +298,8 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
     }
 
     @Override
-    public StampFilterImmutable getVertexStampFilter() {
-        return this.vertexStampFilter;
+    public StatusSet getVertexStatusSet() {
+        return this.vertexStampFilter.getAllowedStates();
     }
 
     @Override
@@ -302,12 +308,18 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
     }
 
     @Override
+    public StampFilter getVertexStampFilter() {
+        return this.vertexStampFilter;
+    }
+
+    @Override
     public String toString() {
         return "ManifoldCoordinateImmutable{" + this.activity.toUserString() + " " + this.getNavigationCoordinate() +
-                ",\n  label and sort: " + this.vertexSort.getVertexSortName() +
+                ",\n  sort: " + this.vertexSort.getVertexSortName() +
                 ",\n  View filter: " + this.viewStampFilter +
                 ", \n vertex filter: " + this.vertexStampFilter +
-                ", \n" + this.languageCoordinate +
+                ", \n language:" + this.languageCoordinate +
+                ", \n logic:" + this.logicCoordinateImmutable +
                 ",\n current activity=" + getCurrentActivity() +
                 ",\n edit=" + getEditCoordinate() +
                 ",\n uuid=" + getManifoldCoordinateUuid() + '}';
@@ -335,10 +347,11 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
 
     @Override
     public ManifoldCoordinateImmutable makeCoordinateAnalog(long classifyTimeInEpochMillis) {
-        return new ManifoldCoordinateImmutable(viewStampFilter.makeCoordinateAnalog(classifyTimeInEpochMillis),
+        return new ManifoldCoordinateImmutable(
+                viewStampFilter.makeCoordinateAnalog(classifyTimeInEpochMillis),
                 languageCoordinate,
                 vertexSort,
-                vertexStampFilter.makeCoordinateAnalog(classifyTimeInEpochMillis),
+                getVertexStatusSet(),
                 navigationCoordinateImmutable,
                 logicCoordinateImmutable,
                 activity,

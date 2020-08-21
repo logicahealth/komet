@@ -80,8 +80,10 @@ public class ObservableManifoldCoordinateImpl extends ObservableManifoldCoordina
     }
 
     @Override
-    protected ObservableStampFilterBase makeVertexStampFilterProperty(ManifoldCoordinate manifoldCoordinate) {
-        return  ObservableStampFilterImpl.make(manifoldCoordinate.getVertexStampFilter(), ObservableFields.VERTEX_FILTER_FOR_NAVIGATION.toExternalString());
+    protected SimpleObjectProperty<StatusSet> makeVertexStatusSetProperty(ManifoldCoordinate manifoldCoordinate) {
+        return  new SimpleObjectProperty<>(this,
+                ObservableFields.VERTEX_STATUS_SET_PROPERTY.toExternalString(),
+                manifoldCoordinate.getVertexStatusSet());
     }
 
     @Override

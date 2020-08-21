@@ -60,7 +60,6 @@ import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.commitaware.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
@@ -108,7 +107,7 @@ public class ObservableStringVersionImpl
         copyLocalFields(analog);
         analog.setModuleNid(mc.getModuleNidForAnalog(this));
         analog.setAuthorNid(mc.getAuthorNidForChanges());
-        analog.setPathNid(mc.getPathNidForAnalog(this));
+        analog.setPathNid(mc.getPathNidForAnalog());
         analog.setString(this.getString());
         return (V) analog;
     }

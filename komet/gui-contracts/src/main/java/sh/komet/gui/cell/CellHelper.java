@@ -184,7 +184,7 @@ public class CellHelper {
                 return "No description for concept: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(component.getNid()));
             }
             case DESCRIPTION: {
-                LatestVersion<DescriptionVersion> latest = component.getLatestVersion(manifold.getVertexStampFilter());
+                LatestVersion<DescriptionVersion> latest = component.getLatestVersion(manifold.getViewStampFilter());
                 if (latest.isPresent()) {
                     return latest.get().getText();
                 } else if (!latest.versionList().isEmpty()) {
@@ -194,7 +194,7 @@ public class CellHelper {
             }
 
             default:
-                LatestVersion<Version>  latest = component.getLatestVersion(manifold.getVertexStampFilter());
+                LatestVersion<Version>  latest = component.getLatestVersion(manifold.getViewStampFilter());
                 if (latest.isPresent()) {
                     return latest.get().toUserString();
                 } else if (!latest.versionList().isEmpty()) {
@@ -413,7 +413,7 @@ public class CellHelper {
             case SEMANTIC:
                 SemanticChronology semantic = Get.assemblageService()
                         .getSemanticChronology(componentNidVersion.getComponentNid());
-                LatestVersion<SemanticVersion> latest = semantic.getLatestVersion(cell.getManifoldCoordinate().getVertexStampFilter());
+                LatestVersion<SemanticVersion> latest = semantic.getLatestVersion(cell.getManifoldCoordinate().getViewStampFilter());
 
                 if (latest.isPresent()) {
                     processString(assemblageNameText, referencedComponentText, latest.get().toUserString(), StyleClasses.SEMANTIC_TEXT);

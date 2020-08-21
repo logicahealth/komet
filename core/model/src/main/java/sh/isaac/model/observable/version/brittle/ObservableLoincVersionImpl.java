@@ -55,13 +55,10 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.ObservableLoincVersion;
-import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -109,7 +106,7 @@ public class ObservableLoincVersionImpl
         copyLocalFields(analog);
         analog.setModuleNid(mc.getModuleNidForAnalog(this));
         analog.setAuthorNid(mc.getAuthorNidForChanges());
-        analog.setPathNid(mc.getPathNidForAnalog(this));
+        analog.setPathNid(mc.getPathNidForAnalog());
         return (V) analog;
     }
 

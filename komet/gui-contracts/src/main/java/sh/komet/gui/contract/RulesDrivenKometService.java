@@ -32,7 +32,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
-import sh.komet.gui.control.PropertySheetMenuItem;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
 import sh.komet.gui.control.property.ViewProperties;
 
 /**

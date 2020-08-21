@@ -1666,14 +1666,41 @@ public class LogicalExpressionImpl
     public byte[][] getData(DataTarget dataTarget) {
         init();
 
-        final byte[][] byteArrayArray = new byte[this.logicNodes.size()][];
-
-        for (int index = 0; index < byteArrayArray.length; index++) {
-            byteArrayArray[index] = this.logicNodes.get(index)
-                    .getBytes(dataTarget);
+        boolean containsNull = false;
+        for (AbstractLogicNode node: this.logicNodes) {
+            if (node == null) {
+                containsNull = true;
+                break;
+            }
         }
 
-        return byteArrayArray;
+        if (containsNull) {
+            int[] solution = new int[this.logicNodes.size()];
+
+            int nextNode = 0;
+            for (int index = 0; index < solution.length; index++) {
+                if (this.logicNodes.get(index) == null) {
+                    solution[index] = -1;
+                } else {
+                    solution[index] = nextNode++;
+                }
+            }
+
+            // LogicalExpressionImpl another, int[] solution
+            LogicalExpressionImpl expression = new LogicalExpressionImpl(this, solution);
+            return expression.getData(dataTarget);
+
+        } else {
+            final byte[][] byteArrayArray = new byte[this.logicNodes.size()][];
+
+            for (int index = 0; index < byteArrayArray.length; index++) {
+                byteArrayArray[index] = this.logicNodes.get(index)
+                        .getBytes(dataTarget);
+            }
+
+            return byteArrayArray;
+        }
+
     }
 
     /**

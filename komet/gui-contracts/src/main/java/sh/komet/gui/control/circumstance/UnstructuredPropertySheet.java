@@ -21,8 +21,7 @@ import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.statement.CircumstanceImpl;
 import sh.isaac.model.statement.UnstructuredCircumstanceImpl;
-import sh.komet.gui.control.PropertySheetTextWrapper;
-import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.control.property.wrapper.PropertySheetTextWrapper;
 
 /**
  *

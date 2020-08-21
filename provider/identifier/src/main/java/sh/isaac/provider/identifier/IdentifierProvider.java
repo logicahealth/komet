@@ -347,9 +347,18 @@ public class IdentifierProvider
         int maxNid = this.uuidIntMapMap.getMaxNid();
         NidSet allowedAssemblages = this.store.getAssemblageNidsForType(objectType);
 
-        return IntStream.rangeClosed(Integer.MIN_VALUE + 1, maxNid)
+        return IntStream.rangeClosed(IdentifierProvider.FIRST_NID, maxNid)
                 .filter((value) -> {
                     return allowedAssemblages.contains(this.store.getAssemblageOfNid(value).orElseGet(() -> Integer.MAX_VALUE));
+                });
+    }
+
+    @Override
+    public IntStream getNidStream() {
+        int maxNid = this.uuidIntMapMap.getMaxNid();
+        return IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
+                .filter((value) -> {
+                    return this.store.getAssemblageOfNid(value).isPresent();
                 });
     }
 

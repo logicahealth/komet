@@ -114,7 +114,7 @@ public class DeveloperMenus implements MenuProvider {
             debugCprConversion.setUserData(windowPreference);
             debugCprConversion.setOnAction(this::debugCprConversion);
 
-            MenuItem testTaxonomyDistance = new MenuItemWithText("Test taxonomy distance");
+            MenuItem testTaxonomyDistance = new MenuItemWithText("SimpleExtensionFunction taxonomy distance");
             testTaxonomyDistance.setUserData(windowPreference);
             testTaxonomyDistance.setOnAction(this::testTaxonomyDistance);
 

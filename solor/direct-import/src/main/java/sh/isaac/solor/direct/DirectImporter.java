@@ -317,7 +317,7 @@ public class DirectImporter
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
                     if (!entry.isDirectory()) {
-                        if (!entry.getName().contains("__MACOSX")) {
+                        if (!entry.getName().contains("__MACOSX") && !entry.getName().toLowerCase().contains("resources")) {
                             String entryName = entry.getName().toLowerCase();
                             if (entryName.matches(importPrefixRegex.toString())) {
                                 processEntry(new ContentProvider(zipFilePath.toFile(), entry), specificationsToImport, solorReleaseFormat);
@@ -1846,9 +1846,9 @@ public class DirectImporter
                         .submit(conceptWriter);
             }
         }
-        LOG.warn("Concept linecount: " + lineCount + " in: " + importSpecification.contentProvider.getStreamSourceName());
+        LOG.info("Concept linecount: " + lineCount + " in: " + importSpecification.contentProvider.getStreamSourceName());
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
+            LOG.info("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             ConceptWriter conceptWriter = new ConceptWriter(

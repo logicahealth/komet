@@ -33,12 +33,12 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.statement.MeasureImpl;
 import sh.isaac.model.statement.ResultImpl;
-import sh.komet.gui.control.*;
 import sh.komet.gui.control.circumstance.CircumstanceEditor;
 import sh.komet.gui.control.circumstance.PropertySheetCircumstanceWrapper;
 import sh.komet.gui.control.component.ComponentListEditor;
 import sh.komet.gui.control.component.PropertySheetComponentListWrapper;
 import sh.komet.gui.control.concept.*;
+import sh.komet.gui.control.file.FilePropertyEditor;
 import sh.komet.gui.control.image.ImageSourceEditor;
 import sh.komet.gui.control.image.PropertySheetImageWrapper;
 import sh.komet.gui.control.list.ListEditor;
@@ -47,6 +47,7 @@ import sh.komet.gui.control.measure.MeasureEditor;
 import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
 import sh.komet.gui.control.position.PositionEditor;
 import sh.komet.gui.control.position.PositionListEditor;
+import sh.komet.gui.control.property.wrapper.*;
 import sh.komet.gui.control.result.PropertySheetResultWrapper;
 import sh.komet.gui.control.result.ResultEditor;
 import sh.komet.gui.control.versiontype.PropertySheetItemVersionTypeWrapper;
@@ -167,6 +168,11 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
         } else if (propertySheetItem instanceof PropertySheetPositionListWrapper) {
             PropertySheetPositionListWrapper positionListWrapper = (PropertySheetPositionListWrapper) propertySheetItem;
             return new PositionListEditor(this.manifoldCoordinate, positionListWrapper.getValue());
+        } else if (propertySheetItem instanceof PropertySheetItemReadOnlyConceptWrapper) {
+            PropertySheetItemReadOnlyConceptWrapper readOnlyConceptWrapper = (PropertySheetItemReadOnlyConceptWrapper) propertySheetItem;
+            return new ConceptSpecificationViewer(readOnlyConceptWrapper, this.manifoldCoordinate);
+        } else if (propertySheetItem instanceof PropertySheetFileWrapper) {
+            return new FilePropertyEditor((PropertySheetFileWrapper) propertySheetItem);
         }
         
         

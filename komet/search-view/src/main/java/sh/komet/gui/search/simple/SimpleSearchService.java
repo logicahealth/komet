@@ -212,13 +212,13 @@ public class SimpleSearchService extends Service<NidSet> {
             }
 
             protected void handleDescription(SemanticChronology semanticChronology, NidSet allowedConceptNids, TaxonomySnapshot taxonomySnapshot, NidSet filteredValues) {
-                LatestVersion<DescriptionVersion> description = semanticChronology.getLatestVersion(getViewProperties().getStampFilter());
+                LatestVersion<DescriptionVersion> description = semanticChronology.getLatestVersion(getViewProperties().getViewStampFilter());
                 if (!description.isPresent()) {
                     return;
                 }
                 DescriptionVersion descriptionVersion = description.get();
                 int conceptNid = descriptionVersion.getReferencedComponentNid();
-                if (!Get.conceptActiveService().isConceptActive(conceptNid, viewProperties.getStampFilter().toStampFilterImmutable())) {
+                if (!Get.conceptActiveService().isConceptActive(conceptNid, viewProperties.getViewStampFilter().toStampFilterImmutable())) {
                     return;
                 }
                 if (!getParentNids().isEmpty()) {

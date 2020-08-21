@@ -3,9 +3,6 @@ package sh.isaac.komet.batch;
 import javafx.application.Platform;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
-import org.eclipse.collections.api.set.primitive.IntSet;
-import org.eclipse.collections.api.set.primitive.MutableIntSet;
-import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
@@ -43,7 +40,7 @@ public class AddConceptsInModule extends TimedTaskWithProgressTracker<Void> impl
             AtomicInteger conceptsAdded = new AtomicInteger();
             addToTotalWork(Get.conceptService().getConceptCount());
             Get.conceptService().getConceptChronologyStream().forEach(conceptChronology -> {
-                LatestVersion<Version> latest = conceptChronology.getLatestVersion(this.viewProperties.getManifoldCoordinate().getVertexStampFilter());
+                LatestVersion<Version> latest = conceptChronology.getLatestVersion(this.viewProperties.getManifoldCoordinate().getViewStampFilter());
                 if (latest.isPresent()) {
                     if (latest.get().getModuleNid() == moduleNid) {
                         conceptsAdded.getAndIncrement();

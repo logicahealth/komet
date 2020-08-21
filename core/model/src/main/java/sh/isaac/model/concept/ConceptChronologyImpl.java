@@ -161,7 +161,7 @@ public class ConceptChronologyImpl
                          Long.MAX_VALUE,
                          mc.getAuthorNidForChanges(),
                          mc.getModuleNidForAnalog(latest.get()),
-                         mc.getPathNidForAnalog(latest.get()));
+                         mc.getPathNidForAnalog());
       } else {
          stampSequence = Get.stampService()
                  .getStampSequence(
@@ -170,7 +170,7 @@ public class ConceptChronologyImpl
                          Long.MAX_VALUE,
                          mc.getAuthorNidForChanges(),
                          mc.getModuleNidForAnalog(null),
-                         mc.getPathNidForAnalog(null));
+                         mc.getPathNidForAnalog());
       }
       final ConceptVersionImpl version = new ConceptVersionImpl(this, stampSequence);
       transaction.addVersionToTransaction(version);

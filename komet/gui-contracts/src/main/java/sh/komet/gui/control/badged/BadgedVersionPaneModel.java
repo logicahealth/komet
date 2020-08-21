@@ -12,7 +12,6 @@ import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
@@ -44,7 +43,7 @@ import sh.isaac.komet.flags.CountryFlagImages;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.komet.gui.control.ExpandControl;
-import sh.komet.gui.control.PropertySheetMenuItem;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
 import sh.komet.gui.control.StampControl;
 import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.control.axiom.ConceptNode;
@@ -709,7 +708,11 @@ public abstract class BadgedVersionPaneModel {
         primaryPane.setTop(null);
         if (this.optionalPropertySheetMenuItem.isPresent()) {
             PropertySheetMenuItem item = this.optionalPropertySheetMenuItem.get();
-            item.commit();
+            try {
+                item.commit();
+            } catch (Exception e) {
+                FxGet.dialogs().showErrorDialog(e);
+            }
             cleanupAfterCommitOrCancel(item);
         }
     }
@@ -782,7 +785,7 @@ public abstract class BadgedVersionPaneModel {
 
         ObservableVersion observableVersion = propertySheetMenuItem.getVersionInFlight();
         observableVersion.putUserObject(PROPERTY_SHEET_ATTACHMENT, propertySheetMenuItem);
-        CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(viewProperties.getManifoldCoordinate().getVertexStampFilter());
+        CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(viewProperties.getManifoldCoordinate().getViewStampFilter());
 
         ComponentPaneModel componentPane = new ComponentPaneModel(getViewProperties(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap, getDisclosureStateMap());
         extensionPaneModels.add(componentPane);

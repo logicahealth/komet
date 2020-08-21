@@ -53,7 +53,7 @@ import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.komet.gui.contract.RulesDrivenKometService;
-import sh.komet.gui.control.PropertySheetMenuItem;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
 import sh.komet.gui.control.property.ViewProperties;
 
 /**

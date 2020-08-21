@@ -59,7 +59,7 @@ import sh.isaac.model.logic.node.internal.TypedNodeWithNids;
 import sh.komet.gui.CatchThrowableEventHandler;
 import sh.komet.gui.contract.ConceptSearchNodeFactory;
 import sh.komet.gui.contract.preferences.WindowPreferences;
-import sh.komet.gui.control.PropertySheetItemFloatWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetItemFloatWrapper;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
@@ -228,7 +228,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
     public void addRoleWithRestrictionsAction(ConceptSpecification roleType, ConceptSpecification assemblageWithRestrictions) {
         ActionGroup newRoleGroup = new ActionGroup("Add " + manifoldCoordinate.getPreferredDescriptionText(roleType) + "...");
         ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsFromAssemblage(assemblageWithRestrictions.getNid());
-        SemanticSnapshotService<SemanticVersion> snapshot = Get.assemblageService().getSnapshot(SemanticVersion.class, manifoldCoordinate.getVertexStampFilter());
+        SemanticSnapshotService<SemanticVersion> snapshot = Get.assemblageService().getSnapshot(SemanticVersion.class, manifoldCoordinate.getViewStampFilter());
         for (int semanticNid : semanticNids.toArray()) {
             LatestVersion<SemanticVersion> latestMembership = snapshot.getLatestSemanticVersion(semanticNid);
             if (latestMembership.isPresent() && latestMembership.get().isActive()) {

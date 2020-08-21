@@ -90,7 +90,7 @@ public abstract class ControllerForSpecification {
         this.resultTable.getItems().clear();
         this.joinProperties.clear();
         this.addFieldItems.clear();
-        SingleAssemblageSnapshot<Nid1_Int2_Version> snapshot = Get.assemblageService().getSingleAssemblageSnapshot(TermAux.ASSEMBLAGE_SEMANTIC_FIELDS, Nid1_Int2_Version.class, viewProperties.getStampFilter());
+        SingleAssemblageSnapshot<Nid1_Int2_Version> snapshot = Get.assemblageService().getSingleAssemblageSnapshot(TermAux.ASSEMBLAGE_SEMANTIC_FIELDS, Nid1_Int2_Version.class, viewProperties.getViewStampFilter());
         for (ConceptSpecification assemblageSpec : change.getList()) {
             for (int i = 0; i < ObservableVersion.PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex(); i++) {
                 ObservableVersion.PROPERTY_INDEX property = ObservableVersion.PROPERTY_INDEX.values()[i];
@@ -123,7 +123,7 @@ public abstract class ControllerForSpecification {
             Optional<SemanticChronology> optionalSemanticType = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(assemblageSpec.getNid(), MetaData.SEMANTIC_TYPE____SOLOR.getNid()).findFirst();
             if (optionalSemanticType.isPresent()) {
                 //TODO, this won't work when there is more than one additional field of a type.
-                LatestVersion<ComponentNidVersion> componentNidVersion = optionalSemanticType.get().getLatestVersion(viewProperties.getStampFilter());
+                LatestVersion<ComponentNidVersion> componentNidVersion = optionalSemanticType.get().getLatestVersion(viewProperties.getViewStampFilter());
             }
             for (Nid1_Int2_Version semanticField : sortedActiveSemanticFields) {
                 // add a sort...

@@ -1,6 +1,8 @@
 package sh.komet.gui.interfaces;
 
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
@@ -9,6 +11,10 @@ import javafx.collections.ObservableList;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
+import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
@@ -43,6 +49,8 @@ public abstract class DetailNodeAbstract extends ExplorationNodeAbstract impleme
     protected final ConceptLabelToolbar conceptLabelToolbar;
     protected final IsaacPreferences preferences;
     protected final AddToContextMenu[] contextMenuProviders;
+
+    protected SimpleBooleanProperty conceptsFromFeedOnly = new SimpleBooleanProperty(this, "concepts only", true);
 
     protected final BorderPane detailPane = new BorderPane();
 
@@ -145,13 +153,35 @@ public abstract class DetailNodeAbstract extends ExplorationNodeAbstract impleme
         }
 
         newFocus.ifPresentOrElse(identifiedObject -> {
-            this.focusedObjectProperty.set(identifiedObject);
             Platform.runLater(() -> {
-                this.focusedObjectProperty.set(identifiedObject);
+                if (conceptsFromFeedOnly.get()) {
+                    Optional<? extends Chronology> optionalChronology = Get.identifiedObjectService().getChronology(identifiedObject.getNid());
+                    optionalChronology.ifPresentOrElse(chronology -> {
+                        if (chronology instanceof ConceptChronology) {
+                            this.focusedObjectProperty.set(chronology);
+                        } else {
+                            SemanticChronology semanticChronology = (SemanticChronology) chronology;
+                            Optional<? extends Chronology> optionalReferencedComponent = Get.identifiedObjectService().getChronology(semanticChronology.getReferencedComponentNid());
+                            Chronology referencedComponent = optionalReferencedComponent.get();
+                            while (!(referencedComponent instanceof ConceptChronology)) {
+                                semanticChronology = (SemanticChronology) referencedComponent;
+                                optionalReferencedComponent = Get.identifiedObjectService().getChronology(semanticChronology.getReferencedComponentNid());
+                                referencedComponent = optionalReferencedComponent.get();
+                            }
+                            this.focusedObjectProperty.set(referencedComponent);
+                        }
+                    }, () -> {
+                        this.titleProperty.set(ConceptLabelWithDragAndDrop.EMPTY_TEXT);
+                        this.focusedObjectProperty.set(null);
+                    });
+                } else {
+                    this.focusedObjectProperty.set(identifiedObject);
+                }
+
             });
         }, () -> {
-            this.titleProperty.set(ConceptLabelWithDragAndDrop.EMPTY_TEXT);
             Platform.runLater(() -> {
+                this.titleProperty.set(ConceptLabelWithDragAndDrop.EMPTY_TEXT);
                 this.focusedObjectProperty.set(null);
              });
         });

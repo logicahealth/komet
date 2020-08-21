@@ -113,6 +113,11 @@
         </dependency>
         <dependency>
             <groupId>sh.isaac.provider</groupId>
+            <artifactId>xslt-provider</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.provider</groupId>
             <artifactId>commit</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

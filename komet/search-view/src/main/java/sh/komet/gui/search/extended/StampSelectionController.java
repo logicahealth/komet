@@ -186,7 +186,7 @@ public class StampSelectionController
 			}
 		});
 		
-		authors.getItems().addAll(Frills.getAllChildrenOfConcept(MetaData.USER____SOLOR.getNid(), true, true, readManifoldCoordinate.getStampFilter()));
+		authors.getItems().addAll(Frills.getAllChildrenOfConcept(MetaData.USER____SOLOR.getNid(), true, true, readManifoldCoordinate.getViewStampFilter()));
 		authors.getItems().add(MetaData.USER____SOLOR.getNid());
 		Collections.sort(authors.getItems(), new Comparator<Integer>()
 		{
@@ -234,7 +234,7 @@ public class StampSelectionController
 			}
 		});
 		
-		paths.getItems().addAll(Frills.getAllChildrenOfConcept(MetaData.PATH____SOLOR.getNid(), true, true, readManifoldCoordinate.getStampFilter()));
+		paths.getItems().addAll(Frills.getAllChildrenOfConcept(MetaData.PATH____SOLOR.getNid(), true, true, readManifoldCoordinate.getViewStampFilter()));
 		Collections.sort(paths.getItems(), new Comparator<Integer>()
 		{
 			@Override
@@ -339,7 +339,7 @@ public class StampSelectionController
 		modules.getChildren().add(treeItem.getGraphic());
 		VBox.setMargin(treeItem.getGraphic(), new Insets(0, 0, 0, (10 * depth)));
 		for (int nid : Frills.getAllChildrenOfConcept((treeItem.getValue() == Integer.MAX_VALUE ? MetaData.MODULE____SOLOR.getNid() : treeItem.getValue()), 
-				false, false, readViewProperties.getStampFilter()))
+				false, false, readViewProperties.getViewStampFilter()))
 		{
 			TreeItem<Integer> child = new TreeItem<Integer>(nid, new CheckBox(readViewProperties.getDescriptionText(nid).orElse("")));
 			((CheckBox)child.getGraphic()).selectedProperty().addListener((change, oldV, newV) -> {

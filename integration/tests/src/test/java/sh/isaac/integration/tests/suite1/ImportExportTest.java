@@ -116,7 +116,7 @@ public class ImportExportTest {
 
       final ManifoldCoordinate manifoldCoordinate = Coordinates.Manifold.DevelopmentInferredRegularNameSort();
       final ClassifierService logicService = Get.logicService()
-                                                .getClassifierService(manifoldCoordinate);
+                                                .getClassifierService(manifoldCoordinate.toManifoldCoordinateImmutable());
       final Task<ClassifierResults> classifyTask = logicService.classify();
       
       try {

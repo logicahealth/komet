@@ -10,7 +10,7 @@ import sh.isaac.api.util.UuidStringKey;
 import sh.isaac.komet.preferences.AbstractPreferences;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
-import sh.komet.gui.control.PropertySheetTextWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetTextWrapper;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 

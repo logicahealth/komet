@@ -7,7 +7,6 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 
 public class KometTableCellValueFactory {
     private final ManifoldCoordinate manifoldCoordinate;

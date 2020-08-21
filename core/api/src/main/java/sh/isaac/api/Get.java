@@ -54,6 +54,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Singleton;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
@@ -76,10 +80,7 @@ import sh.isaac.api.component.concept.*;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.coordinate.CoordinateFactory;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.BinaryDataServiceFactory;
@@ -218,6 +219,10 @@ public class Get
     * Instantiates a new Get.
     */
    public Get() {}
+
+   public static Transformer xsltTransformer(Source xsltSource, ManifoldCoordinateImmutable manifoldCoordinate) throws TransformerConfigurationException {
+      return Get.service(XsltTransformer.class).getTransformer(xsltSource, manifoldCoordinate);
+   }
 
    /**
     * Active tasks.

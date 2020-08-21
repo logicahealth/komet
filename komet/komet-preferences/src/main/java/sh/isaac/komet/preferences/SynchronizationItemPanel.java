@@ -50,10 +50,10 @@ import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.SynchronizationItem;
-import sh.komet.gui.control.PropertySheetBooleanWrapper;
-import sh.komet.gui.control.PropertySheetItemStringListWrapper;
-import sh.komet.gui.control.PropertySheetPasswordWrapper;
-import sh.komet.gui.control.PropertySheetTextWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetBooleanWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetItemStringListWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetPasswordWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetTextWrapper;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 

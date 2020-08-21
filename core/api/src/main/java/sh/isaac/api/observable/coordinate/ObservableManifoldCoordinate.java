@@ -63,19 +63,20 @@ public interface ObservableManifoldCoordinate
 
    default Property<?>[] getBaseProperties() {
       return new Property<?>[] {
+              activityProperty(),
+              getViewStampFilter().allowedStatusProperty(),
+              vertexStatusSetProperty(),
               vertexSortProperty(),
-              activityProperty()
       };
    }
 
    default ObservableCoordinate<?>[] getCompositeCoordinates() {
       return new ObservableCoordinate<?>[] {
+              getViewStampFilter(),
+              getEditCoordinate(),
+              getLogicCoordinate(),
               getLanguageCoordinate(),
               getNavigationCoordinate(),
-              getViewStampFilter(),
-              getVertexStampFilter(),
-              getLogicCoordinate(),
-              getEditCoordinate()
       };
    }
 
@@ -90,12 +91,12 @@ public interface ObservableManifoldCoordinate
 
 
    @Override
-   ObservableStampFilter getVertexStampFilter();
-   ObjectProperty<StampFilterImmutable> vertexStampFilterProperty();
+   StatusSet getVertexStatusSet();
+   ObjectProperty<StatusSet> vertexStatusSetProperty();
 
    @Override
    ObservableStampFilter getViewStampFilter();
-   ObjectProperty<StampFilterImmutable> edgeStampFilterProperty();
+   ObjectProperty<StampFilterImmutable> viewStampFilterProperty();
 
    @Override
    ObservableLanguageCoordinate getLanguageCoordinate();
@@ -120,15 +121,16 @@ public interface ObservableManifoldCoordinate
    /**
     * Will change all contained paths (vertex, edge, and language), to the provided path.
     */
-   default void changeManifoldPath(int pathConceptNid) {
-      changeManifoldPath(Get.concept(pathConceptNid));
+   default void setManifoldPath(int pathConceptNid) {
+      setManifoldPath(Get.concept(pathConceptNid));
    }
 
-   void changeManifoldPath(ConceptSpecification pathConcept);
+   void setManifoldPath(ConceptSpecification pathConcept);
 
    default void setPremiseType(PremiseType premiseType) {
       getNavigationCoordinate().setPremiseType(premiseType);
    }
 
+   void setAllowedStates(StatusSet statusSet);
 }
 

@@ -10,7 +10,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.komet.gui.control.PropertySheetMenuItem;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.style.StyleClasses;
 
@@ -172,7 +172,7 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
         if (isSemanticTypeSupported(observableChronology)) {
             CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
                     = observableChronology.getCategorizedVersions(
-                    getManifoldCoordinate().getVertexStampFilter());
+                    getManifoldCoordinate().getViewStampFilter());
 
             if (oscCategorizedVersions.getLatestVersion()
                     .isPresent()) {

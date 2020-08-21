@@ -45,5 +45,6 @@
         <module>datastore-postgres</module>
         <module>postgress</module>
         <module>datastore-cache</module>
+        <module>xslt-provider</module>
     </modules>
 </project>

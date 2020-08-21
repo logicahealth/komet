@@ -28,11 +28,9 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
@@ -79,7 +77,7 @@ public class ObservableComponentNidVersionImpl
     public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableComponentNidVersionImpl analog = new ObservableComponentNidVersionImpl(this, getChronology());
         copyLocalFields(analog);
-        analog.setPathNid(mc.getPathNidForAnalog(this));
+        analog.setPathNid(mc.getPathNidForAnalog());
         return (V) analog;
     }
 

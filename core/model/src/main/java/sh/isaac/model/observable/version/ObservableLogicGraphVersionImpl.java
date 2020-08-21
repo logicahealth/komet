@@ -65,17 +65,13 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableLogicGraphVersion;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.commitaware.CommitAwareObjectProperty;
-import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_VersionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -120,7 +116,7 @@ public class ObservableLogicGraphVersionImpl
         copyLocalFields(analog);
         analog.setModuleNid(mc.getModuleNidForAnalog(this));
         analog.setAuthorNid(mc.getAuthorNidForChanges());
-        analog.setPathNid(mc.getPathNidForAnalog(this));
+        analog.setPathNid(mc.getPathNidForAnalog());
         return (V) analog;
     }
 

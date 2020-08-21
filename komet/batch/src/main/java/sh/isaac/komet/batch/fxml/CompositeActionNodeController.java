@@ -2,7 +2,6 @@ package sh.isaac.komet.batch.fxml;
 
 import javafx.application.Platform;
 import javafx.beans.property.StringProperty;
-import javafx.collections.MapChangeListener;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -17,10 +16,10 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.StampPathImmutable;
 import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.UuidStringKey;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.batch.ActionCell;
 import sh.isaac.komet.batch.VersionChangeListener;
@@ -29,18 +28,24 @@ import sh.isaac.komet.batch.action.ActionItem;
 import sh.isaac.komet.batch.action.CompositeAction;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ComponentList;
+import sh.komet.gui.lists.ComponentListSelectorForMenuButton;
 import sh.komet.gui.util.FxGet;
-import sh.isaac.api.util.UuidStringKey;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+import java.util.stream.Stream;
 
 public class CompositeActionNodeController implements VersionChangeListener {
 
 
     public static final String SOLOR_ACTION_FILE_EXT = ".saf";
+    public static final String KOMET_ACTION_FILE_EXT = ".kaf";
     @FXML
     private ResourceBundle resources;
 
@@ -75,10 +80,8 @@ public class CompositeActionNodeController implements VersionChangeListener {
     private MenuButton addActionMenuButton;
 
     @FXML
-    private ChoiceBox<UuidStringKey> listChoiceBox;
+    private MenuButton listMenuButton;
 
-    @FXML
-    private ChoiceBox<UuidStringKey> viewKeyChoiceBox;
 
     @FXML
     private Button newButton;
@@ -103,26 +106,20 @@ public class CompositeActionNodeController implements VersionChangeListener {
 
     private ListViewNodeController listViewController;
 
+    private ComponentListSelectorForMenuButton componentListSelectorForMenuButton;
+
     @FXML // This method is called by the FXMLLoader when initialization is complete
     void initialize() {
         assert actionListView != null : "fx:id=\"actionListView\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
         assert applyButton != null : "fx:id=\"applyButton\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
         assert commitButton != null : "fx:id=\"commitButton\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
         assert cancelButton != null : "fx:id=\"cancelButton\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
-        assert listChoiceBox != null : "fx:id=\"listChoiceBox\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
-        assert viewKeyChoiceBox != null : "fx:id=\"stampChoiceBox\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
+        assert listMenuButton != null : "fx:id=\"listMenuButton\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
         assert actionNameField != null : "fx:id=\"actionNameField\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
         assert newButton != null : "fx:id=\"newButton\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
         assert openButton != null : "fx:id=\"openButton\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
         assert saveButton != null : "fx:id=\"saveButton\" was not injected: check your FXML file 'CompositeActionNode.fxml'.";
 
-        listChoiceBox.setItems(FxGet.componentListKeys());
-        viewKeyChoiceBox.getItems().setAll(FxGet.pathCoordinates().keySet());
-
-
-        FxGet.pathCoordinates().addListener((MapChangeListener<UuidStringKey, StampPathImmutable>) change -> {
-            viewKeyChoiceBox.getItems().setAll(FxGet.pathCoordinates().keySet());
-        });
 
         //LetPropertySheet letPropertySheet = new LetPropertySheet();
 
@@ -185,8 +182,9 @@ public class CompositeActionNodeController implements VersionChangeListener {
     void openCompositeAction(ActionEvent event) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Open composite action");
-        // saf = solor action file
-        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Solor action file (*.saf)", "*.saf"));
+        fileChooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("Komet action file (*." +
+                KOMET_ACTION_FILE_EXT + ", *." + SOLOR_ACTION_FILE_EXT +
+                ")", "*"+KOMET_ACTION_FILE_EXT, "*"+SOLOR_ACTION_FILE_EXT));
         fileChooser.setInitialDirectory(FxGet.actionFileDirectory());
         final File importFile = fileChooser.showOpenDialog(null);
         if (importFile != null) {
@@ -195,8 +193,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
                 currentFile = importFile;
                 CompositeAction compositeAction = MarshalUtil.fromFile(importFile);
                 actionNameField.setText(compositeAction.getActionTitle());
-                listChoiceBox.setValue(compositeAction.getListKey());
-                viewKeyChoiceBox.setValue(compositeAction.getViewKey());
+                this.componentListSelectorForMenuButton.componentListProperty().setValue(compositeAction.getListKey());
                 for (ActionItem actionItem: compositeAction.getActionItemList()) {
                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/ActionNode.fxml"));
                     Object root = loader.load();
@@ -231,7 +228,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save composite action");
         // saf = solor action file
-        fileChooser.setInitialFileName(compositeAction.getActionTitle() + SOLOR_ACTION_FILE_EXT);
+        fileChooser.setInitialFileName(compositeAction.getActionTitle() + KOMET_ACTION_FILE_EXT);
         fileChooser.setInitialDirectory(FxGet.actionFileDirectory());
         final File exportFile = fileChooser.showSaveDialog(null);
         if (exportFile != null) {
@@ -239,7 +236,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
                 exportFile.createNewFile();
                 MarshalUtil.toFile(compositeAction, exportFile);
                 String exportName = exportFile.getName();
-                exportName = exportName.substring(0,exportName.length() - SOLOR_ACTION_FILE_EXT.length());
+                exportName = exportName.substring(0,exportName.length() - KOMET_ACTION_FILE_EXT.length());
                 this.actionNameField.setText(exportName);
                 this.currentFile = exportFile;
                 this.saveButton.setDisable(false);
@@ -253,7 +250,6 @@ public class CompositeActionNodeController implements VersionChangeListener {
     @FXML
     void applyActions(ActionEvent event) {
         // TODO turn this into a timed task with progress tracker...
-        UuidStringKey listKey = listChoiceBox.getValue();
         applyButton.setDisable(true);
         commitButton.setDisable(false);
         cancelButton.setDisable(false);
@@ -263,17 +259,8 @@ public class CompositeActionNodeController implements VersionChangeListener {
             this.transaction = Get.commitService().newTransaction(Optional.of(actionNameField.getText()
                     + " " + timeString), ChangeCheckerMode.ACTIVE);
         }
-
-        UuidStringKey stampKey = viewKeyChoiceBox.getSelectionModel().selectedItemProperty().getValue();
-        if (stampKey == null) {
-            FxGet.dialogs().showErrorDialog("No Filter selected",
-                    "You must select a stamp coordinate to define the version eligible for promotion",
-                    "The stamp coordinate is applied to a chronology to compute the latest version. " +
-                            "Without the stamp coordinate, a promotion determination cannot be made. ");
-            return;
-        }
-        StampPathImmutable stampPathImmutable = FxGet.pathCoordinates().get(stampKey);
-         if (listKey != null) {
+        UuidStringKey listKey = this.componentListSelectorForMenuButton.getComponentListKey();
+          if (listKey != null) {
             try {
                 this.affectedConceptsTitledPane.setText("affected concepts");
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/ListViewNode.fxml"));
@@ -289,15 +276,30 @@ public class CompositeActionNodeController implements VersionChangeListener {
                 this.affectedConceptsAnchorPane.getChildren().setAll(root);
 
                 CompositeAction compositeAction = getCompositeAction();
-                ComponentList componentList = FxGet.componentList(listKey);
-                compositeAction.apply(componentList.listSize(), componentList.getComponentStream(), this.transaction,
+                ComponentList componentList = FxGet.componentList(listKey, this.viewProperties.getManifoldCoordinate());
+                Future<?> future = compositeAction.apply(componentList.listSize(), componentList.getComponentStream(), this.transaction,
                         this.viewProperties.getManifoldCoordinate(), this);
+                Platform.runLater(() -> processFuture(future));
             } catch (IOException e) {
                 FxGet.dialogs().showErrorDialog(e);
             }
         } else {
             FxGet.dialogs().showErrorDialog("No list selected", "You must select a list to apply the actions to",
                     "The actions are applied to a list of components. You must select a list to apply the actions to.");
+        }
+    }
+
+    private void processFuture(Future<?> future) {
+        try {
+            future.get(1, TimeUnit.MILLISECONDS);
+            if (transaction.getComponentNidsForTransaction().isEmpty()) {
+                Platform.runLater(() -> cancelActions(null));
+            }
+        } catch (ExecutionException|InterruptedException e) {
+            FxGet.dialogs().showErrorDialog(e);
+        } catch (TimeoutException e) {
+            Platform.runLater(() ->
+                processFuture(future));
         }
     }
 
@@ -341,8 +343,7 @@ public class CompositeActionNodeController implements VersionChangeListener {
             actions.add(actionNodeController.actionItem);
         }
         return new CompositeAction(actionNameField.getText(),
-                listChoiceBox.getValue(),
-                viewKeyChoiceBox.getValue(),
+                this.componentListSelectorForMenuButton.getComponentListKey(),
                 actions);
     }
 
@@ -370,5 +371,8 @@ public class CompositeActionNodeController implements VersionChangeListener {
 
     public void setViewProperties(ViewProperties viewProperties) {
         this.viewProperties = viewProperties;
+        this.componentListSelectorForMenuButton = new ComponentListSelectorForMenuButton(this.listMenuButton,
+                this.viewProperties.getManifoldCoordinate());
     }
+
 }

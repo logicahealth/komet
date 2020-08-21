@@ -103,7 +103,7 @@ public class StringVersionImpl
 
    public <V extends Version> V setupAnalog(int stampSequence) {
       final StringVersionImpl newVersion = new StringVersionImpl(this, stampSequence);
-      getChronology().addVersion(this);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 

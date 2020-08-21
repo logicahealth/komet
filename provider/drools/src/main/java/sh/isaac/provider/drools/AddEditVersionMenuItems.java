@@ -24,9 +24,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.komet.gui.control.PropertySheetMenuItem;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
 import sh.komet.gui.menu.MenuItemWithText;
-import sh.komet.gui.util.FxGet;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -128,4 +128,11 @@ public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordin
     public int hashCode() {
         return Objects.hash(getAuthorNidForChanges(), getDefaultModuleNid(), getPromotionPathNid(), getDestinationModuleNid());
     }
+
+    @Override
+    public String toString() {
+        return "EditCoordinateImmutable{" +
+                toUserString() +
+                '}';
+    }
 }

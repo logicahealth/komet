@@ -54,7 +54,6 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizable;
@@ -146,7 +145,7 @@ public class SemanticChronologyImpl
                          Long.MAX_VALUE,
                          mc.getAuthorNidForChanges(),
                          mc.getModuleNidForAnalog(latest.get()),
-                         mc.getPathNidForAnalog(latest.get()));
+                         mc.getPathNidForAnalog());
       } else {
          stampSequence = Get.stampService()
                  .getStampSequence(
@@ -155,7 +154,7 @@ public class SemanticChronologyImpl
                          Long.MAX_VALUE,
                          mc.getAuthorNidForChanges(),
                          mc.getModuleNidForAnalog(null),
-                         mc.getPathNidForAnalog(null));
+                         mc.getPathNidForAnalog());
       }
       final V version = createMutableVersionInternal(stampSequence);
       transaction.addVersionToTransaction(version);

@@ -4,8 +4,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.marshal.Marshalable;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.VersionChangeListener;
 import sh.komet.gui.control.property.PropertyEditorFactory;
@@ -25,7 +26,7 @@ public abstract class ActionItem implements Marshalable {
         return this.propertySheet;
     }
 
-    public void setupForGui(ManifoldCoordinate manifold) {
+    public void setupForGui(ObservableManifoldCoordinate manifold) {
         // TODO make property sheet transparent so background list row striping shows through properly...
         this.propertySheet = new PropertySheet();
         this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
@@ -34,7 +35,7 @@ public abstract class ActionItem implements Marshalable {
         setupItemForGui(manifold);
     }
 
-    protected abstract void setupItemForGui(ManifoldCoordinate manifold);
+    protected abstract void setupItemForGui(ObservableManifoldCoordinate manifold);
 
     /**
      * Called once before calling the apply methods, so that an action can setup and cache any objects
@@ -46,20 +47,18 @@ public abstract class ActionItem implements Marshalable {
      */
     protected abstract void setupForApply(ConcurrentHashMap<Enum, Object> cache,
                                           Transaction transaction,
-                                          ManifoldCoordinate manifoldCoordinate);
+                                          ManifoldCoordinateImmutable manifoldCoordinate) throws Exception;
 
     /**
      * This is the call that actually performs the action.
      * @param chronology
      * @param cache
-     * @param transaction
-     * @param manifoldCoordinate
      */
     protected abstract void apply(Chronology chronology,
                                   ConcurrentHashMap<Enum, Object> cache,
-                                  Transaction transaction,
-                                  ManifoldCoordinate manifoldCoordinate,
                                   VersionChangeListener versionChangeListener);
+
+    protected abstract void conclude(ConcurrentHashMap<Enum, Object> cache);
 
     public abstract String getTitle();
 

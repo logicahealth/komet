@@ -51,6 +51,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.StampFilter;
 
 import java.time.Instant;
@@ -73,7 +74,7 @@ public interface LogicService {
     * @param manifoldCoordinate the stamp coordinate
     * @return the classifier service
     */
-   ClassifierService getClassifierService(ManifoldCoordinate manifoldCoordinate);
+   ClassifierService getClassifierService(ManifoldCoordinateImmutable manifoldCoordinate);
 
    /**
     * Gets the logical expression.

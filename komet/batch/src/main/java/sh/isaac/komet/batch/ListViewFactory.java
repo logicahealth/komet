@@ -20,8 +20,8 @@ public class ListViewFactory implements ExplorationNodeFactory<ListViewNode> {
 
     public static final String LIST_VIEW = "List View";
     {
-        ConceptComponentList conceptComponentList = new ConceptComponentList();
-        FxGet.addComponentList(conceptComponentList);
+        FxGet.addComponentList(new AllConceptsList());
+        FxGet.addComponentList(new AllComponentList());
     }
 
     @Override

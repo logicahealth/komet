@@ -112,7 +112,7 @@ public class MenuSupplierForFocusConcept implements AddToContextMenu {
                 Optional<String> optionalLoincCode =
                         Get.identifierService().getIdentifierFromAuthority(concept.get().getNid(),
                                 MetaData.LOINC_ID_ASSEMBLAGE____SOLOR,
-                                manifoldCoordinate.getVertexStampFilter());
+                                manifoldCoordinate.getViewStampFilter());
 
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();
@@ -132,7 +132,7 @@ public class MenuSupplierForFocusConcept implements AddToContextMenu {
                 Optional<String> optionalSnomedCode =
                         Get.identifierService().getIdentifierFromAuthority(concept.get().getNid(),
                                 MetaData.SCTID____SOLOR,
-                                manifoldCoordinate.getVertexStampFilter());
+                                manifoldCoordinate.getViewStampFilter());
 
                 Clipboard clipboard = Clipboard.getSystemClipboard();
                 final ClipboardContent content = new ClipboardContent();

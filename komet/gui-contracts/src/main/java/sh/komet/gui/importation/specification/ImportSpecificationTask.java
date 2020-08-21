@@ -83,7 +83,7 @@ public class ImportSpecificationTask extends TimedTaskWithProgressTracker<Void> 
 
             if(this.isClassfied) {
                 updateMessage("Classifying new content...");
-                ClassifierService classifierService = Get.logicService().getClassifierService(viewProperties.getManifoldCoordinate());
+                ClassifierService classifierService = Get.logicService().getClassifierService(viewProperties.getManifoldCoordinate().toManifoldCoordinateImmutable());
                 Future<?> classifyTask = classifierService.classify();
                 classifyTask.get();
             }

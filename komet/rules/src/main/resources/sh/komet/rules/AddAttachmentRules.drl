@@ -32,9 +32,9 @@ import sh.isaac.api.Get;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.MetaData;
 import sh.isaac.provider.drools.AddAttachmentMenuItems;
-import sh.komet.gui.control.PropertyEditorType;
+import sh.komet.gui.control.property.PropertyEditorType;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.control.PropertySheetMenuItem;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
 
 
 /**

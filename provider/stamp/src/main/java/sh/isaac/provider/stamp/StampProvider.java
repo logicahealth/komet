@@ -1014,6 +1014,9 @@ public class StampProvider
      */
     @Override
     public long getTimeForStamp(int stampSequence) {
+        if (stampSequence == Integer.MAX_VALUE) {
+            return Long.MAX_VALUE; // uncommitted...
+        }
         if (stampSequence < 0) {
             return Long.MIN_VALUE;
         }

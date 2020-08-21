@@ -367,8 +367,8 @@ public class ConceptSnapshotImpl
     }
 
     @Override
-    public StampFilter getVertexStampFilter() {
-        return this.manifoldCoordinate.getVertexStampFilter();
+    public StatusSet getVertexStatusSet() {
+        return this.manifoldCoordinate.getVertexStatusSet();
     }
 
     @Override
@@ -379,6 +379,11 @@ public class ConceptSnapshotImpl
     @Override
     public ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis) {
         return this.manifoldCoordinate.makeCoordinateAnalog(classifyTimeInEpochMillis);
+    }
+
+    @Override
+    public StampFilter getVertexStampFilter() {
+        return this.manifoldCoordinate.getVertexStampFilter();
     }
 
     @Override

@@ -78,7 +78,6 @@ import sh.isaac.model.ChronologyService;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
-import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 import javax.annotation.PostConstruct;
@@ -656,6 +655,13 @@ public class ChronologyProvider
         throw new IllegalStateException("Assemblage is of type "
                 + getObjectTypeForAssemblage(assemblageConceptNid)
                 + " not of type IsaacObjectType.SEMANTIC or IsaacObjectType.CONCEPT");
+    }
+
+    @Override
+    public Stream<Chronology> getChronologySteam() {
+        return Get.identifierService().getNidStream().parallel().mapToObj(nid -> getChronology(nid))
+                .filter(optionalChronology -> optionalChronology.isPresent())
+                .map(optionalChronology -> optionalChronology.get());
     }
 
     @Override

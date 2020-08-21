@@ -202,7 +202,7 @@ public class ConceptDetailTreeTableController {
                             ObservableList<ObservableSemanticChronology> children, boolean addSemantics) {
       for (ObservableSemanticChronology child : children) {
          TreeItem<ObservableCategorizedVersion> parentToAddTo = parent;
-         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(getManifold().getVertexStampFilter());
+         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(getManifold().getViewStampFilter());
 
          if (categorizedVersions.getLatestVersion()
                  .isPresent()) {

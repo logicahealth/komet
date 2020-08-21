@@ -5,6 +5,8 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import org.eclipse.collections.api.list.primitive.ImmutableIntList;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.*;
@@ -26,7 +28,7 @@ public abstract class ObservableManifoldCoordinateBase
      */
     protected final SimpleObjectProperty<VertexSort> vertexSortProperty;
 
-    protected final ObservableStampFilterBase vertexStampFilterObservable;
+    protected final SimpleObjectProperty<StatusSet> vertexStatusSetObservable;
 
     protected final ObservableStampFilterBase edgeStampFilterObservable;
 
@@ -44,7 +46,7 @@ public abstract class ObservableManifoldCoordinateBase
      */
     private final ChangeListener<NavigationCoordinateImmutable> navigationChanged = this::navigationChanged;
     private final ChangeListener<StampFilterImmutable> edgeStampFilterListener = this::edgeFilterChanged;
-    private final ChangeListener<StampFilterImmutable> vertexStampFilterListener = this::vertexFilterChanged;
+    private final ChangeListener<StatusSet> vertexStatusSetListener = this::vertexFilterChanged;
     private final ChangeListener<LanguageCoordinateImmutable> languageCoordinateListener = this::languageCoordinateChanged;
     private final ChangeListener<VertexSort> vertexSortChangeListener = this::vertexSortChanged;
     private final ChangeListener<LogicCoordinateImmutable> logicCoordinateListener = this::logicCoordinateChanged;
@@ -59,7 +61,7 @@ public abstract class ObservableManifoldCoordinateBase
         this.languageCoordinateObservable = makeLanguageCoordinate(manifoldCoordinate);
         this.vertexSortProperty = makeVertexSortProperty(manifoldCoordinate);
         this.edgeStampFilterObservable = makeEdgeStampFilterProperty(manifoldCoordinate);
-        this.vertexStampFilterObservable = makeVertexStampFilterProperty(manifoldCoordinate);
+        this.vertexStatusSetObservable = makeVertexStatusSetProperty(manifoldCoordinate);
         this.logicCoordinateObservable = makeLogicCoordinate(manifoldCoordinate);
         this.activityProperty = makeActivityProperty(manifoldCoordinate);
         this.editCoordinateObservable = makeEditCoordinate(manifoldCoordinate);
@@ -80,15 +82,14 @@ public abstract class ObservableManifoldCoordinateBase
     }
 
     @Override
-    public void changeManifoldPath(ConceptSpecification pathConcept) {
+    public void setManifoldPath(ConceptSpecification pathConcept) {
         this.removeListeners();
         getViewStampFilter().pathConceptProperty().set(pathConcept);
-        getVertexStampFilter().pathConceptProperty().set(pathConcept);
         ManifoldCoordinateImmutable manifoldCoordinateImmutable = ManifoldCoordinateImmutable.make(
                 getViewStampFilter().toStampFilterImmutable(),
                 getLanguageCoordinate().toLanguageCoordinateImmutable(),
                 getVertexSort(),
-                getVertexStampFilter().toStampFilterImmutable(),
+                getVertexStatusSet(),
                 getNavigationCoordinate().toNavigationCoordinateImmutable(),
                 getLogicCoordinate().toLogicCoordinateImmutable(),
                 getCurrentActivity(),
@@ -97,12 +98,32 @@ public abstract class ObservableManifoldCoordinateBase
         this.setValue(manifoldCoordinateImmutable);
     }
 
+    @Override
+    public void setAllowedStates(StatusSet statusSet) {
+        StampFilterImmutable newViewStampFilter =
+                StampFilterImmutable.make(statusSet,
+                    getViewStampFilter().getStampPosition(),
+                    getViewStampFilter().getModuleNids(),
+                    getViewStampFilter().getExcludedModuleNids(),
+                    getViewStampFilter().getModulePriorityOrder());
+        ManifoldCoordinateImmutable newManifoldCoordinateImmutable = ManifoldCoordinateImmutable.make(
+                newViewStampFilter,
+                getLanguageCoordinate().toLanguageCoordinateImmutable(),
+                getVertexSort(),
+                statusSet,
+                getNavigationCoordinate().toNavigationCoordinateImmutable(),
+                getLogicCoordinate().toLogicCoordinateImmutable(),
+                getCurrentActivity(),
+                getEditCoordinate());
+        this.setValue(newManifoldCoordinateImmutable);
+    }
+
     private void editCoordinateChanged(ObservableValue<? extends EditCoordinateImmutable> observableValue, EditCoordinateImmutable oldEditCoordinate, EditCoordinateImmutable newEditCoordinate) {
         this.setValue(ManifoldCoordinateImmutable.make(
                 getViewStampFilter().toStampFilterImmutable(),
                 getLanguageCoordinate().toLanguageCoordinateImmutable(),
                 getVertexSort(),
-                getVertexStampFilter().toStampFilterImmutable(),
+                getVertexStatusSet(),
                 getNavigationCoordinate().toNavigationCoordinateImmutable(),
                 getLogicCoordinate().toLogicCoordinateImmutable(),
                 getCurrentActivity(),
@@ -114,7 +135,7 @@ public abstract class ObservableManifoldCoordinateBase
                 getViewStampFilter().toStampFilterImmutable(),
                 getLanguageCoordinate().toLanguageCoordinateImmutable(),
                 getVertexSort(),
-                getVertexStampFilter().toStampFilterImmutable(),
+                getVertexStatusSet(),
                 getNavigationCoordinate().toNavigationCoordinateImmutable(),
                 getLogicCoordinate().toLogicCoordinateImmutable(),
                 newActivity,
@@ -126,7 +147,7 @@ public abstract class ObservableManifoldCoordinateBase
         this.navigationCoordinateObservable.baseCoordinateProperty().setValue(newValue.toNavigationCoordinateImmutable());
         this.languageCoordinateObservable.setValue(newValue.getLanguageCoordinate().toLanguageCoordinateImmutable());
         this.edgeStampFilterObservable.setValue(newValue.getViewStampFilter().toStampFilterImmutable());
-        this.vertexStampFilterObservable.setValue(newValue.getVertexStampFilter().toStampFilterImmutable());
+        this.vertexStatusSetObservable.setValue(newValue.getVertexStatusSet());
         this.logicCoordinateObservable.setValue(newValue.getLogicCoordinate().toLogicCoordinateImmutable());
         this.vertexSortProperty.setValue(newValue.getVertexSort());
         this.activityProperty.setValue(newValue.getCurrentActivity());
@@ -138,7 +159,7 @@ public abstract class ObservableManifoldCoordinateBase
         this.navigationCoordinateObservable.baseCoordinateProperty().addListener(this.navigationChanged);
         this.languageCoordinateObservable.baseCoordinateProperty().addListener(this.languageCoordinateListener);
         this.edgeStampFilterObservable.baseCoordinateProperty().addListener(this.edgeStampFilterListener);
-        this.vertexStampFilterObservable.baseCoordinateProperty().addListener(this.vertexStampFilterListener);
+        this.vertexStatusSetObservable.addListener(this.vertexStatusSetListener);
         this.logicCoordinateObservable.baseCoordinateProperty().addListener(this.logicCoordinateListener);
         this.vertexSortProperty.addListener(this.vertexSortChangeListener);
         this.activityProperty.addListener(this.activityChangeListener);
@@ -151,7 +172,7 @@ public abstract class ObservableManifoldCoordinateBase
         this.navigationCoordinateObservable.baseCoordinateProperty().removeListener(this.navigationChanged);
         this.languageCoordinateObservable.baseCoordinateProperty().removeListener(this.languageCoordinateListener);
         this.edgeStampFilterObservable.baseCoordinateProperty().removeListener(this.edgeStampFilterListener);
-        this.vertexStampFilterObservable.baseCoordinateProperty().removeListener(this.vertexStampFilterListener);
+        this.vertexStatusSetObservable.removeListener(this.vertexStatusSetListener);
         this.logicCoordinateObservable.baseCoordinateProperty().removeListener(this.logicCoordinateListener);
         this.vertexSortProperty.removeListener(this.vertexSortChangeListener);
         this.activityProperty.removeListener(this.activityChangeListener);
@@ -161,7 +182,7 @@ public abstract class ObservableManifoldCoordinateBase
 
     protected abstract ObservableNavigationCoordinateBase makeNavigationCoordinateProperty(ManifoldCoordinate manifoldCoordinate);
 
-    protected abstract ObservableStampFilterBase makeVertexStampFilterProperty(ManifoldCoordinate manifoldCoordinate);
+    protected abstract SimpleObjectProperty<StatusSet> makeVertexStatusSetProperty(ManifoldCoordinate manifoldCoordinate);
 
     protected abstract ObservableStampFilterBase makeEdgeStampFilterProperty(ManifoldCoordinate manifoldCoordinate);
 
@@ -173,9 +194,9 @@ public abstract class ObservableManifoldCoordinateBase
 
     //~--- methods -------------------------------------------------------------
 
-    private void vertexFilterChanged(ObservableValue<? extends StampFilterImmutable> observable,
-                                     StampFilterImmutable oldValue,
-                                     StampFilterImmutable newValue) {
+    private void vertexFilterChanged(ObservableValue<? extends StatusSet> observable,
+                                     StatusSet oldValue,
+                                     StatusSet newValue) {
         this.setValue(ManifoldCoordinateImmutable.make(
                 getViewStampFilter().toStampFilterImmutable(),
                 getLanguageCoordinate().toLanguageCoordinateImmutable(),
@@ -194,7 +215,7 @@ public abstract class ObservableManifoldCoordinateBase
                 getViewStampFilter().toStampFilterImmutable(),
                 getLanguageCoordinate().toLanguageCoordinateImmutable(),
                 newValue,
-                getVertexStampFilter().toStampFilterImmutable(),
+                getVertexStatusSet(),
                 getNavigationCoordinate().toNavigationCoordinateImmutable(),
                 getLogicCoordinate().toLogicCoordinateImmutable(),
                 getCurrentActivity(),
@@ -209,7 +230,7 @@ public abstract class ObservableManifoldCoordinateBase
                 newValue,
                 getLanguageCoordinate().toLanguageCoordinateImmutable(),
                 getVertexSort(),
-                getVertexStampFilter().toStampFilterImmutable(),
+                getVertexStatusSet(),
                 getNavigationCoordinate().toNavigationCoordinateImmutable(),
                 getLogicCoordinate().toLogicCoordinateImmutable(),
                 getCurrentActivity(),
@@ -223,7 +244,7 @@ public abstract class ObservableManifoldCoordinateBase
                 getViewStampFilter().toStampFilterImmutable(),
                 newValue,
                 getVertexSort(),
-                getVertexStampFilter().toStampFilterImmutable(),
+                getVertexStatusSet(),
                 getNavigationCoordinate().toNavigationCoordinateImmutable(),
                 getLogicCoordinate().toLogicCoordinateImmutable(),
                 getCurrentActivity(),
@@ -237,7 +258,7 @@ public abstract class ObservableManifoldCoordinateBase
                 getViewStampFilter().toStampFilterImmutable(),
                 getLanguageCoordinate().toLanguageCoordinateImmutable(),
                 getVertexSort(),
-                getVertexStampFilter().toStampFilterImmutable(),
+                getVertexStatusSet(),
                 newValue,
                 getLogicCoordinate().toLogicCoordinateImmutable(),
                 getCurrentActivity(),
@@ -251,7 +272,7 @@ public abstract class ObservableManifoldCoordinateBase
                 getViewStampFilter().toStampFilterImmutable(),
                 getLanguageCoordinate().toLanguageCoordinateImmutable(),
                 getVertexSort(),
-                getVertexStampFilter().toStampFilterImmutable(),
+                getVertexStatusSet(),
                 getNavigationCoordinate().toNavigationCoordinateImmutable(),
                 newValue,
                 getCurrentActivity(),
@@ -285,8 +306,8 @@ public abstract class ObservableManifoldCoordinateBase
     }
 
     @Override
-    public ObservableStampFilter getVertexStampFilter() {
-        return this.vertexStampFilterObservable;
+    public StatusSet getVertexStatusSet() {
+        return this.getValue().getVertexStatusSet();
     }
 
     @Override
@@ -300,8 +321,8 @@ public abstract class ObservableManifoldCoordinateBase
     }
 
     @Override
-    public ObjectProperty<StampFilterImmutable> vertexStampFilterProperty() {
-        return vertexStampFilterObservable.baseCoordinateProperty();
+    public ObjectProperty<StatusSet> vertexStatusSetProperty() {
+        return vertexStatusSetObservable;
     }
 
     @Override
@@ -310,7 +331,7 @@ public abstract class ObservableManifoldCoordinateBase
     }
 
     @Override
-    public ObjectProperty<StampFilterImmutable> edgeStampFilterProperty() {
+    public ObjectProperty<StampFilterImmutable> viewStampFilterProperty() {
         return edgeStampFilterObservable.baseCoordinateProperty();
     }
 
@@ -364,6 +385,11 @@ public abstract class ObservableManifoldCoordinateBase
     @Override
     public ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis) {
         throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public StampFilter getVertexStampFilter() {
+        return getValue().getVertexStampFilter();
     }
 
     @Override

@@ -103,11 +103,10 @@ public class PathGroupPanel extends ParentPanel implements CommitListener {
         List<IdentifiedComponentBuilder> builders = new ArrayList<>();
         // int authorNid, int defaultModuleNid, int promotionPathNid, int destinationModuleNid
 
-        EditCoordinateImmutable editCoordinate = EditCoordinateImmutable.make(TermAux.USER,
-                TermAux.SANDBOX_MODULE, TermAux.SANDBOX_PATH, TermAux.SANDBOX_MODULE);
-        ObservableManifoldCoordinateImpl manifoldCoordinate =
-                new ObservableManifoldCoordinateImpl(Coordinates.Manifold.DevelopmentInferredRegularNameSort());
-        manifoldCoordinate.editCoordinateProperty().setValue(editCoordinate);
+        ObservableManifoldCoordinateImpl manifoldForPathCreation =
+                new ObservableManifoldCoordinateImpl(this.getManifoldCoordinate().toManifoldCoordinateImmutable());
+        manifoldForPathCreation.getEditCoordinate().defaultModuleProperty().setValue(TermAux.SANDBOX_MODULE);
+        manifoldForPathCreation.getViewStampFilter().pathConceptProperty().setValue(TermAux.SANDBOX_PATH);
 
         // 1. Create new concept/description, in sandbox module
         LogicalExpressionBuilder expressionBuilder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
@@ -137,7 +136,7 @@ public class PathGroupPanel extends ParentPanel implements CommitListener {
         Transaction transaction = Get.commitService().newTransaction(Optional.of("Path from preference panel"), ChangeCheckerMode.INACTIVE);
         builders.forEach(identifiedComponentBuilder -> {
             final List<Chronology> builtObjects = new ArrayList<>();
-            identifiedComponentBuilder.build(transaction, manifoldCoordinate, builtObjects);
+            identifiedComponentBuilder.build(transaction, manifoldForPathCreation, builtObjects);
         });
         transaction.commit();
         setupButtonsForNew();

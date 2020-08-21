@@ -1,5 +1,6 @@
 package sh.isaac.model.observable.coordinate;
 
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import sh.isaac.api.coordinate.*;
@@ -35,6 +36,11 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
             if (vertexSortProperty().isOverridden()) {
                 vertexSort = getVertexSort();
             }
+            StatusSet vertexStatusSet = updatedCoordinate.getVertexStatusSet();
+            if (vertexStatusSetProperty().isOverridden()) {
+                vertexStatusSet = getVertexStatusSet();
+            }
+
             StampFilterImmutable edgeStampFilter = updatedCoordinate.getViewStampFilter();
             if (getViewStampFilter().hasOverrides()) {
                 ObservableStampFilter filter = getViewStampFilter();
@@ -47,13 +53,7 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
                 coordinate.setExceptOverrides(languageCoordinate);
                 languageCoordinate = coordinate.toLanguageCoordinateImmutable();
             }
-             StampFilterImmutable vertexStampFilter = updatedCoordinate.getVertexStampFilter();
-            if (getVertexStampFilter().hasOverrides()) {
-                ObservableStampFilter filter = getVertexStampFilter();
-                filter.setExceptOverrides(vertexStampFilter);
-                vertexStampFilter = filter.toStampFilterImmutable();
-            }
-            NavigationCoordinateImmutable navigationCoordinate = updatedCoordinate.getNavigationCoordinate();
+              NavigationCoordinateImmutable navigationCoordinate = updatedCoordinate.getNavigationCoordinate();
             if (getNavigationCoordinate().hasOverrides()) {
                 navigationCoordinate = getNavigationCoordinate().toNavigationCoordinateImmutable();
             }
@@ -66,7 +66,7 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
             this.setValue(ManifoldCoordinateImmutable.make(edgeStampFilter,
                     languageCoordinate,
                     vertexSort,
-                    vertexStampFilter,
+                    vertexStatusSet,
                     navigationCoordinate,
                     logicCoordinate, Activity.DEVELOPING, Coordinates.Edit.Default()));
         } else {
@@ -82,9 +82,7 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
         } else {
             setValue(newValue);
         }
-
     }
-
 
     @Override
     protected ObservableLogicCoordinateBase makeLogicCoordinate(ManifoldCoordinate manifoldCoordinate) {
@@ -99,9 +97,9 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
     }
 
     @Override
-    protected ObservableStampFilterBase makeVertexStampFilterProperty(ManifoldCoordinate manifoldCoordinate) {
+    protected ObjectPropertyWithOverride<StatusSet> makeVertexStatusSetProperty(ManifoldCoordinate manifoldCoordinate) {
         ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
-        return new ObservableStampFilterWithOverride(observableManifoldCoordinate.getVertexStampFilter());
+        return new ObjectPropertyWithOverride(observableManifoldCoordinate.vertexStatusSetProperty(), this);
     }
 
     @Override
@@ -113,6 +111,11 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
     @Override
     public ObjectPropertyWithOverride<VertexSort> vertexSortProperty() {
         return (ObjectPropertyWithOverride) super.vertexSortProperty();
+    }
+
+    @Override
+    public ObjectPropertyWithOverride<StatusSet> vertexStatusSetProperty() {
+        return (ObjectPropertyWithOverride) super.vertexStatusSetProperty();
     }
 
     @Override

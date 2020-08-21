@@ -394,7 +394,7 @@ public class SimpleSearchController extends ExplorationNodeAbstract implements G
             switch (newValue) {
                 case SUCCEEDED:
                     ObservableList<ObservableDescriptionVersion> tableItems = this.resultTable.getItems();
-                    ObservableSnapshotService snapshot = Get.observableSnapshotService(this.viewProperties.getStampFilter());
+                    ObservableSnapshotService snapshot = Get.observableSnapshotService(this.viewProperties.getViewStampFilter());
 
                     if(this.searchService.getValue().size() == 0) {
                         this.resultTable.setPlaceholder(new Label("No Results Found..."));

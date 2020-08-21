@@ -39,15 +39,23 @@
 
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.classifier.ClassifierResults;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.*;
+import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.SequentialAggregateTask;
+import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.isaac.provider.logic.LogicProvider;
 
 import java.time.Instant;
@@ -91,7 +99,7 @@ public class AggregateClassifyTask
             ClassifierResults cr = cc.call();
             if (cr != null) {
                // had a cycle.  Abort.
-               log.info("At least one cycle detected, classification aborted - summary: {}", cr);
+               log.info("At least one cycle detected, classification aborted - summary: {}", cr + "\n\n" + cr.getCycles());
                return cr;
             }
          }
@@ -116,10 +124,13 @@ public class AggregateClassifyTask
      * @param cycleCheckFirst true, to do a cycle check on the stated taxonomy prior to classify.  Will abort classify if a cycle is detected.
      * @return an {@code AggregateClassifyTask} already submitted to an executor.
      */
-    public static AggregateClassifyTask get(ManifoldCoordinate manifoldCoordinate, boolean cycleCheckFirst) {
+    public static AggregateClassifyTask get(ManifoldCoordinateImmutable manifoldCoordinate, boolean cycleCheckFirst) {
        Instant classifyCommitTime = Get.commitService().getTimeForCommit();
-       manifoldCoordinate = manifoldCoordinate.makeCoordinateAnalog(classifyCommitTime.toEpochMilli());
-        final AggregateClassifyTask classifyTask = new AggregateClassifyTask(manifoldCoordinate, cycleCheckFirst);
+       ObservableManifoldCoordinate observableManifoldCoordinate = new ObservableManifoldCoordinateImpl(manifoldCoordinate);
+       observableManifoldCoordinate.setAllowedStates(StatusSet.ACTIVE_ONLY);
+
+       manifoldCoordinate = observableManifoldCoordinate.getValue().makeCoordinateAnalog(classifyCommitTime.toEpochMilli());
+       final AggregateClassifyTask classifyTask = new AggregateClassifyTask(manifoldCoordinate, cycleCheckFirst);
         Get.workExecutors()
                 .getExecutor()
                 .execute(classifyTask);

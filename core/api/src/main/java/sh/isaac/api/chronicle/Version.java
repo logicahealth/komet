@@ -55,7 +55,7 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
                         Long.MAX_VALUE,
                         mc.getEditCoordinate().getAuthorNidForChanges(),
                         mc.getModuleNidForAnalog(this),
-                        mc.getPathNidForAnalog(this));
+                        mc.getPathNidForAnalog());
         return setupAnalog(stampSequence);
     }
 
@@ -78,7 +78,7 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
                         Long.MAX_VALUE,
                         mc.getEditCoordinate().getAuthorNidForChanges(),
                         mc.getModuleNidForAnalog(this),
-                        mc.getPathNidForAnalog(this));
+                        mc.getPathNidForAnalog());
         return setupAnalog(stampSequence);
     }
 

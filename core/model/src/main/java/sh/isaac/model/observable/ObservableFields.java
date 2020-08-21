@@ -141,7 +141,7 @@ public enum ObservableFields
 
    DIGRAPH_SPECIFICATION_SET("Navigation concept set", "Navigation set"),
    /** The allowed states for stamp coordinate. */
-   ALLOWED_STATES_FOR_STAMP_COORDINATE("Allowed states for stamp coordinate", "Allowed states"),
+   ALLOWED_STATES_FOR_STAMP_COORDINATE("View states for stamp coordinate", "View states"),
 
    /** The path nid for stamp path. */
    PATH_FOR_PATH_COORDINATE("Path for path coordinate", "Path"),
@@ -176,6 +176,7 @@ public enum ObservableFields
    LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE("Logic coordinate for taxonomy coordinate", "Logic coordinate"),
 
    CURRENT_ACTIVITY_PROPERTY("Current activity", "Activity"),
+   VERTEX_STATUS_SET_PROPERTY("Vertex state set", "Vertex states"),
    VERTEX_SORT_PROPERTY("Vertex sort", "Sort"),
    DIGRAPH_PROPERTY("Digraph for manifold", "Digraph"),
    VIEW_FILTER_FOR_NAVIGATION("View STAMP filter for manifold", "View filter"),

@@ -53,8 +53,6 @@ import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
-import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.VersionImpl;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptVersionImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
@@ -99,7 +97,7 @@ public class ObservableConceptVersionImpl
         ObservableConceptVersionImpl analog = new ObservableConceptVersionImpl(this, getChronology());
         analog.setModuleNid(mc.getModuleNidForAnalog(this));
         analog.setAuthorNid(mc.getAuthorNidForChanges());
-        analog.setPathNid(mc.getPathNidForAnalog(this));
+        analog.setPathNid(mc.getPathNidForAnalog());
         analog.setStatus(this.getStatus());
         return (V) analog;
     }

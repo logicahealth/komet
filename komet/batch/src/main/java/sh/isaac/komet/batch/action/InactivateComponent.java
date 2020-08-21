@@ -7,10 +7,11 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.VersionChangeListener;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
@@ -35,7 +36,7 @@ public class InactivateComponent extends ActionItem {
     }
 
     @Override
-    protected void setupItemForGui(ManifoldCoordinate manifoldForDisplay) {
+    protected void setupItemForGui(ObservableManifoldCoordinate manifoldForDisplay) {
         getPropertySheet().getItems().add(new PropertySheetItemConceptWrapper(manifoldForDisplay, "Inactivate",
                 conceptToInactivateProperty,
                 new ConceptProxy("Disease (disorder)", UUID.fromString("ab4e618b-b954-3d56-a44b-f0f29d6f59d3")),
@@ -44,7 +45,7 @@ public class InactivateComponent extends ActionItem {
     }
 
     @Override
-    protected void setupForApply(ConcurrentHashMap<Enum, Object> cache, Transaction transaction, ManifoldCoordinate manifoldCoordinate) {
+    protected void setupForApply(ConcurrentHashMap<Enum, Object> cache, Transaction transaction, ManifoldCoordinateImmutable manifoldCoordinate) {
         Optional<? extends Chronology> optionalChronology = Get.identifiedObjectService().getChronology(conceptToInactivateProperty.get().getNid());
         if (optionalChronology.isPresent()) {
             Chronology chronology = optionalChronology.get();
@@ -54,7 +55,7 @@ public class InactivateComponent extends ActionItem {
     }
 
     @Override
-    protected void apply(Chronology chronology, ConcurrentHashMap<Enum, Object> cache, Transaction transaction, ManifoldCoordinate manifoldCoordinate, VersionChangeListener versionChangeListener) {
+    protected void apply(Chronology chronology, ConcurrentHashMap<Enum, Object> cache, VersionChangeListener versionChangeListener) {
         // nothing to do..
     }
 
@@ -79,6 +80,11 @@ public class InactivateComponent extends ActionItem {
             default:
                 throw new UnsupportedOperationException("Unsupported version: " + objectMarshalVersion);
         }
+    }
+
+    @Override
+    protected void conclude(ConcurrentHashMap<Enum, Object> cache) {
+        // nothing to do...
     }
 
 }

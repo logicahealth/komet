@@ -5,6 +5,7 @@ import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
+import sh.isaac.api.util.UuidT5Generator;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -27,19 +28,25 @@ public class StatusSet implements ImmutableCoordinate {
     private static final int marshalVersion = 1;
 
     private long bits = 0;
+    private final UUID uuid;
 
     private StatusSet(Status... statuses) {
         for (Status status: statuses) {
             bits |= (1L << status.ordinal());
         }
+        uuid = UuidT5Generator.get(UUID.fromString("324d86b8-2905-4942-9bd1-8dcb06d76cfa"), Long.toString(bits));
     }
 
     private StatusSet(Collection<? extends Status> statuses) {
         for (Status status: statuses) {
             bits |= (1L << status.ordinal());
         }
+        uuid = UuidT5Generator.get(UUID.fromString("324d86b8-2905-4942-9bd1-8dcb06d76cfa"), Long.toString(bits));
     }
 
+    public UUID getStatusSetUuid() {
+        return uuid;
+    }
 
     @Unmarshaler
     public static Object make(ByteArrayDataBuffer in) {

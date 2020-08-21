@@ -39,6 +39,8 @@ package sh.komet.fx.stage;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.Observable;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -53,9 +55,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -155,6 +159,8 @@ public class KometStageController
     @FXML
     private MenuButton viewPropertiesButton;
 
+
+    private ChangeListener<Boolean> focusChangeListener = this::handleFocusEvents;
 
     private WindowPreferences windowPreferences;
     private IsaacPreferences preferencesNode;
@@ -302,7 +308,7 @@ public class KometStageController
             completeClassify.setOnAction((ActionEvent event) -> {
                 //TODO change how we get the edit coordinate. 
                 EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-                ClassifierService classifierService = Get.logicService().getClassifierService(this.viewProperties.getManifoldCoordinate());
+                ClassifierService classifierService = Get.logicService().getClassifierService(this.viewProperties.getManifoldCoordinate().toManifoldCoordinateImmutable());
                 classifierService.classify();
             });
             items.add(completeClassify);
@@ -404,6 +410,11 @@ public class KometStageController
                 this.viewProperties.getManifoldCoordinate());
     }
 
+    private String makePathLabelString() {
+        return this.viewProperties.getManifoldCoordinate().getCurrentActivity().toUserString() +
+                " on " + this.viewProperties.getManifoldCoordinate().getPathString();
+    }
+
     /**
      * @param windowPreferences preferences of the window.
      */
@@ -411,11 +422,7 @@ public class KometStageController
         this.windowPreferences = windowPreferences;
         this.viewProperties = windowPreferences.getViewPropertiesForWindow();
 
-
-        this.pathLabel.setText(this.viewProperties.getManifoldCoordinate().getPathString());
-        this.viewProperties.getManifoldCoordinate().addListener(observable -> {
-            this.pathLabel.setText(this.viewProperties.getManifoldCoordinate().getPathString());
-        });
+        this.pathLabel.setText(makePathLabelString());
 
         this.preferencesNode = windowPreferences.getPreferenceNode();
         this.stage = stage;
@@ -576,8 +583,13 @@ public class KometStageController
         this.windowSplitPane.setDividerPositions(this.windowPreferences.dividerPositionsProperty().get());
 
         this.updateMenus(null);
+
+
+        this.viewProperties.getManifoldCoordinate().addListener((observable, oldValue, newValue) -> {
+            this.pathLabel.setText(makePathLabelString());
+            this.updateMenus(observable);
+        });
         FxGet.pathCoordinates().addListener(this::updateMenus);
-        this.viewProperties.getManifoldCoordinate().addListener(this::updateMenus);
         Platform.runLater(() -> {
             // The initial layout seems to adjust the divider positions. Doing a runLater seems to put the
             // dividers in the right location.
@@ -585,14 +597,22 @@ public class KometStageController
             // does not overwrite the saved layout.
             setupDividerPositions();
             setupFocusOwner(this.windowPreferences.isFocusOwner());
+            stage.setOnCloseRequest(this::handleCloseRequest);
+
         });
     }
 
+    void handleCloseRequest(WindowEvent event) {
+        stage.focusedProperty().removeListener(this.focusChangeListener);
+    }
+
+    void handleFocusEvents(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+        KometStageController.this.windowPreferences.setFocusOwner(newValue);
+        KometStageController.this.windowPreferences.save();
+    }
+
     void setupFocusOwner(boolean focusOwner) {
-        stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            this.windowPreferences.setFocusOwner(newValue);
-            this.windowPreferences.save();
-        });
+        stage.focusedProperty().addListener(this.focusChangeListener);
         if (focusOwner) {
             this.stage.requestFocus();
         }
@@ -644,9 +664,11 @@ public class KometStageController
                 } else {
                     buff.append("selected (processed in background):\n");
                     for (int i = 0; i < c.getList().size(); i++) {
-                        ConceptChronology concept = Get.concept(c.getList().get(i).getNid());
-                        buff.append(concept.toString());
-                        buff.append("\n");
+                        Optional<? extends Chronology> optionalChronology = Get.identifiedObjectService().getChronology(c.getList().get(i).getNid());
+                        optionalChronology.ifPresent(chronology -> {
+                            buff.append(chronology.toString());
+                            buff.append("\n");
+                        });
                     }
                 }
 

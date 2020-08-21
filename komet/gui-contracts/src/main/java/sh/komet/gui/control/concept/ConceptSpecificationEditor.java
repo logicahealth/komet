@@ -59,8 +59,8 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
     private ReadOnlyObjectProperty<ConceptSpecification> findSelectedConceptSpecification;
     private PopOver popOver;
     private final MenuItem findItem = new MenuItemWithText("Find");
-    FixedWidthMenuSeperator fixedWidthFindSeperator = new FixedWidthMenuSeperator();
-    FixedWidthMenuSeperator fixedWidthManifoldSeperator = new FixedWidthMenuSeperator();
+    FixedWidthFindSeparator fixedWidthFindSeparator = new FixedWidthFindSeparator();
+    FixedWidthFindSeparator fixedWidthManifoldSeparator = new FixedWidthFindSeparator();
 
     public ConceptSpecificationEditor(PropertySheetItemConceptWrapper wrapper, ManifoldCoordinate manifoldCoordinate) {
         this.manifoldCoordinate = manifoldCoordinate;
@@ -88,8 +88,8 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
             }
         });
         this.menuButton.widthProperty().addListener((observable, oldValue, newValue) -> {
-            fixedWidthFindSeperator.setWidth(newValue.doubleValue() - 16);
-            fixedWidthManifoldSeperator.setWidth(newValue.doubleValue() - 16);
+            fixedWidthFindSeparator.setWidth(newValue.doubleValue() - 16);
+            fixedWidthManifoldSeparator.setWidth(newValue.doubleValue() - 16);
         });
         this.menuButton.sceneProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
@@ -105,13 +105,13 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
             menuItem.setOnAction(this::handleAction);
             this.menuButton.getItems().add(menuItem);
         }
-        this.menuButton.getItems().add(fixedWidthFindSeperator);
+        this.menuButton.getItems().add(fixedWidthFindSeparator);
         if (wrapper.allowSearch()) {
             findItem.setOnAction(this::showFindPopup);
             this.menuButton.getItems().add(findItem);
         }
         if (wrapper.allowHistory()) {
-            this.menuButton.getItems().add(fixedWidthManifoldSeperator);
+            this.menuButton.getItems().add(fixedWidthManifoldSeparator);
             WindowPreferences windowPreferences = FxGet.windowPreferences(this.menuButton);
 
             for (ActivityFeed activityFeed: windowPreferences.getViewPropertiesForWindow().getActivityFeeds()) {

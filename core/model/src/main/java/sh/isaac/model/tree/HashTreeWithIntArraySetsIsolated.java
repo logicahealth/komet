@@ -1134,7 +1134,7 @@ public class HashTreeWithIntArraySetsIsolated
                 printWatch(nid, "root: ");
             }
             String title = roots.size() + " " +
-                    premiseTypes.toString() +
+                    premiseTypes.toUserString() +
                     " roots";
             if (roots.isEmpty()) {
                 title = "No taxonomy roots";

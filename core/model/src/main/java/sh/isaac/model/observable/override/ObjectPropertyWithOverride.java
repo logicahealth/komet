@@ -155,7 +155,11 @@ public class ObjectPropertyWithOverride<T> extends SimpleEqualityBasedObjectProp
         if (this.oldValue != newValue) {
             if (this.oldValue != null) {
                 if (!this.oldValue.equals(newValue)) {
-                    this.changeListeners.forEach(changeListener -> changeListener.changed(this, this.oldValue, newValue));
+                    HashSet<ChangeListener<? super T>> listeners = this.changeListeners;
+                    if (listeners != null) {
+                        listeners.forEach(changeListener -> changeListener.changed(this, this.oldValue, newValue));
+                    }
+
                 }
             }
         }
@@ -169,8 +173,9 @@ public class ObjectPropertyWithOverride<T> extends SimpleEqualityBasedObjectProp
 
     @Override
     protected void invalidated() {
-        if (this.invalidationListeners != null) {
-            this.invalidationListeners.forEach(invalidationListener ->
+        HashSet<InvalidationListener> listeners = this.invalidationListeners;
+        if (listeners != null) {
+            listeners.forEach(invalidationListener ->
                     invalidationListener.invalidated(this));
         }
     }

@@ -19,7 +19,6 @@ package sh.komet.gui.control.property;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableMap;
-import javafx.collections.ObservableSet;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import org.eclipse.collections.api.factory.Lists;
@@ -39,7 +38,6 @@ import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateBase;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateWithOverride;
-import sh.komet.gui.interfaces.EditInFlight;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -300,7 +298,7 @@ public class ViewProperties {
         return getManifoldCoordinate().getDescriptionText(concept);
     }
 
-    public ObservableStampFilter getStampFilter() {
-        return getManifoldCoordinate().getVertexStampFilter();
+    public ObservableStampFilter getViewStampFilter() {
+        return getManifoldCoordinate().getViewStampFilter();
     }
 }

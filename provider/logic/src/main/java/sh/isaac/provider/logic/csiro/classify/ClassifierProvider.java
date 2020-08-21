@@ -38,10 +38,7 @@ package sh.isaac.provider.logic.csiro.classify;
 
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.task.TimedTask;
 import sh.isaac.provider.logic.csiro.classify.tasks.AggregateClassifyTask;
@@ -54,14 +51,14 @@ import sh.isaac.provider.logic.csiro.classify.tasks.AggregateClassifyTask;
 public class ClassifierProvider
         implements ClassifierService {
 
-   ManifoldCoordinate manifoldCoordinate;
+   ManifoldCoordinateImmutable manifoldCoordinate;
 
    /**
     * Instantiates a new classifier provider.
     * @param manifoldCoordinate the stamp coordinate
     *
     */
-   public ClassifierProvider(ManifoldCoordinate manifoldCoordinate) {
+   public ClassifierProvider(ManifoldCoordinateImmutable manifoldCoordinate) {
       this.manifoldCoordinate = manifoldCoordinate;
    }
 

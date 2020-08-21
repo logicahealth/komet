@@ -192,11 +192,11 @@ public class KometBaseMenus implements MenuProvider {
                 executeFlwor.setUserData(windowPreference);
                 executeFlwor.setOnAction(this::executeFlwor);
 
-                MenuItem executeSctOwl = new MenuItemWithText("Test SNOMED OWL");
+                MenuItem executeSctOwl = new MenuItemWithText("SimpleExtensionFunction SNOMED OWL");
                 executeSctOwl.setUserData(windowPreference);
                 executeSctOwl.setOnAction(this::executeSctOwl);
 
-                MenuItem executeRxNormOwl = new MenuItemWithText("Test RxNorm OWL");
+                MenuItem executeRxNormOwl = new MenuItemWithText("SimpleExtensionFunction RxNorm OWL");
                 executeRxNormOwl.setUserData(windowPreference);
                 executeRxNormOwl.setOnAction(this::executeRxNormOwl);
 
@@ -274,7 +274,7 @@ public class KometBaseMenus implements MenuProvider {
                     Get.executor().submit(transformer);
                 });
 
-                MenuItem testGAE = new MenuItemWithText("Test GAE");
+                MenuItem testGAE = new MenuItemWithText("SimpleExtensionFunction GAE");
                 testGAE.setUserData(windowPreference);
                 testGAE.setOnAction(this::testGAE);
 
@@ -283,7 +283,7 @@ public class KometBaseMenus implements MenuProvider {
                 completeClassify.setOnAction((ActionEvent event) -> {
                     //TODO change how we get the edit coordinate. 
                     EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-                    ClassifierService classifierService = Get.logicService().getClassifierService(windowPreference.getViewPropertiesForWindow().getManifoldCoordinate());
+                    ClassifierService classifierService = Get.logicService().getClassifierService(windowPreference.getViewPropertiesForWindow().getManifoldCoordinate().toManifoldCoordinateImmutable());
                     classifierService.classify();
                 });
 

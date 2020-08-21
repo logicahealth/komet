@@ -35,6 +35,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.util.number.NumberUtil;
 import sh.isaac.komet.iconography.Iconography;
@@ -101,8 +102,14 @@ public class AssemblageViewProvider extends DetailNodeAbstract {
                     int selectedIndex = this.assemblageDetailController.getAssemblageExtensionTreeTable()
                             .getSelectionModel().getSelectedIndex();
                     FxGet.statusMessageService().reportStatus("Scrolling to selected index: " + selectedIndex);
-                    Platform.runLater(() -> this.assemblageDetailController.getAssemblageExtensionTreeTable()
-                            .scrollTo(selectedIndex));
+                    Platform.runLater(() -> {
+                        this.assemblageDetailController.getAssemblageExtensionTreeTable().requestFocus();
+                        Platform.runLater(() -> {
+                            this.assemblageDetailController.getAssemblageExtensionTreeTable()
+                                    .scrollTo(this.assemblageDetailController.getAssemblageExtensionTreeTable()
+                                            .getSelectionModel().getSelectedIndex());
+                        });
+                    });
                 }
             });
             rootPane.setTop(searchToolbar.getSearchToolbar());
@@ -182,8 +189,8 @@ public class AssemblageViewProvider extends DetailNodeAbstract {
 
         private void handleTreeItem(TreeItem<ObservableCategorizedVersion> item) {
             if (item != null && item.getValue() != null) {
-                ObservableCategorizedVersion version = item.getValue();
-                if (version.unwrap().toString().toLowerCase().contains(searchString.toLowerCase())) {
+                ObservableChronology chronology = item.getValue().getChronology();
+                if (chronology.toString().toLowerCase().contains(searchString.toLowerCase())) {
                     searchToolbar.addResult(item);
                 }
                 Platform.runLater(() -> {

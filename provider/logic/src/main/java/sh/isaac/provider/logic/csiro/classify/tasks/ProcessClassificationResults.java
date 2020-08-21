@@ -68,7 +68,6 @@ import sh.isaac.api.logic.assertions.ConceptAssertion;
 import sh.isaac.api.task.AggregateTaskInput;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.logic.ClassifierResultsImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 
@@ -102,11 +101,11 @@ public class ProcessClassificationResults
      * @param manifoldCoordinate
      */
     public ProcessClassificationResults(ManifoldCoordinate manifoldCoordinate) {
-        if (manifoldCoordinate.getVertexStampFilter().getTime() == Long.MAX_VALUE) {
+        if (manifoldCoordinate.getViewStampFilter().getTime() == Long.MAX_VALUE) {
             throw new IllegalStateException("Filter position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
         }
         this.manifoldCoordinate = manifoldCoordinate;
-        this.effectiveCommitTime = manifoldCoordinate.getVertexStampFilter().getTimeAsInstant();
+        this.effectiveCommitTime = manifoldCoordinate.getViewStampFilter().getTimeAsInstant();
         updateTitle("Retrieve inferred axioms");
     }
     

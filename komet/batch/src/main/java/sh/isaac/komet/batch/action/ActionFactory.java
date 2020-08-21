@@ -2,8 +2,7 @@ package sh.isaac.komet.batch.action;
 
 import javafx.scene.Node;
 import org.jvnet.hk2.annotations.Contract;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.komet.gui.control.property.ViewProperties;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 
 @Contract
 public interface ActionFactory {
@@ -14,5 +13,5 @@ public interface ActionFactory {
 
     String getActionName();
 
-    ActionItem makeActionItem(ManifoldCoordinate manifoldForDisplay);
+    ActionItem makeActionItem(ObservableManifoldCoordinate manifoldForDisplay);
 }

@@ -13,8 +13,8 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.StampPathImmutable;
 import sh.isaac.api.coordinate.StampPositionImmutable;
 import sh.isaac.model.observable.coordinate.ObservableStampPathImpl;
-import sh.komet.gui.control.PropertySheetPositionListWrapper;
-import sh.komet.gui.control.PropertySheetTextWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetPositionListWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetTextWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.property.ViewProperties;
 

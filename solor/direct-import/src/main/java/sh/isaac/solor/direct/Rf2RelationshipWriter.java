@@ -37,6 +37,7 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
 
 /**
@@ -155,7 +156,13 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                  long time = accessor.getLong(INSTANT_SECONDS) * 1000;
 
                  // add to rel assemblage
-                 int destinationNid = identifierService.getNidForUuids(destinationUuid);
+                 int destinationNid = 0;
+                 try {
+                     destinationNid = identifierService.getNidForUuids(destinationUuid);
+                 } catch (NoSuchElementException e) {
+                     LOG.warn("No element for [2]: " + relationshipRecord[RF2_DESTINATION_NID_INDEX]);
+                     destinationNid = identifierService.assignNid(destinationUuid);
+                 }
                  int moduleNid = identifierService.getNidForUuids(moduleUuid);
                  int referencedConceptNid = identifierService.getNidForUuids(referencedConceptUuid);
                  int relTypeNid = identifierService.getNidForUuids(relTypeUuid);
@@ -182,6 +189,21 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                  relVersion.setRelationshipGroup(Integer.parseInt(relationshipRecord[RF2_REL_GROUP_INDEX]));
 
                  assemblageService.writeSemanticChronology(relationshipToWrite);
+
+                 // add to sct identifier assemblage
+                 UUID identifierUuid;
+
+                 identifierUuid = UuidT5Generator.get(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(), relationshipRecord[RF2_REL_SCT_ID_INDEX]);
+
+                 SemanticChronologyImpl sctIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
+                         identifierUuid,
+                         TermAux.SNOMED_IDENTIFIER.getNid(),
+                         relationshipToWrite.getNid());
+
+                 StringVersionImpl idVersion = sctIdentifierToWrite.createMutableVersion(relStamp);
+                 idVersion.setString(relationshipRecord[RF2_REL_SCT_ID_INDEX]);
+                 assemblageService.writeSemanticChronology(sctIdentifierToWrite);
+
              } catch (NoSuchElementException noSuchElementException) {
                  StringBuilder builder = new StringBuilder();
                  builder.append("Error importing record: \n").append(Arrays.toString(relationshipRecord));

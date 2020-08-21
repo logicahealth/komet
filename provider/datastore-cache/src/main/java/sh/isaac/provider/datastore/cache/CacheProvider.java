@@ -284,6 +284,11 @@ public class CacheProvider
     }
 
     @Override
+    public IntStream getNidStream() {
+        return this.identifierService.getNidStream();
+    }
+
+    @Override
     public Path getDataStorePath() {
         return datastoreService.getDataStorePath();
     }

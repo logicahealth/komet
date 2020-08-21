@@ -56,10 +56,8 @@ import sh.isaac.api.Edge;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.PremiseSet;
 import sh.isaac.api.navigation.Navigator;
 import sh.isaac.api.util.NaturalOrder;
-import sh.isaac.api.TaxonomySnapshot;
 
 //~--- classes ----------------------------------------------------------------
 /**

@@ -34,11 +34,10 @@ import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.TREES;
 
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.GraphConfigurationItem;
-import sh.komet.gui.control.PropertySheetBooleanWrapper;
-import sh.komet.gui.control.PropertySheetTextWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetBooleanWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.util.FxGet;
 import sh.isaac.api.util.UuidStringKey;
 
 /**
