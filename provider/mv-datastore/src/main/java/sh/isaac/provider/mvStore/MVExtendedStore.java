@@ -72,6 +72,18 @@ public class MVExtendedStore<K, V, VT> implements ExtendedStoreData<K, VT>
 		return valueDeserializer.apply(backingStore.get(key));
 	}
 	
+	@Override
+	public boolean containsKey(K key)
+	{
+		return backingStore.containsKey(key);
+	}
+	
+	@Override
+	public Set<K> keySet()
+	{
+		return backingStore.keySet();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

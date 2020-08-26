@@ -94,6 +94,7 @@ public class StampCommentMap {
      */
     private ExtendedStore dataStore;
     private ExtendedStoreData<Integer, String> stampToComment;
+    private static final String EXTENDED_STORE_DATA_NAME = "stampCommentMap";
 
     /**
      * Construct a default stamp comment map, which holds the comments in memory, and must be read / written to the file system.
@@ -101,7 +102,7 @@ public class StampCommentMap {
     public StampCommentMap() {
         stampCommentMap = IntObjectMaps.mutable.empty();
     }
-
+    
     /**
      * Construct a a StampAliasMap class, that is just a thin wrapper around a datastore.  Does not hold any data in memory.
      *
@@ -109,7 +110,7 @@ public class StampCommentMap {
      */
     public StampCommentMap(ExtendedStore dataStore) {
         this.dataStore = dataStore;
-        stampToComment = dataStore.<Integer, String>getStore("stampCommentMap");
+        stampToComment = dataStore.<Integer, String>getStore(EXTENDED_STORE_DATA_NAME);
     }
 
     /**
@@ -192,7 +193,13 @@ public class StampCommentMap {
         }
     }
 
-    //~--- get methods ---------------------------------------------------------
+    public void shutdown()
+    {
+        if (stampToComment != null) {
+            this.dataStore.closeStore(EXTENDED_STORE_DATA_NAME);
+            stampToComment = null;
+        }
+    }
 
     /**
      * Gets the comment.

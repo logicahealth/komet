@@ -44,7 +44,6 @@
  */
 package sh.isaac.provider.commit;
 
-//~--- JDK imports ------------------------------------------------------------
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -56,20 +55,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-import java.util.function.Consumer;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.eclipse.collections.api.map.primitive.MutableIntIntMap;
 import org.eclipse.collections.impl.factory.primitive.IntIntMaps;
 import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.datastore.ExtendedStoreData;
 import sh.isaac.api.externalizable.StampAlias;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class StampAliasMap.
@@ -105,8 +99,8 @@ public class StampAliasMap {
     private ExtendedStore dataStore;
     private ExtendedStoreData<Integer, Integer> stampToAlias;
     private ExtendedStoreData<Integer, Integer> aliasToStamp;
-
-    //~--- methods -------------------------------------------------------------
+    private static final String EXTENDED_STAMP_TO_ALIAS_NAME = "stampMapStampToAlias";
+    private static final String EXTENDED_ALIAS_TO_STAMP_NAME = "stampMapAliasToStamp";
 
     /**
      * Construct a default stamp alias map, which holds the alias's in memory, and must be read / written to the file system.
@@ -123,8 +117,8 @@ public class StampAliasMap {
      */
     public StampAliasMap(ExtendedStore dataStore) {
         this.dataStore = dataStore;
-        this.stampToAlias = dataStore.<Integer, Integer>getStore("stampMapStampToAlias");
-        this.aliasToStamp = dataStore.<Integer, Integer>getStore("stampMapAliasToStamp");
+        this.stampToAlias = dataStore.<Integer, Integer>getStore(EXTENDED_STAMP_TO_ALIAS_NAME);
+        this.aliasToStamp = dataStore.<Integer, Integer>getStore(EXTENDED_ALIAS_TO_STAMP_NAME);
     }
 
     /**
@@ -230,7 +224,15 @@ public class StampAliasMap {
         }
     }
 
-    //~--- get methods ---------------------------------------------------------
+    public void shutdown()
+    {
+        if (stampToAlias != null) {
+            this.dataStore.closeStore(EXTENDED_STAMP_TO_ALIAS_NAME);
+            this.dataStore.closeStore(EXTENDED_ALIAS_TO_STAMP_NAME);
+            stampToAlias = null;
+            aliasToStamp = null;
+        }
+    }
 
     /**
      * Gets the aliases.
@@ -325,6 +327,4 @@ public class StampAliasMap {
                StreamSupport.stream(this.aliasStampMap.keyValuesView().collect(each -> new StampAlias(each.getTwo(), each.getOne())).spliterator(), false):
                aliasToStamp.getStream().map(entry -> new StampAlias(entry.getValue(), entry.getKey()));
     }
-
 }
-

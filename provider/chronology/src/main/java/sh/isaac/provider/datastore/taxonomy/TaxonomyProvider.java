@@ -189,7 +189,7 @@ public class TaxonomyProvider
                     LOG.error(ex);
                 }
             }
-            this.store.sync().get();
+            // Not our job to sync the data store
             return null;
         });
     }

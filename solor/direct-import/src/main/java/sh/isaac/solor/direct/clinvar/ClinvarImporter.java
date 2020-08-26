@@ -152,13 +152,13 @@ public class ClinvarImporter extends GenericImporter<BufferedReader> {
             }
 
             Get.executor().submit(new GenericConceptWriter(this.genomicConcepts, this.writeSemaphore));
-            super.syncConceptsAndSemantics();
+            super.waitForAll();
 
             Get.executor().submit(new GenericDescriptionWriter(this.genomicDescriptions, this.writeSemaphore));
-            super.syncSemantics();
+            super.waitForAll();
 
             Get.executor().submit(new GenericNonDefiningTaxonomyWriter(this.genomicNonDefiningTaxonomyArtifacts, this.writeSemaphore));
-            super.syncSemantics();
+            super.waitForAll();
 
         }catch (Exception e){
             e.printStackTrace();

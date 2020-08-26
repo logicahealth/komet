@@ -126,18 +126,10 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
                         .submit(writer);
             }
             writeSemaphore.acquireUninterruptibly(writePermits);
-            for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-                try {
-                    indexer.sync().get();
-                } catch (Exception e) {
-                    LOG.error("problem calling sync on index", e);
-                }
-            }
-            updateMessage("Synchronizing semantic database...");
-            Get.assemblageService().sync();
             writeSemaphore.release(writePermits);
         }
         transaction.commit();
+        LookupService.syncAll();
         return null;
     }
 

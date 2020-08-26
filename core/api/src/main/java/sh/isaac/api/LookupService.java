@@ -58,11 +58,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.factory.Sets;
-import org.eclipse.collections.api.list.MutableList;
-import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
-import org.eclipse.collections.impl.list.mutable.FastList;
 import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
@@ -73,6 +70,7 @@ import javafx.application.Platform;
 import net.sagebits.HK2Utilities.HK2RuntimeInitializer;
 import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.constants.SystemPropertyConstants;
+import sh.isaac.api.datastore.MasterDataStore;
 import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.progress.Stoppable;
 import sh.isaac.api.util.HeadlessToolkit;
@@ -728,12 +726,29 @@ public class LookupService {
       return get().getServiceHandle(contractOrService, name, new Annotation[0]) != null;
    }
 
-   public static void syncAll() {
-      List<DatastoreServices> syncServiceList =  getActiveServices(DatastoreServices.class);
-      for (DatastoreServices syncService:  syncServiceList) {
+   public static void syncAll()
+   {
+      List<DatastoreServices> syncServiceList = getActiveServices(DatastoreServices.class);
+      DatastoreServices later = null;
+      for (DatastoreServices syncService : syncServiceList) {
          try {
-            syncService.sync().get();
-         } catch (Throwable ex) {
+            //Other stores might write to this as part of sync, so sync it last
+            if (syncService instanceof MasterDataStore) {
+               later = syncService;
+            }
+            else {
+               syncService.sync().get();
+            }
+         }
+         catch (Throwable ex) {
+            LOG.error(ex);
+         }
+      }
+      if (later != null) {
+         try {
+            later.sync().get();
+         }
+         catch (Throwable ex) {
             LOG.error(ex);
          }
       }

@@ -57,9 +57,7 @@ import javax.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
-import org.eclipse.collections.impl.factory.primitive.IntIntMaps;
 import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
-import org.eclipse.collections.impl.map.mutable.primitive.IntObjectHashMap;
 import org.jvnet.hk2.annotations.Service;
 import com.lmax.disruptor.dsl.Disruptor;
 import javafx.concurrent.Task;
@@ -74,7 +72,12 @@ import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.PostCommitService;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.component.concept.*;
+import sh.isaac.api.component.concept.ConceptBuilderService;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptService;
+import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.component.concept.ConceptSnapshotService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -83,6 +86,7 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.datastore.MasterDataStore;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.BinaryDataServiceFactory;
 import sh.isaac.api.externalizable.DataWriterService;
@@ -204,7 +208,7 @@ public class Get
    private static IndexDescriptionQueryService descriptionIndexer;
    private static IndexSemanticQueryService semanticIndexer;
    
-   private static DataStore dataStore;
+   private static MasterDataStore dataStore;
    
    private static PreferencesService preferencesService;
    private static boolean useLuceneIndexes = true;
@@ -766,7 +770,7 @@ public class Get
    
    public static DataStore dataStore() {
       if (dataStore == null) {
-         dataStore = getService(DataStore.class);
+         dataStore = getService(MasterDataStore.class);
       }
       return dataStore;
    }

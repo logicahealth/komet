@@ -10,6 +10,7 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.UuidIntMapMapMemoryBased;
 import sh.isaac.api.collections.uuidnidmap.UuidToIntMap;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
@@ -611,4 +612,12 @@ public class CacheProvider
 
         return spinedMap;
     }
+
+    @Override
+    public DatabaseImplementation getDataStoreType()
+    {
+        throw new RuntimeException("Was never properly integrated");
+    }
+    
+    
 }

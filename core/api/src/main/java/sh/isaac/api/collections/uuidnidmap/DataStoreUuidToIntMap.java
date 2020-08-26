@@ -41,6 +41,7 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 
 	private ExtendedStore dataStore;
 	private ExtendedStoreData<UUID, Integer> data;
+	private static final String EXTENDED_STORE_DATA_NAME = "UUIDToIntMap";
 	private final AtomicInteger NEXT_NID_PROVIDER = new AtomicInteger(Integer.MIN_VALUE);
 
 	// inverse, in memory cache only used for certain loader patterns.
@@ -49,8 +50,9 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 
 	public DataStoreUuidToIntMap(ExtendedStore datastore)
 	{
+		LOG.debug("starting extended store based data store for uuid to int map");
 		this.dataStore = datastore;
-		data = this.dataStore.<UUID, Integer> getStore("UUIDToIntMap");
+		data = this.dataStore.<UUID, Integer> getStore(EXTENDED_STORE_DATA_NAME);
 		
 		OptionalLong ol = this.dataStore.getSharedStoreLong(MAX_NID_STORE_LOC);
 		if (ol.isPresent())
@@ -255,5 +257,11 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 				this.nidToPrimordialCache.put(nid, temp1);
 			}
 		}
+	}
+
+	@Override
+	public void shutdown()
+	{
+		dataStore.closeStore(EXTENDED_STORE_DATA_NAME);
 	}
 }

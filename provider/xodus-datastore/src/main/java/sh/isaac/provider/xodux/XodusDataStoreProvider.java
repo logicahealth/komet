@@ -117,6 +117,12 @@ public class XodusDataStoreProvider implements DataStoreSubService
 
 	//TODO still need to fix the APIs to route the StampProvider, CommitProvider and UUIDIntMapMap into this API
 	
+    @Override
+    public DatabaseImplementation getDataStoreType()
+    {
+        return DatabaseImplementation.XODUS;
+    }
+	
 	/**
 	 * {@inheritDoc}
 	 */

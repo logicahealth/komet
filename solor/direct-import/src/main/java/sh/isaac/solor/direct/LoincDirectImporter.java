@@ -212,8 +212,6 @@ public class LoincDirectImporter extends TimedTaskWithProgressTracker<Void>
               LOG.error("problem calling sync on index", e);
            }
         }
-        updateMessage("Synchronizing LOINC records to database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 

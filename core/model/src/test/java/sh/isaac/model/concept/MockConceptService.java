@@ -183,26 +183,6 @@ public class MockConceptService
    }
 
    /**
-    * Gets the database folder.
-    *
-    * @return the database folder
-    */
-   @Override
-   public Path getDataStorePath() {
-      return null;
-   }
-
-   /**
-    * Gets the database validity status.
-    *
-    * @return the database validity status
-    */
-   @Override
-   public DataStoreStartState getDataStoreStartState() {
-      return DataStoreStartState.NO_DATASTORE;
-   }
-
-   /**
     * Gets the optional concept.
     *
     * @param conceptId the concept id
@@ -257,11 +237,6 @@ public class MockConceptService
 
    @Override
    public IntStream getConceptNidStream(int assemblageNid) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public Future<?> sync() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

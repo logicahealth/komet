@@ -1,18 +1,31 @@
 package sh.isaac.model.logic;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import org.apache.mahout.math.list.IntArrayList;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.collections.IntArrayWrapper;
 import sh.isaac.api.commit.CommitRecord;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.EditCoordinateImmutable;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinateImmutable;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.marshal.Marshalable;
+import sh.isaac.api.marshal.Marshaler;
+import sh.isaac.api.marshal.Unmarshaler;
 
-import java.time.Instant;
-import java.util.*;
+public class ClassifierResultsImpl implements ClassifierResults, Marshalable {
 
-public class ClassifierResultsImpl implements ClassifierResults {
-
+    public static final int marshalVersion = 1;
     /**
      * Set of concepts potentially affected by the last classification.
      */
@@ -94,10 +107,11 @@ public class ClassifierResultsImpl implements ClassifierResults {
         for (IntArrayWrapper wrapper: cleanEquivalentSets) {
             equivalentSets.add(wrapper.getWrappedSet());
         }
-
     }
 
-    public final void putExternal(ByteArrayDataBuffer out) {
+    @Override
+    @Marshaler
+    public final void marshal(ByteArrayDataBuffer out) {
         out.putNidArray(this.classificationConceptSet);
         out.putInt(equivalentSets.size());
         for (int[] equivalentSet: equivalentSets) {
@@ -131,6 +145,7 @@ public class ClassifierResultsImpl implements ClassifierResults {
 
     }
 
+    @Unmarshaler
     public static final ClassifierResultsImpl make(ByteArrayDataBuffer data) {
         return new ClassifierResultsImpl(data);
     }

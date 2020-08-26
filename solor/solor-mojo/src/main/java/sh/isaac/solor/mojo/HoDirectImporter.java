@@ -397,8 +397,6 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             }
         }
         LOG.info("Deprecated entities: " + deprecated);
-        updateMessage("Synchronizing HO records to database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 

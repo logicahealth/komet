@@ -109,28 +109,6 @@ public class MockSemanticService
                          (SemanticChronology) semanticChronicle);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the database folder.
-    *
-    * @return the database folder
-    */
-   @Override
-   public Path getDataStorePath() {
-      return null;
-   }
-
-   /**
-    * Gets the database validity status.
-    *
-    * @return the database validity status
-    */
-   @Override
-   public DataStoreStartState getDataStoreStartState() {
-      return DataStoreStartState.NO_DATASTORE;
-   }
-
    /**
     * Gets the descriptions for component.
     *
@@ -282,11 +260,6 @@ public class MockSemanticService
    }
 
    @Override
-   public Optional<UUID> getDataStoreId() {
-      return Optional.of(UUID.randomUUID());
-   }
-
-   @Override
    public int getSemanticCount() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
@@ -298,11 +271,6 @@ public class MockSemanticService
 
    @Override
    public IntStream getSemanticNidStream(int assemblageNid) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public Future<?> sync() {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

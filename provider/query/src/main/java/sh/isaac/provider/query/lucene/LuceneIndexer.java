@@ -225,7 +225,7 @@ public abstract class LuceneIndexer implements IndexBuilderService
 			this.indexWriter.deleteAll();
 			this.lastDocCache.invalidateAll();;
 			//When we wipe the index, write out the data store ID that we know will apply to anything we index going forward
-			Files.write(getDataStorePath().resolve(DATASTORE_ID_FILE), Get.assemblageService().getDataStoreId().get().toString().getBytes());
+			Files.write(getDataStorePath().resolve(DATASTORE_ID_FILE), Get.dataStore().getDataStoreId().get().toString().getBytes());
 		}
 		catch (IOException ex)
 		{
@@ -1038,7 +1038,7 @@ public abstract class LuceneIndexer implements IndexBuilderService
 					if (!getDataStorePath().resolve(DATASTORE_ID_FILE).toFile().isFile())
 					{
 						LOG.warn("Existing index loaded from {}, but no datastore id was present!", getDataStorePath());
-						Files.write(getDataStorePath().resolve(DATASTORE_ID_FILE), Get.assemblageService().getDataStoreId().get().toString().getBytes());
+						Files.write(getDataStorePath().resolve(DATASTORE_ID_FILE), Get.dataStore().getDataStoreId().get().toString().getBytes());
 					}
 				}
 				else
@@ -1064,10 +1064,10 @@ public abstract class LuceneIndexer implements IndexBuilderService
 
 					Optional<UUID> temp = getDataStoreId();
 
-					if (temp.isPresent() && !temp.get().equals(Get.assemblageService().getDataStoreId().get()))
+					if (temp.isPresent() && !temp.get().equals(Get.dataStore().getDataStoreId().get()))
 					{
 						LOG.error("Index ID {} does not match assemblage service ID {}.  Did someone swap indexes?  Reindexing...", temp,
-								Get.assemblageService().getDataStoreId());
+								Get.dataStore().getDataStoreId());
 						throw new IndexFormatTooOldException("Index Mismatch", "Index mismatch");
 					}
 				}

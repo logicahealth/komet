@@ -62,6 +62,7 @@ import sh.isaac.api.commit.*;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.datastore.ExtendedStoreData;
 import sh.isaac.api.externalizable.IsaacExternalizable;
@@ -74,6 +75,7 @@ import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.DataToBytesUtils;
 import sh.isaac.model.ChronologyImpl;
+import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -141,7 +143,7 @@ public class CommitProvider
 
     private Optional<UUID> dataStoreId = Optional.empty();
 
-    private AtomicReference<Instant> lastCommitTime = new AtomicReference(Instant.MIN);
+    private AtomicReference<Instant> lastCommitTime = new AtomicReference<>(Instant.MIN);
 
     /**
      * The uncommitted nid lock.
@@ -233,6 +235,7 @@ public class CommitProvider
 
     private ExtendedStore dataStore = null;
     private ExtendedStoreData<Integer, NidSet> nidStore;
+    private static final String NID_STORE_NAME = "CommitProviderNidSetStore";
     private static final int uncommittedConceptsWithChecksNidSetId = 0;
     private static final int uncommittedConceptsNoChecksNidSetId = 1;
     private static final int uncommittedSemanticsWithChecksNidSetId = 2;
@@ -862,9 +865,12 @@ public class CommitProvider
             ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
             Path dataStorePath = configurationService.getDataStoreFolderPath();
 
-            if (Get.dataStore().implementsExtendedStoreAPI()) {
+            //Continue using our own local storage in the case of FileSystem data even though the file system store
+            //now supports the extended APIs for performance reasons
+            if (Get.dataStore().implementsExtendedStoreAPI() && (Get.dataStore() instanceof DataStoreSubService) 
+                    && ((DataStoreSubService)Get.dataStore()).getDataStoreType() != DatabaseImplementation.FILESYSTEM) {
                 dataStore = (ExtendedStore) Get.dataStore();
-                nidStore = dataStore.<Integer, byte[], NidSet>getStore("CommitProviderNidSetStore",
+                nidStore = dataStore.<Integer, byte[], NidSet>getStore(NID_STORE_NAME,
                         (valueToSerialize) -> valueToSerialize == null ? null : DataToBytesUtils.getBytes(valueToSerialize::write),
                         (valueToDeserialize)
                                 -> {
@@ -1028,6 +1034,12 @@ public class CommitProvider
 
         try {
             sync().get();
+            if (nidStore != null) {
+                dataStore.closeStore(NID_STORE_NAME);
+                nidStore = null;
+            }
+            this.stampCommentMap.shutdown();
+            this.stampAliasMap.shutdown();
             this.writeCompletionService.stop();
             this.dataStoreId = Optional.empty();
             this.lastCommitTime.set(Instant.MIN);
@@ -1043,6 +1055,7 @@ public class CommitProvider
             this.uncommittedSemanticsWithChecksNidSet.clear();
             this.uncommittedSemanticsNoChecksNidSet.clear();
             this.pendingCommitTasks.clear();
+            this.dataStore = null;
         } catch (Exception ex) {
             LOG.error("error stopping commit provider", ex);
             throw new RuntimeException(ex);
@@ -1066,7 +1079,7 @@ public class CommitProvider
                 NidSet.of(this.uncommittedSemanticsNoChecksNidSet.stream()).write(out);
             }
         } else {
-            //Just need to write the uncommitted nidset data.   Everything else  is written on change
+            //Just need to write the uncommitted nidset data.   Everything else  is written on change in the MV store, 
             nidStore.put(uncommittedConceptsWithChecksNidSetId, NidSet.of(this.uncommittedConceptsWithChecksNidSet.stream()));
             nidStore.put(uncommittedConceptsNoChecksNidSetId, NidSet.of(this.uncommittedConceptsNoChecksNidSet.stream()));
             nidStore.put(uncommittedSemanticsWithChecksNidSetId, NidSet.of(this.uncommittedSemanticsWithChecksNidSet.stream()));

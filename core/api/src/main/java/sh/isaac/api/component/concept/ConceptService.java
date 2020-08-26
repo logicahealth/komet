@@ -65,8 +65,7 @@ import sh.isaac.api.coordinate.StampFilterImmutable;
  * @author kec
  */
 @Contract
-public interface ConceptService
-        extends SharedConceptService {
+public interface ConceptService {
    /**
     * Write a concept to the concept service. Will not overwrite a concept if one already exists, rather it will
     * merge the written concept with the provided concept.

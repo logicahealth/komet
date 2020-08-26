@@ -72,8 +72,6 @@ public class SRFImporter {
                     e.printStackTrace();
                 }
             }
-            Get.conceptService().sync();
-            Get.assemblageService().sync();
 
         } else {
 
@@ -84,8 +82,6 @@ public class SRFImporter {
                     e.printStackTrace();
                 }
             }
-            Get.assemblageService().sync();
-
         }
         writeSemaphore.release(WRITE_PERMITS);
 

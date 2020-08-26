@@ -39,22 +39,20 @@
 
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
-
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
@@ -65,7 +63,6 @@ import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableVersion;
 
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface AssemblageService.
@@ -73,8 +70,7 @@ import sh.isaac.api.observable.ObservableVersion;
  * @author kec
  */
 @Contract
-public interface AssemblageService
-        extends DatastoreServices {
+public interface AssemblageService {
 
    /**
     * Write a SemanticChronology to the assemblage service. Will not overwrite a SemanticChronology if one already exists, rather it will

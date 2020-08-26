@@ -47,6 +47,17 @@ public interface ExtendedStoreData<K, V>
 	public V get(K key);
 	
 	/**
+	 * @param key
+	 * @return true, if the store contains the specified key
+	 */
+	public boolean containsKey(K key);
+	
+	/**
+	 * @return All the keys
+	 */
+	public Set<K> keySet();
+	
+	/**
 	 * Atomically compute a value for a given key, only if the key is absent.
 	 * Otherwise, return the existing value for the key.
 	 * @param key

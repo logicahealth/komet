@@ -45,4 +45,9 @@ public interface DataStoreSubService extends DataStore
 	 * Start or stop the system via RunLevel changes.
 	 */
 	public void shutdown();
+	
+	/**
+	 * @return The implementation type of the data store in use
+	 */
+	public DatabaseImplementation getDataStoreType();
 }

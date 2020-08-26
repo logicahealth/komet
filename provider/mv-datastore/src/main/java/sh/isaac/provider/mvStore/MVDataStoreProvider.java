@@ -112,6 +112,12 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 	
 	ConcurrentHashMap<String, MVExtendedStore<?, ?, ?>> extendedStores = new ConcurrentHashMap<>(5);
 	MVMap<String, Long> sharedStore;
+	
+    @Override
+    public DatabaseImplementation getDataStoreType()
+    {
+        return DatabaseImplementation.MV;
+    }
 
 	/**
 	 * {@inheritDoc}
@@ -838,5 +844,13 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 	{
 		 return (ExtendedStoreData<K, VT>) extendedStores.computeIfAbsent(storeName, mapNameKey -> 
 		 	new MVExtendedStore<K, V, VT>(this.store.<K, V>openMap(mapNameKey), valueSerializer, valueDeserializer));
+	}
+
+	@Override
+	public void closeStore(String storeName)
+	{
+		//In MV Store, we just need to make sure we are done serializing.  We don't need to do anything else.
+		store.commit();
+		extendedStores.remove(storeName);
 	}
 }

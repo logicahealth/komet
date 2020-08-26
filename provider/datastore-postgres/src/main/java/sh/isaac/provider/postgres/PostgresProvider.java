@@ -16,16 +16,37 @@
  */
 package sh.isaac.provider.postgres;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
+import static sh.isaac.api.externalizable.ByteArrayDataBuffer.getInt;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
+import java.util.function.BinaryOperator;
+import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -41,17 +62,6 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.SemanticVersionImpl;
 import sh.isaac.provider.datastore.cache.CacheBootstrap;
-
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.sql.*;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
-import java.util.function.BinaryOperator;
-import java.util.stream.IntStream;
-
-import static sh.isaac.api.externalizable.ByteArrayDataBuffer.getInt;
 
 /**
  *
@@ -93,6 +103,12 @@ public class PostgresProvider
     public PostgresProvider() {
         //Construct with HK2 only
         LOG.info("Contructor PostgresProvider()");
+    }
+    
+    @Override
+    public DatabaseImplementation getDataStoreType()
+    {
+        return DatabaseImplementation.POSTGRESQL;
     }
 
     //

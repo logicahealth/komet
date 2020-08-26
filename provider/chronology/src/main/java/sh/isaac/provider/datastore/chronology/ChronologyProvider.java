@@ -36,8 +36,21 @@
  */
 package sh.isaac.provider.datastore.chronology;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
@@ -45,18 +58,25 @@ import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.*;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import sh.isaac.api.DatastoreServices.DataStoreStartState;
+import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.MetadataService;
+import sh.isaac.api.SingleAssemblageSnapshot;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.commit.ChangeCheckerMode;
-import sh.isaac.api.commit.ChronologyChangeListener;
-import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
@@ -69,7 +89,12 @@ import sh.isaac.api.component.semantic.version.MutableStringVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -83,20 +108,6 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -190,10 +201,6 @@ public class ChronologyProvider
                 .getResourceAsStream("sh/isaac/IsaacMetadataAuxiliary.ibdf");
         return Get.binaryDataReader(dataStream);
     }
-    @Override
-    public Future<?> sync() {
-        return this.store.sync();
-    }
     
     /**
     * {@inheritDoc}
@@ -285,13 +292,8 @@ public class ChronologyProvider
      */
     @PreDestroy
     private void stopMe() {
-        try {
-            LOG.info("Stopping chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
-            this.sync().get();
-            this.metadataLoaded.set(-1);
-        } catch (InterruptedException | ExecutionException ex) {
-            LOG.error(ex);
-        }
+        LOG.info("Stopping chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
+        this.metadataLoaded.set(-1);
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -446,16 +448,6 @@ public class ChronologyProvider
           }
        }
        return Optional.ofNullable(fromFile);
-    }
-
-    @Override
-    public Path getDataStorePath() {
-        return store.getDataStorePath();
-    }
-
-    @Override
-    public DataStoreStartState getDataStoreStartState() {
-        return store.getDataStoreStartState();
     }
 
     @Override

@@ -36,10 +36,12 @@
  */
 package sh.isaac.api.collections;
 
-//~--- JDK imports ------------------------------------------------------------
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.DataInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.Files;
-//~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.uuidnidmap.ConcurrentUuidToIntHashMap;
@@ -49,26 +51,18 @@ import sh.isaac.api.memory.HoldInMemoryCache;
 import sh.isaac.api.memory.MemoryManagedReference;
 import sh.isaac.api.memory.WriteToDiskCache;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * Created by kec on 7/27/14.
  */
 public class UuidIntMapMapFileBased
         extends UuidIntMapMap {
 
-    //~--- fields --------------------------------------------------------------
 
-    /**
-     * The folder.
-     */
     private final File folder;
-    /**
-     * The maps.
-     */
+
     @SuppressWarnings("unchecked")
     protected final MemoryManagedReference<ConcurrentUuidToIntHashMap>[] maps = new MemoryManagedReference[NUMBER_OF_MAPS];
 
-    //~--- constructors --------------------------------------------------------
     /**
      * Instantiates a new uuid int map map.
      *
@@ -101,15 +95,8 @@ public class UuidIntMapMapFileBased
         LOG.debug("Created UuidIntMapMap: " + this);
     }
 
-    /**
-     * Gets the map.
-     *
-     * @param index the index
-     * @return the map
-     * @throws RuntimeException the runtime exception
-     */
-    protected ConcurrentUuidToIntHashMap getMap(int index)
-            throws RuntimeException {
+    @Override
+	protected ConcurrentUuidToIntHashMap getMap(int index) {
         ConcurrentUuidToIntHashMap result = this.maps[index].get();
 
         while (result == null) {
@@ -129,6 +116,7 @@ public class UuidIntMapMapFileBased
      * @return the uuid int map map
      */
     public static UuidIntMapMapFileBased create(File folder) {
+        LOG.debug("starting file system based uuid to int map");
         return new UuidIntMapMapFileBased(folder);
     }
 
@@ -212,6 +200,7 @@ public class UuidIntMapMapFileBased
         }
     }
 
+    @Override
     protected void mapElementUpdated(int mapIndex) {
         this.maps[mapIndex].elementUpdated();
     }
@@ -229,9 +218,4 @@ public class UuidIntMapMapFileBased
         }
         return memoryInUse;
     }
-
-    //~--- get methods ---------------------------------------------------------
-
-    //~--- get methods ---------------------------------------------------------
-
 }

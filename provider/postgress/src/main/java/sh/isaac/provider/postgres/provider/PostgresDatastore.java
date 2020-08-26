@@ -42,11 +42,11 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.model.semantic.version.SemanticVersionImpl;
 import sh.isaac.provider.datastore.cache.CacheProvider;
 import sh.isaac.provider.postgres.PostgresProvider;
 
@@ -63,6 +63,12 @@ public class PostgresDatastore implements DatastoreAndIdentiferService, CacheBoo
     PostgresProvider postgresProvider;
 
     public PostgresDatastore() {
+    }
+    
+    @Override
+    public DatabaseImplementation getDataStoreType()
+    {
+        return DatabaseImplementation.POSTGRESQL;
     }
 
     @Override

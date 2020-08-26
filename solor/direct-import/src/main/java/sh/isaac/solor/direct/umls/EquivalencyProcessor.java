@@ -95,7 +95,6 @@ public class EquivalencyProcessor {
                 e.printStackTrace();
             }
         }
-        Get.assemblageService().sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
