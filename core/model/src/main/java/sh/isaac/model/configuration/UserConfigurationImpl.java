@@ -25,9 +25,11 @@ import sh.isaac.api.UserConfigurationInternalImpl.ConfigurationOption;
 import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.observable.coordinate.*;
+import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
-
+import sh.isaac.model.observable.coordinate.ObservableStampPathImpl;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -114,27 +116,27 @@ public class UserConfigurationImpl implements UserConfiguration
 		}
 		
 		//Configure our cached objects
-		editCoordinate = globalConfig.getDefaultEditCoordinate();
+		editCoordinate = new ObservableEditCoordinateImpl(globalConfig.getDefaultEditCoordinate().getValue());
 		editCoordinate.authorProperty().set(userConcept.isPresent() ? Get.conceptSpecification(userConcept.get())
 				: globalConfig.getDefaultEditCoordinate().authorProperty().get());
 		editCoordinate.moduleProperty().set(Get.conceptSpecification((Integer) getOption(ConfigurationOption.EDIT_MODULE)));
 		editCoordinate.pathProperty().set(Get.conceptSpecification((Integer) getOption(ConfigurationOption.EDIT_PATH)));
 		
 		//TODO add setters / options for things below that aren't yet being set?
-		languageCoordinate = (ObservableLanguageCoordinateImpl) globalConfig.getDefaultLanguageCoordinate();
+		languageCoordinate = new ObservableLanguageCoordinateImpl(globalConfig.getDefaultLanguageCoordinate().getValue());
 		languageCoordinate.setDescriptionTypePreferenceList((int[])getOption(ConfigurationOption.DESCRIPTION_TYPE_PREFERENCE_LIST));
 		languageCoordinate.setDialectAssemblagePreferenceList((int[])getOption(ConfigurationOption.DIALECT_ASSEMBLAGE_PREFERENCE_LIST));
 		languageCoordinate.languageConceptProperty().set(Get.conceptSpecification((Integer) getOption(ConfigurationOption.LANGUAGE)));
 		//languageCoordinate.nextProrityLanguageCoordinateProperty();
 		
-		logicCoordinate = globalConfig.getDefaultLogicCoordinate();
+		logicCoordinate = new ObservableLogicCoordinateImpl(globalConfig.getDefaultLogicCoordinate().getValue());
 		logicCoordinate.classifierProperty().set(new ConceptProxy((Integer) getOption(ConfigurationOption.CLASSIFIER)));
 		//logicCoordinate.conceptAssemblageProperty()
 		logicCoordinate.descriptionLogicProfileProperty().set(new ConceptProxy((Integer) getOption(ConfigurationOption.DESCRIPTION_LOGIC_PROFILE)));
 		logicCoordinate.inferredAssemblageProperty().set(new ConceptProxy((Integer) getOption(ConfigurationOption.INFERRED_ASSEMBLAGE)));
 		logicCoordinate.statedAssemblageProperty().set(new ConceptProxy((Integer) getOption(ConfigurationOption.STATED_ASSEMBLAGE)));
 		
-		pathCoordinate = globalConfig.getDefaultStampCoordinate();
+		pathCoordinate = new ObservableStampPathImpl(globalConfig.getDefaultStampCoordinate().getValue());
 		//stampCoordinate.allowedStatesProperty();
 		//stampCoordinate.moduleNidsProperty();
 		//stampCoordinate.stampPositionProperty().get().stampPathConceptSpecificationProperty();
