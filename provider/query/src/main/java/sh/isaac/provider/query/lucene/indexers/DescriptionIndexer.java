@@ -16,6 +16,15 @@
  */
 package sh.isaac.provider.query.lucene.indexers;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Predicate;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.TextField;
@@ -46,14 +55,10 @@ import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.index.SearchResult;
-import sh.isaac.api.observable.coordinate.ObservableStampPath;
 import sh.isaac.api.util.SemanticTags;
+import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.function.Predicate;
 
 /**
  * Lucene Manager which specializes in indexing descriptions.
@@ -172,26 +177,26 @@ public class DescriptionIndexer extends LuceneIndexer
 		String lastDescText = null;
 		String lastDescType = null;
 
-//		boolean isMetadata = false;
-//		if (metadataConcepts.size() > 0) {
-//			isMetadata = metadataConcepts.contains(semanticChronology.getReferencedComponentNid());
-//		}
+		boolean isMetadata = false;
+		if (metadataConcepts.size() > 0) {
+			isMetadata = metadataConcepts.contains(semanticChronology.getReferencedComponentNid());
+		}
 		
 		//This is an if instead of an else, to guard against the metadataConcepts cache being emptied during a one-off index op.
-//		if (!isMetadata && metadataConcepts.size() == 0){
-//			isMetadata = Get.taxonomyService().wasEverKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
-//
-//			if (!isMetadata) {
-//				//See if it defines a dynamic semantic, even if outside the metadata tree.
-//				isMetadata = DynamicUsageDescriptionImpl.isDynamicSemanticNoRead(semanticChronology.getReferencedComponentNid());
-//			}
-//			//For full correctness, this should check if it defines a static semantic, outside the metadata tree, but we don't in the rest API,
-//			//and komet doesn't currently use queries that depend on the metadata flag
-//		}
-//
-//		if (isMetadata) {
-//			doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
-//		}
+		if (!isMetadata && metadataConcepts.size() == 0){
+			isMetadata = Get.taxonomyService().wasEverKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
+			
+			if (!isMetadata) {
+				//See if it defines a dynamic semantic, even if outside the metadata tree.
+				isMetadata = DynamicUsageDescriptionImpl.isDynamicSemanticNoRead(semanticChronology.getReferencedComponentNid());
+			}
+			//For full correctness, this should check if it defines a static semantic, outside the metadata tree, but we don't in the rest API, 
+			//and komet doesn't currently use queries that depend on the metadata flag
+		}
+		
+		if (isMetadata) {
+			doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
+		}
 		
 		final Set<Integer> uniqueDescriptionTypes = new HashSet<>();
 

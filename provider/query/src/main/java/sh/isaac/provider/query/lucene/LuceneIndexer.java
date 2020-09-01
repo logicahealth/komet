@@ -66,8 +66,6 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.function.BooleanSupplier;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.lucene.analysis.Analyzer;
@@ -102,6 +100,8 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.MMapDirectory;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import javafx.concurrent.Task;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
@@ -128,6 +128,7 @@ import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.util.WorkExecutors;
+import sh.isaac.provider.query.lucene.IsaacFilteredCollectorManager.PreviousResult;
 
 /**
  * @author kec
@@ -160,7 +161,7 @@ public abstract class LuceneIndexer implements IndexBuilderService
 	private static final String FIELD_INDEXED_PATH_NID = "_path_content_" + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
 	private static final String FIELD_INDEXED_AUTHOR_NID = "_author_content_" + PerFieldAnalyzer.WHITE_SPACE_FIELD_MARKER;
 
-	private final Cache<Integer, ScoreDoc> lastDocCache = Caffeine.newBuilder().maximumSize(100).build();
+	private final Cache<Integer, PreviousResult> lastDocCache = Caffeine.newBuilder().maximumSize(100).build();
 
 	private File indexFolder = null;
 
@@ -779,10 +780,10 @@ public abstract class LuceneIndexer implements IndexBuilderService
 	 * 
 	 * Implementation note - this actually returns a list of {@link ComponentSearchResult}
 	 * 
-	 * @param lastDoc - the passed reference will be updated with the last ScoreDoc of the search.
+	 * @param lastDoc - the passed reference will be updated with the last ScoreDoc of the search, and the set of all doc IDs skipped over
 	 */
 	private final List<SearchResult> searchInternal(Query q, Predicate<Integer> filter, AuthorModulePathRestriction amp, Integer pageNum, Integer sizeLimit,
-			Long targetGeneration, AtomicReference<ScoreDoc> lastDoc)
+			Long targetGeneration, AtomicReference<PreviousResult> lastDoc)
 	{
 
 		IndexSearcher searcher = null;
@@ -792,17 +793,23 @@ public abstract class LuceneIndexer implements IndexBuilderService
 			// Include the module and path selelctions
 			q = this.addAmpRestriction(q, amp);
 
-			LOG.debug("Running query: {}", q.toString());
-
 			int internalPage = pageNum == null ? 1 : pageNum < 1 ? 1 : pageNum.intValue();
 			int internalSize = sizeLimit == null ? 100 : sizeLimit < 1 ? 1 : sizeLimit.intValue();
+			
+			LOG.debug("Running query: {} for page {}", q.toString(), internalPage);
 
 			// We're only going to return up to what was requested
 			List<SearchResult> results = new ArrayList<>(Math.min(500, internalSize)); // Use page size, only up to 500 for our pre-allocation
-			HashSet<Integer> includedComponentNids = new HashSet<>();
+			HashSet<Integer> includedNids = new HashSet<>();
+			HashSet<Integer> includedDocIds = new HashSet<>();
 			boolean complete = false; // i.e., results.size() < sizeLimit
 
-			ScoreDoc after = getAfterScoreDoc(q, filter, internalPage, internalSize, targetGeneration);
+			PreviousResult after = getAfterScoreDoc(q, filter, internalPage, internalSize, targetGeneration);
+			
+			if (after != null) {
+				includedDocIds.addAll(after.includedDocIds);
+				includedNids.addAll(after.includedNids);
+			}
 
 			// Note, we cannot just ask lucene for the same page size / result count as we are asked for, because lucene may have multiple versions
 			// of a component indexed, which each match the query. However, since we only return nids, not versions, these results get merged.
@@ -811,8 +818,9 @@ public abstract class LuceneIndexer implements IndexBuilderService
 			while (!complete)
 			{
 
+				IsaacFilteredCollectorManager ifcm = new IsaacFilteredCollectorManager(filter, Math.min(500, internalSize), after);
 				//We use this API for search even when we don't have a filter, because this also enables parallel searching in the lower levels of lucene.
-				TopDocs topDocs = searcher.search(q, new IsaacFilteredCollectorManager(filter, Math.min(500, internalSize), after));
+				TopDocs topDocs = searcher.search(q, ifcm);
 
 				// If no scoreDocs exist, we're done
 				if (topDocs.scoreDocs.length == 0)
@@ -822,21 +830,22 @@ public abstract class LuceneIndexer implements IndexBuilderService
 				}
 				else
 				{
+					
 					for (ScoreDoc hit : topDocs.scoreDocs)
 					{
-						LOG.trace("Hit: {} Score: {}", new Object[] { hit.doc, hit.score });
-
-						// Save the last doc to search after later, if needed
-						after = hit;
 						Document doc = searcher.doc(hit.doc);
 						int componentNid = doc.getField(FIELD_COMPONENT_NID).numericValue().intValue();
-						if (includedComponentNids.contains(componentNid))
+						LOG.trace("Hit: {} Score: {}, Nid {}", hit.doc, hit.score, componentNid);
+						
+						if (includedNids.contains(componentNid))
 						{
+							LOG.error("Duplicate nids were supposed to have been removed in the filter collection manager!");
 							continue;
 						}
 						else
 						{
-							includedComponentNids.add(componentNid);
+							includedDocIds.add(hit.doc);
+							includedNids.add(componentNid);
 							results.add(new ComponentSearchResult(componentNid, hit.score));
 							if (results.size() == internalSize)
 							{
@@ -844,6 +853,10 @@ public abstract class LuceneIndexer implements IndexBuilderService
 								break;
 							}
 						}
+					}
+					
+					if (topDocs.scoreDocs.length > 0) {
+						after = ifcm.new PreviousResult(topDocs.scoreDocs[topDocs.scoreDocs.length - 1], includedDocIds, includedNids);
 					}
 				}
 			}
@@ -896,30 +909,30 @@ public abstract class LuceneIndexer implements IndexBuilderService
 	 * @param targetGeneration
 	 * @return
 	 */
-	private ScoreDoc getAfterScoreDoc(Query q, Predicate<Integer> filter, int pageNum, int sizeLimit, Long targetGeneration)
+	private PreviousResult getAfterScoreDoc(Query q, Predicate<Integer> filter, int pageNum, int sizeLimit, Long targetGeneration)
 	{
-
 		if (pageNum == 1)
 		{
 			return null;
 		}
 		else
 		{
-			ScoreDoc lastDoc = this.lastDocCache.getIfPresent(hashQueryForCache(q, filter, (pageNum - 1), sizeLimit));
+			PreviousResult lastDoc = this.lastDocCache.getIfPresent(hashQueryForCache(q, filter, (pageNum - 1), sizeLimit));
 			if (lastDoc != null)
 			{
-				LOG.debug("Cache hit for last doc");
+				LOG.trace("Cache hit for last doc");
 				return lastDoc;
 			}
 			else
 			{
+				LOG.trace("Cache miss for last doc, searching for it");
 				//The cache doesn't know what the last doc was of the previous page.  Need to run a full search, and 
 				//get the last doc hit.  Just do a single page search, as it is likely that none of the previous pages 
 				//are in the cache, and its likely cheapest just to get straight to the result we want, rather than paging 
 				//our way up.  If, for some reason, we needed to jump over very large result sets, we may need to reevaluate this
 				//to do this in multiple-page jumps to keep memory usage down.
 				//Note, we don't pass the AuthorModulePathRestriction parameter, as it was already integrated into the query we were passed.
-				AtomicReference<ScoreDoc> temp = new AtomicReference<ScoreDoc>();
+				AtomicReference<PreviousResult> temp = new AtomicReference<PreviousResult>();
 				searchInternal(q, filter, null, 1, ((pageNum - 1) * sizeLimit), targetGeneration, temp);
 				return temp.get();
 			}
