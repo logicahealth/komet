@@ -137,7 +137,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
     @Override
     protected Void call() throws Exception {
         try {
-            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
             int count = 0;
             for (TransformationGroup transformationGroup : transformationRecords) {
                 transformRelationships(transaction, transformationGroup.conceptNid, transformationGroup.semanticNids, transformationGroup.getPremiseType());
@@ -356,7 +356,7 @@ StatusSet allowedStates,
                 if (!isomorphicResults.equivalent()) {
                     int stamp = Get.stampService().getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, developmentPathNid);
                     final MutableLogicGraphVersion newVersion
-                            = existingGraph.createMutableVersion(stamp);
+                            = existingGraph.createMutableVersion(transaction, stamp);
 
                     newVersion.setGraphData(logicalExpression.getData(DataTarget.INTERNAL));
                     index(existingGraph);

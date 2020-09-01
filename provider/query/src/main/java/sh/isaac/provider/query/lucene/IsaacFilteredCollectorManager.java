@@ -253,7 +253,7 @@ public class IsaacFilteredCollectorManager implements CollectorManager<IsaacFilt
 					
 					if (filterPass)
 					{
-						LOG.trace("Collect on " + (doc + context.docBase) + " with collector " + IsaacFilteredCollector.this.hashCode());
+						LOG.trace("Collect on " + (doc + context.docBase) + " with collector " + IsaacFilteredCollector.this.hashCode() + " for " + componentNid);
 						lf.collect(doc);
 						docToNid.put((doc + context.docBase), componentNid);
 						nidToScore.put(componentNid, scorer.score());

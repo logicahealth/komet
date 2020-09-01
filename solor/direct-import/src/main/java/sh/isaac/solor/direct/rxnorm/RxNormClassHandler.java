@@ -246,7 +246,7 @@ Another example to handle...
             for (Element assemblageElement: assemblageElements) {
                 switch (assemblageElement.getTagName()) {
                     case "id:HasYarExCUI":
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.RXNORM_CUI____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.RXNORM_CUI____SOLOR, assemblageElement.getTextContent());
                         break;
 
                     case "id:ActiveIngDifferent":
@@ -254,14 +254,14 @@ Another example to handle...
 <id:ActiveIngDifferent>missing Rx AI in BoSS Carbon Dioxide : 2034</id:ActiveIngDifferent>
 <id:ActiveIngDifferent>missing Rx AI in BoSS Oxygen : 7806</id:ActiveIngDifferent>
                          */
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.ACTIVE_INGREDIENT_IS_DIFFERENT____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.ACTIVE_INGREDIENT_IS_DIFFERENT____SOLOR, assemblageElement.getTextContent());
                         break;
 
                     case "id:DoseFormDifferent":
 /*
         <id:DoseFormDifferent>cannot map SCT manufactured dose form</id:DoseFormDifferent>
  */
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.DOSE_FORM_IS_DIFFERENT____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.DOSE_FORM_IS_DIFFERENT____SOLOR, assemblageElement.getTextContent());
                         break;
 
                     case "id:VetOnly":
@@ -269,7 +269,7 @@ Another example to handle...
         <id:VetOnly>true</id:VetOnly>
  */
                     if (assemblageElement.getTextContent().equalsIgnoreCase("true")) {
-                        addMembershipSemantic(conceptBuilder, rdfAbout, MetaData.VETERINARY_MEDICINE_ONLY____SOLOR);
+                        addMembershipSemantic(conceptBuilder, MetaData.VETERINARY_MEDICINE_ONLY____SOLOR);
                     } else {
                         LOG.error("Unexpected value: " + assemblageElement.getTextContent() + " for <id:VetOnly> in " + rdfAbout);
                     }
@@ -280,25 +280,25 @@ Another example to handle...
        <id:HasNDC>false</id:HasNDC>
 
  */
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.NDC_CODES_AVAILABLE____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.NDC_CODES_AVAILABLE____SOLOR, assemblageElement.getTextContent());
                         break;
                     case "id:SubstanceNotExist":
 /*
         <id:SubstanceNotExist>substance does not exist in SCT</id:SubstanceNotExist>
  */
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.SUBSTANCE_DOES_NOT_EXIST____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.SUBSTANCE_DOES_NOT_EXIST____SOLOR, assemblageElement.getTextContent());
                         break;
                     case "id:IsVaccine":
 /*
         <id:IsVaccine>true</id:IsVaccine>
  */
-                        addMembershipSemantic(conceptBuilder, rdfAbout, MetaData.VACCINE____SOLOR);
+                        addMembershipSemantic(conceptBuilder, MetaData.VACCINE____SOLOR);
                         break;
                     case "id:BossSubstanceDifferent":
 /*
        <id:BossSubstanceDifferent>ing not found in RxNorm</id:BossSubstanceDifferent>
  */
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.BOSS_SUBSTANCES_ARE_DIFFERENT____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.BOSS_SUBSTANCES_ARE_DIFFERENT____SOLOR, assemblageElement.getTextContent());
                         break;
 
 
@@ -307,7 +307,7 @@ Another example to handle...
         <id:Allergenic>true</id:Allergenic>
  */
                         if (assemblageElement.getTextContent().equalsIgnoreCase("true")) {
-                            addMembershipSemantic(conceptBuilder, rdfAbout, MetaData.ALLERGEN____SOLOR);
+                            addMembershipSemantic(conceptBuilder, MetaData.ALLERGEN____SOLOR);
                         } else {
                             LOG.error("Unexpected value: " + assemblageElement.getTextContent() + " for <id:Allergenic> in " + rdfAbout);
                         }
@@ -317,7 +317,7 @@ Another example to handle...
 /*
         <id:ValuesDifferent>no SCT number class</id:ValuesDifferent>
  */
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.VALUES_DIFFERENT____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.VALUES_DIFFERENT____SOLOR, assemblageElement.getTextContent());
                         break;
 
                     case "id:Asserted":
@@ -325,48 +325,48 @@ Another example to handle...
         <id:Asserted>true</id:Asserted>
         <id:Asserted>false</id:Asserted>
  */
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.RXNORM_ASSERTED____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.RXNORM_ASSERTED____SOLOR, assemblageElement.getTextContent());
                         break;
                     case "id:IsPrescribable":
 /*
        <id:IsPrescribable>false</id:IsPrescribable>
        <id:IsPrescribable>true</id:IsPrescribable>
  */
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.PRESCRIBABLE____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.PRESCRIBABLE____SOLOR, assemblageElement.getTextContent());
                         break;
 
                     case "id:Inferred":
 //         <id:Inferred>true</id:Inferred>
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.RXNORM_INFERRED____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.RXNORM_INFERRED____SOLOR, assemblageElement.getTextContent());
                         break;
                     case "id:UnitsDifferent":
 //         <id:UnitsDifferent>sct: Capsule (unit of presentation)</id:UnitsDifferent>
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.UNITS_DIFFERENT____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.UNITS_DIFFERENT____SOLOR, assemblageElement.getTextContent());
                         break;
                     case "id:MapsToCode":
 //        <id:MapsToCode>703368006</id:MapsToCode>
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.MAPS_TO_CODE____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.MAPS_TO_CODE____SOLOR, assemblageElement.getTextContent());
                         break;
                     case "id:MapsToName":
 //         <id:MapsToName>Medroxyprogesterone acetate (substance)</id:MapsToName>
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.MAPS_TO_NAME____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.MAPS_TO_NAME____SOLOR, assemblageElement.getTextContent());
                         break;
                     case "id:PresUnitDifferent":
 //        <id:PresUnitDifferent>sct: Tablet (unit of presentation)</id:PresUnitDifferent>
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.PRESENTATION_UNIT_DIFFERENT____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.PRESENTATION_UNIT_DIFFERENT____SOLOR, assemblageElement.getTextContent());
                         break;
                     case "id:CountOfBaseDifferent":
 //         <id:CountOfBaseDifferent>sct: 1</id:CountOfBaseDifferent>
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.COUNT_OF_BASE_DIFFERENT____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.COUNT_OF_BASE_DIFFERENT____SOLOR, assemblageElement.getTextContent());
                         break;
                     case "skos:prefLabel":
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.SKOS_PREFERRED_LABEL____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.SKOS_PREFERRED_LABEL____SOLOR, assemblageElement.getTextContent());
                         break;
                     case "skos:altLabel":
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.SKOS_ALTERNATE_LABEL____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.SKOS_ALTERNATE_LABEL____SOLOR, assemblageElement.getTextContent());
                         break;
                     case "skos:definition":
-                        addStringSemantic(conceptBuilder, rdfAbout, MetaData.SKOS_DEFINITION____SOLOR, assemblageElement.getTextContent());
+                        addStringSemantic(conceptBuilder, MetaData.SKOS_DEFINITION____SOLOR, assemblageElement.getTextContent());
                         break;
                     default:
                         LOG.error("Can't handle: " + assemblageElement.getTagName() + " in " + rdfAbout);
@@ -379,12 +379,11 @@ Another example to handle...
 
     }
 
-    private void addStringSemantic(ConceptBuilder conceptBuilder, String rdfAbout, ConceptSpecification assemblage, String value) {
-        UUID semanticUUID = UuidT5Generator.get(assemblage.getPrimordialUuid(), value + rdfAbout);
-        conceptBuilder.addStringSemantic(semanticUUID, value, assemblage);
+    private void addStringSemantic(ConceptBuilder conceptBuilder, ConceptSpecification assemblage, String value) {
+        conceptBuilder.addStringSemantic(value, assemblage);
     }
 
-    private void addMembershipSemantic(ConceptBuilder conceptBuilder, String rdfAbout, ConceptSpecification assemblage) {
+    private void addMembershipSemantic(ConceptBuilder conceptBuilder,ConceptSpecification assemblage) {
         conceptBuilder.addAssemblageMembership(assemblage);
     }
 

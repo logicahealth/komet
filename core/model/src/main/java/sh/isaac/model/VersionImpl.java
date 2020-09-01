@@ -467,7 +467,7 @@ public abstract class VersionImpl
     */
    @Override
    public boolean isUncommitted() {
-      return this.getTime() == Long.MAX_VALUE;
+      return Get.stampService().isUncommitted(stampSequence);
    }
 
    /**

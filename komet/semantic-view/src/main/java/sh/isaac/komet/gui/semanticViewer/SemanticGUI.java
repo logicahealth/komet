@@ -173,11 +173,11 @@ public class SemanticGUI
 			case STATUS_CONDENSED:
 			{
 				//sort by uncommitted first, then current / historical, then active / inactive
-				if (this.getSemantic().getTime() == Long.MAX_VALUE)
+				if (this.getSemantic().getTime() == Long.MAX_VALUE || Get.stampService().isUncommitted(this.getSemantic().getStampSequence()))
 				{
 					return -1;
 				}
-				else if (other.getSemantic().getTime() == Long.MAX_VALUE)
+				else if (other.getSemantic().getTime() == Long.MAX_VALUE || Get.stampService().isUncommitted(other.getSemantic().getStampSequence()))
 				{
 					return 1;
 				}

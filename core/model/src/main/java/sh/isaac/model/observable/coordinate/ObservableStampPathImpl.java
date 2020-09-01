@@ -90,7 +90,7 @@ public class ObservableStampPathImpl
         this(StampPathImmutable.make(pathConceptNid, origins));
     }
 
-    private ObservableStampPathImpl(StampPathImmutable stampPathImmutable) {
+    public ObservableStampPathImpl(StampPathImmutable stampPathImmutable) {
         super(stampPathImmutable);
         this.pathConceptProperty = new SimpleEqualityBasedObjectProperty(this,
                 ObservableFields.PATH_FOR_PATH_COORDINATE.toExternalString(),

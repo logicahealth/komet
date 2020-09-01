@@ -289,7 +289,7 @@ public class Stamp
    public String toString() {
       final StringBuilder sb = new StringBuilder();
 
-      sb.append("Filter{s:");
+      sb.append("Stamp{s:");
       sb.append(this.status);
       sb.append(", t:");
       if (this.time == Long.MAX_VALUE) {

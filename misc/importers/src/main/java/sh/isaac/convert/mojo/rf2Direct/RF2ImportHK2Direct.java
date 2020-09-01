@@ -247,7 +247,7 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		
 		StampService ss = Get.stampService();
 		
-		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getNid(), 
+		dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), MetaData.SNOMED_CT_CORE_MODULES____SOLOR.getNid(), 
 				TermAux.DEVELOPMENT_PATH.getNid(), converterUUID, "Snomed", false);
 
 		log.info("Reading modules");

@@ -72,12 +72,25 @@ public class DescriptionVersionImpl
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
-              .append("{text: ").append(text).append(" ")
+              .append("{Description≤")
+              .append("{text: ").append(text)
+              .append(", rc: ")
+              .append(getReferencedComponentNid())
               .append(", caseSignificanceConceptNid: ").append(Get.conceptDescriptionText(caseSignificanceConceptNid))
+              .append(" <")
+              .append(this.caseSignificanceConceptNid)
+              .append(">, ")
               .append(", languageConceptNid: ").append(Get.conceptDescriptionText(languageConceptNid))
+              .append(" <")
+              .append(this.languageConceptNid)
+              .append(">, ")
               .append(", descriptionTypeConceptNid: ").append(Get.conceptDescriptionText(descriptionTypeConceptNid))
-              .append(Get.stampService()
-                      .describeStampSequence(this.getStampSequence())).append("}");
+              .append(" <")
+              .append(this.descriptionTypeConceptNid)
+              .append(">");
+      //stamp info
+      super.toString(builder);
+      builder.append("}≥}");
       return builder;
    }
 
@@ -127,25 +140,6 @@ public class DescriptionVersionImpl
       return (V) newVersion;
    }
    
-   @SuppressWarnings("unchecked")
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
-
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final DescriptionVersionImpl newVersion = new DescriptionVersionImpl(this, stampSequence);
-
-      chronologyImpl.addVersion(newVersion);
-      return (V) newVersion;
-   }
-
-
    @Override
    public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
       final int stampSequence = Get.stampService()
@@ -170,26 +164,7 @@ public class DescriptionVersionImpl
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
-
-      sb.append("{Description≤")
-        .append(this.text)
-        .append(", rc: ")
-        .append(getReferencedComponentNid())
-        .append(" ")
-        .append(Get.conceptDescriptionText(this.caseSignificanceConceptNid))
-        .append(" <")
-        .append(this.caseSignificanceConceptNid)
-        .append(">, ")
-        .append(Get.conceptDescriptionText(this.languageConceptNid))
-        .append(" <")
-        .append(this.languageConceptNid)
-        .append(">, ")
-        .append(Get.conceptDescriptionText(this.descriptionTypeConceptNid))
-        .append(" <")
-        .append(this.descriptionTypeConceptNid)
-        .append(">");
       toString(sb);
-      sb.append("≥}");
       return sb.toString();
    }
 

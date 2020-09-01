@@ -148,21 +148,21 @@ public class MVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		
 		Date date = new Date(oldest);
 
-		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.MVX_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
+		dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), MetaData.MVX_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"MVX", false);
 		
 		setupModule("MVX", MetaData.MVX_MODULES____SOLOR.getPrimordialUuid(), Optional.of("http://hl7.org/fhir/sid/mvx"), date.getTime());
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(transaction, true, true, true, false, true, false, date.getTime());
+		dwh.makeMetadataHierarchy(true, true, true, false, true, false, date.getTime());
 		
-		dwh.makeDescriptionTypeConcept(transaction, null, "Manufacturer Name", null, null,
+		dwh.makeDescriptionTypeConcept(null, "Manufacturer Name", null, null,
 				MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, date.getTime());
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, date.getTime(), readbackCoordinate);
 
 		// Every time concept created add membership to "All CPT Concepts"
-		dwh.makeRefsetTypeConcept(transaction, null, "All MVX Concepts", null, null, date.getTime());
+		dwh.makeRefsetTypeConcept(null, "All MVX Concepts", null, null, date.getTime());
 
 		log.info("Metadata load stats");
 		for (String line : dwh.getLoadStats().getSummary())
@@ -175,7 +175,7 @@ public class MVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		statusUpdates.accept("Loading content");
 
 		// Create MVX root concept under SOLOR_CONCEPT____SOLOR
-		final UUID mvxRootConcept = dwh.makeConceptEnNoDialect(transaction, null, "MVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+		final UUID mvxRootConcept = dwh.makeConceptEnNoDialect(null, "MVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, date.getTime());
 
 		for (MVXInfo row : terminology.getMVXInfo())
@@ -189,7 +189,7 @@ public class MVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 
 				// Create row concept
 				final UUID rowConcept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString(code), status, lastUpdated);
-				dwh.makeParentGraph(transaction, rowConcept, mvxRootConcept, Status.ACTIVE, lastUpdated);
+				dwh.makeParentGraph(rowConcept, mvxRootConcept, Status.ACTIVE, lastUpdated);
 				
 				dwh.makeDescriptionEnNoDialect(rowConcept, manfName, dwh.getDescriptionType("Manufacturer Name"), status, lastUpdated);
 

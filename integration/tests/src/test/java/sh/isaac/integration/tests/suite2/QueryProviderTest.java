@@ -75,10 +75,10 @@ public class QueryProviderTest {
 		LookupService.startupIsaac();
 
 		TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
-		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE, false);
 		timd.configure(null, Paths.get(QueryProviderTest.class.getResource("/turtle/bevontology-0.8.ttl").toURI()), "0.8", null, transaction);
 		timd.convertContent(update -> {}, (work, total) ->{});
-		transaction.commit();
+		transaction.commit().get();
 		
 		di = LookupService.get().getService(DescriptionIndexer.class);
 		di.forceMerge();  //Just a way to force the query exporters to refresh more quickly than they would
@@ -179,10 +179,9 @@ public class QueryProviderTest {
 		Assert.assertEquals(di.query("distilled AND soju", null, null, null, null, null).size(), expectedMaxHits);
 		
 		final List<SearchResult> allResults = di.query("distilled AND soju", null, null, null, null, null);
+//		printResults(allResults);
 		
 		List<SearchResult> paged = new ArrayList<>(expectedMaxHits);
-		
-//		printResults(allResults);
 		
 		//One page at a time...
 		paged = new ArrayList<>(expectedMaxHits);
@@ -191,6 +190,9 @@ public class QueryProviderTest {
 		paged.addAll(di.query("distilled AND soju", null, null, 3, 1, null));
 		paged.addAll(di.query("distilled AND soju", null, null, 2, 1, null));
 		paged.addAll(di.query("distilled AND soju", null, null, 1, 1, null));
+		
+		
+//		printResults(paged);
 				
 		Assert.assertTrue(CollectionUtils.containsAll(allResults, paged));
 		Assert.assertTrue(CollectionUtils.containsAll(paged, allResults));

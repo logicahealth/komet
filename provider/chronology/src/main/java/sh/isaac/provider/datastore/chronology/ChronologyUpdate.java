@@ -47,8 +47,10 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.StaticIsaacCache;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
@@ -205,7 +207,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
     private static void processNewLogicGraph(LogicGraphVersion firstVersion,
             TaxonomyRecord parentTaxonomyRecord,
             TaxonomyFlag taxonomyFlags) {
-        if (firstVersion.getCommitState() == CommitStates.COMMITTED) {
+        if (firstVersion.getCommitState() == CommitStates.COMMITTED || firstVersion.getCommitState() == CommitStates.UNCOMMITTED) {
             final LogicalExpression expression = firstVersion.getLogicalExpression();
             LogicNode[] children = expression.getRoot().getChildren();
             boolean necessaryOnly = false;
@@ -368,10 +370,13 @@ public class ChronologyUpdate implements StaticIsaacCache {
                 continue;
             }
 
-            final int activeStampSequence = node.getData()
-                    .getStampSequence();
-            final int stampSequence = Get.stampService()
-                    .getRetiredStampSequence(activeStampSequence);
+            final Stamp activeStamp = Get.stampService().getStamp(node.getData().getStampSequence());
+
+            final int stampSequence = Get.stampService().getStampSequence(Status.INACTIVE,
+                    activeStamp.getTime(),
+                    activeStamp.getAuthorNid(),
+                    activeStamp.getModuleNid(),
+                    activeStamp.getPathNid());
 
             processRelationshipRoot(conceptNid,
                     relationshipRoot,

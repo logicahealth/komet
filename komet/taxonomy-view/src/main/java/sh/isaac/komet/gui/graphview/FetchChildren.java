@@ -51,7 +51,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                 .getManifold().getPreferredDescriptionText(treeItemImpl.getValue());
         updateTitle("Fetching children for: " + this.parentName);
         Get.activeTasks().add(this);
-        LOG.debug("Starting Adding children for: " + treeItemImpl.getValue().getNid()
+        LOG.trace("Starting Adding children for: " + treeItemImpl.getValue().getNid()
                                     + " from: " + fetcherId);
         
         FetchChildren oldFetcher = FETCHER_MAP.put(treeItemImpl.getValue().getNid(), this);
@@ -114,7 +114,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                 Platform.runLater(
                         () -> {
                             if (!FetchChildren.this.isCancelled()) {
-                                LOG.debug("Adding children for: " + treeItemImpl.getValue().getNid()
+                                LOG.trace("Adding children for: " + treeItemImpl.getValue().getNid()
                                         + " from: " + fetcherId);
                                 treeItemImpl.getChildren().setAll(childrenToAdd);
                                 treeItemImpl.setExpanded(true);
@@ -136,7 +136,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                 LOG.debug("Canceled Adding children for: " + treeItemImpl.getValue().getNid()
                                     + " from: " + fetcherId);
             } else {
-                LOG.debug("Finished Adding children for: " + treeItemImpl.getValue().getNid()
+                LOG.trace("Finished Adding children for: " + treeItemImpl.getValue().getNid()
                                     + " from: " + fetcherId);
             }
         }

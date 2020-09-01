@@ -153,7 +153,7 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		log.info("Setting up metadata for " + termName);
 		
 		//Right now, we are configured for the CPT grouping modules nid
-		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.ICD10_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
+		dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), MetaData.ICD10_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				termName, false);
 
 		setupModule(termName, MetaData.ICD10_MODULES____SOLOR.getPrimordialUuid(), 
@@ -164,23 +164,23 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		converterUUID.configureNamespace(Get.identifierService().getUuidPrimordialForNid(dwh.getModuleNid()));
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(transaction, true, true, true, false, true, false, contentTime);
+		dwh.makeMetadataHierarchy(true, true, true, false, true, false, contentTime);
 
-		dwh.makeDescriptionTypeConcept(transaction, null, "Short Description", null, null,
+		dwh.makeDescriptionTypeConcept(null, "Short Description", null, null,
 				MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept(transaction, null, "Long Description", null, null,
+		dwh.makeDescriptionTypeConcept(null, "Long Description", null, null,
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeAttributeTypeConcept(transaction, null, "ICD-10 Order Number", null, null, true, null, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, "ICD-10 Order Number", null, null, true, null, null, contentTime);
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
 
 		// Every time concept created add membership to "All CPT Concepts"
-		HIPPA_Valid = dwh.makeRefsetTypeConcept(transaction, null, "HIPAA Valid", null, null, contentTime);
+		HIPPA_Valid = dwh.makeRefsetTypeConcept(null, "HIPAA Valid", null, null, contentTime);
 
 		// Create CPT root concept under SOLOR_CONCEPT____SOLOR
-		icdRootConcept = dwh.makeConceptEnNoDialect(transaction, null, termName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+		icdRootConcept = dwh.makeConceptEnNoDialect(null, termName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, contentTime);
 
 		log.info("Metadata load stats");
@@ -270,7 +270,7 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 			if (code.length() <= 3)
 			{
 				// Hang it on root
-				dwh.makeParentGraph(transaction, concept, icdRootConcept, status, contentTime);
+				dwh.makeParentGraph(concept, icdRootConcept, status, contentTime);
 			}
 			else
 			{
@@ -289,7 +289,7 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 					}
 					else
 					{
-						dwh.makeParentGraph(transaction, concept, temp, status, contentTime);
+						dwh.makeParentGraph(concept, temp, status, contentTime);
 						break;
 					}
 				}

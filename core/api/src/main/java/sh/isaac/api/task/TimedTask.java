@@ -75,7 +75,7 @@ public abstract class TimedTask<T>
 
     private long suppressionForTasksShorterThan = 5;
     private static final int SUPPRESSION_TIME = 30;
-    private static final int SUPPRESSION_AFTER_X_IN_SUPRESSION_TIME = 3;
+    private static final int SUPPRESSION_AFTER_X_IN_SUPRESSION_TIME = 10;
 
     //Note that these timed expirations are not done on a strict schedule, it may take further activity to trigger them
     private static Cache<String, AtomicInteger> suppressCache = Caffeine.newBuilder().expireAfterWrite(Duration.ofSeconds(SUPPRESSION_TIME))

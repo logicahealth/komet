@@ -182,94 +182,94 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		// use on the shared, global FHIR metadata.
 		findOldestDate(fr);
 
-		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.FHIR_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
+		dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), MetaData.FHIR_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"FHIR", false);
 		
 		//set up our shared module, with metadata that applies to all code systems and value sets being loaded in the FHIR format.
 		setupModule("FHIR metadata", MetaData.FHIR_MODULES____SOLOR.getPrimordialUuid(), Optional.empty(), oldestDate);
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(transaction, true, true, false, false, true, false, oldestDate);
+		dwh.makeMetadataHierarchy(true, true, false, false, true, false, oldestDate);
 	
-		columnNameGroupConcept = dwh.makeOtherMetadataRootNode(transaction, "Complex Attribute Column Names", oldestDate);
-		UUID version = dwh.makeOtherTypeConcept(transaction, columnNameGroupConcept, null, "Version", null, null, null, null, null, oldestDate);
-		UUID display = dwh.makeOtherTypeConcept(transaction, columnNameGroupConcept, null, "Display", null, null, null, null, null, oldestDate);
-		UUID userSelected = dwh.makeOtherTypeConcept(transaction, columnNameGroupConcept, null, "User Selected", null, null, null, null, null, oldestDate);
-		UUID elementId = dwh.makeOtherTypeConcept(transaction, columnNameGroupConcept, null, "element id", null, null, null, null, null, oldestDate);
-		UUID lastUpdated = dwh.makeOtherTypeConcept(transaction, columnNameGroupConcept, null, "last updated", null, null, null, null, null, oldestDate);
-		UUID versionId = dwh.makeOtherTypeConcept(transaction, columnNameGroupConcept, null, "version id", null, null, null, null, null, oldestDate);
-		UUID represents = dwh.makeOtherTypeConcept(transaction, columnNameGroupConcept, null, "represents", null, null, null, null, null, oldestDate);
-		UUID system = dwh.makeOtherTypeConcept(transaction, columnNameGroupConcept, null, SYSTEM, null, null, null, null, null, oldestDate);
-		UUID rank = dwh.makeOtherTypeConcept(transaction, columnNameGroupConcept, null, "rank", null, null, null, null, null, oldestDate);
-		UUID periodStart = dwh.makeOtherTypeConcept(transaction, columnNameGroupConcept, null, "period start", null, null, null, null, null, oldestDate);
-		UUID periodEnd = dwh.makeOtherTypeConcept(transaction, columnNameGroupConcept, null, "period end", null, null, null, null, null, oldestDate);
+		columnNameGroupConcept = dwh.makeOtherMetadataRootNode("Complex Attribute Column Names", oldestDate);
+		UUID version = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "Version", null, null, null, null, null, oldestDate);
+		UUID display = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "Display", null, null, null, null, null, oldestDate);
+		UUID userSelected = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "User Selected", null, null, null, null, null, oldestDate);
+		UUID elementId = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "element id", null, null, null, null, null, oldestDate);
+		UUID lastUpdated = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "last updated", null, null, null, null, null, oldestDate);
+		UUID versionId = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "version id", null, null, null, null, null, oldestDate);
+		UUID represents = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "represents", null, null, null, null, null, oldestDate);
+		UUID system = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, SYSTEM, null, null, null, null, null, oldestDate);
+		UUID rank = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "rank", null, null, null, null, null, oldestDate);
+		UUID periodStart = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "period start", null, null, null, null, null, oldestDate);
+		UUID periodEnd = dwh.makeOtherTypeConcept(columnNameGroupConcept, null, "period end", null, null, null, null, null, oldestDate);
 
-		dwh.makeAttributeTypeConcept(transaction, null, URI, "Uniform Resource Identifier Reference", null, null, new DynamicColumnInfo[] {
+		dwh.makeAttributeTypeConcept(null, URI, "Uniform Resource Identifier Reference", null, null, new DynamicColumnInfo[] {
 				new DynamicColumnInfo(0, represents, DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(1, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(2, elementId, DynamicDataType.STRING, null, false)}, null, null, oldestDate);
 
 		//For whatever silly reason, sometimes in FHIR they define an ID as a complex object with a value an another ID....
-		dwh.makeAttributeTypeConcept(transaction, null, ID, null, null, "The logical id of the resource, as used in the URL for the resource. Once assigned, "
+		dwh.makeAttributeTypeConcept(null, ID, null, null, "The logical id of the resource, as used in the URL for the resource. Once assigned, "
 				+ "this value never changes.", new DynamicColumnInfo[] {
 						new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true),
 						new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)}, null, null, oldestDate);
 		
-		UUID url = dwh.makeAttributeTypeConcept(transaction, null, URL, "Uniform Resource Locator", null, true, null, null, oldestDate);
-		dwh.makeAttributeTypeConcept(transaction, null, LANGUAGE, null, null, false, DynamicDataType.STRING, null, oldestDate);
-		dwh.makeAttributeTypeConcept(transaction, null, CODESYSTEM_STATUS, null, null, false, DynamicDataType.STRING, null, oldestDate);
-		dwh.makeAttributeTypeConcept(transaction, null, PUBLISHER, null, null, null, new DynamicColumnInfo[] {
+		UUID url = dwh.makeAttributeTypeConcept(null, URL, "Uniform Resource Locator", null, true, null, null, oldestDate);
+		dwh.makeAttributeTypeConcept(null, LANGUAGE, null, null, false, DynamicDataType.STRING, null, oldestDate);
+		dwh.makeAttributeTypeConcept(null, CODESYSTEM_STATUS, null, null, false, DynamicDataType.STRING, null, oldestDate);
+		dwh.makeAttributeTypeConcept(null, PUBLISHER, null, null, null, new DynamicColumnInfo[] {
 				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)}, null, null, oldestDate);
-		dwh.makeAttributeTypeConcept(transaction, null, CONTACT, null, null, null, new DynamicColumnInfo[] {
+		dwh.makeAttributeTypeConcept(null, CONTACT, null, null, null, new DynamicColumnInfo[] {
 				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true),
 				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)},
 		null, null, oldestDate);
-		dwh.makeAttributeTypeConcept(transaction, null, VERSION, null, null, false, DynamicDataType.STRING, null, oldestDate);
-		dwh.makeAttributeTypeConcept(transaction, null, PUBLICATION_STATUS, null, null, false, DynamicDataType.STRING, null, oldestDate);
-		dwh.makeAttributeTypeConcept(transaction, null, EXTENSION, null, null, null, new DynamicColumnInfo[] {
+		dwh.makeAttributeTypeConcept(null, VERSION, null, null, false, DynamicDataType.STRING, null, oldestDate);
+		dwh.makeAttributeTypeConcept(null, PUBLICATION_STATUS, null, null, false, DynamicDataType.STRING, null, oldestDate);
+		dwh.makeAttributeTypeConcept(null, EXTENSION, null, null, null, new DynamicColumnInfo[] {
 						new DynamicColumnInfo(0, url, DynamicDataType.STRING, null, true), 
 						new DynamicColumnInfo(1, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.POLYMORPHIC, null, false),
 						new DynamicColumnInfo(2, elementId, DynamicDataType.STRING, null, false)},
 				null, null, oldestDate);
 		
-		dwh.makeAttributeTypeConcept(transaction, null, PROFILE, null, null, null, new DynamicColumnInfo[] {
+		dwh.makeAttributeTypeConcept(null, PROFILE, null, null, null, new DynamicColumnInfo[] {
 				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true), 
 				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)},
 		null, null, oldestDate);
 		
-		dwh.makeRefsetTypeConcept(transaction, null, EXPERIMENTAL, null, null, oldestDate);
-		dwh.makeAttributeTypeConcept(transaction, null, COPYRIGHT, null, null, null, new DynamicColumnInfo[] {
+		dwh.makeRefsetTypeConcept(null, EXPERIMENTAL, null, null, oldestDate);
+		dwh.makeAttributeTypeConcept(null, COPYRIGHT, null, null, null, new DynamicColumnInfo[] {
 				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true),
 				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)},
 		null, null, oldestDate);
 		
-		dwh.makeRefsetTypeConcept(transaction, null, IMMUTABLE, null, null, oldestDate);
-		dwh.makeRefsetTypeConcept(transaction, null, CASE_SENSITIVE, null, null, oldestDate);
-		dwh.makeAttributeTypeConcept(transaction, null, IMPLICIT_RULES, null, null, null, new DynamicColumnInfo[] {
+		dwh.makeRefsetTypeConcept(null, IMMUTABLE, null, null, oldestDate);
+		dwh.makeRefsetTypeConcept(null, CASE_SENSITIVE, null, null, oldestDate);
+		dwh.makeAttributeTypeConcept(null, IMPLICIT_RULES, null, null, null, new DynamicColumnInfo[] {
 				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true),
 				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)},
 		null, null, oldestDate);
 		
-		dwh.makeAttributeTypeConcept(transaction, null, JURISDICTION, null, null, null, new DynamicColumnInfo[] {
+		dwh.makeAttributeTypeConcept(null, JURISDICTION, null, null, null, new DynamicColumnInfo[] {
 				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)}, null, null, oldestDate);
 		
 		//Same format as Jurisdiction - both are 'codable concept' objects
-		dwh.makeAttributeTypeConcept(transaction, null, TYPE, null, null, null, new DynamicColumnInfo[] {
+		dwh.makeAttributeTypeConcept(null, TYPE, null, null, null, new DynamicColumnInfo[] {
 				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)}, null, null, oldestDate);
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, oldestDate, Coordinates.Filter.DevelopmentLatest());
 		
-		UUID titleDesc = dwh.makeDescriptionTypeConcept(transaction, null, TITLE, null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, oldestDate);
+		UUID titleDesc = dwh.makeDescriptionTypeConcept(null, TITLE, null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, oldestDate);
 		dwh.makeDescriptionEnNoDialect(titleDesc, "A short, descriptive, user-friendly title for the code system", 
 				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, oldestDate);
 		
-		dwh.makeDescriptionTypeConcept(transaction, null, DESIGNIATION, null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, oldestDate);
-		dwh.makeDescriptionTypeConcept(transaction, null, COMMENTS, null, "codesystem-concept-comments", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, oldestDate);
+		dwh.makeDescriptionTypeConcept(null, DESIGNIATION, null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, oldestDate);
+		dwh.makeDescriptionTypeConcept(null, COMMENTS, null, "codesystem-concept-comments", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, oldestDate);
 		
-		UUID use = dwh.makeAttributeTypeConcept(transaction, null, CODING, null, null, null, new DynamicColumnInfo[] {
+		UUID use = dwh.makeAttributeTypeConcept(null, CODING, null, null, null, new DynamicColumnInfo[] {
 				new DynamicColumnInfo(0, represents, DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(2, version, DynamicDataType.STRING, null, false),
@@ -278,23 +278,23 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 				new DynamicColumnInfo(5, userSelected, DynamicDataType.BOOLEAN, null, false)},
 		null, null, oldestDate);
 
-		dwh.makeAttributeTypeConcept(transaction, null, IDENTIFIER, null, null, null, new DynamicColumnInfo[] {
+		dwh.makeAttributeTypeConcept(null, IDENTIFIER, null, null, null, new DynamicColumnInfo[] {
 				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(1, use, DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(2, elementId, DynamicDataType.STRING, null, false)}, null, null, oldestDate);
 
-		dwh.makeAttributeTypeConcept(transaction, null, PURPOSE, null, null, null, new DynamicColumnInfo[] {
+		dwh.makeAttributeTypeConcept(null, PURPOSE, null, null, null, new DynamicColumnInfo[] {
 				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true),
 				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)},
 		null, null, oldestDate);
 		
-		dwh.makeAttributeTypeConcept(transaction, null, META, null, null, null, new DynamicColumnInfo[] {
+		dwh.makeAttributeTypeConcept(null, META, null, null, null, new DynamicColumnInfo[] {
 				new DynamicColumnInfo(0, versionId, DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(1, lastUpdated, DynamicDataType.LONG, null, false),
 				new DynamicColumnInfo(2, elementId, DynamicDataType.STRING, null, false)},
 		null, null, oldestDate);
 		
-		dwh.makeAttributeTypeConcept(transaction, null, TELECOM, null, null, null, new DynamicColumnInfo[] {
+		dwh.makeAttributeTypeConcept(null, TELECOM, null, null, null, new DynamicColumnInfo[] {
 				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true),
 				new DynamicColumnInfo(1, system, DynamicDataType.STRING, null, false),
 				new DynamicColumnInfo(2, use, DynamicDataType.STRING, null, false),
@@ -304,9 +304,9 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 				new DynamicColumnInfo(6, elementId, DynamicDataType.STRING, null, false)},
 		null, null, oldestDate);
 		
-		dwh.makeRefsetTypeConcept(transaction, null, VERSION_NEEDED, null, null, oldestDate);
+		dwh.makeRefsetTypeConcept(null, VERSION_NEEDED, null, null, oldestDate);
 		//TODO see if I can get rid of all of these elementIds
-		dwh.makeAttributeTypeConcept(transaction, null, HIERARCHY_MEANING, null, null, null, new DynamicColumnInfo[] {
+		dwh.makeAttributeTypeConcept(null, HIERARCHY_MEANING, null, null, null, new DynamicColumnInfo[] {
 				new DynamicColumnInfo(0, DynamicConstants.get().DYNAMIC_COLUMN_VALUE.getPrimordialUuid(), DynamicDataType.STRING, null, true),
 				new DynamicColumnInfo(1, elementId, DynamicDataType.STRING, null, false)},
 		null, null, oldestDate);
@@ -344,7 +344,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 					throw new RuntimeException("Missing case");
 			}
 			
-			UUID attribute = dwh.makeAttributeTypeConcept(transaction, null, csp.getValue().getCode().getValue(), null, null,
+			UUID attribute = dwh.makeAttributeTypeConcept(null, csp.getValue().getCode().getValue(), null, null,
 					csp.getValue().getDescription() != null ? csp.getValue().getDescription().getValue() : null, false, type, null, oldestDate);
 			if (csp.getValue().getDescription() != null && StringUtils.isNotBlank(csp.getValue().getDescription().getValue()))
 			{
@@ -360,10 +360,10 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		}
 		
 		// Every time concept created add membership to "All FHIR Concepts"
-		dwh.makeRefsetTypeConcept(transaction, null, ALL_FHIR_REFSET, null, null, oldestDate);
+		dwh.makeRefsetTypeConcept(null, ALL_FHIR_REFSET, null, null, oldestDate);
 		
 		// Create root concept under SOLOR_CONCEPT____SOLOR
-		fhirRootConcept = dwh.makeConceptEnNoDialect(transaction, null, "FHIR Code Systems", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+		fhirRootConcept = dwh.makeConceptEnNoDialect(null, "FHIR Code Systems", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, oldestDate);
 				
 		log.info("Shared metadata load stats");
@@ -490,7 +490,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		{
 			dwh.removeRefsetTypeMapping(title.get());
 		}
-		dwh.makeRefsetTypeConcept(transaction, valueSetConcept, name.get(), (title.isPresent() ? title.get() : null), null, valueSetDate);
+		dwh.makeRefsetTypeConcept(valueSetConcept, name.get(), (title.isPresent() ? title.get() : null), null, valueSetDate);
 		
 		handleMeta(valueSetConcept, valueSetDate, vs.getMeta());
 		handleIdentifiers(valueSetConcept, valueSetDate, vs.getIdentifier());
@@ -780,7 +780,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		final Optional<PublicationStatusList> status = Optional.ofNullable(cs.getStatus()).map(i -> i.getValue());
 		
 		//Build up a concept to represent the root of the code system.
-		UUID codeSystemConcept = dwh.makeConceptEnNoDialect(transaction, null, name.orElse(id.get()), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), new UUID[] {fhirRootConcept},
+		UUID codeSystemConcept = dwh.makeConceptEnNoDialect(null, name.orElse(id.get()), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), new UUID[] {fhirRootConcept},
 				status.isPresent() ? (status.get().ordinal() == PublicationStatusList.RETIRED.ordinal() ? Status.INACTIVE : Status.ACTIVE) : Status.ACTIVE, codeSystemDate);
 		
 		for (ContactDetail cd : cs.getContact())
@@ -843,7 +843,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		for(Entry<UUID, Pair<HashSet<UUID>, AtomicLong>> taxonomy : taxonomyInfo.entrySet())
 		{
 			//Don't use the concept status on the taxonomy
-			dwh.makeParentGraph(transaction, taxonomy.getKey(), taxonomy.getValue().getKey(), Status.ACTIVE, taxonomy.getValue().getValue().get());
+			dwh.makeParentGraph(taxonomy.getKey(), taxonomy.getValue().getKey(), Status.ACTIVE, taxonomy.getValue().getValue().get());
 		}
 		
 		if (cs.getCaseSensitive() != null && cs.getCaseSensitive().isValue())

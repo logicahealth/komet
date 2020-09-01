@@ -39,12 +39,14 @@
 
 package sh.isaac.api.commit;
 
-//~--- JDK imports ------------------------------------------------------------
-
+import java.time.Instant;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.stream.Stream;
+import org.jvnet.hk2.annotations.Contract;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
-import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.chronicle.Chronology;
@@ -53,16 +55,6 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.transaction.Transaction;
-
-import java.time.Instant;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.stream.Stream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface CommitService.
@@ -73,14 +65,14 @@ import java.util.stream.Stream;
 public interface CommitService
         extends DatastoreServices {
    /**
-    * Adds the alias.
+    * Adds the alias.  Note, you should only add the alias after 
+    * the first stamp has been committed, otherwise, your alias comment
+    * will be overwritten when the transaction with the first stamp is committed.
     *
     * @param stampSequence the stamp sequence
     * @param stampAlias the stamp alias
     * @param aliasCommitComment the alias commit comment
     */
-
-   // should the change set get generated here?
    void addAlias(int stampSequence, int stampAlias, String aliasCommitComment);
 
    /**
@@ -175,8 +167,6 @@ public interface CommitService
     */
    void removeChangeListener(ChronologyChangeListener changeListener);
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the aliases.
     *
@@ -193,17 +183,16 @@ public interface CommitService
     */
    Optional<String> getComment(int stampSequence);
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
-    * Set comment.
+    * This method should NOT be considered part of the public API, and should NOT be used.
+    * It is only for internal use when loading from IBDF.
+    * 
+    * Specify comments and stamps during commit.
     *
     * @param stampSequence the stamp sequence
     * @param comment the comment
     */
    void setComment(int stampSequence, String comment);
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the commit manager sequence.
@@ -242,10 +231,20 @@ public interface CommitService
 
    /**
     *
+    * @param transactionName optional name for the transaction
     * @param changeCheckerMode true if tests should be performed.
     * @return a new transaction that will perform tests depending on value of performTests.
     */
    Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode);
+   
+   /**
+   * @param transactionName optional name for the transaction
+   * @param changeCheckerMode true if tests should be performed.
+   * @param indexOnCommit if true, let indexers run after commit, if false, do not index after commit (typical only 
+   * for a batch operation that handles its own indexing)
+   * @return a new transaction that will perform tests depending on value of performTests.
+   */
+  Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode, boolean indexOnCommit);
 
    /**
     *

@@ -44,23 +44,19 @@
  */
 package sh.isaac.api.component.concept;
 
-//~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.Status;
-import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.coordinate.*;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.logic.NodeSemantic;
-import sh.isaac.api.transaction.Transaction;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface ConceptChronology.
@@ -86,29 +82,6 @@ public interface ConceptChronology
     * @return true if any version of a description matches this text.
     */
    boolean containsDescription(String descriptionText, StampFilter stampFilter);
-
-   /**
-    * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
-    * add persist the chronicle when changes to the mutable version are complete .
-    * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version.
-    * @return the mutable version
-    */
-   @Override
-   ConceptVersion createMutableVersion(int stampSequence);
-
-   /**
-    * Create a mutable version with Long.MAX_VALUE as the time, indicating
-    * the version is uncommitted. It is the responsibility of the caller to
-    * add the mutable version to the commit manager when changes are complete
-    * prior to committing the component.
-    * @param state state of the created mutable version
-    * @param ec edit coordinate to provide the author, module, and path for the mutable version
-    * @return the mutable version
-    */
-   @Override
-   ConceptVersion createMutableVersion(Transaction transaction, Status state, EditCoordinate ec);
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the concept description list.

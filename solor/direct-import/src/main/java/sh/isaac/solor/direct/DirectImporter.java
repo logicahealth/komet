@@ -343,7 +343,7 @@ public class DirectImporter
 
         addToTotalWork(specificationsToImport.size());
 
-        Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+        Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
 
         for (ImportSpecification importSpecification : specificationsToImport) {
             String message = "Importing " + trimZipName(importSpecification.contentProvider.getStreamSourceName());

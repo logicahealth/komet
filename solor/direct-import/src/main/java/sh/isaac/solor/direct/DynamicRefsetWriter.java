@@ -129,7 +129,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 			List<String[]> noSuchElementList = new ArrayList<>();
 			HashSet<Integer> checkedDynamicTypes = new HashSet<>();
 
-			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
 			boolean skippedAny = false;
 			int skipped = 0;
 			for (String[] refsetRecord : refsetRecords)

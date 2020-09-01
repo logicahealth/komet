@@ -389,7 +389,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
         builder.setPrimordialUuid(conceptUuid);
         for (int parentNid : parentConceptNids) {
-            builder.addComponentSemantic(UuidT5Generator.get(conceptUuid.toString() + parentNid + "1"), new ConceptProxy(parentNid), HDX_LEGACY_IS_A);
+            builder.addComponentSemantic(new ConceptProxy(parentNid), HDX_LEGACY_IS_A);
         }
 
         addMaps(hoRec, builder);
@@ -405,20 +405,20 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         });
 
         if (!hoRec[DEPRECATED].isEmpty()) {
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[DEPRECATED] + "2"), hoRec[DEPRECATED], HDX_DEPRECATED);
+            builder.addStringSemantic(hoRec[DEPRECATED], HDX_DEPRECATED);
         }
 
         if (!hoRec[REFID].isEmpty()) {
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "3"), hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
         }
         if (!hoRec[MAPPED_TO_ALLERGEN].isEmpty()) {
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[MAPPED_TO_ALLERGEN] + "4"), hoRec[MAPPED_TO_ALLERGEN], ALLERGEN_ASSEMBLAGE);
+            builder.addStringSemantic(hoRec[MAPPED_TO_ALLERGEN], ALLERGEN_ASSEMBLAGE);
         }
         if (!hoRec[IS_DIAGNOSIS].isEmpty()) {
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[IS_DIAGNOSIS] + "5"), hoRec[IS_DIAGNOSIS], IS_DIAGNOSIS_ASSEMBLAGE);
+            builder.addStringSemantic(hoRec[IS_DIAGNOSIS], IS_DIAGNOSIS_ASSEMBLAGE);
         }
         if (!hoRec[IS_CATEGORY].isEmpty()) {
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[IS_CATEGORY] + "6"), hoRec[IS_CATEGORY], IS_CATEGORY_ASSEMBLAGE);
+            builder.addStringSemantic(hoRec[IS_CATEGORY], IS_CATEGORY_ASSEMBLAGE);
         }
         if (!hoRec[SNOMEDCT].isEmpty()) {
             if (!hoRec[MAPPED_TO_ALLERGEN].isEmpty() && Boolean.parseBoolean(hoRec[MAPPED_TO_ALLERGEN])) {
@@ -435,7 +435,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                 UUID snomedUuid = UuidT3Generator.fromSNOMED(hoRec[SNOMEDCT]);
                 if (Get.identifierService().hasUuid(snomedUuid)) {
                     int snomedNid = Get.nidForUuids(snomedUuid);
-                    builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[SNOMEDCT] + "7"), hoRec[SNOMEDCT], SNOMED_MAP_ASSEMBLAGE);
+                    builder.addStringSemantic(hoRec[SNOMEDCT], SNOMED_MAP_ASSEMBLAGE);
                     // Add reverse semantic
                     addReverseSemantic(hoRec, conceptNid, snomedNid, legacyStamp);
 
@@ -453,7 +453,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             buildAndIndex(builder, legacyStamp, hoRec);
             // now reture the concept that was just created...
             ConceptChronology conceptChronology = Get.concept(builder.getNid());
-            ConceptVersion conceptVersion = conceptChronology.createMutableVersion(inactiveLegacyStamp);
+            ConceptVersion conceptVersion = conceptChronology.createMutableVersion(transaction, inactiveLegacyStamp);
             Get.conceptService().writeConcept(conceptChronology);
             index(conceptChronology);
             //buildAndIndex(builder, inactiveLegacyStamp, hoRec);
@@ -547,7 +547,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     eb.build(),
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             builder.setPrimordialUuid(conceptUuid);
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "8"), hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
             builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
             builder.getDescriptionBuilders().forEach(descriptionBuilder -> {
                 descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
@@ -616,8 +616,8 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     eb.build(),
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             builder.setPrimordialUuid(conceptUuid);
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "9"), hoRec[REFID], REFID_ASSEMBLAGE);
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + "TRUE" + "10"), "TRUE", HDX_REVIEW_REQUIRED);
+            builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.addStringSemantic("TRUE", HDX_REVIEW_REQUIRED);
             builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
             builder.getDescriptionBuilders().forEach(descriptionBuilder -> {
                 descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
@@ -706,7 +706,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     eb.build(),
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             builder.setPrimordialUuid(conceptUuid);
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "10"), hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
             builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
             builder.getDescriptionBuilders().forEach(descriptionBuilder -> {
                 descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
@@ -782,7 +782,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     eb.build(),
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             builder.setPrimordialUuid(conceptUuid);
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "11"), hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
             builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
             addMaps(hoRec, builder);
             String[] abbreviations = hoRec[ABBREVIATIONS].split("; ");
@@ -796,7 +796,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
             });
 
             if (hoRec[SNOMEDCT].isEmpty()) {
-                builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + "TRUE" + "12"), "TRUE", HDX_REVIEW_REQUIRED);
+                builder.addStringSemantic("TRUE", HDX_REVIEW_REQUIRED);
             }
 
             int conceptNid = builder.getNid();
@@ -857,7 +857,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
                     eb.build(),
                     TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
             builder.setPrimordialUuid(conceptUuid);
-            builder.addStringSemantic(UuidT5Generator.get(conceptUuid.toString() + hoRec[REFID] + "13"), hoRec[REFID], REFID_ASSEMBLAGE);
+            builder.addStringSemantic(hoRec[REFID], REFID_ASSEMBLAGE);
             builder.addAssemblageMembership(HUMAN_DX_SOLOR_CONCEPT_ASSEMBLAGE);
             builder.getDescriptionBuilders().forEach(descriptionBuilder -> {
                 descriptionBuilder.addAssemblageMembership(HUMAN_DX_SOLOR_DESCRIPTION_ASSEMBLAGE);
@@ -912,7 +912,7 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         if (!hoRec[index].isEmpty()) {
             String[] dataArray = hoRec[index].split("; ");
             for (String data : dataArray) {
-                builder.addStringSemantic(UuidT5Generator.get(hoRec[REFID] + data + "14"), data, assemblage);
+                builder.addStringSemantic(data, assemblage);
             }
         }
     }

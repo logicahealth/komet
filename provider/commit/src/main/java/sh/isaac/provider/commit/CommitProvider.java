@@ -388,6 +388,7 @@ public class CommitProvider
 
     public CommitTask commit(Transaction transaction, String commitComment,
                       ConcurrentSkipListSet<AlertObject> alertCollection, Instant commitTime) {
+        LOG.debug("Start commit with transaction: {}, comment: {}, alert count {}, commitTime {}", transaction, commitComment, alertCollection.size(), commitTime);
         Semaphore pendingWrites = writePermitReference.getAndSet(new Semaphore(WRITE_POOL_SIZE));
         pendingWrites.acquireUninterruptibly(WRITE_POOL_SIZE);
 
@@ -1394,14 +1395,20 @@ public class CommitProvider
     }
 
     @Override
-    public Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode performTests) {
+    public Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode)
+    {
+        return newTransaction(transactionName, changeCheckerMode, true);
+    }
+
+    @Override
+    public Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode, boolean indexOnCommit) {
         if (singleTransactionOnly && PendingTransactions.getPendingTransactionCount() > 0) {
             for (Transaction transaction: PendingTransactions.getConcurrentPendingTransactionList()) {
                 LOG.info("Pending transaction: " + transaction.getTransactionId());
             }
             throw new IllegalStateException("Second transaction.");
         }
-        TransactionImpl transaction = new TransactionImpl(transactionName, performTests);
+        TransactionImpl transaction = new TransactionImpl(transactionName, changeCheckerMode, indexOnCommit);
         if (logTransactionCreation) {
             logStackTrace(transaction);
         }
@@ -1426,6 +1433,9 @@ public class CommitProvider
 
     @Override
     public Task<Void> addUncommitted(Transaction transaction, Version version) {
+        if (!version.isUncommitted()) {
+            throw new RuntimeException("Invalid API pattern!  Cannot call addUncommitted with a stamp that was not created with a transaction");
+        }
         transaction.addVersionToTransaction(version);
         if (version.getChronology().getIsaacObjectType() == IsaacObjectType.CONCEPT) {
             return addUncommitted(transaction, (ConceptChronology) version.getChronology());

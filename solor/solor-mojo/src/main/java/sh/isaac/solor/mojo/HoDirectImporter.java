@@ -157,7 +157,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     @Override
     protected Void call() throws Exception {
         try {
-            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
 
             ConceptProxy covid19Proxy = new ConceptProxy("Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)",
                     UUID.fromString("938c3040-c6cb-3b9d-9a7e-489217d82aa9"));

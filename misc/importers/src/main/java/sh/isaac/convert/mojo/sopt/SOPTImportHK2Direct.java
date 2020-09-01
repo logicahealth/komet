@@ -147,52 +147,52 @@ public class SOPTImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		statusUpdates.accept("Setting up metadata");
 		
 		//Right now, we are configured for the CPT grouping modules nid
-		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.SOPT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
+		dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), MetaData.SOPT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"SOPT", false);
 		
 		setupModule("SOPT", MetaData.SOPT_MODULES____SOLOR.getPrimordialUuid(), Optional.empty(), contentTime);
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(transaction, true, true, true, false, true, false, contentTime);
+		dwh.makeMetadataHierarchy(true, true, true, false, true, false, contentTime);
 
-		dwh.makeDescriptionTypeConcept(transaction, null, SOPTDataColumnsV1.ConceptName.name(), null, null,
+		dwh.makeDescriptionTypeConcept(null, SOPTDataColumnsV1.ConceptName.name(), null, null,
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept(transaction, null, SOPTDataColumnsV1.CodeSystemName.name(), null, null,
+		dwh.makeDescriptionTypeConcept(null, SOPTDataColumnsV1.CodeSystemName.name(), null, null,
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept(transaction, null, SOPTDataColumnsV1.PreferredConceptName.name(), null, null,
+		dwh.makeDescriptionTypeConcept(null, SOPTDataColumnsV1.PreferredConceptName.name(), null, null,
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept(transaction, null, SOPTValueSetColumnsV1.ValueSetName.name(), null, null,
+		dwh.makeDescriptionTypeConcept(null, SOPTValueSetColumnsV1.ValueSetName.name(), null, null,
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 
-		dwh.makeDescriptionTypeConcept(transaction, null, SOPTValueSetColumnsV1.ValueSetDefinition.name(), null, null,
+		dwh.makeDescriptionTypeConcept(null, SOPTValueSetColumnsV1.ValueSetDefinition.name(), null, null,
 				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
 		//This appears in both the concept and valueset tabs, one is likely an error, just make it once.  It doesn't appear to be used yet anyway.
-		dwh.makeDescriptionTypeConcept(transaction, null, SOPTDataColumnsV1.ValueSetConceptDefinitionText.name(), null, null,
+		dwh.makeDescriptionTypeConcept(null, SOPTDataColumnsV1.ValueSetConceptDefinitionText.name(), null, null,
 				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
 		
-		dwh.makeAttributeTypeConcept(transaction, null, SOPTDataColumnsV1.CodeSystemOID.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
-		dwh.makeAttributeTypeConcept(transaction, null, SOPTDataColumnsV1.CodeSystemVersion.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
-		dwh.makeAttributeTypeConcept(transaction, null, SOPTDataColumnsV1.CodeSystemCode.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
-		dwh.makeAttributeTypeConcept(transaction, null, SOPTDataColumnsV1.ConceptCode.name(), null, null, true, null, null, contentTime);
-		dwh.makeAttributeTypeConcept(transaction, null, SOPTDataColumnsV1.HL7Table0396Code.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
-		dwh.makeAttributeTypeConcept(transaction, null, SOPTDataColumnsV1.PreferredAlternateCode.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
-		dwh.makeAttributeTypeConcept(transaction, null, SOPTValueSetColumnsV1.ValueSetCode.name(), null, null, true, null, null, contentTime);
-		dwh.makeAttributeTypeConcept(transaction, null, SOPTValueSetColumnsV1.ValueSetOID.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
-		dwh.makeAttributeTypeConcept(transaction, null, SOPTValueSetColumnsV1.ValueSetReleaseComments.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
-		dwh.makeAttributeTypeConcept(transaction, null, SOPTValueSetColumnsV1.ValueSetStatus.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
-		dwh.makeAttributeTypeConcept(transaction, null, SOPTValueSetColumnsV1.ValueSetUpdatedDate.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
-		dwh.makeAttributeTypeConcept(transaction, null, SOPTValueSetColumnsV1.ValueSetVersion.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.CodeSystemOID.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.CodeSystemVersion.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.CodeSystemCode.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.ConceptCode.name(), null, null, true, null, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.HL7Table0396Code.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, SOPTDataColumnsV1.PreferredAlternateCode.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, SOPTValueSetColumnsV1.ValueSetCode.name(), null, null, true, null, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, SOPTValueSetColumnsV1.ValueSetOID.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, SOPTValueSetColumnsV1.ValueSetReleaseComments.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, SOPTValueSetColumnsV1.ValueSetStatus.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, SOPTValueSetColumnsV1.ValueSetUpdatedDate.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, SOPTValueSetColumnsV1.ValueSetVersion.name(), null, null, false, DynamicDataType.STRING, null, contentTime);
 		
 		// Every time concept created add membership to "All CPT Concepts"
-		allSoptConceptsRefset = dwh.makeRefsetTypeConcept(transaction, null, REFSET_PROPERTY_NAME, null, null, contentTime);
+		allSoptConceptsRefset = dwh.makeRefsetTypeConcept(null, REFSET_PROPERTY_NAME, null, null, contentTime);
 
 		// Create SOPT root concept under SOLOR_CONCEPT____SOLOR
-		final UUID soptRootConcept = dwh.makeConceptEnNoDialect(transaction, null, "SOPT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+		final UUID soptRootConcept = dwh.makeConceptEnNoDialect(null, "SOPT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, contentTime);
 
 		log.info("Metadata load stats");
@@ -226,11 +226,11 @@ public class SOPTImportHK2Direct extends DirectConverterBaseMojo implements Dire
 						//Due to the order of the data in the metadata, this case will hit first as we iterate.
 						valueSetConcept = converterUUID.createNamespaceUUIDFromString("ValueSet|" + md.getValue());
 						dwh.makeConcept(valueSetConcept, Status.ACTIVE, contentTime);
-						dwh.makeParentGraph(transaction, valueSetConcept, dwh.getRefsetTypesNode().get(), Status.ACTIVE, contentTime);
+						dwh.makeParentGraph(valueSetConcept, dwh.getRefsetTypesNode().get(), Status.ACTIVE, contentTime);
 						dwh.makeDescriptionEn(valueSetConcept, md.getValue(), dwh.getDescriptionType(md.getKey().name()), MetaData.NOT_APPLICABLE____SOLOR.getPrimordialUuid(),
 								Status.ACTIVE, contentTime, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
 						
-						dwh.configureConceptAsDynamicAssemblage(transaction, valueSetConcept, "Holds the Value Set members from SOPT", null, IsaacObjectType.CONCEPT,
+						dwh.configureConceptAsDynamicAssemblage(valueSetConcept, "Holds the Value Set members from SOPT", null, IsaacObjectType.CONCEPT,
 								null, contentTime);
 						break;
 					case ValueSetCode:
@@ -285,7 +285,7 @@ public class SOPTImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			{
 				codeSystem = converterUUID.createNamespaceUUIDFromString("CodeSystemSet|" + codeSystemName);
 				dwh.makeConcept(codeSystem, Status.ACTIVE, contentTime);
-				dwh.makeParentGraph(transaction, codeSystem, soptRootConcept, Status.ACTIVE, contentTime);
+				dwh.makeParentGraph(codeSystem, soptRootConcept, Status.ACTIVE, contentTime);
 				dwh.makeDescriptionEnNoDialect(codeSystem, codeSystemName, dwh.getDescriptionType(SOPTDataColumnsV1.CodeSystemName.name()), Status.ACTIVE, contentTime);
 				dwh.makeStringAnnotation(dwh.getAttributeType(SOPTDataColumnsV1.CodeSystemCode.name()), codeSystem, codeSystemCode, contentTime);
 				dwh.makeStringAnnotation(dwh.getAttributeType(SOPTDataColumnsV1.CodeSystemOID.name()), codeSystem, codeSystemOid, contentTime);
@@ -300,7 +300,7 @@ public class SOPTImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			parentConcepts.put(conceptCode, rowConceptUuid);
 			
 			final UUID concept = dwh.makeConcept(rowConceptUuid, Status.ACTIVE, contentTime);
-			dwh.makeParentGraph(transaction, concept, parentUuid, Status.ACTIVE, contentTime);
+			dwh.makeParentGraph(concept, parentUuid, Status.ACTIVE, contentTime);
 			
 			dwh.makeDescriptionEnNoDialect(concept, conceptName, dwh.getDescriptionType(SOPTDataColumnsV1.ConceptName.name()), Status.ACTIVE, contentTime);
 			

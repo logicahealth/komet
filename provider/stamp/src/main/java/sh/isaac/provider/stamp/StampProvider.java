@@ -231,11 +231,11 @@ public class StampProvider
             // and replace with a stamp with a proper time indicating canceled...
             if (transaction.getTransactionId().equals(uncommittedStamp.getTransactionId())) {
                 final Stamp stamp = new Stamp(
-                        getStatus(uncommittedStamp.status),
+                        getStatus(uncommittedStamp.getStatus()),
                         getTime(),
-                        uncommittedStamp.authorNid,
-                        uncommittedStamp.moduleNid,
-                        uncommittedStamp.pathNid);
+                        uncommittedStamp.getAuthorNid(),
+                        uncommittedStamp.getModuleNid(),
+                        uncommittedStamp.getPathNid());
                 if (stamp.getStatus() == Status.CANCELED) {
                     LOG.info("Canceling Filter <" + stampSequence + ">: " + stamp + " " + transaction);
                 }
@@ -298,17 +298,12 @@ public class StampProvider
 
             final long time = getTimeForStamp(stampSequence);
 
-            if (time == Long.MAX_VALUE) {
+            if (sequenceToUncommittedStamp.containsKey(stampSequence)) {
                 sb.append("UNCOMMITTED-");
-                if (uncommittedStampIntegerConcurrentHashMap.containsValue(stampSequence)) {
-                    for (Entry<UncommittedStamp, Integer> entry: uncommittedStampIntegerConcurrentHashMap.entrySet()) {
-                        if (entry.getValue() == stampSequence) {
-                            sb.append(entry.getKey().getTransactionId().toString());
-                        }
-                    }
-                } else {
-                    sb.append("No uncommitted stamp!");
+                if (time != Long.MAX_VALUE) {
+                   sb.append(Instant.ofEpochMilli(time));
                 }
+                sb.append(sequenceToUncommittedStamp.get(stampSequence).getTransactionId());
                 sb.append(":");
             } else if (time == Long.MIN_VALUE) {
                 sb.append("CANCELED:");
@@ -348,8 +343,13 @@ public class StampProvider
         final long time = getTimeForStamp(stampSequence);
 
         // Cannot change to case statement, since case supports int not long...
-        if (time == Long.MAX_VALUE) {
+        if (sequenceToUncommittedStamp.containsKey(stampSequence)) {
             sb.append("UNCOMMITTED-");
+            if (time != Long.MAX_VALUE) {
+                ZonedDateTime stampTime = Instant.ofEpochMilli(time)
+                        .atZone(ZoneOffset.UTC);
+                sb.append(stampTime.format(FORMATTER));
+             }
             sb.append(sequenceToUncommittedStamp.get(stampSequence).getTransactionId().toString());
             sb.append("");
         } else if (time == Long.MIN_VALUE) {
@@ -555,22 +555,6 @@ public class StampProvider
     }
 
     /**
-     * Gets the activated stamp sequence.
-     *
-     * @param stampSequence the stamp sequence
-     * @return the activated stamp sequence
-     */
-    @Override
-    public int getActiveStampSequence(int stampSequence) {
-        return getStampSequence(
-                Status.ACTIVE,
-                getTimeForStamp(stampSequence),
-                getAuthorNidForStamp(stampSequence),
-                getModuleNidForStamp(stampSequence),
-                getPathNidForStamp(stampSequence));
-    }
-
-    /**
      * Gets the author nid for stamp.
      *
      * @param stampSequence the stamp sequence
@@ -588,7 +572,7 @@ public class StampProvider
         }
         UncommittedStamp us = sequenceToUncommittedStamp.get(stampSequence);
         if (us != null) {
-            return us.authorNid;
+            return us.getAuthorNid();
         }
 
         throw new NoSuchElementException("No stampSequence found: " + stampSequence);
@@ -637,7 +621,7 @@ public class StampProvider
         }
         UncommittedStamp us = sequenceToUncommittedStamp.get(stampSequence);
         if (us != null) {
-            return us.moduleNid;
+            return us.getModuleNid();
         }
 
         throw new NoSuchElementException("No stampSequence found: " + stampSequence);
@@ -685,32 +669,18 @@ public class StampProvider
         }
         UncommittedStamp us = sequenceToUncommittedStamp.get(stampSequence);
         if (us != null) {
-            return us.pathNid;
+            return us.getPathNid();
         }
 
 
         throw new NoSuchElementException("No stampSequence found: " + stampSequence);
     }
 
-    /**
-     * Gets the equivalent retired stamp sequence for an existing sequence.
-     *
-     * @param stampSequence the stamp sequence
-     * @return the retired stamp sequence
-     */
-    @Override
-    public int getRetiredStampSequence(int stampSequence) {
-        return getStampSequence(
-                Status.INACTIVE,
-                getTimeForStamp(stampSequence),
-                getAuthorNidForStamp(stampSequence),
-                getModuleNidForStamp(stampSequence),
-                getPathNidForStamp(stampSequence));
-    }
-
     boolean cancelUncommittedStamps = false;
 
     @Override
+    //TODO Keith [1] - Dan Notes - I have no idea what this is for, or why it is done during changeset processing.  Completeyl unsafe for threading, 
+    //No idea on the actual intention of the code.
     public void setCancelUncommittedStamps(boolean cancelUncommittedStamps) {
         this.cancelUncommittedStamps = cancelUncommittedStamps;
     }
@@ -738,6 +708,7 @@ public class StampProvider
         return getStampSequence(null, status, time, authorNid, moduleNid, pathNid);
     }
 
+    @Override
     public int getStampSequence(Transaction transaction, Status status, long time, int authorNid, int moduleNid, int pathNid) {
         if (authorNid == 0) throw new IllegalStateException("Author cannot be zero...");
         if (moduleNid == 0) throw new IllegalStateException("module cannot be zero...");
@@ -751,8 +722,8 @@ public class StampProvider
         }
         final Stamp stampKey = new Stamp(status, time, authorNid, moduleNid, pathNid);
 
-        if (time == Long.MAX_VALUE) {
-            final UncommittedStamp usp = new UncommittedStamp(transaction, status, authorNid, moduleNid, pathNid);
+        if (time == Long.MAX_VALUE || transaction != null) {
+            final UncommittedStamp usp = new UncommittedStamp(transaction, status, time, authorNid, moduleNid, pathNid);
             final Integer temp = uncommittedStampIntegerConcurrentHashMap.get(usp);
 
             if (temp != null) {
@@ -769,7 +740,7 @@ public class StampProvider
 
                     final int stampSequence = this.nextStampSequence.getAndIncrement();
                     Transaction transactionForPath = ((TransactionImpl) transaction).addStampToTransaction(stampSequence);
-                    LOG.trace("Putting {}, {} into uncommitted stamp to sequence map", usp, stampSequence);
+                    LOG.trace("Putting {}, {} into uncommitted stamp to sequence map", () -> usp.toString(), () -> stampSequence);
                     this.uncommittedStampIntegerConcurrentHashMap.put(usp, stampSequence);
                     this.sequenceToUncommittedStamp.put(stampSequence, usp);
                     this.inverseStampMap.put(stampSequence, stampKey);
@@ -831,7 +802,7 @@ public class StampProvider
         }
         UncommittedStamp us = sequenceToUncommittedStamp.get(stampSequence);
         if (us != null) {
-            return us.status;
+            return us.getStatus();
         }
 
         throw new NoSuchElementException("No stampSequence found: " + stampSequence);
@@ -855,7 +826,7 @@ public class StampProvider
         }
         UncommittedStamp us = sequenceToUncommittedStamp.get(stampSequence);
         if (us != null) {
-            return Long.MAX_VALUE;
+            return us.getTime();
         }
 
         throw new NoSuchElementException(
@@ -890,7 +861,7 @@ public class StampProvider
         }
         UncommittedStamp us = sequenceToUncommittedStamp.get(stampSequence);
         if (us != null) {
-            return new Stamp(us.status, Long.MAX_VALUE, us.authorNid, us.moduleNid, us.pathNid);
+            return us;
         }
 
         throw new NoSuchElementException(
@@ -906,7 +877,7 @@ public class StampProvider
      */
     @Override
     public boolean isUncommitted(int stampSequence) {
-        return getTimeForStamp(stampSequence) == Long.MAX_VALUE;
+        return sequenceToUncommittedStamp.containsKey(stampSequence);
     }
 }
 

@@ -38,14 +38,8 @@
 
 
 package sh.isaac.model.semantic;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.NoSuchElementException;
 import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Version;
@@ -69,9 +63,20 @@ import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.model.semantic.version.LongVersionImpl;
 import sh.isaac.model.semantic.version.SemanticVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
-import sh.isaac.model.semantic.version.brittle.*;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.model.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Int2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Long2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Str3_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Str2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 
 /**
  * The Class SemanticChronologyImpl.
@@ -84,8 +89,6 @@ public class SemanticChronologyImpl
 
    /** The referenced component nid. */
    int referencedComponentNid = Integer.MAX_VALUE;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new semantic chronology impl.
@@ -108,31 +111,21 @@ public class SemanticChronologyImpl
       this.referencedComponentNid = referencedComponentNid;
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Creates the mutable version.
-    *
-    * @param <V> the generic type
-    * @param stampSequence the stamp sequence
-    * @return the m
-    */
    @Override
    public <V extends Version> V createMutableVersion(int stampSequence) {
       final V version = createMutableVersionInternal(stampSequence);
-
+      addVersion(version);
+      return version;
+   }
+   
+   @Override
+   public <V extends Version> V createMutableVersion(Transaction transaction, int stampSequence) {
+      final V version = createMutableVersionInternal(stampSequence);
+      transaction.addVersionToTransaction(version);
       addVersion(version);
       return version;
    }
 
-   /**
-    * Creates the mutable version.
-    *
-    * @param <V> the generic type
-    * @param status the status
-    * @param ec the ec
-    * @return the m
-    */
    @Override
    public <V extends Version> V createMutableVersion(Transaction transaction, Status status, EditCoordinate ec) {
       final int stampSequence = Get.stampService()

@@ -356,7 +356,7 @@ public class ConceptDetailPanelNode
                             this.manifoldProperty.get().getStampFilter());
 
             if (oscCategorizedVersions.getLatestVersion()
-                    .isPresent()) {
+                    .isPresent() || oscCategorizedVersions.getUncommittedVersions().size() > 0) {
                 parallelTransition.getChildren()
                         .add(addComponent(oscCategorizedVersions));
             }

@@ -39,10 +39,8 @@
 
 package sh.isaac.model.builder;
 
-//~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptBuilder;
@@ -51,9 +49,6 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 
-import java.util.UUID;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class ConceptBuilderProvider.
@@ -114,23 +109,6 @@ public class ConceptBuilderProvider
                                          this.defaultLogicCoordinate,
                                          assemblageId);
    }
-   @Override
-   public ConceptBuilder getDefaultConceptBuilder(String conceptName,
-                                                  UUID primordialUuid,
-                                                  String semanticTag,
-                                                  LogicalExpression logicalExpression,
-                                                  int assemblageId) {
-      return new ConceptBuilderImpl(conceptName,
-              primordialUuid,
-              semanticTag,
-              logicalExpression,
-              this.defaultLanguageForDescriptions,
-              this.defaultDialectAssemblageForDescriptions,
-              this.defaultLogicCoordinate,
-              assemblageId);
-   }
-
-   //~--- set methods ---------------------------------------------------------
 
    /**
     * Set default dialect assemblage for descriptions.
@@ -144,8 +122,6 @@ public class ConceptBuilderProvider
       this.defaultDialectAssemblageForDescriptions = defaultDialectAssemblageForDescriptions;
       return this;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the default dialect for descriptions.
@@ -167,8 +143,6 @@ public class ConceptBuilderProvider
       return this.defaultLanguageForDescriptions;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Set default language for descriptions.
     *
@@ -182,8 +156,6 @@ public class ConceptBuilderProvider
       return this;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the default logic coordinate.
     *
@@ -193,8 +165,6 @@ public class ConceptBuilderProvider
    public LogicCoordinate getDefaultLogicCoordinate() {
       return this.defaultLogicCoordinate;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    /**
     * Set default logic coordinate.

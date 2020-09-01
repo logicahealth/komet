@@ -35,7 +35,9 @@ package sh.isaac.model.semantic;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Optional;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.UUID;
 import javax.inject.Singleton;
@@ -147,10 +149,6 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
 
 		if (StringUtils.isEmpty(this.semanticUsageDescription))
 		{
-			for (SemanticChronology descriptionSemantic : assemblageConcept.getConceptDescriptionList())
-			{
-				logger.error("No description on semantic: {}", () -> descriptionSemantic.toString());
-			}
 			throw new RuntimeException("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for "
 					+ "a DynamicSemanticData Refex Type.  It must contain a description of type Definition with an annotation of type "
 					+ "DynamicSemantic.DYNAMIC_DEFINITION_DESCRIPTION");
@@ -665,7 +663,7 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
 	{
 		// The (undocumented) pattern that seems to be in place for some (not all) static semantics is multiple instances
 		// of a ComponentInteger semantic which tell you the column title, and column order.
-		TreeMap<Integer, Integer> columnTitles = new TreeMap<>();
+		SortedMap<Integer, Integer> columnTitles = Collections.synchronizedSortedMap(new TreeMap<Integer, Integer>());
 		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(assemblageBeingDefinedNid, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS.getNid())
 				.forEach(semantic -> {
 					LatestVersion<Nid1_Int2_Version> lvs = semantic.getLatestVersion(Coordinates.Filter.DevelopmentLatest());
@@ -673,11 +671,14 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
 					{
 						columnTitles.put(lvs.get().getInt2(), lvs.get().getNid1());
 					}
+					else {
+						logger.debug("Annotation not present?");
+					}
 				});
 
 		if (columnTitles.size() > 0)
 		{
-			int[] result = new int[columnTitles.size()];
+			int[] result = new int[columnTitles.values().size()];
 			int j = 0;
 			for (Integer nid : columnTitles.values())
 			{

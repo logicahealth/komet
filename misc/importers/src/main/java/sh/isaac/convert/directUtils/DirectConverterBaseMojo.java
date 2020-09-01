@@ -237,7 +237,7 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 			LookupService.startupIsaac();
 			
 			readbackCoordinate = Coordinates.Filter.DevelopmentLatest();
-			transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+			transaction = Get.commitService().newTransaction(Optional.of("Direct Converter Mojo Import"), ChangeCheckerMode.ACTIVE, false);
 
 			Path[] filesToPreload = getIBDFFilesToPreload();
 			if (filesToPreload != null && filesToPreload.length > 0)
@@ -394,7 +394,7 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 					MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
 					Status.ACTIVE, releaseTime);
 		}
-		dwh.makeParentGraph(transaction, versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
+		dwh.makeParentGraph(versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
 		
 		dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, moduleVersionString.orElse(converterSourceArtifactVersion), 
 				Optional.of(new Date(releaseTime).toString()),Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), 

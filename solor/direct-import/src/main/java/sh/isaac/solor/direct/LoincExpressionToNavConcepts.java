@@ -791,10 +791,11 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
     private void buildConcept(Transaction transaction, ConceptBuilderService builderService, StringBuilder conceptNameBuilder, LogicalExpressionBuilder eb, int stamp) throws IllegalStateException, NoSuchElementException {
         String conceptName = conceptNameBuilder.toString();
         UUID primordialUuid = UuidT5Generator.get(UUID.fromString("d96cb408-b9ae-473d-a08d-ece06dbcedf9"), conceptName);
-        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName, primordialUuid,
+        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
                 "OP",
                 eb.build(),
                 TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+        builder.setPrimordialUuid(primordialUuid);
         List<Chronology> builtObjects = new ArrayList<>();
         builder.build(transaction, stamp, builtObjects);
         for (Chronology chronology : builtObjects) {

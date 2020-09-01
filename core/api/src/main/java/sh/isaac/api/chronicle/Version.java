@@ -64,24 +64,6 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
      * Create a analog version with Long.MAX_VALUE as the time, indicating
      * the version is uncommitted. It is the responsibility of the caller to
      * add the mutable version to the commit manager when changes are complete
-     * prior to committing the component. Values for all properties except author,
-     * module, and path (which are provided by the edit coordinate) will be copied 
-     * from this version, and time is set to latest. 
-     *
-     * @param <V> the mutable version type
-     * @param ec edit coordinate to provide the author, module, and path for the mutable version
-     * @return the mutable version
-     * @deprecated use the make analog with the transaction instead.
-     */
-     @Deprecated
-    default <V extends Version> V makeAnalog(EditCoordinate ec) {
-       return makeAnalog(Get.stampService().getStampSequence(this.getStatus(), Long.MAX_VALUE, ec.getAuthorNid(), ec.getModuleNid(), ec.getPathNid()));
-    }
-
-    /**
-     * Create a analog version with Long.MAX_VALUE as the time, indicating
-     * the version is uncommitted. It is the responsibility of the caller to
-     * add the mutable version to the commit manager when changes are complete
      * prior to committing the component. Values for all properties except time,
      * author, and path will be copied from this version.
      *

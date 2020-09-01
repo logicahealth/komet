@@ -95,7 +95,7 @@ public class SingleCommitTask extends CommitTask {
 
         for (ObservableVersion observableVersion : versionsToCommit) {
             // Status status, long time, int authorNid, int moduleNid, int pathNid
-            int stampSequence = Get.stampService().getStampSequence(observableVersion.getStatus(),
+            int stampSequence = Get.stampService().getStampSequence(transaction, observableVersion.getStatus(),
                     commitTime, observableVersion.getAuthorNid(),
                     observableVersion.getModuleNid(), observableVersion.getPathNid());
             stampsInCommit.add(stampSequence);
@@ -110,7 +110,8 @@ public class SingleCommitTask extends CommitTask {
                 stampAliases,
                 conceptNidsInCommit,
                 semanticNidsInCommit,
-                commitComment);
+                commitComment,
+                transaction);
         ((CommitProvider) Get.commitService()).handleCommitNotification(commitRecord);
         return Optional.of(commitRecord);
     }

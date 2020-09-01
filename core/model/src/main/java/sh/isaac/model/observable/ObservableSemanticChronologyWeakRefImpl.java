@@ -136,6 +136,11 @@ public class ObservableSemanticChronologyWeakRefImpl implements ObservableSemant
    public <V extends Version> V createMutableVersion(int stampSequence) {
       return getChronology().createMutableVersion(stampSequence);
    }
+   
+   @Override
+   public <V extends Version> V createMutableVersion(Transaction transaction, int stampSequence) {
+      return getChronology().createMutableVersion(transaction, stampSequence);
+   }
 
    @Override
    public <V extends Version> V createMutableVersion(Transaction transaction, Status state, EditCoordinate ec) {

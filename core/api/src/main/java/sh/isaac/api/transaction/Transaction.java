@@ -55,4 +55,11 @@ public interface Transaction {
     CommitTask commitObservableVersions(String commitComment, ObservableVersion... versionsToCommit);
 
     Task<Void> cancel();
+    
+    /**
+     * @return true, if indexers (which normally trigger on commit) should index this content, or false, 
+     * if the indexers should not run (typically because the content was already manually indexed during an 
+     * import task that manages its own indexing)
+     */
+    boolean indexAfterCommit();
 }

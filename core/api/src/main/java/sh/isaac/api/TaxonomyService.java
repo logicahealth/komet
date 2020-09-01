@@ -41,22 +41,14 @@ package sh.isaac.api;
 
 import java.util.Set;
 import java.util.function.BinaryOperator;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.DigraphCoordinate;
-import sh.isaac.api.coordinate.DigraphCoordinateImmutable;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 
@@ -92,18 +84,6 @@ public interface TaxonomyService
     * @param logicGraphChronology Chronology of the logical definitions
     */
    void updateTaxonomy(SemanticChronology logicGraphChronology);
-
-//   /**
-//    * Method to determine if a concept was ever a kind of another, without
-// knowing a ManifoldCoordinate.
-//    *
-//    * @param childNid a concept  nid for the child concept
-//    * @param parentNid a concept nid for the parent concept
-//    * @return true if child was ever a kind of the parent.
-//    */
-//   boolean wasEverKindOf(int childNid, int parentNidd);
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the all relationship origin concept nids of type.

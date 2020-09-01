@@ -569,7 +569,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
     * case of a contradiction) are active.
     */
    public boolean isLatestActive(int[] stampSequences) {
-      for (int stampSequence: getLatestCommittedStampSequencesAsSet(stampSequences)) {
+      for (int stampSequence: getLatestStampSequencesAsSet(stampSequences)) {
          if (getStampService().getStatusForStamp(stampSequence) == Status.ACTIVE) {
             return true;
          }
@@ -584,7 +584,7 @@ public class RelativePositionCalculator implements StaticIsaacCache {
                .stream()
                .filter(
                    (newVersionToTest) -> ((newVersionToTest.getTime() != Long.MIN_VALUE) &&
-                         (newVersionToTest.getTime() != Long.MAX_VALUE)))
+                         (!Get.stampService().isUncommitted(newVersionToTest.getStampSequence()))))
                .filter((newVersionToTest) -> (onRoute(newVersionToTest)))
                .forEach(
                    (newVersionToTest) -> {

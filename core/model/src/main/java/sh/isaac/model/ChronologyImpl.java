@@ -143,7 +143,7 @@ public abstract class ChronologyImpl
         if (this.unwrittenVersions != null) {
             List<Version> toRemove = new ArrayList<>();
             for (Version v: this.unwrittenVersions) {
-                if (v.getTime() == Long.MAX_VALUE) {
+                if (v.getTime() == Long.MAX_VALUE || Get.stampService().isUncommitted(v.getStampSequence())) {
                     toRemove.add(v);
                     anyRemoved = true;
                 }
@@ -152,7 +152,7 @@ public abstract class ChronologyImpl
         }
         List<Version> toRemove = new ArrayList<>();
             for (Version v: this.writtenVersions) {
-                if (v.getTime() == Long.MAX_VALUE) {
+                if (v.getTime() == Long.MAX_VALUE || Get.stampService().isUncommitted(v.getStampSequence())) {
                     toRemove.add(v);
                     anyRemoved = true;
                 }

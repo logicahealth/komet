@@ -239,7 +239,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                                       .isPresentAnd(v -> v.getStatus() == Status.ACTIVE))
                         {
                             //Concept is present, but is active when our record says it shouldn't be.
-                             optionalConcept.get().createMutableVersion(recordStamp);
+                             optionalConcept.get().createMutableVersion(transaction, recordStamp);
                              Get.conceptService().writeConcept(optionalConcept.get());
                              index(optionalConcept.get());
                         }
@@ -270,7 +270,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
     
                         SemanticChronologyImpl recordToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC, dynamicLoincRecordUuid,
                                 DirectImportDynamicConstants.get().LOINC_RECORD_ASSEMBLAGE.getNid(), conceptNid);
-                        MutableDynamicVersion dynamicRecordVersion = recordToWrite.createMutableVersion(recordStamp);
+                        MutableDynamicVersion dynamicRecordVersion = recordToWrite.createMutableVersion(transaction, recordStamp);
                         DynamicData[] data = new DynamicData[] {
                                 new DynamicStringImpl(loincRecord[COMPONENT]),
                                 new DynamicStringImpl(loincRecord[LOINC_NUM]),
@@ -325,7 +325,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
         SemanticChronologyImpl descriptionToWrite
                 = new SemanticChronologyImpl(VersionType.DESCRIPTION, descriptionUuid,
                         MetaData.ENGLISH_LANGUAGE____SOLOR.getNid(), conceptNid);
-        DescriptionVersionImpl descriptionVersion = descriptionToWrite.createMutableVersion(recordStamp);
+        DescriptionVersionImpl descriptionVersion = descriptionToWrite.createMutableVersion(transaction, recordStamp);
         descriptionVersion.setCaseSignificanceConceptNid(
                 MetaData.DESCRIPTION_INITIAL_CHARACTER_CASE_SENSITIVE____SOLOR.getNid());
         descriptionVersion.setDescriptionTypeConceptNid(descriptionTypeNid);
@@ -343,7 +343,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                 acceptabilityUuid,
                 TermAux.US_DIALECT_ASSEMBLAGE.getNid(),
                 descriptionToWrite.getNid());
-        ComponentNidVersionImpl dialectVersion = dialectToWrite.createMutableVersion(recordStamp);
+        ComponentNidVersionImpl dialectVersion = dialectToWrite.createMutableVersion(transaction, recordStamp);
         if (preferredInDialect) {
             dialectVersion.setComponentNid(TermAux.PREFERRED.getNid());
         } else {
@@ -374,10 +374,10 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
         UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincCode);
         Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
         if (!optionalConcept.isPresent()) {
-            int conceptStamp = Get.stampService().getStampSequence(status, commitTime, TermAux.USER.getNid(), module,TermAux.DEVELOPMENT_PATH.getNid()); 
+            int conceptStamp = Get.stampService().getStampSequence(transaction, status, commitTime, TermAux.USER.getNid(), module,TermAux.DEVELOPMENT_PATH.getNid()); 
             ConceptChronologyImpl conceptToWrite
                     = new ConceptChronologyImpl(conceptUuid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
-            conceptToWrite.createMutableVersion(conceptStamp);
+            conceptToWrite.createMutableVersion(transaction, conceptStamp);
             Get.conceptService().writeConcept(conceptToWrite);
             index(conceptToWrite);
 
@@ -390,7 +390,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
                     MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(),
                     conceptToWrite.getNid());
 
-            StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(stamp);
+            StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(transaction, stamp);
             loincIdVersion.setString(loincCode);
             index(loincIdentifierToWrite);
             Get.assemblageService().writeSemanticChronology(loincIdentifierToWrite);

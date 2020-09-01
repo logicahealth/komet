@@ -36,10 +36,23 @@
  */
 package sh.isaac.provider.datastore.taxonomy;
 
-import javafx.application.Platform;
-import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Task;
-import javafx.concurrent.Worker.State;
+import java.lang.ref.WeakReference;
+import java.nio.file.Path;
+import java.util.EnumSet;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.function.BinaryOperator;
+import java.util.function.IntFunction;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.collection.ImmutableCollection;
@@ -50,7 +63,21 @@ import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.*;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker.State;
+import sh.isaac.api.ConceptActiveService;
+import sh.isaac.api.Edge;
+import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.RefreshListener;
+import sh.isaac.api.Status;
+import sh.isaac.api.SystemStatusService;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
@@ -60,7 +87,12 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.StampFilterImmutable;
+import sh.isaac.api.coordinate.StatusSet;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.api.task.TaskCountManager;
@@ -71,17 +103,6 @@ import sh.isaac.model.ModelGet;
 import sh.isaac.model.TaxonomyDebugService;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
-
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import java.lang.ref.WeakReference;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.function.BinaryOperator;
-import java.util.function.IntFunction;
-import java.util.function.Supplier;
-import java.util.stream.IntStream;
 
 /**
  *
@@ -446,7 +467,7 @@ public class TaxonomyProvider
             return treeTask;
         }
 
-        LOG.debug("Building tree for {}, cache key {}", mc, snapshotCacheKey.hashCode());
+        LOG.debug("Building tree for {}, cache key {}", () -> mc.getClass().getName() + "@" + Integer.toHexString(mc.hashCode()), () -> snapshotCacheKey.hashCode());
         IntFunction<int[]> taxonomyDataProvider = new IntFunction<int[]>() {
             final int assemblageNid = mc.getLogicCoordinate().getConceptAssemblageNid();
             @Override

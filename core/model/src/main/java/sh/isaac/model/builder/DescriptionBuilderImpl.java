@@ -199,13 +199,12 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
 
       if (getModule().isPresent()) {
           Stamp requested = Get.stampService().getStamp(stampSequence);
-          stampSequence = Get.stampService().getStampSequence(requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
+          stampSequence = Get.stampService().getStampSequence(transaction, requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
       }
        
       final int finalStamp = stampSequence;
 
       final SemanticChronology newDescription = (SemanticChronology) descBuilder.build(transaction, finalStamp, builtObjects);
-      ModelGet.identifierService().setupNid(newDescription.getNid(), newDescription.getAssemblageNid(), newDescription.getIsaacObjectType(), newDescription.getVersionType());
       getSemanticBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
       return (T) newDescription;
    }

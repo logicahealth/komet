@@ -175,13 +175,13 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 	
 		converterUUID = new ConverterUUID(TermAux.VHAT_MODULES.getPrimordialUuid(), false);
 		
-		dwh = new DirectWriteHelper(Get.nidForUuids(author), Get.nidForUuids(module), Get.nidForUuids(path), converterUUID, "VHAT", false);
+		dwh = new DirectWriteHelper(transaction, Get.nidForUuids(author), Get.nidForUuids(module), Get.nidForUuids(path), converterUUID, "VHAT", false);
 		converterUUID.configureNamespace(TermAux.VHAT_MODULES.getPrimordialUuid());  //Keep this on the vhat modules, rather than the passed in module.
 		
 		dwh.changeModule(Get.nidForUuids(module));
 
 		//Set up our metadata hierarchy - this call likely wont need to build concepts, but does need to init the internal placeholders
-		dwh.makeMetadataHierarchy(transaction, true, true, true, true, true, true, time);
+		dwh.makeMetadataHierarchy(true, true, true, true, true, true, time);
 		
 		convertContent(string -> {}, (progress, total) -> {});
 	}
@@ -492,10 +492,10 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 					case DESIGNATION_TYPE:
 						throw new RuntimeException("New extended designations types aren't supported yet");
 					case PROPERTY_TYPE:
-						this.dwh.makeAttributeTypeConcept(transaction, null, name, null, null, null, false, DynamicDataType.STRING, null, time);
+						this.dwh.makeAttributeTypeConcept(null, name, null, null, null, false, DynamicDataType.STRING, null, time);
 						break;
 					case RELATIONSHIP_TYPE:
-						this.dwh.makeAssociationTypeConcept(transaction, null, name, null, null, null, null, null, null, null, time);
+						this.dwh.makeAssociationTypeConcept(null, name, null, null, null, null, null, null, null, time);
 						break;
 					default :
 						throw new RuntimeException("Unexepected error");
@@ -520,7 +520,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 				switch (s.getAction())
 				{
 					case ADD:
-						UUID refset = this.dwh.makeRefsetTypeConcept(transaction, null, name, null, null, time);
+						UUID refset = this.dwh.makeRefsetTypeConcept(null, name, null, null, time);
 
 						Long vuid = s.getVUID() == null ? (this.vuidSupplier == null ? null : this.vuidSupplier.getAsLong()) : s.getVUID();
 
@@ -2051,7 +2051,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 
 					NecessarySetNode nsn = lei.NecessarySet(lei.And(parentConceptNodes.toArray(new ConceptNodeWithNids[parentConceptNodes.size()])));
 					lei.getRoot().addChildren(nsn);
-					UUID graph = dwh.makeGraph(transaction, concept, null, lei, Status.ACTIVE, time);
+					UUID graph = dwh.makeGraph(concept, null, lei, Status.ACTIVE, time);
 					dwh.makeExtendedRelationshipTypeAnnotation(graph,  VHATConstants.VHAT_HAS_PARENT_ASSOCIATION_TYPE.getPrimordialUuid(), time);
 				}
 			}
@@ -2117,7 +2117,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 						dwh.makeAssociation(dwh.getAssociationType("has_parent"), mapSetConcept, 
 								IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(), Status.ACTIVE, time);
 						
-						dwh.makeParentGraph(transaction, mapSetConcept,
+						dwh.makeParentGraph(mapSetConcept,
 								Arrays.asList(new UUID[] {dwh.getRefsetTypesNode().get(), IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid()}), 
 								Status.ACTIVE, time);
 
@@ -2143,7 +2143,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 									DynamicDataType.STRING, null, false);
 						}
 
-						dwh.configureConceptAsDynamicAssemblage(transaction, mapSetConcept, ms.getName(), columns, IsaacObjectType.CONCEPT,
+						dwh.configureConceptAsDynamicAssemblage(mapSetConcept, ms.getName(), columns, IsaacObjectType.CONCEPT,
 								null, time);
 
 						// Annotate this concept as a mapset definition concept.

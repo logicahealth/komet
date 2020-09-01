@@ -762,7 +762,7 @@ public class Frills
       }
 
       if (columnDescription == null) {
-         LOG.debug("No preferred or acceptable definition found on '" + columnDescriptionConcept 
+         LOG.trace("No preferred or acceptable definition found on '" + columnDescriptionConcept 
                + "' to use for the column description - re-using the the columnName, instead.");
          columnDescription = columnName;
       }

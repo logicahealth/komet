@@ -1,6 +1,7 @@
 package sh.isaac.provider.commit;
 
 import javafx.concurrent.Task;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.Get;
 import sh.isaac.api.alert.AlertCategory;
@@ -79,14 +80,15 @@ public class TransactionCommitTask extends CommitTask {
 
 
             if (!transaction.getStampsForTransaction().isEmpty()) {
-                if (this.commitComment != null) {
+                if (StringUtils.isNotBlank(this.commitComment)) {
                     transaction.getStampsForTransaction().stream().forEach((stamp) -> commitProvider.addComment(stamp, this.commitComment));
                 }
                 final CommitRecord commitRecord = new CommitRecord(commitTime,
                         StampSequenceSet.of(transaction.getStampsForTransaction()),
                         new OpenIntIntHashMap(),
                         transaction.getComponentNidsForTransaction(),
-                        this.commitComment);
+                        this.commitComment, 
+                        transaction);
 
                 this.commitProvider.handleCommitNotification(commitRecord);
                 return Optional.of(commitRecord);

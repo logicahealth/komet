@@ -133,28 +133,22 @@ public class ConceptChronologyImpl
       }
       return false;
    }
-
-   /**
-    * Creates the mutable version.
-    *
-    * @param stampSequence the stamp sequence
-    * @return the concept version impl
-    */
+   
    @Override
    public ConceptVersionImpl createMutableVersion(int stampSequence) {
       final ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence);
-
       addVersion(newVersion);
       return newVersion;
    }
 
-   /**
-    * Creates the mutable version.
-    *
-    * @param state the state
-    * @param ec the ec
-    * @return the concept version impl
-    */
+   @Override
+   public ConceptVersionImpl createMutableVersion(Transaction transaction, int stampSequence) {
+      final ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence);
+      transaction.addVersionToTransaction(newVersion);
+      addVersion(newVersion);
+      return newVersion;
+   }
+
    @Override
    public ConceptVersionImpl createMutableVersion(Transaction transaction, Status state, EditCoordinate ec) {
       final int stampSequence = Get.stampService()

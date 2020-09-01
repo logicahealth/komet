@@ -179,7 +179,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
         
         if (getModule().isPresent()) {
             Stamp requested = Get.stampService().getStamp(stampSequence);
-            stampSequence = Get.stampService().getStampSequence(requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
+            stampSequence = Get.stampService().getStampSequence(transaction, requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
         }
          
         final int finalStamp = stampSequence;
@@ -248,7 +248,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
         switch (this.semanticType) {
             case COMPONENT_NID:
                 final ComponentNidVersionImpl cnsi
-                        = (ComponentNidVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                        = (ComponentNidVersionImpl) semanticChronicle.createMutableVersion(transaction, finalStamp);
                 
                 cnsi.setComponentNid((Integer) this.parameters[0]);
                 version = cnsi;
@@ -256,7 +256,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
             case Nid1_Int2:
                 final Nid1_Int2_Version nid1int2
-                        = (Nid1_Int2_Version) semanticChronicle.createMutableVersion(finalStamp);
+                        = (Nid1_Int2_Version) semanticChronicle.createMutableVersion(transaction, finalStamp);
 
                 nid1int2.setNid1((Integer) this.parameters[0]);
                 nid1int2.setInt2((Integer) this.parameters[1]);
@@ -266,7 +266,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
             case Nid1_Long2:
                 final Nid1_Long2_Version nid1long2
-                        = (Nid1_Long2_Version) semanticChronicle.createMutableVersion(finalStamp);
+                        = (Nid1_Long2_Version) semanticChronicle.createMutableVersion(transaction, finalStamp);
 
                 nid1long2.setNid1((Integer) this.parameters[0]);
                 nid1long2.setLong2((Long) this.parameters[1]);
@@ -275,32 +275,32 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                 break;
 
             case LONG:
-                final LongVersionImpl lsi = (LongVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                final LongVersionImpl lsi = (LongVersionImpl) semanticChronicle.createMutableVersion(transaction, finalStamp);
                 version = lsi;
                 lsi.setLongValue((Long) this.parameters[0]);
                 break;
             
             case LOGIC_GRAPH:
                 final LogicGraphVersionImpl lgsi
-                        = (LogicGraphVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                        = (LogicGraphVersionImpl) semanticChronicle.createMutableVersion(transaction, finalStamp);
                 version = lgsi;
                 lgsi.setGraphData(((LogicalExpression) this.parameters[0]).getData(DataTarget.INTERNAL));
                 break;
             
             case MEMBER:
-                SemanticVersionImpl svi = semanticChronicle.createMutableVersion(finalStamp);
+                SemanticVersionImpl svi = semanticChronicle.createMutableVersion(transaction, finalStamp);
                 version = svi;
                 break;
             
             case STRING:
-                final StringVersionImpl ssi = (StringVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                final StringVersionImpl ssi = (StringVersionImpl) semanticChronicle.createMutableVersion(transaction, finalStamp);
                 version = ssi;
                 ssi.setString((String) this.parameters[0]);
                 break;
             
             case DESCRIPTION: {
                 final DescriptionVersionImpl dsi
-                        = (DescriptionVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                        = (DescriptionVersionImpl) semanticChronicle.createMutableVersion(transaction, finalStamp);
                 version = dsi;
                 dsi.setCaseSignificanceConceptNid((Integer) this.parameters[0]);
                 dsi.setDescriptionTypeConceptNid((Integer) this.parameters[1]);
@@ -310,7 +310,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             }
             
             case DYNAMIC: {
-                final DynamicImpl dsi = (DynamicImpl) semanticChronicle.createMutableVersion(finalStamp);
+                final DynamicImpl dsi = (DynamicImpl) semanticChronicle.createMutableVersion(transaction, finalStamp);
                 if (referencedComponentBuilder != null) {
                     dsi.setReferencedComponentVersionType(referencedComponentBuilder.getVersionType());
                 }
@@ -328,11 +328,8 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             default:
                 throw new UnsupportedOperationException("p Can't handle: " + this.semanticType);
         }
-        transaction.addVersionToTransaction(version);
         getSemanticBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
         builtObjects.add(semanticChronicle);
-        ModelGet.identifierService().setupNid(semanticChronicle.getNid(), semanticChronicle.getAssemblageNid(), semanticChronicle.getIsaacObjectType(), semanticChronicle.getVersionType());
-
         for (SemanticBuildListenerI listener : semanticBuildListeners) {
             if (listener != null) {
                 if (listener.isEnabled()) {

@@ -358,8 +358,7 @@ public class KometStageController
                 convertBeer.setOnAction((ActionEvent event) -> {
                     Get.executor().execute(() -> {
                         try {
-                            //TODO [DAN 2] change checker appears to be broken?  Turned off changechecker for now.
-                            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+                            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE, false);
                             TurtleImportHK2Direct timd = Get.service(TurtleImportHK2Direct.class);
                             timd.configure(null, beer.toPath(), "0.8", null, transaction);
                             timd.convertContent(update -> {}, (work, totalWork) -> {});

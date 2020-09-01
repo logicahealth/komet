@@ -226,41 +226,41 @@ public class LoincTPImportHK2Direct extends DirectConverterBaseMojo implements D
 			
 			log.info("Setting up metadata");
 			//Right now, we are configured for the LOINC grouping modules nid
-			dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.LOINC_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(),
+			dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), MetaData.LOINC_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(),
 					converterUUID, "LOINC Tech Preview", false);
 
 			setupModule("LOINC Tech Preview", MetaData.LOINC_MODULES____SOLOR.getPrimordialUuid(), Optional.empty(), releaseDate.getTime());
 
 			//Set up our metadata hierarchy
-			dwh.makeMetadataHierarchy(transaction, true, true, false, false, true, false, releaseDate.getTime());
+			dwh.makeMetadataHierarchy(true, true, false, false, true, false, releaseDate.getTime());
 
 
 			dwh.makeBrittleStringAnnotation(MetaData.SOURCE_ARTIFACT_VERSION____SOLOR.getPrimordialUuid(), dwh.getMetadataRoot(), converterSourceLoincArtifactVersion, 
 					releaseDate.getTime());
 			
 			// Every time concept created add membership to "All CPT Concepts"
-			UUID allConceptsRefset = dwh.makeRefsetTypeConcept(transaction, null, "All LOINC Tech Preview Concepts", null, null, releaseDate.getTime());
+			UUID allConceptsRefset = dwh.makeRefsetTypeConcept(null, "All LOINC Tech Preview Concepts", null, null, releaseDate.getTime());
 			
-			extendedDescriptionTypes.put(dwh.makeDescriptionTypeConcept(transaction, null, "CONSUMER_NAME", "Consumer Name", null, null, null, releaseDate.getTime()),
+			extendedDescriptionTypes.put(dwh.makeDescriptionTypeConcept(null, "CONSUMER_NAME", "Consumer Name", null, null, null, releaseDate.getTime()),
 					MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR);
-			extendedDescriptionTypes.put(dwh.makeDescriptionTypeConcept(transaction, null, "SHORTNAME", "Short Name", null, null, null, releaseDate.getTime()),
+			extendedDescriptionTypes.put(dwh.makeDescriptionTypeConcept(null, "SHORTNAME", "Short Name", null, null, null, releaseDate.getTime()),
 					MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR);
-			extendedDescriptionTypes.put(dwh.makeDescriptionTypeConcept(transaction, null, "LONG_COMMON_NAME", "Long Common Name", null, null, null, releaseDate.getTime()),
+			extendedDescriptionTypes.put(dwh.makeDescriptionTypeConcept(null, "LONG_COMMON_NAME", "Long Common Name", null, null, null, releaseDate.getTime()),
 					MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR);
 			
 			preferredDescriptionTypes.add(dwh.getDescriptionType("LONG_COMMON_NAME"));
 			preferredDescriptionTypes.add(dwh.getDescriptionType("SHORT_NAME"));
 			
 			if (loincData.get().getFormatVersionNumber() >=6 ){
-				extendedDescriptionTypes.put(dwh.makeDescriptionTypeConcept(transaction, null, "DefinitionDescription", "Definition Description", null, null, null,
+				extendedDescriptionTypes.put(dwh.makeDescriptionTypeConcept(null, "DefinitionDescription", "Definition Description", null, null, null,
 						releaseDate.getTime()), MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR);
 				preferredDescriptionTypes.add(dwh.getDescriptionType("DefinitionDescription"));
 			}
 			
-			dwh.makeAttributeTypeConcept(transaction, null, "FORMULA", "Formula", null, false, DynamicDataType.STRING, null, releaseDate.getTime());
-			dwh.makeAttributeTypeConcept(transaction, null, "EXMPL_ANSWERS", "Example Answers", null, false, DynamicDataType.STRING, null, releaseDate.getTime());
-			dwh.makeAttributeTypeConcept(transaction, null, "RELATEDNAMES2", "Related Names 2", null, false, DynamicDataType.STRING, null, releaseDate.getTime());
-			dwh.makeAttributeTypeConcept(transaction, null, "LOINC_NUM", "LOINC Number", null, "Carries the LOINC_NUM native identifier", false, DynamicDataType.STRING,
+			dwh.makeAttributeTypeConcept(null, "FORMULA", "Formula", null, false, DynamicDataType.STRING, null, releaseDate.getTime());
+			dwh.makeAttributeTypeConcept(null, "EXMPL_ANSWERS", "Example Answers", null, false, DynamicDataType.STRING, null, releaseDate.getTime());
+			dwh.makeAttributeTypeConcept(null, "RELATEDNAMES2", "Related Names 2", null, false, DynamicDataType.STRING, null, releaseDate.getTime());
+			dwh.makeAttributeTypeConcept(null, "LOINC_NUM", "LOINC Number", null, "Carries the LOINC_NUM native identifier", false, DynamicDataType.STRING,
 					null, releaseDate.getTime());
 			
 			log.info("Metadata load stats");
@@ -375,7 +375,7 @@ public class LoincTPImportHK2Direct extends DirectConverterBaseMojo implements D
 							String loincNum = loincConceptData[loincData.get().getPositionForColumn("LOINC_NUM")];
 							UUID concept = dwh.makeConcept(buildUUID(loincNum), Status.ACTIVE, releaseDate.getTime());
 							conCounter++;
-							dwh.makeGraph(transaction, concept, expressionId, expression, Status.ACTIVE, releaseDate.getTime());
+							dwh.makeGraph(concept, expressionId, expression, Status.ACTIVE, releaseDate.getTime());
 							dwh.makeDynamicRefsetMember(allConceptsRefset, concept, releaseDate.getTime());
 
 							for (String dt : dwh.getDescriptionTypes())

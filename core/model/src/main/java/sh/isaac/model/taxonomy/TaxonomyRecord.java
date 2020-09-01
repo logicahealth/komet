@@ -45,7 +45,6 @@ import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.eclipse.collections.impl.map.mutable.primitive.IntObjectHashMap;
-import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
@@ -59,10 +58,6 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
 import java.util.function.IntFunction;
 
-//~--- JDK imports ------------------------------------------------------------
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- classes ----------------------------------------------------------------
 /**
  * For each concept nid (a key in the map), there is a list of
  * type-stamp-flags. These type-stamp-flags compact into a primitive long value.
@@ -160,7 +155,6 @@ public class TaxonomyRecord {
 
     }
 
-    //~--- methods -------------------------------------------------------------
     /**
      * Adds the concept nid stamp records.
      *
@@ -475,7 +469,6 @@ public class TaxonomyRecord {
         return buf.toString();
     }
 
-    //~--- get methods ---------------------------------------------------------
     /**
      * Gets the concept nid stamp records.
      *

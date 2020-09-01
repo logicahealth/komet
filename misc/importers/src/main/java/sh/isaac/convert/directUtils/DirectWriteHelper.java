@@ -47,8 +47,6 @@ import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptService;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.semantic.SemanticBuilder;
-import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableComponentNidVersion;
 import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
@@ -105,7 +103,6 @@ public class DirectWriteHelper
 	private IdentifierService identifierService;
 	private StampService stampService;
 	private AssemblageService assemblageService;
-	private SemanticBuilderService<?> semanticBuilderService;
 	private TaxonomyService taxonomyService;
 	private String terminologyName;
 
@@ -135,6 +132,7 @@ public class DirectWriteHelper
 	
 	private List<BooleanSupplier> delayedValidations = new ArrayList<>();
 	private boolean delayValidations = false;
+	private Transaction transaction;
 
 	/**
 	 * If you create ANY logic graphs, ensure that you call {@link #processTaxonomyUpdates()} before allowing this helper to be
@@ -143,6 +141,7 @@ public class DirectWriteHelper
 	 * Note, this method also reconfigured the passed in converterUUID to use the namespace of the  passed in module, as a convenience, 
 	 * as that is the typical use pattern.
 	 * 
+	 * @param transaction the transaction to use for this load
 	 * @param author The default author to use for creates
 	 * @param module The default module to use for creates
 	 * @param path The default path to use for creates
@@ -151,7 +150,7 @@ public class DirectWriteHelper
 	 * @param delayValidations - some loader patterns load content out of order, which requires delayed validations.
 	 *        If you delay validations, you must call {@link #processDelayedValidations()} when the load is complete
 	 */
-	public DirectWriteHelper(int author, int module, int path, ConverterUUID converterUUID, String terminologyName, boolean delayValidations)
+	public DirectWriteHelper(Transaction transaction, int author, int module, int path, ConverterUUID converterUUID, String terminologyName, boolean delayValidations)
 	{
 		this.indexers = Get.services(IndexBuilderService.class);
 		this.authorNid = author;
@@ -162,11 +161,11 @@ public class DirectWriteHelper
 		this.identifierService = Get.identifierService();
 		this.stampService = Get.stampService();
 		this.assemblageService = Get.assemblageService();
-		this.semanticBuilderService = Get.semanticBuilderService();
 		this.taxonomyService = Get.taxonomyService();
 		this.loadStats = new LoadStats();
 		this.terminologyName = terminologyName;
 		this.delayValidations = delayValidations;
+		this.transaction = transaction;
 		
 		converterUUID.configureNamespace(Get.identifierService().getUuidPrimordialForNid(module));
 		
@@ -186,7 +185,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * Calls {@link #makeConcept(UUID, Status, long)}, followed by {@link #makeDescriptionEnNoDialect(UUID, String, UUID, Status, long)
+	 * Calls {@link #makeConcept(UUID, Status, long)}, followed by {@link #makeDescriptionEnNoDialect(UUID, String, UUID, Status, long)}
 	 * 
 	 * @param concept - optional - the UUID to use for the created concept.  If not provided, created from the name
 	 * @param name The text to use for the FQN and name
@@ -198,13 +197,13 @@ public class DirectWriteHelper
 	 * @param time the time for the content
 	 * @return the UUID of the created concept
 	 */
-	public UUID makeConceptEnNoDialect(Transaction transaction, UUID concept, String name, UUID descriptionType, UUID[] parents, Status status, long time)
+	public UUID makeConceptEnNoDialect(UUID concept, String name, UUID descriptionType, UUID[] parents, Status status, long time)
 	{
 		concept = makeConcept(concept == null ? converterUUID.createNamespaceUUIDFromString(name) : concept, status, time);
 		makeDescriptionEnNoDialect(concept, name, descriptionType, status, time);
 		if (parents != null && parents.length > 0)
 		{
-			makeParentGraph(transaction, concept, Arrays.asList(parents), status, time);
+			makeParentGraph(concept, Arrays.asList(parents), status, time);
 		}
 		return concept;
 	}
@@ -226,9 +225,8 @@ public class DirectWriteHelper
 
 		ConceptChronologyImpl conceptToWrite = new ConceptChronologyImpl(concept, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
 		conceptToWrite.addAdditionalUuids(additionalUUIDs);
-		int conceptStamp = stampService.getStampSequence(status, time, authorNid, moduleNid, pathNid);
-		conceptToWrite.createMutableVersion(conceptStamp);
-
+		int conceptStamp = stampService.getStampSequence(transaction, status, time, authorNid, moduleNid, pathNid);
+		conceptToWrite.createMutableVersion(transaction, conceptStamp);
 		indexAndWrite(conceptToWrite);
 		loadStats.addConcept();
 		return concept;
@@ -268,7 +266,8 @@ public class DirectWriteHelper
 				((input, uuid) -> converterUUID.addMapping(input, uuid)));
 		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC, uuidForCreatedMember,
 				identifierService.getNidForUuids(assemblageConcept), identifierService.getNidForUuids(memberUUID));
-		refsetMemberToWrite.createMutableVersion(stampService.getStampSequence(status == null ? Status.ACTIVE : status, time, authorNid, moduleNid, pathNid));
+		refsetMemberToWrite.createMutableVersion(transaction, stampService.getStampSequence(transaction, 
+				status == null ? Status.ACTIVE : status, time, authorNid, moduleNid, pathNid));
 		indexAndWrite(refsetMemberToWrite);
 		loadStats.addRefsetMember(getOriginStringForUuid(assemblageConcept));
 		return refsetMemberToWrite.getPrimordialUuid();
@@ -288,7 +287,7 @@ public class DirectWriteHelper
 				((input, uuid) -> converterUUID.addMapping(input, uuid)));
 		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.MEMBER, uuidForCreatedMember,
 				identifierService.getNidForUuids(assemblageConcept), identifierService.getNidForUuids(memberUUID));
-		refsetMemberToWrite.createMutableVersion(stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid));
+		refsetMemberToWrite.createMutableVersion(transaction, stampService.getStampSequence(transaction, Status.ACTIVE, time, authorNid, moduleNid, pathNid));
 		indexAndWrite(refsetMemberToWrite);
 		loadStats.addRefsetMember(getOriginStringForUuid(assemblageConcept));
 		return refsetMemberToWrite.getPrimordialUuid();
@@ -356,7 +355,7 @@ public class DirectWriteHelper
 		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.DYNAMIC, uuidForCreatedMember,
 				identifierService.getNidForUuids(assemblageConcept), referencedComponentNid);
 		MutableDynamicVersion dv = refsetMemberToWrite
-				.createMutableVersion(stampService.getStampSequence(status == null ? Status.ACTIVE : status, time, authorNid, moduleNid, pathNid));
+				.createMutableVersion(transaction, stampService.getStampSequence(transaction, status == null ? Status.ACTIVE : status, time, authorNid, moduleNid, pathNid));
 		delayedValidations.addAll(dv.setData(data, delayValidations));
 		indexAndWrite(refsetMemberToWrite);
 		
@@ -534,8 +533,8 @@ public class DirectWriteHelper
 
 		SemanticChronologyImpl descriptionToWrite = new SemanticChronologyImpl(VersionType.DESCRIPTION, descriptionUuid,
 				identifierService.getNidForUuids(language), identifierService.getNidForUuids(concept));
-		int stamp = stampService.getStampSequence(status, time, authorNid, moduleNid, pathNid);
-		DescriptionVersionImpl descriptionVersion = descriptionToWrite.createMutableVersion(stamp);
+		int stamp = stampService.getStampSequence(transaction, status, time, authorNid, moduleNid, pathNid);
+		DescriptionVersionImpl descriptionVersion = descriptionToWrite.createMutableVersion(transaction, stamp);
 		descriptionVersion.setCaseSignificanceConceptNid(caseSignificance == null ? MetaData.NOT_APPLICABLE____SOLOR.getNid() 
 				: identifierService.getNidForUuids(caseSignificance));
 		descriptionVersion.setDescriptionTypeConceptNid(identifierService.getNidForUuids(descriptionType));
@@ -551,8 +550,8 @@ public class DirectWriteHelper
 
 			SemanticChronologyImpl dialectToWrite = new SemanticChronologyImpl(VersionType.COMPONENT_NID, dialectUUID,
 					identifierService.getNidForUuids(dialect), identifierService.getNidForUuids(descriptionUuid));
-			int dialectStamp = stampService.getStampSequence(status, time, authorNid, moduleNid, pathNid);
-			ComponentNidVersionImpl dialectVersion = dialectToWrite.createMutableVersion(dialectStamp);
+			int dialectStamp = stampService.getStampSequence(transaction, status, time, authorNid, moduleNid, pathNid);
+			ComponentNidVersionImpl dialectVersion = dialectToWrite.createMutableVersion(transaction, dialectStamp);
 
 			dialectVersion.setComponentNid(identifierService.getNidForUuids(dialectAcceptibility));
 			indexAndWrite(dialectToWrite);
@@ -600,9 +599,9 @@ public class DirectWriteHelper
 	 * @param time The time for the graph
 	 * @return The identifier of the created graph
 	 */
-	public UUID makeParentGraph(Transaction transaction, UUID concept, UUID parent, Status status, long time)
+	public UUID makeParentGraph(UUID concept, UUID parent, Status status, long time)
 	{
-		return makeParentGraph(transaction, concept, Arrays.asList(new UUID[] { parent }), status, time);
+		return makeParentGraph(concept, Arrays.asList(new UUID[] { parent }), status, time);
 	}
 
 	/**
@@ -614,7 +613,7 @@ public class DirectWriteHelper
 	 * @param time The time for the graph
 	 * @return The identifier of the created graph
 	 */
-	public UUID makeParentGraph(Transaction transaction, UUID concept, Collection<UUID> parents, Status status, long time)
+	public UUID makeParentGraph(UUID concept, Collection<UUID> parents, Status status, long time)
 	{
 		// Eliminate duplicates
 		final Set<UUID> uuids = new HashSet<>();
@@ -632,7 +631,7 @@ public class DirectWriteHelper
 		}
 		NecessarySetNode nsn = lei.NecessarySet(lei.And(parentConceptNodes.toArray(new ConceptNodeWithNids[parentConceptNodes.size()])));
 		lei.getRoot().addChildren(nsn);
-		return makeGraph(transaction, concept, null, lei, status, time);
+		return makeGraph(concept, null, lei, status, time);
 	}
 	
 	/**
@@ -645,26 +644,25 @@ public class DirectWriteHelper
 	 * @param time The time for the graph
 	 * @return The identifier of the created graph
 	 */
-	public UUID makeGraph(Transaction transaction, UUID concept, UUID graphSemanticId, LogicalExpression logicalExpression, Status status, long time)
+	public UUID makeGraph(UUID concept, UUID graphSemanticId, LogicalExpression logicalExpression, Status status, long time)
 	{
-		SemanticBuilder<?> sb = semanticBuilderService.getLogicalExpressionBuilder(logicalExpression, identifierService.getNidForUuids(concept),
-				MetaData.EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE____SOLOR.getNid());
-		sb.setStatus(status);
-		if (graphSemanticId != null)
-		{
-			sb.setPrimordialUuid(graphSemanticId);
-		}
-		else
-		{
-			sb.setT5Uuid(converterUUID.getNamespace(), ((input, uuid) -> converterUUID.addMapping(input, uuid)));
-		}
+		UUID uuidForCreatedGraph = graphSemanticId == null ? 
+				(UuidFactory.getUuidForLogicGraphSemantic(converterUUID.getNamespace(), MetaData.EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE____SOLOR.getPrimordialUuid(), 
+						concept, logicalExpression, ((input, uuid) -> converterUUID.addMapping(input, uuid)))) 
+				: graphSemanticId;
+				
+		SemanticChronologyImpl graphToWrite = new SemanticChronologyImpl(VersionType.LOGIC_GRAPH, uuidForCreatedGraph, 
+				MetaData.EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE____SOLOR.getNid(), identifierService.getNidForUuids(concept));
+
 		//TODO add code to handle an existing graph?
-		int graphStamp = stampService.getStampSequence(status, time, authorNid, moduleNid, pathNid);
-		SemanticChronology sc = (SemanticChronology) sb.build(transaction, graphStamp, new ArrayList<>());
-		indexAndWrite(sc);
-		deferredTaxonomyUpdates.add(sc.getNid());
+		int graphStamp = stampService.getStampSequence(transaction, status, time, authorNid, moduleNid, pathNid);
+		MutableLogicGraphVersion mlgv = graphToWrite.createMutableVersion(transaction, graphStamp);
+		mlgv.setGraphData(logicalExpression.getData(DataTarget.INTERNAL));
+		
+		indexAndWrite(graphToWrite);
+		deferredTaxonomyUpdates.add(graphToWrite.getNid());
 		loadStats.addGraph();
-		return sc.getPrimordialUuid();
+		return graphToWrite.getPrimordialUuid();
 	}
 
 	/**
@@ -726,7 +724,7 @@ public class DirectWriteHelper
 
 	/**
 	 * Properly update the taxonomy service for graph changes made. Ensure to call this at some point after calling
-	 * {@link #makeParentGraph(Transaction, UUID, Collection, Status, long)}
+	 * {@link #makeParentGraph(UUID, Collection, Status, long)}
 	 */
 	public void processTaxonomyUpdates()
 	{
@@ -786,7 +784,7 @@ public class DirectWriteHelper
 			}
 			catch (Exception e)
 			{
-				throw new RuntimeException("Unexected", e);
+				throw new RuntimeException("Delayed Validations Failed", e);
 			}
 		}
 	}
@@ -817,7 +815,7 @@ public class DirectWriteHelper
 	 *            NOT make this description type node a child of {@link MetaData#DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR}, rather, just
 	 *            placing it in the terminology metadata hierarchy. In this case, individual terminology types should be created with two parents - one being
 	 *            {@link MetaData#DESCRIPTION_TYPE____SOLOR}, and the other being the concept created here. The description should also be annotated
-	 *            with {@link DynamicConstants#DYNAMIC_DESCRIPTION_CORE_TYPE}.  See {@link #makeDescriptionTypeConcept(Transaction transaction, UUID, String, String, String, UUID, List, long)}
+	 *            with {@link DynamicConstants#DYNAMIC_DESCRIPTION_CORE_TYPE}.  See {@link #makeDescriptionTypeConcept(UUID, String, String, String, UUID, List, long)}
 	 *            for a method that does this.
 	 * @param makeAssociationTypes - create the {terminologyName} Association Types node. This is used for associations/relationships that don't go
 	 *            into the logic graph.
@@ -827,7 +825,7 @@ public class DirectWriteHelper
 	 *            and placed in the logic graph.
 	 * @param time - the time to use for the creation
 	 */
-	public void makeMetadataHierarchy(Transaction transaction, boolean makeAttributeTypes, boolean makeDescriptionTypes, boolean makeDescriptionTypesNative,
+	public void makeMetadataHierarchy(boolean makeAttributeTypes, boolean makeDescriptionTypes, boolean makeDescriptionTypesNative,
 			boolean makeAssociationTypes, boolean makeRefsets, boolean makeRelationTypes, long time)
 	{
 		String rootFsn = terminologyName + " Metadata (" + terminologyName + ")";
@@ -841,7 +839,7 @@ public class DirectWriteHelper
 			makeDescriptionEn(metadataRoot, SemanticTags.stripSemanticTagIfPresent(rootFsn),
 					MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(),
 					Status.ACTIVE, time, MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-			makeParentGraph(transaction, metadataRoot, MetaData.CONTENT_METADATA____SOLOR.getPrimordialUuid(), Status.ACTIVE, time);
+			makeParentGraph(metadataRoot, MetaData.CONTENT_METADATA____SOLOR.getPrimordialUuid(), Status.ACTIVE, time);
 		}
 
 		if (makeAttributeTypes)
@@ -859,7 +857,7 @@ public class DirectWriteHelper
 						MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
 						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeParentGraph(transaction, attributeTypesNode.get(), metadataRoot, Status.ACTIVE, time);
+				makeParentGraph(attributeTypesNode.get(), metadataRoot, Status.ACTIVE, time);
 			}
 		}
 
@@ -880,7 +878,7 @@ public class DirectWriteHelper
 						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
 				UUID[] parents = makeDescriptionTypesNative ? new UUID[] { metadataRoot} 
 					: new UUID[] { metadataRoot, MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getPrimordialUuid()};
-				makeParentGraph(transaction, descriptionTypesNode.get(), Arrays.asList(parents), Status.ACTIVE, time);
+				makeParentGraph(descriptionTypesNode.get(), Arrays.asList(parents), Status.ACTIVE, time);
 			}
 		}
 
@@ -899,7 +897,7 @@ public class DirectWriteHelper
 						MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
 						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeParentGraph(transaction, associationTypesNode.get(), metadataRoot, Status.ACTIVE, time);
+				makeParentGraph(associationTypesNode.get(), metadataRoot, Status.ACTIVE, time);
 			}
 		}
 
@@ -918,7 +916,7 @@ public class DirectWriteHelper
 						MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
 						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeParentGraph(transaction, relationTypesNode.get(),
+				makeParentGraph(relationTypesNode.get(),
 						Arrays.asList(new UUID[] { metadataRoot, MetaData.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getPrimordialUuid() }),
 						Status.ACTIVE, time);
 			}
@@ -939,7 +937,7 @@ public class DirectWriteHelper
 						MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
 						MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-				makeParentGraph(transaction, refsetTypesNode.get(), Arrays.asList(new UUID[] { metadataRoot}),
+				makeParentGraph(refsetTypesNode.get(), Arrays.asList(new UUID[] { metadataRoot}),
 						Status.ACTIVE, time);
 			}
 		}
@@ -974,10 +972,10 @@ public class DirectWriteHelper
 	 * @param referencedComponentTypeSubRestriction - optional - any compont sub-type restrictions for the columns
 	 * @param time - The time to use for this modification
 	 */
-	public void configureConceptAsDynamicAssemblage(Transaction transaction, UUID concept, String dynamicUsageDescription, DynamicColumnInfo[] columns,
+	public void configureConceptAsDynamicAssemblage(UUID concept, String dynamicUsageDescription, DynamicColumnInfo[] columns,
 			IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, long time)
 	{
-		int stampSequence = stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid);
+		int stampSequence = stampService.getStampSequence(transaction, Status.ACTIVE, time, authorNid, moduleNid, pathNid);
 		List<Chronology> items = Get.service(DynamicUtility.class).configureConceptAsDynamicSemantic(transaction, identifierService.getNidForUuids(concept),
 				dynamicUsageDescription, columns, referencedComponentTypeRestriction, referencedComponentTypeSubRestriction, stampSequence);
 
@@ -987,6 +985,7 @@ public class DirectWriteHelper
 		}
 		//Reindex all descriptions on this concept, in case it it outside the metadata tree, and wouldn't otherwise be flagged as a potential
 		//metadata concept (which it is, now that it defines a semantic)
+		//Note, this, does cause some duplicates in the lucene index
 		for (SemanticChronology sc : Get.assemblageService().getDescriptionsForComponent(identifierService.getNidForUuids(concept))) 
 		{
 			for (IndexBuilderService indexer : indexers)
@@ -1009,13 +1008,13 @@ public class DirectWriteHelper
 	 * @param associationComponentTypeSubRestriction optional sub-restriction on which types of semantics can be associated.
 	 * @param time - The time to use for this modification
 	 */
-	public void configureConceptAsAssociation(Transaction transaction, UUID concept, String dynamicUsageDescription, String inverseName,
+	public void configureConceptAsAssociation(UUID concept, String dynamicUsageDescription, String inverseName,
 			IsaacObjectType associationComponentTypeRestriction, VersionType associationComponentTypeSubRestriction, long time)
 	{
 		//Make this a dynamic refex - with the association column info
 		DynamicColumnInfo[] columns = new DynamicColumnInfo[] { new DynamicColumnInfo(0,
 				DynamicConstants.get().DYNAMIC_COLUMN_ASSOCIATION_TARGET_COMPONENT.getPrimordialUuid(), DynamicDataType.UUID, null, false) };
-		configureConceptAsDynamicAssemblage(transaction, concept, dynamicUsageDescription, columns, associationComponentTypeRestriction,
+		configureConceptAsDynamicAssemblage(concept, dynamicUsageDescription, columns, associationComponentTypeRestriction,
 				associationComponentTypeSubRestriction, time);
 
 		//Add this concept to the association refset
@@ -1060,7 +1059,8 @@ public class DirectWriteHelper
 				concept, MetaData.STRING_SEMANTIC____SOLOR.getPrimordialUuid(), ((input, uuid) -> converterUUID.addMapping(input, uuid)));
 		SemanticChronologyImpl staticMarkerToWrite = new SemanticChronologyImpl(VersionType.COMPONENT_NID, uuidForStaticMarker,
 				MetaData.SEMANTIC_TYPE____SOLOR.getNid(), identifierService.getNidForUuids(concept));
-		MutableComponentNidVersion cnv = staticMarkerToWrite.createMutableVersion(stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid));
+		MutableComponentNidVersion cnv = staticMarkerToWrite.createMutableVersion(transaction, stampService.getStampSequence(transaction, 
+				Status.ACTIVE, time, authorNid, moduleNid, pathNid));
 		cnv.setComponentNid(MetaData.STRING_SEMANTIC____SOLOR.getNid());
 		indexAndWrite(staticMarkerToWrite);
 		loadStats.addAnnotation("Concept", "String Semantic");
@@ -1071,7 +1071,7 @@ public class DirectWriteHelper
 	/**
 	 * returns true if {@link #configureConceptAsIdentifier(UUID, long)} was called for this property type
 	 * @param concept
-	 * @return
+	 * @return true if identifier
 	 */
 	public boolean isConfiguredAsIdentifier(UUID concept)
 	{
@@ -1097,7 +1097,7 @@ public class DirectWriteHelper
 	 * @param time - the commit time
 	 * @return the UUID of the created concept.
 	 */
-	public UUID makeDescriptionTypeConcept(Transaction transaction, UUID uuid, String name, String preferredName, String altName, UUID coreDescriptionType, List<UUID> additionalParents, long time)
+	public UUID makeDescriptionTypeConcept(UUID uuid, String name, String preferredName, String altName, UUID coreDescriptionType, List<UUID> additionalParents, long time)
 	{
 		UUID concept = makeTypeConcept(uuid, name, preferredName, altName, (fName, fConcept) -> createdDescriptionTypes.put(fName, fConcept), time);
 
@@ -1112,7 +1112,7 @@ public class DirectWriteHelper
 			parents.addAll(additionalParents);
 		}
 
-		makeParentGraph(transaction, concept, parents, Status.ACTIVE, time);
+		makeParentGraph(concept, parents, Status.ACTIVE, time);
 		if (coreDescriptionType != null)
 		{
 			makeDynamicSemantic(DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getPrimordialUuid(), concept,
@@ -1123,7 +1123,7 @@ public class DirectWriteHelper
 	
 	/**
 	 * Creates a new concept to represent an association type, and the calls 
-	 * {@link #configureConceptAsAssociation(Transaction, UUID, String, String, IsaacObjectType, VersionType, long)} to set the
+	 * {@link #configureConceptAsAssociation(UUID, String, String, IsaacObjectType, VersionType, long)} to set the
 	 * concept up as an association.  
 	 * Adds a parent of {@link #getAssociationTypesNode()}
 	 * @param uuid optional - the UUID to use for the concept.  Created from the FQN, if not provided
@@ -1139,7 +1139,7 @@ public class DirectWriteHelper
 	 * @param time - the commit time
 	 * @return the UUID of the created concept.
 	 */
-	public UUID makeAssociationTypeConcept(Transaction transaction, UUID uuid, String name, String preferredName, String altName, String associationUsageDescription, String inverseName,
+	public UUID makeAssociationTypeConcept(UUID uuid, String name, String preferredName, String altName, String associationUsageDescription, String inverseName,
 			IsaacObjectType associationComponentTypeRestriction, VersionType associationComponentTypeSubRestriction, List<UUID> additionalParents, long time)
 	{
 		ArrayList<UUID> parents = new ArrayList<>();
@@ -1167,10 +1167,10 @@ public class DirectWriteHelper
 			return createdAssociationTypes.put(fName, fConcept);
 		}, time);
 		
-		configureConceptAsAssociation(transaction, concept, StringUtils.isBlank(associationUsageDescription) ? (StringUtils.isBlank(altName) ? name : altName)
+		configureConceptAsAssociation(concept, StringUtils.isBlank(associationUsageDescription) ? (StringUtils.isBlank(altName) ? name : altName)
 				: associationUsageDescription, 
 				inverseName, associationComponentTypeRestriction, associationComponentTypeSubRestriction, time);
-		makeParentGraph(transaction, concept, parents, Status.ACTIVE, time);
+		makeParentGraph(concept, parents, Status.ACTIVE, time);
 		return concept;
 	}
 
@@ -1187,16 +1187,16 @@ public class DirectWriteHelper
 	 *            configures it as a dynamic refset that holds one value, of the specified type.
 	 * @param dataType - optional the data type to store in the annotation - ignored if {isIdentifier} is true.  If 
 	 *            isIdentifier is false, and this is null, it is the callers responsibility to call 
-	 *            {@link #configureConceptAsDynamicAssemblage(Transaction, UUID, String, DynamicColumnInfo[], IsaacObjectType, VersionType, long)}
+	 *            {@link #configureConceptAsDynamicAssemblage(UUID, String, DynamicColumnInfo[], IsaacObjectType, VersionType, long)}
 	 *            to finish configuring this node.
 	 * @param additionalParents - optional - if this concept should have more parents, supply them here
 	 * @param time - the commit time
 	 * @return the UUID of the created concept.
 	 */
-	public UUID makeAttributeTypeConcept(Transaction transaction, UUID uuid, String name, String preferredName, String altName, boolean isIdentifier, DynamicDataType dataType,
+	public UUID makeAttributeTypeConcept(UUID uuid, String name, String preferredName, String altName, boolean isIdentifier, DynamicDataType dataType,
 			List<UUID> additionalParents, long time)
 	{
-		return makeAttributeTypeConcept(transaction, uuid, name, preferredName, altName, null, isIdentifier, dataType, additionalParents, time);
+		return makeAttributeTypeConcept(uuid, name, preferredName, altName, null, isIdentifier, dataType, additionalParents, time);
 	}
 
 	/**
@@ -1213,13 +1213,13 @@ public class DirectWriteHelper
 	 *            configures it as a dynamic refset that holds one value, of the specified type.
 	 * @param dataType - optional the data type to store in the annotation - ignored if {isIdentifier} is true.  If 
 	 *            isIdentifier is false, and this is null, it is the callers responsibility to call 
-	 *            {@link #configureConceptAsDynamicAssemblage(Transaction, UUID, String, DynamicColumnInfo[], IsaacObjectType, VersionType, long)}
+	 *            {@link #configureConceptAsDynamicAssemblage(UUID, String, DynamicColumnInfo[], IsaacObjectType, VersionType, long)}
 	 *            to finish configuring this node.
 	 * @param additionalParents - optional - if this concept should have more parents, supply them here
 	 * @param time - the commit time
 	 * @return the UUID of the created concept.
 	 */
-	public UUID makeAttributeTypeConcept(Transaction transaction, UUID uuid, String name, String preferredName, String altName, String description, boolean isIdentifier,
+	public UUID makeAttributeTypeConcept(UUID uuid, String name, String preferredName, String altName, String description, boolean isIdentifier,
 			DynamicDataType dataType, List<UUID> additionalParents, long time)
 	{
 		UUID concept = makeTypeConcept(uuid, name, preferredName, altName, (fName, fConcept) -> createdAttributeTypes.put(fName, fConcept), time);
@@ -1232,7 +1232,7 @@ public class DirectWriteHelper
 		}
 		else if (dataType != null)
 		{
-			configureConceptAsDynamicAssemblage(transaction, concept, StringUtils.isBlank(description) ? (StringUtils.isBlank(altName) ? name : altName) : description,
+			configureConceptAsDynamicAssemblage(concept, StringUtils.isBlank(description) ? (StringUtils.isBlank(altName) ? name : altName) : description,
 					new DynamicColumnInfo[] { new DynamicColumnInfo(0, concept, dataType, null, true) }, null, null, time);
 		}
 		
@@ -1241,7 +1241,7 @@ public class DirectWriteHelper
 			parents.addAll(additionalParents);
 		}
 
-		makeParentGraph(transaction, concept, parents, Status.ACTIVE, time);
+		makeParentGraph(concept, parents, Status.ACTIVE, time);
 		return concept;
 	}
 	
@@ -1256,14 +1256,14 @@ public class DirectWriteHelper
 	 * @param altName - optional - additional regular name to add
 	 * @param description - optional - used as the dynamic assemblage configuration description if provided, otherwise, the altName or name is used.
 	 * @param dataTypeColumns - optional the column descriptor for each column to to store in the annotation. This gets passed along to
-	 *     {@link #configureConceptAsDynamicAssemblage(Transaction, UUID, String, DynamicColumnInfo[], IsaacObjectType, VersionType, long)}
+	 *     {@link #configureConceptAsDynamicAssemblage(UUID, String, DynamicColumnInfo[], IsaacObjectType, VersionType, long)}
 	 * @param referencedComponentTypeRestriction - optional - 
-	 *     see {@link #configureConceptAsDynamicAssemblage(Transaction, UUID, String, DynamicColumnInfo[], IsaacObjectType, VersionType, long)}
+	 *     see {@link #configureConceptAsDynamicAssemblage(UUID, String, DynamicColumnInfo[], IsaacObjectType, VersionType, long)}
 	 * @param additionalParents - optional - if this concept should have more parents, supply them here
 	 * @param time - the commit time
 	 * @return the UUID of the created concept.
 	 */
-	public UUID makeAttributeTypeConcept(Transaction transaction, UUID uuid, String name, String preferredName, String altName, String description,
+	public UUID makeAttributeTypeConcept(UUID uuid, String name, String preferredName, String altName, String description,
 			DynamicColumnInfo[] dataTypeColumns, IsaacObjectType referencedComponentTypeRestriction, List<UUID> additionalParents, long time)
 	{
 		UUID concept = makeTypeConcept(uuid, name, preferredName, altName, (fName, fConcept) -> createdAttributeTypes.put(fName, fConcept), time);
@@ -1271,7 +1271,7 @@ public class DirectWriteHelper
 		parents.add(getAttributeTypesNode().get());
 		if (dataTypeColumns != null)
 		{
-			configureConceptAsDynamicAssemblage(transaction, concept, StringUtils.isBlank(description) ? (StringUtils.isBlank(altName) ? name : altName) : description,
+			configureConceptAsDynamicAssemblage(concept, StringUtils.isBlank(description) ? (StringUtils.isBlank(altName) ? name : altName) : description,
 					dataTypeColumns, referencedComponentTypeRestriction, null, time);
 		}
 		
@@ -1280,7 +1280,7 @@ public class DirectWriteHelper
 			parents.addAll(additionalParents);
 		}
 
-		makeParentGraph(transaction, concept, parents, Status.ACTIVE, time);
+		makeParentGraph(concept, parents, Status.ACTIVE, time);
 		return concept;
 	}
 
@@ -1329,8 +1329,8 @@ public class DirectWriteHelper
 			timeToUse = lgs.get(0).get().getTime() + 1;  
 		}
 
-		int stamp = stampService.getStampSequence(Status.ACTIVE, timeToUse, authorNid, moduleNid, pathNid);
-		MutableLogicGraphVersion mlgv = lgs.get(0).get().getChronology().createMutableVersion(stamp);
+		int stamp = stampService.getStampSequence(transaction, Status.ACTIVE, timeToUse, authorNid, moduleNid, pathNid);
+		MutableLogicGraphVersion mlgv = lgs.get(0).get().getChronology().createMutableVersion(transaction, stamp);
 		mlgv.setGraphData(lei.getData(DataTarget.INTERNAL));
 		indexAndWrite(mlgv.getChronology());
 		deferredTaxonomyUpdates.add(mlgv.getNid());
@@ -1358,14 +1358,14 @@ public class DirectWriteHelper
 	 * @param time - the commit time
 	 * @return the UUID of the created concept.
 	 */
-	public UUID makeRefsetTypeConcept(Transaction transaction, UUID uuid, String name, String preferredName, String altName, long time)
+	public UUID makeRefsetTypeConcept(UUID uuid, String name, String preferredName, String altName, long time)
 	{
 		UUID concept = makeTypeConcept(uuid, name, preferredName, altName, (fName, fConcept) -> createdRefsetTypes.put(fName, fConcept), time);
 		ArrayList<UUID> parents = new ArrayList<>();
 		parents.add(getRefsetTypesNode().get());
-		configureConceptAsDynamicAssemblage(transaction, concept, StringUtils.isBlank(altName) ? name : altName, new DynamicColumnInfo[] {}, null, null, time);
+		configureConceptAsDynamicAssemblage(concept, StringUtils.isBlank(altName) ? name : altName, new DynamicColumnInfo[] {}, null, null, time);
 
-		makeParentGraph(transaction, concept, parents, Status.ACTIVE, time);
+		makeParentGraph(concept, parents, Status.ACTIVE, time);
 		refsets.add(concept);
 		return concept;
 	}
@@ -1459,7 +1459,7 @@ public class DirectWriteHelper
 	 * @param referencedComponent the referenced component this dynamic semantic entry is being added to
 	 * @param annotation the string value to attach
 	 * @param time the time to use for the entry
-	 * @return
+	 * @return the UUID of the created annotation
 	 */
 	public UUID makeBrittleStringAnnotation(UUID assemblageConcept, UUID referencedComponent, String annotation, long time)
 	{
@@ -1469,7 +1469,7 @@ public class DirectWriteHelper
 		SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(VersionType.STRING, uuidForCreatedMember,
 				identifierService.getNidForUuids(assemblageConcept), referencedComponentNid);
 		MutableStringVersion version = refsetMemberToWrite
-				.createMutableVersion(stampService.getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid));
+				.createMutableVersion(transaction, stampService.getStampSequence(transaction, Status.ACTIVE, time, authorNid, moduleNid, pathNid));
 		version.setString(annotation);
 		indexAndWrite(refsetMemberToWrite);
 		IsaacObjectType objectType = identifierService.getObjectTypeForComponent(referencedComponentNid);
@@ -1534,7 +1534,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * @return The UUID of the association types node from {@link #makeMetadataHierarchy(Transaction transaction, boolean, boolean, boolean, boolean, boolean, boolean, long)},
+	 * @return The UUID of the association types node from {@link #makeMetadataHierarchy(boolean, boolean, boolean, boolean, boolean, boolean, long)},
 	 *         if it has been created.
 	 */
 	public Optional<UUID> getAssociationTypesNode()
@@ -1543,7 +1543,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * @return The UUID of the attribute types node from {@link #makeMetadataHierarchy(Transaction transaction, boolean, boolean, boolean, boolean, boolean, boolean, long)},
+	 * @return The UUID of the attribute types node from {@link #makeMetadataHierarchy(boolean, boolean, boolean, boolean, boolean, boolean, long)},
 	 *         if it has been created.
 	 */
 	public Optional<UUID> getAttributeTypesNode()
@@ -1552,7 +1552,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * @return The UUID of the description types node from {@link #makeMetadataHierarchy(Transaction transaction, boolean, boolean, boolean, boolean, boolean, boolean, long)},
+	 * @return The UUID of the description types node from {@link #makeMetadataHierarchy(boolean, boolean, boolean, boolean, boolean, boolean, long)},
 	 *         if it has been created.
 	 */
 	public Optional<UUID> getDescriptionTypesNode()
@@ -1561,7 +1561,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * @return The UUID of the refset types node from {@link #makeMetadataHierarchy(Transaction transaction, boolean, boolean, boolean, boolean, boolean, boolean, long)},
+	 * @return The UUID of the refset types node from {@link #makeMetadataHierarchy(boolean, boolean, boolean, boolean, boolean, boolean, long)},
 	 *         if it has been created.
 	 */
 	public Optional<UUID> getRefsetTypesNode()
@@ -1570,7 +1570,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * @return The UUID of the relation types node from {@link #makeMetadataHierarchy(Transaction transaction, String, boolean, boolean, boolean, boolean, boolean, long)},
+	 * @return The UUID of the relation types node from {@link #makeMetadataHierarchy(boolean, boolean, boolean, boolean, boolean, boolean, long)},
 	 *         if it has been created.
 	 */
 	public Optional<UUID> getRelationTypesNode()
@@ -1579,7 +1579,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * @return true, if the concept was configured {@link #configureConceptAsAssociation(Transaction transaction, UUID, String, String, IsaacObjectType, VersionType, long)}
+	 * @return true, if the concept was configured {@link #configureConceptAsAssociation(UUID, String, String, IsaacObjectType, VersionType, long)}
 	 *         as an association
 	 * @param concept the concept to check
 	 */
@@ -1589,7 +1589,7 @@ public class DirectWriteHelper
 	}
 
 	/**
-	 * Return the UUID of the concept that matches the description created by {@link #makeDescriptionTypeConcept(Transaction transaction, UUID, String, String, String, UUID, List, long)}
+	 * Return the UUID of the concept that matches the description created by {@link #makeDescriptionTypeConcept(UUID, String, String, String, UUID, List, long)}
 	 * 
 	 * @param descriptionName the name or altName of the description
 	 * @return the UUID of the concept that represents it
@@ -1600,7 +1600,7 @@ public class DirectWriteHelper
 	}
 	
 	/**
-	 * @return all description names fed into {@link #makeDescriptionTypeConcept(Transaction transaction, UUID, String, String, String, UUID, List, long)}
+	 * @return all description names fed into {@link #makeDescriptionTypeConcept(UUID, String, String, String, UUID, List, long)}
 	 */
 	public Set<String> getDescriptionTypes()
 	{
@@ -1609,7 +1609,7 @@ public class DirectWriteHelper
 	
 	/**
 	 * Return the UUID of the concept that matches the description created by 
-	 * {@link #makeAssociationTypeConcept(Transaction transaction, UUID, String, String, String, String, String, IsaacObjectType, VersionType, List, long)}
+	 * {@link #makeAssociationTypeConcept(UUID, String, String, String, String, String, IsaacObjectType, VersionType, List, long)}
 	 * 
 	 * @param associationName the name or altName of the association
 	 * @return the UUID of the concept that represents it
@@ -1621,7 +1621,7 @@ public class DirectWriteHelper
 	
 	/**
 	 * Return the UUID of the concept that matches the description created by 
-	 * {@link #makeAssociationTypeConcept(Transaction transaction, UUID, String, String, String, String, String, IsaacObjectType, VersionType, List, long)}
+	 * {@link #makeAssociationTypeConcept(UUID, String, String, String, String, String, IsaacObjectType, VersionType, List, long)}
 	 * 
 	 * where the List parameter for the additional parents contained the concept {@link #getRelationTypesNode()}
 	 * @param relationshipName the name relationship
@@ -1633,7 +1633,7 @@ public class DirectWriteHelper
 	}
 	
 	/**
-	 * Return the UUID of the concept that matches the description created by {@link #makeAttributeTypeConcept(Transaction transaction, UUID, String, String, String, boolean, DynamicDataType, List, long)}
+	 * Return the UUID of the concept that matches the description created by {@link #makeAttributeTypeConcept(UUID, String, String, String, boolean, DynamicDataType, List, long)}
 	 * 
 	 * @param attributeName the name or altName of the attribute
 	 * @return the UUID of the concept that represents it
@@ -1644,8 +1644,8 @@ public class DirectWriteHelper
 	}
 	
 	/**
-	 * @return all attribute names fed into {@link #makeAttributeTypeConcept(Transaction transaction, UUID, String, String, String, boolean, DynamicDataType, List, long)}
-	 * or ({@link #makeAttributeTypeConcept(Transaction transaction, UUID, String, String, String, String, boolean, DynamicDataType, List, long)}
+	 * @return all attribute names fed into {@link #makeAttributeTypeConcept(UUID, String, String, String, boolean, DynamicDataType, List, long)}
+	 * or ({@link #makeAttributeTypeConcept(UUID, String, String, String, String, boolean, DynamicDataType, List, long)}
 	 */
 	public Set<String> getAttributeTypes()
 	{
@@ -1653,7 +1653,7 @@ public class DirectWriteHelper
 	}
 	
 	/**
-	 * Return the UUID of the concept that matches the description created by {@link #makeRefsetTypeConcept(Transaction transaction, UUID, String, String, String, long)}
+	 * Return the UUID of the concept that matches the description created by {@link #makeRefsetTypeConcept(UUID, String, String, String, long)}
 	 * 
 	 * @param refsetName the name or altName of the description
 	 * @return the UUID of the concept that represents it
@@ -1674,7 +1674,7 @@ public class DirectWriteHelper
 	
 	/**
 	 * @param otherMetadataName
-	 * @return Return the UUID of the grouping concept that was created by {@link #makeOtherMetadataRootNode(Transaction transaction, String, long)}
+	 * @return Return the UUID of the grouping concept that was created by {@link #makeOtherMetadataRootNode(String, long)}
 	 */
 	public UUID getOtherMetadataRootType(String otherMetadataName)
 	{
@@ -1683,7 +1683,7 @@ public class DirectWriteHelper
 	
 	/**
 	 * @param otherMetadataGroup the group name
-	 * @return all other names fed into {@link #makeOtherTypeConcept(Transaction transaction, UUID, UUID, String, String, String, String, DynamicDataType, List, long)}
+	 * @return all other names fed into {@link #makeOtherTypeConcept(UUID, UUID, String, String, String, String, DynamicDataType, List, long)}
 	 */
 	public Set<String> getOtherTypes(UUID otherMetadataGroup)
 	{
@@ -1691,8 +1691,8 @@ public class DirectWriteHelper
 	}
 	
 	/**
-	 * @param otherMetadataGroup the grouping concept that was created by {@link #makeOtherMetadataRootNode(Transaction transaction, String, long)}
-	 * @param otherName the type that was created by {@link #makeOtherTypeConcept(Transaction transaction, UUID, UUID, String, String, String, String, DynamicDataType, List, long)}
+	 * @param otherMetadataGroup the grouping concept that was created by {@link #makeOtherMetadataRootNode(String, long)}
+	 * @param otherName the type that was created by {@link #makeOtherTypeConcept(UUID, UUID, String, String, String, String, DynamicDataType, List, long)}
 	 * @return the UUID assigned to the concept created for {otherName}
 	 */
 	public UUID getOtherType(UUID otherMetadataGroup, String otherName)
@@ -1704,8 +1704,8 @@ public class DirectWriteHelper
 	/**
 	 * A convenience method that calls {@link #getOtherType(UUID, String)} with {@link #getOtherMetadataRootType(String)} as the first 
 	 * parameter
-	 * @param otherMetadataGroup The string name that was passed into {@link #makeOtherMetadataRootNode(Transaction transaction, String, long)}
-	 * @param otherName The string type that was passed into {@link #makeOtherTypeConcept(Transaction transaction, UUID, UUID, String, String, String, String, DynamicDataType, List, long)}
+	 * @param otherMetadataGroup The string name that was passed into {@link #makeOtherMetadataRootNode(String, long)}
+	 * @param otherName The string type that was passed into {@link #makeOtherTypeConcept(UUID, UUID, String, String, String, String, DynamicDataType, List, long)}
 	 * @return The UUID of the concept that represents the type.
 	 */
 	public UUID getOtherType(String otherMetadataGroup, String otherName)
@@ -1742,9 +1742,9 @@ public class DirectWriteHelper
 	 * It creates a concept under {@link #getMetadataRoot()}
 	 * @param nodeName
 	 * @param time
-	 * @return
+	 * @return the UUID of the created node
 	 */
-	public UUID makeOtherMetadataRootNode(Transaction transaction, String nodeName, long time)
+	public UUID makeOtherMetadataRootNode(String nodeName, long time)
 	{
 		String fsn = terminologyName + " " + nodeName + " (" + terminologyName + ")";
 		log.info("Building extra metadata node '" + fsn + "'");
@@ -1759,7 +1759,7 @@ public class DirectWriteHelper
 					MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 					MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getPrimordialUuid(), Status.ACTIVE, time,
 					MetaData.PREFERRED____SOLOR.getPrimordialUuid());
-			makeParentGraph(transaction, otherTypesNode.get(nodeName), metadataRoot, Status.ACTIVE, time);
+			makeParentGraph(otherTypesNode.get(nodeName), metadataRoot, Status.ACTIVE, time);
 		}
 		return otherTypesNode.get(nodeName);
 	}
@@ -1776,7 +1776,7 @@ public class DirectWriteHelper
 	 * @param altName - optional - additional regular name to add
 	 * @param description - optional - used as the dynamic assemblage configuration description if provided, otherwise, the altName or name is used.
 	 * @param dataType - optional the data type to store in the annotation - if this is null, it is the callers responsibility to call 
-	 *            {@link #configureConceptAsDynamicAssemblage(Transaction transaction, UUID, String, DynamicColumnInfo[], IsaacObjectType, VersionType, long)}
+	 *            {@link #configureConceptAsDynamicAssemblage(UUID, String, DynamicColumnInfo[], IsaacObjectType, VersionType, long)}
 	 *            to finish configuring this node, if they want to to be a dynamic type.
 	 *            
 	 *            Alternatively, you can pass a type of {@link DynamicDataType#UNKNOWN}, to specify that this should be setup as an identifier
@@ -1785,7 +1785,7 @@ public class DirectWriteHelper
 	 * @param time - the commit time
 	 * @return the UUID of the created concept.
 	 */
-	public UUID makeOtherTypeConcept(Transaction transaction, UUID otherTypeGroup, UUID uuid, String name, String preferredName, String altName, String description,
+	public UUID makeOtherTypeConcept(UUID otherTypeGroup, UUID uuid, String name, String preferredName, String altName, String description,
 			DynamicDataType dataType, List<UUID> additionalParents, long time)
 	{
 		UUID concept = makeTypeConcept(uuid, name, preferredName, altName, (fName, fConcept) -> {
@@ -1808,7 +1808,7 @@ public class DirectWriteHelper
 			}
 			else
 			{
-				configureConceptAsDynamicAssemblage(transaction, concept, StringUtils.isBlank(description) ? (StringUtils.isBlank(altName) ? name : altName) : description,
+				configureConceptAsDynamicAssemblage(concept, StringUtils.isBlank(description) ? (StringUtils.isBlank(altName) ? name : altName) : description,
 					new DynamicColumnInfo[] { new DynamicColumnInfo(0, concept, dataType, null, true) }, null, null, time);
 			}
 		}
@@ -1818,7 +1818,7 @@ public class DirectWriteHelper
 			parents.addAll(additionalParents);
 		}
 
-		makeParentGraph(transaction, concept, parents, Status.ACTIVE, time);
+		makeParentGraph(concept, parents, Status.ACTIVE, time);
 		return concept;
 	}
 

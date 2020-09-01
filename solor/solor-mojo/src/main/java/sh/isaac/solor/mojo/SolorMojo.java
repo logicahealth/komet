@@ -89,7 +89,7 @@ public class SolorMojo extends AbstractMojo {
 
             getLog().info("  Setup AppContext, data store location = " + Get.configurationService().getDataStoreFolderPath().toFile().getCanonicalPath());
             LookupService.startupIsaac();
-            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
             LookupService.getService(IndexBuilderService.class, "semantic index").setEnabled(true);
             DirectImporter rf2Importer = new DirectImporter(transaction, ImportType.valueOf(importType));
             getLog().info("  Importing RF2 files.");

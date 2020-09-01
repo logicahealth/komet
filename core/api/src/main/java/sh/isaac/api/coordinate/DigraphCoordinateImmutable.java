@@ -2,12 +2,14 @@ package sh.isaac.api.coordinate;
 
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Edge;
 import sh.isaac.api.Get;
+import sh.isaac.api.RefreshListener;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
@@ -19,7 +21,7 @@ import sh.isaac.api.marshal.Unmarshaler;
 
 //This class is not treated as a service, however, it needs the annotation, so that the reset() gets fired at appropriate times.
 @Service
-public final class DigraphCoordinateImmutable implements DigraphCoordinate, ImmutableCoordinate, StaticIsaacCache{
+public final class DigraphCoordinateImmutable implements DigraphCoordinate, ImmutableCoordinate, StaticIsaacCache, RefreshListener {
 
     private static final ConcurrentReferenceHashMap<DigraphCoordinateImmutable, DigraphCoordinateImmutable> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
@@ -34,7 +36,8 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
     private final LanguageCoordinateImmutable languageCoordinate;
     private final LogicCoordinateImmutable logicCoordinate;
     private final ImmutableIntSet digraphConceptNids;
-    private final TaxonomySnapshot digraphSnapshot;
+    private TaxonomySnapshot digraphSnapshotLazy;
+    private final UUID listenerUuid = UUID.randomUUID();
 
     private static ManifoldCoordinateImmutable toDefaultManifold(DigraphCoordinateImmutable digraphCoordinateImmutable) {
         return ManifoldCoordinateImmutable.make(VertexSortRegularName.SINGLETON, digraphCoordinateImmutable, digraphCoordinateImmutable.getEdgeStampFilter());
@@ -50,7 +53,7 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
         this.languageCoordinate = null;
         this.logicCoordinate = null;
         this.digraphConceptNids = null;
-        this.digraphSnapshot = null;
+        this.digraphSnapshotLazy = null;
     }
     
     @Override
@@ -82,7 +85,7 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
         this.languageCoordinate = languageCoordinate;
         this.logicCoordinate = logicCoordinate;
         this.digraphConceptNids = digraphConceptNids;
-        this.digraphSnapshot = Get.taxonomyService().getSnapshot(toDefaultManifold(this));
+        this.digraphSnapshotLazy = null;
     }
     public static DigraphCoordinateImmutable make(StampFilterImmutable vertexStampFilter,
                                                   StampFilterImmutable edgeStampFilter,
@@ -179,7 +182,8 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
         this.languageCoordinate  = MarshalUtil.unmarshal(in);
         this.logicCoordinate  = MarshalUtil.unmarshal(in);
         this.digraphConceptNids = IntSets.immutable.of(in.getNidArray());
-        this.digraphSnapshot = Get.taxonomyService().getSnapshot(toDefaultManifold(this));
+        this.digraphSnapshotLazy = null;
+        Get.taxonomyService().addTaxonomyRefreshListener(this);
     }
 
     /**
@@ -265,50 +269,59 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
     public ImmutableIntSet getDigraphIdentifierConceptNids() {
         return this.digraphConceptNids;
     }
+    
+    private TaxonomySnapshot getDiagraphSnapshot() {
+        //The default snapshot service builds the entire taxonomy tree.  Foolish to create a whole bunch of this, when digraph coordinates are used all over the place.
+        //Also causes issues with infinite loops at startup, to create these while trying to assemble the default coordinates
+        if (digraphSnapshotLazy == null) {
+            digraphSnapshotLazy = Get.taxonomyService().getSnapshot(toDefaultManifold(this));
+        }
+        return digraphSnapshotLazy;
+    }
 
     @Override
     public int[] getRootNids() {
-        return this.digraphSnapshot.getRootNids();
+        return this.getDiagraphSnapshot().getRootNids();
     }
 
     @Override
     public int[] getChildNids(int parentNid) {
-        return this.digraphSnapshot.getTaxonomyChildConceptNids(parentNid);
+        return this.getDiagraphSnapshot().getTaxonomyChildConceptNids(parentNid);
     }
 
     @Override
     public boolean isChildOf(int childNid, int parentNid) {
-        return this.digraphSnapshot.isChildOf(childNid, parentNid);
+        return this.getDiagraphSnapshot().isChildOf(childNid, parentNid);
     }
 
     @Override
     public boolean isLeaf(int nid) {
-        return this.digraphSnapshot.isLeaf(nid);
+        return this.getDiagraphSnapshot().isLeaf(nid);
     }
 
     @Override
     public boolean isKindOf(int childNid, int parentNid) {
-        return this.digraphSnapshot.isKindOf(childNid, parentNid);
+        return this.getDiagraphSnapshot().isKindOf(childNid, parentNid);
     }
 
     @Override
     public ImmutableIntSet getKindOfNidSet(int kindNid) {
-        return this.digraphSnapshot.getKindOfConcept(kindNid);
+        return this.getDiagraphSnapshot().getKindOfConcept(kindNid);
     }
 
     @Override
     public boolean isDescendentOf(int descendantNid, int ancestorNid) {
-        return this.digraphSnapshot.isDescendentOf(descendantNid, ancestorNid);
+        return this.getDiagraphSnapshot().isDescendentOf(descendantNid, ancestorNid);
     }
 
     @Override
     public ImmutableCollection<Edge> getParentEdges(int parentNid) {
-        return this.digraphSnapshot.getTaxonomyParentLinks(parentNid);
+        return this.getDiagraphSnapshot().getTaxonomyParentLinks(parentNid);
     }
 
     @Override
     public ImmutableCollection<Edge> getChildEdges(int childNid) {
-        return this.digraphSnapshot.getTaxonomyChildLinks(childNid);
+        return this.getDiagraphSnapshot().getTaxonomyChildLinks(childNid);
     }
 
     @Override
@@ -343,4 +356,15 @@ public final class DigraphCoordinateImmutable implements DigraphCoordinate, Immu
                 ", \n digraph id concepts: " + this.digraphConceptNids + ",\n uuid=" + getDigraphCoordinateUuid() + '}';
     }
 
+	@Override
+	public UUID getListenerUuid()
+	{
+		return listenerUuid;
+	}
+
+	@Override
+	public void refresh()
+	{
+		this.digraphSnapshotLazy = null;
+	}
 }

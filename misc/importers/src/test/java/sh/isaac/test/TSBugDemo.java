@@ -64,12 +64,12 @@ public class TSBugDemo
 			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			// Create a concept with two parents.
 			ConverterUUID converterUUID = new ConverterUUID(UUID.randomUUID(), true);
-			DirectWriteHelper dwh = new DirectWriteHelper(TermAux.USER.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid(), converterUUID, 
+			DirectWriteHelper dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid(), converterUUID, 
 					"hi", false);
 	
 			UUID concept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString("hi"), Status.ACTIVE, System.currentTimeMillis());
 			
-			UUID parentGraph = dwh.makeParentGraph(transaction, concept, Arrays.asList(new UUID[] {
+			UUID parentGraph = dwh.makeParentGraph(concept, Arrays.asList(new UUID[] {
 				MetaData.ACCEPTABLE____SOLOR.getPrimordialUuid(), 
 				MetaData.ACTIVE_ONLY_DESCRIPTION_LUCENE_MATCH____QUERY_CLAUSE.getPrimordialUuid(), 
 				MetaData.ACTIVE_ONLY_DESCRIPTION_REGEX_MATCH____QUERY_CLAUSE.getPrimordialUuid()}),
@@ -103,7 +103,7 @@ public class TSBugDemo
 
 			transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			//Make a new stated parent graph with only 2 parents
-			dwh.makeParentGraph(transaction, concept, Arrays.asList(new UUID[] {
+			dwh.makeParentGraph(concept, Arrays.asList(new UUID[] {
 					MetaData.ACTIVE_ONLY_DESCRIPTION_LUCENE_MATCH____QUERY_CLAUSE.getPrimordialUuid(), 
 					MetaData.ACTIVE_ONLY_DESCRIPTION_REGEX_MATCH____QUERY_CLAUSE.getPrimordialUuid()}),
 				 Status.ACTIVE, System.currentTimeMillis());

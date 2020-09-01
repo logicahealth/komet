@@ -1136,6 +1136,12 @@ public abstract class LuceneIndexer implements IndexBuilderService
 							LOG.debug("Ignore commit due to db build mode");
 							return;
 						}
+						
+						if (commitRecord.getTransaction().isPresent() && !commitRecord.getTransaction().get().indexAfterCommit())
+						{
+							LOG.debug("Ignore commit due transaction flag");
+							return;
+						}
 
 						final int size = commitRecord.getSemanticNidsInCommit().size();
 

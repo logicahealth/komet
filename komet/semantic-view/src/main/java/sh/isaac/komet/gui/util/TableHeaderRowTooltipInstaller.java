@@ -87,7 +87,7 @@ public class TableHeaderRowTooltipInstaller
 		int tries = 0;
 		while (tries++ < 2 && nameToTooltipMap.size() > 0)
 		{
-			logger_.debug(nameToTooltipMap.size() + " tooltips to install");
+			logger_.trace(nameToTooltipMap.size() + " tooltips to install");
 			Platform.runLater(new Runnable()
 			{
 				@Override
@@ -112,7 +112,7 @@ public class TableHeaderRowTooltipInstaller
 			// This happens for various reasons at the moment... don't log a warn
 			//TODO we need to track the tooltips for longer, and add them each time a column that was previously hidden is made visible again
 			//this whole thing needs a bit of a refactor.
-			logger_.debug("Failed to install at least " + nameToTooltipMap.size() + " tooltips - likely disabled columns");
+			logger_.trace("Failed to install at least " + nameToTooltipMap.size() + " tooltips - likely disabled columns");
 		}
 		else
 		{

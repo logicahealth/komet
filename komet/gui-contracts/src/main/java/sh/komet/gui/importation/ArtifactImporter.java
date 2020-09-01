@@ -119,7 +119,7 @@ public class ArtifactImporter
 				protected Void call() throws Exception
 				{
 					Get.activeTasks().add(this);
-					Transaction transaction = Get.commitService().newTransaction(Optional.of("importing " + local),ChangeCheckerMode.INACTIVE );
+					Transaction transaction = Get.commitService().newTransaction(Optional.of("importing " + local),ChangeCheckerMode.INACTIVE, false);
 					try
 					{
 						this.updateTitle("Importing " + sdo.toString());

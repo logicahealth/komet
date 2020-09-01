@@ -314,7 +314,7 @@ public abstract class ObservableVersionImpl
                         return CommitStates.CANCELED;
                     }
                     if (ObservableVersionImpl.this.timeProperty()
-                            .get() == Long.MAX_VALUE) {
+                            .get() == Long.MAX_VALUE || Get.stampService().isUncommitted(ObservableVersionImpl.this.stampSequenceProperty().get())) {
                         return CommitStates.UNCOMMITTED;
                     }
 
@@ -639,7 +639,7 @@ public abstract class ObservableVersionImpl
             return CommitStates.CANCELED;
         }
 
-        if (getTime() == Long.MAX_VALUE) {
+        if (getTime() == Long.MAX_VALUE || Get.stampService().isUncommitted(ObservableVersionImpl.this.stampSequenceProperty().get())) {
             return CommitStates.UNCOMMITTED;
         }
 

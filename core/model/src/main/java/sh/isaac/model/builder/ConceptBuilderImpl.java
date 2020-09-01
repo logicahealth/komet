@@ -44,26 +44,26 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-
-//~--- non-JDK imports --------------------------------------------------------
-import javafx.concurrent.Task;
-
 import org.apache.commons.lang3.StringUtils;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import javafx.concurrent.Task;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
@@ -74,11 +74,6 @@ import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.SemanticBuilder;
-import sh.isaac.api.component.semantic.SemanticBuilderService;
-import sh.isaac.model.ModelGet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -185,27 +180,7 @@ public class ConceptBuilderImpl
         this.defaultLanguageForDescriptions = defaultLanguageForDescriptions;
         this.defaultDialectAssemblageForDescriptions = defaultDialectAssemblageForDescriptions;
         this.defaultLogicCoordinate = defaultLogicCoordinate;
-        setupConceptBuilder(conceptName, semanticTag, logicalExpression, defaultLanguageForDescriptions, defaultDialectAssemblageForDescriptions, defaultLogicCoordinate);
-    }
 
-    public ConceptBuilderImpl(String conceptName,
-                              UUID primordialUuid,
-                              String semanticTag,
-                              LogicalExpression logicalExpression,
-                              ConceptSpecification defaultLanguageForDescriptions,
-                              ConceptSpecification defaultDialectAssemblageForDescriptions,
-                              LogicCoordinate defaultLogicCoordinate,
-                              int assemblageId) {
-        super(primordialUuid, assemblageId);
-        this.conceptName = SemanticTags.stripSemanticTagIfPresent(conceptName);
-        this.semanticTag = SemanticTags.findSemanticTagIfPresent(conceptName).orElse(semanticTag);
-        this.defaultLanguageForDescriptions = defaultLanguageForDescriptions;
-        this.defaultDialectAssemblageForDescriptions = defaultDialectAssemblageForDescriptions;
-        this.defaultLogicCoordinate = defaultLogicCoordinate;
-        setupConceptBuilder(conceptName, semanticTag, logicalExpression, defaultLanguageForDescriptions, defaultDialectAssemblageForDescriptions, defaultLogicCoordinate);
-    }
-
-    private void setupConceptBuilder(String conceptName, String semanticTag, LogicalExpression logicalExpression, ConceptSpecification defaultLanguageForDescriptions, ConceptSpecification defaultDialectAssemblageForDescriptions, LogicCoordinate defaultLogicCoordinate) {
         if (this.defaultLogicCoordinate.getStatedAssemblageNid() != TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid()) {
             throw new IllegalStateException("Incorrect stated assemblage: " + Get.conceptDescriptionText(this.defaultLogicCoordinate.getStatedAssemblageNid()));
         }
@@ -324,13 +299,12 @@ public class ConceptBuilderImpl
 
             if (getModule().isPresent()) {
                 Stamp requested = Get.stampService().getStamp(stampCoordinate);
-                stampCoordinate = Get.stampService().getStampSequence(requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
+                stampCoordinate = Get.stampService().getStampSequence(transaction, requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
             }
 
             final int finalStamp = stampCoordinate;
 
-            conceptChronology.createMutableVersion(stampCoordinate);
-            ModelGet.identifierService().setupNid(conceptChronology.getNid(), conceptChronology.getAssemblageNid(), conceptChronology.getIsaacObjectType(), conceptChronology.getVersionType());
+            conceptChronology.createMutableVersion(transaction, stampCoordinate);
             builtObjects.add(conceptChronology);
             getDescriptionBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
             getSemanticBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
@@ -365,7 +339,6 @@ public class ConceptBuilderImpl
         } else {
             version = conceptChronology.createMutableVersion(transaction, this.state, editCoordinate);
         }
-        transaction.addVersionToTransaction(version);
 
         builtObjects.add(conceptChronology);
 
@@ -572,32 +545,57 @@ public class ConceptBuilderImpl
     }
 
     @Override
-    public ConceptBuilder addComponentIntSemantic(UUID semanticUuid, ConceptSpecification component, int fieldIndex, ConceptSpecification assemblage) {
-        addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(component.getNid(), fieldIndex, this, assemblage.getNid()).setPrimordialUuid(semanticUuid));
+   public IdentifiedComponentBuilder<? extends SemanticChronology> createAddComponentIntSemantic(ConceptSpecification component, int fieldIndex, ConceptSpecification assemblage) {
+      SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService()
+            .getComponentIntSemanticBuilder(component.getNid(), fieldIndex, this, assemblage.getNid());
+      addSemantic(builder);
+      return builder;
+   }
+
+   @Override
+   public ConceptBuilder addComponentIntSemantic(ConceptSpecification component, int fieldIndex, ConceptSpecification assemblage) {
+      createAddComponentIntSemantic(component, fieldIndex, assemblage);
         return this;
     }
 
     @Override
-    public ConceptBuilder addComponentSemantic(UUID semanticUuid, ConceptSpecification component, ConceptSpecification assemblage) {
-        addSemantic(Get.semanticBuilderService().getComponentSemanticBuilder(component.getNid(), this, assemblage.getNid()).setPrimordialUuid(semanticUuid));
+   public IdentifiedComponentBuilder<? extends SemanticChronology> createAddComponentSemantic(ConceptSpecification component, ConceptSpecification assemblage) {
+      SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService()
+               .getComponentSemanticBuilder(component.getNid(), this, assemblage.getNid());
+      addSemantic(builder);
+      return builder;
+    }
+
+    @Override
+   public ConceptBuilder addComponentSemantic(ConceptSpecification component, ConceptSpecification assemblage) {
+      createAddComponentSemantic(component, assemblage);
         return this;
     }
 
     @Override
-    public ConceptBuilder addStringSemantic(UUID semanticUuid, String strValue, ConceptSpecification assemblage) {
-        addSemantic(Get.semanticBuilderService().getStringSemanticBuilder(strValue, this, assemblage.getNid()).setPrimordialUuid(semanticUuid));
+    public IdentifiedComponentBuilder<? extends SemanticChronology> createAddStringSemantic(String strValue, ConceptSpecification assemblage) {
+        SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService()
+                .getStringSemanticBuilder(strValue, this, assemblage.getNid());
+        addSemantic(builder);
+        return builder;
+    }
+
+    @Override
+    public ConceptBuilder addStringSemantic(String strValue, ConceptSpecification assemblage) {
+        createAddStringSemantic(strValue, assemblage);
         return this;
     }
 
     @Override
-    public ConceptBuilder addFieldSemanticConcept(UUID semanticUuid, String fieldName, int fieldIndex) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public IdentifiedComponentBuilder<? extends SemanticChronology> createAddFieldSemanticConcept(String fieldName, int fieldIndex) {
+        throw new UnsupportedOperationException("Not supported yet."); 
     }
 
     @Override
-    public ConceptBuilder addFieldSemanticConcept(UUID semanticUuid, UUID conceptUuid, int fieldIndex) {
-        addSemantic(Get.semanticBuilderService().getComponentIntSemanticBuilder(Get.nidForUuids(conceptUuid), fieldIndex, this, TermAux.SEMANTIC_TYPE.getNid()).setPrimordialUuid(semanticUuid));
-        return this;
-    }
-
+    public IdentifiedComponentBuilder<? extends SemanticChronology> createAddFieldSemanticConcept(UUID conceptUuid, int fieldIndex) {
+        SemanticBuilder<? extends SemanticChronology> builder = Get.semanticBuilderService()
+                .getComponentIntSemanticBuilder(Get.nidForUuids(conceptUuid), fieldIndex, this, TermAux.SEMANTIC_TYPE.getNid());
+        addSemantic(builder);
+        return builder;
+     }
 }

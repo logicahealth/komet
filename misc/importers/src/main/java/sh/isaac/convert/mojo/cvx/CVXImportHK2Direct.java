@@ -153,26 +153,26 @@ public class CVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		
 		Date date = new Date(oldest);
 		
-		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.CVX_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
+		dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), MetaData.CVX_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"CVX", false);
 		
 		setupModule("CVX", MetaData.CVX_MODULES____SOLOR.getPrimordialUuid(), Optional.of("http://hl7.org/fhir/sid/cvx"), date.getTime());
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(transaction, true, true, true, false, true, false, date.getTime());
+		dwh.makeMetadataHierarchy(true, true, true, false, true, false, date.getTime());
 		
-		dwh.makeDescriptionTypeConcept(transaction, null, "Short Description", null, null,
+		dwh.makeDescriptionTypeConcept(null, "Short Description", null, null,
 				MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, date.getTime());
 		
-		dwh.makeDescriptionTypeConcept(transaction, null, "Full Vaccine Name", null, null,
+		dwh.makeDescriptionTypeConcept(null, "Full Vaccine Name", null, null,
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, date.getTime());
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, date.getTime(), readbackCoordinate);
 		
-		dwh.makeAttributeTypeConcept(transaction, null, CVXFieldsV1.VaccineStatus.name(), null, null, false, DynamicDataType.STRING, null, date.getTime());
+		dwh.makeAttributeTypeConcept(null, CVXFieldsV1.VaccineStatus.name(), null, null, false, DynamicDataType.STRING, null, date.getTime());
 
 		// Every time concept created add membership to "All CPT Concepts"
-		dwh.makeRefsetTypeConcept(transaction, null, "All CVX Concepts", null, null, date.getTime());
+		dwh.makeRefsetTypeConcept(null, "All CVX Concepts", null, null, date.getTime());
 
 		/*
 		 * Methods from CVXCodes.CVXInfo:
@@ -196,7 +196,7 @@ public class CVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		statusUpdates.accept("Loading content");
 
 		// Create CVX root concept under SOLOR_CONCEPT____SOLOR
-		final UUID cvxRootConcept = dwh.makeConceptEnNoDialect(transaction, null, "CVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+		final UUID cvxRootConcept = dwh.makeConceptEnNoDialect(null, "CVX", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, date.getTime());
 
 		for (CVXInfo row : terminology.getCVXInfo())
@@ -212,7 +212,7 @@ public class CVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 
 				// Create row concept
 				final UUID rowConcept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString(code), status, lastUpdateTime);
-				dwh.makeParentGraph(transaction, rowConcept, cvxRootConcept, Status.ACTIVE, lastUpdateTime);
+				dwh.makeParentGraph(rowConcept, cvxRootConcept, Status.ACTIVE, lastUpdateTime);
 
 				dwh.makeDescriptionEnNoDialect(rowConcept, shortDesc, dwh.getDescriptionType("Short Description"), status, lastUpdateTime);
 				dwh.makeDescriptionEnNoDialect(rowConcept, vacName, dwh.getDescriptionType("Full Vaccine Name"), status, lastUpdateTime);

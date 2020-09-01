@@ -60,7 +60,6 @@ import com.sun.javafx.collections.ObservableMapWrapper;
 import com.sun.javafx.tk.FontLoader;
 import com.sun.javafx.tk.Toolkit;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
 import javafx.beans.binding.FloatBinding;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
@@ -71,6 +70,8 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
@@ -191,6 +192,8 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	// If UserProfileBindings.getDisplayFSN() at time of refresh has changed since last refresh
 	// then all filters must be cleared, because they may contain outdated display text values
 	private boolean filterCacheLastBuildDisplayFSNValue_ = displayFSN_.get();
+	
+	private final ListChangeListener<ComponentProxy> selectionChangedListener = c -> this.selectionChanged(c);
 	
 	private final MapChangeListener<ColumnId, Filter<?>> filterCacheListener_ = new MapChangeListener<ColumnId, Filter<?>>() {
 		@Override
@@ -783,7 +786,7 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 	{
 		if (noRefresh_.get() > 0)
 		{
-			logger_.debug("Skip refresh of dynamic semantic due to wait count {}", noRefresh_.get());
+			logger_.trace("Skip refresh of dynamic semantic due to wait count {}", noRefresh_.get());
 			return;
 		}
 		else
@@ -820,6 +823,32 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 			store.put(key, list);
 		}
 		list.add(value);
+	}
+	
+	private void selectionChanged(ListChangeListener.Change<? extends ComponentProxy> c) {
+		if (manifoldConcept_.get().manifoldSelectionProperty().size() > 0)
+		{
+			setComponent(manifoldConcept_.get().manifoldSelectionProperty().get(0).getNid(), null, null, null, true);
+			toolTipProperty.set("attached semantics for: " + this.manifoldConcept_.get().getFullyQualifiedDescriptionText(manifoldConcept_.get().manifoldSelectionProperty().get(0).getNid()));
+			displayFSN_.set(manifoldConcept_.get().getLanguageCoordinate().isFQNPreferred());
+		}
+		else
+		{
+			treeRoot_.getChildren().clear();
+			ttv_.getColumns().clear();
+			summary_.setText("");
+			titleProperty.set("-");
+		}
+	}
+
+	private void manifoldChanged(ObservableValue<? extends Manifold> manifoldProperty, Manifold oldManifold, Manifold newManifold) {
+		manifoldConcept_.get().manifoldSelectionProperty().addListener((ChangeListener) (observable, old, newValue) -> {
+			if (oldManifold != null)
+			{
+				oldManifold.manifoldSelectionProperty().get().removeListener(this.selectionChangedListener);
+			}
+			newManifold.manifoldSelectionProperty().get().addListener(this.selectionChangedListener);
+		});
 	}
 
 	private void initColumnsLoadData()
@@ -1798,24 +1827,9 @@ public class SemanticViewer implements DetailNodeFactory, Supplier<List<MenuItem
 		{
 			setComponent(manifoldConcept_.get().manifoldSelectionProperty().get(0).getNid(), null, null, null, true);
 		}
-		
-		//TODO this is broken, listener needs to change when selected manifold changes, somehow
-		manifoldConcept_.get().manifoldSelectionProperty().addListener((InvalidationListener) change ->
-		{
-			if (manifoldConcept_.get().manifoldSelectionProperty().size() > 0)
-			{
-				setComponent(manifoldConcept_.get().manifoldSelectionProperty().get(0).getNid(), null, null, null, true);
-				toolTipProperty.set("attached semantics for: " + this.manifoldConcept_.get().getFullyQualifiedDescriptionText(manifoldConcept_.get().manifoldSelectionProperty().get(0).getNid()));
-				displayFSN_.set(manifoldConcept_.get().getLanguageCoordinate().isFQNPreferred());
-			}
-			else
-			{
-				treeRoot_.getChildren().clear();
-				ttv_.getColumns().clear();
-				summary_.setText("");
-				titleProperty.set("-");
-			}
-		});
+
+		manifoldConcept_.addListener(this::manifoldChanged);
+		manifoldChanged(manifoldConcept_, null, manifoldConcept_.get());
 		
 		return new DetailNode()
 		{
