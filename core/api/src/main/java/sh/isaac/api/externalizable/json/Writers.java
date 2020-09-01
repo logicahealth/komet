@@ -142,12 +142,28 @@ public class Writers {
                 mainWriter.newLine();
              }
              
+             output.write("\"stamp sequence\":\"");
+             output.write(sv.getStampSequence() + "");
+             output.write("\",");
+             mainWriter.newLine();
              output.write("\"status\":\"");
              output.write(sv.getStatus().toString() + "");
              output.write("\",");
              mainWriter.newLine();
              output.write("\"time\":\"");
              output.write(ZonedDateTime.ofInstant(Instant.ofEpochMilli(sv.getTime()), ZoneId.systemDefault()).format(DateTimeFormatter.ISO_INSTANT));
+             output.write("\",");
+             mainWriter.newLine();
+             output.write("\"author\":\"");
+             output.write(sv.getAuthorNid() + "");
+             output.write("\",");
+             mainWriter.newLine();
+             output.write("\"module\":\"");
+             output.write(sv.getModuleNid() + "");
+             output.write("\",");
+             mainWriter.newLine();
+             output.write("\"path\":\"");
+             output.write(sv.getPathNid() + "");
              output.write("\"");
              mainWriter.tabOut();
              output.write("}");
@@ -244,6 +260,10 @@ public class Writers {
                mainWriter.newLine();
             }
             
+            output.write("\"stamp sequence\":\"");
+            output.write(sv.getStampSequence() + "");
+            output.write("\",");
+            mainWriter.newLine();
             output.write("\"status\":\"");
             output.write(sv.getStatus().toString() + "");
             output.write("\",");
@@ -252,6 +272,17 @@ public class Writers {
             output.write(ZonedDateTime.ofInstant(Instant.ofEpochMilli(sv.getTime()), ZoneId.systemDefault()).format(DateTimeFormatter.ISO_INSTANT));
             output.write("\",");
             mainWriter.newLine();
+            output.write("\"author\":\"");
+            output.write(sv.getAuthorNid() + "");
+            output.write("\",");
+            mainWriter.newLine();
+            output.write("\"module\":\"");
+            output.write(sv.getModuleNid() + "");
+            output.write("\",");
+            mainWriter.newLine();
+            output.write("\"path\":\"");
+            output.write(sv.getPathNid() + "");
+            output.write("\",");
 
             if (sv instanceof DescriptionVersion) {
                final DescriptionVersion ds = (DescriptionVersion) sv;
