@@ -37,12 +37,6 @@ public abstract class ObservableNavigationCoordinateBase
 
 
     @Override
-    protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends NavigationCoordinateImmutable> observable, NavigationCoordinateImmutable oldValue, NavigationCoordinateImmutable newValue) {
-        this.navigatorIdentifierConceptsProperty.setAll(newValue.getNavigationConceptNids()
-                .collect(nid -> Get.conceptSpecification(nid)).toSet());
-    }
-
-    @Override
     protected void addListeners() {
         this.navigatorIdentifierConceptsProperty.addListener(this.navigatorIdentifierConceptSetListener);
     }
@@ -64,7 +58,7 @@ public abstract class ObservableNavigationCoordinateBase
     }
 
     @Override
-    public SetProperty<ConceptSpecification> navigatorIdentifierConceptsProperty() {
+    public SimpleEqualityBasedSetProperty<ConceptSpecification> navigatorIdentifierConceptsProperty() {
         return navigatorIdentifierConceptsProperty;
     }
 }

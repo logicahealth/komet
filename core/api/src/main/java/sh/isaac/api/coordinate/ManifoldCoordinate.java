@@ -95,7 +95,7 @@ public interface ManifoldCoordinate {
     default String toUserString() {
         StringBuilder sb = new StringBuilder("Manifold coordinate: ");
         sb.append("\nActivity: ").append(getCurrentActivity().toUserString());
-        sb.append("\nNavigation: ").append(getNavigationCoordinate().toUserString());
+        sb.append("\n").append(getNavigationCoordinate().toUserString());
         sb.append("\n\nView filter:\n").append(getViewStampFilter().toUserString());
         sb.append("\n\nLanguage coordinate:\n").append(getLanguageCoordinate().toUserString());
         sb.append("\n\nVertex filter:\n").append(getVertexStatusSet().toUserString());

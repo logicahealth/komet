@@ -87,6 +87,19 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
     }
 
     @Override
+    @Marshaler
+    public void marshal(ByteArrayDataBuffer out) {
+        out.putInt(marshalVersion);
+        out.putNid(this.classifierNid);
+        out.putNid(this.descriptionLogicProfileNid);
+        out.putNid(this.inferredAssemblageNid);
+        out.putNid(this.statedAssemblageNid);
+        out.putNid(this.conceptAssemblageNid);
+        out.putNid(this.digraphIdentityNid);
+        out.putNid(this.rootNid);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof LogicCoordinate)) return false;
@@ -145,19 +158,6 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
     }
 
     @Override
-    @Marshaler
-    public void marshal(ByteArrayDataBuffer out) {
-        out.putInt(marshalVersion);
-        out.putNid(this.classifierNid);
-        out.putNid(this.descriptionLogicProfileNid);
-        out.putNid(this.inferredAssemblageNid);
-        out.putNid(this.statedAssemblageNid);
-        out.putNid(this.conceptAssemblageNid);
-        out.putNid(this.digraphIdentityNid);
-        out.putNid(this.rootNid);
-    }
-
-    @Override
     public int getClassifierNid() {
         return this.classifierNid;
     }
@@ -194,12 +194,15 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
 
     @Override
     public String toString() {
-        return "LogicCoordinateImpl{" + Get.conceptDescriptionText(this.statedAssemblageNid) + "<" +
-                this.statedAssemblageNid + ">,\n" + Get.conceptDescriptionText(this.inferredAssemblageNid) +
-                "<" + this.inferredAssemblageNid + ">, \n" +
-                Get.conceptDescriptionText(this.descriptionLogicProfileNid) + "<" +
-                this.descriptionLogicProfileNid + ">, \n" + Get.conceptDescriptionText(this.classifierNid) +
-                "<" + this.classifierNid + ">}";
+        return "LogicCoordinateImpl{" +
+                "stated axioms:" + Get.conceptDescriptionText(this.statedAssemblageNid) + "<" + this.statedAssemblageNid + ">,\n" +
+                "inferred axioms:" + Get.conceptDescriptionText(this.inferredAssemblageNid) + "<" + this.inferredAssemblageNid + ">, \n" +
+                "profile:" + Get.conceptDescriptionText(this.descriptionLogicProfileNid) + "<" + this.descriptionLogicProfileNid + ">, \n" +
+                "classifier:" + Get.conceptDescriptionText(this.classifierNid) + "<" + this.classifierNid + ", \n>" +
+                "concepts:" + Get.conceptDescriptionText(this.conceptAssemblageNid) + "<" + this.conceptAssemblageNid + ", \n>" +
+                "digraph identity:" + Get.conceptDescriptionText(this.digraphIdentityNid) + "<" + this.digraphIdentityNid + ", \n>" +
+                "root:" + Get.conceptDescriptionText(this.rootNid) + "<" + this.rootNid + ">,\n" +
+        "}";
     }
     @Override
     public LogicCoordinateImmutable toLogicCoordinateImmutable() {

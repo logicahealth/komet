@@ -1,12 +1,11 @@
 package sh.isaac.model.observable.coordinate;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import org.eclipse.collections.api.list.primitive.ImmutableIntList;
-import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.*;
@@ -46,7 +45,7 @@ public abstract class ObservableManifoldCoordinateBase
      */
     private final ChangeListener<NavigationCoordinateImmutable> navigationChanged = this::navigationChanged;
     private final ChangeListener<StampFilterImmutable> edgeStampFilterListener = this::edgeFilterChanged;
-    private final ChangeListener<StatusSet> vertexStatusSetListener = this::vertexFilterChanged;
+    private final ChangeListener<StatusSet> vertexStatusSetListener = this::allowedVertexStatusSetChanged;
     private final ChangeListener<LanguageCoordinateImmutable> languageCoordinateListener = this::languageCoordinateChanged;
     private final ChangeListener<VertexSort> vertexSortChangeListener = this::vertexSortChanged;
     private final ChangeListener<LogicCoordinateImmutable> logicCoordinateListener = this::logicCoordinateChanged;
@@ -143,18 +142,6 @@ public abstract class ObservableManifoldCoordinateBase
     }
 
     @Override
-    protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends ManifoldCoordinateImmutable> observable, ManifoldCoordinateImmutable oldValue, ManifoldCoordinateImmutable newValue) {
-        this.navigationCoordinateObservable.baseCoordinateProperty().setValue(newValue.toNavigationCoordinateImmutable());
-        this.languageCoordinateObservable.setValue(newValue.getLanguageCoordinate().toLanguageCoordinateImmutable());
-        this.edgeStampFilterObservable.setValue(newValue.getViewStampFilter().toStampFilterImmutable());
-        this.vertexStatusSetObservable.setValue(newValue.getVertexStatusSet());
-        this.logicCoordinateObservable.setValue(newValue.getLogicCoordinate().toLogicCoordinateImmutable());
-        this.vertexSortProperty.setValue(newValue.getVertexSort());
-        this.activityProperty.setValue(newValue.getCurrentActivity());
-        this.editCoordinateObservable.setValue(newValue.getEditCoordinate().toEditCoordinateImmutable());
-    }
-
-    @Override
     protected void addListeners() {
         this.navigationCoordinateObservable.baseCoordinateProperty().addListener(this.navigationChanged);
         this.languageCoordinateObservable.baseCoordinateProperty().addListener(this.languageCoordinateListener);
@@ -194,9 +181,9 @@ public abstract class ObservableManifoldCoordinateBase
 
     //~--- methods -------------------------------------------------------------
 
-    private void vertexFilterChanged(ObservableValue<? extends StatusSet> observable,
-                                     StatusSet oldValue,
-                                     StatusSet newValue) {
+    private void allowedVertexStatusSetChanged(ObservableValue<? extends StatusSet> observable,
+                                               StatusSet oldValue,
+                                               StatusSet newValue) {
         this.setValue(ManifoldCoordinateImmutable.make(
                 getViewStampFilter().toStampFilterImmutable(),
                 getLanguageCoordinate().toLanguageCoordinateImmutable(),
@@ -291,7 +278,7 @@ public abstract class ObservableManifoldCoordinateBase
     }
 
     @Override
-    public ObjectProperty<NavigationCoordinateImmutable> navigationCoordinateImmutableProperty() {
+    public ObjectProperty<NavigationCoordinateImmutable> navigationCoordinateProperty() {
         return navigationCoordinateObservable.baseCoordinateProperty();
     }
 
@@ -392,8 +379,4 @@ public abstract class ObservableManifoldCoordinateBase
         return getValue().getVertexStampFilter();
     }
 
-    @Override
-    public void setExceptOverrides(ManifoldCoordinateImmutable updatedCoordinate) {
-
-    }
 }

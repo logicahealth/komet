@@ -1,16 +1,20 @@
 package sh.isaac.model.observable.coordinate;
 
 import javafx.beans.property.*;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.coordinate.StampFilterImmutable;
+import sh.isaac.api.coordinate.StatusSet;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedListProperty;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedObjectProperty;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedSetProperty;
+
+import java.util.Set;
 
 public class ObservableStampFilterImpl extends ObservableStampFilterBase {
 
@@ -22,6 +26,30 @@ public class ObservableStampFilterImpl extends ObservableStampFilterBase {
 
     private ObservableStampFilterImpl(StampFilterImmutable stampFilterImmutable) {
         super(stampFilterImmutable, "Stamp filter");
+    }
+
+    @Override
+    protected StampFilterImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends StampFilterImmutable> observable, StampFilterImmutable oldValue, StampFilterImmutable newValue) {
+        this.pathConceptProperty().setValue(newValue.getPathConceptForFilter());
+        this.timeProperty().set(newValue.getStampPosition().getTime());
+        this.modulePriorityOrderProperty().setAll(newValue.getModulePriorityOrder().collect(nid -> Get.conceptSpecification(nid)).castToList());
+
+        if (newValue.getAllowedStates() != this.allowedStatusProperty().get()) {
+            this.allowedStatusProperty().setValue(newValue.getAllowedStates());
+        }
+
+        Set<ConceptSpecification> excludedModuleSet = newValue.getExcludedModuleNids().collect(nid -> Get.conceptSpecification(nid)).castToSet();
+        if (!excludedModuleSet.equals(this.excludedModuleSpecificationsProperty().get())) {
+            this.excludedModuleSpecificationsProperty().retainAll(excludedModuleSet);
+            this.excludedModuleSpecificationsProperty().addAll(excludedModuleSet);
+        }
+
+        Set<ConceptSpecification> moduleSet = newValue.getModuleNids().collect(nid -> Get.conceptSpecification(nid)).castToSet();
+        if (!moduleSet.equals(this.moduleSpecificationsProperty().get())) {
+            this.moduleSpecificationsProperty().retainAll(moduleSet);
+            this.moduleSpecificationsProperty().addAll(moduleSet);
+        }
+        return newValue;
     }
 
     @Override
@@ -51,10 +79,10 @@ public class ObservableStampFilterImpl extends ObservableStampFilterBase {
     }
 
     @Override
-    protected SetProperty<Status> makeAllowedStatusProperty(StampFilter stampFilter) {
-        return new SimpleEqualityBasedSetProperty<>(this,
+    protected ObjectProperty<StatusSet> makeAllowedStatusProperty(StampFilter stampFilter) {
+        return new SimpleEqualityBasedObjectProperty<>(this,
                 ObservableFields.ALLOWED_STATES_FOR_STAMP_COORDINATE.toExternalString(),
-                FXCollections.observableSet(stampFilter.getAllowedStates().toEnumSet()));
+                stampFilter.getAllowedStates());
     }
 
     @Override
@@ -76,6 +104,10 @@ public class ObservableStampFilterImpl extends ObservableStampFilterBase {
     }
     public static ObservableStampFilterImpl make(StampFilter stampFilter, String coordinateName) {
         return new ObservableStampFilterImpl(stampFilter.toStampFilterImmutable(), coordinateName);
+    }
+    @Override
+    public StampFilterImmutable getOriginalValue() {
+        return getValue();
     }
 
 }

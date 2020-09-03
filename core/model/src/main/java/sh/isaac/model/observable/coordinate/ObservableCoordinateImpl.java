@@ -23,6 +23,10 @@ import javafx.beans.value.ObservableValue;
 import sh.isaac.api.coordinate.ImmutableCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableCoordinate;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 /**
  * The class that actually makes the ImmutableCoordinate of the "Observable" coordinates Observable.
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
@@ -35,10 +39,11 @@ public abstract class ObservableCoordinateImpl<T extends ImmutableCoordinate> im
      */
     private final SimpleObjectProperty<T> immutableCoordinate;
 
+    private final List<ChangeListener<? super T>> changeListenerList = new ArrayList<>();
+
     protected ObservableCoordinateImpl(T immutableCoordinate, String coordinateName) {
         this.immutableCoordinate = new SimpleObjectProperty<>(this, coordinateName);
-        this.immutableCoordinate.set(immutableCoordinate);
-        this.immutableCoordinate.addListener(this::changeBaseCoordinate);
+        this.immutableCoordinate.setValue(immutableCoordinate);
     }
 
     SimpleObjectProperty<T> baseCoordinateProperty() {
@@ -50,15 +55,28 @@ public abstract class ObservableCoordinateImpl<T extends ImmutableCoordinate> im
 
     protected void changeBaseCoordinate(ObservableValue<? extends T> observable, T oldValue, T newValue) {
         removeListeners();
-        baseCoordinateChangedListenersRemoved(observable, oldValue, newValue);
+        this.immutableCoordinate.setValue(baseCoordinateChangedListenersRemoved(observable, oldValue, newValue));
         addListeners();
     }
 
-    protected abstract void baseCoordinateChangedListenersRemoved(ObservableValue<? extends T> observable, T oldValue, T newValue);
+    /**
+     *
+     * @param observable
+     * @param oldValue
+     * @param newValue
+     * @return A final base coordinate with overrides applied.
+     */
+    protected abstract T baseCoordinateChangedListenersRemoved(ObservableValue<? extends T> observable, T oldValue, T newValue);
 
     @Override
     public void setValue(T value) {
-        this.immutableCoordinate.setValue(value);
+        T oldValue = getValue();
+        if (!Objects.equals(oldValue, value)) {
+            changeBaseCoordinate(this.immutableCoordinate, oldValue, value);
+            for (ChangeListener<? super T> listener: changeListenerList) {
+                listener.changed(this.immutableCoordinate, oldValue, value);
+            }
+        }
     }
 
     @Override
@@ -69,12 +87,12 @@ public abstract class ObservableCoordinateImpl<T extends ImmutableCoordinate> im
 
     @Override
     public void addListener(ChangeListener<? super T> listener) {
-        this.immutableCoordinate.addListener(listener);
+        this.changeListenerList.add(listener);
     }
 
     @Override
     public void removeListener(ChangeListener<? super T> listener) {
-        this.immutableCoordinate.removeListener(listener);
+        this.changeListenerList.remove(listener);
     }
 
     @Override

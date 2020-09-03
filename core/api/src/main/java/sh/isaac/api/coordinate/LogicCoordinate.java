@@ -72,6 +72,8 @@ public interface LogicCoordinate {
        UUIDUtil.addSortedUuids(uuidList, getInferredAssemblageNid());
        UUIDUtil.addSortedUuids(uuidList, getStatedAssemblageNid());
        UUIDUtil.addSortedUuids(uuidList, getConceptAssemblageNid());
+       UUIDUtil.addSortedUuids(uuidList, getDigraphIdentityNid());
+       UUIDUtil.addSortedUuids(uuidList, getRootNid());
        return UUID.nameUUIDFromBytes(uuidList.toString().getBytes());
    }
    /**
@@ -217,6 +219,10 @@ public interface LogicCoordinate {
       sb.append(Get.conceptDescriptionText(this.getClassifierNid()));
       sb.append("\n   computed digraph: ");
       sb.append(Get.conceptDescriptionText(this.getDigraphIdentityNid()));
+      sb.append("\n   concept assemblage: ");
+      sb.append(Get.conceptDescriptionText(this.getConceptAssemblageNid()));
+      sb.append("\n   root: ");
+      sb.append(Get.conceptDescriptionText(this.getRootNid()));
 
       return sb.toString();
    }

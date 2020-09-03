@@ -10,6 +10,10 @@ public interface PropertyWithOverride<T> extends Property<T> {
 
     Property<T> overriddenProperty();
 
+    default T getOriginalValue() {
+        return overriddenProperty().getValue();
+    }
+
     default String getOverrideName(ManifoldCoordinate manifoldCoordinate) {
         String name = manifoldCoordinate.toPreferredConceptString(overriddenProperty().getName());
         if (isOverridden()) {

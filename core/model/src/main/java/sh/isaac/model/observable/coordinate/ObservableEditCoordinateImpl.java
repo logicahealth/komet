@@ -41,6 +41,7 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import javafx.beans.value.ObservableValue;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.EditCoordinateImmutable;
@@ -67,6 +68,15 @@ public class ObservableEditCoordinateImpl
    public ObservableEditCoordinateImpl(EditCoordinate editCoordinate, String coordinateName) {
        super(editCoordinate.toEditCoordinateImmutable(), coordinateName);
    }
+
+    @Override
+    protected EditCoordinateImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends EditCoordinateImmutable> observable, EditCoordinateImmutable oldValue, EditCoordinateImmutable newValue) {
+        this.authorForChangesProperty().setValue(newValue.getAuthorForChanges());
+        this.defaultModuleProperty().setValue(newValue.getDefaultModule());
+        this.destinationModuleProperty().setValue(newValue.getDestinationModule());
+        this.promotionPathProperty().setValue(newValue.getPromotionPath());
+        return newValue;
+    }
 
     @Override
     public void setExceptOverrides(EditCoordinateImmutable updatedCoordinate) {
@@ -103,6 +113,11 @@ public class ObservableEditCoordinateImpl
         return new SimpleEqualityBasedObjectProperty<>(this,
                 ObservableFields.DESTINATION_MODULE_NID_FOR_EDIT_COORDINATE.toExternalString(),
                 editCoordinate.getDestinationModule());
+    }
+
+    @Override
+    public EditCoordinateImmutable getOriginalValue() {
+        return getValue();
     }
 }
 

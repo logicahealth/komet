@@ -1,6 +1,7 @@
 package sh.isaac.model.observable.coordinate;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ObservableValue;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinateImmutable;
@@ -68,6 +69,23 @@ public class ObservableLogicCoordinateImpl extends ObservableLogicCoordinateBase
     protected ObjectProperty<ConceptSpecification> makeRootConceptProperty(LogicCoordinate logicCoordinate) {
         return new SimpleEqualityBasedObjectProperty(this,
                 ObservableFields.ROOT_FOR_LOGIC_COORDINATE.toExternalString(),
-                logicCoordinate.getDigraphIdentity());
+                logicCoordinate.getRoot());
+    }
+
+    @Override
+    protected LogicCoordinateImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends LogicCoordinateImmutable> observable, LogicCoordinateImmutable oldValue, LogicCoordinateImmutable newValue) {
+        this.classifierProperty().setValue(newValue.getClassifier());
+        this.conceptAssemblageProperty().setValue(newValue.getConceptAssemblage());
+        this.descriptionLogicProfileProperty().setValue(newValue.getDescriptionLogicProfile());
+        this.inferredAssemblageProperty().setValue(newValue.getInferredAssemblage());
+        this.statedAssemblageProperty().setValue(newValue.getStatedAssemblage());
+        this.digraphIdentityProperty().setValue(newValue.getDigraphIdentity());
+        this.rootConceptProperty().setValue(newValue.getRoot());
+        return newValue;
+    }
+
+    @Override
+    public LogicCoordinateImmutable getOriginalValue() {
+        return getValue();
     }
 }

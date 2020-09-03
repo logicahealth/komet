@@ -48,6 +48,7 @@ import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.geometry.HPos;
 import javafx.geometry.Insets;
+import javafx.geometry.Side;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
 import javafx.scene.control.*;
@@ -86,9 +87,9 @@ import sh.komet.gui.control.StampControl;
 import sh.komet.gui.control.badged.ComponentPaneModel;
 import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
 import sh.komet.gui.control.concept.MenuSupplierForFocusConcept;
+import sh.komet.gui.control.manifold.ManifoldMenuModel;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.control.toggle.OnOffToggleSwitch;
 import sh.komet.gui.interfaces.DetailNodeAbstract;
 import sh.komet.gui.provider.concept.builder.ConceptBuilderComponentPanel;
 import sh.komet.gui.state.ExpandAction;
@@ -103,6 +104,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.prefs.BackingStoreException;
 
+import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
 import static sh.komet.gui.style.StyleClasses.ADD_DESCRIPTION_BUTTON;
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 
@@ -134,7 +136,12 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
     private final GridPane versionBranchGrid = new GridPane();
     private final GridPane toolGrid = new GridPane();
     private final ExpandControl expandControl = new ExpandControl();
-    private final OnOffToggleSwitch historySwitch = new OnOffToggleSwitch();
+    private final MenuButton manifoldMenuButton = new MenuButton();
+    {
+        manifoldMenuButton.setContentDisplay(GRAPHIC_ONLY);
+        manifoldMenuButton.setPadding(new Insets(0, 0, 0, -8));
+        manifoldMenuButton.setPopupSide(Side.BOTTOM);
+    }
     private final Label expandControlLabel = new Label("Expand All", expandControl);
     private final OpenIntIntHashMap stampOrderHashMap = new OpenIntIntHashMap();
     private final Button addDescriptionButton = new Button("+ Add");
@@ -142,6 +149,8 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
     private final ArrayList<Integer> sortedStampSequences = new ArrayList<>();
     private final List<ComponentPaneModel> componentPaneModels = new ArrayList<>();
     private final ScrollPane scrollPane;
+    private final ManifoldMenuModel manifoldMenuModel;
+
 
 
     private final ObservableList<ObservableDescriptionDialect> newDescriptions = FXCollections.observableArrayList();
@@ -154,9 +163,11 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
     //~--- constructors --------------------------------------------------------
     public ConceptDetailPanelNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferences) {
         super(viewProperties, activityFeed, preferences, MenuSupplierForFocusConcept.getArray());
+        this.manifoldMenuModel = new ManifoldMenuModel(viewProperties, this.manifoldMenuButton);
+        manifoldMenuButton.getItems().add(manifoldMenuModel.getCoordinateMenu());
 
-        this.historySwitch.setSelected(false); // add to pref...
-        updateManifoldHistoryStates();
+        this.manifoldMenuModel.updateManifoldMenu();
+
         this.detailPane.getStyleClass()
                 .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         this.scrollPane = new ScrollPane(componentPanelBox);
@@ -174,8 +185,6 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
                 .add(StyleClasses.COMPONENT_DETAIL_BACKGROUND.toString());
         this.componentPanelBox.setFillWidth(true);
         setupToolGrid();
-        this.historySwitch.selectedProperty()
-                .addListener(this::setShowHistory);
 
         this.expandControl.expandActionProperty()
                 .addListener(this::expandAllAction);
@@ -194,7 +203,6 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         Platform.runLater(() ->  resetConceptFromFocus());
 
     }
-
 
     @Override
     public Node getMenuIconGraphic() {
@@ -416,18 +424,12 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
                         switch (semanticChronology.getVersionType()) {
                             case DESCRIPTION:
                             case LOGIC_GRAPH:
-                                if (historySwitch.isSelected()) {
-                                    return true;
-                                } else {
+
                                     LatestVersion<SemanticVersion> latest
                                             = semanticChronology.getLatestVersion(
                                             this.viewProperties.getManifoldCoordinate().getViewStampFilter());
+                                    return latest.isPresent();
 
-                                    if (latest.isPresent()) {
-                                        return latest.get()
-                                                .getStatus() == Status.ACTIVE;
-                                    }
-                                }
                             default:
                                 return false;
                         }
@@ -589,11 +591,9 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         this.toolGrid.getChildren()
                 .add(spacer);
 
-        Label historySwitchWithLabel = new Label("History", historySwitch);
 
-        historySwitchWithLabel.setContentDisplay(ContentDisplay.RIGHT);
         GridPane.setConstraints(
-                historySwitchWithLabel,
+                this.manifoldMenuButton,
                 2,
                 0,
                 1,
@@ -604,7 +604,7 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
                 Priority.NEVER,
                 new Insets(2));
         this.toolGrid.getChildren()
-                .add(historySwitchWithLabel);
+                .add(this.manifoldMenuButton);
         componentPanelBox.getChildren()
                 .add(toolGrid);
     }
@@ -618,24 +618,6 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
             setConcept(Get.concept(getFocusedObject().get().getNid()));
         } else {
             setConcept((ConceptSpecification) null);
-        }
-    }
-
-    private void updateManifoldHistoryStates() {
-        if (historySwitch.isSelected()) {
-//            this.manifoldProperty.get().getStampCoordinate()
-//                    .allowedStatesProperty()
-//                    .clear();
-//            this.manifoldProperty.get().getStampCoordinate()
-//                    .allowedStatesProperty()
-//                    .addAll(Status.makeActiveAndInactiveSet());
-        } else {
-//            this.manifoldProperty.get().getStampCoordinate()
-//                    .allowedStatesProperty()
-//                    .clear();
-//            this.manifoldProperty.get().getStampCoordinate()
-//                    .allowedStatesProperty()
-//                    .addAll(Status.makeActiveOnlySet());
         }
     }
 
@@ -721,7 +703,6 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
             this.stampOrderHashMap.put(stampSequence, stampOrder.incrementAndGet());
         });
         populateVersionBranchGrid();
-        updateManifoldHistoryStates();
         animateLayout();
     }
 
@@ -729,11 +710,6 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
     @Override
     public UUID getListenerUuid() {
         return listenerUuid;
-    }
-
-    //~--- set methods ---------------------------------------------------------
-    private void setShowHistory(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
-        resetConceptFromFocus();
     }
 
     @Override

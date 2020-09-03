@@ -62,7 +62,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.commit.ChangeCheckerMode;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
@@ -85,6 +84,7 @@ import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.tab.TabWrapper;
+import sh.komet.gui.control.manifold.CoordinateMenuFactory;
 import sh.komet.gui.util.FxGet;
 
 import java.io.File;
@@ -405,9 +405,8 @@ public class KometStageController
 
     private void updateMenus(Observable observable) {
         this.windowCoordinates.getItems().clear();
-        FxGet.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(),
-                this.windowCoordinates.getItems(),
-                this.viewProperties.getManifoldCoordinate());
+        CoordinateMenuFactory.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(),
+                this.windowCoordinates.getItems(), this.viewProperties.getManifoldCoordinate());
     }
 
     private String makePathLabelString() {

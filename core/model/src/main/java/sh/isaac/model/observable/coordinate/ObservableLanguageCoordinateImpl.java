@@ -36,6 +36,7 @@
  */
 package sh.isaac.model.observable.coordinate;
 
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -137,6 +138,33 @@ public final class ObservableLanguageCoordinateImpl
      */
     public void setLanguageConceptNid(int languageConceptNid) {
         this.languageConceptProperty().set(Get.conceptSpecification(languageConceptNid));
+    }
+
+    @Override
+    public LanguageCoordinateImmutable getOriginalValue() {
+        return getValue();
+    }
+
+
+    @Override
+    protected LanguageCoordinateImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends LanguageCoordinateImmutable> observable, LanguageCoordinateImmutable oldValue, LanguageCoordinateImmutable newValue) {
+        this.languageConceptProperty().setValue(newValue.getLanguageConcept());
+        this.dialectAssemblagePreferenceListProperty().setAll(newValue.getDialectAssemblageSpecPreferenceList());
+        this.descriptionTypePreferenceListProperty().setAll(newValue.getDescriptionTypeSpecPreferenceList());
+        this.modulePreferenceListForLanguageProperty().setAll(newValue.getModuleSpecPreferenceListForLanguage());
+        if (newValue.getNextPriorityLanguageCoordinate().isPresent()) {
+            if (this.nextPriorityLanguageCoordinateProperty().get() != null) {
+                LanguageCoordinateImmutable languageCoordinateImmutable = newValue.getNextPriorityLanguageCoordinate().get().toLanguageCoordinateImmutable();
+                this.nextPriorityLanguageCoordinateProperty().get().setValue(languageCoordinateImmutable);
+            } else {
+                LanguageCoordinateImmutable languageCoordinateImmutable = newValue.getNextPriorityLanguageCoordinate().get().toLanguageCoordinateImmutable();
+                ObservableLanguageCoordinateImpl observableLanguageCoordinate = new ObservableLanguageCoordinateImpl(languageCoordinateImmutable);
+                this.nextPriorityLanguageCoordinateProperty().setValue(observableLanguageCoordinate);
+            }
+        } else {
+            this.nextPriorityLanguageCoordinateProperty().setValue(null);
+        }
+        return newValue;
     }
 
 }

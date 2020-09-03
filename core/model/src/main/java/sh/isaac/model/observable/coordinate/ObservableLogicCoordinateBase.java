@@ -131,17 +131,6 @@ public abstract class ObservableLogicCoordinateBase
     protected abstract ObjectProperty<ConceptSpecification> makeRootConceptProperty(LogicCoordinate logicCoordinate);
 
     @Override
-    protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends LogicCoordinateImmutable> observable, LogicCoordinateImmutable oldValue, LogicCoordinateImmutable newValue) {
-        this.classifierProperty.setValue(newValue.getClassifier());
-        this.conceptAssemblageProperty.setValue(newValue.getConceptAssemblage());
-        this.descriptionLogicProfileProperty.setValue(newValue.getDescriptionLogicProfile());
-        this.inferredAssemblageProperty.setValue(newValue.getInferredAssemblage());
-        this.statedAssemblageProperty.setValue(newValue.getStatedAssemblage());
-        this.digraphIdentityProperty.setValue(newValue.getDigraphIdentity());
-        this.rootConceptProperty.setValue(newValue.getRoot());
-    }
-
-    @Override
     protected void addListeners() {
         this.classifierProperty.addListener(this.classifierListener);
         this.conceptAssemblageProperty.addListener(this.conceptAssemblageListener);

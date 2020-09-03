@@ -46,9 +46,9 @@ public interface NavigationCoordinate {
     }
 
     NavigationCoordinateImmutable toNavigationCoordinateImmutable();
+
     default String toUserString() {
-        StringBuilder sb = new StringBuilder("Navigation coordinate: ");
-        sb.append("\nIncluded navigators: ");
+        StringBuilder sb = new StringBuilder("Navigators: ");
         for (int nid: getNavigationConceptNids().toArray()) {
             sb.append("\n     ").append(Get.conceptDescriptionText(nid));
         }

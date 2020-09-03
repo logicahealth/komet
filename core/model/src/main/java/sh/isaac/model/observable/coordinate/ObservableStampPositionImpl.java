@@ -89,11 +89,24 @@ public class ObservableStampPositionImpl
               stampPosition.getPathConcept());
    }
 
+   @Override
+   protected StampPositionImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends StampPositionImmutable> observable,
+                                                        StampPositionImmutable oldValue, StampPositionImmutable newValue) {
+      this.pathConceptProperty().setValue(newValue.getPathConcept());
+      this.timeProperty().set(newValue.getTime());
+      return newValue;
+   }
+
+
    protected LongProperty makeTimeProperty(StampPosition stampPosition) {
       return new SimpleLongProperty(this,
               ObservableFields.TIME_FOR_STAMP_POSITION.toExternalString(),
               stampPosition.getTime());
    }
 
+   @Override
+   public StampPositionImmutable getOriginalValue() {
+      return getValue();
+   }
 }
 

@@ -26,7 +26,7 @@
                <children>
                   <ToolBar fx:id="toolBar" minHeight="40.0" prefHeight="40.0" prefWidth="200.0">
                      <items>
-                        <MenuButton fx:id="navigationMenuButton" mnemonicParsing="false">
+                        <MenuButton fx:id="navigationMenuButton" contentDisplay="GRAPHIC_ONLY" mnemonicParsing="false">
                           <items>
                               <Menu fx:id="navigationCoordinateMenu" mnemonicParsing="false" text="Coordinates" />
                               <SeparatorMenuItem mnemonicParsing="false" />

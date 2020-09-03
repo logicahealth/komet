@@ -29,7 +29,7 @@ public class ConceptDetailClassificationResultsLinkedPanelProviderFactory extend
         preferencesNode.put(ConceptDetailPanelNode.Keys.ACTIVITY_FEED_NAME,
             preferencesNode.get(ConceptDetailPanelNode.Keys.ACTIVITY_FEED_NAME, ViewProperties.CLASSIFICATION));
 
-        return new ConceptDetailPanelNode(viewProperties, activityFeed, preferencesNode);
+        return new ConceptDetailPanelNode(viewProperties.makeOverride(), activityFeed, preferencesNode);
     }
 
     @Override

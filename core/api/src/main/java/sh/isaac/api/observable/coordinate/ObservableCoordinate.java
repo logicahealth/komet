@@ -49,7 +49,16 @@ public interface ObservableCoordinate<T extends ImmutableCoordinate> extends Pro
                 coordinate.removeOverrides();
             }
         }
+        this.setValue(getOriginalValue());
     }
 
     void setExceptOverrides(T updatedCoordinate);
+
+    /**
+     * If the underlying coordinate supports overrides, returns the original value of the coordinate removing any
+     * overrides. If the underlying coordinate does not support overrides, returns the current value of the coordinate.
+     * @return the original value of this coordinate.
+     */
+    T getOriginalValue();
+
 }

@@ -63,14 +63,6 @@ public abstract class ObservableStampPositionBase
     private final ChangeListener<ConceptSpecification> pathConceptChangedListener = this::pathConceptChanged;
     private final ChangeListener<Number> timeChangedListener = this::timeChanged;
 
-
-    @Override
-    protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends StampPositionImmutable> observable,
-                                                         StampPositionImmutable oldValue, StampPositionImmutable newValue) {
-        this.pathConceptProperty.setValue(newValue.getPathConcept());
-        this.timeProperty.set(newValue.getTime());
-    }
-
     @Override
     protected void addListeners() {
         this.pathConceptProperty.addListener(this.pathConceptChangedListener);

@@ -2,6 +2,7 @@ package sh.isaac.model.observable.coordinate;
 
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ObservableValue;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -25,12 +26,14 @@ public class ObservableLanguageCoordinateWithOverride extends ObservableLanguage
 
     public ObservableLanguageCoordinateWithOverride(ObservableLanguageCoordinate overriddenCoordinate, String coordinateName) {
         super(overriddenCoordinate, coordinateName);
+        if (overriddenCoordinate instanceof ObservableLanguageCoordinateWithOverride) {
+            throw new IllegalStateException("Cannot override an overridden Coordinate. ");
+        }
         this.overriddenCoordinate = overriddenCoordinate;
     }
 
     public ObservableLanguageCoordinateWithOverride(ObservableLanguageCoordinate overriddenCoordinate) {
-        super(overriddenCoordinate, overriddenCoordinate.getName());
-        this.overriddenCoordinate = overriddenCoordinate;
+        this(overriddenCoordinate, overriddenCoordinate.getName());
     }
 
     @Override
@@ -133,4 +136,40 @@ public class ObservableLanguageCoordinateWithOverride extends ObservableLanguage
     public void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList) {
         this.descriptionTypePreferenceListProperty().setAll(Get.conceptList(descriptionTypePreferenceList));
     }
+
+    @Override
+    public LanguageCoordinateImmutable getOriginalValue() {
+        return LanguageCoordinateImmutable.make(languageConceptProperty().getOriginalValue().getNid(),
+                IntLists.immutable.of(descriptionTypePreferenceListProperty().getOriginalValue().stream().mapToInt(value -> value.getNid()).toArray()),
+                IntLists.immutable.of(dialectAssemblagePreferenceListProperty().getOriginalValue().stream().mapToInt(value -> value.getNid()).toArray()),
+                IntLists.immutable.of(modulePreferenceListForLanguageProperty().getOriginalValue().stream().mapToInt(value -> value.getNid()).toArray()),
+                getNextPriorityLanguageCoordinate());
+    }
+
+
+    @Override
+    protected LanguageCoordinateImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends LanguageCoordinateImmutable> observable, LanguageCoordinateImmutable oldValue, LanguageCoordinateImmutable newValue) {
+        this.languageConceptProperty().setValue(newValue.getLanguageConcept());
+        this.dialectAssemblagePreferenceListProperty().setAll(newValue.getDialectAssemblageSpecPreferenceList());
+        this.descriptionTypePreferenceListProperty().setAll(newValue.getDescriptionTypeSpecPreferenceList());
+        this.modulePreferenceListForLanguageProperty().setAll(newValue.getModuleSpecPreferenceListForLanguage());
+        if (newValue.getNextPriorityLanguageCoordinate().isPresent()) {
+            if (this.nextPriorityLanguageCoordinateProperty().get() != null) {
+                LanguageCoordinateImmutable languageCoordinateImmutable = newValue.getNextPriorityLanguageCoordinate().get().toLanguageCoordinateImmutable();
+                this.nextPriorityLanguageCoordinateProperty().get().setValue(languageCoordinateImmutable);
+            } else {
+                LanguageCoordinateImmutable languageCoordinateImmutable = newValue.getNextPriorityLanguageCoordinate().get().toLanguageCoordinateImmutable();
+                ObservableLanguageCoordinateImpl observableLanguageCoordinate = new ObservableLanguageCoordinateImpl(languageCoordinateImmutable);
+                this.nextPriorityLanguageCoordinateProperty().setValue(observableLanguageCoordinate);
+            }
+        } else {
+            this.nextPriorityLanguageCoordinateProperty().setValue(null);
+        }
+        return LanguageCoordinateImmutable.make(languageConceptProperty().get().getNid(),
+                IntLists.immutable.of(descriptionTypePreferenceListProperty().get().stream().mapToInt(value -> value.getNid()).toArray()),
+                IntLists.immutable.of(dialectAssemblagePreferenceListProperty().get().stream().mapToInt(value -> value.getNid()).toArray()),
+                IntLists.immutable.of(modulePreferenceListForLanguageProperty().get().stream().mapToInt(value -> value.getNid()).toArray()),
+                getNextPriorityLanguageCoordinate());
+    }
+
 }

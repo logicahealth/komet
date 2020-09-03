@@ -16,9 +16,7 @@ import javafx.stage.FileChooser;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.MutableList;
-import org.eclipse.collections.api.set.MutableSet;
 import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.api.Get;
@@ -33,6 +31,7 @@ import sh.komet.gui.drag.drop.DropHelper;
 import sh.komet.gui.interfaces.ComponentList;
 import sh.komet.gui.row.DragAndDropRowFactory;
 import sh.komet.gui.table.version.VersionTable;
+import sh.komet.gui.control.manifold.CoordinateMenuFactory;
 import sh.komet.gui.util.FxGet;
 import sh.isaac.api.util.UuidStringKey;
 
@@ -158,7 +157,8 @@ public class ListViewNodeController implements ComponentList {
 
     private void setupVersionTable() {
         this.navigationMenu.getItems().clear();
-        FxGet.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(), this.navigationMenu.getItems(), this.viewProperties.getManifoldCoordinate());
+        CoordinateMenuFactory.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(),
+                this.navigationMenu.getItems(), this.viewProperties.getManifoldCoordinate());
         this.versionTable = new VersionTable(this.viewProperties.getManifoldCoordinate());
         this.versionTable.getRootNode().getItems().addListener(this.listChangeListener);
         this.versionTable.getRootNode().getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);

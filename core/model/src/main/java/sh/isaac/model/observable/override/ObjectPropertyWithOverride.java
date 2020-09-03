@@ -9,6 +9,7 @@ import javafx.beans.value.ObservableValue;
 import sh.isaac.api.observable.coordinate.PropertyWithOverride;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedObjectProperty;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class ObjectPropertyWithOverride<T> extends SimpleEqualityBasedObjectProperty<T>
@@ -86,7 +87,7 @@ public class ObjectPropertyWithOverride<T> extends SimpleEqualityBasedObjectProp
             super.set(null);
         } else {
             // values not equal
-            super.set(newValue);
+             super.set(newValue);
             this.overridden = true;
             invalidated();
             fireValueChangedEvent();
@@ -135,10 +136,12 @@ public class ObjectPropertyWithOverride<T> extends SimpleEqualityBasedObjectProp
 
     @Override
     public void removeListener(ChangeListener<? super T> listener) {
-        this.changeListeners.remove(listener);
-        if (this.changeListeners.isEmpty()) {
-            this.overriddenProperty.removeListener(this.overriddenPropertyChangedListener);
-            this.changeListeners = null;
+        if (this.changeListeners != null) {
+            this.changeListeners.remove(listener);
+            if (this.changeListeners.isEmpty()) {
+                this.overriddenProperty.removeListener(this.overriddenPropertyChangedListener);
+                this.changeListeners = null;
+            }
         }
     }
 
@@ -155,13 +158,18 @@ public class ObjectPropertyWithOverride<T> extends SimpleEqualityBasedObjectProp
         if (this.oldValue != newValue) {
             if (this.oldValue != null) {
                 if (!this.oldValue.equals(newValue)) {
-                    HashSet<ChangeListener<? super T>> listeners = this.changeListeners;
-                    if (listeners != null) {
-                        listeners.forEach(changeListener -> changeListener.changed(this, this.oldValue, newValue));
-                    }
-
+                    notify(newValue);
                 }
+            } else {
+                notify(newValue);
             }
+        }
+    }
+
+    private void notify(T newValue) {
+        if (this.changeListeners != null) {
+            ArrayList<ChangeListener<? super T>> listenerList = new ArrayList<>(this.changeListeners);
+            listenerList.forEach(changeListener -> changeListener.changed(this, this.oldValue, newValue));
         }
     }
 

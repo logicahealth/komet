@@ -7,6 +7,9 @@ import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
+/**
+ * Consider simplifying by merging with StampFilter.
+ */
 public interface StampFilterTemplate {
 
     /**

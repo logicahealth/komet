@@ -4,15 +4,16 @@ import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import sh.isaac.api.coordinate.*;
-import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampFilter;
+import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.model.observable.override.ObjectPropertyWithOverride;
 
 public class ObservableManifoldCoordinateWithOverride extends ObservableManifoldCoordinateBase {
 
     public ObservableManifoldCoordinateWithOverride(ObservableManifoldCoordinateBase manifoldCoordinate) {
         super(manifoldCoordinate);
+        if (manifoldCoordinate instanceof ObservableManifoldCoordinateWithOverride) {
+            throw new IllegalStateException("Cannot override an overridden Coordinate. ");
+        }
         manifoldCoordinate.baseCoordinateProperty().addListener(this::overriddenBaseChanged);
         manifoldCoordinate.listening.addListener((observable, oldValue, newValue) -> {
             if (newValue) {
@@ -86,27 +87,56 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
 
     @Override
     protected ObservableLogicCoordinateBase makeLogicCoordinate(ManifoldCoordinate manifoldCoordinate) {
-        ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
+        ObservableManifoldCoordinate observableManifoldCoordinate = (ObservableManifoldCoordinate) manifoldCoordinate;
         return new ObservableLogicCoordinateWithOverride(observableManifoldCoordinate.getLogicCoordinate());
     }
 
     @Override
     protected ObservableNavigationCoordinateBase makeNavigationCoordinateProperty(ManifoldCoordinate manifoldCoordinate) {
-        ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
+        ObservableManifoldCoordinate observableManifoldCoordinate = (ObservableManifoldCoordinate) manifoldCoordinate;
         return new ObservableNavigationCoordinateWithOverride(observableManifoldCoordinate.getNavigationCoordinate());
     }
 
     @Override
     protected ObjectPropertyWithOverride<StatusSet> makeVertexStatusSetProperty(ManifoldCoordinate manifoldCoordinate) {
-        ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
+        ObservableManifoldCoordinate observableManifoldCoordinate = (ObservableManifoldCoordinate) manifoldCoordinate;
         return new ObjectPropertyWithOverride(observableManifoldCoordinate.vertexStatusSetProperty(), this);
     }
 
     @Override
     protected ObservableStampFilterBase makeEdgeStampFilterProperty(ManifoldCoordinate manifoldCoordinate) {
-        ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
+        ObservableManifoldCoordinate observableManifoldCoordinate = (ObservableManifoldCoordinate) manifoldCoordinate;
         return new ObservableStampFilterWithOverride(observableManifoldCoordinate.getViewStampFilter());
     }
+    @Override
+    protected SimpleObjectProperty<VertexSort> makeVertexSortProperty(ManifoldCoordinate manifoldCoordinate) {
+        ObservableManifoldCoordinate observableManifoldCoordinate = (ObservableManifoldCoordinate) manifoldCoordinate;
+        return new ObjectPropertyWithOverride<>(observableManifoldCoordinate.vertexSortProperty(), this);
+    }
+
+    @Override
+    protected SimpleObjectProperty<Activity> makeActivityProperty(ManifoldCoordinate manifoldCoordinate) {
+        ObservableManifoldCoordinate observableManifoldCoordinate = (ObservableManifoldCoordinate) manifoldCoordinate;
+        return new ObjectPropertyWithOverride<>(observableManifoldCoordinate.activityProperty(), this);
+    }
+
+    @Override
+    public ObjectPropertyWithOverride<Activity> activityProperty() {
+        return (ObjectPropertyWithOverride) super.activityProperty();
+    }
+
+    @Override
+    protected ObservableLanguageCoordinateBase makeLanguageCoordinate(ManifoldCoordinate manifoldCoordinate) {
+        ObservableManifoldCoordinate observableManifoldCoordinate = (ObservableManifoldCoordinate) manifoldCoordinate;
+        return new ObservableLanguageCoordinateWithOverride(observableManifoldCoordinate.getLanguageCoordinate());
+    }
+
+    @Override
+    protected ObservableEditCoordinateBase makeEditCoordinate(ManifoldCoordinate manifoldCoordinate) {
+        ObservableManifoldCoordinate observableManifoldCoordinate = (ObservableManifoldCoordinate) manifoldCoordinate;
+        return new ObservableEditCoordinateWithOverride(observableManifoldCoordinate.getEditCoordinate());
+    }
+
 
     @Override
     public ObjectPropertyWithOverride<VertexSort> vertexSortProperty() {
@@ -119,33 +149,44 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
     }
 
     @Override
-    protected SimpleObjectProperty<VertexSort> makeVertexSortProperty(ManifoldCoordinate manifoldCoordinate) {
-        ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
-        return new ObjectPropertyWithOverride<>(observableManifoldCoordinate.vertexSortProperty(), this);
+    public ManifoldCoordinateImmutable getOriginalValue() {
+        return ManifoldCoordinateImmutable.make(
+                getViewStampFilter().getOriginalValue(),
+                getLanguageCoordinate().getOriginalValue(),
+                vertexSortProperty().getOriginalValue(),
+                vertexStatusSetProperty().getOriginalValue(),
+                getNavigationCoordinate().getOriginalValue(),
+                getLogicCoordinate().getOriginalValue(),
+                activityProperty().getOriginalValue(),
+                getEditCoordinate().getOriginalValue());
     }
 
     @Override
-    protected SimpleObjectProperty<Activity> makeActivityProperty(ManifoldCoordinate manifoldCoordinate) {
-        ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
-        return new ObjectPropertyWithOverride<>(observableManifoldCoordinate.activityProperty(), this);
-    }
+    protected ManifoldCoordinateImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends ManifoldCoordinateImmutable> observable, ManifoldCoordinateImmutable oldValue, ManifoldCoordinateImmutable newValue) {
+        this.navigationCoordinateObservable.setExceptOverrides(newValue.toNavigationCoordinateImmutable());
+        this.languageCoordinateObservable.setExceptOverrides(newValue.getLanguageCoordinate().toLanguageCoordinateImmutable());
+        this.edgeStampFilterObservable.setExceptOverrides(newValue.getViewStampFilter().toStampFilterImmutable());
+        this.editCoordinateObservable.setExceptOverrides(newValue.getEditCoordinate().toEditCoordinateImmutable());
+        this.logicCoordinateObservable.setExceptOverrides(newValue.getLogicCoordinate().toLogicCoordinateImmutable());
 
-    @Override
-    public ObjectPropertyWithOverride<Activity> activityProperty() {
-        return (ObjectPropertyWithOverride) super.activityProperty();
+        if (!this.vertexStatusSetProperty().isOverridden()) {
+            this.vertexStatusSetObservable.setValue(newValue.getVertexStatusSet());
+        }
+        if (!this.vertexSortProperty().isOverridden()) {
+            this.vertexSortProperty.setValue(newValue.getVertexSort());
+        }
+        if (!this.activityProperty().isOverridden()) {
+            this.activityProperty.setValue(newValue.getCurrentActivity());
+        }
+        this.activityProperty.setValue(newValue.getCurrentActivity());
+        return ManifoldCoordinateImmutable.make(edgeStampFilterObservable.getValue(),
+                this.languageCoordinateObservable.getValue(),
+                this.vertexSortProperty().get(),
+                this.vertexStatusSetProperty().get(),
+                this.navigationCoordinateObservable.getValue(),
+                this.logicCoordinateObservable.getValue(),
+                this.activityProperty().getValue(),
+                this.editCoordinateObservable.getValue());
     }
-
-    @Override
-    protected ObservableLanguageCoordinateBase makeLanguageCoordinate(ManifoldCoordinate manifoldCoordinate) {
-        ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
-        return new ObservableLanguageCoordinateWithOverride(observableManifoldCoordinate.getLanguageCoordinate());
-    }
-
-    @Override
-    protected ObservableEditCoordinateBase makeEditCoordinate(ManifoldCoordinate manifoldCoordinate) {
-        ObservableManifoldCoordinateImpl observableManifoldCoordinate = (ObservableManifoldCoordinateImpl) manifoldCoordinate;
-        return new ObservableEditCoordinateWithOverride(observableManifoldCoordinate.getEditCoordinate());
-    }
-
 
 }

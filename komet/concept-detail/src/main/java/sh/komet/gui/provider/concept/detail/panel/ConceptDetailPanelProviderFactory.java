@@ -45,7 +45,7 @@ public class ConceptDetailPanelProviderFactory implements DetailNodeFactory {
 
    @Override
    public DetailNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
-      return new ConceptDetailPanelNode(viewProperties, activityFeed, preferencesNode);
+      return new ConceptDetailPanelNode(viewProperties.makeOverride(), activityFeed, preferencesNode);
    }
 
    @Override

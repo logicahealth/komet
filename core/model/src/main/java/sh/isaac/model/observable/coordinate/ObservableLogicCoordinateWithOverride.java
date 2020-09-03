@@ -1,6 +1,7 @@
 package sh.isaac.model.observable.coordinate;
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ObservableValue;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinateImmutable;
@@ -11,10 +12,13 @@ public class ObservableLogicCoordinateWithOverride extends ObservableLogicCoordi
 
     public ObservableLogicCoordinateWithOverride(ObservableLogicCoordinate logicCoordinate, String coordinateName) {
         super(logicCoordinate, coordinateName);
+        if (logicCoordinate instanceof ObservableLogicCoordinateWithOverride) {
+            throw new IllegalStateException("Cannot override an overridden Coordinate. ");
+        }
     }
 
     public ObservableLogicCoordinateWithOverride(ObservableLogicCoordinate logicCoordinate) {
-        super(logicCoordinate, logicCoordinate.getName());
+        this(logicCoordinate, logicCoordinate.getName());
     }
 
     @Override
@@ -127,5 +131,50 @@ public class ObservableLogicCoordinateWithOverride extends ObservableLogicCoordi
     protected ObjectProperty<ConceptSpecification> makeRootConceptProperty(LogicCoordinate logicCoordinate) {
         ObservableLogicCoordinate overriddenCoordinate = (ObservableLogicCoordinate) logicCoordinate;
         return new ObjectPropertyWithOverride<>(overriddenCoordinate.rootConceptProperty(), this);
+    }
+
+    @Override
+    public LogicCoordinateImmutable getOriginalValue() {
+        return LogicCoordinateImmutable.make(classifierProperty().getOriginalValue().getNid(),
+                descriptionLogicProfileProperty().getOriginalValue().getNid(),
+                inferredAssemblageProperty().getOriginalValue().getNid(),
+                statedAssemblageProperty().getOriginalValue().getNid(),
+                conceptAssemblageProperty().getOriginalValue().getNid(),
+                digraphIdentityProperty().getOriginalValue().getNid(),
+                rootConceptProperty().getOriginalValue().getNid());
+    }
+
+
+    @Override
+    protected LogicCoordinateImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends LogicCoordinateImmutable> observable, LogicCoordinateImmutable oldValue, LogicCoordinateImmutable newValue) {
+        if (!this.classifierProperty().isOverridden()) {
+            this.classifierProperty().setValue(newValue.getClassifier());
+        }
+        if (!this.conceptAssemblageProperty().isOverridden()) {
+            this.conceptAssemblageProperty().setValue(newValue.getConceptAssemblage());
+        }
+        if (!this.descriptionLogicProfileProperty().isOverridden()) {
+            this.descriptionLogicProfileProperty().setValue(newValue.getDescriptionLogicProfile());
+        }
+        if (!this.inferredAssemblageProperty().isOverridden()) {
+            this.inferredAssemblageProperty().setValue(newValue.getInferredAssemblage());
+        }
+        if (!this.statedAssemblageProperty().isOverridden()) {
+            this.statedAssemblageProperty().setValue(newValue.getStatedAssemblage());
+        }
+        if (!this.digraphIdentityProperty().isOverridden()) {
+            this.digraphIdentityProperty().setValue(newValue.getDigraphIdentity());
+        }
+        if (!this.rootConceptProperty().isOverridden()) {
+            this.rootConceptProperty().setValue(newValue.getRoot());
+        }
+        return LogicCoordinateImmutable.make(
+                this.classifierProperty().get().getNid(),
+                this.descriptionLogicProfileProperty().get().getNid(),
+                this.inferredAssemblageProperty().get().getNid(),
+                this.statedAssemblageProperty().get().getNid(),
+                this.digraphIdentityProperty().get().getNid(),
+                this.conceptAssemblageProperty().get().getNid(),
+                this.rootConceptProperty().get().getNid());
     }
 }

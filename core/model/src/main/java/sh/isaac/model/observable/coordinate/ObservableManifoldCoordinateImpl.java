@@ -41,8 +41,12 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import javafx.beans.property.Property;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ObservableValue;
 import sh.isaac.api.coordinate.*;
+import sh.isaac.api.observable.coordinate.ObservableCoordinate;
+import sh.isaac.api.observable.coordinate.PropertyWithOverride;
 import sh.isaac.model.observable.ObservableFields;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -120,6 +124,31 @@ public class ObservableManifoldCoordinateImpl extends ObservableManifoldCoordina
     protected ObservableEditCoordinateBase makeEditCoordinate(ManifoldCoordinate manifoldCoordinate) {
         return new ObservableEditCoordinateImpl(manifoldCoordinate.getEditCoordinate());
     }
+
+
+    public void removeOverrides() {
+        // nothing to do, this coordinate cannot be overridden.
+    }
+
+    @Override
+    public ManifoldCoordinateImmutable getOriginalValue() {
+        return getValue();
+    }
+
+
+    @Override
+    protected ManifoldCoordinateImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends ManifoldCoordinateImmutable> observable, ManifoldCoordinateImmutable oldValue, ManifoldCoordinateImmutable newValue) {
+        this.navigationCoordinateObservable.baseCoordinateProperty().setValue(newValue.toNavigationCoordinateImmutable());
+        this.languageCoordinateObservable.setValue(newValue.getLanguageCoordinate().toLanguageCoordinateImmutable());
+        this.edgeStampFilterObservable.setValue(newValue.getViewStampFilter().toStampFilterImmutable());
+        this.vertexStatusSetObservable.setValue(newValue.getVertexStatusSet());
+        this.logicCoordinateObservable.setValue(newValue.getLogicCoordinate().toLogicCoordinateImmutable());
+        this.vertexSortProperty.setValue(newValue.getVertexSort());
+        this.activityProperty.setValue(newValue.getCurrentActivity());
+        this.editCoordinateObservable.setValue(newValue.getEditCoordinate().toEditCoordinateImmutable());
+        return newValue;
+    }
+
 }
 
 

@@ -87,7 +87,7 @@ public interface ObservableStampPath extends ObservableCoordinate<StampPathImmut
     * @return path origins as a list, as a convenience for interface elements based on
     * lists rather than on sets. Backed by the underlying set representation.
     */
-   ListProperty<StampPositionImmutable> pathOriginsAsListPropertyProperty();
+   ListProperty<StampPositionImmutable> pathOriginsAsListProperty();
 
 }
 

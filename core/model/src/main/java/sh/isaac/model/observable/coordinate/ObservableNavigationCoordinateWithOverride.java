@@ -1,7 +1,9 @@
 package sh.isaac.model.observable.coordinate;
 
 import javafx.beans.property.SetProperty;
+import javafx.beans.value.ObservableValue;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
+import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.NavigationCoordinate;
 import sh.isaac.api.coordinate.NavigationCoordinateImmutable;
@@ -13,10 +15,14 @@ public class ObservableNavigationCoordinateWithOverride extends ObservableNaviga
 
     public ObservableNavigationCoordinateWithOverride(ObservableNavigationCoordinate navigationCoordinate, String coordinateName) {
         super(navigationCoordinate, coordinateName);
+        if (navigationCoordinate instanceof ObservableNavigationCoordinateWithOverride) {
+            throw new IllegalStateException("Cannot override an overridden Coordinate. ");
+        }
+
     }
 
     public ObservableNavigationCoordinateWithOverride(ObservableNavigationCoordinate navigationCoordinate) {
-        super(navigationCoordinate, navigationCoordinate.getName());
+        this(navigationCoordinate, navigationCoordinate.getName());
     }
 
     @Override
@@ -35,7 +41,20 @@ public class ObservableNavigationCoordinateWithOverride extends ObservableNaviga
 
     @Override
     protected SimpleEqualityBasedSetProperty<ConceptSpecification> makeNavigatorIdentifierConceptsProperty(NavigationCoordinate navigationCoordinate) {
-        ObservableNavigationCoordinateImpl observableDigraphCoordinate = (ObservableNavigationCoordinateImpl) navigationCoordinate;
+        ObservableNavigationCoordinate observableDigraphCoordinate = (ObservableNavigationCoordinate) navigationCoordinate;
         return new SetPropertyWithOverride<>(observableDigraphCoordinate.navigatorIdentifierConceptsProperty(), this);
+    }
+
+    @Override
+    public NavigationCoordinateImmutable getOriginalValue() {
+        return NavigationCoordinateImmutable.make(IntSets.immutable.of(navigatorIdentifierConceptsProperty().getOriginalValue().stream().mapToInt(value -> value.getNid()).toArray()));
+    }
+
+
+    @Override
+    protected NavigationCoordinateImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends NavigationCoordinateImmutable> observable, NavigationCoordinateImmutable oldValue, NavigationCoordinateImmutable newValue) {
+        this.navigatorIdentifierConceptsProperty().setAll(newValue.getNavigationConceptNids()
+                .collect(nid -> Get.conceptSpecification(nid)).toSet());
+        return NavigationCoordinateImmutable.make(IntSets.immutable.of(navigatorIdentifierConceptsProperty().stream().mapToInt(value -> value.getNid()).toArray()));
     }
 }

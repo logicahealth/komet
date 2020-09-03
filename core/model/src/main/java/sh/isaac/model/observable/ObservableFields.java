@@ -141,7 +141,7 @@ public enum ObservableFields
 
    DIGRAPH_SPECIFICATION_SET("Navigation concept set", "Navigation set"),
    /** The allowed states for stamp coordinate. */
-   ALLOWED_STATES_FOR_STAMP_COORDINATE("View states for stamp coordinate", "View states"),
+   ALLOWED_STATES_FOR_STAMP_COORDINATE("Allowed states for stamp coordinate", "Allowed states"),
 
    /** The path nid for stamp path. */
    PATH_FOR_PATH_COORDINATE("Path for path coordinate", "Path"),

@@ -1,7 +1,9 @@
-package sh.komet.gui.util;
+package sh.komet.gui.control.manifold;
 
 import javafx.application.Platform;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
+import javafx.beans.property.SetProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -23,6 +25,7 @@ import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.api.util.UuidStringKey;
 import sh.isaac.api.util.time.DateTimeUtil;
+import sh.komet.gui.util.FxGet;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -58,7 +61,7 @@ public class CoordinateMenuFactory {
 
         if (observableCoordinate instanceof ManifoldCoordinate) {
             addSeparator(menuItems);
-            addRemoveOverrides(menuItems, observableCoordinate);
+            //addRemoveOverrides(menuItems, observableCoordinate);
             addChangeItemsForManifold(manifoldCoordinate, menuItems, (ObservableManifoldCoordinate) observableCoordinate);
         } else if (observableCoordinate instanceof LanguageCoordinate) {
             addSeparator(menuItems);
@@ -120,28 +123,49 @@ public class CoordinateMenuFactory {
 
         addChangePositionForFilter(menuItems, observableCoordinate);
 
+        changeStates(menuItems, "Change filter states", observableCoordinate.allowedStatusProperty());
 
-        Menu changeAllowedStatusMenu = new Menu("Change allowed states");
+        addIncludedModulesMenu(menuItems, observableCoordinate, manifoldCoordinate);
+
+        addExcludedModulesMenu(menuItems, observableCoordinate, manifoldCoordinate);
+
+    }
+    private static void changeStates(ObservableList<MenuItem> menuItems, String menuText, ObservableManifoldCoordinate observableManifoldCoordinate) {
+        Menu changeAllowedStatusMenu = new Menu(menuText);
         menuItems.add(changeAllowedStatusMenu);
-
         for (StatusSet statusSet: new StatusSet[] { StatusSet.ACTIVE_ONLY, StatusSet.ACTIVE_AND_INACTIVE, StatusSet.INACTIVE,
                 StatusSet.WITHDRAWN, StatusSet.INACTIVE_ONLY}) {
             CheckMenuItem item = new CheckMenuItem(statusSet.toUserString());
-            item.setSelected(statusSet.equals(observableCoordinate.getAllowedStates()));
+            if (observableManifoldCoordinate.getVertexStatusSet() == observableManifoldCoordinate.getViewStampFilter().getAllowedStates()) {
+                item.setSelected(statusSet.equals(observableManifoldCoordinate.getVertexStatusSet()));
+            }
             item.setOnAction(event -> {
                 Platform.runLater(() -> {
-                    ObservableSet<Status> set = FXCollections.observableSet(statusSet.toArray());
-                    observableCoordinate.allowedStatusProperty().setValue(set);
+                    observableManifoldCoordinate.setAllowedStates(statusSet);
                 });
                 event.consume();
             });
             changeAllowedStatusMenu.getItems().add(item);
         }
 
-        addIncludedModulesMenu(menuItems, observableCoordinate, manifoldCoordinate);
+    }
 
-        addExcludedModulesMenu(menuItems, observableCoordinate, manifoldCoordinate);
+    private static void changeStates(ObservableList<MenuItem> menuItems, String menuText, ObjectProperty<StatusSet> statusProperty) {
+        Menu changeAllowedStatusMenu = new Menu(menuText);
+        menuItems.add(changeAllowedStatusMenu);
 
+        for (StatusSet statusSet: new StatusSet[] { StatusSet.ACTIVE_ONLY, StatusSet.ACTIVE_AND_INACTIVE, StatusSet.INACTIVE,
+                StatusSet.WITHDRAWN, StatusSet.INACTIVE_ONLY}) {
+            CheckMenuItem item = new CheckMenuItem(statusSet.toUserString());
+            item.setSelected(statusSet.equals(statusProperty.get()));
+            item.setOnAction(event -> {
+                Platform.runLater(() -> {
+                    statusProperty.setValue(statusSet);
+                });
+                event.consume();
+            });
+            changeAllowedStatusMenu.getItems().add(item);
+        }
     }
 
     private static void addChangePositionForManifold(ObservableList<MenuItem> menuItems, ObservableManifoldCoordinate observableCoordinate) {
@@ -485,55 +509,12 @@ public class CoordinateMenuFactory {
                 event.consume();
             });
         }
-        Menu changeAllowedStatusMenu = new Menu("Change allowed states");
-        menuItems.add(changeAllowedStatusMenu);
 
-        for (StatusSet statusSet: new StatusSet[] { StatusSet.ACTIVE_ONLY, StatusSet.ACTIVE_AND_INACTIVE, StatusSet.INACTIVE,
-                StatusSet.WITHDRAWN, StatusSet.INACTIVE_ONLY}) {
-            CheckMenuItem item = new CheckMenuItem(statusSet.toUserString());
-            item.setSelected(statusSet.equals(observableCoordinate.getViewStampFilter().getAllowedStates()) &&
-                    statusSet.equals(observableCoordinate.getVertexStatusSet()) );
-            item.setOnAction(event -> {
-                Platform.runLater(() -> {
-                    observableCoordinate.setAllowedStates(statusSet);
-                });
-                event.consume();
-            });
-            changeAllowedStatusMenu.getItems().add(item);
-        }
+        changeStates(menuItems, "Change allowed states", observableCoordinate);
 
-        Menu changeAllowedViewStatesMenu = new Menu("Change allowed edge and language states");
-        menuItems.add(changeAllowedViewStatesMenu);
+        changeStates(menuItems, "Change allowed edge and language states", observableCoordinate.getViewStampFilter().allowedStatusProperty());
 
-        for (StatusSet statusSet: new StatusSet[] { StatusSet.ACTIVE_ONLY, StatusSet.ACTIVE_AND_INACTIVE, StatusSet.INACTIVE,
-                StatusSet.WITHDRAWN, StatusSet.INACTIVE_ONLY}) {
-            CheckMenuItem item = new CheckMenuItem(statusSet.toUserString());
-            item.setSelected(statusSet.equals(observableCoordinate.getViewStampFilter().getAllowedStates()));
-            item.setOnAction(event -> {
-                Platform.runLater(() -> {
-                    ObservableSet<Status> set = FXCollections.observableSet(statusSet.toArray());
-                    observableCoordinate.getViewStampFilter().allowedStatusProperty().setValue(set);
-                });
-                event.consume();
-            });
-            changeAllowedViewStatesMenu.getItems().add(item);
-        }
-
-        Menu changeAllowedVertexStatesMenu = new Menu("Change allowed vertex states");
-        menuItems.add(changeAllowedVertexStatesMenu);
-
-        for (StatusSet statusSet: new StatusSet[] { StatusSet.ACTIVE_ONLY, StatusSet.ACTIVE_AND_INACTIVE, StatusSet.INACTIVE,
-                StatusSet.WITHDRAWN, StatusSet.INACTIVE_ONLY}) {
-            CheckMenuItem item = new CheckMenuItem(statusSet.toUserString());
-            item.setSelected(statusSet.equals(observableCoordinate.getVertexStampFilter().getAllowedStates()));
-            item.setOnAction(event -> {
-                Platform.runLater(() -> {
-                    observableCoordinate.vertexStatusSetProperty().setValue(statusSet);
-                });
-                event.consume();
-            });
-            changeAllowedVertexStatesMenu.getItems().add(item);
-        }
+        changeStates(menuItems, "Change allowed vertex states", observableCoordinate.vertexStatusSetProperty());
 
         Menu changeDescriptionPreferenceMenu = new Menu("Change description preference");
         menuItems.add(changeDescriptionPreferenceMenu);
@@ -587,6 +568,16 @@ public class CoordinateMenuFactory {
             changeVertexSortMenu.getItems().add(item);
         }
 
+        MenuItem reloadManifoldMenu = new MenuItem("Reload manifold menu");
+        menuItems.add(reloadManifoldMenu);
+        reloadManifoldMenu.setOnAction(event -> {
+            Platform.runLater(() -> {
+                menuItems.clear();
+                CoordinateMenuFactory.makeCoordinateDisplayMenu(manifoldCoordinate, menuItems,
+                        observableCoordinate);
+            });
+            event.consume();
+        });
 
     }
 
@@ -605,8 +596,6 @@ public class CoordinateMenuFactory {
                 }
             }
             addRemoveOverrides(menuItems, observableCoordinate);
-
-            menuItems.add(overridesMenu);
 
 
             for (ObservableCoordinate compositeCoordinate: observableCoordinate.getCompositeCoordinates()) {

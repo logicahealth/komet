@@ -13,7 +13,6 @@ import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedListProperty;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedObjectProperty;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 public abstract class ObservableLanguageCoordinateBase extends ObservableCoordinateImpl<LanguageCoordinateImmutable>
@@ -79,26 +78,6 @@ public abstract class ObservableLanguageCoordinateBase extends ObservableCoordin
     protected abstract SimpleEqualityBasedListProperty<ConceptSpecification> makeModulePreferenceListProperty(LanguageCoordinate languageCoordinate);
 
     protected abstract SimpleEqualityBasedObjectProperty<ObservableLanguageCoordinate> makeNextPriorityLanguageCoordinateProperty(LanguageCoordinate languageCoordinate);
-
-    @Override
-    protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends LanguageCoordinateImmutable> observable, LanguageCoordinateImmutable oldValue, LanguageCoordinateImmutable newValue) {
-        this.languageProperty.setValue(newValue.getLanguageConcept());
-        this.dialectAssemblagePreferenceListProperty.setAll(newValue.getDialectAssemblageSpecPreferenceList());
-        this.descriptionTypePreferenceListProperty.setAll(newValue.getDescriptionTypeSpecPreferenceList());
-        this.modulePreferenceListProperty.setAll(newValue.getModuleSpecPreferenceListForLanguage());
-        if (newValue.getNextPriorityLanguageCoordinate().isPresent()) {
-            if (this.nextPriorityLanguageCoordinateProperty.get() != null) {
-                LanguageCoordinateImmutable languageCoordinateImmutable = newValue.getNextPriorityLanguageCoordinate().get().toLanguageCoordinateImmutable();
-                this.nextPriorityLanguageCoordinateProperty.get().setValue(languageCoordinateImmutable);
-            } else {
-                LanguageCoordinateImmutable languageCoordinateImmutable = newValue.getNextPriorityLanguageCoordinate().get().toLanguageCoordinateImmutable();
-                ObservableLanguageCoordinateImpl observableLanguageCoordinate = new ObservableLanguageCoordinateImpl(languageCoordinateImmutable);
-                this.nextPriorityLanguageCoordinateProperty.setValue(observableLanguageCoordinate);
-            }
-        } else {
-            this.nextPriorityLanguageCoordinateProperty.setValue(null);
-        }
-    }
 
     @Override
     protected void addListeners() {
@@ -197,9 +176,10 @@ public abstract class ObservableLanguageCoordinateBase extends ObservableCoordin
 
     /**
      * @see sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate#nextPriorityLanguageCoordinateProperty()
+     * @return
      */
     @Override
-    public ObjectProperty<? extends ObservableLanguageCoordinate> nextPriorityLanguageCoordinateProperty() {
+    public ObjectProperty<ObservableLanguageCoordinate> nextPriorityLanguageCoordinateProperty() {
         return this.nextPriorityLanguageCoordinateProperty;
     }
     @Override

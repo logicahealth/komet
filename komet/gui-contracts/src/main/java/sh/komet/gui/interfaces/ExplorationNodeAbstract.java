@@ -19,7 +19,7 @@ public abstract class ExplorationNodeAbstract implements ExplorationNode {
     protected ViewProperties viewProperties;
 
     public ExplorationNodeAbstract(ViewProperties viewProperties) {
-        this.viewProperties = viewProperties;
+            this.viewProperties = viewProperties;
     }
 
     public ExplorationNodeAbstract(ViewProperties viewProperties, ActivityFeed activityFeed) {
