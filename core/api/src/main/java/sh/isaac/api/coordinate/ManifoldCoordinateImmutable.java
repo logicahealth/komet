@@ -311,9 +311,10 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
 
     @Override
     public String toString() {
-        return "ManifoldCoordinateImmutable{" + this.activity.toUserString() + " " + this.getNavigationCoordinate() +
+        return "ManifoldCoordinateImmutable{" + this.activity.toUserString() + ",\n  " +
+                this.getNavigationCoordinate().toUserString() +
                 ",\n  sort: " + this.vertexSort.getVertexSortName() +
-                ",\n  View filter: " + this.viewStampFilter +
+                ",\n  view filter: " + this.viewStampFilter +
                 ", \n vertex filter: " + this.vertexStampFilter +
                 ", \n language:" + this.languageCoordinate +
                 ", \n logic:" + this.logicCoordinateImmutable +

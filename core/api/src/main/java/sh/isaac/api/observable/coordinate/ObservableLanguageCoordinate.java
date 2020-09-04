@@ -48,7 +48,6 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinateImmutable;
 import sh.isaac.api.coordinate.LanguageCoordinateProxy;
-import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -113,7 +112,7 @@ public interface ObservableLanguageCoordinate
     * The next priority language coordinate property. 
     * @return the object property
     */
-   ObjectProperty<? extends ObservableLanguageCoordinate> nextPriorityLanguageCoordinateProperty();
+   ObjectProperty<ObservableLanguageCoordinate> nextPriorityLanguageCoordinateProperty();
        /**
      * 
      * @param dialectAssemblagePreferenceList

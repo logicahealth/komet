@@ -44,8 +44,10 @@ package sh.isaac.model.observable.coordinate;
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SetProperty;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import org.eclipse.collections.api.set.ImmutableSet;
+import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampPath;
 import sh.isaac.api.coordinate.StampPathImmutable;
@@ -116,5 +118,20 @@ public class ObservableStampPathImpl
                 ObservableFields.PATH_FOR_PATH_COORDINATE.toExternalString(),
                 stampPath.getPathConcept());
     }
+
+    @Override
+    public StampPathImmutable getOriginalValue() {
+        return getValue();
+    }
+
+
+    @Override
+    protected final StampPathImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends StampPathImmutable> observable, StampPathImmutable oldValue, StampPathImmutable newValue) {
+        this.pathConceptProperty().setValue(Get.conceptSpecification(newValue.getPathConceptNid()));
+        this.pathOriginsProperty().setValue(FXCollections.observableSet(newValue.getPathOrigins().toSet()));
+        this.pathOriginsAsListProperty().setValue(FXCollections.observableList(newValue.getPathOrigins().toList()));
+        return newValue;
+    }
+
 }
 

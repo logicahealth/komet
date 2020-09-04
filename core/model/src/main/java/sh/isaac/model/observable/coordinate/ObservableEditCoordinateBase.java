@@ -72,14 +72,6 @@ public abstract class ObservableEditCoordinateBase extends ObservableCoordinateI
         this.promotionPathProperty.addListener(this.promotionPathListener);
     }
 
-    @Override
-    protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends EditCoordinateImmutable> observable, EditCoordinateImmutable oldValue, EditCoordinateImmutable newValue) {
-        this.authorForChangesProperty.setValue(newValue.getAuthorForChanges());
-        this.defaultModuleProperty.setValue(newValue.getDefaultModule());
-        this.destinationModuleProperty.setValue(newValue.getDestinationModule());
-        this.promotionPathProperty.setValue(newValue.getPromotionPath());
-    }
-
     private void promotionPathConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
                                              ConceptSpecification old,
                                              ConceptSpecification newPathConcept) {

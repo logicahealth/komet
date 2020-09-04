@@ -43,6 +43,7 @@ import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.api.util.UuidStringKey;
 import sh.isaac.komet.batch.AddConceptsInModule;
+import sh.komet.gui.control.manifold.CoordinateMenuFactory;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DropHelper;
@@ -167,7 +168,8 @@ public class ListViewNodeController implements ComponentList {
 
     private void setupVersionTable() {
         this.navigationMenu.getItems().clear();
-        FxGet.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(), this.navigationMenu.getItems(), this.viewProperties.getManifoldCoordinate());
+        CoordinateMenuFactory.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(),
+                this.navigationMenu.getItems(), this.viewProperties.getManifoldCoordinate());
         this.versionTable = new VersionTable(this.viewProperties.getManifoldCoordinate());
         this.versionTable.getRootNode().getItems().addListener(this.listChangeListener);
         this.versionTable.getRootNode().getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);

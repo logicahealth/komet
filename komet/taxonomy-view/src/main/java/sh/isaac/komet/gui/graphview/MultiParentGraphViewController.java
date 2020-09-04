@@ -2,14 +2,12 @@ package sh.isaac.komet.gui.graphview;
 
 import com.lmax.disruptor.EventHandler;
 import javafx.application.Platform;
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
-import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -23,13 +21,9 @@ import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
-import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.set.OpenIntHashSet;
-import org.controlsfx.control.IndexedCheckModel;
-import org.eclipse.collections.api.factory.Sets;
-import org.eclipse.collections.api.set.ImmutableSet;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Edge;
 import sh.isaac.api.Get;
@@ -40,24 +34,28 @@ import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.StampPathImmutable;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.navigation.EmptyNavigator;
 import sh.isaac.api.navigation.Navigator;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.util.UuidStringKey;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.alert.AlertPanel;
 import sh.komet.gui.clipboard.ClipboardHelper;
+import sh.komet.gui.control.manifold.ManifoldMenuModel;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.IsaacClipboard;
 import sh.komet.gui.layout.LayoutAnimator;
+import sh.komet.gui.control.manifold.CoordinateMenuFactory;
 import sh.komet.gui.util.FxGet;
 
 import java.util.*;
@@ -91,6 +89,8 @@ public class MultiParentGraphViewController implements RefreshListener {
     Menu navigationCoordinateMenu;
 
     private final Label navigationLabel = new Label();
+    ManifoldMenuModel manifoldMenuModel;
+
 
     //~--- fields --------------------------------------------------------------
     private MultiParentGraphItemDisplayPolicies displayPolicies;
@@ -115,7 +115,7 @@ public class MultiParentGraphViewController implements RefreshListener {
     private ViewProperties viewProperties;
     private SimpleObjectProperty<ActivityFeed> activityFeedProperty = new SimpleObjectProperty<>();
 
-    private InvalidationListener manifoldChangedListener = this::manifoldChanged;
+    private final ChangeListener<ManifoldCoordinateImmutable> manifoldChangedListener = this::manifoldCoordinateChanged;
     private ChangeListener<Scene> sceneChangedListener = this::sceneChanged;
 
     private void sceneChanged(ObservableValue<? extends Scene> observableValue, Scene oldScene, Scene newScene) {
@@ -126,8 +126,10 @@ public class MultiParentGraphViewController implements RefreshListener {
         }
     }
 
-    private void manifoldChanged(Observable observable) {
-        this.refreshTaxonomy();
+    private void manifoldCoordinateChanged(ObservableValue<? extends ManifoldCoordinateImmutable> observable,
+                                 ManifoldCoordinateImmutable oldValue,
+                                 ManifoldCoordinateImmutable newValue) {
+        this.menuUpdate();
     }
 
     @FXML
@@ -188,28 +190,20 @@ public class MultiParentGraphViewController implements RefreshListener {
         this.nodePreferences.put(Keys.ACTIVITY_FEED, this.activityFeedProperty.get().getFullyQualifiedActivityFeedName());
 
     }
-    private void updateMenus(Observable observable) {
-        menuUpdate();
-    }
     private void menuUpdate() {
-        this.navigationCoordinateMenu.getItems().clear();
-        FxGet.makeCoordinateDisplayMenu(this.manifoldCoordinate,
-                this.navigationCoordinateMenu.getItems(),
-                this.manifoldCoordinate);
-
         this.navigationLabel.setText(
                 Get.conceptDescriptionTextListFromSpecList(this.manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty())
         );
         refreshTaxonomy();
     }
-
     public void setProperties(ViewProperties viewProperties, IsaacPreferences nodePreferences) {
         this.nodePreferences = nodePreferences;
         this.viewProperties = viewProperties;
         this.manifoldCoordinate = this.viewProperties.getManifoldCoordinate();
+        this.manifoldMenuModel = new ManifoldMenuModel(viewProperties, navigationMenuButton, navigationCoordinateMenu);
         this.menuUpdate();
-        FxGet.pathCoordinates().addListener(this::updateMenus);
-        this.manifoldCoordinate.addListener(this::updateMenus);
+        FxGet.pathCoordinates().addListener((MapChangeListener<UuidStringKey, StampPathImmutable>) change -> menuUpdate());
+        this.manifoldCoordinate.addListener(this.manifoldChangedListener);
 
         String activityFeedKey = nodePreferences.get(Keys.ACTIVITY_FEED, this.viewProperties.getViewUuid() + ":" + ViewProperties.NAVIGATION);
         this.activityFeedProperty.set(this.viewProperties.getActivityFeed(activityFeedKey));
@@ -699,6 +693,9 @@ public class MultiParentGraphViewController implements RefreshListener {
         }
         this.navigatorProperty.set(navigator);
         this.rootTreeItem.clearChildren();
+        if (this.navigatorProperty.get().getRootNids().length > 1) {
+            LOG.error("To many roots: " + this.navigatorProperty.get().getRootNids());
+        }
         for (int rootNid: this.navigatorProperty.get().getRootNids()) {
             MultiParentGraphItemImpl graphRoot = new MultiParentGraphItemImpl(
                     Get.conceptService()

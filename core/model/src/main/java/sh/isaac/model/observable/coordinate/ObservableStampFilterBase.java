@@ -12,7 +12,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.*;
-import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampFilter;
 
 import java.util.Collection;
@@ -33,7 +32,7 @@ public abstract class ObservableStampFilterBase extends ObservableCoordinateImpl
 
     private final SetProperty<ConceptSpecification> excludedModuleSpecificationsProperty;
 
-    private final SetProperty<Status> allowedStatusProperty;
+    private final ObjectProperty<StatusSet> allowedStatusProperty;
 
     private final ListProperty<ConceptSpecification> modulePriorityOrderProperty;
 
@@ -45,7 +44,7 @@ public abstract class ObservableStampFilterBase extends ObservableCoordinateImpl
      */
     private final ChangeListener<ConceptSpecification> pathConceptListener = this::pathConceptChanged;
     private final ChangeListener<Number> timeListener = this::timeChanged;
-    private final SetChangeListener<Status> statusSetListener = this::statusSetChanged;
+    private final ChangeListener<StatusSet> statusSetListener = this::statusSetChanged;
     private final ListChangeListener<ConceptSpecification> modulePreferenceOrderListener = this::modulePreferenceOrderChanged;
     private final SetChangeListener<ConceptSpecification> excludedModuleSetListener = this::excludedModuleSetChanged;
     private final SetChangeListener<ConceptSpecification> moduleSetListener = this::moduleSetChanged;
@@ -63,7 +62,7 @@ public abstract class ObservableStampFilterBase extends ObservableCoordinateImpl
 
     protected abstract ListProperty<ConceptSpecification> makeModulePriorityOrderProperty(StampFilter stampFilter);
 
-    protected abstract SetProperty<Status> makeAllowedStatusProperty(StampFilter stampFilter);
+    protected abstract ObjectProperty<StatusSet> makeAllowedStatusProperty(StampFilter stampFilter);
 
     protected abstract SetProperty<ConceptSpecification> makeExcludedModuleSpecificationsProperty(StampFilter stampFilter);
 
@@ -72,31 +71,6 @@ public abstract class ObservableStampFilterBase extends ObservableCoordinateImpl
     protected abstract LongProperty makeTimeProperty(StampFilter stampFilter);
 
     protected abstract ObjectProperty<ConceptSpecification> makePathConceptProperty(StampFilter stampFilter);
-
-    @Override
-    protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends StampFilterImmutable> observable, StampFilterImmutable oldValue, StampFilterImmutable newValue) {
-        this.pathConceptProperty.setValue(newValue.getPathConceptForFilter());
-        this.timeProperty.set(newValue.getStampPosition().getTime());
-        this.modulePriorityOrderProperty.setAll(newValue.getModulePriorityOrder().collect(nid -> Get.conceptSpecification(nid)).castToList());
-
-        EnumSet<Status> statusSet = newValue.getAllowedStates().toEnumSet();
-        if (!statusSet.equals(this.allowedStatusProperty.get())) {
-            this.allowedStatusProperty.retainAll(statusSet);
-            this.allowedStatusProperty.addAll(statusSet);
-        }
-
-        Set<ConceptSpecification> excludedModuleSet = newValue.getExcludedModuleNids().collect(nid -> Get.conceptSpecification(nid)).castToSet();
-        if (!excludedModuleSet.equals(this.excludedModuleSpecificationsProperty.get())) {
-            this.excludedModuleSpecificationsProperty.retainAll(excludedModuleSet);
-            this.excludedModuleSpecificationsProperty.addAll(excludedModuleSet);
-        }
-
-        Set<ConceptSpecification> moduleSet = newValue.getModuleNids().collect(nid -> Get.conceptSpecification(nid)).castToSet();
-        if (!moduleSet.equals(this.moduleSpecificationsProperty.get())) {
-            this.moduleSpecificationsProperty.retainAll(moduleSet);
-            this.moduleSpecificationsProperty.addAll(moduleSet);
-        }
-    }
 
     @Override
     protected void addListeners() {
@@ -169,7 +143,7 @@ public abstract class ObservableStampFilterBase extends ObservableCoordinateImpl
      * @return the set property
      */
     @Override
-    public SetProperty<Status> allowedStatusProperty() {
+    public ObjectProperty<StatusSet> allowedStatusProperty() {
         return this.allowedStatusProperty;
     }
 
@@ -212,8 +186,10 @@ public abstract class ObservableStampFilterBase extends ObservableCoordinateImpl
                 IntLists.immutable.of(c.getList().stream().mapToInt(value -> value.getNid()).toArray())));
     }
 
-    private void statusSetChanged(SetChangeListener.Change<? extends Status> c) {
-        this.setValue(StampFilterImmutable.make(StatusSet.of(c.getSet()),
+    private void statusSetChanged(ObservableValue<? extends StatusSet> observableStatusSet,
+                                  StatusSet oldStatusSet,
+                                  StatusSet newStatusSet) {
+        this.setValue(StampFilterImmutable.make(newStatusSet,
                 getStampPosition(),
                 getModuleNids(),
                 getExcludedModuleNids(),

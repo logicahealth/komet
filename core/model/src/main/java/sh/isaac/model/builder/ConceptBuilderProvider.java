@@ -47,6 +47,7 @@ import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinateImmutable;
 import sh.isaac.api.logic.LogicalExpression;
 
 
@@ -60,16 +61,19 @@ public class ConceptBuilderProvider
          implements ConceptBuilderService {
    /** The default language for descriptions. */
    private ConceptSpecification defaultLanguageForDescriptions =
-      TermAux.getConceptSpecificationForLanguageNid(Get.configurationService().getGlobalDatastoreConfiguration()
-                                                            .getDefaultLanguageCoordinate()
-                                                            .getLanguageConceptNid());
+      TermAux.ENGLISH_LANGUAGE;
 
    /** The default dialect assemblage for descriptions. */
    private ConceptSpecification defaultDialectAssemblageForDescriptions = TermAux.US_DIALECT_ASSEMBLAGE;
 
    /** The default logic coordinate. */
-   private LogicCoordinate defaultLogicCoordinate = Get.configurationService().getGlobalDatastoreConfiguration()
-                                                       .getDefaultLogicCoordinate();
+   private LogicCoordinate defaultLogicCoordinate = LogicCoordinateImmutable.make(TermAux.SNOROCKET_CLASSIFIER,
+           TermAux.EL_PLUS_PLUS_LOGIC_PROFILE,
+           TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE,
+           TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE,
+           TermAux.SOLOR_CONCEPT_ASSEMBLAGE,
+           TermAux.EL_PLUS_PLUS_DIGRAPH,
+           TermAux.SOLOR_ROOT);
 
    //~--- get methods ---------------------------------------------------------
 

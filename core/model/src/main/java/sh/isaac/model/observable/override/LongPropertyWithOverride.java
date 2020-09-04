@@ -95,10 +95,12 @@ public class LongPropertyWithOverride extends SimpleLongProperty implements Prop
 
     @Override
     public void removeListener(ChangeListener<? super Number> listener) {
-        this.changeListeners.remove(listener);
-        if (this.changeListeners.isEmpty()) {
-            this.overriddenProperty.removeListener(this.overriddenPropertyChangedListener);
-            this.changeListeners = null;
+        if (this.changeListeners != null) {
+            this.changeListeners.remove(listener);
+            if (this.changeListeners.isEmpty()) {
+                this.overriddenProperty.removeListener(this.overriddenPropertyChangedListener);
+                this.changeListeners = null;
+            }
         }
     }
 

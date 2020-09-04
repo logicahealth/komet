@@ -429,10 +429,6 @@ public class FxGet implements StaticIsaacCache {
     public static ObservableList<ImmutableList<ConceptSpecification>> navigationOptions() {
         return NAVIGATION_OPTIONS;
     }
-    public static void makeCoordinateDisplayMenu(ManifoldCoordinate manifoldCoordinate, ObservableList<MenuItem> menuItems,
-                              ObservableCoordinate observableCoordinate) {
-        CoordinateMenuFactory.makeCoordinateDisplayMenu(manifoldCoordinate, menuItems, observableCoordinate);
-    }
     public static Collection<? extends ConceptSpecification> allowedLanguages() {
         return Lists.immutable.of(TermAux.ENGLISH_LANGUAGE, TermAux.SPANISH_LANGUAGE).castToList();
     }

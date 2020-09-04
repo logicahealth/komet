@@ -69,7 +69,8 @@ public interface ObservableLogicCoordinate
               descriptionLogicProfileProperty(),
               inferredAssemblageProperty(),
               statedAssemblageProperty(),
-              digraphIdentityProperty()
+              digraphIdentityProperty(),
+              rootConceptProperty()
       };
    }
 

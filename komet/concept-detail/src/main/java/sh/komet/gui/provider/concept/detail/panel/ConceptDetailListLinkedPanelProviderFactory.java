@@ -29,7 +29,7 @@ public class ConceptDetailListLinkedPanelProviderFactory extends ConceptDetailPa
         preferencesNode.put(ConceptDetailPanelNode.Keys.ACTIVITY_FEED_NAME,
                 preferencesNode.get(ConceptDetailPanelNode.Keys.ACTIVITY_FEED_NAME, ViewProperties.LIST));
 
-        return new ConceptDetailPanelNode(viewProperties, activityFeed, preferencesNode);
+        return new ConceptDetailPanelNode(viewProperties.makeOverride(), activityFeed, preferencesNode);
     }
 
     @Override

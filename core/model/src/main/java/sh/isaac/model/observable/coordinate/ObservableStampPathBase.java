@@ -71,13 +71,6 @@ public abstract class ObservableStampPathBase
         this.pathOriginsAsListProperty.removeListener(this.pathOriginsListChangedListener);
     }
 
-    @Override
-    protected final void baseCoordinateChangedListenersRemoved(ObservableValue<? extends StampPathImmutable> observable, StampPathImmutable oldValue, StampPathImmutable newValue) {
-        this.pathConceptProperty.setValue(Get.conceptSpecification(newValue.getPathConceptNid()));
-        this.pathOriginsProperty.setValue(FXCollections.observableSet(newValue.getPathOrigins().toSet()));
-        this.pathOriginsAsListProperty.setValue(FXCollections.observableList(newValue.getPathOrigins().toList()));
-    }
-
     private void pathOriginsSetChanged(SetChangeListener.Change<? extends StampPositionImmutable> c) {
         this.setValue(StampPathImmutable.make(getPathConcept().getNid(),
                 Sets.immutable.withAll(c.getSet())));
@@ -128,7 +121,7 @@ public abstract class ObservableStampPathBase
     }
 
     @Override
-    public final ListProperty<StampPositionImmutable> pathOriginsAsListPropertyProperty() {
+    public final ListProperty<StampPositionImmutable> pathOriginsAsListProperty() {
         return this.pathOriginsAsListProperty;
     }
 

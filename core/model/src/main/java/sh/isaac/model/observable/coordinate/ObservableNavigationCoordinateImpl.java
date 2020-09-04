@@ -1,5 +1,6 @@
 package sh.isaac.model.observable.coordinate;
 
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -28,5 +29,17 @@ public class ObservableNavigationCoordinateImpl extends ObservableNavigationCoor
                 ObservableFields.DIGRAPH_SPECIFICATION_SET.toExternalString(),
                 FXCollections.observableSet(navigationCoordinate.getNavigationConceptNids()
                         .collect(nid -> Get.conceptSpecification(nid)).toSet()));
+    }
+
+    @Override
+    protected NavigationCoordinateImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends NavigationCoordinateImmutable> observable, NavigationCoordinateImmutable oldValue, NavigationCoordinateImmutable newValue) {
+        this.navigatorIdentifierConceptsProperty().setAll(newValue.getNavigationConceptNids()
+                .collect(nid -> Get.conceptSpecification(nid)).toSet());
+        return newValue;
+    }
+
+    @Override
+    public NavigationCoordinateImmutable getOriginalValue() {
+        return getValue();
     }
 }

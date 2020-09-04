@@ -97,6 +97,7 @@ import sh.isaac.convert.mojo.turtle.TurtleImportHK2Direct;
 import sh.isaac.komet.gui.exporter.ExportView;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.preferences.window.WindowPreferencePanel;
+import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.NodeFactory;
 import sh.komet.gui.contract.StatusMessageConsumer;
 import sh.komet.gui.contract.preferences.PersonaItem;
@@ -109,9 +110,9 @@ import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.tab.TabWrapper;
+import sh.komet.gui.control.manifold.CoordinateMenuFactory;
 import sh.komet.gui.util.FxGet;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  * Root node of scene is given a UUID for unique identification.
@@ -138,7 +139,6 @@ public class KometStageController
     }
 
 
-    //~--- fields --------------------------------------------------------------
     ArrayList<TabPane> tabPanes = new ArrayList<>();
     @FXML  // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -204,8 +204,6 @@ public class KometStageController
                 throw new ArrayIndexOutOfBoundsException("Tab pane index is: " + index);
         }
     }
-
-    //~--- methods -------------------------------------------------------------
 
     /**
      * When the button action event is triggered, refresh the user CSS file.
@@ -430,9 +428,8 @@ public class KometStageController
 
     private void updateMenus(Observable observable) {
         this.windowCoordinates.getItems().clear();
-        FxGet.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(),
-                this.windowCoordinates.getItems(),
-                this.viewProperties.getManifoldCoordinate());
+        CoordinateMenuFactory.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(),
+                this.windowCoordinates.getItems(), this.viewProperties.getManifoldCoordinate());
     }
 
     private String makePathLabelString() {
@@ -630,6 +627,7 @@ public class KometStageController
 
     void handleCloseRequest(WindowEvent event) {
         stage.focusedProperty().removeListener(this.focusChangeListener);
+        MenuProvider.handleCloseRequest(event);
     }
 
     void handleFocusEvents(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {

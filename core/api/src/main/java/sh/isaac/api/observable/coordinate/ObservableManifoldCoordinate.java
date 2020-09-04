@@ -87,7 +87,7 @@ public interface ObservableManifoldCoordinate
     *
     * @return the digraph coordinate property.
     */
-   ObjectProperty<NavigationCoordinateImmutable> navigationCoordinateImmutableProperty();
+   ObjectProperty<NavigationCoordinateImmutable> navigationCoordinateProperty();
 
 
    @Override

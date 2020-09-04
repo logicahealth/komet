@@ -139,4 +139,6 @@ public final class NavigationCoordinateImmutable implements NavigationCoordinate
                 "navigationConcepts=" + navigationConceptNids +
                 '}';
     }
+
+
 }
