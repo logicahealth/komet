@@ -1,5 +1,12 @@
 package sh.komet.fx.stage;
 
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import java.io.IOException;
+import java.util.NoSuchElementException;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
 import javafx.fxml.FXMLLoader;
@@ -8,30 +15,35 @@ import javafx.scene.image.Image;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import sh.isaac.MetaData;
+import sh.isaac.api.ConceptProxy;
 //import org.scenicview.ScenicView;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.coordinate.Coordinates;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.WriteCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
 import sh.isaac.komet.preferences.UserPreferencesPanel;
-import sh.komet.gui.contract.preferences.PreferenceGroup;
+import sh.isaac.model.builder.ConceptBuilderImpl;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.KometPreferences;
+import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.util.FxGet;
-
-import java.io.IOException;
-import java.util.UUID;
 
 public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
     private final MainApp mainApp;
@@ -87,6 +99,9 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
             Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
             this.updateMessage("Starting Solor services");
             LookupService.startupIsaac();
+            
+            addUsers();
+            
             UserPreferencesPanel.login();
 
             if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
@@ -121,6 +136,53 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
             Get.activeTasks().remove(this);
         }
         return null;
+    }
+
+    /**
+     * Add users for Komet GUI
+     * TODO replace with some external mechanism to provide user info?  Or a login / self register system in the GUI
+     * TODO these "terminology" authors should not be here at all, they should each be created by the terminology loader itself...
+     */
+    private void addUsers() {
+        String[] users = new String[] {"Keith Campbell", "Deloitte User", "Bootstrap administrator", "Clinvar author", "UMLS author", 
+                "LOINC author", "LIVD author", "CVX author", "SNOMED author", "RxNorm author", "HL7 author", "CDC author", "NLM author",
+                "NCI author", "VA author", "DOD author", "FEHRM author", "Logica author", "Susan Castillo", "Penni Hernandez", "Ioana Singureanu"};
+        
+        Transaction t = Get.commitService().newTransaction("create users");
+        WriteCoordinate writeCoordinate = new WriteCoordinateImpl(MetaData.USER____SOLOR.getNid(), MetaData.USERS_MODULE____SOLOR.getNid(), 
+                MetaData.PRIMORDIAL_PATH____SOLOR.getNid(), t);
+        
+        try {
+            int created = 0;
+            for (String user : users) {
+                ConceptBuilder cb = new ConceptBuilderImpl(user, ConceptProxy.METADATA_SEMANTIC_TAG, null, TermAux.ENGLISH_LANGUAGE, 
+                        TermAux.US_DIALECT_ASSEMBLAGE, Coordinates.Logic.ElPlusPlus(), TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+                cb.setT5UuidNested(UuidT5Generator.PATH_ID_FROM_FS_DESC);
+                UUID conceptId = cb.getPrimordialUuid();
+                
+                if (!Get.identifierService().hasUuid(conceptId)) {
+                    
+                    LogicalExpressionBuilder defBuilder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                    NecessarySet(And(ConceptAssertion(MetaData.USER____SOLOR.getNid(), defBuilder)));
+                    LogicalExpression logicalExpression = defBuilder.build();
+                    
+                    cb.addLogicalExpression(logicalExpression);
+                    cb.buildAndWrite(writeCoordinate).get();
+                    created++;
+                }
+            }
+            
+            if (created > 0) {
+                t.commit().get();
+            }
+            else {
+                t.cancel().get();
+            }
+            LOG.info("Created {} users", created);
+        }
+        catch (NoSuchElementException | IllegalArgumentException | IllegalStateException | InterruptedException | ExecutionException e) {
+            LOG.error("Unexpected problem adding missing users!", e);
+        }
     }
 
     private class OpenWindows extends TimedTaskWithProgressTracker<Void> {

@@ -148,10 +148,10 @@ public class MainApp
     protected void printMemoryInfo() {
         int mb = 1024*1024;
         Runtime runtime = Runtime.getRuntime();
-        System.out.println("** Used Memory:  " + ((runtime.totalMemory() - runtime.freeMemory()) / mb) + " mb");
-        System.out.println("** Free Memory:  " + (runtime.freeMemory() / mb) + " mb");
-        System.out.println("** Total Memory: " + (runtime.totalMemory() / mb) + " mb");
-        System.out.println("** Max Memory:   " + (runtime.maxMemory() / mb) + " mb");
+        LOG.info("** Used Memory:  " + ((runtime.totalMemory() - runtime.freeMemory()) / mb) + " mb");
+        LOG.info("** Free Memory:  " + (runtime.freeMemory() / mb) + " mb");
+        LOG.info("** Total Memory: " + (runtime.totalMemory() / mb) + " mb");
+        LOG.info("** Max Memory:   " + (runtime.maxMemory() / mb) + " mb");
     }
 
     public void replacePrimaryStage(Stage primaryStage) {
