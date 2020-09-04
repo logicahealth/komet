@@ -41,7 +41,7 @@ package sh.isaac.api.logic;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
 

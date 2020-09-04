@@ -11,7 +11,7 @@ import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNode;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Service(name = "Export Specification View Provider",
         metadata = "fqn={Export specification panel (SOLOR),uuid={04b4e66a-6cc0-596e-ae45-d181d23c1b69}")

@@ -44,7 +44,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 import java.util.stream.IntStream;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;

@@ -36,13 +36,9 @@
  */
 package sh.isaac.komet.gui.semanticViewer;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Supplier;
-import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
+import jakarta.inject.Singleton;
 import javafx.scene.Node;
-import javafx.scene.control.MenuItem;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
@@ -58,10 +54,9 @@ import sh.komet.gui.interfaces.DetailNode;
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 
-@SuppressWarnings({ "unused"})
-@Service
-@PerLookup
-public class SemanticViewerFactory implements DetailNodeFactory, Supplier<List<MenuItem>> 
+@Service(name = "Semantic Tree Table View")
+@Singleton
+public class SemanticViewerFactory implements DetailNodeFactory
 {
 
 	@Override
@@ -99,15 +94,6 @@ public class SemanticViewerFactory implements DetailNodeFactory, Supplier<List<M
 	public DetailType getSupportedType()
 	{
 		return DetailType.Concept;
-	}
-	
-	
-	@Override
-	public List<MenuItem> get()
-	{
-		List<MenuItem> assemblageMenuList = new ArrayList<>();
-		// No extra menu items added yet.
-		return assemblageMenuList;
 	}
 
 	@Override

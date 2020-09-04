@@ -37,7 +37,7 @@ import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.menu.MenuItemWithText;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;

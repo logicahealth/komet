@@ -1,7 +1,9 @@
 package sh.komet.gui.interfaces;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import javafx.application.Platform;
-import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -24,10 +26,6 @@ import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 
 public abstract class DetailNodeAbstract extends ExplorationNodeAbstract implements DetailNode {
     public enum Keys {

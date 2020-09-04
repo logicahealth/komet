@@ -46,7 +46,7 @@ package sh.isaac.provider.progress;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
 

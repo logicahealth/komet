@@ -11,7 +11,7 @@ import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 
 @Service(name = "List view factory")

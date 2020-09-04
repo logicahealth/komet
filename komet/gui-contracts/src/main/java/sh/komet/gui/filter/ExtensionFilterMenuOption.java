@@ -14,7 +14,7 @@ import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.EnumSet;

@@ -66,7 +66,7 @@ import sh.komet.gui.lists.ComponentListFromAssemblage;
 import sh.komet.gui.lists.ComponentListSelectorForMenuButton;
 import sh.komet.gui.provider.StatusMessageProvider;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.io.File;
 import java.util.*;
 import java.util.List;

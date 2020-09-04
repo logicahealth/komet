@@ -39,7 +39,7 @@ package sh.isaac.misc.constants;
 
 import java.lang.reflect.Field;
 import java.util.UUID;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;

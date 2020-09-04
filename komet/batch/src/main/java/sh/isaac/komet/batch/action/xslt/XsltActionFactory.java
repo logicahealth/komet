@@ -5,7 +5,7 @@ import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.komet.batch.action.ActionFactory;
 import sh.isaac.komet.batch.action.ActionItem;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Service
 @Singleton

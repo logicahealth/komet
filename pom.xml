@@ -401,8 +401,8 @@
          </dependency>
          <dependency>
             <groupId>org.glassfish.hk2.external</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>2.5.0-b62</version>
+            <artifactId>jakarta.inject</artifactId>
+            <version>2.6.1</version>
          </dependency>
          <dependency>
             <groupId>net.sagebits</groupId>

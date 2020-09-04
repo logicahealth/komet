@@ -45,7 +45,7 @@ import java.util.Arrays;
 import java.util.Optional;
 import java.util.TreeSet;
 import java.util.UUID;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;

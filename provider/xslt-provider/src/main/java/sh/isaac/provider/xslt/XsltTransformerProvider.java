@@ -11,7 +11,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.provider.xslt.extension.EnumerateMembers;
 import sh.isaac.provider.xslt.extension.SimpleExtensionFunction;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;

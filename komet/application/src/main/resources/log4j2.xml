@@ -8,8 +8,8 @@
 			<Filters>
 				<!--Don't log these specific loggers to the console-->
 				<ThresholdFilter level="DEBUG"/>  <!--During non-dev, would probably set this to WARN -->
-				<LoggerNameFilter name="net.sagebits.HK2Utilities.ClassInfo" onMatch="DENY" onMismatch="NEUTRAL"/>
-				<LoggerNameFilter name="net.sagebits.HK2Utilities.HK2RuntimeInitializer" onMatch="DENY" onMismatch="NEUTRAL"/>
+				<!-- LoggerNameFilter name="net.sagebits.HK2Utilities.ClassInfo" onMatch="DENY" onMismatch="NEUTRAL"/>
+				<LoggerNameFilter name="net.sagebits.HK2Utilities.HK2RuntimeInitializer" onMatch="DENY" onMismatch="NEUTRAL"/ -->
 				<LoggerNameFilter name="org.apache.commons.beanutils" onMatch="DENY" onMismatch="NEUTRAL"/>
 				<LoggerNameFilter name="org.apache.shiro" onMatch="DENY" onMismatch="NEUTRAL"/>
 				<LoggerNameFilter name="org.drools.core.common" onMatch="DENY" onMismatch="NEUTRAL"/>

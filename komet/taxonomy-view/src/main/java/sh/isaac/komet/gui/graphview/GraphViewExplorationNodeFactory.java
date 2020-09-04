@@ -27,7 +27,7 @@ import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNode;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 /**
  *

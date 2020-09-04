@@ -42,7 +42,7 @@ import java.util.ArrayList;
 //~--- JDK imports ------------------------------------------------------------
 import java.util.UUID;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.apache.logging.log4j.LogManager;
 import org.jvnet.hk2.annotations.Service;

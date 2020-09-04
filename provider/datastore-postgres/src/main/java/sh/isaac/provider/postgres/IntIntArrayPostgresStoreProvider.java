@@ -5,7 +5,7 @@ import sh.isaac.api.IsaacCache;
 import sh.isaac.model.collections.store.IntIntArrayStore;
 import sh.isaac.model.collections.store.IntIntArrayStoreProvider;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Service
 @Singleton

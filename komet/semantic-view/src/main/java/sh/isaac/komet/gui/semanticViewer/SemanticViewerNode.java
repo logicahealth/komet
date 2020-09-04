@@ -53,8 +53,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.glassfish.hk2.api.PerLookup;
-import org.jvnet.hk2.annotations.Service;
 import com.sun.javafx.collections.ObservableMapWrapper;
 import com.sun.javafx.tk.FontLoader;
 import com.sun.javafx.tk.Toolkit;
@@ -65,8 +63,6 @@ import javafx.beans.property.ReadOnlyBooleanProperty;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.MapChangeListener;
 import javafx.collections.ObservableMap;
@@ -99,7 +95,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.Window;
-import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
@@ -109,7 +104,6 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
-import sh.isaac.api.coordinate.Coordinates.Manifold;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.index.IndexedGenerationCallable;
 import sh.isaac.api.preferences.IsaacPreferences;
@@ -124,7 +118,6 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.komet.gui.contract.DialogService;
-import sh.komet.gui.control.concept.ConceptLabelToolbar;
 import sh.komet.gui.control.concept.MenuSupplierForFocusConcept;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
@@ -136,9 +129,6 @@ import sh.komet.gui.util.UpdateableBooleanBinding;
  * 
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-@SuppressWarnings({ "unused"})
-@Service
-@PerLookup
 public class SemanticViewerNode extends DetailNodeAbstract
 {
 	private VBox rootNode_ = null;
@@ -224,6 +214,8 @@ public class SemanticViewerNode extends DetailNodeAbstract
 		//no op - delay till getView called
 		super(viewProperties, activityFeed, nodePreferences, MenuSupplierForFocusConcept.getArray());
 		this.nodePreferences = nodePreferences;
+		toolTipProperty.setValue("Semantic Tree Table");
+		super.getTitle().setValue("Semantic Tree Table");
 	}
 	
 	private void initialInit()
