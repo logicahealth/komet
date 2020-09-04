@@ -175,7 +175,7 @@ public class ConceptBuilderImpl
         this.defaultDialectAssemblageForDescriptions = defaultDialectAssemblageForDescriptions;
         this.defaultLogicCoordinate = defaultLogicCoordinate;
 
-        if (this.defaultLogicCoordinate.getStatedAssemblageNid() != TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid()) {
+        if (this.defaultLogicCoordinate != null && this.defaultLogicCoordinate.getStatedAssemblageNid() != TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid()) {
             throw new IllegalStateException("Incorrect stated assemblage: " + Get.conceptDescriptionText(this.defaultLogicCoordinate.getStatedAssemblageNid()));
         }
 
