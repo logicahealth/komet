@@ -132,7 +132,7 @@ public class SolorMojo extends AbstractMojo {
 
                 getLog().info("Classifying new content...");
                 Task<ClassifierResults> classifierResultsTask
-                        = Get.logicService().getClassifierService(coordinate, editCoordinate).classify();
+                        = Get.logicService().getClassifierService(coordinate.toManifoldCoordinateImmutable()).classify();
                 ClassifierResults classifierResults = classifierResultsTask.get();
                 getLog().info(classifierResults.toString());
             }

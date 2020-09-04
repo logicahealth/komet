@@ -5,7 +5,6 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
 /**
@@ -28,6 +27,14 @@ public class Nid1_Long2_VersionImpl
         this.nid1 = data.getNid();
         this.long2 = data.getLong();
     }
+
+    private Nid1_Long2_VersionImpl(Nid1_Long2_VersionImpl other,
+                                  int stampSequence) {
+        super(other.getChronology(), stampSequence);
+        this.nid1 = other.getNid1();
+        this.long2 = other.getLong2();
+    }
+    
     /**
      * Write version data.
      *
@@ -43,12 +50,8 @@ public class Nid1_Long2_VersionImpl
     @Override
     @SuppressWarnings("unchecked")
     public <V extends Version> V makeAnalog(int stampSequence) {
-        SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-        final Nid1_Long2_VersionImpl newVersion = new Nid1_Long2_VersionImpl(this.getChronology(), stampSequence);
-        newVersion.setNid1(this.nid1);
-        newVersion.setLong2(this.long2);
-
-        chronologyImpl.addVersion(newVersion);
+        final Nid1_Long2_VersionImpl newVersion = new Nid1_Long2_VersionImpl(this, stampSequence);
+        getChronology().addVersion(newVersion);
         return (V) newVersion;
     }
 

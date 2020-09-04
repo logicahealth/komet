@@ -43,7 +43,6 @@ package sh.isaac.komet.gui.graphview;
 
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -76,11 +75,11 @@ import sh.isaac.api.Edge;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshotService;
 import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.komet.gui.interfaces.DraggableWithImage;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 
 //~--- classes ----------------------------------------------------------------
@@ -147,7 +146,8 @@ final public class MultiParentGraphCell
                     setDisclosureNode(iv);
                }
 
-               ConceptSnapshotService conceptSnapshotService = treeItem.getGraphView().getManifold().getConceptSnapshotService();
+               ConceptSnapshotService conceptSnapshotService = Get.conceptService()
+                       .getSnapshot(treeItem.getGraphView().getManifoldCoordinate());
 
             if (concept != null) {
                if (conceptSnapshotService.isConceptActive(concept.getNid())) {
@@ -171,7 +171,7 @@ final public class MultiParentGraphCell
       if (concept != null) {
          MultiParentGraphItemImpl graphItem = (MultiParentGraphItemImpl) getTreeItem();
          MultiParentGraphViewController graphView = graphItem.getGraphView();
-         Manifold menuManifold = graphView.getManifold();
+         ManifoldCoordinate menuManifold = graphView.getManifoldCoordinate();
          
       ContextMenu cm    = new ContextMenu();
       MenuItem    item1 = new MenuItemWithText("About " + menuManifold.getPreferredDescriptionText(concept));
@@ -179,7 +179,7 @@ final public class MultiParentGraphCell
       item1.setOnAction(
           (ActionEvent e) -> {
              int conceptNid = ((MultiParentGraphItemImpl) getTreeItem()).getConceptNid();
-             Manifold manifold = ((MultiParentGraphItemImpl) getTreeItem()).getGraphView().getManifold();
+             ManifoldCoordinate manifold = ((MultiParentGraphItemImpl) getTreeItem()).getGraphView().getManifoldCoordinate();
              graphItem.getValue();
           });
 
@@ -209,16 +209,16 @@ final public class MultiParentGraphCell
             removeExtraParents(treeItem, siblings);
          } else {
             ImmutableCollection<Edge> allParents = treeItem.getGraphView()
-                                       .getTaxonomySnapshot()
-                                       .getTaxonomyParentLinks(value.getNid());
+                                       .getNavigator()
+                                       .getParentLinks(value.getNid());
             ArrayList<MultiParentGraphItemImpl> secondaryParentItems = new ArrayList<>();
 
             for (Edge parentLink: allParents) {
                if ((allParents.size() == 1) || (parentLink.getDestinationNid() != parentItem.getValue().getNid())) {
                   ConceptChronology parentChronology = Get.concept(parentLink.getDestinationNid());
                   MultiParentGraphItemImpl extraParentItem = new MultiParentGraphItemImpl(parentChronology, treeItem.getGraphView(), parentLink.getTypeNid(), null);
-                  Manifold manifold = treeItem.getGraphView().getManifold();
-                  extraParentItem.setDefined(parentChronology.isSufficientlyDefined(manifold.getStampFilter(), manifold.getLogicCoordinate()));
+                  ManifoldCoordinate manifold = treeItem.getGraphView().getManifoldCoordinate();
+                  extraParentItem.setDefined(parentChronology.isSufficientlyDefined(manifold.getVertexStampFilter(), manifold.getLogicCoordinate()));
                   extraParentItem.setMultiParentDepth(treeItem.getMultiParentDepth() + 1);
                   secondaryParentItems.add(extraParentItem);
                }

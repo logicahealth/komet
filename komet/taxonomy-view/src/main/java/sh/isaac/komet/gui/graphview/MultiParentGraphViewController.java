@@ -2,22 +2,38 @@ package sh.isaac.komet.gui.graphview;
 
 import com.lmax.disruptor.EventHandler;
 import javafx.application.Platform;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.property.SetProperty;
 import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.TransferMode;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
+import javafx.util.StringConverter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.set.OpenIntHashSet;
-import sh.isaac.api.*;
+import org.controlsfx.control.IndexedCheckModel;
+import org.eclipse.collections.api.factory.Sets;
+import org.eclipse.collections.api.set.ImmutableSet;
+import sh.isaac.api.ComponentProxy;
+import sh.isaac.api.Edge;
+import sh.isaac.api.Get;
+import sh.isaac.api.RefreshListener;
 import sh.isaac.api.alert.Alert;
 import sh.isaac.api.alert.AlertCategory;
 import sh.isaac.api.alert.AlertEvent;
@@ -28,35 +44,37 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.navigation.EmptyNavigator;
+import sh.isaac.api.navigation.Navigator;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.alert.AlertPanel;
 import sh.komet.gui.clipboard.ClipboardHelper;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.IsaacClipboard;
-import javafx.fxml.FXML;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import sh.komet.gui.layout.LayoutAnimator;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.GraphAmalgamWithManifold;
 import sh.komet.gui.util.FxGet;
-import sh.komet.gui.util.UuidStringKey;
 
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
-import static sh.komet.gui.contract.preferences.GraphConfigurationItem.DEFINING_ACTIVE;
 import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
 
 public class MultiParentGraphViewController implements RefreshListener {
+    private ObservableManifoldCoordinate manifoldCoordinate;
+
     public enum Keys {
-        GRAPH_VIEW_KEY
+        ACTIVITY_FEED
     }
 
     private static final Logger LOG = LogManager.getLogger();
     private static volatile boolean shutdownRequested = false;
+
     @FXML
     private BorderPane topBorderPane;
 
@@ -64,11 +82,15 @@ public class MultiParentGraphViewController implements RefreshListener {
     private GridPane topGridPane;
 
     @FXML
-    private ComboBox<UuidStringKey> viewChoiceBox;
-
-    @FXML
     private ToolBar toolBar;
 
+    @FXML
+    private MenuButton navigationMenuButton;
+
+    @FXML
+    Menu navigationCoordinateMenu;
+
+    private final Label navigationLabel = new Label();
 
     //~--- fields --------------------------------------------------------------
     private MultiParentGraphItemDisplayPolicies displayPolicies;
@@ -83,17 +105,30 @@ public class MultiParentGraphViewController implements RefreshListener {
     private final EventHandler<AlertEvent> alertHandler = this::handleAlert;
     private final LayoutAnimator topPaneAnimator = new LayoutAnimator();
     private final LayoutAnimator alertsAnimator = new LayoutAnimator();
-    private final SimpleObjectProperty<TaxonomySnapshot> taxonomySnapshotProperty = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty<Navigator> navigatorProperty = new SimpleObjectProperty<>();
     private final UUID uuid = UUID.randomUUID();
 
     private IsaacPreferences nodePreferences;
-    private final SimpleObjectProperty<UuidStringKey> viewCoordinateKeyProperty = new SimpleObjectProperty<>(this,
-            TermAux.VIEW_COORDINATE_KEY.toExternalString(),
-            DEFINING_ACTIVE);
-    private final SimpleObjectProperty<Manifold> manifoldProperty = new SimpleObjectProperty<>();
 
     private MultiParentGraphItemImpl rootTreeItem;
     private TreeView<ConceptChronology> treeView;
+    private ViewProperties viewProperties;
+    private SimpleObjectProperty<ActivityFeed> activityFeedProperty = new SimpleObjectProperty<>();
+
+    private InvalidationListener manifoldChangedListener = this::manifoldChanged;
+    private ChangeListener<Scene> sceneChangedListener = this::sceneChanged;
+
+    private void sceneChanged(ObservableValue<? extends Scene> observableValue, Scene oldScene, Scene newScene) {
+        if (newScene == null) {
+            shutdownInstance();
+            this.topBorderPane.sceneProperty().removeListener(this.sceneChangedListener);
+            this.getManifoldCoordinate().removeListener(this.manifoldChangedListener);
+        }
+    }
+
+    private void manifoldChanged(Observable observable) {
+        this.refreshTaxonomy();
+    }
 
     @FXML
     void initialize() {
@@ -134,61 +169,8 @@ public class MultiParentGraphViewController implements RefreshListener {
 
         this.topBorderPane.getStyleClass().setAll(MULTI_PARENT_TREE_NODE.toString());
 
-        this.viewChoiceBox.setItems(FxGet.graphConfigurationKeys());
         this.topBorderPane.setCenter(this.treeView);
-
-        this.treeView.getSelectionModel().getSelectedItems().addListener((ListChangeListener<TreeItem<ConceptChronology>>) c -> {
-            while (c.next()) {
-                if (c.wasPermutated()) {
-                    for (int i = c.getFrom(); i < c.getTo(); ++i) {
-                        //nothing to do...
-                    }
-                } else if (c.wasUpdated()) {
-                    //nothing to do
-                } else {
-                    for (TreeItem<ConceptChronology> remitem : c.getRemoved()) {
-                        manifoldProperty.get().manifoldSelectionProperty().remove(new ComponentProxy(remitem.getValue().toExternalString()));
-                    }
-                    for (TreeItem<ConceptChronology> additem : c.getAddedSubList()) {
-                        manifoldProperty.get().manifoldSelectionProperty().add(new ComponentProxy(additem.getValue().toExternalString()));
-                    }
-                }
-            }
-            // Check to make sure lists are equal in size/properly synchronized.
-            if (manifoldProperty.get().manifoldSelectionProperty().get().size() != c.getList().size()) {
-                // lists are out of sync, reset with fresh list.
-                ComponentProxy[] selectedItems = new ComponentProxy[c.getList().size()];
-                for (int i = 0; i < selectedItems.length; i++) {
-                    selectedItems[i] = new ComponentProxy(c.getList().get(i).getValue().toExternalString());
-                }
-                manifoldProperty.get().manifoldSelectionProperty().setAll(selectedItems);
-            }
-        });
-
-        this.viewChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            this.viewCoordinateKeyProperty.set(newValue);
-            GraphAmalgamWithManifold graphAmalgam = FxGet.graphConfiguration(newValue);
-            if (graphAmalgam == null) {
-                // Will be null when FxGet resets on shutdown...
-                this.manifoldProperty.set(null);
-            } else {
-                this.manifoldProperty.set(graphAmalgam.getManifold());
-                this.displayPolicies = new DefaultMultiParentGraphItemDisplayPolicies(this.manifoldProperty.get());
-                this.taxonomySnapshotProperty.set(FxGet.graphSnapshot(newValue));
-                this.rootTreeItem.clearChildren();
-                for (ConceptSpecification rootSpec: graphAmalgam.getTaxonomyRoots()) {
-                    MultiParentGraphItemImpl graphRoot = new MultiParentGraphItemImpl(
-                            Get.conceptService()
-                                    .getConceptChronology(rootSpec),
-                            MultiParentGraphViewController.this,
-                            TermAux.UNINITIALIZED_COMPONENT_ID.getNid(),
-                            Iconography.TAXONOMY_ROOT_ICON.getIconographic());
-                    this.rootTreeItem.getChildren().add(graphRoot);
-                }
-                handleDescriptionTypeChange(null);
-                refreshTaxonomy();
-            }
-         });
+        toolBar.getItems().add(this.navigationLabel);
     }
 
     @FXML
@@ -203,21 +185,72 @@ public class MultiParentGraphViewController implements RefreshListener {
 
     private void savePreferences() {
         // TODO selected graphConfigurationKey should be saved in preferences.
-        this.nodePreferences.putArray(Keys.GRAPH_VIEW_KEY, viewCoordinateKeyProperty.get().toStringArray());
+        this.nodePreferences.put(Keys.ACTIVITY_FEED, this.activityFeedProperty.get().getFullyQualifiedActivityFeedName());
 
     }
-    public void setPreferences(IsaacPreferences nodePreferences) {
-        this.nodePreferences = nodePreferences;
+    private void updateMenus(Observable observable) {
+        menuUpdate();
+    }
+    private void menuUpdate() {
+        this.navigationCoordinateMenu.getItems().clear();
+        FxGet.makeCoordinateDisplayMenu(this.manifoldCoordinate,
+                this.navigationCoordinateMenu.getItems(),
+                this.manifoldCoordinate);
 
-        if (this.nodePreferences.hasKey(Keys.GRAPH_VIEW_KEY)) {
-            this.viewCoordinateKeyProperty.setValue(new UuidStringKey(this.nodePreferences.getArray(Keys.GRAPH_VIEW_KEY)));
-        } else {
-            this.viewCoordinateKeyProperty.setValue(FxGet.defaultViewKey());
-        }
-        UuidStringKey viewKey = this.viewCoordinateKeyProperty.getValue();
-        this.viewChoiceBox.getSelectionModel().select(viewKey);
-        this.manifoldProperty.set(FxGet.graphConfiguration(viewKey).getManifold());
-        this.displayPolicies = new DefaultMultiParentGraphItemDisplayPolicies(this.manifoldProperty.get());
+        this.navigationLabel.setText(
+                Get.conceptDescriptionTextListFromSpecList(this.manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty())
+        );
+        refreshTaxonomy();
+    }
+
+    public void setProperties(ViewProperties viewProperties, IsaacPreferences nodePreferences) {
+        this.nodePreferences = nodePreferences;
+        this.viewProperties = viewProperties;
+        this.manifoldCoordinate = this.viewProperties.getManifoldCoordinate();
+        this.menuUpdate();
+        FxGet.pathCoordinates().addListener(this::updateMenus);
+        this.manifoldCoordinate.addListener(this::updateMenus);
+
+        String activityFeedKey = nodePreferences.get(Keys.ACTIVITY_FEED, this.viewProperties.getViewUuid() + ":" + ViewProperties.NAVIGATION);
+        this.activityFeedProperty.set(this.viewProperties.getActivityFeed(activityFeedKey));
+        this.treeView.getSelectionModel().getSelectedItems().addListener((ListChangeListener<TreeItem<ConceptChronology>>) c -> {
+
+            ActivityFeed activityFeed = this.activityFeedProperty.get();
+            if (activityFeed != null) {
+                while (c.next()) {
+                    if (c.wasPermutated()) {
+                        for (int i = c.getFrom(); i < c.getTo(); ++i) {
+                            //nothing to do...
+                        }
+                    } else if (c.wasUpdated()) {
+                        //nothing to do
+                    } else {
+                        for (TreeItem<ConceptChronology> remitem : c.getRemoved()) {
+                            if (remitem.getValue() != null) {
+                                activityFeed.feedSelectionProperty().remove(new ComponentProxy(remitem.getValue().toExternalString()));
+                            }
+                        }
+                        for (TreeItem<ConceptChronology> additem : c.getAddedSubList()) {
+                            if (additem.getValue() != null) {
+                                activityFeed.feedSelectionProperty().add(new ComponentProxy(additem.getValue().toExternalString()));
+                            }
+                        }
+                    }
+                }
+                // Check to make sure lists are equal in size/properly synchronized.
+                if (activityFeed.feedSelectionProperty().size() != c.getList().size()) {
+                    // lists are out of sync, reset with fresh list.
+                    ComponentProxy[] selectedItems = new ComponentProxy[c.getList().size()];
+                    for (int i = 0; i < selectedItems.length; i++) {
+                        selectedItems[i] = new ComponentProxy(c.getList().get(i).getValue().toExternalString());
+                    }
+                    activityFeed.feedSelectionProperty().setAll(selectedItems);
+                }
+            }
+
+        });
+
+        this.displayPolicies = new DefaultMultiParentGraphItemDisplayPolicies();
 
 
 
@@ -232,12 +265,13 @@ public class MultiParentGraphViewController implements RefreshListener {
 
         this.topBorderPane.setOnDragOver(this::dragOver);
         this.topBorderPane.setOnDragDropped(this::dragDropped);
-
         refreshTaxonomy();
+        this.getManifoldCoordinate().addListener(this.manifoldChangedListener);
+        this.topBorderPane.sceneProperty().addListener(this.sceneChangedListener);
     }
 
-    public Manifold getManifold() {
-        return this.manifoldProperty.get();
+    public ObservableManifoldCoordinate getManifoldCoordinate() {
+        return this.manifoldCoordinate;
     }
 
     private void dragDropped(DragEvent event) {
@@ -323,7 +357,7 @@ public class MultiParentGraphViewController implements RefreshListener {
 
     protected void shutdownInstance() {
         LOG.info("Shutdown graph view instance");
-
+        this.getManifoldCoordinate().removeListener(this.manifoldChangedListener);
         if (rootTreeItem != null) {
             rootTreeItem.clearChildren();  // This recursively cancels any active lookups
         }
@@ -425,18 +459,20 @@ public class MultiParentGraphViewController implements RefreshListener {
                         () -> {
                             try {
                                 SimpleObjectProperty<MultiParentGraphItemImpl> scrollTo = new SimpleObjectProperty<>();
-
-                                restoreExpanded(rootTreeItem, scrollTo);
-                                expandedUUIDs.clear();
-                                selectedItem = Optional.empty();
-
                                 if (scrollTo.get() != null) {
-                                    Platform.runLater(
-                                            () -> {
-                                                treeView.scrollTo(treeView.getRow(scrollTo.get()));
-                                                treeView.getSelectionModel()
-                                                        .select(scrollTo.get());
-                                            });
+
+                                    restoreExpanded(rootTreeItem, scrollTo);
+                                    expandedUUIDs.clear();
+                                    selectedItem = Optional.empty();
+
+                                    if (scrollTo.get() != null) {
+                                        Platform.runLater(
+                                                () -> {
+                                                    treeView.scrollTo(treeView.getRow(scrollTo.get()));
+                                                    treeView.getSelectionModel()
+                                                            .select(scrollTo.get());
+                                                });
+                                    }
                                 }
                             } catch (InterruptedException e) {
                                 LOG.info("Interrupted while looking restoring expanded items");
@@ -573,16 +609,16 @@ public class MultiParentGraphViewController implements RefreshListener {
     public final void generateSmartGraphCode(ActionEvent event) {
         TreeItem<ConceptChronology> item  = this.treeView.getSelectionModel().getSelectedItem();
         ConceptChronology concept = item.getValue();
-        TaxonomySnapshot snapshot = taxonomySnapshotProperty.get();
+        Navigator navigator = navigatorProperty.get();
         OpenIntHashSet conceptNids = new OpenIntHashSet();
         HashMap<Integer, ArrayList<Edge>> taxonomyLinks = new HashMap<>();
-        handleConcept(concept.getNid(), snapshot, conceptNids, taxonomyLinks);
+        handleConcept(concept.getNid(), navigator, conceptNids, taxonomyLinks);
         String conceptName = Get.conceptDescriptionText(concept.getNid());
         conceptName = conceptName.replaceAll("\\s+", "_");
         conceptName = conceptName.replaceAll("-", "_");
         StringBuffer buff = new StringBuffer("private Graph<String, String> build_" + conceptName + "() {\n");
         buff.append("\n   Graph<String, String> g = new GraphEdgeList<>();\n\n");
-        Manifold m = this.getManifold();
+        ManifoldCoordinate m = this.getManifoldCoordinate();
         conceptNids.forEachKey(nid -> {
 
             buff.append("   g.insertVertex(\"").append(m.getPreferredDescriptionText(nid)).append("\");\n");
@@ -603,10 +639,10 @@ public class MultiParentGraphViewController implements RefreshListener {
     public final void generateJGraphTCode(ActionEvent event) {
         TreeItem<ConceptChronology> item  = this.treeView.getSelectionModel().getSelectedItem();
         ConceptChronology concept = item.getValue();
-        TaxonomySnapshot snapshot = taxonomySnapshotProperty.get();
+        Navigator navigator = navigatorProperty.get();
         OpenIntHashSet conceptNids = new OpenIntHashSet();
         HashMap<Integer, ArrayList<Edge>> taxonomyLinks = new HashMap<>();
-        handleConcept(concept.getNid(), snapshot, conceptNids, taxonomyLinks);
+        handleConcept(concept.getNid(), navigator, conceptNids, taxonomyLinks);
         String conceptName = Get.conceptDescriptionText(concept.getNid());
         conceptName = conceptName.replaceAll("\\s+", "_");
         conceptName = conceptName.replaceAll("-", "_");
@@ -614,7 +650,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         conceptName = conceptName.replace(')', '_');
         StringBuffer buff = new StringBuffer("private static Graph<String, DefaultEdge> build_" + conceptName + "() {\n");
         buff.append("\n   Graph<String, DefaultEdge> g = new DefaultDirectedGraph<>(DefaultEdge.class);\n\n");
-        Manifold m = this.getManifold();
+        ManifoldCoordinate m = this.getManifoldCoordinate();
         conceptNids.forEachKey(nid -> {
 
             buff.append("   g.addVertex(\"\\\"").append(m.getPreferredDescriptionText(nid)).append("\\\"\");\n");
@@ -633,16 +669,16 @@ public class MultiParentGraphViewController implements RefreshListener {
         LOG.info(event);
     }
 
-    private void handleConcept(int conceptNid, TaxonomySnapshot snapshot, OpenIntHashSet conceptNids, HashMap<Integer, ArrayList<Edge>> taxonomyLinks) {
+    private void handleConcept(int conceptNid, Navigator navigator, OpenIntHashSet conceptNids, HashMap<Integer, ArrayList<Edge>> taxonomyLinks) {
         if (!conceptNids.contains(conceptNid)) {
             conceptNids.add(conceptNid);
             ArrayList<Edge> linkList = new ArrayList<>();
             taxonomyLinks.put(conceptNid, linkList);
-            for (Edge link: snapshot.getTaxonomyParentLinks(conceptNid)) {
+            for (Edge link: navigator.getParentLinks(conceptNid)) {
                 if (link.getTypeNid() == TermAux.IS_A.getNid()) {
                     linkList.add(link);
                 }
-                handleConcept(link.getDestinationNid(), snapshot, conceptNids, taxonomyLinks);
+                handleConcept(link.getDestinationNid(), navigator, conceptNids, taxonomyLinks);
             }
         }
     }
@@ -655,7 +691,23 @@ public class MultiParentGraphViewController implements RefreshListener {
 
     private void refreshTaxonomy() {
         saveExpanded();
-        taxonomySnapshotProperty.set(FxGet.graphSnapshot(viewChoiceBox.getValue()));
+        Navigator navigator = new EmptyNavigator(this.getManifoldCoordinate());
+        try {
+            navigator = Get.navigationService().getNavigator(this.getManifoldCoordinate());
+        } catch (IllegalStateException ex) {
+            FxGet.dialogs().showErrorDialog("Do you have more that one premise type selected?", ex);
+        }
+        this.navigatorProperty.set(navigator);
+        this.rootTreeItem.clearChildren();
+        for (int rootNid: this.navigatorProperty.get().getRootNids()) {
+            MultiParentGraphItemImpl graphRoot = new MultiParentGraphItemImpl(
+                    Get.conceptService()
+                            .getConceptChronology(rootNid),
+                    MultiParentGraphViewController.this,
+                    TermAux.UNINITIALIZED_COMPONENT_ID.getNid(),
+                    Iconography.TAXONOMY_ROOT_ICON.getIconographic());
+            this.rootTreeItem.getChildren().add(graphRoot);
+        }
         for (TreeItem<ConceptChronology> rootChild: this.rootTreeItem.getChildren()) {
             ((MultiParentGraphItemImpl) rootChild).clearChildren();
             Get.workExecutors().getExecutor().execute(() -> ((MultiParentGraphItemImpl) rootChild).addChildren());
@@ -682,8 +734,8 @@ public class MultiParentGraphViewController implements RefreshListener {
         return rootTreeItem;
     }
 
-    protected TaxonomySnapshot getTaxonomySnapshot() {
-        return taxonomySnapshotProperty.get();
+    protected Navigator getNavigator() {
+        return navigatorProperty.get();
     }
 
     public BorderPane getView() {

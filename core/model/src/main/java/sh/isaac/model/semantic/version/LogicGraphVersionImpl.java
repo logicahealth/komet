@@ -41,19 +41,18 @@ package sh.isaac.model.semantic.version;
 
 import java.util.Arrays;
 import org.glassfish.hk2.api.MultiException;
-
 import sh.isaac.api.DataSource;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionByteArrayConverter;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 
 /**
  * The Class LogicGraphVersionImpl.
@@ -124,11 +123,11 @@ public class LogicGraphVersionImpl
       }
    }
 
-   public <V extends Version> V makeAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
+    @SuppressWarnings("unchecked")
+    @Override
+    public <V extends Version> V makeAnalog(int stampSequence) {
       final LogicGraphVersionImpl newVersion = new LogicGraphVersionImpl(this, stampSequence);
-
-      chronologyImpl.addVersion(newVersion);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 

@@ -46,6 +46,9 @@ package sh.isaac.api.observable.coordinate;
 
 import javafx.beans.property.ObjectProperty;
 
+import javafx.beans.property.Property;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.*;
 
 //~--- interfaces -------------------------------------------------------------
@@ -58,15 +61,54 @@ import sh.isaac.api.coordinate.*;
 public interface ObservableManifoldCoordinate
         extends ManifoldCoordinate, ObservableCoordinate<ManifoldCoordinateImmutable> {
 
+   default Property<?>[] getBaseProperties() {
+      return new Property<?>[] {
+              activityProperty(),
+              getViewStampFilter().allowedStatusProperty(),
+              vertexStatusSetProperty(),
+              vertexSortProperty(),
+      };
+   }
+
+   default ObservableCoordinate<?>[] getCompositeCoordinates() {
+      return new ObservableCoordinate<?>[] {
+              getViewStampFilter(),
+              getEditCoordinate(),
+              getLogicCoordinate(),
+              getLanguageCoordinate(),
+              getNavigationCoordinate(),
+      };
+   }
 
    @Override
-   ObservableDigraphCoordinate getDigraph();
+   ObservableNavigationCoordinate getNavigationCoordinate();
+
+   /**
+    *
+    * @return the digraph coordinate property.
+    */
+   ObjectProperty<NavigationCoordinateImmutable> navigationCoordinateImmutableProperty();
+
 
    @Override
-   ObservableLogicCoordinate getLogicCoordinate();
+   StatusSet getVertexStatusSet();
+   ObjectProperty<StatusSet> vertexStatusSetProperty();
+
+   @Override
+   ObservableStampFilter getViewStampFilter();
+   ObjectProperty<StampFilterImmutable> viewStampFilterProperty();
 
    @Override
    ObservableLanguageCoordinate getLanguageCoordinate();
+   ObjectProperty<LanguageCoordinateImmutable> languageCoordinateProperty();
+
+   @Override
+   ObservableLogicCoordinate getLogicCoordinate();
+   ObjectProperty<LogicCoordinateImmutable> logicCoordinateProperty();
+
+   @Override
+   ObservableEditCoordinate getEditCoordinate();
+   ObjectProperty<EditCoordinateImmutable> editCoordinateProperty();
 
    /**
     *
@@ -74,28 +116,21 @@ public interface ObservableManifoldCoordinate
     */
    ObjectProperty<VertexSort> vertexSortProperty();
 
-   /**
-    *
-    * @return the digraph coordinate property.
-    */
-   ObjectProperty<DigraphCoordinateImmutable> digraphCoordinateImmutableProperty();
+   ObjectProperty<Activity> activityProperty();
 
    /**
-    * In most cases all stamp filters will be the same.
-    * @return the digraph edge stamp filter services as the default stamp filter.
+    * Will change all contained paths (vertex, edge, and language), to the provided path.
     */
-   ObservableStampFilter getStampFilter();
+   default void setManifoldPath(int pathConceptNid) {
+      setManifoldPath(Get.concept(pathConceptNid));
+   }
 
-   /**
-    * In most cases all stamp filters will be the same.
-    * @return the digraph vertex stamp filter services as the default stamp filter.
-    */
-   ObservableStampFilter getLanguageStampFilter();
+   void setManifoldPath(ConceptSpecification pathConcept);
 
-   ObservableStampFilter getVertexStampFilter();
+   default void setPremiseType(PremiseType premiseType) {
+      getNavigationCoordinate().setPremiseType(premiseType);
+   }
 
-   ObservableStampFilter getEdgeStampFilter();
-
-
+   void setAllowedStates(StatusSet statusSet);
 }
 

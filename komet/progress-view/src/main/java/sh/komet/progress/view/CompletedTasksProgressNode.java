@@ -4,25 +4,35 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Label;
 import sh.isaac.api.Get;
 import sh.isaac.api.progress.CompletedTasks;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.Optional;
 
 public class CompletedTasksProgressNode extends TaskProgressNode {
-    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.CHECKERED_FLAG.getIconographic());
+    {
+        titleProperty.setValue("Completed tasks");
+        toolTipProperty.setValue("Information about completed tasks. ");
+        menuIconProperty.setValue(Iconography.CHECKERED_FLAG.getIconographic());
+    }
 
-    public CompletedTasksProgressNode(Manifold manifold) {
-        super(manifold);
+    public CompletedTasksProgressNode(ViewProperties viewProperties) {
+        super(viewProperties);
         CompletedTasks completedTasks = Get.completedTasks();
         completedTasks.addListener(this::taskListener);
         taskProgressView.getTasks()
                 .addAll(completedTasks.get());
-        this.title.setValue(TasksCompletedNodeFactory.TITLE_BASE);
-        this.titledNodeTitle.setValue(TasksCompletedNodeFactory.TITLE_BASE);
+        this.titleProperty.setValue(TasksCompletedNodeFactory.TITLE_BASE);
+    }
+
+    @Override
+    public Node getMenuIconGraphic() {
+        return Iconography.CHECKERED_FLAG.getIconographic();
     }
 
     @Override
@@ -34,8 +44,7 @@ public class CompletedTasksProgressNode extends TaskProgressNode {
     public Optional<Node> getTitleNode() {
         titleLabel = new Label();
         titleLabel.graphicProperty().setValue(Iconography.CHECKERED_FLAG.getIconographic());
-        titleLabel.textProperty().setValue("Completions");
-        title.setValue("");
+        titleLabel.textProperty().setValue("");
         return Optional.of(titleLabel);
     }
 
@@ -50,13 +59,13 @@ public class CompletedTasksProgressNode extends TaskProgressNode {
     }
 
     @Override
-    public SimpleObjectProperty getMenuIconProperty() {
-        return menuIconProperty;
+    public void close() {
+        // nothing to do...
     }
 
     @Override
-    public void close() {
-        // nothing to do...
+    public ActivityFeed getActivityFeed() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

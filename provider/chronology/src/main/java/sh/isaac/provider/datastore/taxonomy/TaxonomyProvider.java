@@ -87,15 +87,20 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.coordinate.Activity;
 import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
-import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.PremiseSet;
 import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.coordinate.StatusSet;
 import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.navigation.NavigationRecord;
+import sh.isaac.api.navigation.NavigationService;
+import sh.isaac.api.navigation.Navigator;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.isaac.api.task.TaskCountManager;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.tree.EdgeImpl;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
@@ -103,6 +108,7 @@ import sh.isaac.model.ModelGet;
 import sh.isaac.model.TaxonomyDebugService;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
+import sh.isaac.provider.datastore.navigator.NavigationAmalgam;
 
 /**
  *
@@ -111,7 +117,7 @@ import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
 @Service
 @RunLevel(value = LookupService.SL_L4)
 public class TaxonomyProvider
-        implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener {
+        implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener, NavigationService {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -136,6 +142,11 @@ public class TaxonomyProvider
     @Override
     public void addTaxonomyRefreshListener(RefreshListener refreshListener) {
         refreshListeners.add(new WeakReferenceRefreshListener(refreshListener));
+    }
+
+    @Override
+    public NavigationRecord getNavigationRecord(int conceptNid) {
+        return getTaxonomyRecord(conceptNid).getTaxonomyRecordUnpacked();
     }
 
     @Override
@@ -269,27 +280,54 @@ public class TaxonomyProvider
     private void stopMe() {
         LOG.info("Stopping TaxonomyProvider");
         try {
-            // ensure all pending operations have completed. 
-            for (Task<?> updateTask : this.pendingUpdateTasks) {
-                updateTask.get();
-            }
-            this.sync().get();
-            // make sure updates are done prior to allowing other services to stop.
-            this.taskCountManager.waitForCompletion();
-            this.semanticNidsForUnhandledChanges.clear();
-            this.pendingUpdateTasks.clear();
-            this.snapshotCache.clear();
-            this.noTreeSnapshotCache.clear();
-            this.refreshListeners.clear();
-            this.identifierService = null;
-            this.store = null;
-            this.isANidSet.clear();
-            this.childOfTypeNidSet.clear();
-            Get.commitService().removeChangeListener(this);
-        } catch (InterruptedException | ExecutionException ex) {
+            StopMeTask stopMeTask = new StopMeTask();
+            stopMeTask.call();
+        } catch (Exception ex) {
             LOG.error("Exception during service stop. ", ex);
         }
-        LOG.info("BdbTaxonomyProvider stopped");
+        LOG.info("Stopped TaxonomyProvider");
+    }
+    private class StopMeTask extends TimedTaskWithProgressTracker {
+
+        public StopMeTask() {
+            updateTitle("Stopping taxonomy provider");
+            addToTotalWork(4);
+            Get.activeTasks().add(this);
+        }
+
+        @Override
+        protected Object call() throws Exception {
+            try {
+                // ensure all pending operations have completed.
+                updateMessage("Waiting for pending taxonomy updates");
+                for (Task<?> updateTask : TaxonomyProvider.this.pendingUpdateTasks) {
+                    updateTask.get();
+                }
+                completedUnitOfWork();
+                updateMessage("Waiting for taxonomy sync");
+                TaxonomyProvider.this.sync().get();
+                completedUnitOfWork();
+                // make sure updates are done prior to allowing other services to stop.
+                updateMessage("Waiting for task count manager");
+                TaxonomyProvider.this.taskCountManager.waitForCompletion();
+                completedUnitOfWork();
+                updateMessage("Clearing cached data");
+                TaxonomyProvider.this.semanticNidsForUnhandledChanges.clear();
+                TaxonomyProvider.this.pendingUpdateTasks.clear();
+                TaxonomyProvider.this.snapshotCache.clear();
+                TaxonomyProvider.this.noTreeSnapshotCache.clear();
+                TaxonomyProvider.this.refreshListeners.clear();
+                TaxonomyProvider.this.identifierService = null;
+                TaxonomyProvider.this.store = null;
+                TaxonomyProvider.this.isANidSet.clear();
+                TaxonomyProvider.this.childOfTypeNidSet.clear();
+                Get.commitService().removeChangeListener(TaxonomyProvider.this);
+                completedUnitOfWork();
+                return null;
+            } finally {
+                Get.activeTasks().remove(this);
+            }
+        }
     }
 
     @Override
@@ -357,8 +395,7 @@ public class TaxonomyProvider
     @Override
     public TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, Set<Status> allowedStates, boolean computeTree) {
 
-        ManifoldCoordinateImmutable statedManifold = ManifoldCoordinateImmutable.makeStated(StampFilterImmutable.make(StatusSet.of(allowedStates), pathNid, modules),
-                Coordinates.Language.UsEnglishPreferredName());
+        ManifoldCoordinate statedManifold = ManifoldCoordinateImmutable.makeStated(StampFilterImmutable.make(StatusSet.of(allowedStates), pathNid, modules), null);
 
         return computeTree ?
                 getSnapshot(statedManifold) :
@@ -368,7 +405,6 @@ public class TaxonomyProvider
     @Override
     public TaxonomySnapshot getSnapshot(ManifoldCoordinate mc) {
         Task<Tree> treeTask = getTaxonomyTree(mc);
-
         return new TaxonomySnapshotProvider(mc, treeTask);
     }
     
@@ -406,12 +442,12 @@ public class TaxonomyProvider
 
     private class SnapshotCacheKey {
 
-        final PremiseType taxPremiseType;
+        final PremiseSet taxPremiseTypes;
         final UUID manifoldCoordinateUuid;
         final int customSortHash;
 
         public SnapshotCacheKey(ManifoldCoordinate mc) {
-            this.taxPremiseType = mc.getPremiseType();
+            this.taxPremiseTypes = mc.getPremiseTypes();
             this.manifoldCoordinateUuid = mc.getManifoldCoordinateUuid();
             this.customSortHash = mc.getVertexSort().hashCode();
         }
@@ -419,7 +455,7 @@ public class TaxonomyProvider
         @Override
         public int hashCode() {
             int hash = 7;
-            hash = 29 * hash + Objects.hashCode(this.taxPremiseType);
+            hash = 29 * hash + Objects.hashCode(this.taxPremiseTypes);
             hash = 29 * hash + this.manifoldCoordinateUuid.hashCode();
             hash = 29 * hash + customSortHash;
             return hash;
@@ -428,9 +464,10 @@ public class TaxonomyProvider
         @Override
         public String toString() {
             return "SnapshotCacheKey{" +
-                    "taxPremiseType=" + taxPremiseType +
+                    "taxPremiseType=" + taxPremiseTypes +
                     ", stampCoordinate=" + manifoldCoordinateUuid +
                     ", customSortHash=" + customSortHash +
+
                     '}';
         }
 
@@ -446,7 +483,7 @@ public class TaxonomyProvider
                 return false;
             }
             final SnapshotCacheKey other = (SnapshotCacheKey) obj;
-            if (this.taxPremiseType != other.taxPremiseType) {
+            if (!this.taxPremiseTypes.equals(other.taxPremiseTypes)) {
                 return false;
             }
             if (!Objects.equals(this.manifoldCoordinateUuid, other.manifoldCoordinateUuid)) {
@@ -957,5 +994,10 @@ public class TaxonomyProvider
             }
             return links.toImmutable();
         }
+    }
+
+    @Override
+    public Navigator getNavigator(ManifoldCoordinate mc) {
+        return new NavigationAmalgam(mc);
     }
 }

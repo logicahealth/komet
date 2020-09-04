@@ -23,6 +23,7 @@ import org.drools.core.base.evaluators.Operator;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *

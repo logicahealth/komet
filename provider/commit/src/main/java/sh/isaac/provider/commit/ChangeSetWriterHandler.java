@@ -66,6 +66,7 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.MultipleDataWriterService;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -145,33 +146,7 @@ public class ChangeSetWriterHandler
       if (this.writeEnabled && !Get.configurationService().isInDBBuildMode()) {
          // Do in the backgound
          writePermits.acquireUninterruptibly();  //prevent incoming commits from getting to far ahead
-      final TimedTask<Void> tt = new TimedTask<Void>() {
-         @Override
-         protected Void call() throws Exception {
-            try {
-               updateTitle("Writing Changeset for commit " + commitRecord.getCommitComment());
-               Get.activeTasks().add(this);
-               if ((commitRecord.getConceptsInCommit() != null) && (commitRecord.getConceptsInCommit().size() > 0)) {
-                  conceptNidSetChange(commitRecord.getConceptsInCommit());
-                  LOG.debug("handle Post Commit: {} concepts", commitRecord.getConceptsInCommit().size());
-               }
-
-               if ((commitRecord.getSemanticNidsInCommit() != null) && (commitRecord.getSemanticNidsInCommit().size() > 0)) {
-                  semanticNidSetChange(commitRecord.getSemanticNidsInCommit());
-                  LOG.debug("handle Post Commit: {} semantics", commitRecord.getSemanticNidsInCommit().size());
-               }
-            }
-            catch (final Exception e) {
-               LOG.error("Error in Change set writer handler ", e.getMessage());
-               throw new RuntimeException(e);
-            }
-            finally {
-               writePermits.release();
-               Get.activeTasks().remove(this);
-            }
-            return null;
-         }
-      };
+      final TimedTaskWithProgressTracker<Void> tt = new WriteChangeSetTask(commitRecord);
 
          this.changeSetWriteExecutor.execute(tt);
       }
@@ -211,7 +186,7 @@ public class ChangeSetWriterHandler
    /**
    * @param conceptNidSet the concept nid set
    */
-   private void conceptNidSetChange(NidSet conceptNidSet) {
+   private void conceptNidSetChange(NidSet conceptNidSet, WriteChangeSetTask task) {
       conceptNidSet.stream().forEach((conceptSequence) -> {
          final ConceptChronologyImpl concept = (ConceptChronologyImpl) Get.conceptService().getConceptChronology(conceptSequence);
          concept.removeUncommittedVersions();
@@ -220,13 +195,14 @@ public class ChangeSetWriterHandler
          } catch (final IOException e) {
             throw new RuntimeException("Error writing concept " + conceptSequence, e);
          }
+         task.completedUnitOfWork();
       });
    }
 
    /**
    * @param semanticNidSet the semantic sequence set
    */
-   private void semanticNidSetChange(NidSet semanticNidSet) {
+   private void semanticNidSetChange(NidSet semanticNidSet, WriteChangeSetTask task) {
       semanticNidSet.stream().forEach((semanticSequence) -> {
          final SemanticChronologyImpl semantic = (SemanticChronologyImpl) Get.assemblageService().getSemanticChronology(semanticSequence);
          semantic.removeUncommittedVersions();
@@ -235,6 +211,7 @@ public class ChangeSetWriterHandler
          } catch (final IOException e) {
             throw new RuntimeException("Error writing semantic " + semanticSequence, e);
          }
+         task.completedUnitOfWork();
       });
    }
 
@@ -296,6 +273,7 @@ public class ChangeSetWriterHandler
             this.writer = null;
          }
       }
+      LOG.info("Stopped ChangeSetWriterHandler");
    }
 
    /**
@@ -331,5 +309,42 @@ public class ChangeSetWriterHandler
    @Override
    public boolean getWriteStatus() {
       return this.writeEnabled;
+   }
+
+   private class WriteChangeSetTask extends TimedTaskWithProgressTracker<Void> {
+      CommitRecord commitRecord;
+      public WriteChangeSetTask(CommitRecord commitRecord) {
+         this.commitRecord = commitRecord;
+         updateTitle("Writing Changeset for commit " + commitRecord.getCommitComment());
+         Get.activeTasks().add(this);
+         addToTotalWork(commitRecord.getConceptsInCommit().size());
+         addToTotalWork(commitRecord.getSemanticNidsInCommit().size());
+      }
+
+      @Override
+      protected Void call() throws Exception {
+
+         try {
+            if ((commitRecord.getConceptsInCommit() != null) && (commitRecord.getConceptsInCommit().size() > 0)) {
+               conceptNidSetChange(commitRecord.getConceptsInCommit(), this);
+               LOG.debug("handle Post Commit: {} concepts", commitRecord.getConceptsInCommit().size());
+            }
+
+            if ((commitRecord.getSemanticNidsInCommit() != null) && (commitRecord.getSemanticNidsInCommit().size() > 0)) {
+               semanticNidSetChange(commitRecord.getSemanticNidsInCommit(), this);
+               LOG.debug("handle Post Commit: {} semantics", commitRecord.getSemanticNidsInCommit().size());
+            }
+         }
+         catch (final Exception e) {
+            LOG.error("Error in Change set writer handler ", e.getMessage());
+            throw new RuntimeException(e);
+         }
+         finally {
+            writePermits.release();
+            Get.activeTasks().remove(this);
+         }
+         return null;
+      }
+
    }
 }

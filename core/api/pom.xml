@@ -21,6 +21,10 @@
             <artifactId>eclipse-collections</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.tobiasdiez</groupId>
+            <artifactId>easybind</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
         </dependency>

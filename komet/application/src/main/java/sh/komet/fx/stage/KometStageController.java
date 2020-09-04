@@ -52,7 +52,10 @@ import java.util.prefs.BackingStoreException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
+import javafx.beans.Observable;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -78,14 +81,15 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
-import sh.isaac.api.ComponentProxy;
+import javafx.stage.WindowEvent;
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
-import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.NaturalOrder;
@@ -97,17 +101,15 @@ import sh.komet.gui.contract.NodeFactory;
 import sh.komet.gui.contract.StatusMessageConsumer;
 import sh.komet.gui.contract.preferences.PersonaItem;
 import sh.komet.gui.contract.preferences.TabSpecification;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
+import sh.komet.gui.contract.preferences.WindowPreferences;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.importation.ArtifactImporter;
 import sh.komet.gui.importation.ImportView;
-import sh.komet.gui.interfaces.DetailNode;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.util.FxGet;
-import sh.komet.gui.util.UuidStringKey;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -166,12 +168,22 @@ public class KometStageController
     private MenuButton classifierMenuButton;             // Value injected by FXMLLoader
 
     @FXML
-    private Menu pathMenu;
+    private Label pathLabel;
 
-    private WindowPreferencesItem windowPreferencesItem;
+    @FXML
+    private Menu windowCoordinates;
+
+    @FXML
+    private MenuButton viewPropertiesButton;
+
+
+    private ChangeListener<Boolean> focusChangeListener = this::handleFocusEvents;
+
+    private WindowPreferences windowPreferences;
     private IsaacPreferences preferencesNode;
     private Stage stage;
     private List<MenuButton> newTabMenuButtons = new ArrayList<>(5);
+    private ViewProperties viewProperties;
 
 
     private final ImageView vanityImage = new ImageView();
@@ -205,11 +217,15 @@ public class KometStageController
         // "Feature" to make css editing/testing easy in the dev environment. 
         vanityBox.getScene()
                 .getStylesheets()
-                .remove(FxGet.fxConfiguration().getUserCSSURL().toString());
+                .clear();
         vanityBox.getScene()
                 .getStylesheets()
                 .add(FxGet.fxConfiguration().getUserCSSURL().toString());
         LOG.debug("Updated css: " + FxGet.fxConfiguration().getUserCSSURL().toString());
+        vanityBox.getScene()
+                .getStylesheets()
+                .add(FxGet.fxConfiguration().getIconographyCSSURL().toString());
+        LOG.debug("Updated Iconography css: " + FxGet.fxConfiguration().getIconographyCSSURL().toString());
     }
 
     @Override
@@ -242,24 +258,6 @@ public class KometStageController
         assert classifierMenuButton != null :
                 "fx:id=\"classifierMenuButton\" was not injected: check your FXML file 'KometStageScene.fxml'.";
 
-        for (ManifoldGroup mg : ManifoldGroup.values()) {
-            Manifold manifold = FxGet.manifold(mg);
-            manifold.manifoldSelectionProperty().addListener(this::printSelectionDetails);
-
-            manifold.manifoldSelectionProperty()
-                    .addListener((ListChangeListener.Change<? extends ComponentProxy> c) -> {
-                        StringBuilder buff = new StringBuilder();
-                        for (int index = 0; index < c.getList().size(); index++) {
-                            buff.append(Get.conceptDescriptionText(c.getList().get(index).getNid()));
-                            if (index < c.getList().size() - 1) {
-                                buff.append("; ");
-                            }
-                        }
-                        FxGet.statusMessageService()
-                                .reportSceneStatus(statusMessage.getScene(),
-                                        mg.getGroupName() + " selected: " + buff.toString());
-                    });
-        }
 
         leftHBox.getChildren()
                 .add(createWrappedTabPane(this.newTabMenuButtons, this.leftTabPane));
@@ -281,13 +279,6 @@ public class KometStageController
         this.leftTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
         this.centerTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
         this.rightTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
-
-        pathMenu.getItems().clear();
-        // TODO, handle updates.
-        for (UuidStringKey key: FxGet.pathCoordinates().keySet()) {
-            MenuItem item = new MenuItem(key.getString());
-            this.pathMenu.getItems().add(item);
-        }
     }
 
     private List<MenuItem> getTaskMenuItems() {
@@ -295,12 +286,12 @@ public class KometStageController
 
         MenuItem selectiveImport = new MenuItemWithText("Selective import and transform");
         selectiveImport.setOnAction((ActionEvent event) -> {
-            ImportView.show(FxGet.manifold(ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE));
+            ImportView.show(this.viewProperties);
         });
         items.add(selectiveImport);
 
         MenuItem selectiveExport = new MenuItemWithText("Selective export");
-        selectiveExport.setOnAction(event -> ExportView.show(FxGet.manifold(ManifoldGroup.UNLINKED)));
+        selectiveExport.setOnAction(event -> ExportView.show(this.viewProperties));
         items.add(selectiveExport);
 
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
@@ -334,7 +325,7 @@ public class KometStageController
             completeClassify.setOnAction((ActionEvent event) -> {
                 //TODO change how we get the edit coordinate. 
                 EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-                ClassifierService classifierService = Get.logicService().getClassifierService(FxGet.manifold(ManifoldGroup.SEARCH), editCoordinate);
+                ClassifierService classifierService = Get.logicService().getClassifierService(this.viewProperties.getManifoldCoordinate().toManifoldCoordinateImmutable());
                 classifierService.classify();
             });
             items.add(completeClassify);
@@ -362,7 +353,7 @@ public class KometStageController
                             TurtleImportHK2Direct timd = Get.service(TurtleImportHK2Direct.class);
                             timd.configure(null, beer.toPath(), "0.8", null, transaction);
                             timd.convertContent(update -> {}, (work, totalWork) -> {});
-                            Optional<CommitRecord> cr = transaction.commit("Beer has arrived!").get();  //TODO this is broken, it isn't returning a commit record
+                            Optional<CommitRecord> cr = transaction.commit("Beer has arrived!").get();  //TODO [DAN] this is broken, it isn't returning a commit record
                             LOG.error("commit record empty? {}", cr);
                             //if (cr.isPresent()) {
 	                            Get.indexDescriptionService().refreshQueryEngine();
@@ -402,14 +393,15 @@ public class KometStageController
                     addTabFromFactory(factory, newPreferences, tabPane);
                 });
         menuItems.add(tabFactoryMenuItem);
-
     }
 
     private void addTabFromFactory(NodeFactory<? extends ExplorationNode> factory, IsaacPreferences tabPreferences, TabPane tabPane) {
         Tab tab = new Tab(factory.getMenuText());
         tab.setTooltip(new Tooltip(""));
 
-        ExplorationNode node = factory.createNode(FxGet.manifold(factory.getDefaultManifoldGroups()[0]), tabPreferences);
+        ExplorationNode node = factory.createNode(this.viewProperties,
+                this.viewProperties.getActivityFeed(factory.getDefaultActivityFeed()[0]),
+                tabPreferences);
         tab.setOnCloseRequest(event1 -> {
             if (!node.canClose()) {
                 event1.consume();
@@ -419,7 +411,7 @@ public class KometStageController
             node.close();
         });
         ObjectProperty<Node> menuIconProperty = node.getMenuIconProperty();
-        tab.setGraphic(menuIconProperty.get());
+        tab.setGraphic(node.getTitleNode().orElse(menuIconProperty.get()));
         menuIconProperty.addListener((observable, oldValue, newValue) -> tab.setGraphic(newValue));
 
         BorderPane borderPaneForTab = new BorderPane(node.getNode());
@@ -432,30 +424,73 @@ public class KometStageController
         tabPane.getTabs()
                 .add(tab);
         tabPane.getSelectionModel().select(tab);
-        if (node instanceof DetailNode) {
-            node.getManifold().manifoldSelectionProperty().addListener((observable, oldValue, newValue) -> {
-                if (((DetailNode) node).selectInTabOnChange()) {
-                    tabPane.getSelectionModel().select(tab);
-                }
-            });
-        }
+        node.setNodeSelectionMethod(() -> tabPane.getSelectionModel().select(tab));
         // TODO Modify skin to look for drag handling methods...
     }
 
+    private void updateMenus(Observable observable) {
+        this.windowCoordinates.getItems().clear();
+        FxGet.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(),
+                this.windowCoordinates.getItems(),
+                this.viewProperties.getManifoldCoordinate());
+    }
+
+    private String makePathLabelString() {
+        return this.viewProperties.getManifoldCoordinate().getCurrentActivity().toUserString() +
+                " on " + this.viewProperties.getManifoldCoordinate().getPathString();
+    }
+
     /**
-     * @param windowPreferencesItem preferences of the window.
+     * @param windowPreferences preferences of the window.
      */
-    public void setWindowPreferenceItem(WindowPreferencesItem windowPreferencesItem, Stage stage) throws BackingStoreException {
-        this.windowPreferencesItem = windowPreferencesItem;
-        this.preferencesNode = windowPreferencesItem.getPreferenceNode();
+    public void setWindowPreferenceItem(WindowPreferences windowPreferences, Stage stage) throws BackingStoreException {
+        this.windowPreferences = windowPreferences;
+        this.viewProperties = windowPreferences.getViewPropertiesForWindow();
+
+        this.pathLabel.setText(makePathLabelString());
+
+        this.preferencesNode = windowPreferences.getPreferenceNode();
         this.stage = stage;
-        this.stage.getScene().getProperties().put(WindowPreferencePanel.Keys.WINDOW_UUID_STR, windowPreferencesItem.getPreferenceNode().name());
-        this.stage.getScene().getProperties().put(WINDOW_PREFERENCE_ABSOLUTE_PATH, windowPreferencesItem.getPreferenceNode().absolutePath());
-        if (windowPreferencesItem.getPersonaItem() != null) {
-            PersonaItem personaItem = windowPreferencesItem.getPersonaItem();
+        this.stage.getProperties().put(FxGet.PROPERTY_KEYS.WINDOW_PREFERENCES, windowPreferences);
+
+        String windowName = windowPreferences.getWindowName().getValue();
+        String dataStoreName = Get.dataStore().getDataStorePath().toString();
+        this.stage.titleProperty().addListener((observable, oldValue, newValue) -> {
+            System.out.println("Title changed to: " + newValue);
+        });
+        this.stage.setTitle(windowName + ": " + Get.dataStore().getDataStorePath().toFile().getName());
+        LOG.info("Setting title to: " + windowName + ": " + dataStoreName);
+
+        this.stage.getScene().getProperties().put(WindowPreferencePanel.Keys.WINDOW_UUID_STR, windowPreferences.getPreferenceNode().name());
+        this.stage.getScene().getProperties().put(WINDOW_PREFERENCE_ABSOLUTE_PATH, windowPreferences.getPreferenceNode().absolutePath());
+
+        for (ActivityFeed activityFeed : viewProperties.getActivityFeeds()) {
+            activityFeed.feedSelectionProperty().addListener(this::printSelectionDetails);
+
+            activityFeed.feedSelectionProperty()
+                    .addListener((ListChangeListener.Change<? extends IdentifiedObject> c) -> {
+                        StringBuilder buff = new StringBuilder();
+                        if (c.getList().size() > 3) {
+                            buff.append("Selected list of size: " + c.getList().size());
+                        } else {
+                            for (int index = 0; index < c.getList().size(); index++) {
+                                buff.append(Get.conceptDescriptionText(c.getList().get(index).getNid()));
+                                if (index < c.getList().size() - 1) {
+                                    buff.append("; ");
+                                }
+                            }
+                        }
+                        FxGet.statusMessageService()
+                                .reportSceneStatus(statusMessage.getScene(),
+                                        activityFeed.getFeedName() + " selected: " + buff.toString());
+                    });
+        }
+
+        if (windowPreferences.getPersonaItem() != null) {
+            PersonaItem personaItem = windowPreferences.getPersonaItem();
             for (int paneIndex = 0; paneIndex < newTabMenuButtons.size(); paneIndex++) {
                 newTabMenuButtons.get(paneIndex).getItems().clear();
-                ObservableList<TabSpecification> nodeListForPaneIndex = windowPreferencesItem.getNodesList(paneIndex);
+                ObservableList<TabSpecification> nodeListForPaneIndex = windowPreferences.getNodesList(paneIndex);
                 //Ignore all of these silly hard-coded persona settings when we are debug mode, since they are completely mis-designed for modular plugin GUI components
                 Set<ConceptSpecification> allowedOptions = FxGet.fxConfiguration().isShowBetaFeaturesEnabled() ? new HashSet<>() : personaItem.getAllowedOptionsForPane(paneIndex);
                 if (allowedOptions.isEmpty()) {
@@ -487,7 +522,7 @@ public class KometStageController
                     }
                 }
 
-                if (!windowPreferencesItem.isPaneEnabled(paneIndex)) {
+                if (!windowPreferences.isPaneEnabled(paneIndex)) {
                     switch (paneIndex) {
                         case 0:
                             this.windowSplitPane.getItems().remove(this.leftHBox);
@@ -520,7 +555,8 @@ public class KometStageController
                     String factoryClassName = optionalFactoryClass.get();
                     Class factoryClass = Class.forName(factoryClassName);
                     NodeFactory factory = (NodeFactory) factoryClass.getDeclaredConstructor().newInstance();
-                    ExplorationNode en = factory.createNode(FxGet.manifold(factory.getDefaultManifoldGroups()[0]), childNode);
+                    ExplorationNode en = factory.createNode(this.viewProperties,
+                            this.viewProperties.getActivityFeed(factory.getDefaultActivityFeed()[0]), childNode);
                     Tab tab = new Tab();
 
                     tab.setGraphic(en.getMenuIconProperty().getValue());
@@ -530,20 +566,11 @@ public class KometStageController
                     tab.setTooltip(new Tooltip(""));
                     tab.getTooltip().textProperty().bind(en.getToolTip());
 
-                    if (en instanceof DetailNode) {
-                        DetailNode dt = (DetailNode) en;
-                        //TODO this is broken by design, if more than one tab requests focus on change...
-                        dt.getManifold().manifoldSelectionProperty().addListener((observable, oldValue, newValue) -> {
-                            if (dt.selectInTabOnChange()) {
-                                leftTabPane.getSelectionModel().select(tab);
-                            }
-                        });
-                    }
-
                     int tabIndex = childNode.getInt(Keys.TAB_PANE_INDEX, 0);
                     int indexInTab = childNode.getInt(Keys.INDEX_IN_TAB_PANE, 0);
-
-                    tabPanes.get(tabIndex).getTabs().add(indexInTab, tab);
+                    TabPane tabPane = tabPanes.get(tabIndex);
+                    tabPane.getTabs().add(indexInTab, tab);
+                    en.setNodeSelectionMethod(() -> tabPane.getSelectionModel().select(tab));
 
                 } catch (Exception ex) {
                     FxGet.dialogs().showErrorDialog(ex.getLocalizedMessage(), ex);
@@ -553,48 +580,65 @@ public class KometStageController
 
 
         this.stage.xProperty().addListener((observable, oldValue, newValue) -> {
-            windowPreferencesItem.xLocationProperty().setValue(newValue);
-            windowPreferencesItem.save();
+            windowPreferences.xLocationProperty().setValue(newValue);
+            windowPreferences.save();
         });
 
         this.stage.yProperty().addListener((observable, oldValue, newValue) -> {
-            windowPreferencesItem.yLocationProperty().setValue(newValue);
-            windowPreferencesItem.save();
+            windowPreferences.yLocationProperty().setValue(newValue);
+            windowPreferences.save();
         });
 
         this.stage.widthProperty().addListener((observable, oldValue, newValue) -> {
-            windowPreferencesItem.widthProperty().setValue(newValue);
-            windowPreferencesItem.save();
+            windowPreferences.widthProperty().setValue(newValue);
+            windowPreferences.save();
         });
 
         this.stage.heightProperty().addListener((observable, oldValue, newValue) -> {
-            windowPreferencesItem.heightProperty().setValue(newValue);
-            windowPreferencesItem.save();
+            windowPreferences.heightProperty().setValue(newValue);
+            windowPreferences.save();
         });
 
-        this.leftTabPane.getSelectionModel().select(this.windowPreferencesItem.leftTabSelectionProperty().get());
-        this.centerTabPane.getSelectionModel().select(this.windowPreferencesItem.centerTabSelectionProperty().get());
-        this.rightTabPane.getSelectionModel().select(this.windowPreferencesItem.rightTabSelectionProperty().get());
-        this.windowPreferencesItem.leftTabSelectionProperty().bind(this.leftTabPane.getSelectionModel().selectedIndexProperty());
-        this.windowPreferencesItem.centerTabSelectionProperty().bind(this.centerTabPane.getSelectionModel().selectedIndexProperty());
-        this.windowPreferencesItem.rightTabSelectionProperty().bind(this.rightTabPane.getSelectionModel().selectedIndexProperty());
+        this.leftTabPane.getSelectionModel().select(this.windowPreferences.leftTabSelectionProperty().get());
+        this.centerTabPane.getSelectionModel().select(this.windowPreferences.centerTabSelectionProperty().get());
+        this.rightTabPane.getSelectionModel().select(this.windowPreferences.rightTabSelectionProperty().get());
+        this.windowPreferences.leftTabSelectionProperty().bind(this.leftTabPane.getSelectionModel().selectedIndexProperty());
+        this.windowPreferences.centerTabSelectionProperty().bind(this.centerTabPane.getSelectionModel().selectedIndexProperty());
+        this.windowPreferences.rightTabSelectionProperty().bind(this.rightTabPane.getSelectionModel().selectedIndexProperty());
 
-        this.windowSplitPane.setDividerPositions(this.windowPreferencesItem.dividerPositionsProperty().get());
+        this.windowSplitPane.setDividerPositions(this.windowPreferences.dividerPositionsProperty().get());
+
+        this.updateMenus(null);
+
+
+        this.viewProperties.getManifoldCoordinate().addListener((observable, oldValue, newValue) -> {
+            this.pathLabel.setText(makePathLabelString());
+            this.updateMenus(observable);
+        });
+        FxGet.pathCoordinates().addListener(this::updateMenus);
         Platform.runLater(() -> {
             // The initial layout seems to adjust the divider positions. Doing a runLater seems to put the
             // dividers in the right location.
             // Once in the right location, we can then add listeners, so that the initial layout adjustment
             // does not overwrite the saved layout.
             setupDividerPositions();
-            setupFocusOwner(this.windowPreferencesItem.isFocusOwner());
+            setupFocusOwner(this.windowPreferences.isFocusOwner());
+            stage.setOnCloseRequest(this::handleCloseRequest);
+
         });
     }
 
+    void handleCloseRequest(WindowEvent event) {
+        stage.focusedProperty().removeListener(this.focusChangeListener);
+    }
+
+    void handleFocusEvents(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
+        KometStageController.this.windowPreferences.setFocusOwner(newValue);
+        KometStageController.this.windowPreferences.save();
+    }
+
     void setupFocusOwner(boolean focusOwner) {
-        stage.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            this.windowPreferencesItem.setFocusOwner(newValue);
-            this.windowPreferencesItem.save();
-        });
+        stage.focusedProperty().addListener(this.focusChangeListener);
         if (focusOwner) {
             this.stage.requestFocus();
         }
@@ -602,17 +646,19 @@ public class KometStageController
     }
 
     void setupDividerPositions() {
-        this.windowSplitPane.setDividerPositions(this.windowPreferencesItem.dividerPositionsProperty().get());
+        this.windowSplitPane.setDividerPositions(this.windowPreferences.dividerPositionsProperty().get());
         for (SplitPane.Divider divider: this.windowSplitPane.getDividers()) {
             divider.positionProperty().addListener((observable, oldValue, newValue) -> {
-                this.windowPreferencesItem.dividerPositionsProperty().setValue(this.windowSplitPane.getDividerPositions());
-                this.windowPreferencesItem.save();
+                this.windowPreferences.dividerPositionsProperty().setValue(this.windowSplitPane.getDividerPositions());
+                this.windowPreferences.save();
             });
         }
     }
 
     public void saveSettings() throws BackingStoreException {
+        FxGet.sync();
         preferencesNode.sync();
+
     }
 
     @SuppressWarnings("unchecked")
@@ -634,15 +680,22 @@ public class KometStageController
         return wrapped;
     }
 
-    private void printSelectionDetails(ListChangeListener.Change<? extends ComponentProxy> c) {
+    private void printSelectionDetails(ListChangeListener.Change<? extends IdentifiedObject> c) {
         Get.executor().submit(() -> {
             if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
                 StringBuffer buff = new StringBuffer();
-                buff.append("selected (processed in background):\n");
-                for (int i = 0; i < c.getList().size(); i++) {
-                    ConceptChronology concept = Get.concept(c.getList().get(i).getNid());
-                    buff.append(concept.toString());
-                    buff.append("\n");
+                if (c.getList().size() > 3) {
+                    buff.append("selected list of size (processed in background): " +
+                            c.getList().size() + "\n");
+                } else {
+                    buff.append("selected (processed in background):\n");
+                    for (int i = 0; i < c.getList().size(); i++) {
+                        Optional<? extends Chronology> optionalChronology = Get.identifiedObjectService().getChronology(c.getList().get(i).getNid());
+                        optionalChronology.ifPresent(chronology -> {
+                            buff.append(chronology.toString());
+                            buff.append("\n");
+                        });
+                    }
                 }
 
                 if (Get.configurationService().isVerboseDebugEnabled()) {

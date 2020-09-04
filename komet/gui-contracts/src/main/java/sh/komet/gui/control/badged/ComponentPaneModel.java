@@ -17,21 +17,21 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.komet.gui.control.PropertySheetMenuItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.style.StyleClasses;
 
 public class ComponentPaneModel extends BadgedVersionPaneModel {
     private static final Logger LOG = LogManager.getLogger();
-    private final CategorizedVersions<CategorizedVersion> categorizedVersions;
+    private final CategorizedVersions<ObservableCategorizedVersion> categorizedVersions;
     private final AnchorPane extensionHeaderPanel = setupHeaderPanel("Attachments:");
     private final AnchorPane versionHeaderPanel = setupHeaderPanel("Change history:");
 
     //~--- constructors --------------------------------------------------------
-    public ComponentPaneModel(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
+    public ComponentPaneModel(ViewProperties viewProperties, ObservableCategorizedVersion categorizedVersion,
                               OpenIntIntHashMap stampOrderHashMap,
                               HashMap<String, AtomicBoolean> disclosureStateMap) {
-        super(manifold, categorizedVersion, stampOrderHashMap, disclosureStateMap);
+        super(viewProperties, categorizedVersion, stampOrderHashMap, disclosureStateMap);
 
         this.categorizedVersions = categorizedVersion.getCategorizedVersions();
 
@@ -48,14 +48,14 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
             if (this.categorizedVersions.getUncommittedVersions().size() > 1) {
                 LOG.error("Error: Can't handle more than one uncommitted version in this editor...");
             }
-            ObservableCategorizedVersion uncommittedVersion = (ObservableCategorizedVersion) this.categorizedVersions.getUncommittedVersions().get(0);
+            ObservableCategorizedVersion uncommittedVersion = this.categorizedVersions.getUncommittedVersions().get(0);
             Optional<PropertySheetMenuItem> propertySheetMenuItem = uncommittedVersion.getUserObject(PROPERTY_SHEET_ATTACHMENT);
             if (propertySheetMenuItem.isPresent()) {
                 this.addEditingPropertySheet(propertySheetMenuItem.get());
             } else {
                 LOG.error("Warn: No property sheet editor for this uncommitted version...\n       " + uncommittedVersion.getPrimordialUuid()
                         + "\n       " + uncommittedVersion + "\nWill treat uncommitted as a historic version. ");
-                versionPanes.add(new VersionPaneModel(manifold, uncommittedVersion, stampOrderHashMap,
+                versionPanes.add(new VersionPaneModel(viewProperties, uncommittedVersion, stampOrderHashMap,
                         getDisclosureStateMap()));
             }
         }
@@ -67,7 +67,7 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
                     .forEach(
                             (contradiction) -> {
                                 if (contradiction.getStampSequence() != -1) {
-                                    versionPanes.add(new VersionPaneModel(manifold, (ObservableCategorizedVersion) contradiction, stampOrderHashMap,
+                                    versionPanes.add(new VersionPaneModel(viewProperties, contradiction, stampOrderHashMap,
                                             getDisclosureStateMap()));
                                 }
                             });
@@ -77,7 +77,7 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
                 .forEach(
                         (historicVersion) -> {
                             if (historicVersion.getStampSequence() != -1 && historicVersion.getStatus() != Status.CANCELED) {
-                                versionPanes.add(new VersionPaneModel(manifold, (ObservableCategorizedVersion) historicVersion, stampOrderHashMap,
+                                versionPanes.add(new VersionPaneModel(viewProperties, historicVersion, stampOrderHashMap,
                                         getDisclosureStateMap()));
                             }
                         });
@@ -173,16 +173,16 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
         if (isSemanticTypeSupported(observableChronology)) {
             CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
                     = observableChronology.getCategorizedVersions(
-                    getManifold().getStampFilter());
+                    getManifoldCoordinate().getViewStampFilter());
 
             if (oscCategorizedVersions.getLatestVersion()
                     .isPresent()) {
-                ComponentPaneModel newPanel = new ComponentPaneModel(getManifold(),
+                ComponentPaneModel newPanel = new ComponentPaneModel(getViewProperties(),
                         oscCategorizedVersions.getLatestVersion().get(), stampOrderHashMap, getDisclosureStateMap());
 
                 extensionPaneModels.add(newPanel);
             } else if (!oscCategorizedVersions.getUncommittedVersions().isEmpty()) {
-                ComponentPaneModel newPanel = new ComponentPaneModel(getManifold(),
+                ComponentPaneModel newPanel = new ComponentPaneModel(getViewProperties(),
                         oscCategorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap, getDisclosureStateMap());
                 extensionPaneModels.add(newPanel);
             }

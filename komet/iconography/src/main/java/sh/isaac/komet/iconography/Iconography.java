@@ -256,7 +256,22 @@ public enum Iconography implements Icons {
       AnchorPane.setBottomAnchor(icon, 0.0);
       AnchorPane.setLeftAnchor(icon, 0.0);
       AnchorPane anchorPane = new AnchorPane(icon);
-      anchorPane.getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
+      // set at the scene level.
+      //anchorPane.getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
+      return anchorPane;
+   }
+
+   @Override
+   public AnchorPane getIconographicWithStyleClasses(String... styleClasses) {
+      Node icon = getIconographic();
+      icon.getStyleClass().addAll(styleClasses);
+      AnchorPane.setTopAnchor(icon, 0.0);
+      AnchorPane.setRightAnchor(icon, 0.0);
+      AnchorPane.setBottomAnchor(icon, 0.0);
+      AnchorPane.setLeftAnchor(icon, 0.0);
+      AnchorPane anchorPane = new AnchorPane(icon);
+      // set at the scene level.
+      //anchorPane.getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
       return anchorPane;
    }
 

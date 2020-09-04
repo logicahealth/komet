@@ -41,11 +41,8 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.value.ObservableValue;
 import sh.isaac.api.coordinate.*;
-import sh.isaac.api.observable.coordinate.*;
 import sh.isaac.model.observable.ObservableFields;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -57,128 +54,72 @@ import sh.isaac.model.observable.ObservableFields;
  *
  * @author kec
  */
-public class ObservableManifoldCoordinateImpl
-        extends ObservableCoordinateImpl<ManifoldCoordinateImmutable>
-         implements ObservableManifoldCoordinate {
+public class ObservableManifoldCoordinateImpl extends ObservableManifoldCoordinateBase {
 
-    /**
-     *
-     * The vertexSort property.
-     */
-    private final SimpleObjectProperty<VertexSort> vertexSortProperty;
+    public ObservableManifoldCoordinateImpl(ManifoldCoordinate manifoldCoordinate, String name) {
+        super(manifoldCoordinate, name);
+    }
 
-    /**
-     *
-     * The digraph coordinate property.
-     */
-    private final SimpleObjectProperty<DigraphCoordinateImmutable> digraphCoordinateImmutableProperty;
-
-    private final ObservableDigraphCoordinateImpl observableDigraphCoordinate;
-
-   //~--- constructors --------------------------------------------------------
-
-   /**
-    * Instantiates a new observable taxonomy coordinate impl.
-    *
-    * @param manifoldCoordinate the taxonomy coordinate
-    */
-   public ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable manifoldCoordinate) {
-       super(manifoldCoordinate);
-       this.vertexSortProperty = new SimpleObjectProperty<>(this,
-               ObservableFields.VERTEX_SORT_PROPERTY.toExternalString(),
-               manifoldCoordinate.getVertexSort());
-
-       this.observableDigraphCoordinate = new ObservableDigraphCoordinateImpl(manifoldCoordinate.toDigraphImmutable());
-       this.digraphCoordinateImmutableProperty = observableDigraphCoordinate.baseCoordinateProperty();
-        addListeners();
-   }
-
-    @Override
-    protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends ManifoldCoordinateImmutable> observable, ManifoldCoordinateImmutable oldValue, ManifoldCoordinateImmutable newValue) {
-        this.vertexSortProperty.setValue(newValue.getVertexSort());
-        this.digraphCoordinateImmutableProperty.setValue(newValue.toDigraphImmutable());
+    public ObservableManifoldCoordinateImpl(ManifoldCoordinate manifoldCoordinate) {
+        super(manifoldCoordinate);
     }
 
     @Override
-    protected void addListeners() {
-        this.vertexSortProperty.addListener(this::vertexSortChanged);
-        this.digraphCoordinateImmutableProperty.addListener(this::digraphChanged);
+    public ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis) {
+        return new ObservableManifoldCoordinateImpl(getValue().makeCoordinateAnalog(classifyTimeInEpochMillis));
     }
 
     @Override
-    protected void removeListeners() {
-        this.vertexSortProperty.removeListener(this::vertexSortChanged);
-        this.digraphCoordinateImmutableProperty.removeListener(this::digraphChanged);
+    public void setExceptOverrides(ManifoldCoordinateImmutable updatedCoordinate) {
+        setValue(updatedCoordinate);
     }
 
-    //~--- methods -------------------------------------------------------------
-   private void digraphChanged(ObservableValue<? extends DigraphCoordinateImmutable> observable,
-                               DigraphCoordinateImmutable oldValue,
-                               DigraphCoordinateImmutable newValue) {
-       this.setValue(ManifoldCoordinateImmutable.make(getVertexSort(), newValue, getStampFilter()));
-       this.digraphCoordinateImmutableProperty.set(newValue);
-   }
+    @Override
+    protected ObservableNavigationCoordinateImpl makeNavigationCoordinateProperty(ManifoldCoordinate manifoldCoordinate) {
+        return new ObservableNavigationCoordinateImpl(manifoldCoordinate.toNavigationCoordinateImmutable());
+    }
 
-    private void vertexSortChanged(ObservableValue<? extends VertexSort> observable,
-                                   VertexSort oldValue,
-                                   VertexSort newValue) {
-        this.setValue(ManifoldCoordinateImmutable.make(newValue, getDigraph(), getStampFilter()));
+    @Override
+    protected SimpleObjectProperty<StatusSet> makeVertexStatusSetProperty(ManifoldCoordinate manifoldCoordinate) {
+        return  new SimpleObjectProperty<>(this,
+                ObservableFields.VERTEX_STATUS_SET_PROPERTY.toExternalString(),
+                manifoldCoordinate.getVertexStatusSet());
+    }
+
+    @Override
+    protected ObservableStampFilterBase makeEdgeStampFilterProperty(ManifoldCoordinate manifoldCoordinate) {
+        return ObservableStampFilterImpl.make(manifoldCoordinate.getViewStampFilter(), ObservableFields.VIEW_FILTER_FOR_NAVIGATION.toExternalString());
     }
 
 
     @Override
-    public ObjectProperty<VertexSort> vertexSortProperty() {
-        return vertexSortProperty;
+    protected SimpleObjectProperty<VertexSort> makeVertexSortProperty(ManifoldCoordinate manifoldCoordinate) {
+        return new SimpleObjectProperty<>(this,
+                ObservableFields.VERTEX_SORT_PROPERTY.toExternalString(),
+                manifoldCoordinate.getVertexSort());
     }
 
     @Override
-    public ObjectProperty<DigraphCoordinateImmutable> digraphCoordinateImmutableProperty() {
-        return digraphCoordinateImmutableProperty;
+    protected SimpleObjectProperty<Activity> makeActivityProperty(ManifoldCoordinate manifoldCoordinate) {
+        return new SimpleObjectProperty<>(this,
+                ObservableFields.CURRENT_ACTIVITY_PROPERTY.toExternalString(),
+                manifoldCoordinate.getCurrentActivity());
     }
 
     @Override
-    public ObservableDigraphCoordinate getDigraph() {
-        return this.observableDigraphCoordinate;
+    protected ObservableLanguageCoordinateBase makeLanguageCoordinate(ManifoldCoordinate manifoldCoordinate) {
+        return new ObservableLanguageCoordinateImpl(manifoldCoordinate.getLanguageCoordinate());
     }
 
     @Override
-    public ObservableLogicCoordinate getLogicCoordinate() {
-        return this.observableDigraphCoordinate.getLogicCoordinate();
+    protected ObservableLogicCoordinateBase makeLogicCoordinate(ManifoldCoordinate manifoldCoordinate) {
+        return new ObservableLogicCoordinateImpl(manifoldCoordinate.getLogicCoordinate());
     }
 
     @Override
-    public ObservableLanguageCoordinate getLanguageCoordinate() {
-        return this.observableDigraphCoordinate.getLanguageCoordinate();
-    }
-
-    @Override
-    public VertexSort getVertexSort() {
-        return vertexSortProperty.get();
-    }
-
-    @Override
-    public ObservableStampFilter getStampFilter() {
-        return this.observableDigraphCoordinate.getEdgeStampFilter();
-    }
-
-    @Override
-    public ObservableStampFilter getLanguageStampFilter() {
-        return this.observableDigraphCoordinate.getVertexStampFilter();
-    }
-
-    @Override
-    public ObservableStampFilter getVertexStampFilter() {
-        return this.observableDigraphCoordinate.getVertexStampFilter();
-    }
-
-    @Override
-    public ManifoldCoordinateImmutable toManifoldCoordinateImmutable() {
-        return this.getValue();
-    }
-
-    @Override
-    public ObservableStampFilter getEdgeStampFilter() {
-        return this.observableDigraphCoordinate.getEdgeStampFilter();
+    protected ObservableEditCoordinateBase makeEditCoordinate(ManifoldCoordinate manifoldCoordinate) {
+        return new ObservableEditCoordinateImpl(manifoldCoordinate.getEditCoordinate());
     }
 }
+
 

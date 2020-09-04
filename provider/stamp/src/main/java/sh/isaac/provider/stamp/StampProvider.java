@@ -60,6 +60,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.list.primitive.ImmutableLongList;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableLongSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
+import org.eclipse.collections.impl.factory.primitive.LongSets;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import jakarta.annotation.PostConstruct;
@@ -284,6 +290,10 @@ public class StampProvider
             return "{Stamp≤CANCELED≥}";
         }
 
+        if (stampSequence == Integer.MAX_VALUE) {
+            return "{Stamp≤UNCOMMITTED Observable Version≥}";
+        }
+
         final StringBuilder sb = new StringBuilder();
 
         sb.append("{Stamp≤");
@@ -330,6 +340,9 @@ public class StampProvider
         if (stampSequence == -1) {
             return "CANCELED";
         }
+        if (stampSequence == Integer.MAX_VALUE) {
+            return "Uncommitted from observable with no stamped version";
+        }
 
         final StringBuilder sb = new StringBuilder();
 
@@ -356,7 +369,7 @@ public class StampProvider
             sb.append("CANCELED");
         } else {
             ZonedDateTime stampTime = Instant.ofEpochMilli(time)
-                    .atZone(ZoneOffset.UTC);
+                    .atZone(ZoneOffset.systemDefault());
             sb.append(stampTime.format(FORMATTER));
         }
 
@@ -538,6 +551,7 @@ public class StampProvider
         this.sequenceToUncommittedStamp = null;
         this.inverseStampMap = null;
         this.dataStore = null;
+        LOG.info("Stopped StampProvider pre-destroy. ");
     }
 
     @SuppressWarnings("rawtypes")
@@ -739,7 +753,9 @@ public class StampProvider
                     }
 
                     final int stampSequence = this.nextStampSequence.getAndIncrement();
-                    Transaction transactionForPath = ((TransactionImpl) transaction).addStampToTransaction(stampSequence);
+                    if (transaction != null) {
+                        Transaction transactionForPath = ((TransactionImpl) transaction).addStampToTransaction(stampSequence);
+                    }
                     LOG.trace("Putting {}, {} into uncommitted stamp to sequence map", () -> usp.toString(), () -> stampSequence);
                     this.uncommittedStampIntegerConcurrentHashMap.put(usp, stampSequence);
                     this.sequenceToUncommittedStamp.put(stampSequence, usp);
@@ -816,6 +832,9 @@ public class StampProvider
      */
     @Override
     public long getTimeForStamp(int stampSequence) {
+        if (stampSequence == Integer.MAX_VALUE) {
+            return Long.MAX_VALUE; // uncommitted...
+        }
         if (stampSequence < 0) {
             return Long.MIN_VALUE;
         }
@@ -878,6 +897,40 @@ public class StampProvider
     @Override
     public boolean isUncommitted(int stampSequence) {
         return sequenceToUncommittedStamp.containsKey(stampSequence);
+    }
+
+    @Override
+    public ImmutableIntSet getPathsInUse() {
+        MutableIntSet pathsInUse = IntSets.mutable.empty();
+        stampSequence_PathNid_Map.values().forEach(pathNid -> pathsInUse.add(pathNid));
+        return pathsInUse.toImmutable();
+    }
+
+    @Override
+    public ImmutableIntSet getModulesInUse() {
+        MutableIntSet modulesInUse = IntSets.mutable.empty();
+        for (Entry<Integer, Stamp> stamp: inverseStampMap.getEntrySet()) {
+            modulesInUse.add(stamp.getValue().getModuleNid());
+        }
+        return modulesInUse.toImmutable();
+    }
+
+    @Override
+    public ImmutableIntSet getAuthorsInUse() {
+        MutableIntSet authorsInUse = IntSets.mutable.empty();
+        for (Entry<Integer, Stamp> stamp: inverseStampMap.getEntrySet()) {
+            authorsInUse.add(stamp.getValue().getAuthorNid());
+        }
+        return authorsInUse.toImmutable();
+    }
+
+    @Override
+    public ImmutableLongList getTimesInUse() {
+        MutableLongSet timesInUse = LongSets.mutable.empty();
+        for (Entry<Integer, Stamp> stamp: inverseStampMap.getEntrySet()) {
+            timesInUse.add(stamp.getValue().getTime());
+        }
+        return timesInUse.toSortedList().toImmutable();
     }
 }
 

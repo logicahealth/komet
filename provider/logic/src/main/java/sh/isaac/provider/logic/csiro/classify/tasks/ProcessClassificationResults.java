@@ -37,13 +37,24 @@
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
 
-import au.csiro.ontology.Node;
-import au.csiro.ontology.Ontology;
-import javafx.concurrent.Task;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import au.csiro.ontology.Node;
+import au.csiro.ontology.Ontology;
+import javafx.concurrent.Task;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
@@ -51,7 +62,6 @@ import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitService;
@@ -60,29 +70,20 @@ import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
-import sh.isaac.api.coordinate.StampFilterImmutable;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.ConceptAssertion;
 import sh.isaac.api.task.AggregateTaskInput;
+import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.logic.ClassifierResultsImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
-
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 
 /**
  * The Class ProcessClassificationResults.
@@ -97,25 +98,20 @@ public class ProcessClassificationResults
 
     int classificationDuplicateCount = -1;
     int classificationCountDuplicatesToNote = 10;
-    private final StampFilterImmutable stampFilter;
-    private final LogicCoordinate logicCoordinate;
-    private final EditCoordinate editCoordinate;
+    private final ManifoldCoordinate manifoldCoordinate;
     private final Instant effectiveCommitTime;
 
     /**
      * Instantiates a new process classification results task.
-     * @param stampFilter 
-     * @param logicCoordinate 
-     * @param editCoordinate 
+     *
+     * @param manifoldCoordinate
      */
-    public ProcessClassificationResults(StampFilter stampFilter, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate) {
-        if (stampFilter.getStampPosition().getTime() == Long.MAX_VALUE) {
+    public ProcessClassificationResults(ManifoldCoordinate manifoldCoordinate) {
+        if (manifoldCoordinate.getViewStampFilter().getTime() == Long.MAX_VALUE) {
             throw new IllegalStateException("Filter position time must reflect the actual commit time, not 'latest' (Long.MAX_VALUE) ");
         }
-        this.stampFilter = stampFilter.toStampFilterImmutable();
-        this.effectiveCommitTime = stampFilter.getStampPosition().getTimeAsInstant();
-        this.logicCoordinate = logicCoordinate;
-        this.editCoordinate = editCoordinate;
+        this.manifoldCoordinate = manifoldCoordinate;
+        this.effectiveCommitTime = manifoldCoordinate.getViewStampFilter().getTimeAsInstant();
         updateTitle("Retrieve inferred axioms");
     }
     
@@ -145,9 +141,9 @@ public class ProcessClassificationResults
             Set<Integer> affectedConceptNids = this.inputData.getAffectedConceptNidSet();
             this.addToTotalWork(affectedConceptNids.size());
             Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+            WriteCoordinate wc = manifoldCoordinate.getWriteCoordinate(transaction);
 
-
-            final ClassifierResults classifierResults = collectResults(transaction, inferredAxioms, affectedConceptNids);
+            final ClassifierResults classifierResults = collectResults(wc, inferredAxioms, affectedConceptNids);
             transaction.commit("Classifier").get();
             Get.logicService().addClassifierResults(classifierResults);
             log.info("Adding classifier results to logic service...");
@@ -167,8 +163,9 @@ public class ProcessClassificationResults
      * @param affectedConcepts the affected concepts
      * @return the classifier results
      */
-    private ClassifierResults collectResults(Transaction transaction, Ontology classifiedResult, Set<Integer> affectedConcepts) {
+    private ClassifierResults collectResults(WriteCoordinate wc, Ontology classifiedResult, Set<Integer> affectedConcepts) {
         final HashSet<IntArrayList> equivalentSets = new HashSet<>();
+        LOG.debug("collect results begins for {} concepts", affectedConcepts.size());
         affectedConcepts.parallelStream().forEach((conceptNid) -> {
             completedUnitOfWork();
             final Node node = classifiedResult.getNode(Integer.toString(conceptNid));
@@ -219,7 +216,7 @@ public class ProcessClassificationResults
 //        }
         return new ClassifierResultsImpl(affectedConcepts,
                 equivalentSets,
-                writeBackInferred(transaction, classifiedResult, affectedConcepts), stampFilter, logicCoordinate, editCoordinate);
+                writeBackInferred(wc, classifiedResult, affectedConcepts), manifoldCoordinate);
     }
 
     /**
@@ -280,15 +277,17 @@ public class ProcessClassificationResults
      * @param affectedConcepts the affected concepts
      * @return the optional
      */
-    private Optional<CommitRecord> writeBackInferred(Transaction transaction, Ontology inferredAxioms, Set<Integer> affectedConcepts) {
+    private Optional<CommitRecord> writeBackInferred(WriteCoordinate wc, Ontology inferredAxioms, Set<Integer> affectedConcepts) {
         final AssemblageService assemblageService = Get.assemblageService();
         final AtomicInteger sufficientSets = new AtomicInteger();
         final LogicalExpressionBuilderService logicalExpressionBuilderService = Get.logicalExpressionBuilderService();
         final SemanticBuilderService<? extends SemanticChronology> semanticBuilderService = Get.semanticBuilderService();
         final CommitService commitService = Get.commitService();
 
+        LOG.debug("write back inferred begins with {} axioms", inferredAxioms.getInferredAxioms().size());
         // TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  
         // JVisualVM tells me that all of this work is occurring on a single thread.  Need to figure out why...
+        ConcurrentHashMap<OptionalWaitTask<?>, Boolean> submitted = new ConcurrentHashMap<>();
         affectedConcepts.parallelStream().forEach((conceptNid) -> {
             try {
                 if (Get.configurationService().isVerboseDebugEnabled() && TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
@@ -369,7 +368,7 @@ public class ProcessClassificationResults
                                                 this.inputData.getLogicCoordinate().getInferredAssemblageNid());
 
                                 // get classifier edit coordinate...
-                                builder.build(transaction, editCoordinate);
+                                submitted.put(builder.buildAndWrite(wc), true);
                                 
                                 if (Get.configurationService().isVerboseDebugEnabled() && TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
                                     log.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
@@ -388,13 +387,11 @@ public class ProcessClassificationResults
                                             .getLogicalExpression()
                                             .equals(inferredExpression)) {
                                         final MutableLogicGraphVersion newVersion
-                                                = ((SemanticChronology) inferredChronology).createMutableVersion(transaction,
-                                                        Status.ACTIVE,
-                                                        editCoordinate);
+                                                = ((SemanticChronology) inferredChronology).createMutableVersion(new WriteCoordinateImpl(wc,Status.ACTIVE));
 
                                         newVersion.setGraphData(
                                                 inferredExpression.getData(DataTarget.INTERNAL));
-                                        commitService.addUncommitted(transaction, newVersion);
+                                        submitted.put(new OptionalWaitTask<Void>(commitService.addUncommitted(wc.getTransaction().get(), newVersion), null, null), true);
                                     }
                                 }
                             }
@@ -413,7 +410,19 @@ public class ProcessClassificationResults
                         .error("Error during writeback - skipping concept ", e);
             }
         });
-        final Task<Optional<CommitRecord>> commitTask = transaction.commit( "classifier run", this.effectiveCommitTime);
+        
+        //Wait until all writes are done:
+        LOG.debug("Ensuring all writes are complete");
+        submitted.forEachKey(50, task -> {
+            try {
+                task.get();
+            }
+            catch (InterruptedException | ExecutionException e1) {
+                throw new RuntimeException("Failure writing logic graphs for classification", e1);
+            }
+        });
+        LOG.debug("Comitting {} semantics", submitted.size());
+        final Task<Optional<CommitRecord>> commitTask = wc.getTransaction().get().commit( "classifier run", this.effectiveCommitTime);
 
         try {
             final Optional<CommitRecord> commitRecord = commitTask.get();

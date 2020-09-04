@@ -45,13 +45,16 @@ import sh.isaac.api.BusinessRulesService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.EditCoordinateImmutable;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.komet.gui.contract.RulesDrivenKometService;
-import sh.komet.gui.control.PropertySheetMenuItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -66,6 +69,9 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
      */
     private static final Logger LOG = LogManager.getLogger();
     public static final String KOMET_SESSION = "komet-session";
+    public static final String MANIFOLD_COORDINATE = "manifoldCoordinate";
+    public static final String EDIT_COORDINATE = "editCoordinate";
+
     private final KieServices kieServices = KieServices.Factory.get();;
     private KieContainer classPathContainer;
     private StatelessKieSession staticSession;
@@ -103,7 +109,6 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
         } finally {
             progressTask.finished();
         }
-        
     }
 
 
@@ -135,16 +140,17 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
         LOG.info("Stopping Drools Rules Provider.");
         this.classPathContainer = null;
         this.staticSession = null;
+        LOG.info("Stopped Drools Rules Provider.");
     }
     
     @Override
-    public List<Action> getEditLogicalExpressionNodeMenuItems(Manifold manifold,
+    public List<Action> getEditLogicalExpressionNodeMenuItems(ViewProperties viewProperties,
                                                               LogicNode nodeToEdit,
                                                               LogicalExpression expressionContiningNode,
                                                               Consumer<LogicalExpression> expressionUpdater,
                                                               MouseEvent mouseEvent) {
         AddEditLogicalExpressionNodeMenuItems executionItem
-                = new AddEditLogicalExpressionNodeMenuItems(manifold, nodeToEdit,
+                = new AddEditLogicalExpressionNodeMenuItems(viewProperties, nodeToEdit,
                         expressionContiningNode, expressionUpdater, mouseEvent);
         this.staticSession.execute(executionItem);
         executionItem.sortActionItems();
@@ -152,9 +158,9 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     }
     
     @Override
-    public List<MenuItem> getEditVersionMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
+    public List<MenuItem> getEditVersionMenuItems(ManifoldCoordinate manifoldCoordinate, ObservableCategorizedVersion categorizedVersion,
                                                   Consumer<PropertySheetMenuItem> propertySheetConsumer) {
-        AddEditVersionMenuItems executionItem = new AddEditVersionMenuItems(manifold, categorizedVersion, propertySheetConsumer);
+        AddEditVersionMenuItems executionItem = new AddEditVersionMenuItems(manifoldCoordinate, categorizedVersion, propertySheetConsumer);
         this.staticSession.execute(executionItem);
         if (this.dynamicSession != null) {
             this.dynamicSession.execute(executionItem);
@@ -163,9 +169,9 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     }
     
     @Override
-    public List<MenuItem> getAddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
+    public List<MenuItem> getAddAttachmentMenuItems(ManifoldCoordinate manifoldCoordinate, ObservableCategorizedVersion categorizedVersion,
                                                     BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
-        AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifold, categorizedVersion, newAttachmentConsumer);
+        AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifoldCoordinate, categorizedVersion, newAttachmentConsumer);
         this.staticSession.execute(executionItem);
         if (this.dynamicSession != null) {
             this.dynamicSession.execute(executionItem);
@@ -183,7 +189,12 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     }
     
     @Override
-    public void populateWrappedProperties(List<PropertySheet.Item> items) {
+    public void populateWrappedProperties(List<PropertySheet.Item> items,
+                                          ManifoldCoordinateImmutable manifoldCoordinate,
+                                          EditCoordinateImmutable editCoordinate) {
+
+        this.staticSession.setGlobal(MANIFOLD_COORDINATE, manifoldCoordinate);
+        this.staticSession.setGlobal(EDIT_COORDINATE, editCoordinate);
         this.staticSession.execute(items);
     }
 

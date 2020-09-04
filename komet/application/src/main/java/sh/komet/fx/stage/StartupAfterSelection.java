@@ -15,18 +15,19 @@ import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.MemoryConfiguration;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
 import sh.isaac.komet.preferences.UserPreferencesPanel;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.KometPreferences;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.util.FxGet;
 
 import java.io.IOException;
@@ -61,6 +62,9 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
                     stage.getScene()
                             .getStylesheets()
                             .add(MainApp.class.getResource("/user.css").toString());
+                    stage.getScene()
+                            .getStylesheets()
+                            .add(Iconography.class.getResource("/sh/isaac/komet/iconography/Iconography.css").toString());
                     stage.show();
                     mainApp.replacePrimaryStage(stage);
                 } catch (IOException e) {
@@ -130,23 +134,15 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
         @Override
         protected Void call() throws Exception {
             try {
+                FxGet.load();
                 kometPreferences = FxGet.kometPreferences();
-                kometPreferences.loadPreferences(FxGet.manifold(Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE));
+                kometPreferences.loadPreferences();
 
 
                 if (Get.metadataService()
                         .wasMetadataImported()) {
-                    final StampFilter developmentLatestStampFilter = Get.coordinateFactory()
-                            .createDevelopmentLatestStampFilter();
-                    final LogicCoordinate logicCoordinate = Get.coordinateFactory()
-                            .createStandardElProfileLogicCoordinate();
-                    final EditCoordinate editCoordinate = Get.coordinateFactory()
-                            .createClassifierSolorOverlayEditCoordinate();
                     final ClassifierService logicService = Get.logicService()
-                            .getClassifierService(
-                                    developmentLatestStampFilter,
-                                    logicCoordinate,
-                                    editCoordinate);
+                            .getClassifierService(Coordinates.Manifold.DevelopmentInferredRegularNameSort());
                     final Task<ClassifierResults> classifyTask = logicService.classify();
                     final ClassifierResults classifierResults = classifyTask.get();
                 }
@@ -155,7 +151,8 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
 
                 kometPreferences.reloadPreferences();
                 boolean replacePrimaryStage = true;
-                for (WindowPreferencesItem windowPreference : kometPreferences.getWindowPreferenceItems()) {
+                for (WindowPreferences windowPreference : kometPreferences.getWindowPreferenceItems()) {
+                    LOG.info("Opening " + windowPreference.getWindowName().get());
                     this.updateMessage("Opening " + windowPreference.getWindowName().get());
                     try {
                         UUID stageUuid = windowPreference.getWindowUuid();
@@ -164,6 +161,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
                         KometStageController controller = loader.getController();
                         root.setId(stageUuid.toString());
                         Stage stage = new Stage(StageStyle.UNIFIED);
+                        stage.getProperties().put(FxGet.PROPERTY_KEYS.WINDOW_PREFERENCES, windowPreference);
                         Scene scene = new Scene(mainApp.setupStageMenus(stage, root, windowPreference));
 
                         stage.setScene(scene);
@@ -178,7 +176,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
                         stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
                         stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
 
-                        stage.setTitle(windowPreference.getWindowName().getValue());
+                        stage.setTitle(windowPreference.getWindowName().getValue() + ": " + Get.dataStore().getDataStorePath().toFile().getName());
                         // GraphController.setSceneForControllers(scene);
                         scene.getStylesheets()
                                 .add(FxGet.fxConfiguration().getUserCSSURL().toString());

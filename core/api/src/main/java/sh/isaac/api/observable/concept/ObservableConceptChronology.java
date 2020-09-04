@@ -39,24 +39,14 @@
 
 package sh.isaac.api.observable.concept;
 
-//~--- JDK imports ------------------------------------------------------------
-
-
-//~--- non-JDK imports --------------------------------------------------------
-
-
-import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.transaction.Transaction;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface ObservableConceptChronology.
@@ -75,12 +65,11 @@ public interface ObservableConceptChronology
     */
    boolean containsActiveDescription(String descriptionText, StampFilter stampFilter);
 
-
    @Override
    ObservableConceptVersion createMutableVersion(int stampSequence);
-
+   
    @Override
-   ObservableConceptVersion createMutableVersion(Transaction transaction, Status state, EditCoordinate ec);
+   ObservableConceptVersion createMutableVersion(Transaction transaction, int stampSequence);
 
    @Override
    LatestVersion<ObservableDescriptionVersion> getFullyQualifiedNameDescription(
@@ -90,7 +79,7 @@ public interface ObservableConceptChronology
    @Override
    default LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
            ManifoldCoordinate manifoldCoordinate) {
-      return getFullyQualifiedNameDescription(manifoldCoordinate.getLanguageCoordinate(), manifoldCoordinate.getStampFilter());
+      return getFullyQualifiedNameDescription(manifoldCoordinate.getLanguageCoordinate(), manifoldCoordinate.getViewStampFilter());
       
    }
 
@@ -102,6 +91,6 @@ public interface ObservableConceptChronology
    @Override
    default LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            ManifoldCoordinate manifoldCoordinate) {
-      return getPreferredDescription(manifoldCoordinate.getLanguageCoordinate(), manifoldCoordinate.getStampFilter());
+      return getPreferredDescription(manifoldCoordinate.getLanguageCoordinate(), manifoldCoordinate.getViewStampFilter());
    }
 }

@@ -21,7 +21,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PopOver;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
 import javafx.scene.input.MouseButton;
@@ -32,12 +34,13 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.concept.MenuSupplierForFocusConcept;
 import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.drag.drop.IsaacClipboard;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 
 /**
@@ -49,30 +52,33 @@ public class ConceptNode extends Label {
     private static final Logger LOG = LogManager.getLogger();
     private final int conceptNid;
     private final Button openConceptButton = new Button("", Iconography.LINK_EXTERNAL.getIconographic());
-    private final Manifold manifold;
+    private final ManifoldCoordinate manifoldCoordinate;
     private PremiseType premiseType = PremiseType.INFERRED;
 
-    public ConceptNode(int conceptNid, Manifold manifold) {
+    public ConceptNode(int conceptNid, ManifoldCoordinate manifoldCoordinate) {
         this.conceptNid = conceptNid;
-        this.manifold = manifold;
-        this.setText(manifold.getPreferredDescriptionText(conceptNid));
+        this.manifoldCoordinate = manifoldCoordinate;
+        this.setText(manifoldCoordinate.getPreferredDescriptionText(conceptNid));
 
         HBox controlBox;
-        LatestVersion<Version> latest = manifold.getStampFilter().latestConceptVersion(conceptNid);
+        LatestVersion<Version> latest = manifoldCoordinate.getVertexStampFilter().latestConceptVersion(conceptNid);
         if (latest.isPresent()) {
             controlBox = new HBox(openConceptButton, AxiomView.computeGraphic(conceptNid, false,
-                    latest.get().getStatus(), manifold, premiseType));
+                    latest.get().getStatus(), manifoldCoordinate, premiseType));
         } else {
             controlBox = new HBox(openConceptButton, AxiomView.computeGraphic(conceptNid, false,
-                    Status.PRIMORDIAL, manifold, premiseType));
+                    Status.PRIMORDIAL, manifoldCoordinate, premiseType));
         }
-        ;
 
         this.setGraphic(controlBox);
         setOnDragDetected(this::handleDragDetected);
         setOnDragDone(this::handleDragDone);
         openConceptButton.getStyleClass().setAll(StyleClasses.OPEN_CONCEPT_BUTTON.toString());
         openConceptButton.setOnMouseClicked(this::handleShowConceptNodeClick);
+        ContextMenu contextMenu = new ContextMenu();
+        this.setContextMenu(contextMenu);
+        Menu copyMenu = MenuSupplierForFocusConcept.makeCopyMenuItem(Optional.of(Get.concept(this.conceptNid)), this.manifoldCoordinate);
+        contextMenu.getItems().addAll(copyMenu.getItems());
     }
 
     private void handleShowConceptNodeClick(MouseEvent mouseEvent) {
@@ -83,16 +89,16 @@ public class ConceptNode extends Label {
 
     private void showPopup(int conceptNid, MouseEvent mouseEvent) {
 
-        Optional<LogicalExpression> expression = manifold.getLogicalExpression(conceptNid, premiseType);
+        Optional<LogicalExpression> expression = manifoldCoordinate.getLogicalExpression(conceptNid, premiseType);
         if (!expression.isPresent()) {
             premiseType = PremiseType.STATED;
-            expression = manifold.getLogicalExpression(conceptNid, premiseType);
+            expression = manifoldCoordinate.getLogicalExpression(conceptNid, premiseType);
         }
         if (expression.isPresent()) {
             PopOver popover = new PopOver();
             popover.setContentNode(AxiomView.createWithCommitPanel(expression.get(),
                     premiseType,
-                    manifold));
+                    manifoldCoordinate));
             popover.setCloseButtonEnabled(true);
             popover.setHeaderAlwaysVisible(false);
             popover.setTitle("");

@@ -114,14 +114,9 @@ public class ImportExportTest {
    public void testClassify() {
       LOG.info("Classifying");
 
-      final StampFilter stampCoordinate = Get.coordinateFactory()
-                                                 .createDevelopmentLatestStampFilter();
-      final LogicCoordinate logicCoordinate = Get.coordinateFactory()
-                                                 .createStandardElProfileLogicCoordinate();
-      final EditCoordinate  editCoordinate  = Get.coordinateFactory()
-                                                 .createClassifierSolorOverlayEditCoordinate();
+      final ManifoldCoordinate manifoldCoordinate = Coordinates.Manifold.DevelopmentInferredRegularNameSort();
       final ClassifierService logicService = Get.logicService()
-                                                .getClassifierService(stampCoordinate, logicCoordinate, editCoordinate);
+                                                .getClassifierService(manifoldCoordinate.toManifoldCoordinateImmutable());
       final Task<ClassifierResults> classifyTask = logicService.classify();
       
       try {
@@ -281,10 +276,7 @@ public class ImportExportTest {
    )
    public void testInferredTaxonomy() {
       LOG.info("Testing inferred taxonomy");
-      final ManifoldCoordinate manifoldCoordinate = ManifoldCoordinateImmutable.makeInferred(
-              Coordinates.Filter.DevelopmentLatest(),
-              Coordinates.Language.UsEnglishPreferredName(),
-              Coordinates.Logic.ElPlusPlus());
+      final ManifoldCoordinate manifoldCoordinate = Coordinates.Manifold.DevelopmentInferredRegularNameSort();
       TaxonomySnapshot taxonomySnapshotService = Get.taxonomyService().getSnapshot(manifoldCoordinate);
       final int[] roots = taxonomySnapshotService.getRootNids();
       final NidSet rootAssemblages = new NidSet();
@@ -386,10 +378,7 @@ public class ImportExportTest {
    public void testStatedTaxonomy() {
       LOG.info("Testing stated taxonomy");
 
-      final ManifoldCoordinate manifoldCoordinate = ManifoldCoordinateImmutable.makeStated(
-              Coordinates.Filter.DevelopmentLatest(),
-              Coordinates.Language.UsEnglishPreferredName(),
-              Coordinates.Logic.ElPlusPlus());
+      final ManifoldCoordinate manifoldCoordinate = Coordinates.Manifold.DevelopmentStatedRegularNameSort();
       LOG.info("Concepts in database: " + Get.conceptService().getConceptCount());
       TaxonomySnapshot taxonomySnapshotService = Get.taxonomyService().getSnapshot(manifoldCoordinate);
       final int[] roots = taxonomySnapshotService.getRootNids();

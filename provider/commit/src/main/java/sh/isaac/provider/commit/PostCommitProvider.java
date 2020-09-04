@@ -181,6 +181,7 @@ public class PostCommitProvider
       LOG.info("Stopping PostCommitProvider pre-destroy. ");
       Get.commitService().removeChangeListener(this);
       changeSetListeners.clear();
+      LOG.info("Stopped PostCommitProvider pre-destroy. ");
    }
 
    //~--- get methods ---------------------------------------------------------

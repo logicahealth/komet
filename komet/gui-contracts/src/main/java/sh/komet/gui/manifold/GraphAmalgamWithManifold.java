@@ -1,26 +1,26 @@
 package sh.komet.gui.manifold;
 
 import javafx.beans.property.SimpleObjectProperty;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.tree.TaxonomyAmalgam;
 
 public class GraphAmalgamWithManifold extends TaxonomyAmalgam {
-    SimpleObjectProperty<Manifold> manifoldProperty = new SimpleObjectProperty<>();
 
-    public GraphAmalgamWithManifold(ManifoldCoordinate manifoldCoordinate, boolean includeDefiningTaxonomy, Manifold manifold) {
+    SimpleObjectProperty<ObservableManifoldCoordinate> observableManifoldCoordinateProperty = new SimpleObjectProperty<>();
+    public GraphAmalgamWithManifold(ObservableManifoldCoordinate manifoldCoordinate, boolean includeDefiningTaxonomy) {
         super(manifoldCoordinate, includeDefiningTaxonomy);
-        this.manifoldProperty.set(manifold);
+        observableManifoldCoordinateProperty.set(manifoldCoordinate);
     }
 
-    public Manifold getManifold() {
-        return manifoldProperty.get();
+    public ObservableManifoldCoordinate getObservableManifoldCoordinate() {
+        return observableManifoldCoordinateProperty.get();
     }
 
-    public SimpleObjectProperty<Manifold> manifoldProperty() {
-        return manifoldProperty;
+    public SimpleObjectProperty<ObservableManifoldCoordinate> observableManifoldCoordinateProperty() {
+        return observableManifoldCoordinateProperty;
     }
 
-    public void setManifold(Manifold manifoldProperty) {
-        this.manifoldProperty.set(manifoldProperty);
+    public void setObservableManifoldCoordinate(ObservableManifoldCoordinate observableManifoldCoordinate) {
+        this.observableManifoldCoordinateProperty.set(observableManifoldCoordinate);
     }
 }

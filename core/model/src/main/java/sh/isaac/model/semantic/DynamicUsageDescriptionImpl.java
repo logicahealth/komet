@@ -157,12 +157,12 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
 		Get.assemblageService().getSemanticChronologyStreamForComponent(assemblageConcept.getNid()).forEach(semantic -> {
 			if (semantic.getVersionType() == VersionType.DYNAMIC)
 			{
-				final LatestVersion<? extends DynamicVersion<?>> semanticVersion = ((SemanticChronology) semantic)
+				final LatestVersion<? extends DynamicVersion> semanticVersion = ((SemanticChronology) semantic)
 						.getLatestVersion(Coordinates.Filter.DevelopmentLatest());
 
 				if (semanticVersion.isPresent())
 				{
-					final DynamicVersion<?> ds = semanticVersion.get();
+					final DynamicVersion ds = semanticVersion.get();
 					final DynamicData[] refexDefinitionData = ds.getData();
 
 					if (semantic.getAssemblageNid() == DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getNid())

@@ -36,6 +36,7 @@
  */
 package sh.isaac.misc.associations;
 
+import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
@@ -45,8 +46,6 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.coordinate.StampFilter;
-
-import java.util.Optional;
 
 
 /**

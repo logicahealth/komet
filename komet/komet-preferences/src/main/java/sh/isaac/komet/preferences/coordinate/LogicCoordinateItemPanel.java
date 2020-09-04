@@ -2,25 +2,23 @@ package sh.isaac.komet.preferences.coordinate;
 
 import javafx.beans.property.SimpleStringProperty;
 import sh.isaac.MetaData;
-import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinateImmutable;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.preferences.AbstractPreferences;
+import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateBase;
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
-import sh.komet.gui.control.PropertySheetTextWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
-import sh.komet.gui.util.UuidStringKey;
+import sh.isaac.api.util.UuidStringKey;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -35,23 +33,23 @@ public class LogicCoordinateItemPanel extends AbstractPreferences {
     private final SimpleStringProperty nameProperty
             = new SimpleStringProperty(this, MetaData.LOGIC_COORDINATE_NAME____SOLOR.toExternalString());
 
-    private final ObservableLogicCoordinateImpl logicCoordinateItem;
+    private final ObservableLogicCoordinateBase logicCoordinateItem;
 
     private final UuidStringKey itemKey;
 
     public LogicCoordinateItemPanel(LogicCoordinate logicCoordinate, String coordinateName,
-                                    IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
+                                    IsaacPreferences preferencesNode, ViewProperties viewProperties, KometPreferencesController kpc) {
 
-        super(preferencesNode, coordinateName, manifold, kpc);
+        super(preferencesNode, coordinateName, viewProperties, kpc);
         this.logicCoordinateItem = new ObservableLogicCoordinateImpl(logicCoordinate.toLogicCoordinateImmutable());
 
-        setup(manifold);
+        setup(viewProperties);
         this.itemKey = new UuidStringKey(UUID.fromString(preferencesNode.name()), nameProperty.get());
         FxGet.logicCoordinates().put(itemKey, logicCoordinateItem);
     }
 
-    public LogicCoordinateItemPanel(IsaacPreferences preferencesNode, Manifold manifold, KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME).get(), manifold, kpc);
+    public LogicCoordinateItemPanel(IsaacPreferences preferencesNode, ViewProperties viewProperties, KometPreferencesController kpc) {
+        super(preferencesNode, preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME).get(), viewProperties, kpc);
         Optional<byte[]> optionalBytes = preferencesNode.getByteArray(Keys.LOGIC__COORDINATE_DATA);
         if (optionalBytes.isPresent()) {
             ByteArrayDataBuffer buffer = new ByteArrayDataBuffer(optionalBytes.get());
@@ -61,16 +59,16 @@ public class LogicCoordinateItemPanel extends AbstractPreferences {
             setGroupName("EL++");
             this.logicCoordinateItem = new ObservableLogicCoordinateImpl(Coordinates.Logic.ElPlusPlus());
         }
-        setup(manifold);
+        setup(viewProperties);
         this.itemKey = new UuidStringKey(UUID.fromString(preferencesNode.name()), nameProperty.get());
         FxGet.logicCoordinates().put(itemKey, logicCoordinateItem);
     }
 
 
-    private void setup(Manifold manifold) {
+    private void setup(ViewProperties viewProperties) {
 
         nameProperty.set(groupNameProperty().get());
-        getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
+        getItemList().add(new PropertySheetTextWrapper(FxGet.preferenceViewProperties().getManifoldCoordinate(), nameProperty));
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
             FxGet.languageCoordinates().remove(itemKey);
@@ -78,15 +76,15 @@ public class LogicCoordinateItemPanel extends AbstractPreferences {
             FxGet.logicCoordinates().put(itemKey, logicCoordinateItem);
         });
 
-        getItemList().add(new PropertySheetItemConceptWrapper(manifold, "Logic profile", logicCoordinateItem.descriptionLogicProfileProperty(),
+        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Logic profile", logicCoordinateItem.descriptionLogicProfileProperty(),
                 new ConceptSpecification[] { TermAux.EL_PLUS_PLUS_LOGIC_PROFILE }));
-        getItemList().add(new PropertySheetItemConceptWrapper(manifold, "Classifier", logicCoordinateItem.classifierProperty(),
+        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Classifier", logicCoordinateItem.classifierProperty(),
                 new ConceptSpecification[] { TermAux.SNOROCKET_CLASSIFIER }));
-        getItemList().add(new PropertySheetItemConceptWrapper(manifold, "Concepts to classify", logicCoordinateItem.conceptAssemblageProperty(),
+        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Concepts to classify", logicCoordinateItem.conceptAssemblageProperty(),
                 new ConceptSpecification[] { TermAux.SOLOR_CONCEPT_ASSEMBLAGE }));
-        getItemList().add(new PropertySheetItemConceptWrapper(manifold, "Stated assemblage", logicCoordinateItem.statedAssemblageProperty(),
+        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Stated assemblage", logicCoordinateItem.statedAssemblageProperty(),
                 new ConceptSpecification[] { TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE }));
-        getItemList().add(new PropertySheetItemConceptWrapper(manifold, "Inferred assemblage", logicCoordinateItem.inferredAssemblageProperty(),
+        getItemList().add(new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), "Inferred assemblage", logicCoordinateItem.inferredAssemblageProperty(),
                 new ConceptSpecification[] { TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE }));
         revert();
         save();

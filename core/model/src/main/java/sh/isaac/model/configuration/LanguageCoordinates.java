@@ -156,7 +156,7 @@ public class LanguageCoordinates implements StaticIsaacCache {
          IntStream nids = Get.identifierService().getNidsForAssemblage(DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid());
          nids.forEach(nid -> {
              SemanticChronology sc = Get.assemblageService().getSemanticChronology(nid);
-            DynamicVersion<?> dv = (DynamicVersion<?>)sc.getLatestVersion(filter).get();
+            DynamicVersion dv = (DynamicVersion)sc.getLatestVersion(filter).get();
             ConceptProxy coreType = new ConceptProxy(Get.identifierService().getNidForUuids(((DynamicUUID)dv.getData(0)).getDataUUID()));
             HashSet<ConceptSpecification> mapped = equivalentTypes.get(coreType);
             if (mapped == null) {

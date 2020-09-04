@@ -185,9 +185,9 @@ public class CoordinateFactoryProvider
      */
     @Override
     public ManifoldCoordinate createInferredManifoldCoordinate(StampFilter stampFilter,
-                                                               LanguageCoordinate languageCoordinate,
-                                                               LogicCoordinate logicCoordinate) {
-        return ManifoldCoordinateImmutable.makeInferred(stampFilter, languageCoordinate, logicCoordinate);
+                                                                                         LanguageCoordinate languageCoordinate,
+                                                                                         LogicCoordinate logicCoordinate) {
+        return ManifoldCoordinateImmutable.makeInferred(stampFilter, languageCoordinate, logicCoordinate, Activity.DEVELOPING, Coordinates.Edit.Default());
     }
 
     /**
@@ -317,9 +317,9 @@ public class CoordinateFactoryProvider
      */
     @Override
     public ManifoldCoordinate createStatedManifoldCoordinate(StampFilter stampFilter,
-                                                             LanguageCoordinate languageCoordinate,
-                                                             LogicCoordinate logicCoordinate) {
-        return ManifoldCoordinateImmutable.makeStated(stampFilter, languageCoordinate, logicCoordinate);
+                                                                                       LanguageCoordinate languageCoordinate,
+                                                                                       LogicCoordinate logicCoordinate) {
+        return ManifoldCoordinateImmutable.makeStated(stampFilter, languageCoordinate, logicCoordinate, Activity.DEVELOPING, Coordinates.Edit.Default());
     }
 
     /**

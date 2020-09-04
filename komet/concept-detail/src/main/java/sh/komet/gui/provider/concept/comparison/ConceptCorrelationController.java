@@ -32,11 +32,12 @@ import javafx.scene.layout.BorderPane;
 import sh.isaac.api.Get;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.model.logic.IsomorphicResultsBottomUp;
 import sh.isaac.model.logic.IsomorphicResultsFromPathHash;
 import sh.isaac.model.observable.ObservableFields;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -80,7 +81,7 @@ public class ConceptCorrelationController {
     private final String[] comparisons = {"Problem 1", "Problem 2", "Problem 3", "Problem 4", "Problem 5", "Problem 6"};
     private final String[] algorithms = {"Bottom up", "Lineage Hash"};
 
-    private Manifold manifold;
+    private ViewProperties viewProperties;
 
     private ExpressionView referenceExpressionView;
     private ExpressionView correlationExpressionView;
@@ -108,15 +109,15 @@ public class ConceptCorrelationController {
         algorithmChoiceBox.getSelectionModel().select("Bottom up");
     }
 
-    public void setManifold(Manifold manifold) {
-        this.manifold = manifold;
-        this.referenceExpressionView = new ExpressionView(manifold);
+    public void setViewProperties(ViewProperties viewProperties, IsaacPreferences preferences) {
+        this.viewProperties = viewProperties;
+        this.referenceExpressionView = new ExpressionView(viewProperties, ViewProperties.CORRELATION, preferences);
         this.referenceBorderPane.setCenter(this.referenceExpressionView.getNode());
 
-        this.correlationExpressionView = new ExpressionView(manifold);
+        this.correlationExpressionView = new ExpressionView(viewProperties, ViewProperties.CORRELATION, preferences);
         this.correlationBorderPane.setCenter(this.correlationExpressionView.getNode());
 
-        this.comparisonExpressionView = new ExpressionView(manifold);
+        this.comparisonExpressionView = new ExpressionView(viewProperties, ViewProperties.CORRELATION, preferences);
         this.comparisonBorderPane.setCenter(this.comparisonExpressionView.getNode());
 
     }

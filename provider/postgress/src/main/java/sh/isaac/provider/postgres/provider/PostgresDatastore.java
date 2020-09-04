@@ -92,6 +92,15 @@ public class PostgresDatastore implements DatastoreAndIdentiferService, CacheBoo
     }
 
     @Override
+    public IntStream getNidStream() {
+        int maxNid = this.getMaxNid();
+        return IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
+                .filter((value) -> {
+                    return this.getAssemblageOfNid(value).isPresent();
+                });
+    }
+
+    @Override
     public void optimizeForOutOfOrderLoading() {
         this.backingStore.optimizeForOutOfOrderLoading(); 
     }

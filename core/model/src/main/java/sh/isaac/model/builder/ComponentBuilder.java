@@ -39,29 +39,21 @@
 
 package sh.isaac.model.builder;
 
-//~--- JDK imports ------------------------------------------------------------
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.Status;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.component.semantic.SemanticBuilder;
-import sh.isaac.api.transaction.Transaction;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.api.coordinate.WriteCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
 
 /**
  * The Class ComponentBuilder.
@@ -83,9 +75,9 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    private final List<SemanticBuilder<?>> semanticBuilders = new ArrayList<>();
 
    /** The state. */
-   protected Status state = Status.ACTIVE;
+   protected Status status = null;
    
-   private ConceptSpecification moduleSpecification = null;
+   private Optional<Integer> module = Optional.empty();
 
    public ComponentBuilder(int assemblageId) {
       this.assemblageId = assemblageId;
@@ -95,8 +87,6 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
       this.primordialUuid = primordialUuid;
       this.assemblageId = assemblageId;
    }
-
-   //~--- methods -------------------------------------------------------------
 
    /**
     * Adds the semantic.
@@ -130,21 +120,6 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
    }
 
    /**
-    * Builds the.
-    *
-    * @param editCoordinate the edit coordinate
-    * @return the optional wait task
-    * @throws IllegalStateException the illegal state exception
-    */
-   @Override
-   public final OptionalWaitTask<T> build(Transaction transaction, EditCoordinate editCoordinate)
-            throws IllegalStateException {
-      return build(transaction, editCoordinate, new ArrayList<>());
-   }
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
     * Set identifier for authority.
     *
     * @param identifier the identifier
@@ -156,8 +131,6 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the nid.
@@ -188,12 +161,6 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
       return this.primordialUuid;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * @param uuid the uuid
-    * @return the builder for chaining of operations in a fluent pattern.
-    */
    @Override
    public IdentifiedComponentBuilder<T> setPrimordialUuid(UUID uuid) {
       if (isPrimordialUuidSet()) {
@@ -204,19 +171,11 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
       return this;
    }
 
-   /**
-    * Set state.
-    *
-    * @param state the state
-    * @return the identified component builder
-    */
    @Override
-   public IdentifiedComponentBuilder<T> setStatus(Status state) {
-      this.state = state;
+   public IdentifiedComponentBuilder<T> setStatus(Status status) {
+      this.status = status;
       return this;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the uuid list.
@@ -259,12 +218,21 @@ public abstract class ComponentBuilder<T extends CommittableComponent>
 
     @Override
     public void setModule(ConceptSpecification moduleSpecification) {
-        this.moduleSpecification = moduleSpecification;
+        this.module = Optional.of(moduleSpecification.getNid());
     }
 
     @Override
-    public Optional<ConceptSpecification> getModule() {
-        return Optional.ofNullable(this.moduleSpecification);
+    public Optional<Integer> getModule() {
+        return module;
+    }
+    
+    protected WriteCoordinate adjustForModule(WriteCoordinate wc) {
+        if (getModule().isPresent()) {
+            return new WriteCoordinateImpl(wc.getAuthorNid(), getModule().get(), wc.getPathNid(), wc.getTransaction().get());
+        }
+        else {
+            return wc;
+        }
     }
 }
 

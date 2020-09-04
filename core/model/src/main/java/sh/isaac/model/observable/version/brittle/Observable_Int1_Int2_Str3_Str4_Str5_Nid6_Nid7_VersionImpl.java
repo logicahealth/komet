@@ -49,13 +49,12 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
-import sh.isaac.model.observable.CommitAwareStringProperty;
-import sh.isaac.model.observable.ObservableChronologyImpl;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareStringProperty;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -94,12 +93,12 @@ public class Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
 
    @SuppressWarnings("unchecked")
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl analog = new Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(this, getChronology());
         copyLocalFields(analog);
-        analog.setModuleNid(ec.getModuleNid());
-        analog.setAuthorNid(ec.getAuthorNid());
-        analog.setPathNid(ec.getPathNid());
+        analog.setModuleNid(mc.getModuleNidForAnalog(this));
+        analog.setAuthorNid(mc.getAuthorNidForChanges());
+        analog.setPathNid(mc.getPathNidForAnalog());
         return (V) analog;
     }
     
@@ -480,14 +479,14 @@ public class Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
          this.nid7Property.set(((Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl) this.stampedVersionProperty.get()).getNid7());
       }
     }
-    
+
+    @Override
     @SuppressWarnings("unchecked")
     public <V extends Version> V makeAnalog(int stampSequence){
-        Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
+        Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newVersion = getStampedVersion().makeAnalog(stampSequence);
         Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newObservableVersion = 
-                new Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
-        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+                new Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(newVersion, getChronology());
+        getChronology().getVersionList().add(newObservableVersion);
         return (V) newObservableVersion;
-   }
+    }
 }
-

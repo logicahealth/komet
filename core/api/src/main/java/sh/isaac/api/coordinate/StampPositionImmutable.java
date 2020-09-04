@@ -53,12 +53,12 @@ public final class StampPositionImmutable
         this.pathForPositionNid = pathForPositionNid;
     }
 
-    public static StampPositionImmutable make(long time, int pathNid) {
-        return SINGLETONS.computeIfAbsent(new StampPositionImmutable(time, pathNid), stampPositionImmutable -> stampPositionImmutable);
+    public static StampPositionImmutable make(long time, int pathForPositionNid) {
+        return SINGLETONS.computeIfAbsent(new StampPositionImmutable(time, pathForPositionNid), stampPositionImmutable -> stampPositionImmutable);
     }
 
-    public static StampPositionImmutable make(long time, ConceptSpecification conceptSpecification) {
-        return SINGLETONS.computeIfAbsent(new StampPositionImmutable(time, conceptSpecification.getNid()), stampPositionImmutable -> stampPositionImmutable);
+    public static StampPositionImmutable make(long time, ConceptSpecification pathForPositionSpecification) {
+        return SINGLETONS.computeIfAbsent(new StampPositionImmutable(time, pathForPositionSpecification.getNid()), stampPositionImmutable -> stampPositionImmutable);
     }
 
     @Override
@@ -199,24 +199,6 @@ public final class StampPositionImmutable
         sb.append(" on '")
                 .append(Get.conceptDescriptionText(this.pathForPositionNid))
                 .append("' path}");
-        return sb.toString();
-    }
-
-
-    public String toUserString() {
-        final StringBuilder sb = new StringBuilder();
-
-
-        if (this.time == Long.MAX_VALUE) {
-            sb.append("latest");
-        } else if (this.time == Long.MIN_VALUE) {
-            sb.append("CANCELED");
-        } else {
-            sb.append(getTimeAsInstant());
-        }
-
-        sb.append(" on '")
-                .append(Get.conceptDescriptionText(this.pathForPositionNid));
         return sb.toString();
     }
 

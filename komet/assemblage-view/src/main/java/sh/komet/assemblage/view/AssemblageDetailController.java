@@ -19,7 +19,7 @@ package sh.komet.assemblage.view;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.Observable;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
@@ -31,7 +31,11 @@ import javafx.scene.layout.BorderPane;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.CategorizedVersions;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
@@ -42,7 +46,9 @@ import sh.komet.gui.cell.treetable.TreeTableGeneralCellFactory;
 import sh.komet.gui.cell.treetable.TreeTableModulePathCellFactory;
 import sh.komet.gui.cell.treetable.TreeTableTimeCellFactory;
 import sh.komet.gui.cell.treetable.TreeTableWhatCellFactory;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.util.FxGet;
 
 /**
  *
@@ -80,13 +86,12 @@ public class AssemblageDetailController {
    private TreeTableColumn<ObservableCategorizedVersion, Integer> assemblageModuleColumn;
    @FXML  // fx:id="assemblagePathColumn"
    private TreeTableColumn<ObservableCategorizedVersion, Integer> assemblagePathColumn;
-   private SimpleObjectProperty<Manifold> manifoldProperty;
+   private ViewProperties viewProperties;
    private TreeTableConceptCellFactory assemblageCellFactory;
    private TreeTableWhatCellFactory whatCellFactory;
    private TreeTableGeneralCellFactory generalCellFactory;
    private TreeTableModulePathCellFactory modulePathCellFactory;
    private TreeTableAuthorTimeCellFactory authorTimeCellFactory;
-   private final ListChangeListener<ComponentProxy> selectionChangedListener = c -> this.selectionChanged(c);
 
 
    //~--- methods -------------------------------------------------------------
@@ -122,7 +127,7 @@ public class AssemblageDetailController {
            ObservableList<? extends ObservableChronology> children, boolean addSemantics) {
       for (ObservableChronology child : children) {
          TreeItem<ObservableCategorizedVersion> parentToAddTo = parent;
-         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(manifoldProperty.get().getStampFilter());
+         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(viewProperties.getManifoldCoordinate().getViewStampFilter());
 
          if (categorizedVersions.getLatestVersion()
                  .isPresent()) {
@@ -154,29 +159,35 @@ public class AssemblageDetailController {
          }
       }
    }
-   private void selectionChanged(ListChangeListener.Change<? extends ComponentProxy> c) {
+   public void updateFocus(IdentifiedObject focusObject, int count) {
 
 
-      if (c.getList().isEmpty()) {
+      if (focusObject ==  null) {
          assemblageExtensionTreeTable.setRoot(null);
       } else {
-         ObservableConceptChronology observableConceptChronology = Get.observableChronologyService()
-                 .getObservableConceptChronology(
-                         //TODO handle list properly...
-                         c.getList().get(0).getNid());
-         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions
-                 = observableConceptChronology.getCategorizedVersions(
-                 manifoldProperty.get().getStampFilter());
+         if (focusObject.getNid() == TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid()) {
+            FxGet.dialogs().showInformationDialog("Solor concept assemblage selected",
+                    "The Solor concept assemblage is to large for viewing.\n" +
+                            "Please use the search and taxonomy to explore the Solor concepts");
+         } else if (count > 100000) {
+            FxGet.dialogs().showInformationDialog("More than 100,000 assemblage elements",
+                    "This assemblage is to large for viewing.");
+         } else {
+               ObservableConceptChronology observableConceptChronology = Get.observableChronologyService()
+                       .getObservableConceptChronology(focusObject.getNid());
+               CategorizedVersions<ObservableCategorizedVersion> categorizedVersions
+                       = observableConceptChronology.getCategorizedVersions(
+                       viewProperties.getManifoldCoordinate().getViewStampFilter());
 
-         TreeItem<ObservableCategorizedVersion> assemblageRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
-         ObservableList<ObservableChronology> children = FXCollections.observableArrayList();
-         ObservableChronologyService observableChronologyService = Get.observableChronologyService();
-         //TODO handle list properly...
-         Get.identifierService().getNidsForAssemblage(c.getList().get(0).getNid())
-                 .forEach((nid) ->
-                         children.add(observableChronologyService.getObservableChronology(nid)));
-         addChildren(assemblageRoot, children, true);
-         assemblageExtensionTreeTable.setRoot(assemblageRoot);
+               TreeItem<ObservableCategorizedVersion> assemblageRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
+               ObservableList<ObservableChronology> children = FXCollections.observableArrayList();
+               ObservableChronologyService observableChronologyService = Get.observableChronologyService();
+               Get.identifierService().getNidsForAssemblage(focusObject.getNid())
+                       .forEach((nid) ->
+                               children.add(observableChronologyService.getObservableChronology(nid)));
+               addChildren(assemblageRoot, children, true);
+               assemblageExtensionTreeTable.setRoot(assemblageRoot);
+         }
       }
    }
 
@@ -185,12 +196,10 @@ public class AssemblageDetailController {
       return assemblageDetailRootPane;
    }
    //~--- set methods ---------------------------------------------------------
-   public void setManifoldProperty(SimpleObjectProperty<Manifold> manifoldProperty) {
-
-
-      this.manifoldProperty = manifoldProperty;
-      manifoldChanged(manifoldProperty, null, manifoldProperty.get());
-      manifoldProperty.addListener(this::manifoldChanged);
+   public void setViewProperties(ViewProperties viewProperties) {
+      this.viewProperties = viewProperties;
+      manifoldCoordinateChanged(this.viewProperties.getManifoldCoordinate(), null, this.viewProperties.getManifoldCoordinate());
+      this.viewProperties.getManifoldCoordinate().addListener(this::manifoldCoordinateChanged);
 
       this.assemblageStatusColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("state"));
       this.assemblageTimeColumn.setVisible(false);
@@ -204,34 +213,75 @@ public class AssemblageDetailController {
       this.assemblagePathColumn.setVisible(false);
       this.assemblagePathColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("pathSequence"));
       this.assemblagePathColumn.setCellFactory(this.assemblageCellFactory::call);
+      this.assemblageAuthorTimeColumn.setVisible(false);
+      this.assemblageModulePathColumn.setVisible(false);
+      this.assemblageWhatColumn.setVisible(false);
    }
 
-   private void manifoldChanged(ObservableValue<? extends Manifold> manifoldProperty, Manifold oldManifold, Manifold newManifold) {
+   private void manifoldCoordinateChanged(ObservableValue<? extends ManifoldCoordinate> manifoldProperty, ManifoldCoordinate oldManifold, ManifoldCoordinate newManifold) {
+      //@TODO maybe just refresh cells instead of creating new factories? This is leftover from change to
+      // ViewProperties from Manifold.
 
-      if (oldManifold != null) {
-         oldManifold.manifoldSelectionProperty().get().removeListener(this.selectionChangedListener);
-      }
-       newManifold.manifoldSelectionProperty().get().addListener(this.selectionChangedListener);
-      this.assemblageCellFactory = new TreeTableConceptCellFactory(newManifold);
+      this.assemblageCellFactory = new TreeTableConceptCellFactory(this.viewProperties.getManifoldCoordinate());
       this.assemblageAuthorColumn.setCellFactory(this.assemblageCellFactory::call);
       this.assemblageModuleColumn.setCellFactory(this.assemblageCellFactory::call);
 
-
-      this.whatCellFactory = new TreeTableWhatCellFactory(newManifold);
+      this.whatCellFactory = new TreeTableWhatCellFactory(this.viewProperties.getManifoldCoordinate());
       this.assemblageWhatColumn.setCellValueFactory(this.whatCellFactory::getCellValue);
       this.assemblageWhatColumn.setCellFactory(this.whatCellFactory::call);
 
-      this.generalCellFactory = new TreeTableGeneralCellFactory(newManifold);
+      this.generalCellFactory = new TreeTableGeneralCellFactory(this.viewProperties.getManifoldCoordinate());
       this.assemblageGeneralColumn.setCellValueFactory(this.generalCellFactory::getCellValue);
       this.assemblageGeneralColumn.setCellFactory(this.generalCellFactory::call);
 
-      this.modulePathCellFactory = new TreeTableModulePathCellFactory(newManifold);
+      this.modulePathCellFactory = new TreeTableModulePathCellFactory(this.viewProperties.getManifoldCoordinate());
       this.assemblageModulePathColumn.setCellValueFactory(this.modulePathCellFactory::getCellValue);
       this.assemblageModulePathColumn.setCellFactory(this.modulePathCellFactory::call);
 
-      this.authorTimeCellFactory = new TreeTableAuthorTimeCellFactory(newManifold);
+      this.authorTimeCellFactory = new TreeTableAuthorTimeCellFactory(this.viewProperties.getManifoldCoordinate());
       this.assemblageAuthorTimeColumn.setCellValueFactory(this.authorTimeCellFactory::getCellValue);
       this.assemblageAuthorTimeColumn.setCellFactory(this.authorTimeCellFactory::call);
+
+      this.assemblageExtensionTreeTable.getSelectionModel().getSelectedItems().addListener(new ListChangeListener<TreeItem<ObservableCategorizedVersion>>() {
+         @Override
+         public void onChanged(Change<? extends TreeItem<ObservableCategorizedVersion>> c) {
+            ActivityFeed activityFeed = viewProperties.getActivityFeed(ViewProperties.LIST);
+            if (activityFeed != null) {
+               while (c.next()) {
+                  if (c.wasPermutated()) {
+                     for (int i = c.getFrom(); i < c.getTo(); ++i) {
+                        //nothing to do...
+                     }
+                  } else if (c.wasUpdated()) {
+                     //nothing to do
+                  } else {
+                     for (TreeItem<? extends ObservableCategorizedVersion> remitem : c.getRemoved()) {
+                        if (remitem.getValue() != null) {
+                           ObservableCategorizedVersion version = remitem.getValue();
+                           activityFeed.feedSelectionProperty().remove(new ComponentProxy(version.getNid(), version.toUserString()));
+                        }
+                     }
+                     for (TreeItem<ObservableCategorizedVersion> additem : c.getAddedSubList()) {
+                        if (additem.getValue() != null) {
+                           ObservableCategorizedVersion version = additem.getValue();
+                           activityFeed.feedSelectionProperty().add(new ComponentProxy(version.getNid(), version.toUserString()));
+                        }
+                     }
+                  }
+               }
+               // Check to make sure lists are equal in size/properly synchronized.
+               if (activityFeed.feedSelectionProperty().size() != c.getList().size()) {
+                  // lists are out of sync, reset with fresh list.
+                  ComponentProxy[] selectedItems = new ComponentProxy[c.getList().size()];
+                  for (int i = 0; i < selectedItems.length; i++) {
+                     ObservableCategorizedVersion version = c.getList().get(i).getValue();
+                     selectedItems[i] = new ComponentProxy(version.getNid(), version.toUserString());
+                  }
+                  activityFeed.feedSelectionProperty().setAll(selectedItems);
+               }
+            }
+         }
+      });
    }
 
    public TreeTableView<ObservableCategorizedVersion> getAssemblageExtensionTreeTable() {

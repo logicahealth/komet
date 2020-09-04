@@ -1258,7 +1258,7 @@ public abstract class LuceneIndexer implements IndexBuilderService
 		this.lastDocCache.invalidateAll();
 		clearIndexedStatistics();
 		this.dbBuildMode = null;
-
+		LOG.info("Stopped " + getIndexerName());
 	}
 
 	/**

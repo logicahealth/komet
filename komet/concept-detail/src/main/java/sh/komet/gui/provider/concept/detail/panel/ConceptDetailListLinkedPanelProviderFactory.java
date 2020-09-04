@@ -4,8 +4,9 @@ import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.DetailNode;
-import sh.komet.gui.manifold.Manifold;
 
 import javax.inject.Singleton;
 
@@ -23,19 +24,18 @@ public class ConceptDetailListLinkedPanelProviderFactory extends ConceptDetailPa
     }
 
     @Override
-    public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
+    public DetailNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
         // Check preferences...
-        preferencesNode.put(ConceptDetailPanelNode.Keys.MANIFOLD_GROUP_NAME,
-                preferencesNode.get(ConceptDetailPanelNode.Keys.MANIFOLD_GROUP_NAME, Manifold.ManifoldGroup.LIST.getGroupName()));
+        preferencesNode.put(ConceptDetailPanelNode.Keys.ACTIVITY_FEED_NAME,
+                preferencesNode.get(ConceptDetailPanelNode.Keys.ACTIVITY_FEED_NAME, ViewProperties.LIST));
 
-        return new ConceptDetailPanelNode(manifold, preferencesNode);
+        return new ConceptDetailPanelNode(viewProperties, activityFeed, preferencesNode);
     }
 
     @Override
-    public Manifold.ManifoldGroup[] getDefaultManifoldGroups() {
-        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.LIST, Manifold.ManifoldGroup.UNLINKED,
-                Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES, Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ACTIVE_FQN_NODES,
-                Manifold.ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE, Manifold.ManifoldGroup.STATED_GRAPH_NAVIGATION_ANY_NODE, Manifold.ManifoldGroup.SEARCH};
+    public String[] getDefaultActivityFeed() {
+        return new String[] {ViewProperties.LIST, ViewProperties.UNLINKED,
+                ViewProperties.NAVIGATION, ViewProperties.SEARCH, ViewProperties.CONCEPT_BUILDER};
     }
 
 }

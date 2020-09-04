@@ -50,6 +50,7 @@ import java.util.function.Function;
 //~--- non-JDK imports --------------------------------------------------------
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DataFormat;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 
@@ -109,6 +110,9 @@ public class IsaacClipboard
 
    //~--- constructors --------------------------------------------------------
    public IsaacClipboard(IdentifiedObject identifiedObject) {
+      if (identifiedObject instanceof ComponentProxy) {
+         identifiedObject = Get.identifiedObjectService().getChronology(identifiedObject.getNid()).get();
+      }
       if (identifiedObject instanceof IsaacExternalizable) {
          IsaacExternalizable externalizableObject = (IsaacExternalizable) identifiedObject;
          ByteArrayDataBuffer dataBuffer = new ByteArrayDataBuffer();

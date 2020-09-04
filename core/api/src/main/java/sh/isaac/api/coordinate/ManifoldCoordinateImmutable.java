@@ -1,9 +1,16 @@
 package sh.isaac.api.coordinate;
 
+
 import java.util.Objects;
+import java.util.EnumSet;
+import java.util.UUID;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.StaticIsaacCache;
+import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
+import sh.isaac.api.commit.CommitListener;
+import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.marshal.Marshaler;
@@ -11,31 +18,37 @@ import sh.isaac.api.marshal.Unmarshaler;
 
 //This class is not treated as a service, however, it needs the annotation, so that the reset() gets fired at appropriate times.
 @Service
-public class ManifoldCoordinateImmutable implements ManifoldCoordinate, ImmutableCoordinate, StaticIsaacCache{
+public class ManifoldCoordinateImmutable implements ManifoldCoordinate, ImmutableCoordinate, CommitListener, StaticIsaacCache {
 
     private static final ConcurrentReferenceHashMap<ManifoldCoordinateImmutable, ManifoldCoordinateImmutable> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
-    public static final VertexSort DEFAULT_DISPLAY_AND_SORT = VertexSortRegularName.SINGLETON;
-    public static final VertexSort DISPLAY_PREFERRED_AND_SORT = VertexSortRegularName.SINGLETON;
-    public static final VertexSort DISPLAY_PREFERRED_AND_NO_SORT = VertexSortRegularNameNoSort.SINGLETON;
-    public static final VertexSort DISPLAY_FQN_AND_SORT =  VertexSortFullyQualifiedName.SINGLETON;
-    public static final VertexSort DISPLAY_FQN_AND_NO_SORT =VertexSortFullyQualifiedNameNoSort.SINGLETON;
+    private static final int marshalVersion = 6;
 
-    private static final int marshalVersion = 1;
 
+    private final StampFilterImmutable viewStampFilter;
+    private final LanguageCoordinateImmutable languageCoordinate;
     private final VertexSort vertexSort;
-    private final DigraphCoordinateImmutable digraphCoordinateImmutable;
-    private final StampFilterImmutable stampFilterImmutable;
-
+    private final StampFilterImmutable vertexStampFilter;
+    private final NavigationCoordinateImmutable navigationCoordinateImmutable;
+    private final LogicCoordinateImmutable logicCoordinateImmutable;
+    private final Activity activity;
+    private final EditCoordinateImmutable editCoordinate;
+    private transient TaxonomySnapshot digraphSnapshot;
+    private transient PremiseSet premiseTypes;
 
     private ManifoldCoordinateImmutable() {
         // No arg constructor for HK2 managed instance
         // This instance just enables reset functionality...
+        this.navigationCoordinateImmutable = null;
         this.vertexSort = null;
-        this.digraphCoordinateImmutable = null;
-        this.stampFilterImmutable = null;
+        this.vertexStampFilter = null;
+        this.viewStampFilter = null;
+        this.languageCoordinate = null;
+        this.logicCoordinateImmutable = null;
+        this.activity = null;
+        this.editCoordinate = null;
     }
     
     @Override
@@ -43,16 +56,81 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         SINGLETONS.clear();
     }
 
-    private ManifoldCoordinateImmutable(VertexSort vertexSort, DigraphCoordinateImmutable digraphCoordinateImmutable, StampFilterImmutable stampFilterImmutable) {
+    private ManifoldCoordinateImmutable(StampFilterImmutable viewStampFilter,
+                                        LanguageCoordinateImmutable languageCoordinate,
+                                        VertexSort vertexSort,
+                                        StatusSet vertexStatusSet,
+                                        NavigationCoordinateImmutable navigationCoordinateImmutable,
+                                        LogicCoordinateImmutable logicCoordinateImmutable,
+                                        Activity activity,
+                                        EditCoordinateImmutable editCoordinate) {
+        if (activity == null) {
+            throw new NullPointerException("Activity cannot be null");
+        }
+        this.viewStampFilter = viewStampFilter;
+        this.languageCoordinate = languageCoordinate;
         this.vertexSort = vertexSort;
-        this.digraphCoordinateImmutable = digraphCoordinateImmutable;
-        this.stampFilterImmutable = stampFilterImmutable;
+        this.vertexStampFilter = StampFilterImmutable.make(vertexStatusSet,
+                viewStampFilter.getStampPosition(),
+                viewStampFilter.getModuleNids(),
+                viewStampFilter.getExcludedModuleNids(),
+                viewStampFilter.getModulePriorityOrder());
+        this.navigationCoordinateImmutable = navigationCoordinateImmutable;
+        this.logicCoordinateImmutable = logicCoordinateImmutable;
+        this.activity = activity;
+        this.editCoordinate = editCoordinate;
     }
 
-    private ManifoldCoordinateImmutable(ByteArrayDataBuffer in) {
-        this.vertexSort = MarshalUtil.unmarshal(in);
-        this.digraphCoordinateImmutable = MarshalUtil.unmarshal(in);
-        this.stampFilterImmutable = MarshalUtil.unmarshal(in);
+    private ManifoldCoordinateImmutable(ByteArrayDataBuffer in, int objectMarshalVersion) {
+        switch (objectMarshalVersion) {
+            case marshalVersion:
+                this.vertexSort = MarshalUtil.unmarshal(in);
+                this.vertexStampFilter = MarshalUtil.unmarshal(in);
+                this.viewStampFilter = MarshalUtil.unmarshal(in);
+                this.languageCoordinate  = MarshalUtil.unmarshal(in);
+                this.navigationCoordinateImmutable = MarshalUtil.unmarshal(in);
+                this.logicCoordinateImmutable = MarshalUtil.unmarshal(in);
+                this.activity = MarshalUtil.unmarshal(in);
+                this.editCoordinate = MarshalUtil.unmarshal(in);
+                break;
+            case 5:
+                this.vertexSort = MarshalUtil.unmarshal(in);
+                this.vertexStampFilter = MarshalUtil.unmarshal(in);
+                this.viewStampFilter = MarshalUtil.unmarshal(in);
+                MarshalUtil.unmarshal(in); // Language stamp filter.
+                this.languageCoordinate  = MarshalUtil.unmarshal(in);
+                this.navigationCoordinateImmutable = MarshalUtil.unmarshal(in);
+                this.logicCoordinateImmutable = MarshalUtil.unmarshal(in);
+                this.activity = MarshalUtil.unmarshal(in);
+                this.editCoordinate = MarshalUtil.unmarshal(in);
+                break;
+            case 4:
+                this.vertexSort = MarshalUtil.unmarshal(in);
+                this.vertexStampFilter = MarshalUtil.unmarshal(in);
+                this.viewStampFilter = MarshalUtil.unmarshal(in);
+                MarshalUtil.unmarshal(in); // Language stamp filter.
+                this.languageCoordinate  = MarshalUtil.unmarshal(in);
+                this.navigationCoordinateImmutable = MarshalUtil.unmarshal(in);
+                this.logicCoordinateImmutable = MarshalUtil.unmarshal(in);
+                this.activity = Activity.VIEWING;
+                this.editCoordinate = null;
+                break;
+            case 3:
+                this.vertexSort = MarshalUtil.unmarshal(in);
+                this.vertexStampFilter = MarshalUtil.unmarshal(in);
+                this.viewStampFilter = MarshalUtil.unmarshal(in);
+                MarshalUtil.unmarshal(in); // Language stamp filter.
+                this.languageCoordinate  = MarshalUtil.unmarshal(in);
+                this.navigationCoordinateImmutable = MarshalUtil.unmarshal(in);
+                this.logicCoordinateImmutable = Coordinates.Logic.ElPlusPlus();
+                this.activity = Activity.VIEWING;
+                this.editCoordinate = null;
+                break;
+            default:
+                throw new IllegalStateException("Can't handle marshalVersion: " + objectMarshalVersion);
+        }
+
+        // this.digraphSnapshot = Get.taxonomyService().getSnapshot(toDefaultManifold(this));
     }
 
     @Override
@@ -60,50 +138,67 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
     public void marshal(ByteArrayDataBuffer out) {
         out.putInt(marshalVersion);
         MarshalUtil.marshal(this.vertexSort, out);
-        MarshalUtil.marshal(this.digraphCoordinateImmutable, out);
-        MarshalUtil.marshal(this.stampFilterImmutable, out);
+        MarshalUtil.marshal(this.vertexStampFilter, out);
+        MarshalUtil.marshal(this.viewStampFilter, out);
+        MarshalUtil.marshal(this.languageCoordinate, out);
+        MarshalUtil.marshal(this.navigationCoordinateImmutable, out);
+        MarshalUtil.marshal(this.logicCoordinateImmutable, out);
+        MarshalUtil.marshal(this.activity, out);
+        MarshalUtil.marshal(this.editCoordinate, out);
     }
 
     @Override
-    public VertexSort getVertexSort() {
-        return vertexSort;
+    public NavigationCoordinateImmutable getNavigationCoordinate() {
+        return this.navigationCoordinateImmutable;
     }
 
     @Override
-    public DigraphCoordinate getDigraph() {
-        return this.digraphCoordinateImmutable;
+    public LogicCoordinateImmutable getLogicCoordinate() {
+        return this.logicCoordinateImmutable;
     }
 
     @Override
-    public LogicCoordinate getLogicCoordinate() {
-        return getDigraph().getLogicCoordinate();
+    public LanguageCoordinateImmutable getLanguageCoordinate() {
+        return this.languageCoordinate;
     }
 
     @Override
-    public LanguageCoordinate getLanguageCoordinate() {
-        return getDigraph().getLanguageCoordinate();
+    public EditCoordinate getEditCoordinate() {
+        return this.editCoordinate;
     }
-
-// Using a static method rather than a constructor eliminates the need for
-    // a readResolve method, but allows the implementation to decide how
-    // to handle special cases.
 
     @Unmarshaler
     public static ManifoldCoordinateImmutable make(ByteArrayDataBuffer in) {
+        // Using a static method rather than a constructor eliminates the need for
+        // a readResolve method, but allows the implementation to decide how
+        // to handle special cases.
         int objectMarshalVersion = in.getInt();
         switch (objectMarshalVersion) {
+            case 1:
+            case 3:
+            case 4:
             case marshalVersion:
-                return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(in),
+                return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(in, objectMarshalVersion),
                         manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
             default:
                 throw new UnsupportedOperationException("Unsupported version: " + objectMarshalVersion);
         }
     }
-    public static ManifoldCoordinateImmutable make(VertexSort vertexSort,
-                                                   DigraphCoordinate digraphCoordinate,
-                                                   StampFilter stampFilter) {
-         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(vertexSort,
-                         digraphCoordinate.toDigraphImmutable(), stampFilter.toStampFilterImmutable()),
+    public static ManifoldCoordinateImmutable make(StampFilter edgeStampFilter,
+                                                   LanguageCoordinate languageCoordinate,
+                                                   VertexSort vertexSort,
+                                                   StatusSet vertexStatusSet,
+                                                   NavigationCoordinate navigationCoordinate,
+                                                   LogicCoordinate logicCoordinate,
+                                                   Activity activity,
+                                                   EditCoordinate editCoordinate) {
+         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(edgeStampFilter.toStampFilterImmutable(),
+                 languageCoordinate.toLanguageCoordinateImmutable(),
+                 vertexSort,
+                 vertexStatusSet,
+                 navigationCoordinate.toNavigationCoordinateImmutable(),
+                 logicCoordinate.toLogicCoordinateImmutable(),
+                         activity, editCoordinate.toEditCoordinateImmutable()),
                         manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
     }
 
@@ -113,32 +208,41 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
      * @return
      */
     public static ManifoldCoordinateImmutable makeStated(StampFilter stampFilter, LanguageCoordinate languageCoordinate) {
-        DigraphCoordinateImmutable dci = DigraphCoordinateImmutable.makeStated(stampFilter, languageCoordinate);
-        return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(VertexSortFullyQualifiedName.SINGLETON, dci, stampFilter.toStampFilterImmutable()),
+        return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(stampFilter.toStampFilterImmutable(),
+                        languageCoordinate == null ? 
+                                Get.configurationService().getGlobalDatastoreConfiguration().getDefaultLanguageCoordinate().toLanguageCoordinateImmutable() : 
+                            languageCoordinate.toLanguageCoordinateImmutable(),
+                        VertexSortNaturalOrder.SINGLETON,
+                        stampFilter.getAllowedStates(), NavigationCoordinateImmutable.makeStated(),
+                        Get.configurationService().getGlobalDatastoreConfiguration().getDefaultLogicCoordinate().toLogicCoordinateImmutable(),
+                        Activity.DEVELOPING, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get().toEditCoordinate()),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
-
-
     }
 
-    public static ManifoldCoordinateImmutable makeStated(StampFilter stampFilter, LanguageCoordinate languageCoordinate, LogicCoordinate logicCoordinate) {
-        DigraphCoordinateImmutable dci = DigraphCoordinateImmutable.makeStated(stampFilter, languageCoordinate, logicCoordinate);
-        return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(VertexSortFullyQualifiedName.SINGLETON, dci, stampFilter.toStampFilterImmutable()),
+    public static ManifoldCoordinateImmutable makeStated(StampFilter stampFilter, LanguageCoordinate languageCoordinate,
+                                                         LogicCoordinate logicCoordinate, Activity activity, EditCoordinate editCoordinate) {
+        NavigationCoordinateImmutable dci = NavigationCoordinateImmutable.makeStated(logicCoordinate);
+        return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(stampFilter.toStampFilterImmutable(),
+                        languageCoordinate.toLanguageCoordinateImmutable(),
+                        VertexSortNaturalOrder.SINGLETON,
+                        stampFilter.getAllowedStates(), dci,
+                        Coordinates.Logic.ElPlusPlus(),
+                        activity, editCoordinate.toEditCoordinateImmutable()),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
-
-
     }
 
-    public static ManifoldCoordinateImmutable makeInferred(StampFilter stampFilter, LanguageCoordinate languageCoordinate, LogicCoordinate logicCoordinate) {
-        DigraphCoordinateImmutable dci = DigraphCoordinateImmutable.makeInferred(stampFilter, languageCoordinate, logicCoordinate);
-        return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(VertexSortFullyQualifiedName.SINGLETON, dci, stampFilter.toStampFilterImmutable()),
+    public static ManifoldCoordinateImmutable makeInferred(StampFilter stampFilter,
+                                                           LanguageCoordinate languageCoordinate,
+                                                           LogicCoordinate logicCoordinate,
+                                                           Activity activity, EditCoordinate editCoordinate) {
+        NavigationCoordinateImmutable dci = NavigationCoordinateImmutable.makeInferred(logicCoordinate);
+        return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(stampFilter.toStampFilterImmutable(),
+                        languageCoordinate.toLanguageCoordinateImmutable(),
+                        VertexSortNaturalOrder.SINGLETON,
+                        stampFilter.getAllowedStates(), dci,
+                        Coordinates.Logic.ElPlusPlus(),
+                        activity, editCoordinate.toEditCoordinateImmutable()),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
-
-
-    }
-
-    @Override
-    public StampFilterImmutable getStampFilter() {
-        return this.stampFilterImmutable;
     }
 
     @Override
@@ -147,17 +251,107 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
     }
 
     @Override
+    public Activity getCurrentActivity() {
+        return activity;
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof ManifoldCoordinateImmutable)) return false;
         ManifoldCoordinateImmutable that = (ManifoldCoordinateImmutable) o;
-        return getVertexSort().equals(that.getVertexSort()) &&
-                digraphCoordinateImmutable.equals(that.digraphCoordinateImmutable) &&
-                stampFilterImmutable.equals(that.stampFilterImmutable);
+        return this.navigationCoordinateImmutable.equals(that.navigationCoordinateImmutable) &&
+                this.vertexSort.equals(that.vertexSort) &&
+                this.vertexStampFilter.equals(that.vertexStampFilter) &&
+                this.viewStampFilter.equals(that.viewStampFilter) &&
+                this.languageCoordinate.equals(that.languageCoordinate) &&
+                this.navigationCoordinateImmutable.equals(that.navigationCoordinateImmutable) &&
+                this.activity == that.activity;
+    }
+
+    @Override
+    public PremiseSet getPremiseTypes() {
+        if (this.premiseTypes == null) {
+            EnumSet<PremiseType> premiseTypeEnumSet = EnumSet.noneOf(PremiseType.class);
+            if (getNavigationCoordinate().getNavigationConceptNids().contains(getLogicCoordinate().getInferredAssemblageNid())) {
+                premiseTypeEnumSet.add(PremiseType.INFERRED);
+            }
+            if (getNavigationCoordinate().getNavigationConceptNids().contains(getLogicCoordinate().getStatedAssemblageNid())) {
+                premiseTypeEnumSet.add(PremiseType.STATED);
+            }
+            this.premiseTypes = PremiseSet.of(premiseTypeEnumSet);
+        }
+        return this.premiseTypes;
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getVertexSort(), digraphCoordinateImmutable, stampFilterImmutable);
+        return Objects.hash(getManifoldCoordinateUuid());
+    }
+
+    @Override
+    public VertexSort getVertexSort() {
+        return this.vertexSort;
+    }
+
+    @Override
+    public StatusSet getVertexStatusSet() {
+        return this.vertexStampFilter.getAllowedStates();
+    }
+
+    @Override
+    public StampFilterImmutable getViewStampFilter() {
+        return this.viewStampFilter;
+    }
+
+    @Override
+    public StampFilter getVertexStampFilter() {
+        return this.vertexStampFilter;
+    }
+
+    @Override
+    public String toString() {
+        return "ManifoldCoordinateImmutable{" + this.activity.toUserString() + " " + this.getNavigationCoordinate() +
+                ",\n  sort: " + this.vertexSort.getVertexSortName() +
+                ",\n  View filter: " + this.viewStampFilter +
+                ", \n vertex filter: " + this.vertexStampFilter +
+                ", \n language:" + this.languageCoordinate +
+                ", \n logic:" + this.logicCoordinateImmutable +
+                ",\n current activity=" + getCurrentActivity() +
+                ",\n edit=" + getEditCoordinate() +
+                ",\n uuid=" + getManifoldCoordinateUuid() + '}';
+    }
+
+    @Override
+    public TaxonomySnapshot getNavigationSnapshot() {
+        if (this.digraphSnapshot == null) {
+            this.digraphSnapshot = Get.taxonomyService().getSnapshot(this);
+            Get.commitService().addCommitListener(this);
+        }
+        return this.digraphSnapshot;
+    }
+
+    @Override
+    public UUID getListenerUuid() {
+        return this.getManifoldCoordinateUuid();
+    }
+
+    @Override
+    public void handleCommit(CommitRecord commitRecord) {
+        this.digraphSnapshot = null;
+        Get.commitService().removeCommitListener(this);
+    }
+
+    @Override
+    public ManifoldCoordinateImmutable makeCoordinateAnalog(long classifyTimeInEpochMillis) {
+        return new ManifoldCoordinateImmutable(
+                viewStampFilter.makeCoordinateAnalog(classifyTimeInEpochMillis),
+                languageCoordinate,
+                vertexSort,
+                getVertexStatusSet(),
+                navigationCoordinateImmutable,
+                logicCoordinateImmutable,
+                activity,
+                editCoordinate);
     }
 }

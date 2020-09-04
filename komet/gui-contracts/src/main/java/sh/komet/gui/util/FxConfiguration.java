@@ -27,6 +27,7 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.UserConfiguration;
 import sh.isaac.api.UserConfiguration.ConfigurationStore;
+import sh.isaac.komet.iconography.Iconography;
 
 /**
  * Komet FX Application specific options.  
@@ -42,6 +43,7 @@ import sh.isaac.api.UserConfiguration.ConfigurationStore;
 public class FxConfiguration
 {
 	private static final String USER_CSS_LOCATION = "USER_CSS_LOCATION";
+	private static final String ICONOGRAPHY_CSS_LOCATION = "ICONOGRAPHY_CSS_LOCATION";
 	private static final String SHOW_BETA_PROPERTY = "SHOW_BETA_FEATURES";
 	private static final String SHOW_KOMET_ONLY_PROPERTY = "SHOW_KOMET_ONLY_PROPERTY";
 	private Logger LOG = LogManager.getLogger();
@@ -151,7 +153,52 @@ public class FxConfiguration
 			throw new RuntimeException(e);
 		}
 	}
-	
+	public URL getIconographyCSSURL()
+	{
+		try
+		{
+			String temp = System.getProperty(ICONOGRAPHY_CSS_LOCATION);
+			if (StringUtils.isNotBlank(temp) && new File(temp).isFile())
+			{
+				return new File(temp).toURI().toURL();
+			}
+			else if (StringUtils.isNotBlank(temp))
+			{
+				LOG.warn("Ignoring {} system property because it doesn't point to an existing file: {}", USER_CSS_LOCATION, temp);
+			}
+
+			String s = ucStore.getObject(ICONOGRAPHY_CSS_LOCATION);
+			if (StringUtils.isNotBlank(s))
+			{
+				return new URL(s);
+			}
+			else
+			{
+				//This should be the path, if we launched the JVM from the 'application' module
+				File f = Paths.get("..", "iconography", "src", "main", "resources", "sh", "isaac",
+						"komet", "iconography", "Iconography.css").toFile();
+				if (f.isFile())
+				{
+					return f.toURI().toURL();
+				}
+				//There are also (apparently) parts of the maven build that try to find this file prior to the package being built, for
+				//reasons I don't understand, so try this path:
+				f = Paths.get("komet", "css", "src", "main", "resources", "sh", "isaac",
+						"komet", "iconography", "Iconography.css").toFile();
+				if (f.isFile())
+				{
+					return f.toURI().toURL();
+				}
+			}
+
+			return Iconography.class.getResource("/sh/isaac/komet/iconography/Iconography.css");
+		}
+		catch (MalformedURLException e)
+		{
+			//should be impossible
+			throw new RuntimeException(e);
+		}
+	}
 	/**
 	 * Store a path to the user.css file in the user prefs.
 	 * @param store store per DB or in the user profile folder

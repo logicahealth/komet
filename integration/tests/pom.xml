@@ -190,55 +190,6 @@
             </plugins>
          </build>
       </profile>
-      <profile>
-         <id>vhat-xml-tests</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-dependency-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <id>extract-vhat-dependencies</id>
-                        <goals>
-                           <goal>unpack</goal>  
-                        </goals>
-                        <configuration>
-                           <skip>${skipTests}</skip>
-                           <artifactItems>
-                              <artifact>
-                                 <groupId>sh.isaac.terminology.converted</groupId>
-                                 <artifactId>vhat-ibdf</artifactId>
-                                 <version>${vhat-loader-version}</version>
-                                 <type>ibdf.zip</type>
-                              </artifact>
-                           </artifactItems>
-                           <outputDirectory>${project.build.directory}/suite3data</outputDirectory>
-                        </configuration>
-                     </execution>
-                  </executions>
-               </plugin>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-surefire-plugin</artifactId>
-                  <configuration>
-                     <forkCount>1</forkCount>
-                     <reuseForks>true</reuseForks>
-                     <parallel>false</parallel>
-                     <useSystemClassLoader>true</useSystemClassLoader>
-                     <useManifestOnlyJar>false</useManifestOnlyJar>
-                     <argLine>-ea -Xmx12g -Djava.awt.headless=true</argLine>
-                     <includes>
-                        <include>**/VhatXmlTests.java</include>
-                     </includes>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
    </profiles>
    <build>
       <plugins>

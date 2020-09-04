@@ -1,12 +1,5 @@
 package sh.komet.gui.provider.classification;
 
-import java.net.URL;
-import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.ResourceBundle;
-import java.util.Set;
-
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -14,8 +7,15 @@ import javafx.util.Callback;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.util.FxGet;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+
+import java.net.URL;
+import java.text.NumberFormat;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Set;
 
 public class ClassifierResultsController {
 
@@ -69,6 +69,8 @@ public class ClassifierResultsController {
 
     @FXML
     private TextArea editTextArea;
+    private ViewProperties viewProperties;
+    private ActivityFeed activityFeed;
 
     @FXML
     void initialize() {
@@ -109,7 +111,7 @@ public class ClassifierResultsController {
                     changeList.add(new ComponentProxy(treeItem.getValue().conceptSpecification));
                 }
             }
-            FxGet.manifold(Manifold.ManifoldGroup.CLASSIFICATON).manifoldSelectionProperty().setAll(changeList);
+            this.activityFeed.feedSelectionProperty().setAll(changeList);
 
        }
     }
@@ -121,7 +123,7 @@ public class ClassifierResultsController {
             for (Integer conceptNid: change.getList()) {
                 changeList.add(new ComponentProxy(Get.concept(conceptNid)));
             }
-            FxGet.manifold(Manifold.ManifoldGroup.CLASSIFICATON).manifoldSelectionProperty().setAll(changeList);
+            this.activityFeed.feedSelectionProperty().setAll(changeList);
         }
     }
 
@@ -228,8 +230,13 @@ public class ClassifierResultsController {
             Get.executor().execute(new PrepareConceptSet("Sorting list of inferred changes", classifierResults.getConceptsWithInferredChanges(), inferredChangesList.getItems()));
         }
 
-        stampTextArea.setText(classifierResults.getStampFilter().toUserString());
+        stampTextArea.setText(classifierResults.getManifoldCoordinate().toUserString());
         logicTextArea.setText(classifierResults.getLogicCoordinate().toUserString());
         editTextArea.setText(classifierResults.getEditCoordinate().toUserString());
+    }
+
+    public void setViewProperties(ViewProperties viewProperties, ActivityFeed activityFeed) {
+        this.viewProperties = viewProperties;
+        this.activityFeed = activityFeed;
     }
 }

@@ -125,8 +125,8 @@ public interface CoordinateFactory
     * @return the taxonomy coordinate
     */
    ManifoldCoordinate createInferredManifoldCoordinate(StampFilter stampFilter,
-                                                       LanguageCoordinate languageCoordinate,
-                                                       LogicCoordinate logicCoordinate);
+                                                                                 LanguageCoordinate languageCoordinate,
+                                                                                 LogicCoordinate logicCoordinate);
 
    /**
     * Creates a new ImmutableCoordinate object.
@@ -222,7 +222,7 @@ public interface CoordinateFactory
     * @return the taxonomy coordinate
     */
    ManifoldCoordinate createStatedManifoldCoordinate(StampFilter stampFilter,
-                                                     LanguageCoordinate languageCoordinate,
-                                                     LogicCoordinate logicCoordinate);
+                                                                               LanguageCoordinate languageCoordinate,
+                                                                               LogicCoordinate logicCoordinate);
 }
 

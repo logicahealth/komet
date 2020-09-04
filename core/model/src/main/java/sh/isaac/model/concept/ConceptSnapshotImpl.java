@@ -50,6 +50,7 @@ import java.util.UUID;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Status;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSnapshot;
@@ -91,7 +92,7 @@ public class ConceptSnapshotImpl
       this.conceptChronology  = conceptChronology;
       this.manifoldCoordinate    = manifoldCoordinate;
 
-      final LatestVersion<ConceptVersion> latestVersion = manifoldCoordinate.getStampFilter()
+      final LatestVersion<ConceptVersion> latestVersion = manifoldCoordinate.getVertexStampFilter()
               .getRelativePositionCalculator().getLatestVersion(conceptChronology);
       this.snapshotVersion = latestVersion;
    }
@@ -106,7 +107,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public boolean containsActiveDescription(String descriptionText) {
-      return this.conceptChronology.containsDescription(descriptionText, this.manifoldCoordinate.getLanguageStampFilter());
+      return this.conceptChronology.containsDescription(descriptionText, this.manifoldCoordinate.getViewStampFilter());
    }
 
    /**
@@ -121,7 +122,7 @@ public class ConceptSnapshotImpl
 
    @Override
    public String toString() {
-      return this.getLanguageCoordinate().getAnyName(this.getNid(), this.getLanguageStampFilter());
+      return this.getLanguageCoordinate().getAnyName(this.getNid(), this.getViewStampFilter());
    }
    //~--- get methods ---------------------------------------------------------
 
@@ -131,10 +132,30 @@ public class ConceptSnapshotImpl
     * @return the author nid
     */
    @Override
-   public int getAuthorNid() {
+   public int getAuthorNidForChanges() {
       return this.snapshotVersion.get()
                                  .getAuthorNid();
    }
+
+    @Override
+    public int getPathNidForFilter() {
+        return this.snapshotVersion.get().getPathNid();
+    }
+
+    @Override
+    public EditCoordinate getEditCoordinate() {
+        return this.manifoldCoordinate.getEditCoordinate();
+    }
+
+    @Override
+    public Activity getCurrentActivity() {
+        return this.manifoldCoordinate.getCurrentActivity();
+    }
+
+    @Override
+    public int getAuthorNid() {
+        return this.snapshotVersion.get().getAuthorNid();
+    }
 
     @Override
     public int getPathNid() {
@@ -167,7 +188,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public String getFullyQualifiedName() {
-      return getLanguageCoordinate().getFullyQualifiedNameText(getNid(), getLanguageStampFilter()).orElse("No FQN description for: " + getNid());
+      return getLanguageCoordinate().getFullyQualifiedNameText(getNid(), getViewStampFilter()).orElse("No FQN description for: " + getNid());
    }
 
    /**
@@ -188,7 +209,7 @@ public class ConceptSnapshotImpl
    @Override
    public LatestVersion<DescriptionVersion> getFullyQualifiedDescription() {
       return getLanguageCoordinate().getFullyQualifiedDescription(getNid(),
-            getLanguageStampFilter());
+              getViewStampFilter());
    }
 
    /**
@@ -218,7 +239,7 @@ public class ConceptSnapshotImpl
     */
    @Override
    public LatestVersion<DescriptionVersion> getPreferredDescription() {
-      return getLanguageCoordinate().getPreferredDescription(getNid(), getLanguageStampFilter());
+      return getLanguageCoordinate().getPreferredDescription(getNid(), getViewStampFilter());
    }
 
    /**
@@ -274,7 +295,7 @@ public class ConceptSnapshotImpl
 
    @Override
    public Optional<String> getRegularName() {
-     return getLanguageCoordinate().getPreferredDescriptionText(getNid(), getLanguageStampFilter());
+     return getLanguageCoordinate().getPreferredDescriptionText(getNid(), getViewStampFilter());
    }
 
    @Override
@@ -289,7 +310,7 @@ public class ConceptSnapshotImpl
 
     @Override
     public LatestVersion<DescriptionVersion> getDefinition() {
-        return this.manifoldCoordinate.getLanguageCoordinate().getDefinitionDescription(this.conceptChronology.getConceptDescriptionList(), getLanguageStampFilter());
+        return this.manifoldCoordinate.getLanguageCoordinate().getDefinitionDescription(this.conceptChronology.getConceptDescriptionList(), getViewStampFilter());
     }
 
     @Override
@@ -297,7 +318,7 @@ public class ConceptSnapshotImpl
         List<SemanticChronology> descriptionChronologies = this.conceptChronology.getConceptDescriptionList();
         List<DescriptionVersion> versions = new ArrayList<>();
         for (SemanticChronology descriptionChronology: descriptionChronologies) {
-           LatestVersion<DescriptionVersion> latestVersion = descriptionChronology.getLatestVersion(getLanguageStampFilter());
+           LatestVersion<DescriptionVersion> latestVersion = descriptionChronology.getLatestVersion(getViewStampFilter());
            latestVersion.ifPresent((dv) -> {
                versions.add(dv);
            });
@@ -311,13 +332,8 @@ public class ConceptSnapshotImpl
     }
 
     @Override
-    public DigraphCoordinate getDigraph() {
-        return this.manifoldCoordinate.getDigraph();
-    }
-
-    @Override
-    public StampFilter getStampFilter() {
-        return manifoldCoordinate.getStampFilter();
+    public NavigationCoordinate getNavigationCoordinate() {
+        return this.manifoldCoordinate.getNavigationCoordinate();
     }
 
     @Override
@@ -343,6 +359,36 @@ public class ConceptSnapshotImpl
     @Override
     public ManifoldCoordinateImmutable toManifoldCoordinateImmutable() {
         return this.manifoldCoordinate.toManifoldCoordinateImmutable();
+    }
+
+    @Override
+    public TaxonomySnapshot getNavigationSnapshot() {
+        return this.manifoldCoordinate.getNavigationSnapshot();
+    }
+
+    @Override
+    public StatusSet getVertexStatusSet() {
+        return this.manifoldCoordinate.getVertexStatusSet();
+    }
+
+    @Override
+    public StampFilter getViewStampFilter() {
+        return this.manifoldCoordinate.getViewStampFilter();
+    }
+
+    @Override
+    public ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis) {
+        return this.manifoldCoordinate.makeCoordinateAnalog(classifyTimeInEpochMillis);
+    }
+
+    @Override
+    public StampFilter getVertexStampFilter() {
+        return this.manifoldCoordinate.getVertexStampFilter();
+    }
+
+    @Override
+    public PremiseSet getPremiseTypes() {
+        return this.manifoldCoordinate.getPremiseTypes();
     }
 }
 

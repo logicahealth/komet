@@ -6,15 +6,15 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import sh.isaac.komet.batch.fxml.ActionNodeController;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 public class ActionCell extends ListCell<ActionNodeController> {
     final ListView<ActionNodeController> actionListView;
-    final Manifold manifold;
+    final ViewProperties viewProperties;
 
-    public ActionCell(ListView<ActionNodeController> actionListView, Manifold manifold) {
+    public ActionCell(ListView<ActionNodeController> actionListView, ViewProperties viewProperties) {
         this.actionListView = actionListView;
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
     }
 
     @Override

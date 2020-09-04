@@ -22,7 +22,7 @@ import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.statement.Circumstance;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -32,9 +32,9 @@ public class PropertySheetCircumstanceWrapper implements PropertySheet.Item {
     private final SimpleObjectProperty<Circumstance> circumstanceProperty;
     private final String name;
 
-    public PropertySheetCircumstanceWrapper(Manifold manifold, SimpleObjectProperty<Circumstance> circumstanceProperty) {
+    public PropertySheetCircumstanceWrapper(ViewProperties viewProperties, SimpleObjectProperty<Circumstance> circumstanceProperty) {
         this.circumstanceProperty = circumstanceProperty;
-        this.name = manifold.getPreferredDescriptionText(new ConceptProxy(circumstanceProperty.getName()));
+        this.name = viewProperties.getPreferredDescriptionText(new ConceptProxy(circumstanceProperty.getName()));
     }
 
     

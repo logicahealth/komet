@@ -36,6 +36,17 @@
  */
 package sh.komet.gui.search.extended;
 
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.ResourceBundle;
+import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import com.sun.javafx.collections.ObservableListWrapper;
 import javafx.application.Platform;
 import javafx.beans.Observable;
@@ -50,28 +61,55 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListCell;
+import javafx.scene.control.ListView;
+import javafx.scene.control.ProgressIndicator;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TextField;
+import javafx.scene.control.TitledPane;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
-import sh.isaac.api.*;
+import sh.isaac.api.ComponentProxy;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
-import sh.isaac.api.component.semantic.version.dynamic.*;
-import sh.isaac.api.coordinate.*;
-import sh.isaac.api.index.*;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.index.AuthorModulePathRestriction;
+import sh.isaac.api.index.IndexDescriptionQueryService;
+import sh.isaac.api.index.IndexQueryService;
+import sh.isaac.api.index.IndexSemanticQueryService;
+import sh.isaac.api.index.IndexStatusListener;
 import sh.isaac.api.query.CompositeQueryResult;
 import sh.isaac.api.query.QueryHandle;
 import sh.isaac.api.util.Interval;
@@ -82,15 +120,13 @@ import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.NumericUtilsDynamic;
 import sh.isaac.utility.SimpleDisplayConcept;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.ConceptNode;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.ValidBooleanBinding;
-
-import java.net.URL;
-import java.util.*;
 
 /**
  * Controller class for the Extended Search View.
@@ -161,21 +197,21 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
 
     private enum SearchInOptions {
         Descriptions, Identifiers, Semantics
-    };
+    }
     private final SimpleBooleanProperty displayIndexConfigMenu_ = new SimpleBooleanProperty(false);
-    private Manifold outsideManifold;
-    private ManifoldCoordinate readManifoldCoordinate;
+    private ViewProperties viewProperties;
+    private ActivityFeed activityFeed;
     private AuthorModulePathRestriction amp = null;
     private TimeStatusRestriction timeStatusRestriction = null;
 
-    public static ExtendedSearchViewController init(Manifold manifold) {
+    public static ExtendedSearchViewController init(ViewProperties viewProperties, ActivityFeed activityFeed) {
         // Load from FXML.
         try {
             URL resource = ExtendedSearchViewController.class.getResource("ExtendedSearchView.fxml");
             FXMLLoader loader = new FXMLLoader(resource);
             loader.load();
             ExtendedSearchViewController esvc = loader.getController();
-            esvc.setManifold(manifold);
+            esvc.setViewProperties(viewProperties, activityFeed);
             return esvc;
         } catch (Exception e) {
             throw new RuntimeException("Unexpected", e);
@@ -192,19 +228,19 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                 //nothing to do
             } else {
                 for (CompositeQueryResult remitem : c.getRemoved()) {
-                    outsideManifold.manifoldSelectionProperty().remove(new ComponentProxy(remitem.getContainingConcept().toExternalString()));
+                    this.activityFeed.feedSelectionProperty().remove(new ComponentProxy(remitem.getContainingConcept().toExternalString()));
                 }
                 for (CompositeQueryResult additem : c.getAddedSubList()) {
-                    outsideManifold.manifoldSelectionProperty().add(new ComponentProxy(additem.getContainingConcept().toExternalString()));
+                    this.activityFeed.feedSelectionProperty().add(new ComponentProxy(additem.getContainingConcept().toExternalString()));
                 }
             }
         }
-        if (outsideManifold.manifoldSelectionProperty().size() != c.getList().size()) {
+        if (this.activityFeed.feedSelectionProperty().size() != c.getList().size()) {
             ArrayList<ComponentProxy> selectionList = new ArrayList<>(c.getList().size());
             for (CompositeQueryResult additem : c.getList()) {
                 selectionList.add(new ComponentProxy(additem.getContainingConcept().toExternalString()));
             }
-            outsideManifold.manifoldSelectionProperty().setAll(selectionList);
+            this.activityFeed.feedSelectionProperty().setAll(selectionList);
         }
     }
 
@@ -313,10 +349,10 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
         searchInIdentifiers.getSelectionModel().clearAndSelect(0);
 
         searchInSemantics = new ConceptNode(null, false, dynamicRefexList_, null, () -> {
-            return readManifoldCoordinate;
+            return viewProperties.getManifoldCoordinate();
         }, false);
         searchInSemantics.getConceptProperty().addListener((Observable observable) -> {
-            ConceptSnapshot newValue = searchInSemantics.getConceptProperty().get();
+            ConceptChronology newValue = searchInSemantics.getConceptProperty().get();
             if (newValue != null) {
                 searchInColumnsHolder.getChildren().clear();
                 try {
@@ -476,7 +512,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                                             HBox.setMargin(assemblageCon, new Insets(0.0, 0.0, 0.0, 10.0));
                                             assemblageConBox.getChildren().add(assemblageCon);
                                             assemblageConBox.getChildren().add(new Label("  "
-                                                    + readManifoldCoordinate.getDescriptionText(versions.get(i).getAssemblageNid()).orElse("-off path-")));
+                                                    + viewProperties.getDescriptionText(versions.get(i).getAssemblageNid()).orElse("-off path-")));
                                             box.getChildren().add(assemblageConBox);
 
                                             Label attachedData = new Label("Data");
@@ -512,7 +548,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                                 }
 
                                 for (int i : modules) {
-                                    tooltip.append(Frills.getDescription(i, readManifoldCoordinate).orElse("Unknown module")).append("\r");
+                                    tooltip.append(Frills.getDescription(i, viewProperties.getManifoldCoordinate()).orElse("Unknown module")).append("\r");
                                 }
 
                                 tooltip.setLength(tooltip.length() - 1);
@@ -526,7 +562,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                                     public void handle(MouseEvent mouseEvent) {
                                         if (mouseEvent.getButton().equals(MouseButton.PRIMARY)) {
                                             if (mouseEvent.getClickCount() == 2) {
-                                                outsideManifold.manifoldSelectionProperty().setAll(new ComponentProxy(item.getContainingConcept()));
+                                                activityFeed.feedSelectionProperty().setAll(new ComponentProxy(item.getContainingConcept()));
                                             }
                                         }
                                     }
@@ -716,8 +752,8 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                         extendedDescriptionTypeRestriction = null;
                     } else if (descriptionTypeSelection.getSelectionModel().getSelectedIndex() < descriptionTypeSelectionExtendedIndex) {
                         LOG.debug("Doing a description search on core description type {}", Get.conceptDescriptionText(descriptionTypeSelection.getValue().getNid()));
-                        descriptionTypeRestriction = LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[]{new ConceptProxy(descriptionTypeSelection.getValue().getNid())}, 
-                                readManifoldCoordinate.getStampFilter());
+                        descriptionTypeRestriction = LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[]{new ConceptProxy(descriptionTypeSelection.getValue().getNid())},
+                                viewProperties.getViewStampFilter());
                         extendedDescriptionTypeRestriction = null;
                     } else {
                         LOG.debug("Doing a description search on the extended type {}", descriptionTypeSelection.getValue().getDescription());
@@ -732,7 +768,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                             ((searchHandle) -> {
                                 taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());
                             }),
-                            null, null, true, readManifoldCoordinate, true);
+                            null, null, true, viewProperties.getManifoldCoordinate(), true);
                     break;
                 case Identifiers:
                     {
@@ -744,7 +780,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                                 ((searchHandle) -> {
                                     taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());
                                 }),
-                                null, null, true, readManifoldCoordinate, true, timeStatusRestriction == null ? null : timeStatusRestriction.getTimeStatusFilter(),
+                                null, null, true, viewProperties.getManifoldCoordinate(), true, timeStatusRestriction == null ? null : timeStatusRestriction.getTimeStatusFilter(),
                                 amp, searchLimit.getValue());
                         break;
                     }
@@ -764,7 +800,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                                     ((searchHandle) -> {
                                         taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());
                                     }),
-                                    null, null, true, readManifoldCoordinate, true);
+                                    null, null, true, viewProperties.getManifoldCoordinate(), true);
                         } else if (Interval.isInterval(searchString) && !treatAsString.isSelected()) {
                             Interval interval = new Interval(searchString);
                             LOG.debug("Doing a semantic search with an interval value");
@@ -780,7 +816,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                                     ((searchHandle) -> {
                                         taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());
                                     }),
-                                    null, null, true, readManifoldCoordinate, true);
+                                    null, null, true, viewProperties.getManifoldCoordinate(), true);
                             
                         } else {
                             //run it as a string search
@@ -795,7 +831,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                                     ((searchHandle) -> {
                                         taskComplete(null, searchHandle.getSearchStartTime(), searchHandle.getTaskId());
                                     }),
-                                    null, null, true, readManifoldCoordinate, true);
+                                    null, null, true, viewProperties.getManifoldCoordinate(), true);
                         }       break;
                     }
                 default:
@@ -840,20 +876,20 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
                 -> {
             try {
                 descriptionTypeSelection.getItems().add(new SimpleDisplayConcept("All", Integer.MIN_VALUE));
-                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR}, readManifoldCoordinate.getStampFilter())) {
+                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR}, viewProperties.getViewStampFilter())) {
                     descriptionTypeSelection.getItems().add(new SimpleDisplayConcept((spec.equals(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR) ? "" : "  ") 
-                           + readManifoldCoordinate.getPreferredDescriptionText(spec), spec.getNid()));
+                           + viewProperties.getPreferredDescriptionText(spec), spec.getNid()));
                 }
-                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR}, readManifoldCoordinate.getStampFilter())) {
+                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR}, viewProperties.getViewStampFilter())) {
                     descriptionTypeSelection.getItems().add(new SimpleDisplayConcept((spec.equals(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR) ? "" : "  ") 
-                           + readManifoldCoordinate.getPreferredDescriptionText(spec), spec.getNid()));
+                           + viewProperties.getPreferredDescriptionText(spec), spec.getNid()));
                 }
-                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR}, readManifoldCoordinate.getStampFilter())) {
+                for (ConceptSpecification spec : LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR}, viewProperties.getViewStampFilter())) {
                     descriptionTypeSelection.getItems().add(new SimpleDisplayConcept((spec.equals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR) ? "" : "  ") 
-                           + readManifoldCoordinate.getPreferredDescriptionText(spec), spec.getNid()));
+                           + viewProperties.getPreferredDescriptionText(spec), spec.getNid()));
                 }
                 Set<Integer> extendedDescriptionTypes = Frills.getAllChildrenOfConcept(
-                        MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getNid(), true, true, readManifoldCoordinate.getStampFilter());
+                        MetaData.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY____SOLOR.getNid(), true, true, viewProperties.getViewStampFilter());
                 ArrayList<SimpleDisplayConcept> temp = new ArrayList<>();
                 
                 if (extendedDescriptionTypes.size() > 0) {
@@ -883,7 +919,7 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
             FXMLLoader loader = new FXMLLoader(resource);
             GridPane stampGridPane = loader.load();
             StampSelectionController ssController = loader.getController();
-            ssController.finishSetup(readManifoldCoordinate, amp, timeStatusRestriction);
+            ssController.finishSetup(viewProperties, amp, timeStatusRestriction);
 
             Alert stampDialog = new Alert(AlertType.CONFIRMATION);
             stampDialog.setTitle("Extended Search STAMP Configuration");
@@ -943,23 +979,11 @@ public class ExtendedSearchViewController implements TaskCompleteCallback<QueryH
     /**
      * @param manifold
      */
-    private void setManifold(Manifold manifold) {
-        outsideManifold = manifold;
-
-        //Configure our readback stamp to have the best chance of properly showing results.
-        resetReadManifold();
-
-        //Listen for changes in the outside language coordinate in the things we pass through.
-        outsideManifold.getLanguageCoordinate().addListener((invalidation) -> resetReadManifold());
-        outsideManifold.getStampFilter().addListener((invalidation) -> resetReadManifold());
-        timeStatusRestriction = new TimeStatusRestriction(null, null, Status.makeActiveOnlySet(), outsideManifold);
-        updateStampLabels();
-    }
-
-    private void resetReadManifold() {
-        StampFilter stamp = StampFilterImmutable.make(StatusSet.ACTIVE_AND_INACTIVE, StampPositionImmutable.make(Long.MAX_VALUE, 
-                outsideManifold.getStampFilter().getStampPosition().getPathForPositionConcept()), null, null);
-        readManifoldCoordinate = ManifoldCoordinateImmutable.makeStated(stamp, outsideManifold.getLanguageCoordinate());
+    private void setViewProperties(ViewProperties manifold, ActivityFeed activityFeed) {
+        this.viewProperties = manifold;
+        this.activityFeed = activityFeed;
+        this.timeStatusRestriction = new TimeStatusRestriction(null, null, Status.makeActiveOnlySet(), viewProperties.getManifoldCoordinate());
+        updateStampLabels();        
     }
 
     /**

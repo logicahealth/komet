@@ -38,6 +38,7 @@ import sh.isaac.api.BusinessRulesResource;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.preferences.IsaacPreferences;
 
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
@@ -45,13 +46,12 @@ import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import sh.isaac.model.observable.ObservableFields;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
 import sh.komet.gui.contract.preferences.UserPreferenceItems;
-import sh.komet.gui.control.PropertySheetItemObjectListWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.SessionProperty;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
-import sh.komet.gui.util.UuidStringKey;
+import sh.isaac.api.util.UuidStringKey;
 
 /**
  *
@@ -87,24 +87,19 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
      
     final SimpleStringProperty shiroIniProperty = new SimpleStringProperty(this, "Shiro INI");
 
-     private final PropertySheetItemObjectListWrapper<UuidStringKey> viewCoordinateKeyWrapper;
-
     
-    public UserPreferencesPanel(IsaacPreferences preferencesNode, Manifold manifold,
+    public UserPreferencesPanel(IsaacPreferences preferencesNode, ViewProperties viewProperties,
                                 KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "User"), manifold, 
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "User"), viewProperties,
                 kpc);
-        this.userConceptWrapper = new PropertySheetItemConceptWrapper(manifold, userConceptProperty);
+        this.userConceptWrapper = new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), userConceptProperty);
         this.userConceptWrapper.setAllowedValues(userConceptOptions);
         
-        this.moduleConceptWrapper = new PropertySheetItemConceptWrapper(manifold, moduleConceptProperty);
+        this.moduleConceptWrapper = new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), moduleConceptProperty);
         this.moduleConceptWrapper.setAllowedValues(moduleConceptOptions);
         
-        this.pathConceptWrapper = new PropertySheetItemConceptWrapper(manifold, pathConceptProperty);
+        this.pathConceptWrapper = new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), pathConceptProperty);
         this.pathConceptWrapper.setAllowedValues(pathConceptOptions);
-
-        this.viewCoordinateKeyWrapper = new PropertySheetItemObjectListWrapper("Default view",
-                FxGet.defaultViewKeyProperty(), FxGet.graphConfigurationKeys());
         revertFields();
         save();
         int[] userConceptOptionNids = new int[userConceptOptions.size()];
@@ -112,9 +107,8 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
             userConceptOptionNids[i] = userConceptOptions.get(i).getNid();
         }
 
-        getItemList().add(this.viewCoordinateKeyWrapper);
-        getItemList().add(new PropertySheetItemConceptConstraintWrapper(userConceptWrapper, manifold, "User"));
-        getItemList().add(new PropertySheetItemConceptConstraintWrapper(moduleConceptWrapper, manifold, "Module"));
+        getItemList().add(new PropertySheetItemConceptConstraintWrapper(userConceptWrapper, viewProperties.getManifoldCoordinate(), "User"));
+        getItemList().add(new PropertySheetItemConceptConstraintWrapper(moduleConceptWrapper, viewProperties.getManifoldCoordinate(), "Module"));
 
         login();
     }
@@ -129,7 +123,7 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
             Subject currentUser = SecurityUtils.getSubject();
             UsernamePasswordToken token = new UsernamePasswordToken("admin", "mtn.dog");
             currentUser.login(token);
-            currentUser.getSession().setAttribute(SessionProperty.EDIT_COORDINATE, FxGet.editCoordinate());
+            currentUser.getSession().setAttribute(SessionProperty.EDIT_COORDINATE, Coordinates.Edit.Default());
 
             LOG.info( "User [" + currentUser.getPrincipal() + "] logged in successfully." );
 
@@ -169,9 +163,6 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         
         // For modules and paths, read/write constraints 
         FxGet.rulesDrivenKometService().addResourcesAndUpdate(getBusinessRulesResources());
-        FxGet.editCoordinate().authorProperty().set(userConceptProperty.get());
-        FxGet.editCoordinate().moduleProperty().set(moduleConceptProperty.get());
-        FxGet.editCoordinate().pathProperty().set(pathConceptProperty.get());
     }
 
     @Override
@@ -269,14 +260,13 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         b.append("import sh.isaac.api.component.concept.ConceptSpecification;\n");
         b.append("import sh.isaac.api.Status;\n");
         b.append("import sh.isaac.provider.drools.AddEditLogicalExpressionNodeMenuItems;\n");
-        b.append("import sh.komet.gui.control.PropertySheetMenuItem;\n");
-        b.append("import sh.komet.gui.manifold.Manifold;\n");
+        b.append("import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;\n");
         b.append("import sh.isaac.MetaData;\n");
         b.append("import sh.isaac.api.bootstrap.TermAux;\n");
         b.append("import sh.isaac.api.chronicle.VersionCategory;\n");
         b.append("import sh.isaac.api.chronicle.VersionType;\n");
         b.append("import sh.isaac.provider.drools.AddAttachmentMenuItems;\n");
-        b.append("import sh.komet.gui.control.PropertyEditorType;\n");
+        b.append("import sh.komet.gui.control.property.PropertyEditorType;\n");
         b.append("import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;\n");
         b.append("import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;\n");
         b.append("import sh.komet.gui.control.property.PropertySheetItem;\n");
@@ -284,9 +274,9 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         b.append("import sh.komet.gui.control.property.EditorType;\n");
         b.append("import sh.isaac.api.logic.NodeSemantic;\n");
         b.append("\n");
-        b.append("rule \"if property specification is PATH_NID_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
+        b.append("rule \"if property specification is PATH_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
         b.append("when\n");
-        b.append("   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.PATH_NID_FOR_VERSION____SOLOR)\n");
+        b.append("   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.PATH_FOR_VERSION____SOLOR)\n");
         b.append("then\n");
         b.append("   $property.setDefaultValue(new ").append(new ConceptProxy(pathConceptProperty.get()).toString()).append(");\n");
         
@@ -295,9 +285,9 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         }
         b.append("end\n\n");
 
-        b.append("rule \"if property specification is MODULE_NID_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
+        b.append("rule \"if property specification is MODULE_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
         b.append("when\n");
-        b.append("   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.MODULE_NID_FOR_VERSION____SOLOR)\n");
+        b.append("   $property: PropertySheetItemConceptWrapper(getSpecification() == MetaData.MODULE_FOR_VERSION____SOLOR)\n");
         b.append("then\n");
         b.append("   $property.setDefaultValue(new ").append(new ConceptProxy(moduleConceptProperty.get()).toString()).append(");\n");
         
@@ -310,9 +300,9 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
 //
 //
 
-        b.append("rule \"DEPRECATED if property specification is PATH_NID_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
+        b.append("rule \"DEPRECATED if property specification is PATH_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
         b.append("when\n");
-        b.append("   $property: PropertySheetItem(getSpecification() == MetaData.PATH_NID_FOR_VERSION____SOLOR)\n");
+        b.append("   $property: PropertySheetItem(getSpecification() == MetaData.PATH_FOR_VERSION____SOLOR)\n");
         b.append("then\n");
         b.append("   $property.setDefaultValue(new ").append(new ConceptProxy(pathConceptProperty.get()).toString()).append(");\n");
         
@@ -321,9 +311,9 @@ public final class UserPreferencesPanel extends AbstractPreferences implements U
         }
         b.append("end\n\n");
 
-        b.append("rule \"DEPRECATED if property specification is MODULE_NID_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
+        b.append("rule \"DEPRECATED if property specification is MODULE_FOR_VERSION____SOLOR ").append(preferencesNode.name()).append("\"\n");
         b.append("when\n");
-        b.append("   $property: PropertySheetItem(getSpecification() == MetaData.MODULE_NID_FOR_VERSION____SOLOR)\n");
+        b.append("   $property: PropertySheetItem(getSpecification() == MetaData.MODULE_FOR_VERSION____SOLOR)\n");
         b.append("then\n");
         b.append("   $property.setDefaultValue(new ").append(new ConceptProxy(moduleConceptProperty.get()).toString()).append(");\n");
         

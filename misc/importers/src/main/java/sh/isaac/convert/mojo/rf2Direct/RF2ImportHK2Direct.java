@@ -201,7 +201,7 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	
 				log.info("Adding navigation concepts...");
 				LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(transaction,
-						ManifoldCoordinateImmutable.makeStated(readbackCoordinate, Coordinates.Language.UsEnglishFullyQualifiedName()));
+						Coordinates.Manifold.DevelopmentStatedRegularNameSort());
 				Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
 				addNavigationConceptsTask.get();
 			}

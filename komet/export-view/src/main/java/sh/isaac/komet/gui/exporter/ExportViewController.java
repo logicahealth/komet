@@ -1,5 +1,9 @@
 package sh.isaac.komet.gui.exporter;
 
+import java.io.File;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.CheckListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -8,16 +12,11 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.controlsfx.control.CheckListView;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.solor.rf2.RF2DirectExporter;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.exportation.ExportFormatType;
-import sh.komet.gui.manifold.Manifold;
-
-import java.io.File;
 
 
 /*
@@ -27,7 +26,7 @@ public class ExportViewController {
 
     protected static final Logger LOG = LogManager.getLogger();
     private Stage exportStage;
-    private Manifold manifold;
+    private ViewProperties viewProperties;
 
     @FXML
     private Button directoryBrowseButton;
@@ -89,7 +88,7 @@ public class ExportViewController {
         switch(this.exportTypeChoiceBox.getSelectionModel().getSelectedItem()){
             case RF2:
                 Get.executor().execute(new RF2DirectExporter(
-                        this.manifold,
+                        this.viewProperties.getManifoldCoordinate(),
                         this.selectedDirectory,
                         this.exportTypeChoiceBox.getSelectionModel().getSelectedItem().toString()
                 ));
@@ -106,8 +105,8 @@ public class ExportViewController {
         this.exportStage = exportStage;
     }
 
-    public void setManifold(Manifold manifold) {
-        this.manifold = manifold;
+    public void setManifold(ViewProperties manifold) {
+        this.viewProperties = manifold;
     }
 
 }

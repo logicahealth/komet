@@ -55,6 +55,7 @@ import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -112,12 +113,6 @@ public class ObservableConceptChronologyImpl
    
    @Override
    public ObservableConceptVersionImpl createMutableVersion(Transaction transaction, int stampSequence) {
-      throw new UnsupportedOperationException(
-          "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public ObservableConceptVersionImpl createMutableVersion(Transaction transaction, Status state, EditCoordinate ec) {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }

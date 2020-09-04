@@ -100,10 +100,8 @@ public class ComponentNidVersionImpl
    @SuppressWarnings("unchecked")
    @Override
    public <V extends Version> V makeAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final ComponentNidVersionImpl newVersion = new ComponentNidVersionImpl(this, stampSequence);
-
-      chronologyImpl.addVersion(newVersion);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 

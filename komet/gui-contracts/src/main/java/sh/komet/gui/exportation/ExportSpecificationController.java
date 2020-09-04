@@ -23,7 +23,7 @@ import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.solor.sof.SofExporter;
 import sh.komet.gui.control.concept.PropertySheetConceptSetWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 import java.io.File;
@@ -93,16 +93,16 @@ public class ExportSpecificationController {
         this.exportFormat.getSelectionModel().select(ExportFormatType.SOF);
     }
 
-    public void setManifold(Manifold manifold) {
-        this.moduleConceptsWrapper = new PropertySheetConceptSetWrapper(manifold, moduleConceptProperty);
-        this.pathConceptsWrapper = new PropertySheetConceptSetWrapper(manifold, pathConceptProperty);
+    public void setViewProperties(ViewProperties viewProperties) {
+        this.moduleConceptsWrapper = new PropertySheetConceptSetWrapper(viewProperties, moduleConceptProperty);
+        this.pathConceptsWrapper = new PropertySheetConceptSetWrapper(viewProperties, pathConceptProperty);
         this.itemList.add(this.moduleConceptsWrapper);
         this.itemList.add(this.pathConceptsWrapper);
         PropertySheet sheet = new PropertySheet();
         sheet.setMode(PropertySheet.Mode.NAME);
         sheet.setSearchBoxVisible(false);
         sheet.setModeSwitcherVisible(false);
-        sheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
+        sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties.getManifoldCoordinate()));
         sheet.getItems().addAll(itemList);
         topBorderPane.setCenter(sheet);
     }

@@ -19,6 +19,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.PremiseSet;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.tree.NodeStatus;
@@ -76,21 +77,21 @@ public class HashTreeWithIntArraySetsIsolated
     protected final IntObjectMap<int[]> parentNid_ChildNidSetArray_Map;
     protected final int                       assemblageNid;
     protected final OpenIntHashSet roots = new OpenIntHashSet();
-    protected final PremiseType premiseType;
+    protected final PremiseSet premiseTypes;
     protected final String coordinateString;
     protected final StampFilterImmutable vertexFilter;
 
     /**
      * Instantiates a new hash tree with bit sets.
      *
-     * @param premiseType
+     * @param premiseTypes
      * @param assemblageNid the assemblage nid which specifies the assemblage where the concepts in this tree
      * where created within.
      */
-    public HashTreeWithIntArraySetsIsolated(StampFilterImmutable vertexFilter, String coordinateString, PremiseType premiseType, int assemblageNid) {
+    public HashTreeWithIntArraySetsIsolated(StampFilterImmutable vertexFilter, String coordinateString, PremiseSet premiseTypes, int assemblageNid) {
         this.vertexFilter = vertexFilter;
         this.coordinateString = coordinateString;
-        this.premiseType = premiseType;
+        this.premiseTypes = premiseTypes;
         this.assemblageNid                  = assemblageNid;
         this.conceptNidsWithParents    = new OpenIntHashSet();
         this.conceptNidsWithChildren   = new OpenIntHashSet();
@@ -102,7 +103,7 @@ public class HashTreeWithIntArraySetsIsolated
     public HashTreeWithIntArraySetsIsolated(HashTreeWithIntArraySetsIsolated another) {
         this.vertexFilter = another.vertexFilter;
         this.coordinateString = another.coordinateString;
-        this.premiseType = another.premiseType;
+        this.premiseTypes = another.premiseTypes;
         this.assemblageNid                  = another.assemblageNid;
         this.conceptNidsWithParents    = new OpenIntHashSet();
         this.conceptNidsWithChildren   = new OpenIntHashSet();
@@ -985,7 +986,7 @@ public class HashTreeWithIntArraySetsIsolated
                                 .append(" ")
                                 .append(Get.conceptDescriptionText(nidToTest));
                     } else {
-                        builder.append(premiseType).append(" Cycle found: \n");
+                        builder.append(premiseTypes).append(" Cycle found: \n");
 
                         if (cycleArray.length == 1) {
                             builder.append("\n   SELF REFERENCE");
@@ -1133,7 +1134,7 @@ public class HashTreeWithIntArraySetsIsolated
                 printWatch(nid, "root: ");
             }
             String title = roots.size() + " " +
-                    premiseType.toString() +
+                    premiseTypes.toUserString() +
                     " roots";
             if (roots.isEmpty()) {
                 title = "No taxonomy roots";

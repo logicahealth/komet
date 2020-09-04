@@ -16,19 +16,20 @@
  */
 package sh.komet.gui.search.flwor;
 
-import java.io.IOException;
-import javax.inject.Singleton;
-import org.jvnet.hk2.annotations.Service;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+
+import javax.inject.Singleton;
+import java.io.IOException;
 
 /**
  *
@@ -40,12 +41,12 @@ public class FLWORQueryViewFactory implements ExplorationNodeFactory {
 
    public static final String MENU_TEXT  = "FLWOR Query";
    @Override
-   public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
+   public ExplorationNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
       try {
          FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/FLOWRQuery.fxml"));
          loader.load();
          FLWORQueryController flworQueryController = loader.getController();
-         flworQueryController.setManifold(manifold);
+         flworQueryController.setViewProperties(viewProperties);
          return flworQueryController;
       } catch (IOException ex) {
          throw new RuntimeException(ex);
@@ -64,10 +65,11 @@ public class FLWORQueryViewFactory implements ExplorationNodeFactory {
    
    /** 
     * {@inheritDoc}
+    * @return
     */
    @Override
-   public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.FLWOR};
+   public String[] getDefaultActivityFeed() {
+      return new String[] {ViewProperties.FLWOR};
    }
 
    @Override

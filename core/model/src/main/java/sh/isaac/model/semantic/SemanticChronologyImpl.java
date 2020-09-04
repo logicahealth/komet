@@ -42,12 +42,13 @@ import java.util.NoSuchElementException;
 import java.util.UUID;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
+import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacObjectType;
@@ -120,22 +121,6 @@ public class SemanticChronologyImpl
    
    @Override
    public <V extends Version> V createMutableVersion(Transaction transaction, int stampSequence) {
-      final V version = createMutableVersionInternal(stampSequence);
-      transaction.addVersionToTransaction(version);
-      addVersion(version);
-      return version;
-   }
-
-   @Override
-   public <V extends Version> V createMutableVersion(Transaction transaction, Status status, EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-                                   .getStampSequence(
-                                           transaction,
-                                       status,
-                                       Long.MAX_VALUE,
-                                       ec.getAuthorNid(),
-                                       ec.getModuleNid(),
-                                       ec.getPathNid());
       final V version = createMutableVersionInternal(stampSequence);
       transaction.addVersionToTransaction(version);
       addVersion(version);

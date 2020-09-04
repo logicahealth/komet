@@ -59,7 +59,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.component.concept.*;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.StampFilterImmutable;
 
 //~--- classes ----------------------------------------------------------------
@@ -211,7 +210,7 @@ public class MockConceptService
     * @return the sh.isaac.api.component.concept.ConceptSnapshotService
     */
    @Override
-   public ConceptSnapshotService getSnapshot(ManifoldCoordinateImmutable manifoldCoordinate) {
+   public ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate) {
       throw new UnsupportedOperationException();
    }
 

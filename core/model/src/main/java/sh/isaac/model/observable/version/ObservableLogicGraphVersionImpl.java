@@ -55,16 +55,15 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableLogicGraphVersion;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderImpl;
-import sh.isaac.model.observable.CommitAwareObjectProperty;
-import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.commitaware.CommitAwareObjectProperty;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 
@@ -102,12 +101,12 @@ public class ObservableLogicGraphVersionImpl
 
     @SuppressWarnings("unchecked")
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableLogicGraphVersionImpl analog = new ObservableLogicGraphVersionImpl(this, getChronology());
         copyLocalFields(analog);
-        analog.setModuleNid(ec.getModuleNid());
-        analog.setAuthorNid(ec.getAuthorNid());
-        analog.setPathNid(ec.getPathNid());
+        analog.setModuleNid(mc.getModuleNidForAnalog(this));
+        analog.setAuthorNid(mc.getAuthorNidForChanges());
+        analog.setPathNid(mc.getPathNidForAnalog());
         return (V) analog;
     }
 
@@ -136,14 +135,11 @@ public class ObservableLogicGraphVersionImpl
    @SuppressWarnings("unchecked")
    @Override
    public <V extends Version> V makeAnalog(int stampSequence) {
-      LogicGraphVersion newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
-      ObservableLogicGraphVersionImpl newObservableVersion = new ObservableLogicGraphVersionImpl(
-                                                                 newVersion,
-                                                                       (ObservableSemanticChronology) chronology);
-        ((ObservableChronologyImpl) chronology).getVersionList()
-                .add(newObservableVersion);
-        return (V) newObservableVersion;
-    }
+      LogicGraphVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+      ObservableLogicGraphVersionImpl newObservableVersion = new ObservableLogicGraphVersionImpl(newVersion, getChronology());
+      getChronology().getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
+   }
 
     @Override
    public String toString() {

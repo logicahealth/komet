@@ -297,6 +297,11 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
             }
             return ready.get();
         }
+
+        @Override
+        public String toString() {
+            return super.toString() + " - child";
+        }
     }
 
     @Override

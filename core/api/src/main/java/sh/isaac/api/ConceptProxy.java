@@ -222,7 +222,7 @@ public class ConceptProxy
    @Override
    public String toString() {
       if (this.cachedNid != 0 && LookupService.isIsaacStarted()) {
-         return getFullyQualifiedName() + Arrays.toString(getUuids());
+         return getFullyQualifiedName() + " " + Arrays.toString(getUuids());
       }
       if (this.getUuids() != null) {
           StringBuilder builder = new StringBuilder();
@@ -255,7 +255,7 @@ public class ConceptProxy
    @Override
    public String getFullyQualifiedName() {
       if (this.fullyQualfiedName == null) {
-         this.fullyQualfiedName = Get.defaultCoordinate().getFullyQualifiedName(this.getNid(), Get.defaultCoordinate().getStampFilter()).orElse(null);
+         this.fullyQualfiedName = Get.defaultCoordinate().getFullyQualifiedName(this.getNid(), Get.defaultCoordinate().getViewStampFilter()).orElse(null);
       }
       return this.fullyQualfiedName;
    }

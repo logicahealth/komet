@@ -42,9 +42,9 @@ package sh.isaac.model.semantic.version;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.version.MutableLongVersion;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.api.component.semantic.version.MutableLongVersion;
 
 /**
  * Used for path origins by path manager.
@@ -94,17 +94,14 @@ public class LongVersionImpl
       this.longValue = other.longValue;
    }
 
+   @SuppressWarnings("unchecked")
+   @Override
    public <V extends Version> V makeAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final LongVersionImpl newVersion = new LongVersionImpl(this, stampSequence);
-
-      chronologyImpl.addVersion(newVersion);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 
-/**
-    * {@inheritDoc}
-    */
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();

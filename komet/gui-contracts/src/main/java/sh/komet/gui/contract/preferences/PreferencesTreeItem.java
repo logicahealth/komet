@@ -16,15 +16,16 @@
  */
 package sh.komet.gui.contract.preferences;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import java.util.Optional;
 import javafx.scene.control.TreeItem;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.preferences.IsaacPreferences;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
+
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
+import java.util.Optional;
 
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.CHILDREN_NODES;
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.PROPERTY_SHEET_CLASS;
@@ -40,13 +41,13 @@ public class PreferencesTreeItem extends TreeItem<PreferenceGroup>  {
     final KometPreferencesController controller;
     
     private PreferencesTreeItem(PreferenceGroup value,
-                                IsaacPreferences preferences, Manifold manifold, KometPreferencesController controller) {
+                                IsaacPreferences preferences, ViewProperties viewProperties, KometPreferencesController controller) {
         super(value);
         this.preferences = preferences;
         this.controller = controller;
         List<String> propertySheetChildren = preferences.getList(CHILDREN_NODES);
         for (String child: propertySheetChildren) {
-            Optional<PreferencesTreeItem> childTreeItem = from(preferences.node(child), manifold, controller);
+            Optional<PreferencesTreeItem> childTreeItem = from(preferences.node(child), viewProperties, controller);
             if (childTreeItem.isPresent()) {
                 getChildren().add(childTreeItem.get());
                 childTreeItem.get().getValue().setTreeItem(childTreeItem.get());
@@ -81,7 +82,7 @@ public class PreferencesTreeItem extends TreeItem<PreferenceGroup>  {
 
 
     static public Optional<PreferencesTreeItem> from(IsaacPreferences preferences,
-                                                     Manifold manifold, KometPreferencesController controller)  {
+                                                     ViewProperties viewProperties, KometPreferencesController controller)  {
         Optional<String> optionalPropertySheetClass = preferences.get(PROPERTY_SHEET_CLASS);
         if (optionalPropertySheetClass.isPresent()) {
             try {
@@ -112,11 +113,11 @@ public class PreferencesTreeItem extends TreeItem<PreferenceGroup>  {
                 Class preferencesSheetClass = Class.forName(propertySheetClassName);
                 Constructor<PreferenceGroup> c = preferencesSheetClass.getConstructor(
                         IsaacPreferences.class,
-                        Manifold.class,
+                        ViewProperties.class,
                         KometPreferencesController.class);
-                PreferenceGroup preferencesSheet = c.newInstance(preferences, manifold, controller);
+                PreferenceGroup preferencesSheet = c.newInstance(preferences, viewProperties, controller);
                 PreferencesTreeItem preferencesTreeItem = new PreferencesTreeItem(preferencesSheet, preferences,
-                        manifold, controller);
+                        viewProperties, controller);
                 preferencesSheet.setTreeItem(preferencesTreeItem);
                 return Optional.of(preferencesTreeItem);
             } catch (ClassNotFoundException | NoSuchMethodException | SecurityException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException ex) {
@@ -124,7 +125,7 @@ public class PreferencesTreeItem extends TreeItem<PreferenceGroup>  {
             }
         } else {
             preferences.put(PROPERTY_SHEET_CLASS, "sh.isaac.komet.preferences.RootPreferences");
-            return from(preferences, manifold, controller);
+            return from(preferences, viewProperties, controller);
         }
         return Optional.empty();
     }

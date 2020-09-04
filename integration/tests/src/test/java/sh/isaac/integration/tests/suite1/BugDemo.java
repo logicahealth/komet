@@ -32,9 +32,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptBuilder;
@@ -44,6 +42,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
@@ -94,7 +93,8 @@ public class BugDemo
 		// build the description and the extended type
 		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 		try {
-			descriptionSemanticBuilder.build(transaction, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate()).get();
+			descriptionSemanticBuilder.build(new WriteCoordinateImpl(transaction, 
+					Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get().getStampSequence()));
 			transaction.commit();
 			Assert.fail("build worked when it shouldn't have");
 		} catch (Exception e) {
@@ -129,7 +129,7 @@ public class BugDemo
 		cb.setLogicalExpression(parentDef);
 
 		Transaction transaction1 = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
-		cb.build(transaction1, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
+		cb.buildAndWrite(new WriteCoordinateImpl(transaction1, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get())).get();
 
 		Optional<CommitRecord> cr = transaction1.commit("created extended type concept").get();
 
@@ -153,8 +153,8 @@ public class BugDemo
 		Transaction transaction2 = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
 
 		// build the description and the extended type
-		SemanticChronology newDescription = descriptionSemanticBuilder.build(transaction2, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate())
-				.get();
+		SemanticChronology newDescription = descriptionSemanticBuilder.buildAndWrite(new WriteCoordinateImpl(transaction2, 
+				Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get())).get();
 
 		// commit them.
 		cr = transaction2.commit(
@@ -188,7 +188,8 @@ public class BugDemo
 		SemanticChronology lg = Frills.getLogicGraphChronology(MetaData.ACTION_PURPOSE____SOLOR.getNid(), true).get();
 
 		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
-		MutableLogicGraphVersion mlg = lg.createMutableVersion(transaction, Status.ACTIVE, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
+		MutableLogicGraphVersion mlg = lg.createMutableVersion(new WriteCoordinateImpl(transaction, 
+				Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get()));
 
 		LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class).getLogicalExpressionBuilder();
 		NecessarySet(And(new Assertion[] { ConceptAssertion(MetaData.ACTION_PURPOSE____SOLOR.getNid(), defBuilder),

@@ -420,7 +420,7 @@ public class IsaacTaxonomy {
       HashSet<String> genConstants = new HashSet<>();
 
       for (final ConceptBuilder concept : this.conceptBuildersInInsertionOrder) {
-         if (concept.getModule().isPresent() && concept.getModule().get().equals(TermAux.KOMET_MODULE)) {
+         if (concept.getModule().isPresent() && concept.getModule().get().equals(TermAux.KOMET_MODULE.getNid())) {
             continue;
          }
          String conceptName = concept.getRegularName().orElse(SemanticTags.stripSemanticTagIfPresent(concept.getFullyQualifiedName()));

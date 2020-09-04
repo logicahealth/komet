@@ -51,19 +51,21 @@ public enum PremiseType {
    /**
     * Compute the taxonomy from stated axioms.
     */
-   STATED("Stated", TermAux.STATED_PREMISE_TYPE),
+   STATED("Stated", TermAux.STATED_PREMISE_TYPE, TaxonomyFlag.STATED),
 
    /**
     * Compute the taxonomy from inferred axioms.
     */
-   INFERRED("Inferred", TermAux.INFERRED_PREMISE_TYPE);
+   INFERRED("Inferred", TermAux.INFERRED_PREMISE_TYPE, TaxonomyFlag.INFERRED);
    
    String displayName;
    ConceptSpecification premiseTypeConcept;
+   int[] flags;
 
-   private PremiseType(String displayName, ConceptSpecification premiseTypeConcept) {
+   private PremiseType(String displayName, ConceptSpecification premiseTypeConcept, TaxonomyFlag taxonomyFlag) {
       this.displayName = displayName;
       this.premiseTypeConcept = premiseTypeConcept;
+      this.flags = new int[] { taxonomyFlag.bits };
    }
 
     public ConceptSpecification getPremiseTypeConcept() {
@@ -94,6 +96,10 @@ public enum PremiseType {
          return STATED;
       }
       throw new IllegalStateException("PremiseType.fromConcept can't handle: " + conceptSpecification);
+   }
+
+   public int[] getFlags() {
+      return flags;
    }
 }
 

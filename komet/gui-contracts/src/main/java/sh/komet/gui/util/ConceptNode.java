@@ -90,7 +90,7 @@ import sh.komet.gui.menu.MenuItemWithText;
  *  
  * @author <a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
  */
-public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
+public class ConceptNode implements TaskCompleteCallback<ConceptChronology>
 {
 	private static Logger logger = LogManager.getLogger(ConceptNode.class);
 
@@ -98,8 +98,8 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	private ComboBox<SimpleDisplayConcept> cb_;
 	private ProgressIndicator pi_;
 	private Node lookupFailImage_;
-	private ConceptSnapshot c_;
-	private ObjectBinding<ConceptSnapshot> conceptBinding_;
+	private ConceptChronology c_;
+	private ObjectBinding<ConceptChronology> conceptBinding_;
 	private SimpleDisplayConcept codeSetComboBoxConcept_ = null;
 	private SimpleValidBooleanProperty isValid = new SimpleValidBooleanProperty(true, null);
 	private boolean flagAsInvalidWhenBlank_ = true;
@@ -120,7 +120,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	private ObservableList<SimpleDisplayConcept> dropDownOptions_;
 	private ContextMenu cm_;
 	
-	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank, Supplier<ManifoldCoordinate> manifoldProvider, boolean metadataConceptsOnly)
+	public ConceptNode(ConceptChronology initialConcept, boolean flagAsInvalidWhenBlank, Supplier<ManifoldCoordinate> manifoldProvider, boolean metadataConceptsOnly)
 	{
 		this(initialConcept, flagAsInvalidWhenBlank, null, null, manifoldProvider, metadataConceptsOnly);
 	}
@@ -134,7 +134,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	 * @param manifoldProvider 
 	 * @param metadataConceptsOnly 
 	 */
-	public ConceptNode(ConceptSnapshot initialConcept, boolean flagAsInvalidWhenBlank, ObservableList<SimpleDisplayConcept> dropDownOptions, 
+	public ConceptNode(ConceptChronology initialConcept, boolean flagAsInvalidWhenBlank, ObservableList<SimpleDisplayConcept> dropDownOptions, 
 			Function<ConceptChronology, String> descriptionReader, Supplier<ManifoldCoordinate> manifoldProvider, boolean metadataConceptsOnly)
 	{
 		c_ = initialConcept;
@@ -163,10 +163,10 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 		//TODO recently used if there is the notion of a recently-used concept list, use this here instead of a blank list
 		dropDownOptions_ = dropDownOptions == null ? FXCollections.observableArrayList() : dropDownOptions;
 		dropDownOptions_.addListener(new WeakListChangeListener<SimpleDisplayConcept>(listChangeListener_));
-		conceptBinding_ = new ObjectBinding<ConceptSnapshot>()
+		conceptBinding_ = new ObjectBinding<ConceptChronology>()
 		{
 			@Override
-			protected ConceptSnapshot computeValue()
+			protected ConceptChronology computeValue()
 			{
 				return c_;
 			}
@@ -366,7 +366,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 		}
 		else
 		{
-			codeSetComboBoxConcept_ = new SimpleDisplayConcept(descriptionReader_.apply(c_.getChronology()), c_.getNid(), customLogic);
+			codeSetComboBoxConcept_ = new SimpleDisplayConcept(descriptionReader_.apply(c_), c_.getNid(), customLogic);
 			
 			//In case the description is too long, also put it in a tooltip
 			Tooltip t = new Tooltip(codeSetComboBoxConcept_.getDescription());
@@ -381,11 +381,11 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 		isLookupInProgress_.invalidate();
 		if (cb_.getValue().getNid() != 0)
 		{
-			Frills.lookupConceptSnapshot(cb_.getValue().getNid(), this, null, null, null);
+			Frills.lookupConceptChronology(cb_.getValue().getNid(), this, null);
 		}
 		else
 		{
-			Frills.lookupConceptForUnknownIdentifier(cb_.getValue().getDescription(), this, null, null, null);
+			Frills.lookupConceptChronologyForUnknownIdentifier(cb_.getValue().getDescription(), this, null);
 		}
 	}
 
@@ -394,7 +394,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 		return hbox_;
 	}
 
-	public ConceptSnapshot getConcept()
+	public ConceptChronology getConcept()
 	{
 		if (isLookupInProgress_.get())
 		{
@@ -416,7 +416,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 		return c_;
 	}
 	
-	public ConceptSnapshot getConceptNoWait()
+	public ConceptChronology getConceptNoWait()
 	{
 		return c_;
 	}
@@ -466,7 +466,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 	}
 	
 	@Override
-	public void taskComplete(final ConceptSnapshot concept, final long submitTime, Integer callId)
+	public void taskComplete(final ConceptChronology concept, final long submitTime, Integer callId)
 	{
 		Platform.runLater(new Runnable()
 		{
@@ -526,7 +526,7 @@ public class ConceptNode implements TaskCompleteCallback<ConceptSnapshot>
 		cb_.setPromptText(promptText);
 	}
 	
-	public ObjectBinding<ConceptSnapshot> getConceptProperty()
+	public ObjectBinding<ConceptChronology> getConceptProperty()
 	{
 		return conceptBinding_;
 	}

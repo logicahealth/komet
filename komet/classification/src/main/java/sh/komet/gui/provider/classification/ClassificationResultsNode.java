@@ -1,9 +1,6 @@
 package sh.komet.gui.provider.classification;
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.HPos;
@@ -21,8 +18,9 @@ import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
@@ -35,22 +33,32 @@ import java.util.List;
 import java.util.Optional;
 import java.util.prefs.BackingStoreException;
 
-public class ClassificationResultsNode implements ExplorationNode {
+import static sh.isaac.api.util.time.DateTimeUtil.*;
+
+public class ClassificationResultsNode extends ExplorationNodeAbstract {
     public enum Keys {
         SELECTION_DEFAULT_TEXT
     }
 
     private final BorderPane classificationResultsPane = new BorderPane();
-    private final SimpleStringProperty titleProperty = new SimpleStringProperty("Classifier results");
-    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Classifier results from unselected instant...");
-    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.INFERRED.getIconographic());
-    private final Manifold classificationResultsManifold;
+
+    public static final String CLASSIFIER_RESULTS = "Classifier results";
+
+    public static final String CLASSIFIER_RESULTS_FROM_UNSELECTED_INSTANT = "Classifier results from unselected instant...";
+
+    {
+        titleProperty.setValue(CLASSIFIER_RESULTS);
+        toolTipProperty.setValue(CLASSIFIER_RESULTS_FROM_UNSELECTED_INSTANT);
+        menuIconProperty.setValue(Iconography.INFERRED.getIconographic());
+    }
     private final ComboBox<ClassifierResults> resultChoices = new ComboBox<>();
     private final IsaacPreferences nodePreferences;
+    private final ActivityFeed activityFeed;
 
     //~--- constructors --------------------------------------------------------
-    public ClassificationResultsNode(Manifold classificationResultsManifold, IsaacPreferences nodePreferences) {
-        this.classificationResultsManifold = classificationResultsManifold;
+    public ClassificationResultsNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences nodePreferences) {
+        super(viewProperties);
+        this.activityFeed = activityFeed;
         this.nodePreferences = nodePreferences;
         this.classificationResultsPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         this.classificationResultsPane.setCenter(new Label("Classification results"));
@@ -81,11 +89,12 @@ public class ClassificationResultsNode implements ExplorationNode {
         }
 
         resultChoices.setButtonCell(new ClassifierResultsListCell());
-        resultChoices.setCellFactory(new Callback<ListView<ClassifierResults>, ListCell<ClassifierResults>>() {
-            @Override public ListCell<ClassifierResults> call(ListView<ClassifierResults> p) {
-                return new ClassifierResultsListCell();
-            }
-        });
+        resultChoices.setCellFactory(p -> new ClassifierResultsListCell());
+    }
+
+    @Override
+    public Node getMenuIconGraphic() {
+        return Iconography.INFERRED.getIconographic();
     }
 
     private void setupClassificationResults() {
@@ -104,8 +113,8 @@ public class ClassificationResultsNode implements ExplorationNode {
             if (compare != 0) {
                 return compare;
             }
-            String editModule1 = Get.conceptDescriptionText(o1.getEditCoordinate().getModuleNid());
-            String editModule2 = Get.conceptDescriptionText(o2.getEditCoordinate().getModuleNid());
+            String editModule1 = Get.conceptDescriptionText(o1.getEditCoordinate().getDefaultModuleNid());
+            String editModule2 = Get.conceptDescriptionText(o2.getEditCoordinate().getDefaultModuleNid());
             return editModule1.compareTo(editModule2);
         });
 
@@ -119,12 +128,7 @@ public class ClassificationResultsNode implements ExplorationNode {
         @Override protected void updateItem(ClassifierResults item, boolean empty) {
             super.updateItem(item, empty);
             if (!empty && item != null) {
-                StringBuilder sb = new StringBuilder();
-                DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMM dd, yyyy; hh:mm a zzz");
-                sb.append(FORMATTER.format(item.getCommitTime().atZone(ZoneOffset.systemDefault())));
-                sb.append(" to the ");
-                sb.append(classificationResultsManifold.getPreferredDescriptionText(item.getEditCoordinate().getModuleNid()));
-                setText(sb.toString());
+                 setText(item.getDefaultText());
             } else {
                 setText(null);
             }
@@ -133,8 +137,14 @@ public class ClassificationResultsNode implements ExplorationNode {
 
     private void layoutResults(ClassifierResults classifierResult) {
         try {
-            if (classifierResult != null) {
+            if (classifierResult == null) {
+                titleProperty.setValue(CLASSIFIER_RESULTS);
+                toolTipProperty.setValue(CLASSIFIER_RESULTS_FROM_UNSELECTED_INSTANT);
+            } else {
                 String classifierResultDefaultText = classifierResult.getDefaultText();
+                toolTipProperty.setValue("Classifier results generated " + classifierResultDefaultText);
+                titleProperty.setValue(" ∴ " + MIN_FORMATTER.format(classifierResult.getCommitTime().atZone(ZoneOffset.systemDefault())));
+
                 nodePreferences.put(Keys.SELECTION_DEFAULT_TEXT, classifierResultDefaultText);
                 nodePreferences.sync();
             }
@@ -145,6 +155,7 @@ public class ClassificationResultsNode implements ExplorationNode {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/provider/classification/ClassifierResultsInterface.fxml"));
             loader.load();
             ClassifierResultsController resultsController = loader.getController();
+            resultsController.setViewProperties(this.viewProperties, this.viewProperties.getActivityFeed(ViewProperties.CLASSIFICATION));
             this.classificationResultsPane.setCenter(loader.getRoot());
             resultsController.setResults(classifierResult);
         } catch (IOException e) {
@@ -154,23 +165,8 @@ public class ClassificationResultsNode implements ExplorationNode {
     }
 
     @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return titleProperty;
-    }
-
-    @Override
     public Optional<Node> getTitleNode() {
         return Optional.empty();
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return toolTipProperty;
-    }
-
-    @Override
-    public Manifold getManifold() {
-        return null;
     }
 
     @Override
@@ -179,13 +175,13 @@ public class ClassificationResultsNode implements ExplorationNode {
     }
 
     @Override
-    public ObjectProperty<Node> getMenuIconProperty() {
-        return menuIconProperty;
+    public void close() {
+        // nothing to do...
     }
 
     @Override
-    public void close() {
-        // nothing to do...
+    public ActivityFeed getActivityFeed() {
+        return this.activityFeed;
     }
 
     @Override

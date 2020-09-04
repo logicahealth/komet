@@ -20,7 +20,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.FileChooser;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +32,7 @@ import java.util.List;
  */
 public class ImportSpecificationController {
 
-    private Manifold manifold;
+    private ViewProperties viewProperties;
     private SimpleBooleanProperty closeExplorationNode;
 
     private SimpleListProperty<ImportSpecificationWizardWrapper> wizardPanes = new SimpleListProperty<>(FXCollections.observableArrayList());
@@ -147,8 +147,8 @@ public class ImportSpecificationController {
 
     }
 
-    public void setManifold(Manifold manifold){
-        this.manifold = manifold;
+    public void setViewProperties(ViewProperties viewProperties){
+        this.viewProperties = viewProperties;
     }
 
     public void setCloseExplorationNodeProperty(SimpleBooleanProperty closeExplorationNode) {

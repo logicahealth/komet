@@ -16,17 +16,18 @@
  */
 package sh.isaac.komet.gui.graphview;
 
-import javax.inject.Singleton;
-import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
+import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+
+import javax.inject.Singleton;
 
 /**
  *
@@ -40,8 +41,8 @@ public class GraphViewExplorationNodeFactory
    public static final String MENU_TEXT  = "Navigator";
 
    @Override
-   public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      GraphViewExplorationNode multiParentGraphView = new GraphViewExplorationNode(manifold, preferencesNode);
+   public ExplorationNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+      GraphViewExplorationNode multiParentGraphView = new GraphViewExplorationNode(viewProperties.makeOverride(), preferencesNode);
       return multiParentGraphView;
    }
 
@@ -57,10 +58,11 @@ public class GraphViewExplorationNodeFactory
 
    /** 
     * {@inheritDoc}
+    * @return
     */
    @Override
-   public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES};
+   public String[] getDefaultActivityFeed() {
+      return new String[] {ViewProperties.NAVIGATION};
    }
 
    @Override

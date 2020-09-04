@@ -1101,4 +1101,13 @@ public class PostgresProvider
             LOG.error(ex.getLocalizedMessage(), ex);
         }
     }
+
+    @Override
+    public IntStream getNidStream() {
+        int maxNid = this.getMaxNid();
+        return IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
+                .filter((value) -> {
+                    return this.getAssemblageOfNid(value).isPresent();
+                });
+    }
 }

@@ -41,7 +41,7 @@ import sh.isaac.api.query.JoinProperty;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.QueryFieldSpecification;
 import sh.isaac.model.observable.ObservableFields;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.*;
 
@@ -54,7 +54,7 @@ import static sh.isaac.api.query.AttributeFunction.*;
 public abstract class ControllerForSpecification {
 
     final SimpleListProperty<ConceptSpecification> forAssemblagesProperty;
-    final Manifold manifold;
+    final ViewProperties viewProperties;
     final ObservableList<MenuItem> addFieldItems;
     final ObservableList<JoinProperty> joinProperties;
     LetItemKey lastStampCoordinateKey = null;
@@ -63,16 +63,16 @@ public abstract class ControllerForSpecification {
     final TableView<List<String>> resultTable;
 
 
-    public ControllerForSpecification(SimpleListProperty<ConceptSpecification> forAssemblagesProperty, 
-            Manifold manifold,
-            ObservableList<LetItemKey> letItemKeys,
-            ObservableList<MenuItem> addFieldItems, 
-            ObservableList<JoinProperty> joinProperties, 
-            ObservableMap<LetItemKey, Object> letItemObjectMap, 
-            ObservableList<AttributeFunction> attributeFunctions, 
-            TableView<List<String>> resultTable) {
+    public ControllerForSpecification(SimpleListProperty<ConceptSpecification> forAssemblagesProperty,
+                                      ViewProperties viewProperties,
+                                      ObservableList<LetItemKey> letItemKeys,
+                                      ObservableList<MenuItem> addFieldItems,
+                                      ObservableList<JoinProperty> joinProperties,
+                                      ObservableMap<LetItemKey, Object> letItemObjectMap,
+                                      ObservableList<AttributeFunction> attributeFunctions,
+                                      TableView<List<String>> resultTable) {
         this.forAssemblagesProperty = forAssemblagesProperty;
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
         this.addFieldItems = addFieldItems;
         this.joinProperties = joinProperties;
         this.letItemObjectMap = letItemObjectMap;
@@ -90,13 +90,13 @@ public abstract class ControllerForSpecification {
         this.resultTable.getItems().clear();
         this.joinProperties.clear();
         this.addFieldItems.clear();
-        SingleAssemblageSnapshot<Nid1_Int2_Version> snapshot = Get.assemblageService().getSingleAssemblageSnapshot(TermAux.ASSEMBLAGE_SEMANTIC_FIELDS, Nid1_Int2_Version.class, manifold.getStampFilter());
+        SingleAssemblageSnapshot<Nid1_Int2_Version> snapshot = Get.assemblageService().getSingleAssemblageSnapshot(TermAux.ASSEMBLAGE_SEMANTIC_FIELDS, Nid1_Int2_Version.class, viewProperties.getViewStampFilter());
         for (ConceptSpecification assemblageSpec : change.getList()) {
             for (int i = 0; i < ObservableVersion.PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex(); i++) {
                 ObservableVersion.PROPERTY_INDEX property = ObservableVersion.PROPERTY_INDEX.values()[i];
                 if (property != ObservableVersion.PROPERTY_INDEX.COMMITTED_STATE) {
                     
-                    String specificationName = manifold.getPreferredDescriptionText(assemblageSpec) + ":" + manifold.getPreferredDescriptionText(property.getSpec());
+                    String specificationName = viewProperties.getPreferredDescriptionText(assemblageSpec) + ":" + viewProperties.getPreferredDescriptionText(property.getSpec());
                     AttributeFunction attributeFunction = new AttributeFunction(EMPTY);
                     if (property.getSpec().equals(ObservableFields.PRIMORDIAL_UUID_FOR_COMPONENT)) {
                         attributeFunction = new AttributeFunction(PRIMORDIAL_UUID);
@@ -104,7 +104,7 @@ public abstract class ControllerForSpecification {
                     QueryFieldSpecification row = makeQueryFieldSpecification(attributeFunction, specificationName, assemblageSpec.getNid(), property.getSpec(), property.getIndex());
                     
                     addFieldItems.add(makeMenuItem(specificationName, row));
-                    joinProperties.add(new JoinProperty(assemblageSpec, row.getPropertySpecification(), manifold));
+                    joinProperties.add(new JoinProperty(assemblageSpec, row.getPropertySpecification(), viewProperties.getManifoldCoordinate()));
                 }
             }
             List<LatestVersion<Nid1_Int2_Version>> semanticFields = snapshot.getLatestSemanticVersionsForComponentFromAssemblage(assemblageSpec);
@@ -118,20 +118,20 @@ public abstract class ControllerForSpecification {
                 if (o1.getInt2() != o2.getInt2()) {
                     return Integer.compare(o1.getInt2(), o2.getInt2());
                 }
-                return manifold.getPreferredDescriptionText(o1.getNid1()).compareTo(manifold.getPreferredDescriptionText(o2.getNid1()));
+                return viewProperties.getPreferredDescriptionText(o1.getNid1()).compareTo(viewProperties.getPreferredDescriptionText(o2.getNid1()));
             });
             Optional<SemanticChronology> optionalSemanticType = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(assemblageSpec.getNid(), MetaData.SEMANTIC_TYPE____SOLOR.getNid()).findFirst();
             if (optionalSemanticType.isPresent()) {
                 //TODO, this won't work when there is more than one additional field of a type.
-                LatestVersion<ComponentNidVersion> componentNidVersion = optionalSemanticType.get().getLatestVersion(manifold.getStampFilter());
+                LatestVersion<ComponentNidVersion> componentNidVersion = optionalSemanticType.get().getLatestVersion(viewProperties.getViewStampFilter());
             }
             for (Nid1_Int2_Version semanticField : sortedActiveSemanticFields) {
                 // add a sort...
                 // add extra fields (STAMP)
-                String specificationName = manifold.getPreferredDescriptionText(assemblageSpec) + ":" + manifold.getPreferredDescriptionText(semanticField.getNid1());
+                String specificationName = viewProperties.getPreferredDescriptionText(assemblageSpec) + ":" + viewProperties.getPreferredDescriptionText(semanticField.getNid1());
                 QueryFieldSpecification row = makeQueryFieldSpecification(new AttributeFunction(EMPTY), specificationName, assemblageSpec.getNid(), Get.conceptSpecification(semanticField.getNid1()), ObservableVersion.PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex() + semanticField.getInt2());
                 addFieldItems.add(makeMenuItem(specificationName, row));
-                joinProperties.add(new JoinProperty(assemblageSpec, row.getPropertySpecification(), manifold));
+                joinProperties.add(new JoinProperty(assemblageSpec, row.getPropertySpecification(), viewProperties.getManifoldCoordinate()));
             }
         }
     }

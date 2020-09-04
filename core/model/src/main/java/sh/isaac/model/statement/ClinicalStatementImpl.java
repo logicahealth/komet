@@ -73,7 +73,7 @@ public class ClinicalStatementImpl implements ClinicalStatement {
     
     @Override
     public StampFilter getStampFilter() {
-        return manifold.get().getStampFilter();
+        return manifold.get().getViewStampFilter();
     }
 
     public SimpleObjectProperty<ManifoldCoordinate> stampCoordinateProperty() {

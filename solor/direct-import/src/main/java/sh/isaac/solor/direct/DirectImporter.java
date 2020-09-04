@@ -36,21 +36,6 @@
  */
 package sh.isaac.solor.direct;
 
-//~--- JDK imports ------------------------------------------------------------
-import sh.isaac.api.AssemblageService;
-import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.commit.ChangeCheckerMode;
-import sh.isaac.api.component.concept.ConceptService;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.index.IndexBuilderService;
-import sh.isaac.api.progress.PersistTaskResult;
-import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.api.transaction.Transaction;
-import sh.isaac.api.util.UuidT3Generator;
-import sh.isaac.solor.ContentProvider;
-import sh.isaac.solor.ContentStreamProvider;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -77,12 +62,27 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.IOUtils;
+import sh.isaac.api.AssemblageService;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.coordinate.WriteCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
+import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.progress.PersistTaskResult;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
+import sh.isaac.solor.ContentProvider;
+import sh.isaac.solor.ContentStreamProvider;
 import sh.isaac.solor.direct.clinvar.ClinvarImporter;
 import sh.isaac.solor.direct.cvx.CVXImporter;
 import sh.isaac.solor.direct.livd.LIVDImporter;
@@ -296,7 +296,7 @@ public class DirectImporter
                 .collect(Collectors.toList());
         ArrayList<ImportSpecification> specificationsToImport = new ArrayList<>();
         StringBuilder importPrefixRegex = new StringBuilder();
-        importPrefixRegex.append("([a-z/0-9_]*)?(rf2release/)?"); //ignore parent directories
+        importPrefixRegex.append("([a-z/0-9_\\-]*)?(rf2release/)?"); //ignore parent directories
         switch (importType) {
             case FULL:
                 importPrefixRegex.append("(full/)"); //prefixes to match
@@ -315,9 +315,11 @@ public class DirectImporter
                 while (entries.hasMoreElements()) {
                     ZipEntry entry = entries.nextElement();
                     if (!entry.isDirectory()) {
-                        String entryName = entry.getName().toLowerCase();
-                        if (entryName.matches(importPrefixRegex.toString())) {
-                            processEntry(new ContentProvider(zipFilePath.toFile(), entry), specificationsToImport, solorReleaseFormat);
+                        if (!entry.getName().contains("__MACOSX") && !entry.getName().toLowerCase().contains("resources")) {
+                            String entryName = entry.getName().toLowerCase();
+                            if (entryName.matches(importPrefixRegex.toString())) {
+                                processEntry(new ContentProvider(zipFilePath.toFile(), entry), specificationsToImport, solorReleaseFormat);
+                            }
                         }
                     }
                 }
@@ -1659,13 +1661,15 @@ public class DirectImporter
                 Arrays.sort(assemblageStamps);
                 int stampSequence = assemblageStamps[assemblageStamps.length - 1];  //use the largest (newest) stamp on the concept, 
                 //since we probably just loaded the concept....
+                
+                WriteCoordinate wc = new WriteCoordinateImpl(this.transaction, stampSequence);
 
                 //TODO we need special handling for mapset conversion into our native mapset type
-                List<Chronology> items = LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(
-                    this.transaction,
+                SemanticChronology[] items = LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(
+                    wc,
                     nid,
                     "DynamicDefinition for refset " + Get.conceptDescriptionText(nid),
-                    refsetDescriptors.getValue().toArray(new DynamicColumnInfo[refsetDescriptors.getValue().size()]), null, null, stampSequence);
+                    refsetDescriptors.getValue().toArray(new DynamicColumnInfo[refsetDescriptors.getValue().size()]), null, null, false);
 
                 for (Chronology c : items) {
                     assemblageService.writeSemanticChronology((SemanticChronology)c);
@@ -1761,7 +1765,6 @@ public class DirectImporter
 
     private void readConcepts(BufferedReader br, ImportSpecification importSpecification)
             throws IOException {
-        ConceptService conceptService = Get.conceptService();
         final int writeSize = 102400;
         String rowString;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
@@ -1789,9 +1792,9 @@ public class DirectImporter
                         .submit(conceptWriter);
             }
         }
-        LOG.warn("Concept linecount: " + lineCount + " in: " + importSpecification.contentProvider.getStreamSourceName());
+        LOG.info("Concept linecount: " + lineCount + " in: " + importSpecification.contentProvider.getStreamSourceName());
         if (empty) {
-            LOG.warn("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
+            LOG.info("No data in file: " + importSpecification.contentProvider.getStreamSourceName());
         }
         if (!columnsToWrite.isEmpty()) {
             ConceptWriter conceptWriter = new ConceptWriter(

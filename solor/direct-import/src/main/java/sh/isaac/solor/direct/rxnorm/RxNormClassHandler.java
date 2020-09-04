@@ -11,7 +11,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
@@ -63,11 +63,11 @@ public class RxNormClassHandler {
     ChildTagSet intersectionOfChildTags = new ChildTagSet("intersectionOf");
 
     final Transaction transaction;
-    final EditCoordinate editCoordinate;
+    final ManifoldCoordinate manifoldCoordinate;
 
-    public RxNormClassHandler(Transaction transaction, EditCoordinate editCoordinate) {
+    public RxNormClassHandler(Transaction transaction, ManifoldCoordinate manifoldCoordinate) {
         this.transaction = transaction;
-        this.editCoordinate = editCoordinate;
+        this.manifoldCoordinate = manifoldCoordinate;
     }
 
     public void handleTopClass(Element topClassElement) {
@@ -374,7 +374,7 @@ Another example to handle...
                 }
 
             }
-            conceptBuilder.build(this.transaction, this.editCoordinate);
+            conceptBuilder.build(this.manifoldCoordinate.getWriteCoordinate(this.transaction));
         }
 
     }

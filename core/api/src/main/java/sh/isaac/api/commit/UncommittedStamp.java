@@ -86,8 +86,8 @@ public class UncommittedStamp extends Stamp {
     */
    public UncommittedStamp(Transaction transaction, Status status, long time, int authorNid, int moduleNid, int pathNid) {
       super(status, time, authorNid, moduleNid, pathNid);
-      this.transactionLsb = transaction.getTransactionId().getLeastSignificantBits();
-      this.transactionMsb = transaction.getTransactionId().getMostSignificantBits();
+      this.transactionLsb = transaction == null ? 0 : transaction.getTransactionId().getLeastSignificantBits();
+      this.transactionMsb = transaction == null ? 0 : transaction.getTransactionId().getMostSignificantBits();
    }
 
    @Deprecated

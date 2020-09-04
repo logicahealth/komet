@@ -143,6 +143,7 @@ public class DatastoreLocator implements SequenceStore, ExtendedStore, MasterDat
 	{
 		LOG.info("Stopping DataStoreLocator");
 		dataStore.shutdown();
+		LOG.info("Stopped DataStoreLocator");
 	}
 
 	/** 

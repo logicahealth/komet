@@ -44,7 +44,6 @@ import java.util.function.ToIntFunction;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.Arrays;
-import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
@@ -69,6 +68,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.util.AlphanumComparator;
 import sh.isaac.model.semantic.types.DynamicBooleanImpl;
 import sh.isaac.model.semantic.types.DynamicFloatImpl;
@@ -78,7 +78,6 @@ import sh.isaac.model.semantic.types.DynamicNidImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.NumericUtilsDynamic;
-import sh.komet.gui.manifold.Manifold;
 
 /**
  * {@link SemanticGUI}
@@ -104,22 +103,22 @@ public class SemanticGUI
 	//These variables are used when we are creating a new refex which doesn't yet exist.
 	private Integer buildFromReferenceNid_;
 	private boolean referenceIsAssemblyNid_;
-	private Manifold manifold_;
+	private StampFilter stampFilter_;
 	
-	protected SemanticGUI(SemanticVersion refex, boolean isCurrent, SimpleObjectProperty<Manifold> manifold)
+	protected SemanticGUI(SemanticVersion refex, boolean isCurrent, StampFilter stampFilter)
 	{
 		refex_ = refex;
 		isCurrent_ = isCurrent;
-		manifold_ = manifold.get();
+		stampFilter_ = stampFilter;
 	}
 	
-	protected SemanticGUI(int buildFromReferenceNid, boolean referenceIsAssemblyNid, Manifold manifold)
+	protected SemanticGUI(int buildFromReferenceNid, boolean referenceIsAssemblyNid, StampFilter stampFilter)
 	{
 		refex_ = null;
 		isCurrent_ = false;
 		buildFromReferenceNid_ = buildFromReferenceNid;
 		referenceIsAssemblyNid_ = referenceIsAssemblyNid;
-		manifold_ = manifold;
+		stampFilter_ = stampFilter;
 	}
 
 	/**
@@ -435,7 +434,7 @@ public class SemanticGUI
 			}
 			else if (oc.get() instanceof ConceptChronology)
 			{
-				Optional<String> conDesc = Frills.getDescription(oc.get().getNid(), manifold_.getStampFilter(), manifold_.getLanguageCoordinate());
+				Optional<String> conDesc = Frills.getDescription(oc.get().getNid(), stampFilter_, null);
 				text = (conDesc.isPresent() ? conDesc.get() : "off path [NID]:" + oc.get().getNid());
 			}
 			else if (oc.get() instanceof SemanticChronology)
@@ -446,7 +445,7 @@ public class SemanticGUI
 						text = "Component NID Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null).orElse(sc.getAssemblageNid() + "");
 						break;
 					case DESCRIPTION:
-						LatestVersion<DescriptionVersion> ds = sc.getLatestVersion(manifold_.getStampFilter());
+						LatestVersion<DescriptionVersion> ds = sc.getLatestVersion(stampFilter_);
 						text = "Description Semantic: " + (ds.isPresent() ? ds.get().getText() : "off path [NID]: " + sc.getNid());
 						break;
 					case DYNAMIC:
@@ -456,14 +455,14 @@ public class SemanticGUI
 						text = "Logic Graph Semantic [NID]: " + oc.get().getNid();
 						break;
 					case LONG:
-						LatestVersion<LongVersion> sl = sc.getLatestVersion(manifold_.getStampFilter());
+						LatestVersion<LongVersion> sl = sc.getLatestVersion(stampFilter_);
 						text = "String Semantic: " + (sl.isPresent() ? sl.get().getLongValue() : "off path [NID]: " + sc.getNid());
 						break;
 					case MEMBER:
 						text = "Member Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null).orElse(sc.getAssemblageNid() + "");
 						break;
 					case STRING:
-						LatestVersion<StringVersion> ss = sc.getLatestVersion(manifold_.getStampFilter());
+						LatestVersion<StringVersion> ss = sc.getLatestVersion(stampFilter_);
 						text = "String Semantic: " + (ss.isPresent() ? ss.get().getString() : "off path [NID]: " + sc.getNid());
 						break;
 
@@ -481,7 +480,7 @@ public class SemanticGUI
 					case Str1_Str2_Nid3_Nid4:
 					case Str1_Str2_Nid3_Nid4_Nid5:
 					case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
-						LatestVersion<BrittleVersion> bv = sc.getLatestVersion(manifold_.getStampFilter());
+						LatestVersion<BrittleVersion> bv = sc.getLatestVersion(stampFilter_);
 						text = "Brittle Semantic: " + (bv.isPresent() ? Arrays.toString(bv.get().getDataFields()) : "off path [NID]: " + sc.getNid());
 						break;
 					case UNKNOWN:

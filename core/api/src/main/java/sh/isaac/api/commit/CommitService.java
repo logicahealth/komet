@@ -90,6 +90,9 @@ public interface CommitService
     */
    void addChangeListener(ChronologyChangeListener changeListener);
 
+   void addCommitListener(CommitListener commitListener);
+   void removeCommitListener(CommitListener commitListener);
+
    Task<Void> addUncommitted(Transaction transaction, Version version);
 
    /**
@@ -228,14 +231,25 @@ public interface CommitService
     * @return the uncommitted concept nids
     */
    ObservableList<Integer> getUncommittedConceptNids();
+   
+   /**
+   * Calls {@link #newTransaction(Optional, ChangeCheckerMode)} with {@link ChangeCheckerMode#ACTIVE}
+   * @param transactionName name for the transaction
+   * @return a new transaction that will perform tests depending on value of performTests.
+   */
+   default Transaction newTransaction(String transactionName) {
+      return newTransaction(Optional.of(transactionName), ChangeCheckerMode.ACTIVE);
+   }
 
    /**
-    *
+    * Calls {@link #newTransaction(Optional, ChangeCheckerMode)} with {@link ChangeCheckerMode#ACTIVE} and indexOnCommit=true
     * @param transactionName optional name for the transaction
     * @param changeCheckerMode true if tests should be performed.
     * @return a new transaction that will perform tests depending on value of performTests.
     */
-   Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode);
+   default Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode) {
+       return newTransaction(transactionName, changeCheckerMode, true);
+   }
    
    /**
    * @param transactionName optional name for the transaction

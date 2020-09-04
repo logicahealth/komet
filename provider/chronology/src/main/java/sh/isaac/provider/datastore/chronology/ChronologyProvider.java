@@ -68,7 +68,6 @@ import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.MetadataService;
 import sh.isaac.api.SingleAssemblageSnapshot;
-import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -106,7 +105,6 @@ import sh.isaac.model.ChronologyService;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
-import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -264,7 +262,7 @@ public class ChronologyProvider
       Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
       Get.semanticBuilderService()
             .getStringSemanticBuilder(getDataStoreId().get().toString(), TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
-            .build(transaction, EditCoordinates.getDefaultUserMetadata()).get();
+            .buildAndWrite(Coordinates.Manifold.DevelopmentInferredRegularNameSort().getWriteCoordinate(transaction)).get();
       transaction.commit("Storing database ID on root concept").get();
     }
 
@@ -294,6 +292,7 @@ public class ChronologyProvider
     private void stopMe() {
         LOG.info("Stopping chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
         this.metadataLoaded.set(-1);
+        LOG.info("Stopped chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -436,7 +435,7 @@ public class ChronologyProvider
                          + "  Updating the semantic store to match the file store id.", temp, fromFile);
 
                    Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
-                   MutableStringVersion sv = sdic.get().createMutableVersion(transaction, Status.ACTIVE, EditCoordinates.getDefaultUserMetadata());
+                   MutableStringVersion sv = sdic.get().createMutableVersion(Coordinates.Manifold.DevelopmentInferredRegularNameSort().getWriteCoordinate(transaction));
                    sv.setString(fromFile.toString());
                    Get.commitService().addUncommitted(transaction, sv);
                    transaction.commit("Updating database ID on root concept").get();
@@ -573,12 +572,14 @@ public class ChronologyProvider
 
     @Override
     public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid) {
-        return Arrays.stream(getSemanticNidsForComponent(componentNid).toArray())
+        // TODO: when I make the stream parallel, there are some tests for the dynamic assemblages that fail.
+        // I wonder if they are making incorrect ordering assumptions, or similar.
+        return IntStream.of(store.getSemanticNidsForComponent(componentNid))
                 .mapToObj((int semanticNid) -> { 
                 try {
                   return (C) getSemanticChronology(semanticNid);
                } catch (NoSuchElementException e) {
-                  return null; // This will happen if a nid was mapped, but the object wasn't stored.
+                  return null; // This will happen if a nid was assigned to a uuid, but the object wasn't stored.
                }
             }).filter(obj -> obj != null); // remove the nulls
     }
@@ -648,6 +649,13 @@ public class ChronologyProvider
         throw new IllegalStateException("Assemblage is of type "
                 + getObjectTypeForAssemblage(assemblageConceptNid)
                 + " not of type IsaacObjectType.SEMANTIC or IsaacObjectType.CONCEPT");
+    }
+
+    @Override
+    public Stream<Chronology> getChronologySteam() {
+        return Get.identifierService().getNidStream().parallel().mapToObj(nid -> getChronology(nid))
+                .filter(optionalChronology -> optionalChronology.isPresent())
+                .map(optionalChronology -> optionalChronology.get());
     }
 
     @Override
@@ -726,8 +734,8 @@ public class ChronologyProvider
                     ConcurrentReferenceHashMap.ReferenceType.WEAK);
 
     @Override
-    public ConceptSnapshotService getSnapshot(ManifoldCoordinateImmutable manifoldCoordinate) {
-        return CONCEPT_SNAPSHOTS.computeIfAbsent(manifoldCoordinate,
+    public ConceptSnapshotService getSnapshot(ManifoldCoordinate manifoldCoordinate) {
+        return CONCEPT_SNAPSHOTS.computeIfAbsent(manifoldCoordinate.toManifoldCoordinateImmutable(),
                 manifoldCoordinateImmutable -> new ConceptSnapshotProvider(manifoldCoordinate));
     }
 
@@ -798,7 +806,7 @@ public class ChronologyProvider
          */
         public ConceptSnapshotProvider(ManifoldCoordinate manifoldCoordinate) {
             this.manifoldCoordinate = manifoldCoordinate;
-            this.stampFilterImmutable = manifoldCoordinate.getStampFilter().toStampFilterImmutable();
+            this.stampFilterImmutable = manifoldCoordinate.getVertexStampFilter().toStampFilterImmutable();
             this.regNameCoord = Coordinates.Language.AnyLanguageRegularName();
         }
 
@@ -824,15 +832,15 @@ public class ChronologyProvider
 
         @Override
         public String conceptDescriptionText(int conceptNid) {
-            Optional<String> description = this.manifoldCoordinate.getLanguageCoordinate().getPreferredDescriptionText(conceptNid, this.manifoldCoordinate.getLanguageStampFilter());
+            Optional<String> description = this.manifoldCoordinate.getLanguageCoordinate().getPreferredDescriptionText(conceptNid, this.manifoldCoordinate.getViewStampFilter());
             if (description.isPresent()) {
                 return description.get();
             }
-            description = this.manifoldCoordinate.getLanguageCoordinate().getFullyQualifiedNameText(conceptNid, this.manifoldCoordinate.getLanguageStampFilter());
+            description = this.manifoldCoordinate.getLanguageCoordinate().getFullyQualifiedNameText(conceptNid, this.manifoldCoordinate.getViewStampFilter());
             if (description.isPresent()) {
                 return description.get();
             }
-            return this.manifoldCoordinate.getLanguageCoordinate().getAnyName(conceptNid, this.manifoldCoordinate.getLanguageStampFilter());
+            return this.manifoldCoordinate.getLanguageCoordinate().getAnyName(conceptNid, this.manifoldCoordinate.getViewStampFilter());
         }
 
         @Override
@@ -843,7 +851,7 @@ public class ChronologyProvider
             LatestVersion<DescriptionVersion> lv = this.manifoldCoordinate.getDescription(conceptNid);
             if (lv.isAbsent()) {
                 //Use a coordinate that will return anything
-                return regNameCoord.getDescription(Get.assemblageService().getDescriptionsForComponent(conceptNid), this.manifoldCoordinate.getLanguageStampFilter());
+                return regNameCoord.getDescription(Get.assemblageService().getDescriptionsForComponent(conceptNid), this.manifoldCoordinate.getViewStampFilter());
             } else {
                 return lv;
             }

@@ -72,7 +72,7 @@ import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.direct.ImportType;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.FxUtils;
 import sh.komet.gui.util.UpdateableBooleanBinding;
@@ -115,7 +115,7 @@ public class ImportViewController {
     Stage importStage;
 
     Map<TreeItem<ImportItem>, ConcurrentHashMap<String, TreeItem<ImportItem>>> fileItemsMap = new ConcurrentHashMap<>();
-    private Manifold manifold;
+    private ViewProperties manifold;
 
     private final StoredPrefs storedPrefs = new StoredPrefs("".toCharArray());
 
@@ -598,7 +598,7 @@ public class ImportViewController {
         this.importStage = importStage;
     }
 
-    void setManifold(Manifold manifold) {
+    void setManifold(ViewProperties manifold) {
         this.manifold = manifold;
     }
 }

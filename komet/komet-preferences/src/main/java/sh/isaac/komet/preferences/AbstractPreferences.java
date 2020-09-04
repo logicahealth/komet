@@ -41,6 +41,7 @@ import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PropertySheet;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 
 import sh.komet.gui.contract.preferences.KometPreferencesController;
@@ -50,7 +51,7 @@ import sh.komet.gui.control.concept.PreferenceChanged;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.property.PropertySheetItem;
 import sh.komet.gui.control.property.PropertySheetPurpose;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.*;
 
@@ -84,7 +85,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         return preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME, defaultValue);
     }
 
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     protected final KometPreferencesController kpc;
     protected PreferencesTreeItem treeItem;
     private final Button revertButton = new Button("Revert");
@@ -127,21 +128,21 @@ public abstract class AbstractPreferences implements PreferenceGroup {
     }
     ToolBar bottomBar = new ToolBar(spacer, revertButton, saveButton, spacer2, deleteButton);
 
-    public AbstractPreferences(IsaacPreferences preferencesNode, String groupName, Manifold manifold,
-            KometPreferencesController kpc) {
+    public AbstractPreferences(IsaacPreferences preferencesNode, String groupName, ViewProperties viewProperties,
+                               KometPreferencesController kpc) {
         if (preferencesNode == null) {
             throw new NullPointerException("preferencesNode cannot be null.");
         }
         if (groupName == null) {
             throw new NullPointerException("groupName cannot be null.");
         }
-        if (manifold == null) {
+        if (viewProperties == null) {
             throw new NullPointerException("Manifold cannot be null.");
         }
-        if (manifold.getLanguageCoordinate() == null) {
+        if (viewProperties.getManifoldCoordinate().getLanguageCoordinate() == null) {
             throw new NullPointerException("Manifold.getLanguageCoordinate() cannot be null.");
         }
-        if (manifold.getLogicCoordinate() == null) {
+        if (viewProperties.getManifoldCoordinate().getLogicCoordinate() == null) {
             throw new NullPointerException("Manifold.getLogicCoordinate() cannot be null.");
         }
         if (kpc == null) {
@@ -150,7 +151,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         this.preferencesNode = preferencesNode;
         this.initialized.setValue(preferencesNode.getBoolean(INITIALIZED, false));
         this.groupNameProperty.set(groupName);
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
         this.kpc = kpc;
         this.groupNameProperty.addListener(this::changeGroupName);
     }
@@ -272,7 +273,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         sheet.setMode(PropertySheet.Mode.NAME);
         sheet.setSearchBoxVisible(false);
         sheet.setModeSwitcherVisible(false);
-        sheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
+        sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties.getManifoldCoordinate()));
         sheet.getItems().addAll(itemList);
         for (PropertySheet.Item item : itemList) {
             if (item instanceof PreferenceChanged) {
@@ -308,7 +309,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
     }
 
     @Override
-    public Node getCenterPanel(Manifold manifold) {
+    public Node getCenterPanel(ViewProperties viewProperties) {
         if (this.propertySheet == null) {
             makePropertySheet();
         }
@@ -328,22 +329,22 @@ public abstract class AbstractPreferences implements PreferenceGroup {
     }
 
     protected PropertySheetItem createPropertyItem(Property<?> property) {
-        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, manifold, PropertySheetPurpose.DESCRIPTION_DIALECT);
+        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, viewProperties.getManifoldCoordinate(), PropertySheetPurpose.DESCRIPTION_DIALECT);
         return wrappedProperty;
     }
 
     @Override
-    public Node getTopPanel(Manifold manifold) {
+    public Node getTopPanel(ViewProperties viewProperties) {
         return null;
     }
 
     @Override
-    public Node getLeftPanel(Manifold manifold) {
+    public Node getLeftPanel(ViewProperties viewProperties) {
         return null;
     }
 
     @Override
-    public Node getBottomPanel(Manifold manifold) {
+    public Node getBottomPanel(ViewProperties viewProperties) {
         if (showRevertAndSave()) {
             if (showDelete()) {
                 bottomBar = new ToolBar(deleteButton, spacer, revertButton, saveButton);
@@ -356,12 +357,16 @@ public abstract class AbstractPreferences implements PreferenceGroup {
     }
 
     @Override
-    public Node getRightPanel(Manifold manifold) {
+    public Node getRightPanel(ViewProperties viewProperties) {
         return null;
     }
 
-    public Manifold getManifold() {
-        return manifold;
+    public ManifoldCoordinate getManifoldCoordinate() {
+        return viewProperties.getManifoldCoordinate();
+    }
+
+    public ViewProperties getViewProperties() {
+        return viewProperties;
     }
 
     /**

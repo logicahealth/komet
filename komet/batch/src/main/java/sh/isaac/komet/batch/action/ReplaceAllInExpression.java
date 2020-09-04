@@ -11,17 +11,16 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.VersionChangeListener;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.manifold.Manifold;
 
 import java.util.List;
 import java.util.UUID;
@@ -31,7 +30,9 @@ public class ReplaceAllInExpression extends ActionItem {
     public static final int marshalVersion = 1;
 
     private enum Keys {
-        EXPRESSION_SNAPSHOT;
+        EXPRESSION_SNAPSHOT,
+        TRANSACTION,
+        MANIFOLD;
     }
 
     public static final String REPLACE_ALL_IN_EXPRESSION = "Replace all in referenced expression";
@@ -78,7 +79,7 @@ public class ReplaceAllInExpression extends ActionItem {
     }
 
     @Override
-    public void setupItemForGui(Manifold manifoldForDisplay) {
+    public void setupItemForGui(ObservableManifoldCoordinate manifoldForDisplay) {
         getPropertySheet().getItems().add(new PropertySheetItemConceptWrapper(manifoldForDisplay, "Search in",
                 expressionAssemblageProperty, TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE));
 
@@ -93,17 +94,21 @@ public class ReplaceAllInExpression extends ActionItem {
     }
 
     @Override
-    protected void setupForApply(ConcurrentHashMap<Enum, Object> cache, Transaction transaction, StampFilter stampFilter, EditCoordinate editCoordinate) {
+    protected void setupForApply(ConcurrentHashMap<Enum, Object> cache, Transaction transaction, ManifoldCoordinateImmutable manifoldCoordinate) {
         // Setup snapshot...
         SingleAssemblageSnapshot<LogicGraphVersion> snapshot =
                 Get.assemblageService().getSingleAssemblageSnapshot(expressionAssemblageProperty.get().getNid(),
-                        LogicGraphVersion.class, stampFilter);
+                        LogicGraphVersion.class, manifoldCoordinate.getViewStampFilter());
         cache.put(Keys.EXPRESSION_SNAPSHOT, snapshot);
+        cache.put(Keys.TRANSACTION, transaction);
+        cache.put(Keys.MANIFOLD, manifoldCoordinate);
     }
 
     @Override
-    protected void apply(Chronology chronology, ConcurrentHashMap<Enum, Object> cache, Transaction transaction,
-                         StampFilter stampFilter, EditCoordinate editCoordinate, VersionChangeListener versionChangeListener) {
+    protected void apply(Chronology chronology, ConcurrentHashMap<Enum, Object> cache,
+                         VersionChangeListener versionChangeListener) {
+        Transaction transaction = (Transaction) cache.get(Keys.TRANSACTION);
+        ManifoldCoordinateImmutable manifoldCoordinate = (ManifoldCoordinateImmutable) cache.get(Keys.MANIFOLD);
         SingleAssemblageSnapshot<LogicGraphVersion> snapshot = (SingleAssemblageSnapshot<LogicGraphVersion>) cache.get(Keys.EXPRESSION_SNAPSHOT);
         List<LatestVersion<LogicGraphVersion>> latestVersionList = snapshot.getLatestSemanticVersionsForComponentFromAssemblage(chronology.getNid());
         for (LatestVersion<LogicGraphVersion> latestVersion: latestVersionList) {
@@ -113,13 +118,19 @@ public class ReplaceAllInExpression extends ActionItem {
                 if (expression.containsConcept(conceptToFindProperty.get())) {
                     LogicalExpression newExpression = expression.replaceAllConceptOccurences(conceptToFindProperty.get(),
                             replaceWithProperty.get());
-                    LogicGraphVersionImpl mutableVersion = latest.getChronology().createMutableVersion(transaction, Status.ACTIVE, editCoordinate);
+                    LogicGraphVersionImpl mutableVersion = latest.getChronology().createMutableVersion(manifoldCoordinate
+                            .getWriteCoordinate(transaction, null, Status.ACTIVE));
                     mutableVersion.setLogicalExpression(newExpression);
                     versionChangeListener.versionChanged(latest, mutableVersion);
                     Get.identifiedObjectService().putChronologyData(mutableVersion.getChronology());
                 }
             }
         }
+    }
+
+    @Override
+    protected void conclude(ConcurrentHashMap<Enum, Object> cache) {
+        // nothing to do.
     }
 
     @Override

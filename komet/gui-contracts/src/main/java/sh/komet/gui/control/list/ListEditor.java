@@ -16,8 +16,6 @@
  */
 package sh.komet.gui.control.list;
 
-import java.util.function.Function;
-import java.util.function.Supplier;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.scene.Node;
@@ -28,9 +26,12 @@ import javafx.scene.control.ToolBar;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Callback;
 import org.controlsfx.property.editor.PropertyEditor;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
+
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  *
@@ -45,10 +46,10 @@ public class ListEditor<T extends Object>
     private final ToolBar editorToolbar = new ToolBar(newItem);
     private final ListView listView = new ListView();
     private final Supplier<T> newObjectSupplier;
-    private final Function<Manifold,PropertyEditor<T>> newEditorSupplier;
-    private final Manifold manifold;
+    private final Function<ManifoldCoordinate,PropertyEditor<T>> newEditorSupplier;
+    private final ManifoldCoordinate manifoldCoordinate;
     
-    public ListEditor(Manifold manifold, Supplier<T> newObjectSupplier, Function<Manifold,PropertyEditor<T>> newEditorSupplier) {
+    public ListEditor(ManifoldCoordinate manifoldCoordinate, Supplier<T> newObjectSupplier, Function<ManifoldCoordinate,PropertyEditor<T>> newEditorSupplier) {
         this.editorPane.setCenter(listView);
 
         this.newObjectSupplier = newObjectSupplier;
@@ -60,7 +61,7 @@ public class ListEditor<T extends Object>
             this.editorPane.setTop(editorToolbar);
             this.newItem.setOnAction(this::newItem);
         }
-        this.manifold = manifold;
+        this.manifoldCoordinate = manifoldCoordinate;
         editorPane.getStylesheets()
                 .remove(FxGet.fxConfiguration().getUserCSSURL().toString());
         editorPane.getStylesheets()
@@ -69,7 +70,7 @@ public class ListEditor<T extends Object>
         listView.setCellFactory(new Callback<ListView<T>, ListCell<T>>() {
             @Override
             public ListEditorCell<T> call(ListView<T> listView) {
-                return new ListEditorCell(listView, ListEditor.this.newEditorSupplier, newObjectSupplier, ListEditor.this.manifold);
+                return new ListEditorCell(listView, ListEditor.this.newEditorSupplier, newObjectSupplier, ListEditor.this.manifoldCoordinate);
             }
         });
     }

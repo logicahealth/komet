@@ -54,11 +54,10 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Edge;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.navigation.Navigator;
 import sh.isaac.api.util.NaturalOrder;
-import sh.komet.gui.manifold.Manifold;
-import sh.isaac.api.TaxonomySnapshot;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -107,12 +106,19 @@ public class MultiParentGraphItemImpl
         this.graphView = graphView;
         this.nid = Integer.MAX_VALUE;
         this.typeNid = TermAux.UNINITIALIZED_COMPONENT_ID.getNid();
-
     }
 
     MultiParentGraphItemImpl(int conceptSequence, MultiParentGraphViewController graphView, int typeNid) {
         this(Get.conceptService()
                 .getConceptChronology(conceptSequence), graphView, typeNid, null);
+    }
+
+    @Override
+    public OptionalInt getOptionalParentNid() {
+        if (getParent() != null && getParent().getValue() != null) {
+            return OptionalInt.of(getParent().getValue().getNid());
+        }
+        return OptionalInt.empty();
     }
 
     MultiParentGraphItemImpl(ConceptChronology conceptChronology, MultiParentGraphViewController graphView, int typeNid, Node graphic) {
@@ -159,7 +165,7 @@ public class MultiParentGraphItemImpl
 
     public Node computeGraphic() {
         return graphView.getDisplayPolicies()
-                .computeGraphic(this);
+                .computeGraphic(this, graphView.getManifoldCoordinate());
     }
 
     public void invalidate() {
@@ -182,8 +188,11 @@ public class MultiParentGraphItemImpl
     }
 
     public boolean shouldDisplay() {
+        if (graphView == null || graphView.getDisplayPolicies() == null) {
+            return false;
+        }
         return graphView.getDisplayPolicies()
-                .shouldDisplay(this);
+                .shouldDisplay(this, graphView.getManifoldCoordinate());
     }
 
     /**
@@ -210,7 +219,7 @@ public class MultiParentGraphItemImpl
 
     private void updateDescription() {
         if (this.nid != Integer.MAX_VALUE) {
-            this.conceptDescriptionText = graphView.getManifold().getVertexLabel(nid);
+            this.conceptDescriptionText = graphView.getManifoldCoordinate().getVertexLabel(nid);
         } else {
             this.conceptDescriptionText = "hidden root";
         }
@@ -230,19 +239,19 @@ public class MultiParentGraphItemImpl
                     // Gather the children
                     LOG.info("addChildrenNOW(): conceptChronology={}", conceptChronology);
                     ArrayList<MultiParentGraphItemImpl> childrenToAdd = new ArrayList<>();
-                    TaxonomySnapshot taxonomySnapshot = graphView.getTaxonomySnapshot();
+                    Navigator navigator = graphView.getNavigator();
 
                     if (childLinks == null) {
-                        childLinks = taxonomySnapshot.getTaxonomyChildLinks(conceptChronology.getNid());
+                        childLinks = navigator.getChildLinks(conceptChronology.getNid());
                     }
 
                     for (Edge childLink : childLinks) {
                         ConceptChronology childChronology = Get.concept(childLink.getDestinationNid());
                         MultiParentGraphItemImpl childItem = new MultiParentGraphItemImpl(childChronology, graphView, childLink.getTypeNid(), null);
-                        Manifold manifold = graphView.getManifold();
-                        childItem.setDefined(childChronology.isSufficientlyDefined(manifold.getStampFilter(), manifold.getLogicCoordinate()));
+                        ManifoldCoordinate manifold = graphView.getManifoldCoordinate();
+                        childItem.setDefined(childChronology.isSufficientlyDefined(manifold.getVertexStampFilter(), manifold.getLogicCoordinate()));
                         childItem.toString();
-                        childItem.setMultiParent(taxonomySnapshot.getTaxonomyParentConceptNids(childLink.getDestinationNid()).length > 1);
+                        childItem.setMultiParent(navigator.getParentNids(childLink.getDestinationNid()).length > 1);
 
                         if (childItem.shouldDisplay()) {
                             childrenToAdd.add(childItem);
@@ -354,7 +363,7 @@ public class MultiParentGraphItemImpl
             return true;
         }
         if (this.childLinks == null) {
-            if (this.graphView.getTaxonomySnapshot().isLeaf(nid)) {
+            if (this.graphView.getNavigator().isLeaf(nid)) {
                 leafStatus = LeafStatus.IS_LEAF;
             } else {
                 leafStatus = LeafStatus.NOT_LEAF;

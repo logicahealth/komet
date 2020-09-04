@@ -58,12 +58,14 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
 import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
 import sh.isaac.model.observable.version.ObservableDynamicVersionImpl;
@@ -137,10 +139,6 @@ public class ObservableSemanticChronologyImpl
       return (V) wrapInObservable(getSemanticChronology().createMutableVersion(transaction, stampSequence));
    }
 
-   @Override
-   public <V extends Version> V createMutableVersion(Transaction transaction, Status status, EditCoordinate ec) {
-      return (V) wrapInObservable(getSemanticChronology().createMutableVersion(transaction, status, ec));
-   }
 
    @Override
    public IntegerProperty referencedComponentNidProperty() {

@@ -7,8 +7,7 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.direct.*;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.util.FxGet;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.List;
 import java.util.concurrent.Future;
@@ -19,7 +18,7 @@ import java.util.concurrent.Future;
  */
 public class ImportSpecificationTask extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
 
-    final Manifold manifold;
+    final ViewProperties viewProperties;
     final List<ContentProvider> entriesToImport;
     private final boolean isRF2RelationshipTransformed;
     private final boolean isLoincExpressionToConceptTransformed;
@@ -29,13 +28,13 @@ public class ImportSpecificationTask extends TimedTaskWithProgressTracker<Void> 
 
 
     public ImportSpecificationTask(Transaction transaction,
-                                   Manifold manifold, List<ContentProvider> entriesToImport,
+                                   ViewProperties viewProperties, List<ContentProvider> entriesToImport,
                                    boolean isRF2RelationshipTransformed,
                                    boolean isLoincExpressionToConceptTransformed,
                                    boolean isLoincExpresstionToNavConceptsTransformed,
                                    boolean isClassfied) {
         this.transaction = transaction;
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
         this.entriesToImport = entriesToImport;
         this.isRF2RelationshipTransformed = isRF2RelationshipTransformed;
         this.isLoincExpressionToConceptTransformed = isLoincExpressionToConceptTransformed;
@@ -76,7 +75,7 @@ public class ImportSpecificationTask extends TimedTaskWithProgressTracker<Void> 
 
             if(this.isLoincExpresstionToNavConceptsTransformed) {
                 updateMessage("Adding navigation concepts...");
-                LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(transaction, manifold);
+                LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(transaction, viewProperties.getManifoldCoordinate());
                 Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
                 addNavigationConceptsTask.get();
             }
@@ -84,7 +83,7 @@ public class ImportSpecificationTask extends TimedTaskWithProgressTracker<Void> 
 
             if(this.isClassfied) {
                 updateMessage("Classifying new content...");
-                ClassifierService classifierService = Get.logicService().getClassifierService(manifold, FxGet.editCoordinate());
+                ClassifierService classifierService = Get.logicService().getClassifierService(viewProperties.getManifoldCoordinate().toManifoldCoordinateImmutable());
                 Future<?> classifyTask = classifierService.classify();
                 classifyTask.get();
             }

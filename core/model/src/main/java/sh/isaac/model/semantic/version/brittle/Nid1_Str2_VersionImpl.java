@@ -44,7 +44,6 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Str2_Version;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
 /**
@@ -56,6 +55,7 @@ public class Nid1_Str2_VersionImpl
          implements Nid1_Str2_Version {
    int    nid1 = Integer.MAX_VALUE;
    String str2 = null;
+   
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
@@ -87,12 +87,10 @@ public class Nid1_Str2_VersionImpl
    @Override
    @SuppressWarnings("unchecked")
    public <V extends Version> V makeAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final Nid1_Str2_VersionImpl newVersion = new Nid1_Str2_VersionImpl((SemanticChronology) this, stampSequence);
       newVersion.setNid1(this.nid1);
       newVersion.setStr2(this.str2);
-
-      chronologyImpl.addVersion(newVersion);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 

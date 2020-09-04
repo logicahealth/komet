@@ -60,7 +60,9 @@ public interface QueryHandler {
      * based on status or time.
      * @return A handle to the running search.
      */
-    QueryHandle search(final Supplier<List<SearchResult>> searchFunction, final Consumer<QueryHandle> operationToRunWhenSearchComplete, final Integer taskId, final Function<List<CompositeQueryResult>, List<CompositeQueryResult>> filter, boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead, boolean filterOffPathResults);
+    QueryHandle search(final Supplier<List<SearchResult>> searchFunction, final Consumer<QueryHandle> operationToRunWhenSearchComplete,
+                       final Integer taskId, final Function<List<CompositeQueryResult>, List<CompositeQueryResult>> filter,
+                       boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead, boolean filterOffPathResults);
 
     /**
      * @param searchString the string that contains an identifier
@@ -85,6 +87,9 @@ public interface QueryHandler {
      * @param sizeLimit - restrict to this number of results
      * @return A handle to the running search.
      */
-    QueryHandle searchIdentifiers(String searchString, int[] identifierTypes, final Consumer<QueryHandle> operationToRunWhenSearchComplete, final Integer taskId, final Function<List<CompositeQueryResult>, List<CompositeQueryResult>> postQueryfilter, boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead, boolean filterOffPathResults, Predicate<Integer> queryFilter, AuthorModulePathRestriction amp, int sizeLimit);
+    QueryHandle searchIdentifiers(String searchString, int[] identifierTypes, final Consumer<QueryHandle> operationToRunWhenSearchComplete,
+                                  final Integer taskId, final Function<List<CompositeQueryResult>, List<CompositeQueryResult>> postQueryfilter,
+                                  boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead, boolean filterOffPathResults,
+                                  Predicate<Integer> queryFilter, AuthorModulePathRestriction amp, int sizeLimit);
     
 }

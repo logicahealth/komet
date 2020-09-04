@@ -86,9 +86,9 @@ public class ConfigurationTests {
 	
 	private void testHelper2(GlobalDatastoreConfiguration c, DefaultCoordinateProvider dcp)
 	{
-		Assert.assertEquals(dcp.getDefaultEditCoordinate().getAuthorNid(), c.getDefaultEditCoordinate().getAuthorNid());
-		Assert.assertEquals(dcp.getDefaultEditCoordinate().getModuleNid(), c.getDefaultEditCoordinate().getModuleNid());
-		Assert.assertEquals(dcp.getDefaultEditCoordinate().getPathNid(), c.getDefaultEditCoordinate().getPathNid());
+		Assert.assertEquals(dcp.getDefaultWriteCoordinate().get().getAuthorNid(), c.getDefaultWriteCoordinate().get().getAuthorNid());
+		Assert.assertEquals(dcp.getDefaultWriteCoordinate().get().getModuleNid(), c.getDefaultWriteCoordinate().get().getModuleNid());
+		Assert.assertEquals(dcp.getDefaultWriteCoordinate().get().getPathNid(), c.getDefaultWriteCoordinate().get().getPathNid());
 		
 		Assert.assertTrue(Arrays.equals(dcp.getDefaultLanguageCoordinate().getDescriptionTypePreferenceList(), 
 				c.getDefaultLanguageCoordinate().getDescriptionTypePreferenceList()));
@@ -104,7 +104,7 @@ public class ConfigurationTests {
 		Assert.assertEquals(dcp.getDefaultLogicCoordinate().getInferredAssemblageNid(), c.getDefaultLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(dcp.getDefaultLogicCoordinate().getStatedAssemblageNid(), c.getDefaultLogicCoordinate().getStatedAssemblageNid());
 		
-		Assert.assertEquals(dcp.getDefaultManifoldCoordinate().getPremiseType(), c.getDefaultManifoldCoordinate().getPremiseType());
+		Assert.assertEquals(dcp.getDefaultManifoldCoordinate().getPremiseTypes().toArray()[0], c.getDefaultManifoldCoordinate().getPremiseTypes().toArray()[0]);
 	}
 	
 	@Test(groups="beforeUser", enabled = false)
@@ -174,11 +174,11 @@ public class ConfigurationTests {
 				"found " + Arrays.toString(c.getDefaultLanguageCoordinate().getDialectAssemblagePreferenceList()));
 		Assert.assertEquals(-5, c.getDefaultLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(-6, c.getDefaultLanguageCoordinate().getLanguageConceptNid());
-		Assert.assertEquals(-7, c.getDefaultEditCoordinate().getModuleNid());
-		Assert.assertEquals(-8, c.getDefaultEditCoordinate().getPathNid());
-		Assert.assertEquals(PremiseType.STATED, c.getDefaultManifoldCoordinate().getPremiseType());
+		Assert.assertEquals(-7, c.getDefaultWriteCoordinate().get().getModuleNid());
+		Assert.assertEquals(-8, c.getDefaultWriteCoordinate().get().getPathNid());
+		Assert.assertEquals(PremiseType.STATED, c.getDefaultManifoldCoordinate().getPremiseTypes().toArray()[0]);
 		Assert.assertEquals(-9, c.getDefaultLogicCoordinate().getStatedAssemblageNid());
-		Assert.assertEquals(-11, c.getDefaultEditCoordinate().getAuthorNid());
+		Assert.assertEquals(-11, c.getDefaultWriteCoordinate().get().getAuthorNid());
 		
 		//User prefs should follow:
 		UserConfiguration uc = Get.configurationService().getUserConfiguration(null);
@@ -190,11 +190,11 @@ public class ConfigurationTests {
 				uc.getLanguageCoordinate().getDialectAssemblagePreferenceList()));
 		Assert.assertEquals(-5, uc.getLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(-6, uc.getLanguageCoordinate().getLanguageConceptNid());
-		Assert.assertEquals(-7, uc.getEditCoordinate().getModuleNid());
-		Assert.assertEquals(-8, uc.getEditCoordinate().getPathNid());
-		Assert.assertEquals(PremiseType.STATED, uc.getManifoldCoordinate().getPremiseType());
+		Assert.assertEquals(-7, uc.getWriteCoordinate().get().getModuleNid());
+		Assert.assertEquals(-8, uc.getWriteCoordinate().get().getPathNid());
+		Assert.assertEquals(PremiseType.STATED, uc.getManifoldCoordinate().getPremiseTypes().toArray()[0]);
 		Assert.assertEquals(-9, uc.getLogicCoordinate().getStatedAssemblageNid());
-		Assert.assertEquals(-11, uc.getEditCoordinate().getAuthorNid());
+		Assert.assertEquals(-11, uc.getWriteCoordinate().get().getAuthorNid());
 		
 		Get.configurationService().getGlobalDatastoreConfiguration().clearStoredConfiguration();
 		
@@ -207,9 +207,9 @@ public class ConfigurationTests {
 	}
 	
 	private void testHelper(DefaultCoordinateProvider dcp, UserConfiguration c) {
-		Assert.assertEquals(dcp.getDefaultEditCoordinate().getAuthorNid(), c.getEditCoordinate().getAuthorNid());
-		Assert.assertEquals(dcp.getDefaultEditCoordinate().getModuleNid(), c.getEditCoordinate().getModuleNid());
-		Assert.assertEquals(dcp.getDefaultEditCoordinate().getPathNid(), c.getEditCoordinate().getPathNid());
+		Assert.assertEquals(dcp.getDefaultWriteCoordinate().get().getAuthorNid(), c.getWriteCoordinate().get().getAuthorNid());
+		Assert.assertEquals(dcp.getDefaultWriteCoordinate().get().getModuleNid(), c.getWriteCoordinate().get().getModuleNid());
+		Assert.assertEquals(dcp.getDefaultWriteCoordinate().get().getPathNid(), c.getWriteCoordinate().get().getPathNid());
 		
 		Assert.assertTrue(Arrays.equals(dcp.getDefaultLanguageCoordinate().getDescriptionTypePreferenceList(), 
 				c.getLanguageCoordinate().getDescriptionTypePreferenceList()));
@@ -225,7 +225,7 @@ public class ConfigurationTests {
 		Assert.assertEquals(dcp.getDefaultLogicCoordinate().getInferredAssemblageNid(), c.getLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(dcp.getDefaultLogicCoordinate().getStatedAssemblageNid(), c.getLogicCoordinate().getStatedAssemblageNid());
 
-		Assert.assertEquals(dcp.getDefaultManifoldCoordinate().getPremiseType(), c.getManifoldCoordinate().getPremiseType());
+		Assert.assertEquals(dcp.getDefaultManifoldCoordinate().getPremiseTypes().toArray()[0], c.getManifoldCoordinate().getPremiseTypes().toArray()[0]);
 	}
 	
 	@Test(dependsOnGroups= {"beforeUser", "defaultEdit"}, groups="systemEdit", enabled = false)
@@ -257,21 +257,21 @@ public class ConfigurationTests {
 		Assert.assertEquals(TermAux.ACTIVE_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getDescriptionLogicProfileNid());
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.AND_NOT_QUERY_CLAUSE.getNid()}, uc.getLanguageCoordinate().getDescriptionTypePreferenceList()));
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.AND_QUERY_CLAUSE.getNid()}, uc.getLanguageCoordinate().getDialectAssemblagePreferenceList()));
-		Assert.assertEquals(TermAux.APACHE_2_LICENSE.getNid(), uc.getEditCoordinate().getModuleNid());
-		Assert.assertEquals(TermAux.ASSEMBLAGE.getNid(), uc.getEditCoordinate().getPathNid());
+		Assert.assertEquals(TermAux.APACHE_2_LICENSE.getNid(), uc.getWriteCoordinate().get().getModuleNid());
+		Assert.assertEquals(TermAux.ASSEMBLAGE.getNid(), uc.getWriteCoordinate().get().getPathNid());
 		Assert.assertEquals(TermAux.ASSEMBLAGE_CONTAINS_COMPONENT_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(TermAux.ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE.getNid(), uc.getLanguageCoordinate().getLanguageConceptNid());
 		Assert.assertEquals(Integer.valueOf(-28), uc.<Integer>getObject("fred"));
 		Assert.assertEquals(true, uc.<Boolean>getObject("jane").booleanValue());
-		Assert.assertEquals(PremiseType.STATED, uc.getManifoldCoordinate().getPremiseType());
+		Assert.assertEquals(PremiseType.STATED, uc.getManifoldCoordinate().getPremiseTypes().toArray()[0]);
 		Assert.assertEquals(TermAux.ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getStatedAssemblageNid());
-		Assert.assertEquals(TermAux.USER.getNid(), uc.getEditCoordinate().getAuthorNid());
+		Assert.assertEquals(TermAux.USER.getNid(), uc.getWriteCoordinate().get().getAuthorNid());
 
 		//defaults not impacted
 		testHelper2(Get.configurationService().getGlobalDatastoreConfiguration(), new DefaultCoordinateProvider());
 		
 		uc.setOption(ConfigurationStore.PROFILE, ConfigurationOption.PREMISE_TYPE, PremiseType.INFERRED);
-		Assert.assertEquals(PremiseType.INFERRED, uc.getManifoldCoordinate().getPremiseType());
+		Assert.assertEquals(PremiseType.INFERRED, uc.getManifoldCoordinate().getPremiseTypes().toArray()[0]);
 		
 		LookupService.shutdownIsaac();
 		LookupService.startupIsaac();
@@ -281,15 +281,15 @@ public class ConfigurationTests {
 		Assert.assertEquals(TermAux.ACTIVE_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getDescriptionLogicProfileNid());
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.AND_NOT_QUERY_CLAUSE.getNid()}, uc.getLanguageCoordinate().getDescriptionTypePreferenceList()));
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.AND_QUERY_CLAUSE.getNid()}, uc.getLanguageCoordinate().getDialectAssemblagePreferenceList()));
-		Assert.assertEquals(TermAux.APACHE_2_LICENSE.getNid(), uc.getEditCoordinate().getModuleNid());
-		Assert.assertEquals(TermAux.ASSEMBLAGE.getNid(), uc.getEditCoordinate().getPathNid());
+		Assert.assertEquals(TermAux.APACHE_2_LICENSE.getNid(), uc.getWriteCoordinate().get().getModuleNid());
+		Assert.assertEquals(TermAux.ASSEMBLAGE.getNid(), uc.getWriteCoordinate().get().getPathNid());
 		Assert.assertEquals(TermAux.ASSEMBLAGE_CONTAINS_COMPONENT_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(TermAux.ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE.getNid(), uc.getLanguageCoordinate().getLanguageConceptNid());
 		Assert.assertEquals(new Integer(-28), uc.<Integer>getObject("fred"));
 		Assert.assertEquals(new Boolean(true).booleanValue(), uc.<Boolean>getObject("jane").booleanValue());
-		Assert.assertEquals(PremiseType.INFERRED, uc.getManifoldCoordinate().getPremiseType());
+		Assert.assertEquals(PremiseType.INFERRED, uc.getManifoldCoordinate().getPremiseTypes().toArray()[0]);
 		Assert.assertEquals(TermAux.ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getStatedAssemblageNid());
-		Assert.assertEquals(TermAux.USER.getNid(), uc.getEditCoordinate().getAuthorNid());
+		Assert.assertEquals(TermAux.USER.getNid(), uc.getWriteCoordinate().get().getAuthorNid());
 		
 		//Defaults not impacted:
 		testHelper2(Get.configurationService().getGlobalDatastoreConfiguration(), new DefaultCoordinateProvider());
@@ -320,18 +320,18 @@ public class ConfigurationTests {
 		Assert.assertEquals(TermAux.VHAT_MODULES.getNid(), uc.getLogicCoordinate().getDescriptionLogicProfileNid());
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.SCT_CORE_MODULE.getNid()}, uc.getLanguageCoordinate().getDescriptionTypePreferenceList()));
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.US_GOVERNMENT_WORK.getNid()}, uc.getLanguageCoordinate().getDialectAssemblagePreferenceList()));
-		Assert.assertEquals(TermAux.US_DIALECT_ASSEMBLAGE.getNid(), uc.getEditCoordinate().getModuleNid());
-		Assert.assertEquals(TermAux.UNSPECIFIED_MODULE.getNid(), uc.getEditCoordinate().getPathNid());
+		Assert.assertEquals(TermAux.US_DIALECT_ASSEMBLAGE.getNid(), uc.getWriteCoordinate().get().getModuleNid());
+		Assert.assertEquals(TermAux.UNSPECIFIED_MODULE.getNid(), uc.getWriteCoordinate().get().getPathNid());
 		Assert.assertEquals(TermAux.TEMPLATE.getNid(), uc.getLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(TermAux.SWEDISH_LANGUAGE.getNid(), uc.getLanguageCoordinate().getLanguageConceptNid());
 		Assert.assertEquals(new Integer(-38), uc.<Integer>getObject("fred"));
 		Assert.assertEquals(new Boolean(false).booleanValue(), uc.<Boolean>getObject("jane").booleanValue());
-		Assert.assertEquals(PremiseType.STATED, uc.getManifoldCoordinate().getPremiseType());
+		Assert.assertEquals(PremiseType.STATED, uc.getManifoldCoordinate().getPremiseTypes().toArray()[0]);
 		Assert.assertEquals(TermAux.SUFFICIENT_CONCEPT_DEFINITION.getNid(), uc.getLogicCoordinate().getStatedAssemblageNid());
-		Assert.assertEquals(TermAux.USER.getNid(), uc.getEditCoordinate().getAuthorNid());
+		Assert.assertEquals(TermAux.USER.getNid(), uc.getWriteCoordinate().get().getAuthorNid());
 		
 		uc.setOption(ConfigurationStore.DATABASE, ConfigurationOption.PREMISE_TYPE, PremiseType.INFERRED);
-		Assert.assertEquals(PremiseType.INFERRED, uc.getManifoldCoordinate().getPremiseType());
+		Assert.assertEquals(PremiseType.INFERRED, uc.getManifoldCoordinate().getPremiseTypes().toArray()[0]);
 		
 		//Defaults not impacted:
 		testHelper2(Get.configurationService().getGlobalDatastoreConfiguration(), new DefaultCoordinateProvider());
@@ -344,16 +344,16 @@ public class ConfigurationTests {
 		Assert.assertEquals(TermAux.VHAT_MODULES.getNid(), uc.getLogicCoordinate().getDescriptionLogicProfileNid());
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.SCT_CORE_MODULE.getNid()}, uc.getLanguageCoordinate().getDescriptionTypePreferenceList()));
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.US_GOVERNMENT_WORK.getNid()}, uc.getLanguageCoordinate().getDialectAssemblagePreferenceList()));
-		Assert.assertEquals(TermAux.US_DIALECT_ASSEMBLAGE.getNid(), uc.getEditCoordinate().getModuleNid());
-		Assert.assertEquals(TermAux.UNSPECIFIED_MODULE.getNid(), uc.getEditCoordinate().getPathNid());
+		Assert.assertEquals(TermAux.US_DIALECT_ASSEMBLAGE.getNid(), uc.getWriteCoordinate().get().getModuleNid());
+		Assert.assertEquals(TermAux.UNSPECIFIED_MODULE.getNid(), uc.getWriteCoordinate().get().getPathNid());
 		Assert.assertEquals(TermAux.TEMPLATE.getNid(), uc.getLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(TermAux.SWEDISH_LANGUAGE.getNid(), uc.getLanguageCoordinate().getLanguageConceptNid());
 		Assert.assertEquals(new Integer(-38), uc.<Integer>getObject("fred"));
 		Assert.assertEquals(new Boolean(false).booleanValue(), uc.<Boolean>getObject("jane").booleanValue());
-		Assert.assertEquals(PremiseType.INFERRED, uc.getManifoldCoordinate().getPremiseType());
+		Assert.assertEquals(PremiseType.INFERRED, uc.getManifoldCoordinate().getPremiseTypes().toArray()[0]);
 		Assert.assertEquals(TermAux.SUFFICIENT_CONCEPT_DEFINITION.getNid(), uc.getLogicCoordinate().getStatedAssemblageNid());
 		Assert.assertEquals(40, uc.getPathCoordinate().getStampFilter().getStampPosition().getTime());
-		Assert.assertEquals(TermAux.USER.getNid(), uc.getEditCoordinate().getAuthorNid());
+		Assert.assertEquals(TermAux.USER.getNid(), uc.getWriteCoordinate().get().getAuthorNid());
 		
 		//Defaults not impacted:
 		testHelper2(Get.configurationService().getGlobalDatastoreConfiguration(), new DefaultCoordinateProvider());
@@ -389,16 +389,16 @@ public class ConfigurationTests {
 		Assert.assertEquals(TermAux.ACTIVE_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getDescriptionLogicProfileNid());
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.AND_NOT_QUERY_CLAUSE.getNid()}, uc.getLanguageCoordinate().getDescriptionTypePreferenceList()));
 		Assert.assertTrue(Arrays.equals(new int[] {TermAux.AND_QUERY_CLAUSE.getNid()}, uc.getLanguageCoordinate().getDialectAssemblagePreferenceList()));
-		Assert.assertEquals(TermAux.APACHE_2_LICENSE.getNid(), uc.getEditCoordinate().getModuleNid());
-		Assert.assertEquals(TermAux.ASSEMBLAGE.getNid(), uc.getEditCoordinate().getPathNid());
+		Assert.assertEquals(TermAux.APACHE_2_LICENSE.getNid(), uc.getWriteCoordinate().get().getModuleNid());
+		Assert.assertEquals(TermAux.ASSEMBLAGE.getNid(), uc.getWriteCoordinate().get().getPathNid());
 		Assert.assertEquals(TermAux.ASSEMBLAGE_CONTAINS_COMPONENT_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getInferredAssemblageNid());
 		Assert.assertEquals(TermAux.ASSEMBLAGE_CONTAINS_CONCEPT_QUERY_CLAUSE.getNid(), uc.getLanguageCoordinate().getLanguageConceptNid());
 		Assert.assertNull(uc.<Integer>getObject("fred"));
 		Assert.assertEquals(new Boolean(true).booleanValue(), uc.<Boolean>getObject("jane").booleanValue());
-		Assert.assertEquals(PremiseType.INFERRED, uc.getManifoldCoordinate().getPremiseType());
+		Assert.assertEquals(PremiseType.INFERRED, uc.getManifoldCoordinate().getPremiseTypes().toArray()[0]);
 		Assert.assertEquals(TermAux.ASSEMBLAGE_CONTAINS_KIND_OF_CONCEPT_QUERY_CLAUSE.getNid(), uc.getLogicCoordinate().getStatedAssemblageNid());
 		Assert.assertEquals(30, uc.getPathCoordinate().getStampFilter().getStampPosition().getTime());
-		Assert.assertEquals(TermAux.USER.getNid(), uc.getEditCoordinate().getAuthorNid());
+		Assert.assertEquals(TermAux.USER.getNid(), uc.getWriteCoordinate().get().getAuthorNid());
 		
 		//Clear all Profile settings
 		uc.clearConfiguration(ConfigurationStore.PROFILE);

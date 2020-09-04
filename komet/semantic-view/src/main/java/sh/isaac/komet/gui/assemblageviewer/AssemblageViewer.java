@@ -54,9 +54,9 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -71,7 +71,9 @@ public class AssemblageViewer implements ExplorationNodeFactory
 	private final Logger LOG = LogManager.getLogger(this.getClass());
 
 	private AssemblageViewerController drlvc_;
-	private Manifold manifold_;
+	private ViewProperties viewProperties;
+	private ActivityFeed activityFeed;
+	private IsaacPreferences nodePreferences;
 
 	private AssemblageViewer()
 	{
@@ -85,7 +87,7 @@ public class AssemblageViewer implements ExplorationNodeFactory
 		{
 			try
 			{
-				drlvc_ = AssemblageViewerController.construct(manifold_);
+				drlvc_ = AssemblageViewerController.construct(viewProperties, activityFeed, nodePreferences);
 			}
 			catch (IOException e)
 			{
@@ -127,18 +129,12 @@ public class AssemblageViewer implements ExplorationNodeFactory
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ManifoldGroup[] getDefaultManifoldGroups()
+	public ExplorationNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences nodePreferences)
 	{
-		return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode)
-	{
-		manifold_ = manifold;
+		this.activityFeed = activityFeed;
+		this.viewProperties = viewProperties;
+		this.nodePreferences = nodePreferences;
+		
 
 		return new ExplorationNode()
 		{
@@ -175,12 +171,6 @@ public class AssemblageViewer implements ExplorationNodeFactory
 			}
 
 			@Override
-			public Manifold getManifold()
-			{
-				return manifold_;
-			}
-
-			@Override
 			public void close()
 			{
 				// noop
@@ -195,8 +185,37 @@ public class AssemblageViewer implements ExplorationNodeFactory
 			@Override
 			public void savePreferences()
 			{
-				// TODO Auto-generated method stub
-				
+				// noop
+			}
+
+			@Override
+			public ViewProperties getViewProperties()
+			{
+				return viewProperties;
+			}
+
+			@Override
+			public ActivityFeed getActivityFeed()
+			{
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public SimpleObjectProperty<ActivityFeed> activityFeedProperty()
+			{
+				return new SimpleObjectProperty<>(activityFeed);
+			}
+
+			@Override
+			public void setNodeSelectionMethod(Runnable nodeSelectionMethod)
+			{
+				//don't care
+			}
+
+			@Override
+			public Node getMenuIconGraphic()
+			{
+				return menuIconProperty.get();
 			}
 		};
 	}
@@ -204,5 +223,11 @@ public class AssemblageViewer implements ExplorationNodeFactory
 	@Override
 	public ConceptSpecification getPanelType() {
 		return MetaData.ASSEMBLAGE_PANEL____SOLOR;
+	}
+
+	@Override
+	public String[] getDefaultActivityFeed()
+	{
+		return new String[] {ViewProperties.UNLINKED};
 	}
 }

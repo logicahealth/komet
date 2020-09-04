@@ -2,6 +2,7 @@ package sh.isaac.api.coordinate;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.time.Instant;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import sh.isaac.api.Get;
@@ -12,15 +13,13 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.util.UUIDUtil;
 
-public interface StampFilter extends StampFilterTemplate, TimeBasedAnalogMaker<StampFilter>,
-        StateBasedAnalogMaker<StampFilter> {
+public interface StampFilter extends StampFilterTemplate, TimeBasedAnalogMaker<StampFilter>, StateBasedAnalogMaker<StampFilter> {
 
     /**
      * @return a content based uuid, such that identical stamp coordinates
      * will have identical uuids, and that different stamp coordinates will
      * always have different uuids.
      */
-
     default UUID getStampFilterUuid() {
         ArrayList<UUID> uuidList = new ArrayList<>();
         for (Status status: getAllowedStates().toEnumSet()) {
@@ -87,6 +86,15 @@ public interface StampFilter extends StampFilterTemplate, TimeBasedAnalogMaker<S
                     .append(" ");
         }
 
+        builder.append("\n   excluded modules: ");
+
+        if (this.getExcludedModuleNids().isEmpty()) {
+            builder.append("none ");
+        } else {
+            builder.append(Get.conceptDescriptionTextList(this.getExcludedModuleNids().toArray()))
+                    .append(" ");
+        }
+
         builder.append("\n   module priorities: ");
         if (this.getModulePriorityOrder().isEmpty()) {
             builder.append("none ");
@@ -105,6 +113,10 @@ public interface StampFilter extends StampFilterTemplate, TimeBasedAnalogMaker<S
 
     default long getTime() {
         return getStampPosition().getTime();
+    }
+
+    default Instant getTimeAsInstant() {
+        return getStampPosition().getTimeAsInstant();
     }
 
     RelativePositionCalculator getRelativePositionCalculator();

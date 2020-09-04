@@ -62,9 +62,10 @@ import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.VersionImpl;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
-import sh.isaac.model.observable.CommitAwareLongProperty;
-import sh.isaac.model.observable.CommitAwareObjectProperty;
+import sh.isaac.model.observable.ObservableChronologyImpl;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareLongProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareObjectProperty;
 import sh.isaac.model.observable.ObservableFields;
 
 /**
@@ -134,7 +135,7 @@ public abstract class ObservableVersionImpl
     /**
      * The chronology.
      */
-    protected ObservableChronology chronology;
+    protected ObservableChronologyImpl chronology;
 
     protected final VersionType versionType;
 
@@ -196,12 +197,12 @@ public abstract class ObservableVersionImpl
         } else {
             this.stampedVersionProperty = null;
         }
-        this.chronology = chronology;
+        this.chronology = (ObservableChronologyImpl) chronology;
         this.versionType = stampedVersion.getSemanticType();
     }
 
     protected ObservableVersionImpl(ObservableChronology chronology) {
-        this.chronology = chronology;
+        this.chronology = (ObservableChronologyImpl) chronology;
         this.stampedVersionProperty = null;
         this.versionType = chronology.getVersionType();
     }
@@ -210,7 +211,7 @@ public abstract class ObservableVersionImpl
         if (this.chronology != null) {
             throw new IllegalStateException("Chronology is not null. Cannot change.");
         }
-        this.chronology = chronology;
+        this.chronology = (ObservableChronologyImpl) chronology;
     }
 
     //~--- methods -------------------------------------------------------------
@@ -256,13 +257,13 @@ public abstract class ObservableVersionImpl
         if (this.stampedVersionProperty == null && this.authorNidProperty == null) {
             this.authorNidProperty = new CommitAwareIntegerProperty(
                     this,
-                    TermAux.AUTHOR_NID_FOR_VERSION.toExternalString(),
+                    TermAux.AUTHOR_FOR_VERSION.toExternalString(),
                     0);
         }
         if (this.authorNidProperty == null) {
             this.authorNidProperty = new CommitAwareIntegerProperty(
                     this,
-                    TermAux.AUTHOR_NID_FOR_VERSION.toExternalString(),
+                    TermAux.AUTHOR_FOR_VERSION.toExternalString(),
                     getAuthorNid());
             this.authorNidProperty.addListener(
                     (observable, oldValue, newValue) -> {
@@ -344,13 +345,13 @@ public abstract class ObservableVersionImpl
         if (this.stampedVersionProperty == null && this.moduleNidProperty == null) {
             this.moduleNidProperty = new CommitAwareIntegerProperty(
                     this,
-                    TermAux.MODULE_NID_FOR_VERSION.toExternalString(),
+                    TermAux.MODULE_FOR_VERSION.toExternalString(),
                     0);
         }
         if (this.moduleNidProperty == null) {
             this.moduleNidProperty = new CommitAwareIntegerProperty(
                     this,
-                    TermAux.MODULE_NID_FOR_VERSION.toExternalString(),
+                    TermAux.MODULE_FOR_VERSION.toExternalString(),
                     getModuleNid());
             this.moduleNidProperty.addListener(
                     (observable, oldValue, newValue) -> {
@@ -375,13 +376,13 @@ public abstract class ObservableVersionImpl
         if (this.stampedVersionProperty == null && this.pathNidProperty == null) {
             this.pathNidProperty = new CommitAwareIntegerProperty(
                     this,
-                    TermAux.PATH_NID_FOR_VERSION.toExternalString(),
+                    TermAux.PATH_FOR_VERSION.toExternalString(),
                     0);
         }
         if (this.pathNidProperty == null) {
             this.pathNidProperty = new CommitAwareIntegerProperty(
                     this,
-                    TermAux.PATH_NID_FOR_VERSION.toExternalString(),
+                    TermAux.PATH_FOR_VERSION.toExternalString(),
                     getPathNid());
             this.pathNidProperty.addListener(
                     (observable, oldValue, newValue) -> {
@@ -757,6 +758,7 @@ public abstract class ObservableVersionImpl
         return getChronology().getPrimordialUuid();
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public List<ReadOnlyProperty<?>> getProperties() {
         return new ArrayList(
@@ -790,8 +792,10 @@ public abstract class ObservableVersionImpl
         if (this.stampSequenceProperty != null) {
             return this.stampSequenceProperty.get();
         }
-
-        return this.stampedVersionProperty.get().getStampSequence();
+        if (this.stampedVersionProperty != null && this.stampedVersionProperty.get() != null) {
+            return this.stampedVersionProperty.get().getStampSequence();
+        }
+        return Integer.MAX_VALUE;
     }
 
     public VersionImpl getStampedVersion() {

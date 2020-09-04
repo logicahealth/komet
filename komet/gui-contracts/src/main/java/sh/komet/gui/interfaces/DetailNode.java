@@ -16,7 +16,13 @@
  */
 package sh.komet.gui.interfaces;
 
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.ListChangeListener;
 import org.jvnet.hk2.annotations.Contract;
+import sh.isaac.api.identity.IdentifiedObject;
+
+import java.util.Optional;
 
 /**
  *
@@ -25,15 +31,23 @@ import org.jvnet.hk2.annotations.Contract;
 @Contract
 public interface DetailNode extends ExplorationNode
 {
+   void setFocusedObject(IdentifiedObject identifiedObject);
+
+   Optional<IdentifiedObject> getFocusedObject();
+   SimpleObjectProperty<IdentifiedObject> focusedObjectProperty();
+
+   SimpleIntegerProperty selectionIndexProperty();
+   default int getSelectionIndex() {
+      return selectionIndexProperty().get();
+   }
+
+   ListChangeListener<? super IdentifiedObject> getSelectionChangedListener();
 
    /**
     * 
     * @return true if the detail node should become the selected (frontmost)
     *         tab within a TabPane or similar construct when the focused
     *         concept changes.
-    * 
-    *         TODO [KEC] How can this possible work? The nodes can't declare which one should be selected, as soon as you have more than one,
-    *         which one do you select?
     */
    boolean selectInTabOnChange();
 }

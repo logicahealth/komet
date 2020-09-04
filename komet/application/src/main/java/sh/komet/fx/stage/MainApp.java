@@ -55,10 +55,6 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.collections.api.factory.Lists;
-import org.eclipse.collections.api.factory.Sets;
-import org.eclipse.collections.impl.factory.primitive.IntLists;
-import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.api.MultiException;
 //import org.scenicview.ScenicView;
 import sh.isaac.api.ApplicationStates;
@@ -77,9 +73,8 @@ import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.PersonaChangeListener;
 import sh.komet.gui.contract.preferences.PersonaItem;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.contract.preferences.WindowPreferences;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.PersonaChangeListeners;
@@ -130,6 +125,8 @@ public class MainApp
         LOG.info("Startup memory info: "
                 + ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().toString());
 
+        printMemoryInfo();
+
         SvgImageLoaderFactory.install();
 
 
@@ -148,6 +145,15 @@ public class MainApp
         PersonaChangeListeners.addPersonaChangeListener(this);
     }
 
+    protected void printMemoryInfo() {
+        int mb = 1024*1024;
+        Runtime runtime = Runtime.getRuntime();
+        System.out.println("** Used Memory:  " + ((runtime.totalMemory() - runtime.freeMemory()) / mb) + " mb");
+        System.out.println("** Free Memory:  " + (runtime.freeMemory() / mb) + " mb");
+        System.out.println("** Total Memory: " + (runtime.totalMemory() / mb) + " mb");
+        System.out.println("** Max Memory:   " + (runtime.maxMemory() / mb) + " mb");
+    }
+
     public void replacePrimaryStage(Stage primaryStage) {
         Stage oldStage = MainApp.primaryStage;
         MainApp.primaryStage = primaryStage;
@@ -158,7 +164,7 @@ public class MainApp
     }
 
 
-    protected Parent setupStageMenus(Stage stage, BorderPane root, WindowPreferencesItem windowPreference) throws MultiException {
+    protected Parent setupStageMenus(Stage stage, BorderPane root, WindowPreferences windowPreference) throws MultiException {
         BorderPane stageRoot = root;
         // Get the toolkit
         MenuToolkit tk = MenuToolkit.toolkit();  //Note, this only works on Mac....
@@ -184,7 +190,7 @@ public class MainApp
 
                 for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
                     if (mp.getParentMenus().contains(ap)) {
-                        for (MenuItem mi : mp.getMenuItems(ap, primaryStage.getOwner())) {
+                        for (MenuItem mi : mp.getMenuItems(ap, primaryStage.getOwner(), windowPreference)) {
                             ap.getMenu().getItems().add(mi);
                         }
                     }
@@ -209,14 +215,12 @@ public class MainApp
                             aboutItem.setOnAction(this::handleAbout);
                             ap.getMenu().getItems().add(aboutItem);
                             ap.getMenu().getItems().add(new SeparatorMenuItem());
-                        }
-                        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+
                             MenuItem prefsItem = new MenuItemWithText("KOMET Preferences...");
                             prefsItem.setOnAction(this::handlePrefs);
                             ap.getMenu().getItems().add(prefsItem);
                             ap.getMenu().getItems().add(new SeparatorMenuItem());
-                        }
-                        if (tk == null) {
+                        } else {
                             MenuItem quitItem = new MenuItemWithText("Quit");
                             quitItem.setOnAction(this::close);
                             ap.getMenu().getItems().add(quitItem);
@@ -225,7 +229,7 @@ public class MainApp
                     case WINDOW:
                         Menu newWindowMenu = AppMenu.NEW_WINDOW.getMenu();
                         AppMenu.WINDOW.getMenu().getItems().add(newWindowMenu);
-                        updateNewWindowMenu();
+                        updateNewWindowMenu(windowPreference);
 
                         break;
                     case HELP:
@@ -333,7 +337,7 @@ public class MainApp
         AppMenu.NEW_WINDOW.getMenu().getItems().addAll(menuItems);
     }
 
-    private void updateNewWindowMenu() {
+    private void updateNewWindowMenu(WindowPreferences windowPreference) {
         Menu newWindowMenu = AppMenu.NEW_WINDOW.getMenu();
         newWindowMenu.getItems().clear();
         List<MenuItem> itemsToAdd = new ArrayList<>();
@@ -344,7 +348,7 @@ public class MainApp
             itemsToAdd.add(newStatementWindowItem);
             for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
                 if (mp.getParentMenus().contains(AppMenu.NEW_WINDOW)) {
-                    for (MenuItem menuItem : mp.getMenuItems(AppMenu.NEW_WINDOW, primaryStage.getOwner())) {
+                    for (MenuItem menuItem : mp.getMenuItems(AppMenu.NEW_WINDOW, primaryStage.getOwner(), windowPreference)) {
                         menuItem.getProperties().put(MenuProvider.PARENT_PREFERENCES, FxGet.configurationNode(RootPreferences.class));
                         newWindowMenu.getItems().add(menuItem);
                     }
@@ -379,12 +383,12 @@ public class MainApp
     }
 
     private void newStatement(ActionEvent event) {
-        Manifold statementManifold = FxGet.manifold(ManifoldGroup.CLINICAL_STATEMENT);
+        ViewProperties statementManifold = FxGet.newDefaultViewProperties();
         StatementViewController statementController = StatementView.show(statementManifold,
                 MenuProvider::handleCloseRequest);
 
-        statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold));
-        statementController.getClinicalStatement().setManifold(statementManifold);
+        statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold.getManifoldCoordinate()));
+        statementController.getClinicalStatement().setManifold(statementManifold.getManifoldCoordinate());
         MenuProvider.WINDOW_COUNT.incrementAndGet();
     }
 
@@ -395,7 +399,7 @@ public class MainApp
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
             BorderPane root = loader.load();
             KometStageController controller = loader.getController();
-            WindowPreferencesItem personaWindowPreferences = personaItem.createNewWindowPreferences();
+            WindowPreferences personaWindowPreferences = personaItem.createNewWindowPreferences();
 
             root.setId(UUID.randomUUID().toString());
 
@@ -410,6 +414,7 @@ public class MainApp
             }
 
             stage.setScene(scene);
+            stage.getProperties().put(FxGet.PROPERTY_KEYS.WINDOW_PREFERENCES, personaWindowPreferences);
             controller.setWindowPreferenceItem(personaWindowPreferences, stage);
             stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
             stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
@@ -431,12 +436,14 @@ public class MainApp
     }
 
     private void handlePrefs(ActionEvent event) {
-        Stage prefStage = FxGet.kometPreferences().showPreferences(FxGet.manifold(ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE));
+        Stage prefStage = FxGet.kometPreferences().showPreferences();
     }
 
     private void handleAbout(ActionEvent event) {
         event.consume();
         LOG.debug("Handle about...");
+        printMemoryInfo();
+
         //create stage which has set stage style transparent
         final Stage stage = new Stage(StageStyle.TRANSPARENT);
 
@@ -470,6 +477,7 @@ public class MainApp
     }
 
     protected void shutdown() {
+        FxGet.sync();
         for (Transaction transaction: Get.commitService().getPendingTransactionList()) {
             transaction.cancel();
         }

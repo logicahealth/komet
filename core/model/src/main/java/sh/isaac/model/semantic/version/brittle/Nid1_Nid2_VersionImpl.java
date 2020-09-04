@@ -44,7 +44,6 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Version;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
 /**
@@ -56,6 +55,7 @@ public class Nid1_Nid2_VersionImpl
          implements Nid1_Nid2_Version {
    int nid1 = Integer.MAX_VALUE;
    int nid2 = Integer.MAX_VALUE;
+
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
@@ -77,6 +77,18 @@ public class Nid1_Nid2_VersionImpl
       this.nid2 = data.getNid();
    }
 
+   private Nid1_Nid2_VersionImpl(Nid1_Nid2_VersionImpl old,
+                                int stampSequence) {
+      super(old.getChronology(), stampSequence);
+      this.setNid1(old.nid1);
+      this.setNid2(old.nid2);
+   }
+   
+   /**
+    * Write version data.
+    *
+    * @param data the data
+    */
    @Override
    public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
@@ -87,12 +99,8 @@ public class Nid1_Nid2_VersionImpl
    @Override
    @SuppressWarnings("unchecked")
    public <V extends Version> V makeAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final Nid1_Nid2_VersionImpl newVersion = new Nid1_Nid2_VersionImpl((SemanticChronology) this, stampSequence);
-      newVersion.setNid1(this.nid1);
-      newVersion.setNid2(this.nid2);
-
-      chronologyImpl.addVersion(newVersion);
+      final Nid1_Nid2_VersionImpl newVersion = new Nid1_Nid2_VersionImpl(this, stampSequence);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 

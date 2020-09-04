@@ -175,7 +175,7 @@ public class SemanticIndexer extends LuceneIndexer implements IndexSemanticQuery
 		{
 			if (sv instanceof DynamicVersion)
 			{
-				final DynamicVersion<?> dsv = (DynamicVersion<?>) sv;
+				final DynamicVersion dsv = (DynamicVersion) sv;
 				final Integer[] columns = getColumnsToIndex(semanticChronology, dsv.getAssemblageNid()); 
 
 				if (columns != null)

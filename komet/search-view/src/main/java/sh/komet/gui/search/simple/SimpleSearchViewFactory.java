@@ -16,19 +16,20 @@
  */
 package sh.komet.gui.search.simple;
 
-import java.io.IOException;
-import javax.inject.Singleton;
-import org.jvnet.hk2.annotations.Service;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ConceptSearchNodeFactory;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+
+import javax.inject.Singleton;
+import java.io.IOException;
 
 /**
  *
@@ -41,12 +42,12 @@ public class SimpleSearchViewFactory implements ConceptSearchNodeFactory {
    public static final String MENU_TEXT  = "Search";
 
    @Override
-   public ConceptExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
+   public ConceptExplorationNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
       try {
          FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/SimpleSearch.fxml"));
          loader.load();
          SimpleSearchController simpleSearchController = loader.getController();
-         simpleSearchController.setManifold(manifold);
+         simpleSearchController.setViewProperties(viewProperties, viewProperties.getActivityFeed(ViewProperties.SEARCH));
          return simpleSearchController;
       } catch (IOException ex) {
          throw new RuntimeException(ex);
@@ -65,10 +66,11 @@ public class SimpleSearchViewFactory implements ConceptSearchNodeFactory {
 
    /** 
     * {@inheritDoc}
+    * @return
     */
    @Override
-   public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.SEARCH};
+   public String[] getDefaultActivityFeed() {
+      return new String[] {ViewProperties.SEARCH};
    }
    
 

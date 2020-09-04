@@ -36,8 +36,6 @@
  */
 package sh.isaac.model.builder;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,20 +51,18 @@ import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
 import sh.isaac.api.component.concept.description.DescriptionBuilderService;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.task.OptionalWaitTask;
@@ -74,8 +70,6 @@ import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class ConceptBuilderImpl.
@@ -190,8 +184,6 @@ public class ConceptBuilderImpl
         }
     }
 
-    //~--- methods -------------------------------------------------------------
-
     /**
      * Adds the description.
      *
@@ -276,88 +268,44 @@ public class ConceptBuilderImpl
         return this;
     }
 
-    /**
-     * Builds the.
-     *
-     * @param stampCoordinate the stamp coordinate
-     * @param builtObjects    the built objects
-     * @return the concept chronology
-     * @throws IllegalStateException the illegal state exception
+    /*
+     * Note, this does NOT fire the sub builders, if writeSubs is false
      */
-    @Override
-    public ConceptChronology build(Transaction transaction, int stampCoordinate,
-                                   List<Chronology> builtObjects)
+    private ConceptChronology buildInternal(WriteCoordinate writeCoordinate, List<Chronology> builtObjects, boolean buildSubs) 
             throws IllegalStateException {
-
-        try {
-
-            UUID[] uuids = getUuids();
-            final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], this.assemblageId);
-            for (int i = 1; i < uuids.length; i++) {
-                conceptChronology.addAdditionalUuids(uuids[i]);
-            }
-
-            if (getModule().isPresent()) {
-                Stamp requested = Get.stampService().getStamp(stampCoordinate);
-                stampCoordinate = Get.stampService().getStampSequence(transaction, requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
-            }
-
-            final int finalStamp = stampCoordinate;
-
-            conceptChronology.createMutableVersion(transaction, stampCoordinate);
-            builtObjects.add(conceptChronology);
-            getDescriptionBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
-            getSemanticBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
-            return conceptChronology;
-        } catch (RuntimeException e) {
-            LOG.error("Error from semantic builder when building: " + this.toString());
-            throw e;
-        }
-    }
-
-    /**
-     * Builds the.
-     *
-     * @param editCoordinate the edit coordinate
-     * @param builtObjects   the built objects
-     * @return the optional wait task
-     * @throws IllegalStateException the illegal state exception
-     */
-    @Override
-    public OptionalWaitTask<ConceptChronology> build(Transaction transaction, EditCoordinate editCoordinate,
-                                                     List<Chronology> builtObjects)
-            throws IllegalStateException {
-        final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
         UUID[] uuids = getUuids();
         final ConceptChronologyImpl conceptChronology = new ConceptChronologyImpl(uuids[0], this.assemblageId);
         for (int i = 1; i < uuids.length; i++) {
             conceptChronology.addAdditionalUuids(uuids[i]);
         }
-        Version version;
-        if (getModule().isPresent()) {
-            version = conceptChronology.createMutableVersion(transaction, this.state, editCoordinate, getModule().get());
-        } else {
-            version = conceptChronology.createMutableVersion(transaction, this.state, editCoordinate);
-        }
 
+        conceptChronology.createMutableVersion(status == null ? writeCoordinate : new WriteCoordinateImpl(writeCoordinate, status));
         builtObjects.add(conceptChronology);
-
-        getDescriptionBuilders().forEach((builder) -> nestedBuilders.add(builder.build(transaction, editCoordinate, builtObjects)));
-        getSemanticBuilders().forEach((builder) -> nestedBuilders.add(builder.build(transaction, editCoordinate, builtObjects)));
-
-
-        Task<Void> primaryNested = Get.commitService()
-                .addUncommitted(transaction, conceptChronology);
-
-        return new OptionalWaitTask<>(primaryNested, conceptChronology, nestedBuilders);
+        if (buildSubs) {
+            getDescriptionBuilders().forEach((builder) -> builder.build(writeCoordinate, builtObjects));
+            getSemanticBuilders().forEach((builder) -> builder.build(writeCoordinate, builtObjects));
+        }
+        return conceptChronology;
     }
 
-    /**
-     * Merge from spec.
-     *
-     * @param conceptSpec the concept spec
-     * @return the concept builder
-     */
+    @Override
+    public ConceptChronology build(Transaction transaction, int stampSequence, List<Chronology> builtObjects) throws IllegalStateException {
+        return buildInternal(adjustForModule(new WriteCoordinateImpl(transaction, stampSequence)), builtObjects, true);
+    }
+
+    @Override
+    public OptionalWaitTask<ConceptChronology> buildAndWrite(WriteCoordinate writeCoordinate, List<Chronology> builtObjects) throws IllegalStateException {
+        WriteCoordinate forWrite = adjustForModule(writeCoordinate);
+        ConceptChronology cc = buildInternal(forWrite, builtObjects, false);
+        final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
+
+        getDescriptionBuilders().forEach((builder) -> nestedBuilders.add(builder.buildAndWrite(forWrite, builtObjects)));
+        getSemanticBuilders().forEach((builder) -> nestedBuilders.add(builder.buildAndWrite(forWrite, builtObjects)));
+
+        Task<Void> primaryNested = Get.commitService().addUncommitted(forWrite.getTransaction().get(), cc);
+        return new OptionalWaitTask<>(primaryNested, cc, nestedBuilders);
+    }
+
     @Override
     public ConceptBuilder mergeFromSpec(ConceptSpecification conceptSpec) {
         setPrimordialUuid(conceptSpec.getPrimordialUuid());
@@ -381,23 +329,12 @@ public class ConceptBuilderImpl
         return this;
     }
 
-    //~--- get methods ---------------------------------------------------------
-
-    /**
-     * Gets the concept description text.
-     *
-     * @return the concept description text
-     */
     @Override
     public String getFullyQualifiedName() {
         return getFullySpecifiedDescriptionBuilder().getDescriptionText();
     }
 
-    /**
-     * Gets the fully specified description builder.
-     *
-     * @return the fully specified description builder
-     */
+
     @Override
     public DescriptionBuilder<?, ?> getFullySpecifiedDescriptionBuilder() {
         synchronized (this) {

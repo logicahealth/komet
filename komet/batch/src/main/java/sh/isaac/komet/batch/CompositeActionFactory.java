@@ -7,7 +7,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 
 import javax.inject.Singleton;
 
@@ -18,8 +19,8 @@ public class CompositeActionFactory implements ExplorationNodeFactory<CompositeA
     public static final String ACTION_VIEW = "Composite Action";
 
     @Override
-    public CompositeActionNode createNode(Manifold manifold, IsaacPreferences nodePreferences) {
-        return new CompositeActionNode(manifold);
+    public CompositeActionNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences nodePreferences) {
+        return new CompositeActionNode(viewProperties);
     }
 
     @Override
@@ -33,8 +34,8 @@ public class CompositeActionFactory implements ExplorationNodeFactory<CompositeA
     }
 
     @Override
-    public Manifold.ManifoldGroup[] getDefaultManifoldGroups() {
-        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.UNLINKED};
+    public String[] getDefaultActivityFeed() {
+        return new String[] {ViewProperties.UNLINKED};
     }
 
     @Override

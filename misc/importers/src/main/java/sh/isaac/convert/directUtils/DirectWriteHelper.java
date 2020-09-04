@@ -62,6 +62,8 @@ import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.WriteCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpression;
@@ -716,6 +718,11 @@ public class DirectWriteHelper
 		{
 			throw new RuntimeException("unsupported type " + c);
 		}
+		index(c);
+	}
+	
+	public void index(Chronology c)
+	{
 		for (IndexBuilderService indexer : indexers)
 		{
 			indexer.indexNow(c);
@@ -963,7 +970,7 @@ public class DirectWriteHelper
 	 * Add all of the necessary metadata semantics onto the specified concept to make it a concept that defines a dynamic semantic assemblage
 	 * See {@link DynamicUsageDescription} class for more details on this format.
 	 * implemented by See
-	 * {@link DynamicUtility#configureConceptAsDynamicSemantic(Transaction, int, String, DynamicColumnInfo[], IsaacObjectType, VersionType, int)}
+	 * {@link DynamicUtility#configureConceptAsDynamicSemantic(WriteCoordinate, int, String, DynamicColumnInfo[], IsaacObjectType, VersionType, boolean)}
 	 * 
 	 * @param concept - The concept that will define a dynamic semantic
 	 * @param dynamicUsageDescription - The description that describes the purpose of this dynamic semantic
@@ -975,13 +982,14 @@ public class DirectWriteHelper
 	public void configureConceptAsDynamicAssemblage(UUID concept, String dynamicUsageDescription, DynamicColumnInfo[] columns,
 			IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, long time)
 	{
-		int stampSequence = stampService.getStampSequence(transaction, Status.ACTIVE, time, authorNid, moduleNid, pathNid);
-		List<Chronology> items = Get.service(DynamicUtility.class).configureConceptAsDynamicSemantic(transaction, identifierService.getNidForUuids(concept),
-				dynamicUsageDescription, columns, referencedComponentTypeRestriction, referencedComponentTypeSubRestriction, stampSequence);
+		WriteCoordinate wc = new WriteCoordinateImpl(transaction, stampService.getStampSequence(transaction, Status.ACTIVE, time, authorNid, moduleNid, pathNid));
+		SemanticChronology[] items = Get.service(DynamicUtility.class).configureConceptAsDynamicSemantic(wc, identifierService.getNidForUuids(concept),
+				dynamicUsageDescription, columns, referencedComponentTypeRestriction, referencedComponentTypeSubRestriction, true);
 
 		for (Chronology c : items)
 		{
-			indexAndWrite(c);
+			//already written above
+			index(c);
 		}
 		//Reindex all descriptions on this concept, in case it it outside the metadata tree, and wouldn't otherwise be flagged as a potential
 		//metadata concept (which it is, now that it defines a semantic)
@@ -1843,8 +1851,8 @@ public class DirectWriteHelper
 			throw new RuntimeException("The concept " + concept + " " + name + " does not exist!");
 		}
 		
-		if (!Get.taxonomyService().getSnapshotNoTree(ManifoldCoordinateImmutable.makeStated(Coordinates.Filter.DevelopmentLatest(),
-				Coordinates.Language.UsEnglishPreferredName())).isChildOf(typeNid, Get.nidForUuids(parentTypesNode)))
+		if (!Get.taxonomyService().getSnapshotNoTree(Coordinates.Manifold.DevelopmentStatedRegularNameSort())
+				.isChildOf(typeNid, Get.nidForUuids(parentTypesNode)))
 		{
 			throw new RuntimeException("The existing concept " + concept + " " + name + " must be a child of the parentTypesNode " + parentTypesNode);
 		}	

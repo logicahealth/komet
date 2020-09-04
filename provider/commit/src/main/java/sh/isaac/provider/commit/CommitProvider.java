@@ -41,15 +41,50 @@
  */
 package sh.isaac.provider.commit;
 
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableSet;
-import javafx.concurrent.Task;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.*;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import javafx.application.Platform;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.concurrent.Task;
+import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.MetadataService;
+import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.alert.AlertCategory;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.alert.AlertType;
@@ -58,7 +93,14 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.commit.*;
+import sh.isaac.api.commit.ChangeChecker;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.CheckAndWriteTask;
+import sh.isaac.api.commit.ChronologyChangeListener;
+import sh.isaac.api.commit.CommitListener;
+import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.commit.CommitService;
+import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -72,6 +114,7 @@ import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.DataToBytesUtils;
 import sh.isaac.model.ChronologyImpl;
@@ -79,23 +122,6 @@ import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-
-import jakarta.annotation.PostConstruct;
-import jakarta.annotation.PreDestroy;
-import java.io.*;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Stream;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class CommitProvider.
@@ -165,6 +191,8 @@ public class CommitProvider
      * The change listeners.
      */
     ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners = new ConcurrentSkipListSet<>();
+
+    ConcurrentSkipListSet<WeakReference<CommitListener>> commitListeners = new ConcurrentSkipListSet<>();
 
     /**
      * The checkers.
@@ -719,6 +747,15 @@ public class CommitProvider
                 listener.handleCommit(commitRecord);
             }
         });
+        this.commitListeners.forEach((listenerRef) -> {
+            final CommitListener listener = listenerRef.get();
+
+            if (listener == null) {
+                this.commitListeners.remove(listenerRef);
+            } else {
+                listener.handleCommit(commitRecord);
+            }
+        });
     }
 
     /**
@@ -1034,32 +1071,85 @@ public class CommitProvider
         LOG.info("Stopping CommitProvider pre-destroy for change to runlevel: " + LookupService.getProceedingToRunLevel());
 
         try {
-            sync().get();
-            if (nidStore != null) {
-                dataStore.closeStore(NID_STORE_NAME);
-                nidStore = null;
-            }
-            this.stampCommentMap.shutdown();
-            this.stampAliasMap.shutdown();
-            this.writeCompletionService.stop();
-            this.dataStoreId = Optional.empty();
-            this.lastCommitTime.set(Instant.MIN);
-            this.changeListeners.clear();
-            this.checkers.clear();
-            this.lastCommit = Long.MIN_VALUE;
-            this.deferredImportNoCheckNids.get().clear();
-            this.stampAliasMap = null;
-            this.stampCommentMap = null;
-            this.databaseSequence.set(0);
-            this.uncommittedConceptsWithChecksNidSet.clear();
-            this.uncommittedConceptsNoChecksNidSet.clear();
-            this.uncommittedSemanticsWithChecksNidSet.clear();
-            this.uncommittedSemanticsNoChecksNidSet.clear();
-            this.pendingCommitTasks.clear();
-            this.dataStore = null;
+            StopMeTask stopMeTask = new StopMeTask();
+            Get.workExecutors().getExecutor().submit(stopMeTask);
+            stopMeTask.get();
         } catch (Exception ex) {
             LOG.error("error stopping commit provider", ex);
             throw new RuntimeException(ex);
+        }
+        LOG.info("Stopped CommitProvider pre-destroy");
+    }
+
+    private class StopMeTask extends TimedTaskWithProgressTracker {
+        public StopMeTask() {
+            updateTitle("Stopping commit provider");
+            addToTotalWork(16);
+            Get.activeTasks().add(this);
+        }
+
+        @Override
+        protected Object call() throws Exception {
+            try {
+                this.updateMessage("CommitProvider sync");
+                sync().get();
+                if (nidStore != null) {
+                    dataStore.closeStore(NID_STORE_NAME);
+                    nidStore = null;
+                }
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider write completion service stop");
+                CommitProvider.this.writeCompletionService.stop();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider datastore id reset");
+                CommitProvider.this.dataStoreId = Optional.empty();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider last commit time reset");
+                CommitProvider.this.lastCommitTime.set(Instant.MIN);
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider change listeners reset");
+                CommitProvider.this.changeListeners.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider checkers reset");
+                CommitProvider.this.checkers.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider last commit reset");
+                CommitProvider.this.lastCommit = Long.MIN_VALUE;
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider deferred import no checks reset");
+                CommitProvider.this.deferredImportNoCheckNids.get().clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider stamp alias map reset");
+                CommitProvider.this.stampAliasMap.shutdown();
+                CommitProvider.this.stampAliasMap = null;
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider stamp commit map reset");
+                CommitProvider.this.stampCommentMap.shutdown();
+                CommitProvider.this.stampCommentMap = null;
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider database sequence reset");
+                CommitProvider.this.databaseSequence.set(0);
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider uncommitted concepts with checks");
+                CommitProvider.this.uncommittedConceptsWithChecksNidSet.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider uncommitted concepts no checks");
+                CommitProvider.this.uncommittedConceptsNoChecksNidSet.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider uncommitted semantics with checks");
+                CommitProvider.this.uncommittedSemanticsWithChecksNidSet.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider uncommitted semantics no checks");
+                CommitProvider.this.uncommittedSemanticsNoChecksNidSet.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider pending commit tasks");
+                CommitProvider.this.pendingCommitTasks.clear();
+                this.completedUnitOfWork();
+                CommitProvider.this.dataStore = null;
+                return null;
+            } finally {
+                Get.activeTasks().remove(this);
+            }
         }
     }
 
@@ -1301,43 +1391,18 @@ public class CommitProvider
 
     //~--- inner classes -------------------------------------------------------
 
-    /**
-     * The Class ChangeListenerReference.
-     */
-    private static class ChangeListenerReference
-            extends WeakReference<ChronologyChangeListener>
-            implements Comparable<ChangeListenerReference> {
+    private static class CommitListenerReference <T extends CommitListener> extends WeakReference<T>
+            implements Comparable<CommitListenerReference> {
 
         /**
          * The listener uuid.
          */
         UUID listenerUuid;
 
-        //~--- constructors -----------------------------------------------------
-
-        /**
-         * Instantiates a new change listener reference.
-         *
-         * @param referent the referent
-         */
-        public ChangeListenerReference(ChronologyChangeListener referent) {
+        public CommitListenerReference(T referent) {
             super(referent);
             this.listenerUuid = referent.getListenerUuid();
         }
-
-        /**
-         * Instantiates a new change listener reference.
-         *
-         * @param referent the referent
-         * @param q        the q
-         */
-        public ChangeListenerReference(ChronologyChangeListener referent,
-                                       ReferenceQueue<? super ChronologyChangeListener> q) {
-            super(referent, q);
-            this.listenerUuid = referent.getListenerUuid();
-        }
-
-        //~--- methods ----------------------------------------------------------
 
         /**
          * Compare to.
@@ -1346,7 +1411,7 @@ public class CommitProvider
          * @return the int
          */
         @Override
-        public int compareTo(ChangeListenerReference o) {
+        public int compareTo(CommitListenerReference o) {
             return this.listenerUuid.compareTo(o.listenerUuid);
         }
 
@@ -1366,9 +1431,9 @@ public class CommitProvider
                 return false;
             }
 
-            final ChangeListenerReference other = (ChangeListenerReference) obj;
+            final UUID otherUUID = ((CommitListenerReference) obj).listenerUuid;
 
-            return Objects.equals(this.listenerUuid, other.listenerUuid);
+            return this.listenerUuid.equals(otherUUID);
         }
 
         /**
@@ -1384,6 +1449,26 @@ public class CommitProvider
             return hash;
         }
     }
+    /**
+     * The Class ChangeListenerReference.
+     */
+    private static class ChangeListenerReference
+            extends CommitListenerReference<ChronologyChangeListener> {
+
+        //~--- constructors -----------------------------------------------------
+
+        /**
+         * Instantiates a new change listener reference.
+         *
+         * @param referent the referent
+         */
+        public ChangeListenerReference(ChronologyChangeListener referent) {
+            super(referent);
+        }
+
+        //~--- methods ----------------------------------------------------------
+
+    }
 
     public ConcurrentSkipListSet<ChangeChecker> getCheckers() {
         return checkers;
@@ -1392,12 +1477,6 @@ public class CommitProvider
     @Override
     public ObservableSet<Transaction> getPendingTransactionList() {
         return PendingTransactions.getPendingTransactionList();
-    }
-
-    @Override
-    public Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode)
-    {
-        return newTransaction(transactionName, changeCheckerMode, true);
     }
 
     @Override
@@ -1441,5 +1520,15 @@ public class CommitProvider
             return addUncommitted(transaction, (ConceptChronology) version.getChronology());
         }
         return addUncommitted(transaction, (SemanticChronology) version.getChronology());
+    }
+
+    @Override
+    public void addCommitListener(CommitListener commitListener) {
+        this.commitListeners.add(new CommitListenerReference<>(commitListener));
+    }
+
+    @Override
+    public void removeCommitListener(CommitListener commitListener) {
+        this.commitListeners.remove(new CommitListenerReference<>(commitListener));
     }
 }

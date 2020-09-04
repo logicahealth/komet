@@ -44,7 +44,6 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
 /**
@@ -79,7 +78,18 @@ public class Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
    public Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
    }
-
+   
+   private Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl old, int stampSequence) {
+      super(old.getChronology(), stampSequence);
+      this.setInt1(old.int1);
+      this.setInt2(old.int2);
+      this.setStr3(old.str3);
+      this.setStr4(old.str4);
+      this.setStr5(old.str5);
+      this.setNid6(old.nid6);
+      this.setNid7(old.nid7);
+   }
+   
    public Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(SemanticChronology container, 
            int stampSequence, ByteArrayDataBuffer data) {
       super(container, stampSequence);
@@ -112,16 +122,8 @@ public class Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl
    @Override
    @SuppressWarnings("unchecked")
    public <V extends Version> V makeAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newVersion = new Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl((SemanticChronology) this, stampSequence);
-      newVersion.setInt1(this.int1);
-      newVersion.setInt2(this.int2);
-      newVersion.setStr3(this.str3);
-      newVersion.setStr4(this.str4);
-      newVersion.setStr5(this.str5);
-      newVersion.setNid6(this.nid6);
-      newVersion.setNid7(this.nid7);
-      chronologyImpl.addVersion(newVersion);
+      final Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl newVersion = new Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl(this, stampSequence);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 

@@ -36,6 +36,7 @@
  */
 package sh.isaac.provider.query.search;
 
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.query.QueryHandler;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -59,7 +60,6 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.IndexQueryService;
@@ -125,9 +125,9 @@ public class SearchHandler implements QueryHandler {
      */
     @Override
     public QueryHandle searchIdentifiers(String searchString, int[] identifierTypes, final Consumer<QueryHandle> operationToRunWhenSearchComplete,
-            final Integer taskId, final Function<List<CompositeQueryResult>, List<CompositeQueryResult>> postQueryfilter,
-            boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead, boolean filterOffPathResults, Predicate<Integer> queryFilter,
-            AuthorModulePathRestriction amp, int sizeLimit) {
+                                         final Integer taskId, final Function<List<CompositeQueryResult>, List<CompositeQueryResult>> postQueryfilter,
+                                         boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead, boolean filterOffPathResults, Predicate<Integer> queryFilter,
+                                         AuthorModulePathRestriction amp, int sizeLimit) {
         final SearchHandle searchHandle = new SearchHandle(taskId);
 
         // Do search in background.
@@ -229,8 +229,8 @@ public class SearchHandler implements QueryHandler {
      */
     @Override
     public QueryHandle search(final Supplier<List<SearchResult>> searchFunction, final Consumer<QueryHandle> operationToRunWhenSearchComplete,
-            final Integer taskId, final Function<List<CompositeQueryResult>, List<CompositeQueryResult>> filter,
-            boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead, boolean filterOffPathResults) {
+                              final Integer taskId, final Function<List<CompositeQueryResult>, List<CompositeQueryResult>> filter,
+                              boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead, boolean filterOffPathResults) {
         final SearchHandle searchHandle = new SearchHandle(taskId);
 
         // Do search in background.
@@ -264,8 +264,8 @@ public class SearchHandler implements QueryHandler {
      * for details on the parameters.
      */
     private static void processResults(QueryHandle searchHandle, List<SearchResult> initialResults,
-            final Function<List<CompositeQueryResult>, List<CompositeQueryResult>> filter, boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead,
-            boolean filterOffPathResults) {
+                                       final Function<List<CompositeQueryResult>, List<CompositeQueryResult>> filter, boolean mergeOnConcepts, ManifoldCoordinate manifoldForRead,
+                                       boolean filterOffPathResults) {
 
         List<CompositeQueryResult> rawResults = lookupChronologies(initialResults, manifoldForRead, searchHandle);
         // filter and sort the results

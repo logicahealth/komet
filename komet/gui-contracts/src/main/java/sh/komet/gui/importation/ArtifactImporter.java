@@ -136,7 +136,7 @@ public class ArtifactImporter
 							root = p;
 						}
 
-						dc.configure(null, root, sdo.getVersion(), Get.defaultCoordinate().getStampFilter(), transaction);
+						dc.configure(null, root, sdo.getVersion(), Get.defaultCoordinate().getViewStampFilter(), transaction);
 
 						//TODO in the future, add the GUI widgets that let the users specify the options.
 						//Use the defaults for now, just to get things working...

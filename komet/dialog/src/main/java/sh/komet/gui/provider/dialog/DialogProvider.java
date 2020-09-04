@@ -113,7 +113,8 @@ public class DialogProvider implements DialogService {
       Runnable showDialog = () -> {
          ExceptionDialog dlg = new ExceptionDialog(throwable);
          dlg.setTitle(throwable.getClass().getName());
-         dlg.getDialogPane().setHeaderText(throwable.getMessage());
+         dlg.setHeaderText(message);
+         //dlg.getDialogPane().setHeaderText(throwable.getMessage());
          dlg.initStyle(StageStyle.UTILITY);
          dlg.setResizable(true);
          dlg.showAndWait();

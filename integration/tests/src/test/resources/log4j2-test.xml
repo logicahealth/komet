@@ -14,6 +14,7 @@
       <Logger name="sh.isaac.provider.identifier.IdentifierProvider" level="info" />
       <Logger name="sh.isaac.provider.query.lucene" level="info" />
       <Logger name="sh.isaac.provider.logic" level="info" />
+      <Logger name="sh.isaac.api.task" level="info" />
       <Logger name="sh.isaac.provider.datastore" level="info"/>
       <Logger name="sh.isaac.model.tree" level="info"/>
       <Logger name="jetbrains.exodus.gc.GarbageCollector" level="warn"/>

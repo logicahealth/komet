@@ -75,8 +75,10 @@ public class TermAux implements StaticIsaacCache {
    public static UUID MASTER_PATH_SEMANTIC_UUID = UUID.fromString("79a92f9e-cd93-5537-984c-c9aa4532e59d");
    public static UUID DEVELOPMENT_PATH_SEMANTIC_UUID = UUID.fromString("f02874c5-186b-53c4-9054-f819975a9814");
    public static UUID PRIMORDIAL_PATH_SEMANTIC_UUID = UUID.fromString("786afd5d-9f6b-52cb-8d71-f2e0564b621d");
+   public static UUID SANDBOX_PATH_SEMANTIC_UUID = UUID.fromString("3aee7ff3-8718-5342-b831-2974a8cf1734");
    public static UUID MASTER_PATH_ORIGIN_SEMANTIC_UUID = UUID.fromString("1063412d-207c-57bd-abd9-60b31691507d");
-   public static UUID DEVELOPMENT_PATH_ORIGIN_SEMANTIC_UUID = UUID.fromString("126e5d77-bd9a-53e8-9260-76aba9613288");
+    public static UUID DEVELOPMENT_PATH_ORIGIN_SEMANTIC_UUID = UUID.fromString("126e5d77-bd9a-53e8-9260-76aba9613288");
+    public static UUID SANDBOX_PATH_ORIGIN_SEMANTIC_UUID = UUID.fromString("a0781163-f0b8-5e25-9090-d4648bb227d6");
 
 
    //SNOMED CT universally unique identifier (core metadata concept)
@@ -489,15 +491,15 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptProxy SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE = new ConceptProxy("Semantic field data types assemblage", "Semantic data type", UUID.fromString("2fc4663f-c389-590e-9445-df02e277ddb1"));
 
     public static ConceptProxy METADATA_MODULES = new ConceptProxy("Metadata Modules", "Metadata Modules", UUID.fromString("04769bab-9ec6-5f79-aa0f-888a3ca8379c"));
-    public static ConceptProxy CORE_METADATA_MODULE = new ConceptProxy("Core metadata module", "Core metadata module", UUID.fromString("c2012321-3903-532e-8a5f-b13e4ca46e86"));
+    public static ConceptProxy PRIMORDIAL_MODULE = new ConceptProxy("Primordial module", "Primordial module", UUID.fromString("c2012321-3903-532e-8a5f-b13e4ca46e86"));
     public static ConceptProxy KOMET_MODULE = new ConceptProxy("KOMET module", "KOMET module", UUID.fromString("34a6dae3-e5e9-50db-a9ee-69c1067911d8"));
 
 
    public static ConceptProxy STATUS_FOR_VERSION = new ConceptProxy("Status for version", "Status for version", UUID.fromString("0608e233-d79d-5076-985b-9b1ea4e14b4c"));
    public static ConceptProxy TIME_FOR_VERSION = new ConceptProxy("Time for version", "Time for version", UUID.fromString("a9b0dfb2-f463-5dae-8ba8-7f2e8385571b"));
-   public static ConceptProxy AUTHOR_NID_FOR_VERSION = new ConceptProxy("Author nid for version", "Author nid for version", UUID.fromString("4eb9de0d-7486-5f18-a9b4-82e3432f4103"));
-   public static ConceptProxy MODULE_NID_FOR_VERSION = new ConceptProxy("Module nid for version", "Module nid for version", UUID.fromString("67cd64f1-96d7-5110-b847-556c055ac063"));
-   public static ConceptProxy PATH_NID_FOR_VERSION = new ConceptProxy("Path nid for version", "Path nid for version", UUID.fromString("ad3dd2dd-ddb0-584c-bea4-c6d9b91d461f"));
+   public static ConceptProxy AUTHOR_FOR_VERSION = new ConceptProxy("Author for version", "Author", UUID.fromString("4eb9de0d-7486-5f18-a9b4-82e3432f4103"));
+   public static ConceptProxy MODULE_FOR_VERSION = new ConceptProxy("Module for version", "Module", UUID.fromString("67cd64f1-96d7-5110-b847-556c055ac063"));
+   public static ConceptProxy PATH_FOR_VERSION = new ConceptProxy("Path for version", "Path", UUID.fromString("ad3dd2dd-ddb0-584c-bea4-c6d9b91d461f"));
    public static ConceptProxy COMMITTED_STATE_FOR_VERSION = new ConceptProxy("Committed state for version", UUID.fromString("cc1e1cd7-0627-513d-aba6-f2a6a1326906"));
    public static ConceptProxy STAMP_SEQUENCE_FOR_VERSION = new ConceptProxy("Filter sequence for version", "Filter sequence for version", UUID.fromString("0b026997-e0c6-59b1-871f-8486710f7ac1"));
    public static ConceptProxy ASSEMBLAGE_NID_FOR_COMPONENT = new ConceptProxy("Assemblage nid for component", "Assemblage for component", UUID.fromString("3de7b91a-d384-5651-95eb-161f13cde990"));
@@ -512,7 +514,6 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptProxy PATH_PRECEDENCE = new ConceptProxy("Path precedence", "Path precedence", UUID.fromString("fba850b7-de84-5df2-ab0b-d1caa6a358ff"));
 
     public static ConceptProxy ORIGIN_STAMP_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Origin Filter coordinate key for manifold", "Filter coordinate key", UUID.fromString("bb3bfeb0-5090-5512-9281-c2ce60927820"));
-    public static ConceptProxy DESTINATION_STAMP_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Destination Filter coordinate key for manifold", "Filter coordinate key", UUID.fromString("bb3bfeb0-5090-5512-9281-c2ce60927820"));
     public static ConceptProxy LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Language coordinate key for manifold", "Language coordiante key", UUID.fromString("2621ca26-8efb-56e2-9b1c-61313c40c27f"));
     public static ConceptProxy LOGIC_COORDINATE_KEY_FOR_MANIFOLD = new ConceptProxy("Logic coordinate key for manifold", "Logic coordinate key", UUID.fromString("300bf628-b40d-534f-9072-7b38c4f6f1b5"));
     public static ConceptProxy PREMISE_TYPE_FOR_MANIFOLD = new ConceptProxy("Premise type for manifold", "Premise type", UUID.fromString("7df6c6cb-9f91-5515-a05b-6b2886938363"));
@@ -534,15 +535,13 @@ public class TermAux implements StaticIsaacCache {
     public static ConceptProxy SANDBOX_MODULE = new ConceptProxy("Sandbox module", "Sandbox module", UUID.fromString("c5daf0e9-30dc-5b3e-a521-d6e6e72c8a95"));
     public static ConceptProxy SANDBOX_PATH_MODULE = new ConceptProxy("Sandbox path module", "Sandbox path module", UUID.fromString("715bd36d-6090-5b37-8ae7-88c9e532010e"));
 
-    public static ConceptProxy PRIMORDIAL_PATH = new ConceptProxy("Primordial path", "Primordial", UUID.fromString("e95b6718-f824-5540-817b-8e79544eb97a"));
+    public static ConceptProxy PRIMORDIAL_PATH = new ConceptProxy("Primordial path", "Primordial path", UUID.fromString("e95b6718-f824-5540-817b-8e79544eb97a"));
     public static ConceptProxy FOUNDATION_MODULE = new ConceptProxy("Solor foundation module", "Foundation module", UUID.fromString("676a8e10-f75a-5574-a493-3a95aef6ec35"));
     public static ConceptProxy DEVELOPMENT_MODULE = new ConceptProxy("Development module", "Development module", UUID.fromString("529a7069-bd33-59e6-b2ce-537fa874360a"));
 
+    public static ConceptProxy DEPENDENCY_MANAGEMENT = new ConceptProxy("Dependency management assemblage", "Dependency managment", UUID.fromString("b1dbb86b-e283-549e-ba94-5cb7dc3190c1"));
+
     /*
-public static ConceptProxy SPEC91 = new ConceptProxy("", "", UUID.fromString("3aee7ff3-8718-5342-b831-2974a8cf1734"));
-public static ConceptProxy SPEC92 = new ConceptProxy("", "", UUID.fromString("a0781163-f0b8-5e25-9090-d4648bb227d6"));
-public static ConceptProxy SPEC93 = new ConceptProxy("", "", UUID.fromString("c5650ec0-fd0c-5bf6-a977-7aae8ec8c573"));
-public static ConceptProxy SPEC94 = new ConceptProxy("", "", UUID.fromString("b1dbb86b-e283-549e-ba94-5cb7dc3190c1"));
 public static ConceptProxy SPEC95 = new ConceptProxy("", "", UUID.fromString("4f473e84-5f44-5ece-9fdd-cf6cec19b488"));
     */
    // J+

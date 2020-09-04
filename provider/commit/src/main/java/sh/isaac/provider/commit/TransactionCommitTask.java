@@ -44,7 +44,7 @@ public class TransactionCommitTask extends CommitTask {
      * @param transaction the transaction
      */
     private TransactionCommitTask(String commitComment,
-                                  CommitProvider commitProvider,
+                             CommitProvider commitProvider,
                              ConcurrentSkipListSet<ChangeChecker> checkers,
                              ConcurrentSkipListSet<AlertObject> alertCollection,
                              TransactionImpl transaction, Instant commitTime) {
@@ -57,7 +57,7 @@ public class TransactionCommitTask extends CommitTask {
         addToTotalWork(transaction.getCheckCountForTransaction());
         updateTitle("Commit");
         updateMessage(commitComment);
-        //LOG.info("Spawning CommitTask " + taskSequenceId);
+        LOG.info("TransactionCommitTask created for transaction {}", transaction);
         Get.activeTasks().add(this);
     }
 
@@ -72,6 +72,7 @@ public class TransactionCommitTask extends CommitTask {
             throws Exception {
         try {
             // need to track
+            LOG.debug("TransactionCommitTask for transaction {} begins ", transaction);
             if (!this.transaction.readyToCommit(this.checkers, this.alertCollection, this)) {
                 return Optional.empty();
             }
@@ -95,6 +96,7 @@ public class TransactionCommitTask extends CommitTask {
             }
             else{
                 this.alertCollection.add(new AlertObject("nothing to commit", "Nothing was found to commit", AlertType.INFORMATION, AlertCategory.COMMIT));
+                LOG.warn("Nothing to commit in transaction {}", transaction);
                 return Optional.empty();
             }
         } catch (final Exception e1) {
@@ -104,7 +106,7 @@ public class TransactionCommitTask extends CommitTask {
             PendingTransactions.removeTransaction(transaction);
             Get.activeTasks().remove(this);
             this.commitProvider.getPendingCommitTasks().remove(this);
-            //LOG.info("Finished CommitTask " + taskSequenceId);
+            LOG.debug("TransactionCommitTask for transaction {} ends ", transaction);
         }
     }
 

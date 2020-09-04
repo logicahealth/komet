@@ -20,6 +20,7 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 /**
  *
@@ -72,8 +73,8 @@ public abstract class AbstractVersionImpl
     * @return the chronology
     */
    @Override
-   public final SemanticChronology getChronology() {
-      return (SemanticChronology) this.chronicle;
+   public final SemanticChronologyImpl getChronology() {
+      return (SemanticChronologyImpl) this.chronicle;
    }
 
    /**

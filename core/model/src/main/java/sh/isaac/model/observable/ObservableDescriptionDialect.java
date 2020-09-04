@@ -34,7 +34,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.transaction.Transaction;
@@ -151,7 +151,7 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     }
 
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -248,5 +248,13 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     @Override
     public boolean deepEquals(Object other) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    public String toString() {
+        return "ObservableDescriptionDialect{" +
+                "descriptionProperty=" + descriptionProperty.get() +
+                ", dialectProperty=" + dialectProperty.get() +
+                '}';
     }
 }

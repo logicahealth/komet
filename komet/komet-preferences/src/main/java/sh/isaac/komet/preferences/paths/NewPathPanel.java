@@ -11,11 +11,16 @@ import org.eclipse.collections.api.factory.Sets;
 import sh.isaac.MetaData;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.coordinate.StampPathImmutable;
+import sh.isaac.api.coordinate.StampPositionImmutable;
 import sh.isaac.model.observable.coordinate.ObservableStampPathImpl;
-import sh.komet.gui.control.PropertySheetPositionListWrapper;
-import sh.komet.gui.control.PropertySheetTextWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetPositionListWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetTextWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
+
+import java.time.ZonedDateTime;
+
+import static sh.isaac.api.util.time.DateTimeUtil.EASY_TO_READ_DATE_TIME_FORMAT;
 
 public class NewPathPanel {
     private final ObservableList<PropertySheet.Item> itemList = FXCollections.observableArrayList();
@@ -24,7 +29,7 @@ public class NewPathPanel {
             makePropertySheet();
         });
     }
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
 
     private final BorderPane propertySheetBorderPane = new BorderPane();
 
@@ -33,12 +38,18 @@ public class NewPathPanel {
 
     private final ObservableStampPathImpl pathCoordinateItem;
 
-    public NewPathPanel(Manifold manifold) {
-        this.manifold = manifold;
-        this.pathCoordinateItem = ObservableStampPathImpl.make(StampPathImmutable.make(TermAux.UNINITIALIZED_COMPONENT_ID, Sets.immutable.empty()));
-        this.nameProperty.set("");
+    public NewPathPanel(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
+        ZonedDateTime nowInMinutes = ZonedDateTime.parse(ZonedDateTime.now().format(EASY_TO_READ_DATE_TIME_FORMAT),
+                EASY_TO_READ_DATE_TIME_FORMAT);
+
+        StampPositionImmutable originOnDevelop =
+                StampPositionImmutable.make(nowInMinutes.toInstant().toEpochMilli(), TermAux.DEVELOPMENT_PATH);
+        this.pathCoordinateItem = ObservableStampPathImpl.make(
+                StampPathImmutable.make(TermAux.UNINITIALIZED_COMPONENT_ID, Sets.immutable.of(originOnDevelop)));
+        this.nameProperty.set("Feature path");
         this.itemList.add(new PropertySheetTextWrapper("Path name", nameProperty));
-        this.itemList.add(new PropertySheetPositionListWrapper("Origins", pathCoordinateItem.pathOriginsAsListProperty()));
+        this.itemList.add(new PropertySheetPositionListWrapper("Origins", pathCoordinateItem.pathOriginsAsListPropertyProperty()));
     }
 
     protected void makePropertySheet() {
@@ -46,9 +57,17 @@ public class NewPathPanel {
         sheet.setMode(PropertySheet.Mode.NAME);
         sheet.setSearchBoxVisible(false);
         sheet.setModeSwitcherVisible(false);
-        sheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
+        sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties.getManifoldCoordinate()));
         sheet.getItems().addAll(this.itemList);
         this.propertySheetBorderPane.setCenter(sheet);
+    }
+
+    public ObservableStampPathImpl getNewPathCoordinate() {
+        return pathCoordinateItem;
+    }
+
+    public String getNewPathName() {
+        return nameProperty.getValue();
     }
 
     public Node getEditor() {

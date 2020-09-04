@@ -445,7 +445,7 @@ public enum DynamicDataType {
     */
    private static boolean isChildOf(int childConceptNid, int parentConceptNid)
    {
-      StampFilter stamp = Get.defaultCoordinate().getStampFilter();
+      StampFilter stamp = Get.defaultCoordinate().getViewStampFilter();
       
       ArrayList<SemanticChronology> chronologies = new ArrayList<>();
       

@@ -49,10 +49,9 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.navigation.NavigationRecord;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface TaxonomyService.
@@ -74,6 +73,8 @@ public interface TaxonomyService
     * @return The taxonomy data
     */
    int[] getTaxonomyData(int assemblageNid, int conceptNid);
+
+   NavigationRecord getNavigationRecord(int conceptNid);
    /**
     * Update the taxonomy by extracting relationships from the logical
     * definitions in the {@code logicGraphChronology}. This method will be
@@ -96,9 +97,9 @@ public interface TaxonomyService
 
    /**
     * Gets the snapshot.  This method is for returning a Snapshot that builds an entire tree in a background thread.
-    * The returned {@link TaxonomySnapshotService} can be used immediately, while it computes in the background - until
+    * The returned {@link TaxonomySnapshot} can be used immediately, while it computes in the background - until
     * the entire tree is computed, it will answer queries via direct lookups.  After the tree is computed, it will use
-    * the case to answer queries.  This approach is best for a use case where the TaxonomySnapshotService will be used 
+    * the cache to answer queries.  This approach is best for a use case where the TaxonomySnapshotService will be used
     * for many queries for a period of time.
     *
     * @param mc the manifold coordinate
@@ -121,7 +122,7 @@ public interface TaxonomyService
    TaxonomySnapshot getSnapshotNoTree(ManifoldCoordinate mc);
 
     /**
-     * Calls {@link #getSnapshot(ManifoldCoordinate)} with a manifold constructed from the provided path, 
+     * Calls {@link #getSnapshot(ManifoldCoordinate)} with a manifold constructed from the provided path,
      * modules, and states.  Uses {@link PremiseType#STATED} and a time of MAX_VALUE.  Language is set to the 
      * system default.
      * @param pathNid

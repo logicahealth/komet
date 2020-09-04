@@ -45,6 +45,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
@@ -150,7 +151,13 @@ public class DialectWriter
             // add to dialect assemblage
             int moduleNid            = identifierService.getNidForUuids(moduleUuid);
             int assemblageNid        = identifierService.getNidForUuids(assemblageUuid);
-            int referencedComponentNid = identifierService.getNidForUuids(referencedComponentUuid);
+            int referencedComponentNid;
+            try {
+               referencedComponentNid = identifierService.getNidForUuids(referencedComponentUuid);
+            } catch (NoSuchElementException e) {
+               LOG.warn("No element for [1]: " + descriptionRecord[REFERENCED_COMPONENT_SCT_ID_INDEX] + " in record: \n      " + descriptionRecord);
+               referencedComponentNid = identifierService.assignNid(referencedComponentUuid);;
+            }
             int acceptabilityNid     = identifierService.getNidForUuids(acceptabilityUuid);
             SemanticChronologyImpl dialectToWrite = new SemanticChronologyImpl(
                                                         VersionType.COMPONENT_NID,

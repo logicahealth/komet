@@ -33,9 +33,10 @@ public abstract class ObservableCoordinateImpl<T extends ImmutableCoordinate> im
      * Since immutable coordinates are singletons, using SimpleEqualityBasedObjectProperty is not necessary, and
      *  inefficient.
      */
-    private SimpleObjectProperty<T> immutableCoordinate = new SimpleObjectProperty<>(this, "base immutable coordinate");
+    private final SimpleObjectProperty<T> immutableCoordinate;
 
-    protected ObservableCoordinateImpl(T immutableCoordinate) {
+    protected ObservableCoordinateImpl(T immutableCoordinate, String coordinateName) {
+        this.immutableCoordinate = new SimpleObjectProperty<>(this, coordinateName);
         this.immutableCoordinate.set(immutableCoordinate);
         this.immutableCoordinate.addListener(this::changeBaseCoordinate);
     }
@@ -119,5 +120,12 @@ public abstract class ObservableCoordinateImpl<T extends ImmutableCoordinate> im
     @Override
     public String getName() {
         return this.immutableCoordinate.getName();
+    }
+
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "{\n" +
+                getValue().toString() +
+                "\n}";
     }
 }

@@ -6,6 +6,7 @@ import javafx.collections.ObservableList;
 import javafx.stage.Stage;
 import javafx.stage.Window;
 import sh.isaac.MetaData;
+import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
@@ -13,10 +14,10 @@ import sh.isaac.komet.preferences.ParentPanel;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.contract.preferences.PersonaItem;
 import sh.komet.gui.contract.preferences.TabSpecification;
-import sh.komet.gui.contract.preferences.WindowPreferencesItem;
-import sh.komet.gui.control.PropertySheetBooleanWrapper;
-import sh.komet.gui.control.PropertySheetTextWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.contract.preferences.WindowPreferences;
+import sh.komet.gui.control.property.wrapper.PropertySheetBooleanWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetTextWrapper;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 import java.util.*;
@@ -34,16 +35,13 @@ import java.util.*;
  *     exploration or detail node. When created from the factory, the node should use a default configuration,
  *     and write that to the node.
  *
- *     2. Always pass in a deep clone of the parent's manifold. If the child overrides the manifold, it will
- *     persist that info.
- *
- *     3. The exploration and detail nodes store location and order info where to locate them in the window...
+ *     2. The exploration and detail nodes store location and order info where to locate them in the window...
  *     The window constructs the node, then asks the node where to put it, and then puts it in that location.
  *
- *     4. The exploration and detail nodes store the factory class to construct to be used to reconstruct
+ *     3. The exploration and detail nodes store the factory class to construct to be used to reconstruct
  *     them.
  */
-public class WindowPreferencePanel extends ParentPanel implements WindowPreferencesItem {
+public class WindowPreferencePanel extends ParentPanel implements WindowPreferences {
 
     public enum Keys {
         LEFT_TAB_NODES,
@@ -66,7 +64,9 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         CENTER_TAB_SELECTION,
         RIGHT_TAB_SELECTION,
         DIVIDER_POSITIONS,
-        IS_FOCUS_OWNER
+        IS_FOCUS_OWNER,
+
+        VIEW_PROPERTIES_FOR_WINDOW
     };
 
     private final SimpleBooleanProperty enableLeftPaneProperty = new SimpleBooleanProperty(this, MetaData.ENABLE_LEFT_PANE____SOLOR.toExternalString(), false);
@@ -103,20 +103,21 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
 
     private final SimpleObjectProperty<double[]> dividerPositionsProperty = new SimpleObjectProperty<>(this, "divider positions", new double[] {0.2504, 0.7504});
     private PersonaItem personaItem;
+    private final ViewProperties viewPropertiesForWindow;
 
     private static HashSet<String> windowIds = new HashSet<>();
 
     /**
      * This constructor is called by reflection when reconstituting a window from the preferences.
      * @param preferencesNode
-     * @param manifold
+     * @param viewProperties the view properties for preference panels. The View Properties For Window is a seperate instance.
      * @param kpc
      */
     public WindowPreferencePanel(IsaacPreferences preferencesNode,
-                                 Manifold manifold,
+                                 ViewProperties viewProperties,
                                  KometPreferencesController kpc) {
         super(preferencesNode, getGroupName(preferencesNode),
-                manifold, kpc);
+                viewProperties, kpc);
 
         windowIds.add(preferencesNode.name());
         // The GROUP_NAME is the name of this window that will show up in the preferences panel,
@@ -124,13 +125,15 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         // properties here.
         windowNameProperty.set(preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME, "New window 1"));
 
+        this.viewPropertiesForWindow = setupViewPropertiesForWindow(preferencesNode);
+
         windowNameProperty.addListener((observable, oldValue, newValue) -> {
             for (Window window: Stage.getWindows()) {
                 if (window instanceof Stage) {
                     Stage stage = (Stage) window;
                     String uuidStr = (String) stage.getScene().getProperties().get(Keys.WINDOW_UUID_STR);
                     if (preferencesNode.name().equals(uuidStr)) {
-                        stage.setTitle(newValue);
+                        stage.setTitle(newValue + ": " + Get.dataStore().getDataStorePath().toFile().getName());
                     }
                 }
             }
@@ -138,10 +141,10 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         });
         revertFields();
         save();
-        getItemList().add(new PropertySheetTextWrapper(manifold, windowNameProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(manifold, enableLeftPaneProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(manifold, enableCenterPaneProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(manifold, enableRightPaneProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), windowNameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableLeftPaneProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableCenterPaneProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableRightPaneProperty));
         this.leftTabSelectionProperty.addListener((observable, oldValue, newValue) -> {
             save();
         });
@@ -151,6 +154,21 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         this.rightTabSelectionProperty.addListener((observable, oldValue, newValue) -> {
             save();
         });
+    }
+
+    protected ViewProperties setupViewPropertiesForWindow(IsaacPreferences preferencesNode) {
+        if (preferencesNode.hasKey(ViewProperties.Keys.VIEW_PROPERTIES_UUID)) {
+            return ViewProperties.make(preferencesNode);
+        }
+        ViewProperties viewPropertiesForWindow = FxGet.newDefaultViewProperties();
+        viewPropertiesForWindow.viewNameProperty().set(windowNameProperty.getValue() + " view");
+        viewPropertiesForWindow.save(preferencesNode);
+        return viewPropertiesForWindow;
+    }
+
+    @Override
+    public ViewProperties getViewPropertiesForWindow() {
+        return this.viewPropertiesForWindow;
     }
 
     @Override
@@ -181,21 +199,22 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
      * This constructor is called when creating a new WindowPreferencePanel from a persona, not
      * when reconstituting from a preferences node.
      * @param preferencesNode
-     * @param manifold
+     * @param viewProperties
      * @param kpc
      * @param personaItem
      */
     public WindowPreferencePanel(IsaacPreferences preferencesNode,
-                                 Manifold manifold,
+                                 ViewProperties viewProperties,
                                  KometPreferencesController kpc,
                                  PersonaItem personaItem) {
         super(preferencesNode, getRequiredGroupName(preferencesNode),
-                manifold, kpc);
+                viewProperties, kpc);
         this.personaItem = personaItem;
         windowIds.add(preferencesNode.name());
         String startingName = getWindowName(personaItem.instanceNameProperty().get(), preferencesNode.name());
 
         windowNameProperty.set(preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME, startingName));
+        this.viewPropertiesForWindow = setupViewPropertiesForWindow(preferencesNode);
         windowNameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
         });
@@ -213,10 +232,10 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         }
         setDefaultLocationAndSize();
         save();
-        getItemList().add(new PropertySheetTextWrapper(manifold, windowNameProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(manifold, enableLeftPaneProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(manifold, enableCenterPaneProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(manifold, enableRightPaneProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), windowNameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableLeftPaneProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableCenterPaneProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), enableRightPaneProperty));
     }
 
     @Override
@@ -243,6 +262,7 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
 
     @Override
     protected void saveFields() {
+        this.viewPropertiesForWindow.save(getPreferencesNode());
         getPreferenceNode().put(PreferenceGroup.Keys.GROUP_NAME, this.windowNameProperty.get());
         getPreferencesNode().putList(Keys.LEFT_TAB_NODES, TabSpecification.toStringList(leftTabNodesProperty));
         getPreferencesNode().putList(Keys.CENTER_TAB_NODES, TabSpecification.toStringList(centerTabNodesProperty));
@@ -266,6 +286,9 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     @Override
     protected void revertFields() {
         setDefaultLocationAndSize();
+        ViewProperties revertViewProperties = ViewProperties.make(getPreferencesNode());
+        this.viewPropertiesForWindow.viewNameProperty().set(revertViewProperties.getViewName());
+        this.viewPropertiesForWindow.getManifoldCoordinate().setValue(revertViewProperties.getManifoldCoordinate().getValue());
 
         Optional<UUID> optionalPersonaUuid = getPreferenceNode().getUuid(Keys.PERSONA_UUID);
         if (optionalPersonaUuid.isPresent()) {

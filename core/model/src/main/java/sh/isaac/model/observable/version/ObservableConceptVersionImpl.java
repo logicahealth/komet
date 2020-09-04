@@ -46,7 +46,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.concept.ObservableConceptVersion;
@@ -54,7 +54,6 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptVersionImpl;
-import sh.isaac.model.observable.ObservableChronologyImpl;
 
 /**
  * The Class ObservableConceptVersionImpl.
@@ -92,11 +91,11 @@ public class ObservableConceptVersionImpl
 
     @SuppressWarnings("unchecked")
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableConceptVersionImpl analog = new ObservableConceptVersionImpl(this, getChronology());
-        analog.setModuleNid(ec.getModuleNid());
-        analog.setAuthorNid(ec.getAuthorNid());
-        analog.setPathNid(ec.getPathNid());
+        analog.setModuleNid(mc.getModuleNidForAnalog(this));
+        analog.setAuthorNid(mc.getAuthorNidForChanges());
+        analog.setPathNid(mc.getPathNidForAnalog());
         analog.setStatus(this.getStatus());
         return (V) analog;
     }
@@ -104,10 +103,9 @@ public class ObservableConceptVersionImpl
     @SuppressWarnings("unchecked")
     @Override
     public <V extends Version> V makeAnalog(int stampSequence) {
-        ConceptVersion newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
-        ObservableConceptVersionImpl newObservableVersion
-                = new ObservableConceptVersionImpl(newVersion, (ObservableConceptChronology) chronology);
-        ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+        ConceptVersion newVersion = this.getStampedVersion().makeAnalog(stampSequence);
+        ObservableConceptVersionImpl newObservableVersion = new ObservableConceptVersionImpl(newVersion, getChronology());
+        getChronology().getVersionList().add(newObservableVersion);
         return (V) newObservableVersion;
     }
 

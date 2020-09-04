@@ -4,5 +4,52 @@ import javafx.beans.property.Property;
 import sh.isaac.api.coordinate.ImmutableCoordinate;
 
 public interface ObservableCoordinate<T extends ImmutableCoordinate> extends Property<T> {
+    /**
+     *
+     * @return The properties this coordinate defines, not the properties that contained
+     * coordinates may define.
+     */
+    Property<?>[] getBaseProperties();
 
+    /**
+     *
+     * @return composite coordinates, so that properties of composite coordinates can be
+     * recursively identified.
+     */
+    ObservableCoordinate<?>[] getCompositeCoordinates();
+
+    default boolean hasOverrides() {
+        for (Property property: getBaseProperties()) {
+            if (property instanceof PropertyWithOverride) {
+                PropertyWithOverride propertyWithOverride = (PropertyWithOverride) property;
+                if (propertyWithOverride.isOverridden()) {
+                    return true;
+                }
+            }
+        }
+        for (ObservableCoordinate coordinate: getCompositeCoordinates()) {
+            if (coordinate.hasOverrides()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    default void removeOverrides() {
+        for (Property property: getBaseProperties()) {
+            if (property instanceof PropertyWithOverride) {
+                PropertyWithOverride propertyWithOverride = (PropertyWithOverride) property;
+                if (propertyWithOverride.isOverridden()) {
+                    propertyWithOverride.removeOverride();
+                }
+            }
+        }
+        for (ObservableCoordinate coordinate: getCompositeCoordinates()) {
+            if (coordinate.hasOverrides()) {
+                coordinate.removeOverrides();
+            }
+        }
+    }
+
+    void setExceptOverrides(T updatedCoordinate);
 }

@@ -463,6 +463,15 @@ public class PostgresIdentifierProvider
     }
 
     @Override
+    public IntStream getNidStream() {
+        int maxNid = this.uuidIntMapMap.getMaxNid();
+        return IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
+                .filter((value) -> {
+                    return this.store.getAssemblageOfNid(value).isPresent();
+                });
+    }
+
+    @Override
     public Future<?> sync() {
         return CompletableFuture.completedFuture(true);
     }

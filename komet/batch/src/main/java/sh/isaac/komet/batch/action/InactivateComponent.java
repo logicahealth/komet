@@ -7,15 +7,14 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.VersionChangeListener;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.manifold.Manifold;
 
 import java.util.Optional;
 import java.util.UUID;
@@ -37,7 +36,7 @@ public class InactivateComponent extends ActionItem {
     }
 
     @Override
-    protected void setupItemForGui(Manifold manifoldForDisplay) {
+    protected void setupItemForGui(ObservableManifoldCoordinate manifoldForDisplay) {
         getPropertySheet().getItems().add(new PropertySheetItemConceptWrapper(manifoldForDisplay, "Inactivate",
                 conceptToInactivateProperty,
                 new ConceptProxy("Disease (disorder)", UUID.fromString("ab4e618b-b954-3d56-a44b-f0f29d6f59d3")),
@@ -46,17 +45,17 @@ public class InactivateComponent extends ActionItem {
     }
 
     @Override
-    protected void setupForApply(ConcurrentHashMap<Enum, Object> cache, Transaction transaction, StampFilter stampFilter, EditCoordinate editCoordinate) {
+    protected void setupForApply(ConcurrentHashMap<Enum, Object> cache, Transaction transaction, ManifoldCoordinateImmutable manifoldCoordinate) {
         Optional<? extends Chronology> optionalChronology = Get.identifiedObjectService().getChronology(conceptToInactivateProperty.get().getNid());
         if (optionalChronology.isPresent()) {
             Chronology chronology = optionalChronology.get();
-            chronology.createMutableVersion(transaction, Status.INACTIVE, editCoordinate);
+            chronology.createMutableVersion(manifoldCoordinate.getWriteCoordinate(transaction, null, Status.INACTIVE));
             Get.identifiedObjectService().putChronologyData(chronology);
         }
     }
 
     @Override
-    protected void apply(Chronology chronology, ConcurrentHashMap<Enum, Object> cache, Transaction transaction, StampFilter stampFilter, EditCoordinate editCoordinate, VersionChangeListener versionChangeListener) {
+    protected void apply(Chronology chronology, ConcurrentHashMap<Enum, Object> cache, VersionChangeListener versionChangeListener) {
         // nothing to do..
     }
 
@@ -81,6 +80,11 @@ public class InactivateComponent extends ActionItem {
             default:
                 throw new UnsupportedOperationException("Unsupported version: " + objectMarshalVersion);
         }
+    }
+
+    @Override
+    protected void conclude(ConcurrentHashMap<Enum, Object> cache) {
+        // nothing to do...
     }
 
 }

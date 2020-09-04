@@ -41,6 +41,8 @@ import com.zaxxer.hikari.HikariDataSource;
 import javafx.concurrent.Task;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.list.primitive.ImmutableLongList;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.ConfigurationService;
@@ -555,6 +557,7 @@ public class PostgresStampProvider
         this.cacheStampObjectToStampSequenceMap.clear();
         this.cacheStampSequenceToPathNidMap.clear();
         this.cacheStampSequenceToStampObjectMap.clear();
+        LOG.info("Stopped PostgresStampProvider pre-destroy. ");
 
     }
 
@@ -1138,5 +1141,24 @@ public class PostgresStampProvider
     @Override
     public void setCancelUncommittedStamps(boolean cancelUncommittedStamps) {
         this.cancelUncommittedStamps = cancelUncommittedStamps;
+    }
+
+    @Override
+    public ImmutableIntSet getPathsInUse() {
+        throw new UnsupportedOperationException();
+    }
+    @Override
+    public ImmutableIntSet getModulesInUse() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ImmutableIntSet getAuthorsInUse() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public ImmutableLongList getTimesInUse() {
+        throw new UnsupportedOperationException();
     }
 }

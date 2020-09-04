@@ -14,7 +14,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -47,7 +46,7 @@ public class RF2ExportHelper {
 
     public RF2ExportHelper(ManifoldCoordinate manifold) {
         manifoldCoordinate = manifold;
-        observableSnapshotService = Get.observableSnapshotService(manifoldCoordinate.getStampFilter());
+        observableSnapshotService = Get.observableSnapshotService(manifoldCoordinate.getVertexStampFilter());
     }
     
     public ManifoldCoordinate getManifoldCoordinate() {

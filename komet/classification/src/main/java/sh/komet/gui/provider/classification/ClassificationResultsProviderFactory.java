@@ -1,22 +1,23 @@
 package sh.komet.gui.provider.classification;
 
-import javax.inject.Singleton;
-import org.jvnet.hk2.annotations.Service;
-
 import javafx.scene.Node;
+import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+
+import javax.inject.Singleton;
 
 @Service(name = "Classification results provider")
 @Singleton
 public class ClassificationResultsProviderFactory implements ExplorationNodeFactory<ClassificationResultsNode> {
     @Override
-    public ClassificationResultsNode createNode(Manifold manifold, IsaacPreferences nodePreferences) {
-        return new ClassificationResultsNode(manifold, nodePreferences);
+    public ClassificationResultsNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences nodePreferences) {
+        return new ClassificationResultsNode(viewProperties, activityFeed, nodePreferences);
     }
 
     @Override
@@ -30,8 +31,8 @@ public class ClassificationResultsProviderFactory implements ExplorationNodeFact
     }
 
     @Override
-    public Manifold.ManifoldGroup[] getDefaultManifoldGroups() {
-        return new Manifold.ManifoldGroup[] {Manifold.ManifoldGroup.CLASSIFICATON};
+    public String[] getDefaultActivityFeed() {
+        return new String[] {ViewProperties.CLASSIFICATION};
     }
 
     @Override

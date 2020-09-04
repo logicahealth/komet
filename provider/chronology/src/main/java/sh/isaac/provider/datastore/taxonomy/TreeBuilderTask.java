@@ -46,8 +46,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.coordinate.DigraphCoordinateImmutable;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.VertexSort;
 import sh.isaac.api.progress.Stoppable;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
@@ -70,32 +70,33 @@ public class TreeBuilderTask
    private final int                       conceptAssemblageNid;
    private boolean                         stopRequested = false;
 
-   private final DigraphCoordinateImmutable digraph;
+   private final ManifoldCoordinateImmutable manifoldCoordinate;
    private final VertexSort vertexSort;
 
    private static final Logger LOG = LogManager.getLogger();
 
    public TreeBuilderTask(IntFunction<int[]> taxonomyDataProvider,
                           ManifoldCoordinate manifoldCoordinate) {
-      this(taxonomyDataProvider, manifoldCoordinate.toDigraphImmutable(), manifoldCoordinate.getVertexSort());
+      this(taxonomyDataProvider, manifoldCoordinate.toManifoldCoordinateImmutable(), manifoldCoordinate.getVertexSort());
    }
 
    //TODO - not sure if this comment is relevant any longer: this tree builder doesn't properly pay attention to the DestinationStampCoordiante
    public TreeBuilderTask(IntFunction<int[]> taxonomyDataProvider,
-                          DigraphCoordinateImmutable digraph, VertexSort vertexSort) {
+                          ManifoldCoordinateImmutable manifoldCoordinate, VertexSort vertexSort) {
       if (taxonomyDataProvider == null) {
          throw new IllegalStateException("taxonomyDataProvider cannot be null");
       }
-      this.digraph = digraph;
+      this.manifoldCoordinate = manifoldCoordinate;
       this.vertexSort = vertexSort;
       this.taxonomyDataProvider               = taxonomyDataProvider;
-      this.conceptAssemblageNid               = digraph.getLogicCoordinate().getConceptAssemblageNid();
+      this.conceptAssemblageNid               = manifoldCoordinate.getLogicCoordinate().getConceptAssemblageNid();
       LookupService.registerStoppable(this, LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL);
       this.conceptCount = (int) Get.identifierService()
                                    .getNidsForAssemblage(conceptAssemblageNid)
                                    .count();
       this.addToTotalWork(conceptCount * 2); // once to construct tree, ones to traverse tree
-      this.updateTitle("Generating " + digraph.getPremiseType() + " snapshot");
+      this.updateTitle("Generating " + manifoldCoordinate.getPremiseTypes().toUserString() + " Navigator for: " +
+              manifoldCoordinate.getViewStampFilter().getStampPosition().toUserString());
       this.setProgressMessageGenerator(
           (task) -> {
              updateMessage(message);
@@ -131,7 +132,7 @@ public class TreeBuilderTask
 
    private Tree compute() {
 
-      GraphCollectorIsolated  collector = new GraphCollectorIsolated(this.taxonomyDataProvider,this.digraph, this.vertexSort);
+      GraphCollectorIsolated  collector = new GraphCollectorIsolated(this.taxonomyDataProvider,this.manifoldCoordinate, this.vertexSort);
       IntStream       conceptNidStream = Get.identifierService()
                                             .getNidsForAssemblage(conceptAssemblageNid);
       long count = conceptNidStream.count();
@@ -147,9 +148,9 @@ public class TreeBuilderTask
       HashTreeBuilderIsolated graphBuilder = conceptNidStream.filter((conceptNid) -> {
                completedUnitOfWork();
                return true;
-            }).collect(() -> new HashTreeBuilderIsolated(this.digraph.getVertexStampFilter(),
-                                                         this.digraph.toUserString(),
-                                                         this.digraph.getPremiseType(),
+            }).collect(() -> new HashTreeBuilderIsolated(this.manifoldCoordinate.getVertexStampFilter().toStampFilterImmutable(),
+                                                         this.manifoldCoordinate.toUserString(),
+                                                         this.manifoldCoordinate.getPremiseTypes(),
                                                          this.conceptAssemblageNid),
                                                          collector, collector);
 

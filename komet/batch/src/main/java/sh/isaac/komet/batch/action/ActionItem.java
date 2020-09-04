@@ -4,13 +4,12 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.marshal.Marshalable;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.batch.VersionChangeListener;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.manifold.Manifold;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -27,7 +26,7 @@ public abstract class ActionItem implements Marshalable {
         return this.propertySheet;
     }
 
-    public void setupForGui(Manifold manifold) {
+    public void setupForGui(ObservableManifoldCoordinate manifold) {
         // TODO make property sheet transparent so background list row striping shows through properly...
         this.propertySheet = new PropertySheet();
         this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
@@ -36,7 +35,7 @@ public abstract class ActionItem implements Marshalable {
         setupItemForGui(manifold);
     }
 
-    protected abstract void setupItemForGui(Manifold manifold);
+    protected abstract void setupItemForGui(ObservableManifoldCoordinate manifold);
 
     /**
      * Called once before calling the apply methods, so that an action can setup and cache any objects
@@ -44,27 +43,22 @@ public abstract class ActionItem implements Marshalable {
      * ActionItems should use enum keys defined within their own class so that there is no duplicate assignment
      * of a key.
      * @param cache
-     * @param stampFilter
+     * @param manifoldCoordinate
      */
     protected abstract void setupForApply(ConcurrentHashMap<Enum, Object> cache,
                                           Transaction transaction,
-                                          StampFilter stampFilter,
-                                          EditCoordinate editCoordinate);
+                                          ManifoldCoordinateImmutable manifoldCoordinate) throws Exception;
 
     /**
      * This is the call that actually performs the action.
      * @param chronology
      * @param cache
-     * @param transaction
-     * @param stampFilter
-     * @param editCoordinate
      */
     protected abstract void apply(Chronology chronology,
                                   ConcurrentHashMap<Enum, Object> cache,
-                                  Transaction transaction,
-                                  StampFilter stampFilter,
-                                  EditCoordinate editCoordinate,
                                   VersionChangeListener versionChangeListener);
+
+    protected abstract void conclude(ConcurrentHashMap<Enum, Object> cache);
 
     public abstract String getTitle();
 

@@ -19,7 +19,7 @@ package sh.isaac.komet.preferences;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.prefs.BackingStoreException;
 
 import static sh.isaac.komet.preferences.GraphConfigurationItemPanel.Keys.*;
-import static sh.isaac.komet.preferences.coordinate.ManifoldCoordinateGroupPanel.*;
 import static sh.komet.gui.contract.preferences.GraphConfigurationItem.*;
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 
@@ -38,81 +37,37 @@ import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 public class GraphConfigurationItems extends ParentPanel  {
 
 
-    public GraphConfigurationItems(IsaacPreferences preferencesNode, Manifold manifold,
+    public GraphConfigurationItems(IsaacPreferences preferencesNode, ViewProperties viewProperties,
                                    KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "View configurations"),
-                manifold, kpc);
+                viewProperties, kpc);
         if (!initialized()) {
-            // Add four defaults: defining all, defining active only, defining active only FQN, stated all...
+            // Add two defaults: path tree, logic tree...
 
-            // Defining all
+            // inferred Preferred
             {
-                IsaacPreferences childPreferences = getPreferencesNode().node(DEFINING_ALL.getUuid().toString());
-                childPreferences.put(GROUP_NAME, DEFINING_ALL.getString());
-                childPreferences.put(ITEM_NAME, DEFINING_ALL.getString());
+                IsaacPreferences childPreferences = getPreferencesNode().node(PREMISE_DIGRAPH.getUuid().toString());
+                childPreferences.put(GROUP_NAME, PREMISE_DIGRAPH.getString());
+                childPreferences.put(ITEM_NAME, PREMISE_DIGRAPH.getString());
                 childPreferences.putConceptList(ROOTS, List.of(TermAux.SOLOR_ROOT));
                 childPreferences.putConceptList(TREES, new ArrayList<>());
                 childPreferences.putConceptList(INVERSE_TREES, new ArrayList<>());
                 childPreferences.putBoolean(INCLUDE_DEFINING_TAXONOMY, true);
-                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, INFERRED_GRAPH_NAVIGATION_ANY_NODE_MANIFOLD_KEY.toStringArray());
-                childPreferences = addChild(DEFINING_ALL.getUuid().toString(), GraphConfigurationItemPanel.class);
-                new GraphConfigurationItemPanel(childPreferences, manifold, kpc);
-            }
-
-            // Defining active only
-            {
-                IsaacPreferences childPreferences = getPreferencesNode().node(DEFINING_ACTIVE.getUuid().toString());
-                childPreferences.put(GROUP_NAME, DEFINING_ACTIVE.getString());
-                childPreferences.put(ITEM_NAME, DEFINING_ACTIVE.getString());
-                childPreferences.putConceptList(ROOTS, List.of(TermAux.SOLOR_ROOT));
-                childPreferences.putConceptList(TREES, new ArrayList<>());
-                childPreferences.putConceptList(INVERSE_TREES, new ArrayList<>());
-                childPreferences.putBoolean(INCLUDE_DEFINING_TAXONOMY, true);
-                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES_MANIFOLD_KEY.toStringArray());
-                childPreferences = addChild(DEFINING_ACTIVE.getUuid().toString(), GraphConfigurationItemPanel.class);
-                new GraphConfigurationItemPanel(childPreferences, manifold, kpc);
-            }
-
-            // Defining active only FQN...
-            {
-                IsaacPreferences childPreferences = getPreferencesNode().node(DEFINING_ACTIVE_FQN.getUuid().toString());
-                childPreferences.put(GROUP_NAME, DEFINING_ACTIVE_FQN.getString());
-                childPreferences.put(ITEM_NAME, DEFINING_ACTIVE_FQN.getString());
-                childPreferences.putConceptList(ROOTS, List.of(TermAux.SOLOR_ROOT));
-                childPreferences.putConceptList(TREES, new ArrayList<>());
-                childPreferences.putConceptList(INVERSE_TREES, new ArrayList<>());
-                childPreferences.putBoolean(INCLUDE_DEFINING_TAXONOMY, true);
-                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, INFERRED_GRAPH_NAVIGATION_ACTIVE_FQN_NODES_MANIFOLD_KEY.toStringArray());
-                childPreferences = addChild(DEFINING_ACTIVE_FQN.getUuid().toString(), GraphConfigurationItemPanel.class);
-                new GraphConfigurationItemPanel(childPreferences, manifold, kpc);
-            }
-
-            // Stated, nodes of all status
-            {
-                IsaacPreferences childPreferences = getPreferencesNode().node(STATED_ALL.getUuid().toString());
-                childPreferences.put(GROUP_NAME, STATED_ALL.getString());
-                childPreferences.put(ITEM_NAME, STATED_ALL.getString());
-                childPreferences.putConceptList(ROOTS, List.of(TermAux.SOLOR_ROOT));
-                childPreferences.putConceptList(TREES, new ArrayList<>());
-                childPreferences.putConceptList(INVERSE_TREES, new ArrayList<>());
-                childPreferences.putBoolean(INCLUDE_DEFINING_TAXONOMY, true);
-                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, STATED_GRAPH_NAVIGATION_ACTIVE_FQN_NODES_MANIFOLD_KEY.toStringArray());
-                childPreferences = addChild(STATED_ALL.getUuid().toString(), GraphConfigurationItemPanel.class);
-                new GraphConfigurationItemPanel(childPreferences, manifold, kpc);
+                childPreferences = addChild(PREMISE_DIGRAPH.getUuid().toString(), GraphConfigurationItemPanel.class);
+                new GraphConfigurationItemPanel(childPreferences, viewProperties, kpc);
             }
 
             // Path tree
             {
-                IsaacPreferences childPreferences = getPreferencesNode().node(PATH_TREE.getUuid().toString());
-                childPreferences.put(GROUP_NAME, PATH_TREE.getString());
-                childPreferences.put(ITEM_NAME, PATH_TREE.getString());
+                IsaacPreferences childPreferences = getPreferencesNode().node(PATH_DIGRAPH.getUuid().toString());
+                childPreferences.put(GROUP_NAME, PATH_DIGRAPH.getString());
+                childPreferences.put(ITEM_NAME, PATH_DIGRAPH.getString());
                 childPreferences.putConceptList(ROOTS, List.of(TermAux.PRIMORDIAL_PATH));
                 childPreferences.putConceptList(TREES, Arrays.asList(TermAux.PATH_ORIGIN_ASSEMBLAGE));
                 childPreferences.putConceptList(INVERSE_TREES, new ArrayList<>());
                 childPreferences.putBoolean(INCLUDE_DEFINING_TAXONOMY, false);
-                childPreferences.putArray(MANIFOLD_COORDINATE_KEY, INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES_MANIFOLD_KEY.toStringArray());
-                childPreferences = addChild(PATH_TREE.getUuid().toString(), GraphConfigurationItemPanel.class);
-                new GraphConfigurationItemPanel(childPreferences, manifold, kpc);
+                childPreferences = addChild(PATH_DIGRAPH.getUuid().toString(), GraphConfigurationItemPanel.class);
+                new GraphConfigurationItemPanel(childPreferences, viewProperties, kpc);
             }
 
             save();

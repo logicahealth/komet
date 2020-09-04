@@ -66,11 +66,12 @@ import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.komet.gui.graphview.MultiParentGraphCell;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.clipboard.ClipboardHelper;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
-import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.gui.table.DescriptionTableCell;
 
 import java.util.*;
@@ -80,21 +81,20 @@ import sh.komet.gui.contract.GuiSearcher;
 /**
  * @author kec
  */
-public class SimpleSearchController implements ExplorationNode, GuiSearcher, ConceptExplorationNode {
+public class SimpleSearchController extends ExplorationNodeAbstract implements GuiSearcher, ConceptExplorationNode {
+
+    {
+        titleProperty.setValue(SimpleSearchViewFactory.MENU_TEXT);
+        toolTipProperty.setValue("Simple Search Panel. ");
+        menuIconProperty.setValue(Iconography.SIMPLE_SEARCH.getIconographic());
+    }
+
     private static final KeyCodeCombination keyCodeCopy = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
     private static final Logger              LOG               = LogManager.getLogger();
-    private final SimpleStringProperty       titleProperty     =
-        new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
-    private final SimpleStringProperty       titleNodeProperty =
-        new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
-    private final SimpleStringProperty                     toolTipText       = new SimpleStringProperty("Simple Search Panel");
-    private final SimpleObjectProperty<Node> iconProperty      =
-        new SimpleObjectProperty<>(Iconography.SIMPLE_SEARCH.getIconographic());
+
     private final SimpleSearchService                         searchService        = new SimpleSearchService();
     private final SimpleListProperty<Integer> draggedTaxonomyConceptsForFilteringListProperty =
             new SimpleListProperty<>(FXCollections.observableArrayList());
-    private Manifold manifold;
-    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.SIMPLE_SEARCH.getIconographic());
 
     private final SimpleObjectProperty<ConceptSpecification> selectedConceptSpecificationProperty = new SimpleObjectProperty<>();
 
@@ -103,6 +103,8 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
     private final MenuItem copySelectedConcepts = new MenuItem("copy selected concepts");
     private final MenuItem copyAllDescriptions = new MenuItem("copy all descriptions");
     private final MenuItem copyAllConcepts = new MenuItem("copy all concepts");
+    private ActivityFeed activityFeed;
+
     {
         // add menu items to menu
         copySelectedDescriptions.setOnAction(this::copySelectedDescriptionsToClipboard);
@@ -135,10 +137,10 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
         throw new UnsupportedOperationException();
     }
 
-   @Override
-   public SimpleObjectProperty getMenuIconProperty() {
-      return menuIconProperty;
-   }
+    @Override
+    public Node getMenuIconGraphic() {
+        return Iconography.SIMPLE_SEARCH.getIconographic();
+    }
 
     @Override
     public void executeSearch(String searchString) {
@@ -164,13 +166,13 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
             case SUCCEEDED:
                 this.searchService.restart();
                 break;
-         case CANCELLED:
-            break;
-         case FAILED:
-            break;
-         default:
-            LOG.error("These cases were forgotten.... {}", this.searchService.getState());
-            break;
+            case CANCELLED:
+                break;
+            case FAILED:
+                break;
+            default:
+                LOG.error("These cases were forgotten.... {}", this.searchService.getState());
+                break;
         }
     }
 
@@ -216,19 +218,19 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
                     //nothing to do
                 } else {
                     for (ObservableDescriptionVersion remitem : c.getRemoved()) {
-                        manifold.manifoldSelectionProperty().remove(new ComponentProxy(Get.concept(remitem.getReferencedComponentNid())));
+                        activityFeed.feedSelectionProperty().remove(new ComponentProxy(Get.concept(remitem.getReferencedComponentNid())));
                     }
                     for (ObservableDescriptionVersion additem : c.getAddedSubList()) {
-                        manifold.manifoldSelectionProperty().add(new ComponentProxy(Get.concept(additem.getReferencedComponentNid())));
+                        activityFeed.feedSelectionProperty().add(new ComponentProxy(Get.concept(additem.getReferencedComponentNid())));
                     }
                 }
             }
-            if (manifold.manifoldSelectionProperty().size() != c.getList().size()) {
+            if (activityFeed.feedSelectionProperty().size() != c.getList().size()) {
                 ArrayList<ComponentProxy> selectionList = new ArrayList<>(c.getList().size());
                 for (ObservableDescriptionVersion descriptionVersion: c.getList()) {
                     selectionList.add(new ComponentProxy(Get.concept(descriptionVersion.getReferencedComponentNid())));
                 }
-                manifold.manifoldSelectionProperty().setAll(selectionList);
+                activityFeed.feedSelectionProperty().setAll(selectionList);
 
             }
         });
@@ -326,7 +328,7 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
         allLabel.setGraphic(Iconography.SEARCH_FILTER.getIconographic());
         allLabel.setText("All");
         allLabel.setStyle("-fx-background-color: transparent;" +"-fx-background-insets: 0;" + "-fx-padding:5;"
-        + "-fx-font-weight:bold;");
+                + "-fx-font-weight:bold;");
 
         //Tool Tip for All Filter
         Tooltip allFilterToolTip = new Tooltip();
@@ -380,7 +382,7 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
     }
 
     private void initializeSearchService(){
-        this.searchService.setManifold(this.manifold);
+        this.searchService.setViewProperties(this.viewProperties);
         this.searchService.luceneQueryProperty().bind(this.searchTextField.textProperty());
         this.searchService.parentNidsProperty().bind(this.draggedTaxonomyConceptsForFilteringListProperty);
 
@@ -389,7 +391,7 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
             switch (newValue) {
                 case SUCCEEDED:
                     ObservableList<ObservableDescriptionVersion> tableItems = this.resultTable.getItems();
-                    ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold.getStampFilter());
+                    ObservableSnapshotService snapshot = Get.observableSnapshotService(this.viewProperties.getViewStampFilter());
 
                     if(this.searchService.getValue().size() == 0) {
                         this.resultTable.setPlaceholder(new Label("No Results Found..."));
@@ -401,9 +403,9 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
                                 (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(nid);
 
                         if (latestDescription.isPresent()) {
-                           tableItems.add(latestDescription.get());
+                            tableItems.add(latestDescription.get());
                         } else {
-                           LOG.error("No latest description for: " + nid);
+                            LOG.error("No latest description for: " + nid);
                         }
                     });
                     break;
@@ -419,15 +421,10 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
     public void setSearchText(String searchText) {
         searchTextField.setText(searchText);
     }
-    
-    
-    @Override
-    public Manifold getManifold() {
-        return manifold;
-    }
 
-    public void setManifold(Manifold manifold) {
-        this.manifold = manifold;
+    public void setViewProperties(ViewProperties manifold, ActivityFeed activityFeed) {
+        this.viewProperties = manifold;
+        this.activityFeed = activityFeed;
         initializeControls();
     }
 
@@ -437,24 +434,14 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
     }
 
     @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return titleProperty;
-    }
-
-    @Override
     public Optional<Node> getTitleNode() {
         Label titleLabel = new Label();
 
-        titleLabel.graphicProperty().bind(iconProperty);
-        titleLabel.textProperty().bind(titleNodeProperty);
+        titleLabel.graphicProperty().bind(menuIconProperty);
+        titleLabel.textProperty().bind(titleProperty);
         titleProperty.set("");
 
         return Optional.of(titleLabel);
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return toolTipText;
     }
 
     @Override
@@ -480,6 +467,11 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher, Con
     @Override
     public void focusOnResults() {
         this.resultTable.requestFocus();
+    }
+
+    @Override
+    public ActivityFeed getActivityFeed() {
+        return this.activityFeed;
     }
 
 }

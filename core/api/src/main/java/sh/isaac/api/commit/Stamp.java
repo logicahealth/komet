@@ -59,7 +59,7 @@ import sh.isaac.api.util.Hashcode;
 //~--- classes ----------------------------------------------------------------
 
 /**
- * The Class Filter.
+ * The Class Stamp.
  * TODO: add license and copyright nids to the class. . 
  */
 public class Stamp

@@ -43,6 +43,7 @@ import java.util.List;
 import java.util.UUID;
 import sh.isaac.api.Status;
 import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.transaction.Transaction;
 
 /**
@@ -52,9 +53,9 @@ import sh.isaac.api.transaction.Transaction;
 public class CategorizedVersion
          implements Version {
    private final Version             delegate;
-   private final CategorizedVersions<CategorizedVersion> categorizedVersions;
+   private final CategorizedVersions categorizedVersions;
 
-   public CategorizedVersion(Version delegate, CategorizedVersions<CategorizedVersion> categorizedVersions) {
+   public CategorizedVersion(Version delegate, CategorizedVersions categorizedVersions) {
       this.delegate            = delegate;
       this.categorizedVersions = categorizedVersions;
    }
@@ -201,7 +202,7 @@ public class CategorizedVersion
       return delegate.getSemanticType();
    }
    
-   public CategorizedVersions<CategorizedVersion> getCategorizedVersions() {
+   public CategorizedVersions getCategorizedVersions() {
       return categorizedVersions;
    }   
 
@@ -214,10 +215,5 @@ public class CategorizedVersion
     public boolean deepEquals(Object other) {
         return delegate.deepEquals(other);
     }
-
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, int authorNid) {
-      return delegate.makeAnalog(transaction, authorNid);
-   }
 }
 

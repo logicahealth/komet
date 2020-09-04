@@ -16,30 +16,31 @@
  */
 package sh.komet.gui.cell.treetable;
 
+import javafx.scene.control.TreeTableRow;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.observable.ObservableCategorizedVersion;
+
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import javafx.scene.control.TreeTableRow;
-import sh.isaac.api.observable.ObservableCategorizedVersion;
-import sh.komet.gui.manifold.Manifold;
 
 /**
  *
  * @author kec
  */
 public class TreeTableAuthorTimeCell extends KometTreeTableCell<ObservableCategorizedVersion> {
-   private final Manifold manifold;
+   private final ManifoldCoordinate manifoldCoordinate;
    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-   public TreeTableAuthorTimeCell(Manifold manifold) {
-      this.manifold = manifold;
+   public TreeTableAuthorTimeCell(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
       getStyleClass().add("komet-version-author-time-cell");
       getStyleClass().add("isaac-version");
    }
 
    @Override
    protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion version) {
-        setText(manifold.getPreferredDescriptionText(version.getAuthorNid()) + "\n" +
+        setText(manifoldCoordinate.getPreferredDescriptionText(version.getAuthorNid()) + "\n" +
                 formatter.format(Instant.ofEpochMilli(version.getTime()).atZone(ZoneOffset.UTC))
         );
    }

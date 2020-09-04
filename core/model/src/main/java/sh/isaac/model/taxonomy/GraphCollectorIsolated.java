@@ -5,18 +5,26 @@ import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.coordinate.DigraphCoordinateImmutable;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.VertexSort;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.tree.HashTreeBuilderIsolated;
 
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.IntFunction;
 import java.util.function.ObjIntConsumer;
 
+
+/**
+ * Stream-based, parallelizable,  collector to create a graph, which represents a
+ * particular point in time, and a particular semantic state (stated or inferred)
+ * of a taxonomy. The HashTreeBuilder does not require concurrent access, since there is one
+ * HashTreeBuilder per thread, and then when the process completes, the HashTreeBuilders are
+ * merged in a single thread.
+ * @author kec
+ */
 public class GraphCollectorIsolated
         implements ObjIntConsumer<HashTreeBuilderIsolated>, BiConsumer<HashTreeBuilderIsolated, HashTreeBuilderIsolated> {
 
@@ -30,13 +38,13 @@ public class GraphCollectorIsolated
     /** The taxonomy map. */
     private final IntFunction<int[]> taxonomyDataProvider;
 
-    private final DigraphCoordinateImmutable digraph;
+    private final ManifoldCoordinateImmutable digraph;
     private final RelativePositionCalculator edgeComputer;
     private final RelativePositionCalculator vertexComputer;
     private final VertexSort sort;
 
     /** The taxonomy flags. */
-    private final int taxonomyFlags;
+    private final int[] taxonomyFlags;
 
     //~--- constructors --------------------------------------------------------
     /**
@@ -47,25 +55,25 @@ public class GraphCollectorIsolated
      */
     public GraphCollectorIsolated(IntFunction<int[]> taxonomyDataProvider,
                                   ManifoldCoordinate manifoldCoordinate) {
-        this(taxonomyDataProvider, manifoldCoordinate.getDigraph().toDigraphImmutable(), manifoldCoordinate.getVertexSort());
+        this(taxonomyDataProvider, manifoldCoordinate.toManifoldCoordinateImmutable(), manifoldCoordinate.getVertexSort());
     }
 
     /**
      * Instantiates a new graph collector.
      *
      * @param taxonomyDataProvider the taxonomy map
-     * @param digraph calculates current versions of components.
+     * @param manifoldCoordinateImmutable calculates current versions of components.
      */
     public GraphCollectorIsolated(IntFunction<int[]> taxonomyDataProvider,
-                                  DigraphCoordinateImmutable digraph, VertexSort sort) {
+                                  ManifoldCoordinateImmutable manifoldCoordinateImmutable, VertexSort sort) {
         if (taxonomyDataProvider == null) {
             throw new IllegalStateException("taxonomyDataProvider cannot be null");
         }
         this.taxonomyDataProvider = taxonomyDataProvider;
-        this.digraph = digraph;
-        this.edgeComputer = digraph.getEdgeStampFilter().getRelativePositionCalculator();
-        this.vertexComputer = digraph.getVertexStampFilter().getRelativePositionCalculator();
-        this.taxonomyFlags = TaxonomyFlag.getFlagsFromPremiseType(digraph.getPremiseType());
+        this.digraph = manifoldCoordinateImmutable;
+        this.edgeComputer = manifoldCoordinateImmutable.getViewStampFilter().getRelativePositionCalculator();
+        this.vertexComputer = manifoldCoordinateImmutable.getVertexStampFilter().getRelativePositionCalculator();
+        this.taxonomyFlags = manifoldCoordinateImmutable.getPremiseTypes().getFlags();
         this.sort = sort;
      }
 
@@ -114,12 +122,12 @@ public class GraphCollectorIsolated
                  isaacPrimitiveTaxonomyRecord.containsStampOfTypeWithFlags(this.ISA_CONCEPT_NID, this.taxonomyFlags) &&
                  isaacPrimitiveTaxonomyRecord.isConceptActive(originNid, this.vertexComputer)) {
             // again for steping through with the debugger. Remove when issues resolved.
-             LOG.info("Found concept with no parents: " + Get.conceptDescriptionText(originNid) + " <" + originNid + ">");
-             final int[] destinationConceptNids2 = taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
-                    this.taxonomyDataProvider, this.taxonomyFlags, this.edgeComputer,
-                    this.vertexComputer, this.sort, this.digraph);
-             LOG.info("Second try equals: " + Arrays.equals(destinationConceptNids, destinationConceptNids2));
-             LOG.info("Second try: " + Arrays.toString(destinationConceptNids2));
+             //LOG.info("Found concept with no parents: " + Get.conceptDescriptionText(originNid) + " <" + originNid + ">");
+//             final int[] destinationConceptNids2 = taxonomyRecordUnpacked.getConceptNidsForType(this.ISA_CONCEPT_NID,
+//                    this.taxonomyDataProvider, this.taxonomyFlags, this.edgeComputer,
+//                    this.vertexComputer, this.sort, this.digraph);
+//             LOG.info("Second try equals: " + Arrays.equals(destinationConceptNids, destinationConceptNids2));
+//             LOG.info("Second try: " + Arrays.toString(destinationConceptNids2));
          }
 //         int parentCount = 0;
             for (int destinationNid: destinationConceptNids) {
@@ -162,7 +170,7 @@ public class GraphCollectorIsolated
         final StringBuilder buff = new StringBuilder();
 
         buff.append("GraphCollectorIsolated{");
-        buff.append(TaxonomyFlag.getTaxonomyFlags(this.taxonomyFlags));
+        buff.append(digraph.toUserString());
         buff.append("}");
         return buff.toString();
     }

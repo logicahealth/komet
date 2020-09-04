@@ -15,23 +15,39 @@
  */
 package sh.isaac.model.configuration;
 
+import java.util.Optional;
+import java.util.UUID;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.PerLookup;
 import org.glassfish.hk2.api.Rank;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.*;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.Get;
+import sh.isaac.api.GlobalDatastoreConfiguration;
+import sh.isaac.api.UserConfiguration;
+import sh.isaac.api.UserConfigurationInternalImpl;
 import sh.isaac.api.UserConfigurationInternalImpl.ConfigurationOption;
+import sh.isaac.api.UserConfigurationPerDB;
+import sh.isaac.api.UserConfigurationPerOSUser;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.coordinate.Activity;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.observable.coordinate.*;
-import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
+import sh.isaac.api.coordinate.WriteCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
+import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampPath;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableStampPathImpl;
-import java.util.Optional;
-import java.util.UUID;
 
 /**
  * Get or set various options that a user might want to set in their environment.
@@ -70,7 +86,7 @@ public class UserConfigurationImpl implements UserConfiguration
 	private UserConfigurationPerOSUser osConfig = null;
 	private GlobalDatastoreConfiguration globalConfig = null;
 	
-	private ObservableEditCoordinate editCoordinate;
+	private SimpleObjectProperty<WriteCoordinate> writeCoordinate;
 	private ObservableLanguageCoordinateImpl languageCoordinate;
 	private ObservableLogicCoordinate logicCoordinate;
 	private ObservableStampPath pathCoordinate;
@@ -116,11 +132,7 @@ public class UserConfigurationImpl implements UserConfiguration
 		}
 		
 		//Configure our cached objects
-		editCoordinate = new ObservableEditCoordinateImpl(globalConfig.getDefaultEditCoordinate().getValue());
-		editCoordinate.authorProperty().set(userConcept.isPresent() ? Get.conceptSpecification(userConcept.get())
-				: globalConfig.getDefaultEditCoordinate().authorProperty().get());
-		editCoordinate.moduleProperty().set(Get.conceptSpecification((Integer) getOption(ConfigurationOption.EDIT_MODULE)));
-		editCoordinate.pathProperty().set(Get.conceptSpecification((Integer) getOption(ConfigurationOption.EDIT_PATH)));
+		writeCoordinate = new SimpleObjectProperty<WriteCoordinate>(globalConfig.getDefaultWriteCoordinate().getValue());
 		
 		//TODO add setters / options for things below that aren't yet being set?
 		languageCoordinate = new ObservableLanguageCoordinateImpl(globalConfig.getDefaultLanguageCoordinate().getValue());
@@ -136,15 +148,14 @@ public class UserConfigurationImpl implements UserConfiguration
 		logicCoordinate.inferredAssemblageProperty().set(new ConceptProxy((Integer) getOption(ConfigurationOption.INFERRED_ASSEMBLAGE)));
 		logicCoordinate.statedAssemblageProperty().set(new ConceptProxy((Integer) getOption(ConfigurationOption.STATED_ASSEMBLAGE)));
 		
-		pathCoordinate = new ObservableStampPathImpl(globalConfig.getDefaultStampCoordinate().getValue());
+		pathCoordinate = ObservableStampPathImpl.make(globalConfig.getDefaultStampCoordinate().getValue());
 		//stampCoordinate.allowedStatesProperty();
 		//stampCoordinate.moduleNidsProperty();
 		//stampCoordinate.stampPositionProperty().get().stampPathConceptSpecificationProperty();
 		//pathCoordinate.getStampFilter().getStampPosition()..get().timeProperty().set(getOption(ConfigurationOption.TIME));
 		//stampCoordinate.stampPrecedenceProperty()
 		
-		manifoldCoordinate = new ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable.makeStated(pathCoordinate.getStampFilter(), languageCoordinate, logicCoordinate));
-		manifoldCoordinate.getDigraph().premiseTypeProperty().set(getOption(ConfigurationOption.PREMISE_TYPE));
+		manifoldCoordinate = new ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable.makeStated(pathCoordinate.getStampFilter(), languageCoordinate, logicCoordinate, Activity.VIEWING, Coordinates.Edit.Default()));
 		//manifoldCoordinate.uuidProperty();
 	}
 
@@ -152,12 +163,9 @@ public class UserConfigurationImpl implements UserConfiguration
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ObservableEditCoordinate getEditCoordinate()
+	public ReadOnlyObjectProperty<WriteCoordinate> getWriteCoordinate()
 	{
-		//TODO currently, if the user edits individual parts of any of the Observables we return from this class, they won't get stored back.
-		//Perhaps we should listen / store - but - how would we know which service to write it back to?  
-		//TODO we should really be returning these as ReadOnly observables
-		return editCoordinate;
+		return writeCoordinate;
 	}
 
 	/** 
@@ -280,7 +288,7 @@ public class UserConfigurationImpl implements UserConfiguration
 	{
 		switch(option) {
 			case EDIT_COORDINATE:
-				return (T)getEditCoordinate();
+				return (T)getWriteCoordinate();
 			case LANGUAGE_COORDINATE:
 				return (T)getLanguageCoordinate();
 			case LOGIC_COORDINATE:
@@ -358,10 +366,12 @@ public class UserConfigurationImpl implements UserConfiguration
 						languageCoordinate.setDialectAssemblagePreferenceList((int[])getOption(ConfigurationOption.DIALECT_ASSEMBLAGE_PREFERENCE_LIST));
 						break;
 					case EDIT_MODULE:
-						editCoordinate.moduleProperty().set(getOption(ConfigurationOption.EDIT_MODULE));
+						this.writeCoordinate.set(new WriteCoordinateImpl(this.writeCoordinate.get().getAuthorNid(), getOption(ConfigurationOption.EDIT_MODULE), 
+								this.writeCoordinate.get().getPathNid()));
 						break;
 					case EDIT_PATH:
-						editCoordinate.pathProperty().set(getOption(ConfigurationOption.EDIT_PATH));
+						this.writeCoordinate.set(new WriteCoordinateImpl(this.writeCoordinate.get().getAuthorNid(), this.writeCoordinate.get().getModuleNid(), 
+								getOption(ConfigurationOption.EDIT_PATH)));
 						break;
 					case INFERRED_ASSEMBLAGE:
 						logicCoordinate.inferredAssemblageProperty().set(new ConceptProxy((Integer)getOption(ConfigurationOption.INFERRED_ASSEMBLAGE)));
@@ -370,7 +380,19 @@ public class UserConfigurationImpl implements UserConfiguration
 						languageCoordinate.setLanguageConceptNid(getOption(ConfigurationOption.LANGUAGE));
 						break;
 					case PREMISE_TYPE:
-						manifoldCoordinate.getDigraph().premiseTypeProperty().set(getOption(ConfigurationOption.PREMISE_TYPE));
+						switch ((PremiseType) getOption(ConfigurationOption.PREMISE_TYPE)) {
+							case STATED:
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().clear();
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().add(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE);
+								break;
+							case INFERRED:
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().clear();
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().add(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE);
+								break;
+							default :
+								throw new RuntimeException("oops");
+						}
+
 						break;
 					case STATED_ASSEMBLAGE:
 						logicCoordinate.statedAssemblageProperty().set(new ConceptProxy((Integer)getOption(ConfigurationOption.STATED_ASSEMBLAGE)));
@@ -408,10 +430,12 @@ public class UserConfigurationImpl implements UserConfiguration
 						languageCoordinate.setDialectAssemblagePreferenceList((int[])objectValue);
 						break;
 					case EDIT_MODULE:
-						editCoordinate.moduleProperty().set(Get.conceptSpecification((Integer)objectValue));
+						this.writeCoordinate.set(new WriteCoordinateImpl(this.writeCoordinate.get().getAuthorNid(), (Integer)objectValue, 
+								this.writeCoordinate.get().getPathNid()));
 						break;
 					case EDIT_PATH:
-						editCoordinate.pathProperty().set(Get.conceptSpecification((Integer)objectValue));
+						this.writeCoordinate.set(new WriteCoordinateImpl(this.writeCoordinate.get().getAuthorNid(), this.writeCoordinate.get().getModuleNid(), 
+								(Integer)objectValue));
 						break;
 					case INFERRED_ASSEMBLAGE:
 						logicCoordinate.inferredAssemblageProperty().set(new ConceptProxy((Integer)objectValue));
@@ -420,7 +444,16 @@ public class UserConfigurationImpl implements UserConfiguration
 						languageCoordinate.setLanguageConceptNid((Integer)objectValue);
 						break;
 					case PREMISE_TYPE:
-						manifoldCoordinate.getDigraph().premiseTypeProperty().set((PremiseType)objectValue);
+						switch ((PremiseType) objectValue) {
+							case STATED:
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().clear();
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().add(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE);
+								break;
+							case INFERRED:
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().clear();
+								manifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().add(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE);
+								break;
+						}
 						break;
 					case STATED_ASSEMBLAGE:
 						logicCoordinate.statedAssemblageProperty().set(new ConceptProxy((Integer)objectValue));

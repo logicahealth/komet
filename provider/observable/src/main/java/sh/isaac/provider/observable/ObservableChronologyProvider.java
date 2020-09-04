@@ -226,6 +226,7 @@ public class ObservableChronologyProvider
         Get.commitService().removeChangeListener(this);
         observableConceptMap.clear();
         observableSemanticMap.clear();
+        LOG.info("Stopped ObservableChronologyProvider");
     }
 
     //~--- get methods ---------------------------------------------------------

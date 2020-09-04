@@ -23,7 +23,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -32,17 +33,17 @@ import sh.komet.gui.manifold.Manifold;
 public class ConceptSpecificationForControlWrapper
         implements ConceptSpecification {
 
-    private final Manifold manifold;
+    private final ManifoldCoordinate manifoldCoordinate;
     private final ConceptSpecification spec;
     
     private static final Logger LOG = LogManager.getLogger();
 
     //~--- constructors --------------------------------------------------------
-    public ConceptSpecificationForControlWrapper(ConceptSpecification spec, Manifold manifold) {
+    public ConceptSpecificationForControlWrapper(ConceptSpecification spec, ManifoldCoordinate manifoldCoordinate) {
         if (spec == null) {
             spec = MetaData.UNINITIALIZED_COMPONENT____SOLOR;
         }
-        this.manifold = manifold;
+        this.manifoldCoordinate = manifoldCoordinate;
         this.spec = spec;
     }
 
@@ -57,8 +58,8 @@ public class ConceptSpecificationForControlWrapper
 
         return "unspecified";
     }
-    public Manifold getManifold() {
-        return manifold;
+    public ManifoldCoordinate getManifoldCoordinate() {
+        return manifoldCoordinate;
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -76,12 +77,12 @@ public class ConceptSpecificationForControlWrapper
 
     @Override
     public String getFullyQualifiedName() {
-        return this.manifold.getFullyQualifiedDescriptionText(this.spec);
+        return this.manifoldCoordinate.getFullyQualifiedDescriptionText(this.spec);
     }
 
     @Override
     public Optional<String> getRegularName() {
-        return Optional.of(this.manifold.getPreferredDescriptionText(this.spec));
+        return Optional.of(this.manifoldCoordinate.getPreferredDescriptionText(this.spec));
     }
 
     @Override

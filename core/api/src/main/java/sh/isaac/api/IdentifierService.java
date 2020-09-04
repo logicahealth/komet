@@ -116,6 +116,12 @@ public interface IdentifierService
     */
    IntStream getNidStreamOfType(IsaacObjectType objectType);
 
+    /**
+     *
+     * @return a stream of all the native identifiers for the components
+     */
+    IntStream getNidStream();
+
    /**
     * Return the nids of objects which are members of the specified assemblage
     * @param assemblageNid

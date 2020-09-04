@@ -105,10 +105,16 @@ public class TreeNodeVisitDataWithHash extends TreeNodeVisitDataImpl {
     }
     
     public HashMap<UUID, List<ScoreRecord>> getNodeSemanticUuid_ScoreRecord_Map_ForDistance(int depth) {
+        if (depth >= level_NodeSemanticUuid_ScoreRecord.size()) {
+            return new HashMap<>();
+        }
         return level_NodeSemanticUuid_ScoreRecord.get(depth);
     }
     
     public HashMap<UUID, List<ScoreRecord>> getLineageHash_ScoreRecord_Map_ForDistance(int depth) {
+        if (depth >= level_ChildHash_ScoreRecord.size()) {
+            return new HashMap<>();
+        }
         return level_ChildHash_ScoreRecord.get(depth);
     }
     

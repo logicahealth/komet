@@ -5,17 +5,27 @@ public interface EditCoordinateProxy extends EditCoordinate {
     EditCoordinate getEditCoordinate();
 
     @Override
-    default int getAuthorNid() {
-        return getEditCoordinate().getAuthorNid();
+    default int getAuthorNidForChanges() {
+        return getEditCoordinate().getAuthorNidForChanges();
     }
 
     @Override
-    default int getModuleNid() {
-        return getEditCoordinate().getModuleNid();
+    default int getDefaultModuleNid() {
+        return getEditCoordinate().getDefaultModuleNid();
     }
 
     @Override
-    default int getPathNid() {
-        return getEditCoordinate().getPathNid();
+    default int getDestinationModuleNid() {
+        return getEditCoordinate().getDestinationModuleNid();
+    }
+
+    @Override
+    default EditCoordinateImmutable toEditCoordinateImmutable() {
+        return getEditCoordinate().toEditCoordinateImmutable();
+    }
+
+    @Override
+    default int getPromotionPathNid() {
+        return getEditCoordinate().getPromotionPathNid();
     }
 }

@@ -52,14 +52,13 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
-import sh.isaac.model.observable.CommitAwareStringProperty;
-import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareStringProperty;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 
@@ -122,12 +121,12 @@ public class ObservableDescriptionVersionImpl
 
     @SuppressWarnings("unchecked")
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableDescriptionVersionImpl analog = new ObservableDescriptionVersionImpl(this, getChronology());
         copyLocalFields(analog);
-        analog.setModuleNid(ec.getModuleNid());
-        analog.setAuthorNid(ec.getAuthorNid());
-        analog.setPathNid(ec.getPathNid());
+        analog.setModuleNid(mc.getModuleNidForAnalog(this));
+        analog.setAuthorNid(mc.getAuthorNidForChanges());
+        analog.setPathNid(mc.getPathNidForAnalog());
         return (V) analog;
     }
 
@@ -223,13 +222,10 @@ public class ObservableDescriptionVersionImpl
    @SuppressWarnings("unchecked")
    @Override
    public <V extends Version> V makeAnalog(int stampSequence) {
-      DescriptionVersion newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
-      ObservableDescriptionVersionImpl newObservableVersion = new ObservableDescriptionVersionImpl(
-                                                                  newVersion,
-                                                                        (ObservableSemanticChronology) chronology);
-        ((ObservableChronologyImpl) chronology).getVersionList()
-                .add(newObservableVersion);
-        return (V) newObservableVersion;
+      DescriptionVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+      ObservableDescriptionVersionImpl newObservableVersion = new ObservableDescriptionVersionImpl(newVersion, getChronology());
+      getChronology().getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
     }
 
     /**
@@ -261,7 +257,7 @@ public class ObservableDescriptionVersionImpl
 
    @Override
    public String toString() {
-      return "ObservableDescriptionImpl{text:" + getText() + ", case: " + Get.conceptDescriptionText(
+      return "ObservableDescriptionVersionImpl{text:" + getText() + ", case: " + Get.conceptDescriptionText(
           getCaseSignificanceConceptNid()) + ", language:" + Get.conceptDescriptionText(
               getLanguageConceptNid()) + ", type: " + Get.conceptDescriptionText(
                   getDescriptionTypeConceptNid()) + " " + Get.stampService().describeStampSequence(

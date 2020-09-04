@@ -37,40 +37,30 @@
 package sh.komet.gui.provider.concept.detail.treetable;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.net.URL;
 
-import java.util.ResourceBundle;
-
-//~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
-
-import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
-
 import javafx.fxml.FXML;
-
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeTableColumn;
 import javafx.scene.control.TreeTableView;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.scene.layout.BorderPane;
-
-import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersions;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.komet.gui.cell.treetable.TreeTableAuthorTimeCellFactory;
-import sh.komet.gui.cell.treetable.TreeTableConceptCellFactory;
-import sh.komet.gui.cell.treetable.TreeTableGeneralCellFactory;
-import sh.komet.gui.cell.treetable.TreeTableModulePathCellFactory;
-import sh.komet.gui.cell.treetable.TreeTableTimeCellFactory;
-import sh.komet.gui.cell.treetable.TreeTableWhatCellFactory;
-import sh.komet.gui.manifold.Manifold;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.komet.gui.cell.treetable.*;
+import sh.komet.gui.control.property.ViewProperties;
+
+import java.net.URL;
+import java.util.ResourceBundle;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 public class ConceptDetailTreeTableController {
@@ -102,14 +92,12 @@ public class ConceptDetailTreeTableController {
    private TreeTableColumn<ObservableCategorizedVersion, Integer> conceptModuleColumn;
    @FXML  // fx:id="conceptPathColumn"
    private TreeTableColumn<ObservableCategorizedVersion, Integer> conceptPathColumn;
-   private SimpleObjectProperty<Manifold> manifoldProperty = new SimpleObjectProperty<>();
-   private final SimpleIntegerProperty selectionIndexProperty = new SimpleIntegerProperty(0);
+   private ViewProperties viewProperties;
    private TreeTableConceptCellFactory conceptCellFactory;
    private TreeTableWhatCellFactory whatCellFactory;
    private TreeTableGeneralCellFactory generalCellFactory;
    private TreeTableModulePathCellFactory modulePathCellFactory;
    private TreeTableAuthorTimeCellFactory authorTimeCellFactory;
-   private final ListChangeListener<ComponentProxy> selectionChangedListener = c -> this.selectionChanged(c);
 
    //~--- methods -------------------------------------------------------------
    @FXML  // This method is called by the FXMLLoader when initialization is complete
@@ -142,18 +130,15 @@ public class ConceptDetailTreeTableController {
       return conceptDetailRootPane;
    }
 
-   public Manifold getManifold() {
-      return this.manifoldProperty.get();
+   public ManifoldCoordinate getManifold() {
+      return this.viewProperties.getManifoldCoordinate();
    }
 
    //~--- set methods ---------------------------------------------------------
-   public void setManifoldProperty(SimpleObjectProperty<Manifold> manifoldProperty) {
-      this.manifoldProperty = manifoldProperty;
-      manifoldChanged(manifoldProperty, null, manifoldProperty.get());
-      manifoldProperty.addListener(this::manifoldChanged);
-
-      this.manifoldProperty.get().manifoldSelectionProperty()
-              .addListener(this.selectionChangedListener);
+   public void setViewProperties(ViewProperties viewProperties) {
+      this.viewProperties = viewProperties;
+      manifoldChanged(viewProperties.getManifoldCoordinate(), null, viewProperties.getManifoldCoordinate());
+      viewProperties.getManifoldCoordinate().addListener(this::manifoldChanged);
 
       conceptStatusColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("state"));
       conceptTimeColumn.setVisible(false);
@@ -166,51 +151,46 @@ public class ConceptDetailTreeTableController {
       conceptPathColumn.setVisible(false);
       conceptPathColumn.setCellValueFactory(new TreeItemPropertyValueFactory<>("pathSequence"));
 
-
-      selectionListChanged(this.manifoldProperty.get().manifoldSelectionProperty());
    }
-   private void manifoldChanged(ObservableValue<? extends Manifold> manifoldProperty, Manifold oldManifold, Manifold newManifold) {
-
-      if (oldManifold != null) {
-         oldManifold.manifoldSelectionProperty().get().removeListener(this.selectionChangedListener);
-      }
-      newManifold.manifoldSelectionProperty().get().addListener(this.selectionChangedListener);
-      this.conceptCellFactory = new TreeTableConceptCellFactory(newManifold);
+   private void manifoldChanged(ObservableValue<? extends ManifoldCoordinate> manifoldProperty, ManifoldCoordinate oldManifold, ManifoldCoordinate newManifold) {
+      this.conceptCellFactory = new TreeTableConceptCellFactory(this.viewProperties.getManifoldCoordinate());
       this.conceptAuthorColumn.setCellFactory(this.conceptCellFactory::call);
       this.conceptModuleColumn.setCellFactory(this.conceptCellFactory::call);
       this.conceptPathColumn.setCellFactory(this.conceptCellFactory::call);
 
-      this.whatCellFactory = new TreeTableWhatCellFactory(newManifold);
+      this.whatCellFactory = new TreeTableWhatCellFactory(this.viewProperties.getManifoldCoordinate());
       this.conceptWhatColumn.setCellValueFactory(this.whatCellFactory::getCellValue);
       this.conceptWhatColumn.setCellFactory(this.whatCellFactory::call);
 
-      this.generalCellFactory = new TreeTableGeneralCellFactory(newManifold);
+      this.generalCellFactory = new TreeTableGeneralCellFactory(this.viewProperties.getManifoldCoordinate());
       this.conceptGeneralColumn.setCellValueFactory(this.generalCellFactory::getCellValue);
       this.conceptGeneralColumn.setCellFactory(this.generalCellFactory::call);
 
-      this.modulePathCellFactory = new TreeTableModulePathCellFactory(newManifold);
+      this.modulePathCellFactory = new TreeTableModulePathCellFactory(this.viewProperties.getManifoldCoordinate());
       this.conceptModulePathColumn.setCellValueFactory(this.modulePathCellFactory::getCellValue);
       this.conceptModulePathColumn.setCellFactory(this.modulePathCellFactory::call);
 
-      this.authorTimeCellFactory = new TreeTableAuthorTimeCellFactory(newManifold);
+      this.authorTimeCellFactory = new TreeTableAuthorTimeCellFactory(this.viewProperties.getManifoldCoordinate());
       this.conceptAuthorTimeColumn.setCellValueFactory(this.authorTimeCellFactory::getCellValue);
       this.conceptAuthorTimeColumn.setCellFactory(this.authorTimeCellFactory::call);
    }
 
-   private void selectionChanged(ListChangeListener.Change<? extends ComponentProxy> c) {
-      selectionListChanged(c.getList());
-   }
-
-   private void selectionListChanged(ObservableList<? extends ComponentProxy> selectionList) {
+   private void selectionListChanged(ObservableList<IdentifiedObject> selectionList) {
       if (selectionList.isEmpty()) {
          conceptExtensionTreeTable.setRoot(null);
       } else {
+      }
+   }
+
+   public void updateFocusedObject(IdentifiedObject component) {
+      if (component == null) {
+         conceptExtensionTreeTable.setRoot(null);
+      } else {
          ObservableConceptChronology observableConceptChronology = Get.observableChronologyService()
-                 .getObservableConceptChronology(
-                         selectionList.get(this.selectionIndexProperty.get()).getNid());
+                 .getObservableConceptChronology(component.getNid());
          CategorizedVersions<ObservableCategorizedVersion> categorizedVersions
                  = observableConceptChronology.getCategorizedVersions(
-                 manifoldProperty.get().getStampFilter());
+                 this.viewProperties.getManifoldCoordinate().getVertexStampFilter());
 
          TreeItem<ObservableCategorizedVersion> assemblageRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
          addChildren(assemblageRoot, observableConceptChronology.getObservableSemanticList().sorted(), true);
@@ -218,12 +198,11 @@ public class ConceptDetailTreeTableController {
       }
    }
 
-
    private void addChildren(TreeItem<ObservableCategorizedVersion> parent,
                             ObservableList<ObservableSemanticChronology> children, boolean addSemantics) {
       for (ObservableSemanticChronology child : children) {
          TreeItem<ObservableCategorizedVersion> parentToAddTo = parent;
-         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(getManifold().getStampFilter());
+         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = child.getCategorizedVersions(getManifold().getViewStampFilter());
 
          if (categorizedVersions.getLatestVersion()
                  .isPresent()) {

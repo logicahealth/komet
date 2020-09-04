@@ -39,20 +39,21 @@
 
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
-import javafx.concurrent.Task;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import sh.isaac.api.Get;
-import sh.isaac.api.classifier.ClassifierResults;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
-import sh.isaac.api.progress.PersistTaskResult;
-import sh.isaac.api.task.SequentialAggregateTask;
-import sh.isaac.provider.logic.LogicProvider;
-
 import java.time.Instant;
 import java.util.concurrent.Semaphore;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import javafx.concurrent.Task;
+import sh.isaac.api.Get;
+import sh.isaac.api.classifier.ClassifierResults;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.StatusSet;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
+import sh.isaac.api.progress.PersistTaskResult;
+import sh.isaac.api.task.SequentialAggregateTask;
+import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
+import sh.isaac.provider.logic.LogicProvider;
 
 /**
  * The Class AggregateClassifyTask.
@@ -70,16 +71,14 @@ public class AggregateClassifyTask
    
    /**
     * Instantiates a new aggregate classify task.
-    *  @param stampFilter the stamp coordinate
-    * @param logicCoordinate the logic coordinate
-    * @param editCoodinate
+    * @param manifoldCoordinate the logic coordinate
     */
-   private AggregateClassifyTask(StampFilter stampFilter, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate, boolean cycleCheckFirst) {
+   private AggregateClassifyTask(ManifoldCoordinate manifoldCoordinate, boolean cycleCheckFirst) {
       super("Classify",
-            new Task[] { new ExtractAxioms(stampFilter,logicCoordinate), new LoadAxioms(), new ClassifyAxioms(),
-                    new ProcessClassificationResults(stampFilter, logicCoordinate, editCoordinate)});
+            new Task[] { new ExtractAxioms(manifoldCoordinate), new LoadAxioms(), new ClassifyAxioms(),
+                    new ProcessClassificationResults(manifoldCoordinate)});
       if (cycleCheckFirst) {
-         cc = new CycleCheck(stampFilter, logicCoordinate, editCoordinate);
+         cc = new CycleCheck(manifoldCoordinate);
       }
    }
 
@@ -94,7 +93,7 @@ public class AggregateClassifyTask
             ClassifierResults cr = cc.call();
             if (cr != null) {
                // had a cycle.  Abort.
-               log.info("At least one cycle detected, classification aborted - summary: {}", cr);
+               log.info("At least one cycle detected, classification aborted - summary: {}", cr + "\n\n" + cr.getCycles());
                return cr;
             }
          }
@@ -115,15 +114,21 @@ public class AggregateClassifyTask
      * When this method returns, the task is already executing, or will be shortly, if another classifier execution is already running.  
      * You do not need to execute the task.
      *
-     * @param stampFilter the stamp coordinate
-     * @param logicCoordinate the logic coordinate
-     * @param editCoordinate 
+     * @param manifoldCoordinate the stamp coordinate
      * @param cycleCheckFirst true, to do a cycle check on the stated taxonomy prior to classify.  Will abort classify if a cycle is detected.
      * @return an {@code AggregateClassifyTask} already submitted to an executor.
      */
-    public static AggregateClassifyTask get(StampFilter stampFilter, LogicCoordinate logicCoordinate, EditCoordinate editCoordinate, boolean cycleCheckFirst) {
-        final AggregateClassifyTask classifyTask = new AggregateClassifyTask(stampFilter.makeCoordinateAnalog(Get.commitService().getTimeForCommit().toEpochMilli()), 
-                logicCoordinate, editCoordinate, cycleCheckFirst);
+    public static AggregateClassifyTask get(ManifoldCoordinateImmutable manifoldCoordinate, boolean cycleCheckFirst) {
+       Instant classifyCommitTime = Get.commitService().getTimeForCommit();
+       ObservableManifoldCoordinate observableManifoldCoordinate = new ObservableManifoldCoordinateImpl(manifoldCoordinate);
+       observableManifoldCoordinate.setAllowedStates(StatusSet.ACTIVE_ONLY);
+
+       manifoldCoordinate = observableManifoldCoordinate.getValue().makeCoordinateAnalog(classifyCommitTime.toEpochMilli());
+       final AggregateClassifyTask classifyTask = new AggregateClassifyTask(manifoldCoordinate, cycleCheckFirst);
+        Get.workExecutors()
+                .getExecutor()
+                .execute(classifyTask);
+        Get.service(LogicProvider.class).getPendingLogicTasks().add(classifyTask);
         //The execution of this classify operation may block, if another classification is already running.
         //Don't want to (potentially) lose all of the work executor slots to blocked classifications - so spawn a new thread here, if necessary, 
         //to wait.

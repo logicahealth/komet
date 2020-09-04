@@ -22,7 +22,6 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_Version;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
 /**
@@ -36,6 +35,7 @@ public class Str1_Nid2_Nid3_Nid4_VersionImpl
    int    nid2 = Integer.MAX_VALUE;
    int    nid3 = Integer.MAX_VALUE;
    int    nid4 = Integer.MAX_VALUE;
+   
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
@@ -50,6 +50,14 @@ public class Str1_Nid2_Nid3_Nid4_VersionImpl
 
    public Str1_Nid2_Nid3_Nid4_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
+   }
+
+   private Str1_Nid2_Nid3_Nid4_VersionImpl(Str1_Nid2_Nid3_Nid4_VersionImpl old, int stampSequence) {
+      super(old.getChronology(), stampSequence);
+      this.setStr1(old.str1);
+      this.setNid2(old.nid2);
+      this.setNid3(old.nid3);
+      this.setNid4(old.nid4);
    }
 
    public Str1_Nid2_Nid3_Nid4_VersionImpl(SemanticChronology container, 
@@ -73,13 +81,8 @@ public class Str1_Nid2_Nid3_Nid4_VersionImpl
    @Override
    @SuppressWarnings("unchecked")
    public <V extends Version> V makeAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final Str1_Nid2_Nid3_Nid4_VersionImpl newVersion = new Str1_Nid2_Nid3_Nid4_VersionImpl((SemanticChronology) this, stampSequence);
-      newVersion.setStr1(this.str1);
-      newVersion.setNid2(this.nid2);
-      newVersion.setNid3(this.nid3);
-      newVersion.setNid4(this.nid4);
-      chronologyImpl.addVersion(newVersion);
+      final Str1_Nid2_Nid3_Nid4_VersionImpl newVersion = new Str1_Nid2_Nid3_Nid4_VersionImpl(this, stampSequence);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 

@@ -1,15 +1,14 @@
 package sh.isaac.komet.batch;
 
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
 import sh.isaac.komet.batch.fxml.CompositeActionNodeController;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -17,22 +16,36 @@ import java.util.Optional;
 import static sh.isaac.komet.batch.CompositeActionFactory.ACTION_VIEW;
 
 
-public class CompositeActionNode implements ExplorationNode {
+public class CompositeActionNode extends ExplorationNodeAbstract {
 
-    final Manifold manifold;
-    final SimpleStringProperty title = new SimpleStringProperty(ACTION_VIEW);
-    final SimpleStringProperty toolTip = new SimpleStringProperty("Action view to create composite actions");
-    final AnchorPane root;
+    public static final String ACTION_VIEW_TO_CREATE_COMPOSITE_ACTIONS = "Action view to create composite actions";
+
+    {
+        titleProperty.setValue(ACTION_VIEW);
+        toolTipProperty.setValue(ACTION_VIEW_TO_CREATE_COMPOSITE_ACTIONS);
+        menuIconProperty.setValue(Iconography.EDIT_PENCIL.getStyledIconographic());
+    }
+
+
+    final BorderPane root;
     final CompositeActionNodeController controller;
-    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.EDIT_PENCIL.getStyledIconographic());
 
-    public CompositeActionNode(Manifold manifold) {
+    public CompositeActionNode(ViewProperties manifold) {
+        super(manifold);
         try {
-            this.manifold = manifold;
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/batch/fxml/CompositeActionNode.fxml"));
             this.root = loader.load();
             this.controller = loader.getController();
-            this.controller.setManifold(manifold);
+            this.controller.setViewProperties(manifold);
+
+            this.controller.getActionNameProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue.isBlank()) {
+                    titleProperty.setValue(ACTION_VIEW);
+                    toolTipProperty.setValue(ACTION_VIEW_TO_CREATE_COMPOSITE_ACTIONS);
+                } else {
+                    titleProperty.setValue(newValue);
+                }
+            });
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -40,28 +53,19 @@ public class CompositeActionNode implements ExplorationNode {
     }
 
     @Override
+    public Node getMenuIconGraphic() {
+        return Iconography.EDIT_PENCIL.getStyledIconographic();
+    }
+
+    @Override
     public void savePreferences() {
         throw new UnsupportedOperationException();
     }
 
-    @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return title;
-    }
 
     @Override
     public Optional<Node> getTitleNode() {
         return Optional.empty();
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return toolTip;
-    }
-
-    @Override
-    public Manifold getManifold() {
-        return manifold;
     }
 
     @Override
@@ -70,8 +74,8 @@ public class CompositeActionNode implements ExplorationNode {
     }
 
     @Override
-    public SimpleObjectProperty getMenuIconProperty() {
-        return menuIconProperty;
+    public ActivityFeed getActivityFeed() {
+        throw new UnsupportedOperationException();
     }
 
     @Override

@@ -52,7 +52,6 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
@@ -521,7 +520,7 @@ public class LoadTermstore extends AbstractMojo
 											
 											for (Version v : eco.get().getVersionList())
 											{
-												if (v.getModuleNid()== TermAux.CORE_METADATA_MODULE.getNid())
+												if (v.getModuleNid()== TermAux.PRIMORDIAL_MODULE.getNid())
 												{
 													foundMetadataModule = true;
 												}
@@ -541,7 +540,7 @@ public class LoadTermstore extends AbstractMojo
 
 										for (Version v : sc.getVersionList())
 										{
-											if (v.getModuleNid()== TermAux.CORE_METADATA_MODULE.getNid())
+											if (v.getModuleNid()== TermAux.PRIMORDIAL_MODULE.getNid())
 											{
 												foundMetadataModule = true;
 											}

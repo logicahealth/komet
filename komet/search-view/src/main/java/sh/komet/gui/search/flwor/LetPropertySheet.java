@@ -19,6 +19,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.observable.ObservableConceptProxy;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
@@ -28,7 +29,7 @@ import sh.isaac.api.observable.coordinate.ObservableStampPath;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
@@ -45,7 +46,7 @@ public class LetPropertySheet {
 
     private final BorderPane propertySheetBorderPane = new BorderPane();
     private final ObservableList<PropertySheet.Item> items;
-    private final Manifold manifoldForDisplay;
+    private final ViewProperties viewProperties;
     private final MenuButton addLetClauseButton = new MenuButton("Add let clause...");
     private final Button removeLetClause = new Button("Remove let clause");
     {
@@ -69,8 +70,8 @@ public class LetPropertySheet {
 
     private final FLWORQueryController fLWORQueryController;
 
-    public LetPropertySheet(Manifold manifold, FLWORQueryController fLWORQueryController) {
-        this.manifoldForDisplay = manifold;
+    public LetPropertySheet(ViewProperties viewProperties, FLWORQueryController fLWORQueryController) {
+        this.viewProperties = viewProperties;
         this.fLWORQueryController = fLWORQueryController;
         this.items = FXCollections.observableArrayList();
         MenuItem addStampCoordinate = new MenuItemWithText("Add stamp coordinate");
@@ -137,25 +138,22 @@ public class LetPropertySheet {
         this.manifoldCoordinateKeys.clear();
         this.conceptSpecificationKeys.clear();
         for (Map.Entry<LetItemKey, Object> entry : this.letItemObjectMap.entrySet()) {
-            if (entry.getValue() instanceof StampFilter
-                    && !(entry.getValue() instanceof Manifold)) {
+            if (entry.getValue() instanceof StampFilter) {
                 if (!this.stampFilterKeys.contains(entry.getKey())) {
                     this.stampFilterKeys.add(entry.getKey());
                 }
             }
-            if (entry.getValue() instanceof LanguageCoordinate
-                    && !(entry.getValue() instanceof Manifold)) {
+            if (entry.getValue() instanceof LanguageCoordinate) {
                 if (!this.languageCoordinateKeys.contains(entry.getKey())) {
                     this.languageCoordinateKeys.add(entry.getKey());
                 }
             }
-            if (entry.getValue() instanceof LogicCoordinate
-                    && !(entry.getValue() instanceof Manifold)) {
+            if (entry.getValue() instanceof LogicCoordinate) {
                 if (!this.logicCoordinateKeys.contains(entry.getKey())) {
                     this.logicCoordinateKeys.add(entry.getKey());
                 }
             }
-            if (entry.getValue() instanceof Manifold) {
+            if (entry.getValue() instanceof ManifoldCoordinate) {
                 if (!this.manifoldCoordinateKeys.contains(entry.getKey())) {
                     this.manifoldCoordinateKeys.add(entry.getKey());
                 }
@@ -190,7 +188,7 @@ public class LetPropertySheet {
             languageCoordinate = new ObservableLanguageCoordinateImpl(newLanguageCoordinate.toLanguageCoordinateImmutable());
         }
         this.letItemObjectMap.put(newLetItem, languageCoordinate);
-        LetItemPanel newLetItemPanel = new LetItemPanel(this.manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), languageCoordinate, this);
+        LetItemPanel newLetItemPanel = new LetItemPanel(this.viewProperties, newLetItem, this.letItemsController.getLetListViewletListView(), languageCoordinate, this);
         this.letItemPanelMap.put(newLetItem, newLetItemPanel);
 
         this.letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
@@ -209,11 +207,9 @@ public class LetPropertySheet {
     public void addItem(LetItemKey newLetItem, Object newObject) {
         if (newObject instanceof String) {
             addString(newLetItem, (String) newObject);
-        } else if (newObject instanceof LanguageCoordinate
-                && !(newObject instanceof Manifold)) {
+        } else if (newObject instanceof LanguageCoordinate) {
             addLanguageCoordinate(newLetItem, (LanguageCoordinate) newObject);
-        } else if (newObject instanceof LogicCoordinate
-                && !(newObject instanceof Manifold)) {
+        } else if (newObject instanceof LogicCoordinate) {
             addLogicCoordinate(newLetItem, (LogicCoordinate) newObject);
         } else if (newObject instanceof ObservableManifoldCoordinate) {
             addManifoldCoordinate(newLetItem, (ObservableManifoldCoordinate) newObject);
@@ -251,7 +247,7 @@ public class LetPropertySheet {
         stringProperty.addListener((observable, oldValue, newValue) -> {
             this.letItemObjectMap.put(newLetItem, string);
         });
-        LetItemPanel newLetItemPanel = new LetItemPanel(this.manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), stringProperty, this);
+        LetItemPanel newLetItemPanel = new LetItemPanel(this.viewProperties, newLetItem, this.letItemsController.getLetListViewletListView(), stringProperty, this);
         this.letItemPanelMap.put(newLetItem, newLetItemPanel);
 
         this.letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
@@ -261,7 +257,7 @@ public class LetPropertySheet {
 
     public void addLanguageCoordinate(ActionEvent action) {
         LetItemKey newLetItem = new LetItemKey(createUniqueKey("[US, UK] English"));
-        addLanguageCoordinate(newLetItem, this.manifoldForDisplay.getLanguageCoordinate());
+        addLanguageCoordinate(newLetItem, this.viewProperties.getManifoldCoordinate().getLanguageCoordinate());
     }
 
     public void addManifoldCoordinate(ActionEvent action) {
@@ -285,7 +281,7 @@ public class LetPropertySheet {
     public void addManifoldCoordinate(LetItemKey newLetItem, ObservableManifoldCoordinate newManifoldCoordinate) {
         this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
         this.letItemObjectMap.put(newLetItem, newManifoldCoordinate);
-        LetItemPanel newLetItemPanel = new LetItemPanel(manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), newManifoldCoordinate, this);
+        LetItemPanel newLetItemPanel = new LetItemPanel(viewProperties, newLetItem, this.letItemsController.getLetListViewletListView(), newManifoldCoordinate, this);
         this.letItemPanelMap.put(newLetItem, newLetItemPanel);
 
         this.letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
@@ -297,7 +293,7 @@ public class LetPropertySheet {
     public void addConceptSpecification(LetItemKey newLetItem, ObservableConceptProxy newConceptSpecification) {
         this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
         this.letItemObjectMap.put(newLetItem, newConceptSpecification);
-        LetItemPanel newLetItemPanel = new LetItemPanel(this.manifoldForDisplay, newLetItem,
+        LetItemPanel newLetItemPanel = new LetItemPanel(this.viewProperties, newLetItem,
                 this.letItemsController.getLetListViewletListView(),
                 new ObservableConceptProxy(this, TermAux.CONCEPT_FIELD.toExternalString(), new ConceptProxy(newConceptSpecification.get().getNid())), this);
         this.letItemPanelMap.put(newLetItem, newLetItemPanel);
@@ -346,7 +342,7 @@ public class LetPropertySheet {
         String keyName = createUniqueKey("Logic");
 
         LetItemKey newLetItem = new LetItemKey(keyName);
-        ObservableLogicCoordinate logicCoordinate = this.manifoldForDisplay.getLogicCoordinate();
+        ObservableLogicCoordinate logicCoordinate = this.viewProperties.getManifoldCoordinate().getLogicCoordinate();
         addLogicCoordinate(newLetItem, logicCoordinate);
     }
 
@@ -383,7 +379,7 @@ public class LetPropertySheet {
         }
         this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
         this.letItemObjectMap.put(newLetItem, logicCoordinate);
-        LetItemPanel newLetItemPanel = new LetItemPanel(this.manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), logicCoordinate, this);
+        LetItemPanel newLetItemPanel = new LetItemPanel(this.viewProperties, newLetItem, this.letItemsController.getLetListViewletListView(), logicCoordinate, this);
         this.letItemPanelMap.put(newLetItem, newLetItemPanel);
 
         this.letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());

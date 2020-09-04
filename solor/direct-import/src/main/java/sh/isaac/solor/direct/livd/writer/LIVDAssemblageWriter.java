@@ -1,5 +1,11 @@
 package sh.isaac.solor.direct.livd.writer;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import sh.isaac.MetaData;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
@@ -14,6 +20,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
@@ -21,13 +28,6 @@ import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.model.semantic.version.DynamicImpl;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 2019-05-19
@@ -132,12 +132,12 @@ public class LIVDAssemblageWriter extends TimedTaskWithProgressTracker<Void> {
             Arrays.sort(assemblageStamps);
             int stampSequence = assemblageStamps[assemblageStamps.length - 1];  //use the largest (newest) stamp on the concept,
 
-            List<Chronology> items = LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(
-                    this.transaction,
+            SemanticChronology[] items = LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(
+                    new WriteCoordinateImpl(transaction, stampSequence),
                     MetaData.LIVD_ASSEMBLAGE____SOLOR.getNid(),
                     "DynamicDefinition for LIVD Assemblage",
                     dynamicColumnInfos.toArray(new DynamicColumnInfo[dynamicColumnInfos.size()]),
-                    null, null, stampSequence);
+                    null, null, false);
 
             for (Chronology c : items)
             {

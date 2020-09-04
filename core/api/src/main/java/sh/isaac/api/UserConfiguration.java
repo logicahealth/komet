@@ -18,9 +18,13 @@ package sh.isaac.api;
 import java.util.Optional;
 import java.util.UUID;
 import org.jvnet.hk2.annotations.Contract;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import sh.isaac.api.UserConfigurationInternalImpl.ConfigurationOption;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.observable.coordinate.*;
+import sh.isaac.api.coordinate.WriteCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampPath;
 
 /**
@@ -61,9 +65,8 @@ public interface UserConfiguration
 
 	/**
 	 * @return The edit coordinate as configured by the current user
-	 * Any changes made within the returned value will not be automatically persisted.
 	 */
-	public ObservableEditCoordinate getEditCoordinate();
+	public ReadOnlyObjectProperty<WriteCoordinate> getWriteCoordinate();
 
 	/**
 	 * @return the language coordinate as configured by the current user

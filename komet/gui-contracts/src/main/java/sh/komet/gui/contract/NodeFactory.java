@@ -20,9 +20,9 @@ import org.jvnet.hk2.annotations.Contract;
 import javafx.scene.Node;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 
 /**
  * Common methods for node factories
@@ -34,12 +34,13 @@ public interface NodeFactory<T extends ExplorationNode> {
    
    /**
     * Create the node
-    * @param manifold the manifold that determines the current coordinates and focus.
+    * @param viewProperties the manifold that determines the current coordinates and focus.
+    * @param activityFeed
     * @param nodePreferences preferences node where the new node can store its preferences
-    * @return the created node, not yet added to the scenegraph.  Call {@link ExplorationNode#getNode()} 
+    * @return the created node, not yet added to the scenegraph.  Call {@link ExplorationNode#getNode()}
     * to get the appropriate node, when ready to add it to the scenegraph.
     */
-   T createNode(Manifold manifold, IsaacPreferences nodePreferences);
+   T createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences nodePreferences);
    
    /**
     * 
@@ -62,7 +63,7 @@ public interface NodeFactory<T extends ExplorationNode> {
     * 
     * @return the desired manifold group
     */
-   ManifoldGroup[] getDefaultManifoldGroups();
+   String[] getDefaultActivityFeed();
 
    /**
     *

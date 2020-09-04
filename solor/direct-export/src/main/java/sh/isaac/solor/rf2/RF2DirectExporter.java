@@ -1,13 +1,11 @@
 package sh.isaac.solor.rf2;
 
-import javafx.beans.InvalidationListener;
 import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.commit.ChangeSetListener;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;

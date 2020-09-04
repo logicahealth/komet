@@ -145,7 +145,7 @@ public class VetsExporter {
       Set<String> newRelationshipTypes = new HashSet<>();
       
       // Add to map
-      Arrays.stream(Get.taxonomyService().getSnapshot(ManifoldCoordinateImmutable.makeStated(STAMP_COORDINATES, Coordinates.Language.UsEnglishFullyQualifiedName()))
+      Arrays.stream(Get.taxonomyService().getSnapshot(Coordinates.Manifold.DevelopmentStatedRegularNameSort())
       .getTaxonomyChildConceptNids(
             VHATConstants.VHAT_ASSOCIATION_TYPES.getNid())).forEach((conceptId) -> {
                ConceptChronology concept = Get.conceptService().getConceptChronology(conceptId);
@@ -173,7 +173,7 @@ public class VetsExporter {
       }
 
       // Add to map
-      Arrays.stream(Get.taxonomyService().getSnapshot(ManifoldCoordinateImmutable.makeStated(STAMP_COORDINATES, Coordinates.Language.UsEnglishPreferredName()))
+      Arrays.stream(Get.taxonomyService().getSnapshot(Coordinates.Manifold.DevelopmentStatedRegularNameSort())
          .getTaxonomyChildConceptNids(
             VHATConstants.VHAT_ATTRIBUTE_TYPES.getNid())).forEach((conceptId) -> {
                ConceptChronology concept = Get.conceptService().getConceptChronology(conceptId);
@@ -201,7 +201,7 @@ public class VetsExporter {
       }
 
       // Add to map
-      Arrays.stream(Get.taxonomyService().getSnapshot(ManifoldCoordinateImmutable.makeStated(STAMP_COORDINATES, Coordinates.Language.UsEnglishPreferredName()))
+      Arrays.stream(Get.taxonomyService().getSnapshot(Coordinates.Manifold.DevelopmentStatedRegularNameSort())
             .getTaxonomyChildConceptNids(
             Get.identifierService().getNidForUuids(VHATConstants.VHAT_DESCRIPTION_TYPES.getPrimordialUuid()))).forEach((conceptId) -> {
                ConceptChronology concept = Get.conceptService().getConceptChronology(conceptId);
@@ -229,7 +229,7 @@ public class VetsExporter {
       }
 
       // Get data, Add to map
-      Arrays.stream(Get.taxonomyService().getSnapshot(ManifoldCoordinateImmutable.makeStated(STAMP_COORDINATES, Coordinates.Language.UsEnglishPreferredName()))
+      Arrays.stream(Get.taxonomyService().getSnapshot(Coordinates.Manifold.DevelopmentStatedRegularNameSort())
             .getTaxonomyChildConceptNids(VHATConstants.VHAT_REFSETS.getNid())).forEach((tcs) ->
       {
          ConceptChronology concept = Get.conceptService().getConceptChronology(tcs);

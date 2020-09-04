@@ -59,13 +59,15 @@ public class SingleCommitTask extends CommitTask {
         this.transaction = transaction;
         this.commitComment = commitComment;
         this.checkers = checkers;
+        LOG.info("SingleCommitTask created for transaction {}", transaction);
     }
 
     @Override
     protected Optional<CommitRecord> call() throws Exception {
         NidSet conceptNidsInCommit = new NidSet();
         NidSet semanticNidsInCommit = new NidSet();
-
+        
+        LOG.debug("SingleCommitTask starts for {} versions", versionsToCommit.length);
         for (ObservableVersion observableVersion : versionsToCommit) {
             Chronology independentChronology = (Chronology) observableVersion.createIndependentChronicle();
 
@@ -113,6 +115,7 @@ public class SingleCommitTask extends CommitTask {
                 commitComment,
                 transaction);
         ((CommitProvider) Get.commitService()).handleCommitNotification(commitRecord);
+        LOG.debug("SingleCommitTask transaction {} ends", transaction);
         return Optional.of(commitRecord);
     }
 

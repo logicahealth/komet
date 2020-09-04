@@ -44,7 +44,6 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
 
@@ -62,6 +61,7 @@ public class Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
    String str5 = null;
    String str6 = null;
    String str7 = null;
+   
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
@@ -80,9 +80,19 @@ public class Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
    public Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
    }
+   
+   private Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl old, int stampSequence) {
+      super(old.getChronology(), stampSequence);
+      this.setStr1(old.str1);
+      this.setStr2(old.str2);
+      this.setStr3(old.str3);
+      this.setStr4(old.str4);
+      this.setStr5(old.str5);
+      this.setStr6(old.str6);
+      this.setStr7(old.str7);
+   }
 
-   public Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(SemanticChronology container, 
-           int stampSequence, ByteArrayDataBuffer data) {
+   public Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(SemanticChronology container, int stampSequence, ByteArrayDataBuffer data) {
       super(container, stampSequence);
       this.str1 = data.getUTF();
       this.str2 = data.getUTF();
@@ -96,16 +106,8 @@ public class Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl
    @Override
    @SuppressWarnings("unchecked")
    public <V extends Version> V makeAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl newVersion = new Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl((SemanticChronology) this, stampSequence);
-      newVersion.setStr1(this.str1);
-      newVersion.setStr2(this.str2);
-      newVersion.setStr3(this.str3);
-      newVersion.setStr4(this.str4);
-      newVersion.setStr5(this.str5);
-      newVersion.setStr6(this.str6);
-      newVersion.setStr7(this.str7);
-      chronologyImpl.addVersion(newVersion);
+      final Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl newVersion = new Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl(this, stampSequence);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;   
    }
 

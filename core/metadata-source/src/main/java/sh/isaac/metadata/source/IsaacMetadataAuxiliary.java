@@ -118,7 +118,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
     *             the unsupported encoding exception
     */
    public IsaacMetadataAuxiliary() throws NoSuchAlgorithmException, UnsupportedEncodingException, Exception {
-      super(PRIMORDIAL_PATH, TermAux.USER, TermAux.CORE_METADATA_MODULE, ConceptProxy.METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.CORE_METADATA_MODULE.getPrimordialUuid());
+      super(PRIMORDIAL_PATH, TermAux.USER, TermAux.PRIMORDIAL_MODULE, ConceptProxy.METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.PRIMORDIAL_MODULE.getPrimordialUuid());
 
 //J-
       createConcept(TermAux.SOLOR_ROOT);
@@ -146,13 +146,14 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
          pushParent(current());
             createConcept(SANDBOX_COMPONENT).setModule(TermAux.KOMET_MODULE);
             pushParent(current());
-                createConcept(SANDBOX_PATH, TermAux.PATH.getNid()).setModule(TermAux.KOMET_MODULE);
+                final ConceptBuilder sandboxPath = createConcept(SANDBOX_PATH, TermAux.PATH.getNid());
+                sandboxPath.setModule(TermAux.KOMET_MODULE);
                 createConcept(SANDBOX_MODULE, TermAux.UNSPECIFIED_MODULE.getNid()).setModule(TermAux.KOMET_MODULE);
                 pushParent(current());
                     createConcept(SANDBOX_PATH_MODULE, TermAux.UNSPECIFIED_MODULE.getNid()).setModule(TermAux.KOMET_MODULE);
                     popParent();
                 popParent();
-            createConcept("Directed graph", "DigraphCoordinate");
+            createConcept("Directed graph", "NavigationCoordinate");
             pushParent(current());
                 createConcept(EL_PLUS_PLUS_DIGRAPH)
                         .addDescription("The directed graph that results from classifying a set of EL++ axioms.", TermAux.DEFINITION_DESCRIPTION_TYPE)
@@ -205,7 +206,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(DEVELOPMENT_MODULE).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.METADATA_MODULES).setModule(TermAux.KOMET_MODULE);
                pushParent(current());
-                  createConcept(TermAux.CORE_METADATA_MODULE);
+                  createConcept(TermAux.PRIMORDIAL_MODULE);
                   createConcept(TermAux.KOMET_MODULE).setModule(TermAux.KOMET_MODULE);
                   createConcept("users module");
                   popParent();
@@ -242,6 +243,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("CPT® modules", "CPT").addDescription("Current Procedural Terminology", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("SOPT modules", "SOPT").addDescription("Source of Payment Typology", TermAux.DEFINITION_DESCRIPTION_TYPE);
                createConcept("ICD10 modules", "ICD10").addDescription("Procedure Coding System Tenth Revision", TermAux.DEFINITION_DESCRIPTION_TYPE);
+               createConcept("Test module", "test");
+               createConcept("Test promotion module", "test");
                popParent();
             createConcept(TermAux.USER);
             createConcept(TermAux.PATH);
@@ -382,7 +385,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     createConcept("SKOS alternate label").setModule(TermAux.KOMET_MODULE);
                     createConcept("SKOS preferred label").setModule(TermAux.KOMET_MODULE);
                     createConcept("SKOS definition").setModule(TermAux.KOMET_MODULE);
-
                     popParent();
                createConcept("Issue management assemblage").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE);
                pushParent(current());
@@ -397,6 +399,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept("SOLOR issue assemblage").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE);
                   popParent();
                createConcept(TermAux.DESCRIPTION_ASSEMBLAGE);
+               createConcept(TermAux.DEPENDENCY_MANAGEMENT);
                createConcept("Dialect assemblage");
                pushParent(current());
                   createConcept(TermAux.ENGLISH_DIALECT_ASSEMBLAGE).addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE);
@@ -469,12 +472,14 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   addPath(paths, masterPath, TermAux.MASTER_PATH_SEMANTIC_UUID);
                   addPath(paths, developmentPath, TermAux.DEVELOPMENT_PATH_SEMANTIC_UUID);
                   addPath(paths, primordialPath, TermAux.PRIMORDIAL_PATH_SEMANTIC_UUID);
+                  addPath(paths, sandboxPath, TermAux.SANDBOX_PATH_SEMANTIC_UUID);
 
                   final ConceptBuilder pathOrigins = createConcept("Path origins assemblage");
                   pathOrigins.mergeFromSpec(TermAux.PATH_ORIGIN_ASSEMBLAGE);
 
                   addPathOrigin(pathOrigins, masterPath, primordialPath, Long.MAX_VALUE, MASTER_PATH_ORIGIN_SEMANTIC_UUID);
-                  addPathOrigin(pathOrigins, developmentPath, primordialPath, Long.MAX_VALUE, DEVELOPMENT_PATH_ORIGIN_SEMANTIC_UUID);
+                  addPathOrigin(pathOrigins, sandboxPath, primordialPath, Long.MAX_VALUE, SANDBOX_PATH_ORIGIN_SEMANTIC_UUID);
+                  addPathOrigin(pathOrigins, developmentPath, sandboxPath, Long.MAX_VALUE, DEVELOPMENT_PATH_ORIGIN_SEMANTIC_UUID);
                   popParent();
                popParent();
             createConcept("Content Metadata");
@@ -871,6 +876,10 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                        "sh.komet.gui.provider.concept.detail.panel.ConceptDetailListLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                .getPreferredDescriptionBuilder().setDescriptionText("Concept details - list").setModule(TermAux.KOMET_MODULE);
 
+       createConcept("Concept details new-concept-linked panel")
+               .addStringSemantic("sh.komet.gui.provider.concept.detail.panel.ConceptDetailNewConceptLinkedProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
+               .getPreferredDescriptionBuilder().setDescriptionText("Concept details - new concept").setModule(TermAux.KOMET_MODULE);
+
 
        createConcept("Concept details taxonomy-linked panel").addStringSemantic("sh.komet.gui.provider.concept.detail.panel.ConceptDetailTaxonomyLinkedPanelProviderFactory", TermAux.PROVIDER_CLASS_ASSEMBLAGE)
                             .getPreferredDescriptionBuilder().setDescriptionText("Concept details - taxonomy").setModule(TermAux.KOMET_MODULE);
@@ -941,19 +950,21 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept(AUTHOR_NID_FOR_EDIT_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_NID_FOR_EDIT_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(DESTINATION_MODULE_NID_FOR_EDIT_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_OPTIONS_FOR_EDIT_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(PATH_NID_FOR_EDIT_CORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(PATH_OPTIONS_FOR_EDIT_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(LANGUAGE_NID_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(LANGUAGE_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
-                  createConcept(DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DIALECT_ASSEMBLAGE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(NEXT_PRIORITY_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DIGRAPH_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(ROOT_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(CLASSIFIER_NID_FOR_LOGIC_COORDINATE).setModule(TermAux.KOMET_MODULE);
@@ -961,7 +972,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(STAMP_PRECEDENCE_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(STAMP_POSITION_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(ALLOWED_STATES_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
-                  createConcept(MODULE_NID_ARRAY_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(MODULE_EXCLUSION_SPECIFICATION_SET_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(AUTHOR_SPECIFICATION_SET_FOR_STAMP_COORDINATE).setModule(TermAux.KOMET_MODULE);
@@ -979,8 +989,13 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE).setModule(TermAux.KOMET_MODULE);
                   createConcept(VERTEX_SORT_PROPERTY).setModule(TermAux.KOMET_MODULE);
+                  createConcept(VERTEX_STATUS_SET_PROPERTY).setModule(TermAux.KOMET_MODULE);
+                  createConcept(CURRENT_ACTIVITY_PROPERTY).setModule(TermAux.KOMET_MODULE);
                   createConcept(DIGRAPH_PROPERTY).setModule(TermAux.KOMET_MODULE);
-                  createConcept(STAMP_FILTER_FOR_PATH).setModule(TermAux.KOMET_MODULE);
+                  createConcept(VIEW_FILTER_FOR_NAVIGATION).setModule(TermAux.KOMET_MODULE);
+                  createConcept(VERTEX_FILTER_FOR_NAVIGATION).setModule(TermAux.KOMET_MODULE);
+
+               createConcept(STAMP_FILTER_FOR_PATH).setModule(TermAux.KOMET_MODULE);
                   popParent();
                createConcept(DESCRIPTION_DIALECT);
                createConcept("Description/dialect properties");
@@ -992,9 +1007,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept(TermAux.STATUS_FOR_VERSION);
                   createConcept(TermAux.TIME_FOR_VERSION);
-                  createConcept(TermAux.AUTHOR_NID_FOR_VERSION);
-                  createConcept(TermAux.MODULE_NID_FOR_VERSION);
-                  createConcept(TermAux.PATH_NID_FOR_VERSION);
+                  createConcept(TermAux.AUTHOR_FOR_VERSION);
+                  createConcept(TermAux.MODULE_FOR_VERSION);
+                  createConcept(TermAux.PATH_FOR_VERSION);
                   createConcept(TermAux.COMMITTED_STATE_FOR_VERSION);
                   createConcept(TermAux.STAMP_SEQUENCE_FOR_VERSION);
                   createConcept("Description version properties");

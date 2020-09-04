@@ -45,7 +45,6 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 
@@ -62,6 +61,7 @@ public class Rf2RelationshipImpl
    int relationshipGroup = Integer.MAX_VALUE;
    int characteristicNid = Integer.MAX_VALUE;
    int modifierNid       = Integer.MAX_VALUE;
+   
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
@@ -75,7 +75,7 @@ public class Rf2RelationshipImpl
       return builder;
    }
 
-   public Rf2RelationshipImpl(Rf2RelationshipImpl another, int stampSequence) {
+   private Rf2RelationshipImpl(Rf2RelationshipImpl another, int stampSequence) {
       super(another.getChronology(), stampSequence);
       this.typeNid           = another.typeNid;
       this.destinationNid    = another.destinationNid;
@@ -100,9 +100,8 @@ public class Rf2RelationshipImpl
    @SuppressWarnings("unchecked")
    @Override
    public <V extends Version> V makeAnalog(int stampSequence) {
-      SemanticChronologyImpl    chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final Rf2RelationshipImpl newVersion     = new Rf2RelationshipImpl(this, stampSequence);
-      chronologyImpl.addVersion(newVersion);
+      final Rf2RelationshipImpl newVersion = new Rf2RelationshipImpl(this, stampSequence);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 

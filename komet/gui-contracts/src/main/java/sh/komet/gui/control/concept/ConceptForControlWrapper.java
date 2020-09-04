@@ -51,7 +51,8 @@ import java.util.UUID;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
-import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.komet.gui.control.property.ViewProperties;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -63,16 +64,16 @@ import sh.komet.gui.manifold.Manifold;
 @Deprecated
 public class ConceptForControlWrapper
          implements ConceptSpecification {
-   private final Manifold manifold;
+   private final ManifoldCoordinate manifoldCoordinate;
    private final int      conceptNid;
 
    //~--- constructors --------------------------------------------------------
 
-   public ConceptForControlWrapper(Manifold manifold, int conceptNid) {
+   public ConceptForControlWrapper(ManifoldCoordinate manifoldCoordinate, int conceptNid) {
       if (conceptNid == Integer.MAX_VALUE) {
          throw new IllegalStateException("Integer.MAX_VALUE for concept nid.");
       }
-      this.manifold        = manifold;
+      this.manifoldCoordinate = manifoldCoordinate;
       this.conceptNid = conceptNid;
 
       //TODO HACK for resolving issue with ListView items toString() not calling service to early
@@ -104,7 +105,7 @@ public class ConceptForControlWrapper
    @Override
    public String getFullyQualifiedName() {
       if (conceptNid != 0) {
-         return this.manifold.getFullyQualifiedDescriptionText(this.conceptNid);
+         return this.manifoldCoordinate.getFullyQualifiedDescriptionText(this.conceptNid);
       }
       return "unspecified";
    }
@@ -112,7 +113,7 @@ public class ConceptForControlWrapper
    @Override
    public Optional<String> getRegularName() {
       if (conceptNid != 0) {
-         return Optional.ofNullable(this.manifold.getPreferredDescriptionText(this.conceptNid));
+         return Optional.ofNullable(this.manifoldCoordinate.getPreferredDescriptionText(this.conceptNid));
       }
       return Optional.empty();
    }

@@ -39,11 +39,9 @@
 
 package sh.isaac.model.concept;
 
-import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.VersionImpl;
 
 /**
@@ -79,7 +77,6 @@ public class ConceptVersionImpl
    public <V extends Version> V makeAnalog(int stampSequence) {
       ConceptChronologyImpl chronologyImpl = (ConceptChronologyImpl) this.chronicle;
       final ConceptVersionImpl newVersion = new ConceptVersionImpl(chronologyImpl, stampSequence);
-
       chronologyImpl.addVersion(newVersion);
       return (V) newVersion;
    }

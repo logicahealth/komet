@@ -39,26 +39,19 @@
 
 package sh.isaac.api.component.semantic.version;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import javax.naming.InvalidNameException;
 import sh.isaac.api.chronicle.VersionType;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface DynamicVersion.
  *
  * @author kec
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
- * @param <T> the generic type
  */
-public interface DynamicVersion<T extends DynamicVersion<T>>
+public interface DynamicVersion
         extends SemanticVersion {
    /**
     * Return a string representation of the data fields.
@@ -67,7 +60,6 @@ public interface DynamicVersion<T extends DynamicVersion<T>>
     */
    public String dataToString();
 
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the data.

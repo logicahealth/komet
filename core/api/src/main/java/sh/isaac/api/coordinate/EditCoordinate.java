@@ -39,56 +39,101 @@
 
 package sh.isaac.api.coordinate;
 
-import java.util.List;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.util.UUIDUtil;
+
+import java.util.ArrayList;
+import java.util.UUID;
 
 /**
- * The Interface EditCoordinate.
+ * Edits occur on the manifold coordinate path when developing.
+ *
+ * Module is unchanged when developing. A default module is used for any new content.
+ *
+ * When modularizing, a destination module is provided, and the change will be written to the
+ * manifold coordinate path.
+ *
+ * When promoting, the module will be unchanged, and the promotion path will be where a copy of
+ * content on the manifold coordinate path written.
  *
  * @author kec
  */
 public interface EditCoordinate {
+
+   default UUID getEditCoordinateUuid() {
+      ArrayList<UUID> uuidList = new ArrayList<>();
+      UUIDUtil.addSortedUuids(uuidList, getAuthorNidForChanges());
+      UUIDUtil.addSortedUuids(uuidList, getDefaultModuleNid());
+      UUIDUtil.addSortedUuids(uuidList, getDestinationModuleNid());
+      UUIDUtil.addSortedUuids(uuidList, getPromotionPathNid());
+      StringBuilder b = new StringBuilder();
+      b.append(uuidList.toString());
+      return UUID.nameUUIDFromBytes(b.toString().getBytes());
+   }
    /**
     * Gets the author nid.
     *
     * @return the author nid
     */
-   int getAuthorNid();
+   int getAuthorNidForChanges();
    
-   default ConceptSpecification getAuthor() {
-       return Get.conceptSpecification(getAuthorNid());
+   default ConceptSpecification getAuthorForChanges() {
+       return Get.conceptSpecification(getAuthorNidForChanges());
    }
 
    /**
-    * Gets the module nid.
-    *
-    * @return the module nid
+    * The default module is the module for new content when developing. Modifications to existing
+    * content retain their module.
+    * @return
     */
-   int getModuleNid();
-   
-   default ConceptSpecification getModule() {
-       return Get.conceptSpecification(getModuleNid());
+   int getDefaultModuleNid();
+
+   /**
+    * The default module is the module for new content when developing. Modifications to existing
+    * content retain their module.
+    * @return
+    */
+   default ConceptSpecification getDefaultModule() {
+      return Get.conceptSpecification(getDefaultModuleNid());
    }
 
    /**
-    * Gets the path nid.
-    *
-    * @return the path nid
+    * The destination module is the module that existing content is moved to when Modularizing
+    * @return the nid of the destination module concept
     */
-   int getPathNid();
+   int getDestinationModuleNid();
+
+   /**
+    * The destination module is the module that existing content is moved to when Modularizing
+    * @return the destination module concept
+    */
+   default ConceptSpecification getDestinationModule() {
+      return Get.conceptSpecification(getDestinationModuleNid());
+   }
 
    EditCoordinateImmutable toEditCoordinateImmutable();
 
-   default ConceptSpecification getPath() {
-       return Get.conceptSpecification(getPathNid());
+   /**
+    * The promotion path is the path that existing content is moved to when Promoting
+    * @return the nid of the promotion concept
+    */
+   int getPromotionPathNid();
+
+   /**
+    * The promotion path is the path that existing content is moved to when Promoting
+    * @return the promotion concept
+    */
+   default ConceptSpecification getPromotionPath() {
+      return Get.conceptSpecification(getPromotionPathNid());
    }
 
    default String toUserString() {
       StringBuilder sb = new StringBuilder();
-      sb.append("author: ").append(Get.conceptDescriptionText(getAuthorNid())).append("\n");
-      sb.append("module: ").append(Get.conceptDescriptionText(getModuleNid())).append("\n");
-      sb.append("path: ").append(Get.conceptDescriptionText(getPathNid())).append("\n");
+      sb.append("author: ").append(Get.conceptDescriptionText(getAuthorNidForChanges())).append("\n");
+      sb.append("default module: ").append(Get.conceptDescriptionText(getDefaultModuleNid())).append("\n");
+      sb.append("destination module: ").append(Get.conceptDescriptionText(getDestinationModuleNid())).append("\n");
+      sb.append("promotion path: ").append(Get.conceptDescriptionText(getPromotionPathNid())).append("\n");
       return sb.toString();
    }
    

@@ -38,6 +38,7 @@ import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
@@ -56,7 +57,7 @@ public class ChangeSetMenus implements MenuProvider {
     }
 
     @Override
-    public MenuItem[] getMenuItems(AppMenu parentMenu, final Window window) {
+    public MenuItem[] getMenuItems(AppMenu parentMenu, final Window window, WindowPreferences windowPreference) {
         if (parentMenu == AppMenu.FILE) {
             MenuItem openChangeSetMenuItem = new MenuItemWithText("Open change sets...");
             openChangeSetMenuItem.setOnAction((action) -> {

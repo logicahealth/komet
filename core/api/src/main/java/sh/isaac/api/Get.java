@@ -54,6 +54,10 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 import javax.inject.Singleton;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
@@ -81,10 +85,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.coordinate.CoordinateFactory;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.datastore.MasterDataStore;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
@@ -100,6 +101,7 @@ import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.metacontent.MetaContentService;
+import sh.isaac.api.navigation.NavigationService;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
@@ -188,6 +190,8 @@ public class Get
    /** The taxonomy service. */
    private static TaxonomyService taxonomyService;
 
+   private static NavigationService navigationService;
+
    /** The work executors. */
    private static WorkExecutors workExecutors;
 
@@ -219,6 +223,10 @@ public class Get
     * Instantiates a new Get.
     */
    public Get() {}
+
+   public static Transformer xsltTransformer(Source xsltSource, ManifoldCoordinateImmutable manifoldCoordinate) throws TransformerConfigurationException {
+      return Get.service(XsltTransformer.class).getTransformer(xsltSource, manifoldCoordinate);
+   }
 
    /**
     * Active tasks.
@@ -405,7 +413,10 @@ public class Get
     * @see ConceptSnapshotService#conceptDescriptionText(int)
     */
    public static String conceptDescriptionText(int conceptNid) {
-      if (conceptNid >= 0) {
+      if (conceptNid == 0) {
+         return "Uninitialized Component, nid == 0";
+      }
+      if (conceptNid > 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
       }
 
@@ -413,7 +424,7 @@ public class Get
       if (Get.identifierService().getObjectTypeForComponent(conceptNid) == IsaacObjectType.SEMANTIC) {
          SemanticChronology sc = Get.assemblageService().getSemanticChronology(conceptNid);
          if (sc.getVersionType() == VersionType.DESCRIPTION) {
-            LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate().getStampFilter());
+            LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate().getViewStampFilter());
             if (latestDescription.isPresent()) {
                return "Desc: " + latestDescription.get().getText();
             }
@@ -822,7 +833,15 @@ public class Get
       return Get.conceptService().getConceptSnapshot(conceptNid, manifoldCoordinate);
    }
 
-   /**
+    public static ConceptChronology[] conceptList(int[] conceptNidList) {
+       ConceptChronology[] results = new ConceptChronology[conceptNidList.length];
+       for (int i = 0; i < results.length; i++) {
+          results[i] = concept(conceptNidList[i]);
+       }
+       return results;
+    }
+
+    /**
     * Reset.
     */
    @Override
@@ -846,6 +865,7 @@ public class Get
       semanticBuilderService          = null;
       assemblageService               = null;
       taxonomyService                 = null;
+      navigationService               = null;
       workExecutors                   = null;
       stampService                    = null;
       postCommitService               = null;
@@ -970,6 +990,13 @@ public class Get
 
       return taxonomyService;
    }
+   public static NavigationService navigationService() {
+      if (navigationService == null) {
+         navigationService = getService(NavigationService.class);
+      }
+
+      return navigationService;
+   }
    /**
     * Work executors.
     *
@@ -1068,20 +1095,20 @@ public class Get
    }
 
    public static String getTextForComponent(Chronology component) {
-      return Get.getTextForComponent(component, Get.defaultCoordinate().getStampFilter(),
+      return Get.getTextForComponent(component, Get.defaultCoordinate().getViewStampFilter(),
               Get.defaultCoordinate().getLanguageCoordinate());
    }
 
 
    public static String getTextForComponent(Chronology component, ManifoldCoordinate manifoldCoordinate) {
-      return Get.getTextForComponent(component, manifoldCoordinate.getStampFilter(),
+      return Get.getTextForComponent(component, manifoldCoordinate.getViewStampFilter(),
               manifoldCoordinate.getLanguageCoordinate());
    }
 
    public static String getTextForComponent(int componentNid, ManifoldCoordinate manifoldCoordinate) {
       Optional<? extends Chronology> optionalComponent = Get.identifiedObjectService().getChronology(componentNid);
       if (optionalComponent.isPresent()) {
-         return Get.getTextForComponent(optionalComponent.get(), manifoldCoordinate.getStampFilter(),
+         return Get.getTextForComponent(optionalComponent.get(), manifoldCoordinate.getViewStampFilter(),
                  manifoldCoordinate.getLanguageCoordinate());
       }
       return "No component for: " + componentNid + " uuids: " + Get.identifierService().getUuidsForNid(componentNid);

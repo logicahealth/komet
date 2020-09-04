@@ -51,13 +51,12 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.LongVersion;
 import sh.isaac.api.component.semantic.version.MutableLongVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableLongVersion;
-import sh.isaac.model.observable.CommitAwareLongProperty;
-import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.commitaware.CommitAwareLongProperty;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.LongVersionImpl;
 
@@ -90,12 +89,12 @@ public class ObservableLongVersionImpl
 
     @SuppressWarnings("unchecked")
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableLongVersionImpl analog = new ObservableLongVersionImpl(this, getChronology());
         copyLocalFields(analog);
-        analog.setModuleNid(ec.getModuleNid());
-        analog.setAuthorNid(ec.getAuthorNid());
-        analog.setPathNid(ec.getPathNid());
+        analog.setModuleNid(mc.getModuleNidForAnalog(this));
+        analog.setAuthorNid(mc.getAuthorNidForChanges());
+        analog.setPathNid(mc.getPathNidForAnalog());
         return (V) analog;
     }
 
@@ -124,14 +123,11 @@ public class ObservableLongVersionImpl
    @SuppressWarnings("unchecked")
    @Override
    public <V extends Version> V makeAnalog(int stampSequence) {
-      LongVersion newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
-      ObservableLongVersionImpl newObservableVersion = new ObservableLongVersionImpl(
-                                                           newVersion,
-                                                                 (ObservableSemanticChronology) chronology);
-        ((ObservableChronologyImpl) chronology).getVersionList()
-                .add(newObservableVersion);
-        return (V) newObservableVersion;
-    }
+      LongVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+      ObservableLongVersionImpl newObservableVersion = new ObservableLongVersionImpl(newVersion, getChronology());
+      getChronology().getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
+   }
 
    @Override
    public String toString() {

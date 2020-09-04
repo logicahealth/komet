@@ -221,7 +221,13 @@ public interface LogicCoordinate {
       return sb.toString();
    }
 
+   default int getRootNid() {
+      return TermAux.SOLOR_ROOT.getNid();
+   }
 
+   default ConceptSpecification getRoot() {
+      return TermAux.SOLOR_ROOT;
+   }
    LogicCoordinateImmutable toLogicCoordinateImmutable();
 
 }

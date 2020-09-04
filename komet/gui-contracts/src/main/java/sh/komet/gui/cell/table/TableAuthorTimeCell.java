@@ -17,9 +17,10 @@
 package sh.komet.gui.cell.table;
 
 import javafx.scene.control.TableRow;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 import java.time.Instant;
 import java.time.ZoneOffset;
@@ -30,18 +31,18 @@ import java.time.format.DateTimeFormatter;
  * @author kec
  */
 public class TableAuthorTimeCell extends KometTableCell {
-   private final Manifold manifold;
+   private final ManifoldCoordinate manifoldCoordinate;
    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-   public TableAuthorTimeCell(Manifold manifold) {
-      this.manifold = manifold;
+   public TableAuthorTimeCell(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
       getStyleClass().add("komet-version-author-time-cell");
       getStyleClass().add("isaac-version");
    }
 
    @Override
    protected void updateItem(TableRow<ObservableChronology> row, ObservableVersion version) {
-        setText(manifold.getPreferredDescriptionText(version.getAuthorNid()) + "\n" +
+        setText(manifoldCoordinate.getPreferredDescriptionText(version.getAuthorNid()) + "\n" +
                 formatter.format(Instant.ofEpochMilli(version.getTime()).atZone(ZoneOffset.UTC))
         );
    }

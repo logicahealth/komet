@@ -168,10 +168,10 @@ public final class LatestVersion<V> {
    }
 
    /**
-    +    * Return false if there is no value present, otherwise, passes the value into the supplied customCheck, and returns that response.
-    +    * @param customCheck The test to run, if the value is present.
-    +    * @return true if present and customCheck returns true, otherwise, false.
-    +    */
+    * Return false if there is no value present, otherwise, passes the value into the supplied customCheck, and returns that response.
+    * @param customCheck The test to run, if the value is present.
+    * @return true if present and customCheck returns true, otherwise, false.
+    */
    public boolean isPresentAnd(Predicate<V> customCheck) {
       if (value == null) {
          return false;
@@ -258,6 +258,10 @@ public final class LatestVersion<V> {
    @Override
    public String toString() {
       return "LatestVersion{" + this.value + ", contradictions=" + contradictions() + '}';
+   }
+   
+   public String toStringOr(Function<V, String> toStringFunction, String ifMissing) {
+      return isPresent() ? toStringFunction.apply(value) : ifMissing;
    }
 
    /**

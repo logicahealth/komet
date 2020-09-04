@@ -124,8 +124,8 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 	{
 		try
 		{
-			int authorNid = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate().getAuthorNid();
-			int pathNid = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate().getPathNid();
+			int authorNid = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get().getAuthorNid();
+			int pathNid = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get().getPathNid();
 			List<String[]> noSuchElementList = new ArrayList<>();
 			HashSet<Integer> checkedDynamicTypes = new HashSet<>();
 

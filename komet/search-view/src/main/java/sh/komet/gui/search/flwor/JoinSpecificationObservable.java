@@ -41,7 +41,7 @@ public class JoinSpecificationObservable implements JoinSpecification {
             = new SimpleObjectProperty<>(this, MetaData.FIELD_2_TO_JOIN____SOLOR.toExternalString());
 
     SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty 
-            = new SimpleObjectProperty<>(this, MetaData.FILTER_FILTER_FOR_VERTEX____SOLOR.toExternalString());
+            = new SimpleObjectProperty<>(this, MetaData.FILTER_FOR_VIEW____SOLOR.toExternalString());
 
     public JoinSpecificationObservable() {
     }

@@ -24,8 +24,8 @@ public interface VertexSort {
      * Sort the vertex concept nids with respect to settings from the
      * digraphCoordinate where appropriate.
      * @param vertexConceptNids
-     * @param digraph
+     * @param manifold
      * @return sorted vertexConceptNids
      */
-    int[] sortVertexes(int[] vertexConceptNids, DigraphCoordinateImmutable digraph);
+    int[] sortVertexes(int[] vertexConceptNids, ManifoldCoordinateImmutable manifold);
 }

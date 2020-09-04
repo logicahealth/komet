@@ -56,6 +56,7 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.semantic.version.*;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.transaction.Transaction;
@@ -63,9 +64,8 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.cell.CellFunctions;
 import sh.komet.gui.cell.CellHelper;
 import sh.komet.gui.control.FixedSizePane;
-import sh.komet.gui.control.PropertyToPropertySheetItem;
+import sh.komet.gui.control.property.PropertyToPropertySheetItem;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
@@ -88,7 +88,7 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
 
     //~--- fields --------------------------------------------------------------
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private final Manifold manifold;
+    private final ManifoldCoordinate manifoldCoordinate;
     private final Button editButton = new Button("", Iconography.EDIT_PENCIL.getIconographic());
     private final GridPane textAndEditGrid = new GridPane();
     private final BorderPane editPanel = new BorderPane();
@@ -99,15 +99,15 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
     private final CellHelper cellHelper = new CellHelper(this);
 
     //~--- constructors --------------------------------------------------------
-    public TableGeneralCell(Manifold manifold) {
-        this.manifold = manifold;
+    public TableGeneralCell(ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
         getStyleClass().add("komet-version-general-cell");
         getStyleClass().add("isaac-version");
         editButton.getStyleClass()
                 .setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
         editButton.setOnAction(this::toggleEdit);
         textAndEditGrid.getChildren().addAll(paneForText, editButton, editPanel);
-        setContextMenu(cellHelper.makeContextMenu());
+        //setContextMenu(cellHelper.makeContextMenu());
         // setConstraints(Node child, int columnIndex, int rowIndex, int columnspan, int rowspan, HPos halignment, VPos valignment, Priority hgrow, Priority vgrow)
         GridPane.setConstraints(paneForText, 0, 0, 1, 2, HPos.LEFT, VPos.TOP, Priority.ALWAYS, Priority.NEVER);
         GridPane.setConstraints(editButton, 2, 0, 1, 1, HPos.RIGHT, VPos.TOP, Priority.NEVER, Priority.NEVER);
@@ -143,8 +143,8 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
     }
 
     @Override
-    public Manifold getManifold() {
-        return manifold;
+    public ManifoldCoordinate getManifoldCoordinate() {
+        return this.manifoldCoordinate;
     }
 
     public void initializeConceptBuilder() {
@@ -204,16 +204,16 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
         if (editPanel.getChildren().isEmpty()) {
             if (this.version != null) {
                 if (this.version instanceof ObservableVersion) {
-                    ObservableVersion currentVersion = (ObservableVersion) this.version;
-                    mutableVersion = currentVersion.makeAutonomousAnalog(FxGet.editCoordinate());
+                    ObservableVersion currentVersion = this.version;
+                    mutableVersion = currentVersion.makeAutonomousAnalog(manifoldCoordinate);
 
                     List<Property<?>> propertiesToEdit = mutableVersion.getEditableProperties();
                     PropertySheet propertySheet = new PropertySheet();
                     propertySheet.setMode(PropertySheet.Mode.NAME);
                     propertySheet.setSearchBoxVisible(false);
                     propertySheet.setModeSwitcherVisible(false);
-                    propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifold));
-                    propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifold));
+                    propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifoldCoordinate));
+                    propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifoldCoordinate));
 
                     editPanel.setTop(toolBar);
                     editPanel.setCenter(propertySheet);

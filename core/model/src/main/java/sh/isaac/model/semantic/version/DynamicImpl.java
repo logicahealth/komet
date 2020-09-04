@@ -145,6 +145,7 @@ public class DynamicImpl
    public void setReferencedComponentVersionType(VersionType versionType) {
       this.referencedComponentVersionType = versionType;
    }
+
    
    /**
     * {@inheritDoc}
@@ -153,9 +154,8 @@ public class DynamicImpl
    @Override
    public <V extends Version> V makeAnalog(int stampSequence)
    {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final DynamicImpl newVersion = new DynamicImpl(this, stampSequence);
-      chronologyImpl.addVersion(newVersion);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 

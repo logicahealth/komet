@@ -26,9 +26,6 @@ import javafx.animation.Animation;
 import javafx.animation.FadeTransition;
 import javafx.animation.ParallelTransition;
 import javafx.application.Platform;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -38,12 +35,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToolBar;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 import javafx.util.Duration;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
@@ -53,15 +45,19 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.observable.ObservableDescriptionDialect;
 import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
 import sh.komet.gui.contract.GuiConceptBuilder;
-import sh.komet.gui.interfaces.DetailNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.interfaces.DetailNodeAbstract;
+import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.gui.style.PseudoClasses;
 import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
 import sh.komet.gui.style.StyleClasses;
@@ -73,19 +69,20 @@ import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
  *
  * @author kec
  */
-public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
+public class ConceptBuilderNode extends ExplorationNodeAbstract implements GuiConceptBuilder {
 
     private static final int TRANSITION_OFF_TIME = 250;
-    private static final int TRANSITION_ON_TIME = 750;
+    private static final int TRANSITION_ON_TIME = 350;
 
-    private final Manifold manifold;
-    private final SimpleStringProperty titleProperty = new SimpleStringProperty("Concept builder");
-    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Concept builder");
-    private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.NEW_CONCEPT.getIconographic());
+    {
+        titleProperty.setValue("Concept builder");
+        toolTipProperty.setValue("Concept builder");
+        menuIconProperty.setValue(Iconography.NEW_CONCEPT.getIconographic());
+    }
     private final VBox componentPanelBox = new VBox(8);
-    private final BorderPane builderBorderPane = new BorderPane(componentPanelBox);
-    private final ScrollPane scrollPane = new ScrollPane(builderBorderPane);
+    private final ScrollPane scrollPane;
     private final Button addDescriptionButton = new Button("+ Add");
+    private final BorderPane detailPane = new BorderPane();
 
     private final Button newConceptButton = new Button("New concept");
     private final Button commitButton = new Button("Commit");
@@ -101,27 +98,34 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     private ObservableLogicGraphVersionImpl statedDefinition;
     protected ConceptBuilderComponentPanel conceptPanel;
 
-    public ConceptBuilderNode(Manifold manifold) {
-        this.manifold = manifold;
-        builderBorderPane.setTop(builderToolbar);
-        newConceptButton.setOnAction(this::newConcept);
-        addDescriptionButton.setOnAction(this::newDescription);
-        commitButton.setOnAction(this::commit);
-        cancelButton.setOnAction(this::cancel);
-        cancelButton.getStyleClass()
+    public ConceptBuilderNode(ViewProperties viewProperties, IsaacPreferences preferences) {
+        super(viewProperties, viewProperties.getUnlinkedActivityFeed());
+        this.detailPane.setCenter(componentPanelBox);
+        this.detailPane.setTop(builderToolbar);
+        this.scrollPane = new ScrollPane(detailPane);
+        this.newConceptButton.setOnAction(this::newConcept);
+        this.addDescriptionButton.setOnAction(this::newDescription);
+        this.commitButton.setOnAction(this::commit);
+        this.cancelButton.setOnAction(this::cancel);
+        this.cancelButton.getStyleClass()
                 .add(StyleClasses.CANCEL_BUTTON.toString());
-        cancelButton.setOnAction(this::cancel);
-        commitButton.getStyleClass()
+        this.cancelButton.setOnAction(this::cancel);
+        this.commitButton.getStyleClass()
                 .add(StyleClasses.COMMIT_BUTTON.toString());
-        componentPanelBox.getStyleClass()
+        this.componentPanelBox.getStyleClass()
                 .add(StyleClasses.COMPONENT_DETAIL_BACKGROUND.toString());
-        componentPanelBox.setFillWidth(true);
-        addDescriptionButton.getStyleClass()
+        this.componentPanelBox.setFillWidth(true);
+        this.addDescriptionButton.getStyleClass()
                 .setAll(ADD_DESCRIPTION_BUTTON.toString());
         this.scrollPane.setFitToWidth(true);
         this.scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         this.scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         FxGet.builders().add(this);
+    }
+
+    @Override
+    public Node getMenuIconGraphic() {
+        return Iconography.NEW_CONCEPT.getIconographic();
     }
 
     @Override
@@ -154,8 +158,8 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
         builderToolbar.getItems().addAll(textField, cancelButton, commitButton);
         builderToolbar.getStyleClass().add(StyleClasses.COMPONENT_PANEL.toString());
         builderToolbar.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, true);
-        builderBorderPane.getStyleClass().add(StyleClasses.COMPONENT_PANEL.toString());
-        builderBorderPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, true);
+        detailPane.getStyleClass().add(StyleClasses.COMPONENT_PANEL.toString());
+        detailPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, true);
  
         textField.setText("New concept");
         textField.requestFocus();
@@ -189,9 +193,9 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
         defDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
         defDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid());
 
-        this.statedDefinition = new ObservableLogicGraphVersionImpl(conceptUuid, manifold.getLogicCoordinate().getStatedAssemblageNid());
+        this.statedDefinition = new ObservableLogicGraphVersionImpl(conceptUuid, viewProperties.getManifoldCoordinate().getLogicCoordinate().getStatedAssemblageNid());
         this.statedDefinition.setStatus(Status.ACTIVE);
-        this.statedDefinition.assemblageNidProperty().set(manifold.getLogicCoordinate().getStatedAssemblageNid());
+        this.statedDefinition.assemblageNidProperty().set(viewProperties.getManifoldCoordinate().getLogicCoordinate().getStatedAssemblageNid());
 
         layoutBuilderComponents();
     }
@@ -199,7 +203,7 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     private void layoutBuilderComponents() {
         componentPanelBox.getChildren().clear();
         final ParallelTransition parallelTransition = new ParallelTransition();
-        this.conceptPanel = new ConceptBuilderComponentPanel(manifold, conceptVersion, false, textField.textProperty());
+        this.conceptPanel = new ConceptBuilderComponentPanel(viewProperties, conceptVersion, false, textField.textProperty());
         parallelTransition.getChildren().add(addComponent(conceptPanel, new Insets(10, 5, 1, 5)));
         AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton);
         descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
@@ -207,14 +211,14 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
                 .add(addNode(descriptionHeader));
 
         for (ObservableDescriptionDialect descDialect : descriptions) {
-            ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(manifold, descDialect, false, textField.textProperty());
+            ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(viewProperties, descDialect, false, textField.textProperty());
             parallelTransition.getChildren().add(addComponent(descPanel));
         }
         AnchorPane definitionHeader = setupHeaderPanel("AXIOMS", null);
         definitionHeader.pseudoClassStateChanged(PseudoClasses.LOGICAL_DEFINITION_PSEUDO_CLASS, true);
         parallelTransition.getChildren()
                 .add(addNode(definitionHeader));
-        ConceptBuilderComponentPanel logicPanel = new ConceptBuilderComponentPanel(manifold, statedDefinition, false, textField.textProperty());
+        ConceptBuilderComponentPanel logicPanel = new ConceptBuilderComponentPanel(viewProperties, statedDefinition, false, textField.textProperty());
         parallelTransition.getChildren()
                 .add(addComponent(logicPanel));
 
@@ -262,6 +266,7 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
                 try {
                     Optional<CommitRecord> commitRecord = commitTask.get();
                     completeCommit(commitTask, commitRecord);
+                    Platform.runLater(() -> getActivityFeed().feedSelectionProperty().setAll(Get.concept(conceptUuid)));
                 } catch (InterruptedException | ExecutionException ex) {
                     FxGet.dialogs().showErrorDialog("Error during commit", ex);
                 }
@@ -278,8 +283,8 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     private void cancel(Event event) {
         builderToolbar.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
         builderToolbar.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
-        builderBorderPane.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
-        builderBorderPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
+        detailPane.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
+        detailPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
 
         builderToolbar.getItems().clear();
         builderToolbar.getItems().addAll(newConceptButton);
@@ -290,8 +295,8 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
             Platform.runLater(() -> {
                 builderToolbar.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
                 builderToolbar.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
-                builderBorderPane.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
-                builderBorderPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
+                detailPane.getStyleClass().remove(StyleClasses.COMPONENT_PANEL.toString());
+                detailPane.pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
 
                 builderToolbar.getItems().clear();
                 builderToolbar.getItems().addAll(newConceptButton);
@@ -355,33 +360,13 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     }
 
     @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return titleProperty;
-    }
-
-    @Override
     public Optional<Node> getTitleNode() {
         return Optional.empty();
     }
 
     @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return toolTipProperty;
-    }
-
-    @Override
-    public boolean selectInTabOnChange() {
-        return false;
-    }
-
-    @Override
-    public Manifold getManifold() {
-        return manifold;
-    }
-
-    @Override
-    public SimpleObjectProperty getMenuIconProperty() {
-        return menuIconProperty;
+    public ActivityFeed getActivityFeed() {
+        return this.viewProperties.getActivityFeed(ViewProperties.CONCEPT_BUILDER);
     }
 
     /**
@@ -401,4 +386,5 @@ public class ConceptBuilderNode implements DetailNode, GuiConceptBuilder {
     public boolean canClose() {
         return true;
     }
+
 }

@@ -48,7 +48,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -60,18 +59,16 @@ import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.concurrent.Task;
-import sh.isaac.MetaData;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.EditCoordinateImmutable;
-import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.datastore.ExtendedStore;
@@ -80,7 +77,9 @@ import sh.isaac.api.datastore.extendedStore.ExtendedStoreStandAlone;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.marshal.MarshalUtil;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.logic.LogicalExpressionImpl;
+import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
 
@@ -164,64 +163,81 @@ public class LogicProvider
     @PreDestroy
     private void stopMe() {
         LOG.info("Stopping LogicProvider for change to runlevel: " + LookupService.getProceedingToRunLevel());
-        for (Task<?> updateTask : pendingLogicTasks) {
-            try {
-                LOG.info("Waiting for completion of: " + updateTask.getTitle());
-                updateTask.get();
-                LOG.info("Completed: " + updateTask.getTitle());
-            } catch (Throwable ex) {
-                LOG.error(ex);
-            }
-        }
+        StopMeTask stopMeTask = new StopMeTask();
         try {
-            sync().get();
-            if (store.implementsExtendedStoreAPI()) {
-                ((ExtendedStore)store).closeStore(STORAGE_NAME);
+            stopMeTask.call();
+        } catch (Exception e) {
+            LOG.error(e);
+        }
+
+        LOG.info("Stopped LogicProvider  ");
+    }
+
+    private class StopMeTask extends TimedTaskWithProgressTracker {
+
+        public StopMeTask() {
+            updateTitle("Stopping logic provider");
+            addToTotalWork(2);
+            Get.activeTasks().add(this);
+        }
+        @Override
+        protected Object call() throws Exception {
+            try {
+                updateMessage("Completing pending logic tasks");
+                for (Task<?> updateTask : pendingLogicTasks) {
+                    try {
+                        LOG.info("Waiting for completion of: " + updateTask.getTitle());
+                        updateTask.get();
+                        LOG.info("Completed: " + updateTask.getTitle());
+                    } catch (Throwable ex) {
+                        LOG.error(ex);
+                    }
+                }
+                completedUnitOfWork();
+                
+                updateMessage("Writing classifier results");
+                sync().get();
+                if (store.implementsExtendedStoreAPI()) {
+                    ((ExtendedStore)store).closeStore(STORAGE_NAME);
+                }
+                
+                CLASSIFIER_SERVICE_MAP.clear();
+                LogicProvider.this.pendingLogicTasks.clear();
+                LogicProvider.this.classifierResultMap = null;
+                LogicProvider.this.store = null;
+                completedUnitOfWork();
+                return null;
+            } finally {
+                Get.activeTasks().remove(this);
             }
-        }
-        catch (InterruptedException | ExecutionException e) {
-            LOG.error("Problem writing out LogicProvider storage!", e);
-        }
-        CLASSIFIER_SERVICE_MAP.clear();
-        this.pendingLogicTasks.clear();
-        this.classifierResultMap = null;
-        this.store = null;
+         }
     }
 
      /**
      * Gets the classifier service.
      *
-     * @param stampFilter the stamp coordinate
-     * @param logicCoordinate the logic coordinate
-     * @param editCoordinate  the edit coordinate
+     * @param manifoldCoordinate the stamp coordinate
      * @return the classifier service
      */
     @Override
-    public ClassifierService getClassifierService(StampFilter stampFilter,
-                                                  LogicCoordinate logicCoordinate,
-                                                  EditCoordinate editCoordinate) {
-        StampFilter stampFilterAnalog;
-        if (stampFilter.getStampPosition().getTime() == Long.MAX_VALUE) {
+    public ClassifierService getClassifierService(ManifoldCoordinateImmutable manifoldCoordinate) {
+        ObservableManifoldCoordinateImpl manifoldAnalog = new ObservableManifoldCoordinateImpl(manifoldCoordinate);
+        if (manifoldCoordinate.getViewStampFilter().getTime() == Long.MAX_VALUE) {
             LOG.info("changing classify coordinate time to now, rather that latest");
-            stampFilterAnalog = stampFilter.makeCoordinateAnalog(System.currentTimeMillis());
+            manifoldAnalog.getViewStampFilter().timeProperty().setValue(System.currentTimeMillis());
+         }
+
+        if (manifoldAnalog.getEditCoordinate().getAuthorForChanges().getNid() != TermAux.SNOROCKET_CLASSIFIER.getNid()) {
+            LOG.info("changing classify coordinate author to SNOROCKET, rather than " + Get.conceptDescriptionText(manifoldAnalog.getEditCoordinate().getAuthorNidForChanges()));
+            manifoldAnalog.getEditCoordinate().authorForChangesProperty().setValue(TermAux.SNOROCKET_CLASSIFIER);
         }
-        else {
-            stampFilterAnalog = stampFilter;
-        }
-        EditCoordinate ec;
-        if (editCoordinate.getAuthorNid() != MetaData.IHTSDO_CLASSIFIER____SOLOR.getNid()){
-           ec = EditCoordinateImmutable.make(MetaData.IHTSDO_CLASSIFIER____SOLOR.getNid(), editCoordinate.getModuleNid(), editCoordinate.getPathNid());
-        }
-        else {
-           ec = editCoordinate;
-        }
-        
-        final ClassifierServiceKey key = new ClassifierServiceKey(stampFilterAnalog, logicCoordinate, ec);
-         
+
+        ManifoldCoordinateImmutable manifoldCoordinateImmutable = manifoldAnalog.toManifoldCoordinateImmutable();
+        final ClassifierServiceKey key = new ClassifierServiceKey(manifoldCoordinateImmutable);
 
         if (!CLASSIFIER_SERVICE_MAP.containsKey(key)) {
             CLASSIFIER_SERVICE_MAP.putIfAbsent(key,
-                    new ClassifierProvider(stampFilterAnalog, logicCoordinate, ec));
+                    new ClassifierProvider(manifoldCoordinateImmutable));
         }
 
         return CLASSIFIER_SERVICE_MAP.get(key);
@@ -285,22 +301,18 @@ public class LogicProvider
      */
     private static class ClassifierServiceKey {
 
-        StampFilter stampCoordinate;
-        LogicCoordinate logicCoordinate;
-        EditCoordinate editCoordinate;
+        /**
+         * The stamp coordinate.
+         */
+        ManifoldCoordinateImmutable manifoldCoordinateImmutable;
 
         /**
          * Instantiates a new classifier service key.
-         *  @param stampFilter the stamp coordinate
-         * @param logicCoordinate the logic coordinate
-         * @param editCoordinate  the edit coordinate
+         * @param manifoldCoordinate the stamp coordinate
+         *
          */
-        public ClassifierServiceKey(StampFilter stampFilter,
-                                    LogicCoordinate logicCoordinate,
-                                    EditCoordinate editCoordinate) {
-            this.stampCoordinate = stampFilter;
-            this.logicCoordinate = logicCoordinate;
-            this.editCoordinate = editCoordinate;
+        public ClassifierServiceKey(ManifoldCoordinateImmutable manifoldCoordinate) {
+            this.manifoldCoordinateImmutable = manifoldCoordinate;
         }
 
         /**
@@ -321,15 +333,7 @@ public class LogicProvider
 
             final ClassifierServiceKey other = (ClassifierServiceKey) obj;
 
-            if (!Objects.equals(this.stampCoordinate, other.stampCoordinate)) {
-                return false;
-            }
-
-            if (!Objects.equals(this.logicCoordinate, other.logicCoordinate)) {
-                return false;
-            }
-
-            return Objects.equals(this.editCoordinate, other.editCoordinate);
+            return Objects.equals(this.manifoldCoordinateImmutable, other.manifoldCoordinateImmutable);
         }
 
         /**
@@ -340,10 +344,7 @@ public class LogicProvider
         @Override
         public int hashCode() {
             int hash = 3;
-
-            hash = 59 * hash + Objects.hashCode(this.logicCoordinate);
-            hash = 59 * hash + Objects.hashCode(this.stampCoordinate);
-            hash = 59 * hash + Objects.hashCode(this.editCoordinate);
+            hash = 59 * hash + Objects.hashCode(this.manifoldCoordinateImmutable);
             return hash;
         }
     }
@@ -361,7 +362,7 @@ public class LogicProvider
 
     @Override
     public void addClassifierResults(ClassifierResults classifierResults) {
-        Instant classifierTime = classifierResults.getStampFilter().getStampPosition().getTimeAsInstant();
+        Instant classifierTime = classifierResults.getManifoldCoordinate().getViewStampFilter().getTimeAsInstant();
         if (Platform.isFxApplicationThread()) {
             classifierInstants.add(classifierTime);
         } else {

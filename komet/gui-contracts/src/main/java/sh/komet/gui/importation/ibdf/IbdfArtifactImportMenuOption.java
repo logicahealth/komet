@@ -68,6 +68,7 @@ import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
 import sh.isaac.mojo.LoadTermstore;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxUtils;
 
@@ -245,7 +246,7 @@ public class IbdfArtifactImportMenuOption implements MenuProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public MenuItem[] getMenuItems(AppMenu appMenu, Window window)
+	public MenuItem[] getMenuItems(AppMenu appMenu, Window window, WindowPreferences windowPreference)
 	{
 		if (appMenu == AppMenu.TOOLS)
 		{

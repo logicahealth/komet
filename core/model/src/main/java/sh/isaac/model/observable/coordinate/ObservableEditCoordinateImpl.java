@@ -41,14 +41,11 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.value.ObservableValue;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.EditCoordinateImmutable;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.observable.SimpleEqualityBasedObjectProperty;
+import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedObjectProperty;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -58,16 +55,7 @@ import sh.isaac.model.observable.SimpleEqualityBasedObjectProperty;
  * @author kec
  */
 public class ObservableEditCoordinateImpl
-        extends ObservableCoordinateImpl<EditCoordinateImmutable>
-         implements ObservableEditCoordinate {
-   /** The author property. */
-   private final SimpleEqualityBasedObjectProperty<ConceptSpecification> authorProperty;
-
-   /** The module property. */
-   private final SimpleEqualityBasedObjectProperty<ConceptSpecification> moduleProperty;
-
-   /** The path property. */
-   private final SimpleEqualityBasedObjectProperty<ConceptSpecification> pathProperty;
+        extends ObservableEditCoordinateBase {
 
    //~--- constructors --------------------------------------------------------
 
@@ -76,88 +64,45 @@ public class ObservableEditCoordinateImpl
     *
     * @param editCoordinate the edit coordinate
     */
-   public ObservableEditCoordinateImpl(EditCoordinateImmutable editCoordinate) {
-       super(editCoordinate);
-       this.authorProperty = new SimpleEqualityBasedObjectProperty<>(this,
-               ObservableFields.AUTHOR_NID_FOR_EDIT_COORDINATE.toExternalString(),
-               editCoordinate.getAuthor());
-
-       this.moduleProperty = new SimpleEqualityBasedObjectProperty(this,
-               ObservableFields.MODULE_NID_FOR_EDIT_COORDINATE.toExternalString(),
-               editCoordinate.getModule());
-
-       this.pathProperty = new SimpleEqualityBasedObjectProperty(this,
-               ObservableFields.PATH_NID_FOR_EDIT_CORDINATE.toExternalString(),
-               editCoordinate.getPath());
-       addListeners();
+   public ObservableEditCoordinateImpl(EditCoordinate editCoordinate, String coordinateName) {
+       super(editCoordinate.toEditCoordinateImmutable(), coordinateName);
    }
 
-    protected void removeListeners() {
-        this.moduleProperty.removeListener(this::moduleConceptChanged);
-        this.authorProperty.removeListener(this::authorConceptChanged);
-        this.pathProperty.removeListener(this::pathConceptChanged);
+    @Override
+    public void setExceptOverrides(EditCoordinateImmutable updatedCoordinate) {
+        setValue(updatedCoordinate);
     }
 
-    protected void addListeners() {
-        this.moduleProperty.addListener(this::moduleConceptChanged);
-        this.authorProperty.addListener(this::authorConceptChanged);
-        this.pathProperty.addListener(this::pathConceptChanged);
+    public ObservableEditCoordinateImpl(EditCoordinate editCoordinate) {
+        super(editCoordinate.toEditCoordinateImmutable(), "Edit coordinate");
     }
 
     @Override
-    protected void baseCoordinateChangedListenersRemoved(ObservableValue<? extends EditCoordinateImmutable> observable, EditCoordinateImmutable oldValue, EditCoordinateImmutable newValue) {
-        this.authorProperty.setValue(newValue.getAuthor());
-        this.moduleProperty.setValue(newValue.getModule());
-        this.pathProperty.setValue(newValue.getPath());
-    }
-
-    private void pathConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
-                                    ConceptSpecification old,
-                                    ConceptSpecification newPathConcept) {
-        this.setValue(EditCoordinateImmutable.make(getAuthorNid(), getModuleNid(), newPathConcept.getNid()));
-    }
-
-    private void authorConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
-                                      ConceptSpecification oldAuthorConcept,
-                                      ConceptSpecification newAuthorConcept) {
-        this.setValue(EditCoordinateImmutable.make(newAuthorConcept.getNid(), getModuleNid(), getPathNid()));
-    }
-
-    private void moduleConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
-                                      ConceptSpecification old,
-                                      ConceptSpecification newModuleConcept) {
-        this.setValue(EditCoordinateImmutable.make(getAuthorNid(), newModuleConcept.getNid(), getPathNid()));
+    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makePromotionPathProperty(EditCoordinate editCoordinate) {
+        return new SimpleEqualityBasedObjectProperty(this,
+                ObservableFields.PATH_NID_FOR_EDIT_CORDINATE.toExternalString(),
+                editCoordinate.getPromotionPath());
     }
 
     @Override
-    public ObjectProperty<ConceptSpecification> authorProperty() {
-        return this.authorProperty;
+    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makeDefaultModuleProperty(EditCoordinate editCoordinate) {
+        return new SimpleEqualityBasedObjectProperty(this,
+                ObservableFields.MODULE_NID_FOR_EDIT_COORDINATE.toExternalString(),
+                editCoordinate.getDefaultModule());
     }
 
     @Override
-    public ObjectProperty<ConceptSpecification> moduleProperty() {
-        return this.moduleProperty;
+    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makeAuthorForChangesProperty(EditCoordinate editCoordinate) {
+        return new SimpleEqualityBasedObjectProperty<>(this,
+                ObservableFields.AUTHOR_NID_FOR_EDIT_COORDINATE.toExternalString(),
+                editCoordinate.getAuthorForChanges());
     }
 
     @Override
-    public ObjectProperty<ConceptSpecification> pathProperty() {
-        return this.pathProperty;
+    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makeDestinationModuleProperty(EditCoordinate editCoordinate) {
+        return new SimpleEqualityBasedObjectProperty<>(this,
+                ObservableFields.DESTINATION_MODULE_NID_FOR_EDIT_COORDINATE.toExternalString(),
+                editCoordinate.getDestinationModule());
     }
-
-    @Override
-    public EditCoordinate getEditCoordinate() {
-        return this.getValue();
-    }
-
-   /**
-    * To string.
-    *
-    * @return the string
-    */
-   @Override
-   public String toString() {
-      return "ObservableEditCoordinateImpl{" + this.getValue().toString() + '}';
-   }
-
 }
 

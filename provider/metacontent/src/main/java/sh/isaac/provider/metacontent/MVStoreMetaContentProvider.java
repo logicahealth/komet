@@ -124,6 +124,7 @@ public class MVStoreMetaContentProvider
          this.store.close();
          this.store = null;
       }
+      this.LOG.info("Stopped a MVStoreMetaContent service");
    }
 
    /**

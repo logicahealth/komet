@@ -25,7 +25,7 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.TreeItem;
 import javafx.scene.control.TreeView;
 import javafx.scene.layout.BorderPane;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  * FXML Controller class
@@ -47,7 +47,7 @@ public class KometPreferencesController implements Initializable {
     @FXML // fx:id="detailBorderPane"
     private BorderPane detailBorderPane; // Value injected by FXMLLoader
 
-    Manifold manifold;
+    ViewProperties viewProperties;
     /**
      * Initializes the controller class.
      */
@@ -83,11 +83,11 @@ public class KometPreferencesController implements Initializable {
             detailBorderPane.setRight(null);
         } else {
             TreeItem<PreferenceGroup> selectedItem = selectedItems.get(0);
-            detailBorderPane.setCenter(selectedItem.getValue().getCenterPanel(this.manifold));
-            detailBorderPane.setTop(selectedItem.getValue().getTopPanel(this.manifold));
-            detailBorderPane.setBottom(selectedItem.getValue().getBottomPanel(this.manifold));
-            detailBorderPane.setLeft(selectedItem.getValue().getLeftPanel(this.manifold));
-            detailBorderPane.setRight(selectedItem.getValue().getRightPanel(this.manifold));
+            detailBorderPane.setCenter(selectedItem.getValue().getCenterPanel(this.viewProperties));
+            detailBorderPane.setTop(selectedItem.getValue().getTopPanel(this.viewProperties));
+            detailBorderPane.setBottom(selectedItem.getValue().getBottomPanel(this.viewProperties));
+            detailBorderPane.setLeft(selectedItem.getValue().getLeftPanel(this.viewProperties));
+            detailBorderPane.setRight(selectedItem.getValue().getRightPanel(this.viewProperties));
         }
     }
 
@@ -101,11 +101,11 @@ public class KometPreferencesController implements Initializable {
             detailBorderPane.setRight(null);
         } else {
             TreeItem<PreferenceGroup> selectedItem = selectedItems.get(0);
-            detailBorderPane.setCenter(selectedItem.getValue().getCenterPanel(this.manifold));
-            detailBorderPane.setTop(selectedItem.getValue().getTopPanel(this.manifold));
-            detailBorderPane.setBottom(selectedItem.getValue().getBottomPanel(this.manifold));
-            detailBorderPane.setLeft(selectedItem.getValue().getLeftPanel(this.manifold));
-            detailBorderPane.setRight(selectedItem.getValue().getRightPanel(this.manifold));
+            detailBorderPane.setCenter(selectedItem.getValue().getCenterPanel(this.viewProperties));
+            detailBorderPane.setTop(selectedItem.getValue().getTopPanel(this.viewProperties));
+            detailBorderPane.setBottom(selectedItem.getValue().getBottomPanel(this.viewProperties));
+            detailBorderPane.setLeft(selectedItem.getValue().getLeftPanel(this.viewProperties));
+            detailBorderPane.setRight(selectedItem.getValue().getRightPanel(this.viewProperties));
         }
     }
 
@@ -113,7 +113,7 @@ public class KometPreferencesController implements Initializable {
         return preferenceTree;
     }
 
-    public void setManifold(Manifold manifold) {
-        this.manifold = manifold;
+    public void setViewProperties(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
     }
 }

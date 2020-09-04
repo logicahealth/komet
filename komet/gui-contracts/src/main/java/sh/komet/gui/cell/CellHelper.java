@@ -19,7 +19,9 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.*;
 import sh.isaac.api.component.semantic.version.brittle.*;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
@@ -27,7 +29,7 @@ import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 import sh.komet.gui.contract.GuiConceptBuilder;
 import sh.komet.gui.contract.GuiSearcher;
 import sh.komet.gui.control.axiom.AxiomView;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.axiom.ConceptNode;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
@@ -98,7 +100,7 @@ public class CellHelper {
     public void addDefToCell(LogicGraphVersion logicGraphVersion) {
         LogicalExpression expression = logicGraphVersion.getLogicalExpression();
         PremiseType premiseType = PremiseType.STATED;
-        if (cell.getManifold().getLogicCoordinate()
+        if (cell.getManifoldCoordinate().getLogicCoordinate()
                 .getInferredAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
             premiseType = PremiseType.INFERRED;
         }
@@ -108,7 +110,7 @@ public class CellHelper {
 
     private void addDefToCell(LogicalExpression expression, PremiseType premiseType) {
 
-        BorderPane defNodePanel = AxiomView.createWithCommitPanel(expression, premiseType, cell.getManifold());
+        BorderPane defNodePanel = AxiomView.createWithCommitPanel(expression, premiseType, cell.getManifoldCoordinate());
         setupWidth(defNodePanel);
     }
 
@@ -163,7 +165,16 @@ public class CellHelper {
         setupWidth(textFlow);
     }
 
-    public static String getTextForComponent(Manifold manifold, Chronology component) {
+    private void addReferencedConceptToCell(Text assemblageNameText, ConceptNode referencedComponentConceptNode) {
+        TextFlow textFlow = new TextFlow(assemblageNameText, referencedComponentConceptNode);
+        textFlow.setLayoutX(1);
+        textFlow.setLayoutY(1);
+        textFlow.setPrefWidth(cell.getWidth() - (textFlow.getInsets().getLeft() + textFlow.getInsets().getRight()));
+
+        setupWidth(textFlow);
+    }
+
+    public static String getTextForComponent(ManifoldCoordinate manifold, Chronology component) {
         switch (component.getVersionType()) {
             case CONCEPT: {
                 Optional<String> latestDescriptionText = manifold.getDescriptionText(component.getNid());
@@ -173,7 +184,7 @@ public class CellHelper {
                 return "No description for concept: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(component.getNid()));
             }
             case DESCRIPTION: {
-                LatestVersion<DescriptionVersion> latest = component.getLatestVersion(manifold.getStampFilter());
+                LatestVersion<DescriptionVersion> latest = component.getLatestVersion(manifold.getViewStampFilter());
                 if (latest.isPresent()) {
                     return latest.get().getText();
                 } else if (!latest.versionList().isEmpty()) {
@@ -183,7 +194,7 @@ public class CellHelper {
             }
 
             default:
-                LatestVersion<Version>  latest = component.getLatestVersion(manifold.getStampFilter());
+                LatestVersion<Version>  latest = component.getLatestVersion(manifold.getViewStampFilter());
                 if (latest.isPresent()) {
                     return latest.get().toUserString();
                 } else if (!latest.versionList().isEmpty()) {
@@ -193,10 +204,10 @@ public class CellHelper {
 
         }
     }
-    public static String getTextForComponent(Manifold manifold, Version version) {
+    public static String getTextForComponent(ManifoldCoordinate manifoldCoordinate, Version version) {
         switch (version.getSemanticType()) {
             case CONCEPT: {
-                Optional<String> latestDescriptionText = manifold.getDescriptionText(version.getNid());
+                Optional<String> latestDescriptionText = manifoldCoordinate.getDescriptionText(version.getNid());
                 if (latestDescriptionText.isPresent()) {
                     return latestDescriptionText.get();
                 }
@@ -222,13 +233,13 @@ public class CellHelper {
         label.setContentDisplay(ContentDisplay.TEXT_ONLY);
 
         Text assemblageNameText = new Text(
-                cell.getManifold().getPreferredDescriptionText(version.getAssemblageNid()) + "\n");
+                cell.getManifoldCoordinate().getPreferredDescriptionText(version.getAssemblageNid()) + "\n");
 
         assemblageNameText.getStyleClass()
                 .add(StyleClasses.ASSEMBLAGE_NAME_TEXT.toString());
 
         if (version.getSemanticType() == VersionType.CONCEPT) {
-            processDescriptionText(label, tableColumn, getTextForComponent(this.cell.getManifold(), version));
+            processDescriptionText(label, tableColumn, getTextForComponent(this.cell.getManifoldCoordinate(), version));
         } else {
             SemanticVersion semanticVersion;
             if (version instanceof ObservableCategorizedVersion) {
@@ -236,13 +247,17 @@ public class CellHelper {
             } else {
                 semanticVersion = (ObservableSemanticVersion) version;
             }
-            String referencedComponentString = cell.getManifold().getPreferredDescriptionText(semanticVersion.getReferencedComponentNid());
+            ConceptNode referencedComponentConceptNode = null;
+            if (Get.identifierService().getObjectTypeForComponent(semanticVersion.getReferencedComponentNid()) == IsaacObjectType.CONCEPT) {
+                referencedComponentConceptNode = new ConceptNode(semanticVersion.getReferencedComponentNid(), this.cell.getManifoldCoordinate());
+            }
+            String referencedComponentString = cell.getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getReferencedComponentNid());
             if (referencedComponentString == null || referencedComponentString.isEmpty()) {
                 LOG.warn("No referenced component text for: " + semanticVersion.getReferencedComponentNid());
             }
             Text referencedComponentText = new Text("\n" + referencedComponentString);
             Text referencedComponentTextNoNewLine = new Text(
-                    cell.getManifold().getPreferredDescriptionText(semanticVersion.getReferencedComponentNid()));
+                    cell.getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getReferencedComponentNid()));
 
             switch (Get.identifierService().getObjectTypeForComponent(semanticVersion.getReferencedComponentNid())) {
                 case CONCEPT:
@@ -287,7 +302,12 @@ public class CellHelper {
                     break;
 
                 case MEMBER:
-                    addTextToCell(assemblageNameText, referencedComponentTextNoNewLine);
+                    if (referencedComponentConceptNode != null) {
+                        addReferencedConceptToCell(assemblageNameText, referencedComponentConceptNode);
+                    } else {
+                        addTextToCell(assemblageNameText, referencedComponentTextNoNewLine);
+                    }
+
                     break;
 
                 case LONG:
@@ -379,7 +399,7 @@ public class CellHelper {
         switch (Get.identifierService()
                 .getObjectTypeForComponent(componentNidVersion.getComponentNid())) {
             case CONCEPT:
-                Text conceptText = new Text(cell.getManifold().getPreferredDescriptionText(componentNidVersion.getComponentNid()));
+                Text conceptText = new Text(cell.getManifoldCoordinate().getPreferredDescriptionText(componentNidVersion.getComponentNid()));
 
                 conceptText.getStyleClass()
                         .add(StyleClasses.CONCEPT_TEXT.toString());
@@ -389,7 +409,7 @@ public class CellHelper {
             case SEMANTIC:
                 SemanticChronology semantic = Get.assemblageService()
                         .getSemanticChronology(componentNidVersion.getComponentNid());
-                LatestVersion<SemanticVersion> latest = semantic.getLatestVersion(cell.getManifold().getStampFilter());
+                LatestVersion<SemanticVersion> latest = semantic.getLatestVersion(cell.getManifoldCoordinate().getViewStampFilter());
 
                 if (latest.isPresent()) {
                     processString(assemblageNameText, referencedComponentText, latest.get().toUserString(), StyleClasses.SEMANTIC_TEXT);
@@ -427,14 +447,14 @@ public class CellHelper {
     private void processRF2_RELATIONSHIP(Text assemblageNameText, Text referencedComponentText, Rf2Relationship rf2Relationship) {
         StringBuilder buff = new StringBuilder();
         if (!(rf2Relationship.getTypeNid() == TermAux.IS_A.getNid())) {
-            buff.append(this.cell.getManifold().getPreferredDescriptionText(rf2Relationship.getModifierNid()));
+            buff.append(this.cell.getManifoldCoordinate().getPreferredDescriptionText(rf2Relationship.getModifierNid()));
             buff.append(" ");
         }
-        buff.append(this.cell.getManifold().getPreferredDescriptionText(rf2Relationship.getTypeNid()));
+        buff.append(this.cell.getManifoldCoordinate().getPreferredDescriptionText(rf2Relationship.getTypeNid()));
         buff.append(" ");
-        buff.append(this.cell.getManifold().getPreferredDescriptionText(rf2Relationship.getDestinationNid()));
+        buff.append(this.cell.getManifoldCoordinate().getPreferredDescriptionText(rf2Relationship.getDestinationNid()));
         buff.append(" (");
-        buff.append(this.cell.getManifold().getPreferredDescriptionText(rf2Relationship.getCharacteristicNid()));
+        buff.append(this.cell.getManifoldCoordinate().getPreferredDescriptionText(rf2Relationship.getCharacteristicNid()));
         buff.append(") ");
 
         Text defaultText = new Text(buff.toString());
@@ -453,9 +473,9 @@ public class CellHelper {
                 "\n" +
                 brittleVersion.getStr5() +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid6()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid6()) +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid7()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid7()) +
                 " ";
         Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
@@ -468,7 +488,7 @@ public class CellHelper {
 
     private void processNid1_Int2(Text assemblageNameText, Text referencedComponentText, Nid1_Int2_Version brittleVersion) {
 
-        String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
+        String buff = cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid1()) +
                 "\n" +
                 brittleVersion.getInt2() +
                 " ";
@@ -477,7 +497,7 @@ public class CellHelper {
     }
     private void processNid1_Long2(Text assemblageNameText, Text referencedComponentText, Nid1_Long2_Version brittleVersion) {
 
-        String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
+        String buff = cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid1()) +
                 "\n" +
                 brittleVersion.getLong2() +
                 " ";
@@ -487,7 +507,7 @@ public class CellHelper {
 
     private void processNid1_Int2_Str3_Str4_Nid5_Nid6(Text assemblageNameText, Text referencedComponentText, Nid1_Int2_Str3_Str4_Nid5_Nid6_Version brittleVersion) {
 
-        String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
+        String buff = cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid1()) +
                 "\n" +
                 brittleVersion.getInt2() +
                 "\n" +
@@ -495,9 +515,9 @@ public class CellHelper {
                 "\n" +
                 brittleVersion.getStr4() +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid5()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid5()) +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid6()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid6()) +
                 " ";
         Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
@@ -505,9 +525,9 @@ public class CellHelper {
 
     private void processNid1_Nid2(Text assemblageNameText, Text referencedComponentText, Nid1_Nid2_Version brittleVersion) {
 
-        String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
+        String buff = cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid1()) +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid2()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid2()) +
                 " ";
         Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
@@ -515,9 +535,9 @@ public class CellHelper {
 
     private void processNid1_Nid2_Int3(Text assemblageNameText, Text referencedComponentText, Nid1_Nid2_Int3_Version brittleVersion) {
 
-        String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
+        String buff = cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid1()) +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid2()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid2()) +
                 "\n" +
                 brittleVersion.getInt3() +
                 " ";
@@ -527,9 +547,9 @@ public class CellHelper {
 
     private void processNid1_Nid2_Str3(Text assemblageNameText, Text referencedComponentText, Nid1_Nid2_Str3_Version brittleVersion) {
 
-        String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
+        String buff = cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid1()) +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid2()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid2()) +
                 "\n" +
                 brittleVersion.getStr3() +
                 " ";
@@ -539,7 +559,7 @@ public class CellHelper {
 
     private void processNid1_Str2(Text assemblageNameText, Text referencedComponentText, Nid1_Str2_Version brittleVersion) {
 
-        String buff = cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid1()) +
+        String buff = cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid1()) +
                 "\n" +
                 brittleVersion.getStr2() +
                 " ";
@@ -563,9 +583,9 @@ public class CellHelper {
                 "\n" +
                 brittleVersion.getStr2() +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid3()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid3()) +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid4()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid4()) +
                 " ";
         Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
@@ -595,11 +615,11 @@ public class CellHelper {
 
         String buff = brittleVersion.getStr1() +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid2()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid2()) +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid3()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid3()) +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid4()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid4()) +
                 " ";
         Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
@@ -611,11 +631,11 @@ public class CellHelper {
                 "\n" +
                 brittleVersion.getStr2() +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid3()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid3()) +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid4()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid4()) +
                 "\n" +
-                cell.getManifold().getPreferredDescriptionText(brittleVersion.getNid5()) +
+                cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid5()) +
                 " ";
         Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);

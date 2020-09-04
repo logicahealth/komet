@@ -76,6 +76,7 @@ import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.docbook.DocBook;
 import sh.isaac.api.logic.LogicNode;
@@ -103,7 +104,6 @@ import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
 import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.drag.drop.IsaacClipboard;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
@@ -131,14 +131,14 @@ public class AxiomView {
 
     private ObservableLogicGraphVersionImpl logicGraphVersion;
     private LogicalExpression expression;
-    private final Manifold manifold;
+    private final ManifoldCoordinate manifoldCoordinate;
     private final PremiseType premiseType;
     private final AnchorPane anchorPane = new AnchorPane();
     private BorderPane borderPane;
 
-    private AxiomView(LogicalExpression expression, PremiseType premiseType, Manifold manifold) {
+    private AxiomView(LogicalExpression expression, PremiseType premiseType, ManifoldCoordinate manifoldCoordinate) {
         this.expression = expression;
-        this.manifold = manifold;
+        this.manifoldCoordinate = manifoldCoordinate;
         this.premiseType = premiseType;
     }
 
@@ -151,7 +151,7 @@ public class AxiomView {
                 builder.append(prefix);
                 builder.append(": ");
             }
-            builder.append(manifold.getPreferredDescriptionText(expression.getConceptBeingDefinedNid()));
+            builder.append(manifoldCoordinate.getPreferredDescriptionText(expression.getConceptBeingDefinedNid()));
             return builder.toString();
         } else if (prefix != null) {
             return prefix + ": Concept being defined";
@@ -176,7 +176,7 @@ public class AxiomView {
     }
 
     private boolean isDefined(int conceptNid) {
-        Optional<LogicalExpression> conceptExpression = manifold.getLogicalExpression(conceptNid, premiseType);
+        Optional<LogicalExpression> conceptExpression = manifoldCoordinate.getLogicalExpression(conceptNid, premiseType);
         if (!conceptExpression.isPresent()) {
             return false;
         }
@@ -188,15 +188,15 @@ public class AxiomView {
                 || conceptNid == MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
             return false;
         }
-        int[] parents = Get.taxonomyService().getSnapshot(manifold).getTaxonomyParentConceptNids(conceptNid);
-        Optional<LogicalExpression> conceptExpression = manifold.getLogicalExpression(conceptNid, premiseType);
+        int[] parents = Get.taxonomyService().getSnapshot(manifoldCoordinate).getTaxonomyParentConceptNids(conceptNid);
+        Optional<LogicalExpression> conceptExpression = manifoldCoordinate.getLogicalExpression(conceptNid, premiseType);
         if (!conceptExpression.isPresent()) {
             return false;
         }
         return parents.length > 1;
     }
 
-    public static final Node computeGraphic(int conceptNid, boolean expanded, Status status, Manifold manifold, PremiseType premiseType) {
+    public static final Node computeGraphic(int conceptNid, boolean expanded, Status status, ManifoldCoordinate manifoldCoordinate, PremiseType premiseType) {
 
         if (conceptNid == -1
                 || conceptNid == MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
@@ -207,13 +207,13 @@ public class AxiomView {
         }
         int[] parents = new int[]{};
         try {
-            parents = Get.taxonomyService().getSnapshot(manifold).getTaxonomyParentConceptNids(conceptNid);
+            parents = Get.taxonomyService().getSnapshot(manifoldCoordinate).getTaxonomyParentConceptNids(conceptNid);
         } catch (RuntimeException ex) {
             ex.printStackTrace();
         }
-        Optional<LogicalExpression> conceptExpression = manifold.getLogicalExpression(conceptNid, premiseType);
+        Optional<LogicalExpression> conceptExpression = manifoldCoordinate.getLogicalExpression(conceptNid, premiseType);
         if (!conceptExpression.isPresent()) {
-            conceptExpression = manifold.getLogicalExpression(conceptNid, PremiseType.STATED);
+            conceptExpression = manifoldCoordinate.getLogicalExpression(conceptNid, PremiseType.STATED);
             if (!conceptExpression.isPresent()) {
                 return Iconography.ALERT_CONFIRM2.getIconographic();
             }
@@ -256,8 +256,8 @@ public class AxiomView {
         rootToolBar.getChildren().add(node);
     }
 
-    public static Node create(ObservableLogicGraphVersionImpl logicGraphVersion, PremiseType premiseType, Manifold manifold) {
-        AxiomView axiomView = new AxiomView(logicGraphVersion.getLogicalExpression(), premiseType, manifold);
+    public static Node create(ObservableLogicGraphVersionImpl logicGraphVersion, PremiseType premiseType, ManifoldCoordinate manifoldCoordinate) {
+        AxiomView axiomView = new AxiomView(logicGraphVersion.getLogicalExpression(), premiseType, manifoldCoordinate);
         axiomView.logicGraphVersion = logicGraphVersion;
         BorderPane axiomBorderPane = axiomView.create((AbstractLogicNode) axiomView.expression.getRoot());
         AnchorPane.setBottomAnchor(axiomBorderPane, 0.0);
@@ -268,8 +268,8 @@ public class AxiomView {
         return axiomView.anchorPane;
     }
 
-    public static Node createWithCommitPanel(ObservableLogicGraphVersionImpl logicGraphVersion, PremiseType premiseType, Manifold manifold) {
-        AxiomView axiomView = new AxiomView(logicGraphVersion.getLogicalExpression(), premiseType, manifold);
+    public static Node createWithCommitPanel(ObservableLogicGraphVersionImpl logicGraphVersion, PremiseType premiseType, ManifoldCoordinate manifoldCoordinate) {
+        AxiomView axiomView = new AxiomView(logicGraphVersion.getLogicalExpression(), premiseType, manifoldCoordinate);
         axiomView.logicGraphVersion = logicGraphVersion;
         BorderPane axiomBorderPane = axiomView.create((AbstractLogicNode) axiomView.expression.getRoot());
         AnchorPane.setBottomAnchor(axiomBorderPane, 0.0);
@@ -287,8 +287,8 @@ public class AxiomView {
     }
 
     public static AnchorPane create(LogicalExpression expression,
-            PremiseType premiseType, Manifold manifold) {
-        AxiomView axiomView = new AxiomView(expression, premiseType, manifold);
+                                    PremiseType premiseType, ManifoldCoordinate manifoldCoordinate) {
+        AxiomView axiomView = new AxiomView(expression, premiseType, manifoldCoordinate);
         BorderPane axiomBorderPane = axiomView.create((AbstractLogicNode) expression.getRoot());
         AnchorPane.setBottomAnchor(axiomBorderPane, 0.0);
         AnchorPane.setLeftAnchor(axiomBorderPane, 0.0);
@@ -299,8 +299,8 @@ public class AxiomView {
     }
 
     public static BorderPane createWithCommitPanel(LogicalExpression expression,
-            PremiseType premiseType, Manifold manifold) {
-        AxiomView axiomView = new AxiomView(expression, premiseType, manifold);
+                                                   PremiseType premiseType, ManifoldCoordinate manifoldCoordinate) {
+        AxiomView axiomView = new AxiomView(expression, premiseType, manifoldCoordinate);
         BorderPane axiomBorderPane = axiomView.create((AbstractLogicNode) expression.getRoot());
         AnchorPane.setBottomAnchor(axiomBorderPane, 0.0);
         AnchorPane.setLeftAnchor(axiomBorderPane, 0.0);
@@ -349,7 +349,7 @@ public class AxiomView {
 
     private void updateExpression() {
         if (this.expression.getConceptBeingDefinedNid() != -1) {
-            Optional<LogicalExpression> committedExpression = manifold.getStatedLogicalExpression(this.expression.getConceptBeingDefinedNid());
+            Optional<LogicalExpression> committedExpression = manifoldCoordinate.getStatedLogicalExpression(this.expression.getConceptBeingDefinedNid());
             if (committedExpression.isPresent()) {
                 updateExpressionForAxiomView(committedExpression.get());
             }
@@ -358,12 +358,12 @@ public class AxiomView {
 
     private void commitEdit(Event event) {
 
-        LatestVersion<LogicGraphVersion> latestVersion = manifold.getStatedLogicalDefinition(this.expression.getConceptBeingDefinedNid());
+        LatestVersion<LogicGraphVersion> latestVersion = manifoldCoordinate.getStatedLogicalDefinition(this.expression.getConceptBeingDefinedNid());
         if (latestVersion.isPresent()) {
             LogicGraphVersion version = latestVersion.get();
             ObservableSemanticChronologyImpl observableSemanticChronology = new ObservableSemanticChronologyImpl(version.getChronology());
             ObservableLogicGraphVersionImpl observableVersion = new ObservableLogicGraphVersionImpl(version, observableSemanticChronology);
-            ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(FxGet.editCoordinate());
+            ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(this.manifoldCoordinate);
             mutableVersion.setGraphData(this.expression.getData(DataTarget.INTERNAL));
             Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
             CommitTask commitTask = transaction.commitObservableVersions("Axiom view edit", mutableVersion);
@@ -414,6 +414,7 @@ public class AxiomView {
             titleLabel.setOnDragDetected(this::handleDragDetected);
             titleLabel.setOnDragExited(this::handleDragExited);
             titleLabel.setOnDragDone(this::handleDragDone);
+            //titleLabel.setMaxWidth(425);
 
             switch (logicNode.getNodeSemantic()) {
                 case CONCEPT: {
@@ -423,20 +424,20 @@ public class AxiomView {
                     ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) logicNode;
                     rootBorderPane.getStyleClass()
                             .add(StyleClasses.DEF_CONCEPT.toString());
-                    titleLabel.setText(manifold.getPreferredDescriptionText(conceptNode.getConceptNid()));
+                    titleLabel.setText(manifoldCoordinate.getPreferredDescriptionText(conceptNode.getConceptNid()));
 
 
-                    LatestVersion<Version> latest = manifold.getStampFilter().latestConceptVersion(conceptNode.getConceptNid());
+                    LatestVersion<Version> latest = manifoldCoordinate.getVertexStampFilter().latestConceptVersion(conceptNode.getConceptNid());
                     if (latest.isPresent()) {
                         Status latestStatus = latest.get().getStatus();
                         titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false,
-                                latestStatus, manifold, premiseType));
+                                latestStatus, manifoldCoordinate, premiseType));
                         if (latestStatus != Status.ACTIVE) {
                             titleLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, true);
                         }
                     } else {
                         titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false,
-                                Status.PRIMORDIAL, manifold, premiseType));
+                                Status.PRIMORDIAL, manifoldCoordinate, premiseType));
                     }
 
                     openConceptButton.getStyleClass().setAll(StyleClasses.OPEN_CONCEPT_BUTTON.toString());
@@ -464,7 +465,7 @@ public class AxiomView {
                     FeatureNodeWithNids featureNode = (FeatureNodeWithNids) logicNode;
                     StringBuilder builder = new StringBuilder();
                     builder.append("⒡ ");
-                    builder.append(manifold.getPreferredDescriptionText(featureNode.getTypeConceptNid()));
+                    builder.append(manifoldCoordinate.getPreferredDescriptionText(featureNode.getTypeConceptNid()));
                     switch (featureNode.getOperator()) {
                         case EQUALS:
                             builder.append(" = ");
@@ -516,7 +517,7 @@ public class AxiomView {
                         }
                     }
                     builder.append(" ");
-                    builder.append(manifold.getPreferredDescriptionText(featureNode.getMeasureSemanticNid()));
+                    builder.append(manifoldCoordinate.getPreferredDescriptionText(featureNode.getMeasureSemanticNid()));
                     titleLabel.setText(builder.toString());
                     addToGridPaneGrow(rootGridPane, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
@@ -539,7 +540,7 @@ public class AxiomView {
                         for (LogicNode descendentNode : descendents) {
                             if (descendentNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
                                 ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) descendentNode;
-                                descendentConceptDescriptions.add("[" + manifold.getPreferredDescriptionText(conceptNode.getConceptNid()) +
+                                descendentConceptDescriptions.add("[" + manifoldCoordinate.getPreferredDescriptionText(conceptNode.getConceptNid()) +
                                         "] ");
                             }
                         }
@@ -572,13 +573,13 @@ public class AxiomView {
 
                         HBox roleBox = new HBox();
                         roleBox.getChildren().add(new Label("∃ ("));
-                        ConceptNode typeNode = new ConceptNode(((RoleNodeSomeWithNids) logicNode).getTypeConceptNid(), AxiomView.this.manifold);
+                        ConceptNode typeNode = new ConceptNode(((RoleNodeSomeWithNids) logicNode).getTypeConceptNid(), AxiomView.this.manifoldCoordinate);
                         //typeNode.setBorder(ROLE_BORDER);
                         typeNode.setPadding(new Insets(1, 3, 1, 3));
                         roleBox.getChildren().add(typeNode);
                         roleBox.getChildren().add(new Label(")➞["));
                         for (AbstractLogicNode restrictionChild: logicNode.getChildren()) {
-                            ConceptNode restrictionNode = new ConceptNode(((ConceptNodeWithNids) restrictionChild).getConceptNid(), AxiomView.this.manifold);
+                            ConceptNode restrictionNode = new ConceptNode(((ConceptNodeWithNids) restrictionChild).getConceptNid(), AxiomView.this.manifoldCoordinate);
                             restrictionNode.setPadding(new Insets(1, 3, 1, 3));
                             roleBox.getChildren().add(restrictionNode);
                         }
@@ -610,7 +611,7 @@ public class AxiomView {
                     rootBorderPane.getStyleClass()
                             .add(StyleClasses.DEF_NECESSARY_SET.toString());
                     titleLabel.setText(getConceptBeingDefinedText(
-                            manifold.getPreferredDescriptionText(necessarySet.getNodeSemantic().getConceptNid())
+                            manifoldCoordinate.getPreferredDescriptionText(necessarySet.getNodeSemantic().getConceptNid())
                     ));
                     titleLabel.setGraphic(Iconography.TAXONOMY_ROOT_ICON.getIconographic());
                     int column = 0;
@@ -626,7 +627,7 @@ public class AxiomView {
                     rootBorderPane.getStyleClass()
                             .add(StyleClasses.DEF_SUFFICIENT_SET.toString());
                     titleLabel.setText(getConceptBeingDefinedText(
-                            manifold.getPreferredDescriptionText(sufficientSet.getNodeSemantic().getConceptNid())));
+                            manifoldCoordinate.getPreferredDescriptionText(sufficientSet.getNodeSemantic().getConceptNid())));
                     titleLabel.setGraphic(Iconography.TAXONOMY_DEFINED_SINGLE_PARENT.getIconographic());
                     int column = 0;
                     addToGridPaneNoGrow(rootGridPane, expandButton, column++);
@@ -646,13 +647,13 @@ public class AxiomView {
 
                     ConceptChronology cc = Get.concept(expression.getConceptBeingDefinedNid());
 
-                    LatestVersion<Version> latest = cc.getLatestVersion(manifold.getStampFilter());
+                    LatestVersion<Version> latest = cc.getLatestVersion(manifoldCoordinate.getVertexStampFilter());
                     if (latest.isPresent()) {
                         titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
-                                latest.get().getStatus(), manifold, premiseType));
+                                latest.get().getStatus(), manifoldCoordinate, premiseType));
                     } else {
                         titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
-                                Status.PRIMORDIAL, manifold, premiseType));
+                                Status.PRIMORDIAL, manifoldCoordinate, premiseType));
                     }
 
                     titleLabel.setContextMenu(getContextMenu());
@@ -940,7 +941,7 @@ public class AxiomView {
 
             List<Action> actionItems
                     = FxGet.rulesDrivenKometService().getEditLogicalExpressionNodeMenuItems(
-                            manifold,
+                    FxGet.windowPreferences(childBox).getViewPropertiesForWindow(),
                             logicNode,
                             AxiomView.this.expression, this::updateExpressionForClauseView,
                             mouseEvent);
@@ -994,12 +995,12 @@ public class AxiomView {
         }
 
         private void showPopup(int conceptNid, MouseEvent mouseEvent) {
-            Optional<LogicalExpression> expression = manifold.getLogicalExpression(conceptNid, premiseType);
+            Optional<LogicalExpression> expression = manifoldCoordinate.getLogicalExpression(conceptNid, premiseType);
             if (expression.isPresent()) {
                 popover = new PopOver();
                 popover.setContentNode(AxiomView.createWithCommitPanel(expression.get(),
                         premiseType,
-                        manifold));
+                        manifoldCoordinate));
                 popover.setCloseButtonEnabled(true);
                 popover.setHeaderAlwaysVisible(false);
                 popover.setTitle("");
@@ -1155,7 +1156,7 @@ public class AxiomView {
                                 }
                             }
 
-                            roleStrBuilder.append(manifold.getPreferredDescriptionText(roleNode.getTypeConceptNid()));
+                            roleStrBuilder.append(manifoldCoordinate.getPreferredDescriptionText(roleNode.getTypeConceptNid()));
                             roleStrBuilder.append(")➞[");
 
                             for (LogicNode descendentNode : roleNode.getDescendents()) {
@@ -1177,7 +1178,7 @@ public class AxiomView {
                                         }
                                     }
 
-                                    roleStrBuilder.append(manifold.getPreferredDescriptionText(roleRestrictionNode.getConceptNid()));
+                                    roleStrBuilder.append(manifoldCoordinate.getPreferredDescriptionText(roleRestrictionNode.getConceptNid()));
                                 }
                             }
                             roleStrBuilder.append("]");
@@ -1312,7 +1313,7 @@ public class AxiomView {
             builder.append("\n                </imageobject>");
             builder.append("\n</inlinemediaobject>");
 
-            putOnClipboard(DocBook.getGlossentry(expression.getConceptBeingDefinedNid(), manifold, builder.toString()));
+            putOnClipboard(DocBook.getGlossentry(expression.getConceptBeingDefinedNid(), manifoldCoordinate, builder.toString()));
         }
 
         private void makeInlineSvg(Event event) {

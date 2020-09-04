@@ -19,8 +19,22 @@ public interface Icons {
 
     AnchorPane getStyledIconographic();
 
+    AnchorPane getIconographicWithStyleClasses(String... styleClasses);
+
     default AnchorPane getStyledIconographic(String styleSheetUrl) {
         Node icon = getIconographic();
+        AnchorPane.setTopAnchor(icon, 0.0);
+        AnchorPane.setRightAnchor(icon, 0.0);
+        AnchorPane.setBottomAnchor(icon, 0.0);
+        AnchorPane.setLeftAnchor(icon, 0.0);
+        AnchorPane anchorPane = new AnchorPane(icon);
+        anchorPane.getStylesheets().add(styleSheetUrl);
+        return anchorPane;
+    }
+
+    default AnchorPane getStyledIconographic(String styleSheetUrl, String... styleClasses) {
+        Node icon = getIconographic();
+        icon.getStyleClass().addAll(styleClasses);
         AnchorPane.setTopAnchor(icon, 0.0);
         AnchorPane.setRightAnchor(icon, 0.0);
         AnchorPane.setBottomAnchor(icon, 0.0);

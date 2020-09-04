@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuButton?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
@@ -25,15 +26,16 @@
                <children>
                   <ToolBar fx:id="toolBar" minHeight="40.0" prefHeight="40.0" prefWidth="200.0">
                      <items>
-                        <MenuButton mnemonicParsing="false">
+                        <MenuButton fx:id="navigationMenuButton" mnemonicParsing="false">
                           <items>
+                              <Menu fx:id="navigationCoordinateMenu" mnemonicParsing="false" text="Coordinates" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
                               <MenuItem mnemonicParsing="false" onAction="#copySelectedConcepts" text="Copy selected concepts" />
                           </items>
                            <padding>
                               <Insets left="-8.0" />
                            </padding>
                         </MenuButton>
-                        <ComboBox fx:id="viewChoiceBox" prefWidth="250.0" />
                      </items>
                   </ToolBar>
                </children>

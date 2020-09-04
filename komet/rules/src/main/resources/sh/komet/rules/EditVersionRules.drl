@@ -28,14 +28,13 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.provider.drools.AddEditVersionMenuItems;
-import sh.komet.gui.control.PropertySheetMenuItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
 import javafx.beans.property.Property;
 import sh.isaac.MetaData;
 import sh.isaac.api.chronicle.VersionCategory;
 import sh.isaac.api.chronicle.VersionType;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
-import sh.komet.gui.control.PropertyEditorType;
+import sh.komet.gui.control.property.PropertyEditorType;
 /**
  *
  * @author kec
@@ -48,8 +47,8 @@ when
 then
    PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit attachment");
    propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
-   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
 end
 
  
@@ -60,8 +59,8 @@ when
 then
    PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit attachment");
    propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
-   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   //propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
 end
 
 rule "Given a AddEditVersionMenuItems, with VersionType.COMPONENT_NID, add known dialect editing options"
@@ -73,7 +72,7 @@ when
            getAssemblageForVersion().equals(ConceptProxy.make("Human Dx US English dialect","64c3a9a0-85cf-4855-9b90-2061adac2112"))));
 then
    PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit attachment");
-   propertySheetMenuItem.addPropertyToEdit("acceptability", MetaData.COMPONENT_NID_FOR_SEMANTIC____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("acceptability", MetaData.COMPONENT_FOR_SEMANTIC____SOLOR, PropertyEditorType.CONCEPT);
 end
 
 
@@ -84,8 +83,8 @@ when
 then
    PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit attachment");
    propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
-   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   //propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
    propertySheetMenuItem.addPropertyToEdit("component", MetaData.COMPONENT_ID_1____SOLOR, PropertyEditorType.CONCEPT);
    propertySheetMenuItem.addPropertyToEdit("int value", MetaData.INTEGER_2____SOLOR, PropertyEditorType.INTEGER);
 end
@@ -97,8 +96,8 @@ when
 then
    PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit attachment");
    propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
-   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   //propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
 end
 
  
@@ -109,8 +108,8 @@ when
 then
    PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit attachment");
    propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
-   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   //propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
 end
 
  
@@ -121,8 +120,20 @@ when
 then
    PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Edit concept");
    propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
-   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   //propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+end
+
+
+rule "Given a AddEditVersionMenuItems, with VersionType.CONCEPT, add Change Module options"
+   lock-on-active true
+when
+   $addEditVersion : AddEditVersionMenuItems(getVersionType() == VersionType.CONCEPT);
+then
+   PropertySheetMenuItem propertySheetMenuItem = $addEditVersion.makePropertySheetMenuItem("Change module");
+   //propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
+   //propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
 end
 
 rule "Given a AddEditVersionMenuItems, with VersionType.DESCRIPTION, add editing options"
@@ -136,8 +147,8 @@ then
    propertySheetMenuItem.addPropertyToEdit("case significance", MetaData.CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR, PropertyEditorType.CONCEPT);
    propertySheetMenuItem.addPropertyToEdit("language", MetaData.LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION____SOLOR, PropertyEditorType.CONCEPT);
    propertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
-   propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
-   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   //propertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   propertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
 end
 
 rule "Given a property set, populate the choice items"

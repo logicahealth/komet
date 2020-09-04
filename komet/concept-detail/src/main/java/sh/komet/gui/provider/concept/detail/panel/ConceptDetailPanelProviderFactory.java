@@ -16,18 +16,19 @@
  */
 package sh.komet.gui.provider.concept.detail.panel;
 
-import javax.inject.Singleton;
-import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
+import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.DetailNodeFactory;
 import sh.komet.gui.contract.DetailType;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.DetailNode;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+
+import javax.inject.Singleton;
 
 /**
  *
@@ -43,8 +44,8 @@ public class ConceptDetailPanelProviderFactory implements DetailNodeFactory {
    }
 
    @Override
-   public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      return new ConceptDetailPanelNode(manifold, preferencesNode);
+   public DetailNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+      return new ConceptDetailPanelNode(viewProperties, activityFeed, preferencesNode);
    }
 
    @Override
@@ -67,12 +68,12 @@ public class ConceptDetailPanelProviderFactory implements DetailNodeFactory {
 
   /** 
    * {@inheritDoc}
+   * @return
    */
    @Override
-   public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.UNLINKED, ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ACTIVE_NODES,
-              ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ACTIVE_FQN_NODES,
-              ManifoldGroup.INFERRED_GRAPH_NAVIGATION_ANY_NODE, ManifoldGroup.STATED_GRAPH_NAVIGATION_ANY_NODE, ManifoldGroup.SEARCH};
+   public String[] getDefaultActivityFeed() {
+      return new String[] {ViewProperties.UNLINKED, ViewProperties.NAVIGATION,
+              ViewProperties.SEARCH};
    }
 
     @Override

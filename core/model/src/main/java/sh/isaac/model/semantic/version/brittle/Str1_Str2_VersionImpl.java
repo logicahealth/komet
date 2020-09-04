@@ -44,7 +44,6 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Version;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
 /**
@@ -56,6 +55,7 @@ public class Str1_Str2_VersionImpl
          implements Str1_Str2_Version {
    String str1 = null;
    String str2 = null;
+   
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
@@ -77,6 +77,13 @@ public class Str1_Str2_VersionImpl
       this.str2 = data.getUTF();
    }
 
+   private Str1_Str2_VersionImpl(Str1_Str2_VersionImpl old, int stampSequence) {
+      super(old.getChronology(), stampSequence);
+      setStr1(old.str1);
+      setStr2(old.str2);
+      old.getChronology().addVersion(this);
+   }
+
    /**
     * Write version data.
     *
@@ -92,11 +99,8 @@ public class Str1_Str2_VersionImpl
    @Override
    @SuppressWarnings("unchecked")
    public <V extends Version> V makeAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final Str1_Str2_VersionImpl newVersion = new Str1_Str2_VersionImpl((SemanticChronology) this, stampSequence);
-      newVersion.setStr1(this.str1);
-      newVersion.setStr2(this.str2);
-      chronologyImpl.addVersion(newVersion);
+      final Str1_Str2_VersionImpl newVersion = new Str1_Str2_VersionImpl(this, stampSequence);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 

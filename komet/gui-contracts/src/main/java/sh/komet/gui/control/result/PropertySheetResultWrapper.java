@@ -21,8 +21,9 @@ import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.model.statement.ResultImpl;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -32,9 +33,9 @@ public class PropertySheetResultWrapper implements PropertySheet.Item {
     private final SimpleObjectProperty<ResultImpl> wrappedProperty;
     private final String name;
 
-    public PropertySheetResultWrapper(Manifold manifold, SimpleObjectProperty<ResultImpl> wrappedProperty) {
+    public PropertySheetResultWrapper(ManifoldCoordinate manifoldCoordinate, SimpleObjectProperty<ResultImpl> wrappedProperty) {
         this.wrappedProperty = wrappedProperty;
-        this.name = manifold.getPreferredDescriptionText(new ConceptProxy(wrappedProperty.getName()));
+        this.name = manifoldCoordinate.getPreferredDescriptionText(new ConceptProxy(wrappedProperty.getName()));
     }
 
     @Override

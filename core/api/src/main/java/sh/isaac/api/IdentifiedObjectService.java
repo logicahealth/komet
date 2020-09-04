@@ -42,6 +42,7 @@ package sh.isaac.api;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Optional;
+import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -67,5 +68,7 @@ public interface IdentifiedObjectService {
    Optional<? extends Chronology> getChronology(int nid);
    
    void putChronologyData(Chronology chronology);
+
+   Stream<Chronology> getChronologySteam();
 }
 

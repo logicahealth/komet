@@ -1,6 +1,7 @@
 package sh.komet.gui.control.position;
 
 import com.jfoenix.controls.*;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
@@ -16,12 +17,13 @@ import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampPositionImmutable;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.datetimepicker.PickADate;
 import sh.komet.gui.control.datetimepicker.TimePicker;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 import java.time.*;
@@ -37,7 +39,7 @@ public class PositionListEditor implements PropertyEditor<ObservableList<StampPo
     AnchorPane anchorPane = new AnchorPane();
     PickADate datePicker = new PickADate();
     TimePicker timePicker = new TimePicker();
-    Manifold manifold;
+    ManifoldCoordinate manifoldCoordinate;
     ListView<PositionWrapper> positionListView = new ListView<>();
     {
         datePicker.setPrefWidth(152);
@@ -92,7 +94,7 @@ public class PositionListEditor implements PropertyEditor<ObservableList<StampPo
                 super.updateItem(item, empty);
                 if (!empty) {
                     this.setText(DateTimeUtil.format(item.position.getTime(), EASY_TO_READ_DATE_TIME_FORMAT) + "\non path: " +
-                            manifold.getPreferredDescriptionText(item.position.getPathForPositionConcept()));
+                            manifoldCoordinate.getPreferredDescriptionText(item.position.getPathForPositionConcept()));
                 } else {
                     this.setText("");
                 }
@@ -192,12 +194,19 @@ public class PositionListEditor implements PropertyEditor<ObservableList<StampPo
         dialogLayout.setActions(cancelButton, changeButton);
     }
 
-    public PositionListEditor(Manifold manifold, ObservableList<StampPositionImmutable> value) {
-        this.manifold = manifold;
+    public PositionListEditor(ManifoldCoordinate manifoldCoordinate, ObservableList<StampPositionImmutable> value) {
+        this.manifoldCoordinate = manifoldCoordinate;
         this.value = value;
         setViewItems(value);
-        this.pathConceptComboBox.setItems(FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, this.manifold));
-        this.pathConceptComboBox.getSelectionModel().select(Get.conceptSnapshot(TermAux.DEVELOPMENT_PATH, this.manifold));
+        this.pathConceptComboBox.setItems(FxGet.activeConceptMembers(TermAux.PATH_ASSEMBLAGE, this.manifoldCoordinate));
+        this.pathConceptComboBox.getSelectionModel().select(Get.conceptSnapshot(TermAux.DEVELOPMENT_PATH, this.manifoldCoordinate));
+        this.positionListView.getItems().addListener(new ListChangeListener<PositionWrapper>() {
+            @Override
+            public void onChanged(Change<? extends PositionWrapper> c) {
+                    System.out.println("Changed: " + c);
+                }
+        });
+
     }
 
 
@@ -211,13 +220,14 @@ public class PositionListEditor implements PropertyEditor<ObservableList<StampPo
         }
         this.datePicker.setValue(wrapper.position.getTimeAsInstant().atZone(ZoneId.systemDefault()).toLocalDate());
         this.timePicker.setValue(wrapper.position.getTimeAsInstant().atZone(ZoneId.systemDefault()).toLocalTime());
-        this.pathConceptComboBox.getSelectionModel().select(Get.conceptSnapshot(wrapper.position.getPathForPositionNid(), this.manifold));
+        this.pathConceptComboBox.getSelectionModel().select(Get.conceptSnapshot(wrapper.position.getPathForPositionNid(), this.manifoldCoordinate));
         this.dialog = new JFXDialog(this.rootStack, dialogLayout, JFXDialog.DialogTransition.CENTER, true);
 
         this.dialog.show();
     }
 
     protected void setViewItems(ObservableList<StampPositionImmutable> value) {
+        this.positionListView.getItems().clear();
         for (StampPositionImmutable item: value) {
             this.positionListView.getItems().add(new PositionWrapper(item));
         }

@@ -13,13 +13,12 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.ImageVersion;
 import sh.isaac.api.component.semantic.version.MutableImageVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.ObservableImageVersion;
-import sh.isaac.model.observable.CommitAwareObjectProperty;
-import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.commitaware.CommitAwareObjectProperty;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ImageVersionImpl;
 
@@ -49,12 +48,12 @@ public class ObservableImageVersionImpl
 
     @SuppressWarnings("unchecked")
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableImageVersionImpl analog = new ObservableImageVersionImpl(this, getChronology());
         copyLocalFields(analog);
-        analog.setModuleNid(ec.getModuleNid());
-        analog.setAuthorNid(ec.getAuthorNid());
-        analog.setPathNid(ec.getPathNid());
+        analog.setModuleNid(mc.getModuleNidForAnalog(this));
+        analog.setAuthorNid(mc.getAuthorNidForChanges());
+        analog.setPathNid(mc.getPathNidForAnalog());
         return (V) analog;
     }
 
@@ -83,13 +82,9 @@ public class ObservableImageVersionImpl
     @SuppressWarnings("unchecked")
     @Override
     public <V extends Version> V makeAnalog(int stampSequence) {
-        ImageVersion newVersion = this.stampedVersionProperty.get().makeAnalog(stampSequence);
-        ObservableImageVersionImpl newObservableVersion = new ObservableImageVersionImpl(
-                newVersion,
-                (ObservableSemanticChronology) chronology);
-
-        ((ObservableChronologyImpl) chronology).getVersionList()
-                .add(newObservableVersion);
+        ImageVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+        ObservableImageVersionImpl newObservableVersion = new ObservableImageVersionImpl(newVersion, getChronology());
+        chronology.getVersionList().add(newObservableVersion);
         return (V) newObservableVersion;
     }
 

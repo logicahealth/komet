@@ -16,6 +16,8 @@
  */
 package sh.isaac.komet.gui.graphview;
 
+import java.util.OptionalInt;
+
 /**
  *
  * @author kec
@@ -28,5 +30,6 @@ public interface MultiParentGraphItem {
 	int getConceptNid();
         int getTypeNid();
 	int getMultiParentDepth();
+	OptionalInt getOptionalParentNid();
    
 }
