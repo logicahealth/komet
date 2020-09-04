@@ -36,6 +36,7 @@
  */
 package sh.isaac.komet.gui.semanticViewer;
 
+import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -70,10 +71,12 @@ import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.ToggleButton;
@@ -119,9 +122,11 @@ import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.komet.gui.contract.DialogService;
 import sh.komet.gui.control.concept.MenuSupplierForFocusConcept;
+import sh.komet.gui.control.manifold.ManifoldMenuModel;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.DetailNodeAbstract;
+import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.UpdateableBooleanBinding;
 
@@ -142,6 +147,14 @@ public class SemanticViewerNode extends DetailNodeAbstract
 	private UpdateableBooleanBinding showStampColumns_, showActiveOnly_, showFullHistory_, showViewUsageButton_;
 	private TreeTableColumn<SemanticGUI, String> stampColumn_;
 	private BooleanProperty hasUncommitted_ = new SimpleBooleanProperty(false);
+	
+	private final ManifoldMenuModel manifoldMenuModel;
+	private final MenuButton manifoldMenuButton = new MenuButton();
+	{
+		manifoldMenuButton.setContentDisplay(GRAPHIC_ONLY);
+		manifoldMenuButton.setPadding(new Insets(0, 0, 0, -8));
+		manifoldMenuButton.setPopupSide(Side.BOTTOM);
+	}
 
 	private Text placeholderText_ = new Text("No Dynamic Semantics were found associated with the component");
 	private ProgressBar progressBar_;
@@ -216,6 +229,10 @@ public class SemanticViewerNode extends DetailNodeAbstract
 		this.nodePreferences = nodePreferences;
 		toolTipProperty.setValue("Semantic Tree Table");
 		super.getTitle().setValue("Semantic Tree Table");
+		this.manifoldMenuModel = new ManifoldMenuModel(viewProperties, this.manifoldMenuButton);
+		manifoldMenuButton.getItems().add(manifoldMenuModel.getCoordinateMenu());
+
+		this.manifoldMenuModel.updateManifoldMenu();
 	}
 	
 	private void initialInit()
@@ -238,10 +255,12 @@ public class SemanticViewerNode extends DetailNodeAbstract
 			ttv_.setPlaceholder(placeholderText_);
 			
 			rootNode_ = new VBox();
+			//rootNode_.getChildren().add(manifoldMenuButton);
 			rootNode_.getStylesheets().add(SemanticViewerNode.class.getResource("/css/semantic-view.css").toString());
 			rootNode_.setFillWidth(true);
 			rootNode_.getChildren().add(ttv_);
 			
+			this.detailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
 			detailPane.setCenter(rootNode_);
 			
 			VBox.setVgrow(ttv_, Priority.ALWAYS);
@@ -688,7 +707,6 @@ public class SemanticViewerNode extends DetailNodeAbstract
 	{
 		//disable refresh, as the bindings mucking causes many refresh calls
 		noRefresh_.getAndIncrement();
-//titleProperty.set(manifoldConcept_.get().getPreferredDescriptionText(assemblageConceptNid));
 		viewFocus_ = ViewFocus.ASSEMBLAGE;
 		viewFocusNid_ = assemblageConceptNid;
 		initialInit();
@@ -1350,7 +1368,7 @@ public class SemanticViewerNode extends DetailNodeAbstract
 			{
 				if ("Keyword".equals(e.getMessage()))
 				{
-					logger_.info("The specified concept is not specified correctly as a dynamic semantic, and is not utilized as a static semantic", e);
+					logger_.info("The specified concept is not specified correctly as a dynamic semantic, and is not utilized as a static semantic");
 					Platform.runLater(() ->
 					{
 						addButton_.setDisable(true);
@@ -1752,13 +1770,14 @@ public class SemanticViewerNode extends DetailNodeAbstract
 	@Override
 	public boolean selectInTabOnChange()
 	{
-		return false;
+		return this.conceptLabelToolbar.getFocusTabOnConceptChange().get();
 	}
 
 	@Override
 	public Node getNode()
 	{
-		return getView();
+		getView();
+		return this.detailPane;
 	}
 
 	@Override
@@ -1797,7 +1816,6 @@ public class SemanticViewerNode extends DetailNodeAbstract
 			treeRoot_.getChildren().clear();
 			ttv_.getColumns().clear();
 			summary_.setText("");
-			titleProperty.set("-");
 		}
 	}
 }

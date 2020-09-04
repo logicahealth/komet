@@ -68,7 +68,7 @@ public class SemanticViewerFactory implements DetailNodeFactory
 	@Override
 	public String[] getDefaultActivityFeed()
 	{
-		return new String[] {ViewProperties.NAVIGATION};
+		return new String[] {ViewProperties.NAVIGATION, ViewProperties.SEARCH};
 	}
 	
 	/** 
