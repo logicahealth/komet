@@ -173,6 +173,16 @@
       <system>Jira</system>
       <url>http://issues.osehra.org/projects/ISAAC/summary</url>
    </issueManagement>
+   
+   <repositories>
+      <repository>
+         <id>bintray</id>
+         <name>bintray</name>
+         <url>https://jcenter.bintray.com</url>
+         <releases><enabled>true</enabled></releases>
+         <snapshots><enabled>false</enabled></snapshots>
+      </repository>
+   </repositories>
 
    <dependencyManagement>
       <dependencies>
@@ -1399,21 +1409,6 @@
                </plugin>
             </plugins>
          </build>
-      </profile>
-      <profile>
-         <id>external-repo</id>
-         <activation>
-            <activeByDefault>true</activeByDefault>
-         </activation>
-         <repositories>
-            <repository>
-               <id>bintray</id>
-               <name>bintray</name>
-               <url>https://jcenter.bintray.com</url>
-               <releases><enabled>true</enabled></releases>
-               <snapshots><enabled>false</enabled></snapshots>
-            </repository>
-         </repositories>
       </profile>
    </profiles>
 </project>
