@@ -179,7 +179,7 @@ public class ClassifierData
     @Override
     public void handleChange(SemanticChronology sc) {
         if (sc.getAssemblageNid() == this.manifoldCoordinate.getLogicCoordinate().getStatedAssemblageNid()) {
-            LOG.info("Stated form change: " + sc);
+            LOG.info("Stated form change on: {}" + sc.getNid());  //DO NOT call toString on the chronology here, in a builder pattern, descriptions may not be built yet.
 
             // only process if incremental is a possibility.
 //            if (this.incrementalAllowed) {
