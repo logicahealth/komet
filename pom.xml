@@ -1164,18 +1164,6 @@
                </execution>
             </executions>
          </plugin>
-         <!-- plugin>  Not sure why this is off globally
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <executions>
-               <execution>
-                  <id>attach-javadocs</id>
-                  <goals>
-                     <goal>jar</goal>
-                  </goals>
-               </execution>
-            </executions>
-         </plugin-->
       </plugins>
    </build>
 
@@ -1185,11 +1173,6 @@
             <artifactId>maven-project-info-reports-plugin</artifactId>
             <version>${maven-project-info-reports-plugin.version}</version>
          </plugin>
-         <!--                     <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-javadoc-plugin</artifactId>
-            <version>${maven-javadoc-plugin.version}</version>
-         </plugin>-->
          <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-jxr-plugin</artifactId>
@@ -1221,43 +1204,65 @@
    </modules>
 
    <profiles>
-       <profile>
-           <id>release</id>
-           <build>
+      <profile>
+         <id>javadoc</id>
+         <activation>
+            <activeByDefault>false</activeByDefault>
+         </activation>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-javadoc-plugin</artifactId>
+                  <executions>
+                     <execution>
+                     <phase>package</phase>
+                        <goals>
+                           <goal>javadoc</goal>
+                        </goals>
+                     </execution>
+                  </executions>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+      <profile>
+         <id>release</id>
+            <build>
                <plugins>
-                   <plugin>
-                       <groupId>com.amashchenko.maven.plugin</groupId>
-                       <artifactId>gitflow-maven-plugin</artifactId>
-                       <version>${gitflow-maven-plugin-version}</version>
-                       <configuration>
-                           <tychoBuild>true</tychoBuild>
-                           <allowSnapshots>false</allowSnapshots>
-                           <autoVersionSubmodules>true</autoVersionSubmodules>
-                           <enableFeatureVersions>true</enableFeatureVersions>
-                           <enableSshAgent>true</enableSshAgent>
-                           <fetchRemote>true</fetchRemote>
-                           <installProject>true</installProject>
-                           <pushReleases>true</pushReleases>
-                           <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
-                           <username>${git.user}</username>
-                           <password>${git.password}</password>
-                           <postReleaseGoals>clean deploy</postReleaseGoals>
-                           <versionDigitToIncrement>2</versionDigitToIncrement>
-                           <gitFlowConfig>
-                               <productionBranch>master</productionBranch>
-                               <developmentBranch>develop-fx11</developmentBranch>
-                               <featureBranchPrefix>feature/</featureBranchPrefix>
-                               <releaseBranchPrefix>release/</releaseBranchPrefix>
-                               <hotfixBranchPrefix>hotfix/</hotfixBranchPrefix>
-                               <supportBranchPrefix>support/</supportBranchPrefix>
-                               <versionTagPrefix></versionTagPrefix>
-                               <origin>origin</origin>
-                           </gitFlowConfig>
-                       </configuration>
-                   </plugin>
+                  <plugin>
+                     <groupId>com.amashchenko.maven.plugin</groupId>
+                     <artifactId>gitflow-maven-plugin</artifactId>
+                     <version>${gitflow-maven-plugin-version}</version>
+                     <configuration>
+                        <tychoBuild>true</tychoBuild>
+                        <allowSnapshots>false</allowSnapshots>
+                        <autoVersionSubmodules>true</autoVersionSubmodules>
+                        <enableFeatureVersions>true</enableFeatureVersions>
+                        <enableSshAgent>true</enableSshAgent>
+                        <fetchRemote>true</fetchRemote>
+                        <installProject>true</installProject>
+                        <pushReleases>true</pushReleases>
+                        <scmCommentPrefix>[gitflow-plugin] </scmCommentPrefix>
+                        <username>${git.user}</username>
+                        <password>${git.password}</password>
+                        <postReleaseGoals>clean deploy</postReleaseGoals>
+                        <versionDigitToIncrement>2</versionDigitToIncrement>
+                        <gitFlowConfig>
+                           <productionBranch>master</productionBranch>
+                           <developmentBranch>develop-fx11</developmentBranch>
+                           <featureBranchPrefix>feature/</featureBranchPrefix>
+                           <releaseBranchPrefix>release/</releaseBranchPrefix>
+                           <hotfixBranchPrefix>hotfix/</hotfixBranchPrefix>
+                           <supportBranchPrefix>support/</supportBranchPrefix>
+                           <versionTagPrefix></versionTagPrefix>
+                           <origin>origin</origin>
+                        </gitFlowConfig>
+                     </configuration>
+                  </plugin>
                </plugins>
-           </build>
-       </profile>
+            </build>
+      </profile>
       <profile>
          <id>dbdoclet</id>
          <reporting>
@@ -1395,20 +1400,20 @@
             </plugins>
          </build>
       </profile>
-       <profile>
-           <id>external-repo</id>
-           <activation>
-               <activeByDefault>true</activeByDefault>
-           </activation>
-           <repositories>
-               <repository>
-                   <id>bintray</id>
-                   <name>bintray</name>
-                   <url>https://jcenter.bintray.com</url>
-                   <releases><enabled>true</enabled></releases>
-                   <snapshots><enabled>false</enabled></snapshots>
-               </repository>
-           </repositories>
-       </profile>
+      <profile>
+         <id>external-repo</id>
+         <activation>
+            <activeByDefault>true</activeByDefault>
+         </activation>
+         <repositories>
+            <repository>
+               <id>bintray</id>
+               <name>bintray</name>
+               <url>https://jcenter.bintray.com</url>
+               <releases><enabled>true</enabled></releases>
+               <snapshots><enabled>false</enabled></snapshots>
+            </repository>
+         </repositories>
+      </profile>
    </profiles>
 </project>
