@@ -1,8 +1,6 @@
 ISAAC: Informatics Analytic Architecture
 ======================
-
-[![Build Status](https://travis-ci.org/OSEHRA/ISAAC.svg?branch=develop)](https://travis-ci.org/OSEHRA/ISAAC)
-[![Knowledge Snapshot Build  Actions Status](https://github.com/logicahealth/komet/workflows/Knowledge Snapshot Build/badge.svg)](https://github.com/logicahealth/komet/actions)
+[![Knowledge%20Snapshot%20Build Actions Status](https://github.com/logicahealth/komet/workflows/Knowledge%20Snapshot%20Build/badge.svg)](https://github.com/logicahealth/komet/actions)
 
 A dynamic semantic architecture for the analysis of models, logic, and language.
 
