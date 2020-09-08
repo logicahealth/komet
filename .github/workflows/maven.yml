@@ -4,9 +4,9 @@ name: Knowledge Snapshot Build
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ feature/BATCH ]
   pull_request:
-    branches: [ develop ]
+    branches: [ feature/BATCH ]
 
 jobs:
   build:
