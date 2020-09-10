@@ -35,19 +35,4 @@
 			<version>${project.parent.version}</version>
 		</dependency>
 	</dependencies>
-	<profiles>
-		<profile>
-			<id>bdb</id>
-			<activation>
-				<activeByDefault>false</activeByDefault>
-			</activation>
-			<dependencies>
-				<dependency>
-					<groupId>sh.isaac.provider</groupId>
-					<artifactId>bdb-datastore</artifactId>
-					<version>${project.parent.version}</version>
-				</dependency>
-			</dependencies>
-		</profile>
-	</profiles>
 </project>

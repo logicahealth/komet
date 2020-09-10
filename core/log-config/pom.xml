@@ -10,7 +10,7 @@
    <artifactId>log-config</artifactId>
    <packaging>jar</packaging>
    <name>ISAAC core: Logging configuration</name>
-	
+
    <dependencies>
       <!-- When mojos execute, route all logging through log4j2 -->
       <dependency>

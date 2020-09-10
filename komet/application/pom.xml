@@ -236,12 +236,6 @@
             <version>${project.parent.version}</version>
             <type>jar</type>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>sh.isaac.komet</groupId>-->
-<!--            <artifactId>open-jdk-fixes</artifactId>-->
-<!--            <version>${project.parent.version}</version>-->
-<!--            <type>jar</type>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>sh.isaac.komet</groupId>
             <artifactId>concept-detail</artifactId>
@@ -265,11 +259,6 @@
             <artifactId>metacontent</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--        <groupId>sh.isaac</groupId>-->
-<!--        <artifactId>scenic-view</artifactId>-->
-<!--        <version>11.0</version>-->
-<!--        </dependency>-->
     </dependencies>
     <build>
         <plugins>

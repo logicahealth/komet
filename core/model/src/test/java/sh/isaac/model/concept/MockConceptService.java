@@ -39,25 +39,23 @@
 
 package sh.isaac.model.concept;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.nio.file.Path;
-
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.IntSet;
-import sh.isaac.api.component.concept.*;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptService;
+import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.component.concept.ConceptSnapshotService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilterImmutable;
 

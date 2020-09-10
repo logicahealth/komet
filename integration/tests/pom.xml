@@ -11,11 +11,6 @@
    <packaging>jar</packaging>
    <name>ISAAC integration: Tests</name>
    
-   <!-- Setting for XML tests, use this VHAT loader IBDF -->
-   <properties>
-      <vhat-loader-version>2017.09.07-198-loader-4.48-SNAPSHOT</vhat-loader-version>
-   </properties>
-
    <dependencies>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
@@ -174,17 +169,12 @@
                      <parallel>none</parallel>
                      <useSystemClassLoader>true</useSystemClassLoader>
                      <useManifestOnlyJar>false</useManifestOnlyJar>
-<!--                     <debugForkedProcess>true</debugForkedProcess>-->
-                     <argLine>-ea -Xmx12g -Djava.awt.headless=true</argLine>
-<!--                      <argLine>-Xmx8g -Xms8g -Djava.awt.headless=true -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine>-->
-<!--                        <debugForkedProcess>true</debugForkedProcess>-->
-                     <includes>
+                     <!-- <argLine>-Xmx8g -Xms8g -Djava.awt.headless=true -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine> -->
+                     <!--<debugForkedProcess>true</debugForkedProcess> -->
+                    <includes>
                         <!-- Let JUnit annotations decide -->
                         <include>**/*.class</include>
                      </includes>
-                     <excludes>
-                        <exclude>**/VhatXmlTests.java</exclude>  <!-- This test requires special data, and may take a long time to execute -->
-                     </excludes>
                   </configuration>
                </plugin>
             </plugins>

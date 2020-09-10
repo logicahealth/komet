@@ -65,7 +65,6 @@ import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 
-import static sh.isaac.api.bootstrap.TermAux.*;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
@@ -118,7 +117,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
     *             the unsupported encoding exception
     */
    public IsaacMetadataAuxiliary() throws NoSuchAlgorithmException, UnsupportedEncodingException, Exception {
-      super(PRIMORDIAL_PATH, TermAux.USER, TermAux.PRIMORDIAL_MODULE, ConceptProxy.METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.PRIMORDIAL_MODULE.getPrimordialUuid());
+      super(TermAux.PRIMORDIAL_PATH, TermAux.USER, TermAux.PRIMORDIAL_MODULE, ConceptProxy.METADATA_SEMANTIC_TAG, AUXILIARY_METADATA_VERSION, TermAux.PRIMORDIAL_MODULE.getPrimordialUuid());
 
 //J-
       createConcept(TermAux.SOLOR_ROOT);
@@ -144,18 +143,18 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
          popParent();
          createConcept(TermAux.SOLOR_METADATA).addDescription("version:" + AUXILIARY_METADATA_VERSION, TermAux.DEFINITION_DESCRIPTION_TYPE);
          pushParent(current());
-            createConcept(SANDBOX_COMPONENT).setModule(TermAux.KOMET_MODULE);
+            createConcept(TermAux.SANDBOX_COMPONENT).setModule(TermAux.KOMET_MODULE);
             pushParent(current());
-                final ConceptBuilder sandboxPath = createConcept(SANDBOX_PATH, TermAux.PATH.getNid());
+                final ConceptBuilder sandboxPath = createConcept(TermAux.SANDBOX_PATH, TermAux.PATH.getNid());
                 sandboxPath.setModule(TermAux.KOMET_MODULE);
-                createConcept(SANDBOX_MODULE, TermAux.UNSPECIFIED_MODULE.getNid()).setModule(TermAux.KOMET_MODULE);
+                createConcept(TermAux.SANDBOX_MODULE, TermAux.UNSPECIFIED_MODULE.getNid()).setModule(TermAux.KOMET_MODULE);
                 pushParent(current());
-                    createConcept(SANDBOX_PATH_MODULE, TermAux.UNSPECIFIED_MODULE.getNid()).setModule(TermAux.KOMET_MODULE);
+                    createConcept(TermAux.SANDBOX_PATH_MODULE, TermAux.UNSPECIFIED_MODULE.getNid()).setModule(TermAux.KOMET_MODULE);
                     popParent();
                 popParent();
             createConcept("Directed graph", "NavigationCoordinate");
             pushParent(current());
-                createConcept(EL_PLUS_PLUS_DIGRAPH)
+                createConcept(TermAux.EL_PLUS_PLUS_DIGRAPH)
                         .addDescription("The directed graph that results from classifying a set of EL++ axioms.", TermAux.DEFINITION_DESCRIPTION_TYPE)
                         .setModule(TermAux.KOMET_MODULE);
                 popParent();
@@ -166,7 +165,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());
                 createConcept(TermAux.MEMBERSHIP_SEMANTIC);
                 createConcept(TermAux.DYNAMIC_SEMANTIC);
-                createConcept(CONCEPT_SEMANTIC).addComponentIntSemantic(TermAux.CONCEPT_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
+                createConcept(TermAux.CONCEPT_SEMANTIC).addComponentIntSemantic(TermAux.CONCEPT_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
                 createConcept(TermAux.COMPONENT_SEMANTIC).addComponentIntSemantic(TermAux.COMPONENT_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
                 createConcept(TermAux.LOGICAL_EXPRESSION_SEMANTIC).addComponentIntSemantic(TermAux.LOGICAL_EXPRESSION_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
                 createConcept(TermAux.INTEGER_SEMANTIC).addComponentIntSemantic(TermAux.INTEGER_FIELD, 0, TermAux.SEMANTIC_FIELD_DATA_TYPES_ASSEMBLAGE);
@@ -202,8 +201,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                 popParent();
             createConcept("Module").mergeFromSpec(TermAux.UNSPECIFIED_MODULE);
             pushParent(current());
-               createConcept(FOUNDATION_MODULE).setModule(TermAux.KOMET_MODULE);
-               createConcept(DEVELOPMENT_MODULE).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.FOUNDATION_MODULE).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.DEVELOPMENT_MODULE).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.METADATA_MODULES).setModule(TermAux.KOMET_MODULE);
                pushParent(current());
                   createConcept(TermAux.PRIMORDIAL_MODULE);
@@ -249,7 +248,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             createConcept(TermAux.USER);
             createConcept(TermAux.PATH);
             pushParent(current());
-               final ConceptBuilder primordialPath = createConcept(PRIMORDIAL_PATH);
+               final ConceptBuilder primordialPath = createConcept(TermAux.PRIMORDIAL_PATH);
                final ConceptBuilder developmentPath = createConcept(TermAux.DEVELOPMENT_PATH);
                final ConceptBuilder masterPath = createConcept(TermAux.MASTER_PATH);
                masterPath.addUuids(UUID.fromString("2faa9260-8fb2-11db-b606-0800200c9a66")); // UUID from WB_AUX_PATH
@@ -297,32 +296,35 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Property set").setPrimordialUuid(NodeSemantic.PROPERTY_SET.getSemanticUuid()).setModule(TermAux.KOMET_MODULE);
                popParent();
             createConcept(TermAux.IDENTIFIER_SOURCE)
-               .addComponentSemantic(TermAux.MEMBERSHIP_SEMANTIC, SEMANTIC_TYPE)
+               .addComponentSemantic(TermAux.MEMBERSHIP_SEMANTIC, TermAux.SEMANTIC_TYPE)
                .addDescription("A parent concept and membership assemblage used to group identifiers", TermAux.DEFINITION_DESCRIPTION_TYPE);
             pushParent(current());
-               createConcept(TermAux.RXNORM_CUI).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("SCTID").mergeFromSpec(TermAux.SNOMED_IDENTIFIER).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept(TermAux.ISAAC_UUID).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("VUID", "Vets Unique Identifier").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("Code").setPrimordialUuid("803af596-aea8-5184-b8e1-45f801585d17")
-                  .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);// UUID comes from the algorithm in the VHAT econ loader
+               createConcept(TermAux.RXNORM_CUI).addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("SCTID").mergeFromSpec(TermAux.SNOMED_IDENTIFIER).addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE)
+                   .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept(TermAux.ISAAC_UUID).addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE)
+                   .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("VUID", "Vets Unique Identifier").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE)
+                   .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept("Code").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE)
+                  .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                ConceptBuilder loincBuilder = createConcept("LOINC ID assemblage");
-               loincBuilder.addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               loincBuilder.addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                loincBuilder.getPreferredDescriptionBuilder().setDescriptionText("LOINC ID");
-               createConcept("Clinvar Variant ID").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE)
+               createConcept("Clinvar Variant ID").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE)
                    .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("NCBI Gene ID").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE)
+               createConcept("NCBI Gene ID").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE)
                    .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("Clinvar Description ID").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE)
+               createConcept("Clinvar Description ID").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE)
                    .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("CVX Code").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE)
+               createConcept("CVX Code").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE)
                    .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("CVX Description ID").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE)
+               createConcept("CVX Description ID").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE)
                    .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("FHIR URI").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE)
+               createConcept("FHIR URI").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE)
                    .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("OID").addDescription("HL7 Object Identifier", TermAux.REGULAR_NAME_DESCRIPTION_TYPE)
-                   .addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE)
+                   .addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE)
                    .setPrimordialUuid("374ce9a6-7f66-5c70-94ae-9aeea2f95c73") //UUID from the loader
                    .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                popParent();
@@ -386,48 +388,56 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                     createConcept("SKOS preferred label").setModule(TermAux.KOMET_MODULE);
                     createConcept("SKOS definition").setModule(TermAux.KOMET_MODULE);
                     popParent();
-               createConcept("Issue management assemblage").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE);
+               createConcept("Issue management assemblage").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE);
                pushParent(current());
-                  createConcept("Content issue assemblage").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept("KOMET issue assemblage").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept("Quality assurance rule issue assemblage").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept("Automation issue assemblage").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept("Clinical statement issue assemblage").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept("SNOMED® issue assemblage").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept("LOINC® issue assemblage").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept("RxNorm issue assemblage").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept("SOLOR issue assemblage").addComponentSemantic(STRING_SEMANTIC, SEMANTIC_TYPE);
+                  createConcept("Content issue assemblage").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                  createConcept("KOMET issue assemblage").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                  createConcept("Quality assurance rule issue assemblage").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                  createConcept("Automation issue assemblage").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                  createConcept("Clinical statement issue assemblage").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                  createConcept("SNOMED® issue assemblage").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                  createConcept("LOINC® issue assemblage").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                  createConcept("RxNorm issue assemblage").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                  createConcept("SOLOR issue assemblage").addComponentSemantic(TermAux.STRING_SEMANTIC, TermAux.SEMANTIC_TYPE);
                   popParent();
                createConcept(TermAux.DESCRIPTION_ASSEMBLAGE);
                createConcept(TermAux.DEPENDENCY_MANAGEMENT);
-               createConcept("Dialect assemblage");
+               //Dialect assemblage is marked as a membership only semantic type, so that we can add valid dialects to it 
+               //(dialects that should be shown to a user in a picklist, rather than dialect concepts that are for organization only)
+               createConcept(TermAux.DIALECT_ASSEMBLAGE).addComponentSemantic(TermAux.MEMBERSHIP_SEMANTIC, TermAux.SEMANTIC_TYPE);
                pushParent(current());
-                  createConcept(TermAux.ENGLISH_DIALECT_ASSEMBLAGE).addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE);
+                  createConcept(TermAux.ENGLISH_DIALECT_ASSEMBLAGE).addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
                   pushParent(current());
-                     createConcept("GB English dialect").mergeFromSpec(TermAux.GB_DIALECT_ASSEMBLAGE).addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE);
-                     createConcept("US English dialect").mergeFromSpec(TermAux.US_DIALECT_ASSEMBLAGE).addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE);
+                     createConcept("GB English dialect").mergeFromSpec(TermAux.GB_DIALECT_ASSEMBLAGE)
+                         .addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE).addAssemblageMembership(TermAux.DIALECT_ASSEMBLAGE);
+                     createConcept("US English dialect").mergeFromSpec(TermAux.US_DIALECT_ASSEMBLAGE)
+                         .addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE).addAssemblageMembership(TermAux.DIALECT_ASSEMBLAGE);
                      pushParent(current());
-                        createConcept("US Nursing dialect").addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE).setPrimordialUuid("6e447636-1085-32ff-bc36-6748a45255de");
+                        createConcept("US Nursing dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE)
+                           .addAssemblageMembership(TermAux.DIALECT_ASSEMBLAGE).setPrimordialUuid("6e447636-1085-32ff-bc36-6748a45255de");
                         popParent();
                      popParent();
-                  createConcept(TermAux.SPANISH_DIALECT_ASSEMBLAGE).addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE);
+                  createConcept(TermAux.SPANISH_DIALECT_ASSEMBLAGE).addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE)
+                      .addAssemblageMembership(TermAux.DIALECT_ASSEMBLAGE);
                   pushParent(current());
-                     createConcept(TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE).addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE);
+                     createConcept(TermAux.SPANISH_LATIN_AMERICA_DIALECT_ASSEMBLAGE).addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE)
+                         .addAssemblageMembership(TermAux.DIALECT_ASSEMBLAGE);
                      popParent();
-                  createConcept("French dialect").addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept("Korean dialect").addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE);
+                  createConcept("French dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                  createConcept("Korean dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
                   pushParent(current());
-                     createConcept("Standard Korean dialect").addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE);
+                     createConcept("Standard Korean dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE)
+                         .addAssemblageMembership(TermAux.DIALECT_ASSEMBLAGE);
                      popParent();
-                  createConcept("Polish dialect").addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept("Irish dialect").addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept("Czech dialect").addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept("Russian dialect").addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE);
+                  createConcept("Polish dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                  createConcept("Irish dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                  createConcept("Czech dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                  createConcept("Russian dialect").addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
                   popParent();
                createConcept("Logic assemblage");
                pushParent(current());
-                  createConcept(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE).addComponentSemantic(TermAux.LOGICAL_EXPRESSION_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE).addComponentSemantic(TermAux.LOGICAL_EXPRESSION_SEMANTIC, SEMANTIC_TYPE);
+                  createConcept(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE).addComponentSemantic(TermAux.LOGICAL_EXPRESSION_SEMANTIC, TermAux.SEMANTIC_TYPE);
+                  createConcept(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE).addComponentSemantic(TermAux.LOGICAL_EXPRESSION_SEMANTIC, TermAux.SEMANTIC_TYPE);
                   createConcept(TermAux.SRF_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
                   ConceptBuilder builder = createConcept(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
                   builder.getPreferredDescriptionBuilder().setDescriptionText("SNOMED legacy implication");
@@ -461,7 +471,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Image assemblage");
                pushParent(current());
                   createConcept("Concept image")
-                          .addComponentSemantic(IMAGE_SEMANTIC, SEMANTIC_TYPE)
+                          .addComponentSemantic(TermAux.IMAGE_SEMANTIC, TermAux.SEMANTIC_TYPE)
                           .addComponentIntSemantic(IMAGE_DATA_FOR_SEMANTIC, 0, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS);
                   popParent();
                createConcept("Assemblage related to path management");
@@ -477,23 +487,23 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   final ConceptBuilder pathOrigins = createConcept("Path origins assemblage");
                   pathOrigins.mergeFromSpec(TermAux.PATH_ORIGIN_ASSEMBLAGE);
 
-                  addPathOrigin(pathOrigins, masterPath, primordialPath, Long.MAX_VALUE, MASTER_PATH_ORIGIN_SEMANTIC_UUID);
-                  addPathOrigin(pathOrigins, sandboxPath, primordialPath, Long.MAX_VALUE, SANDBOX_PATH_ORIGIN_SEMANTIC_UUID);
-                  addPathOrigin(pathOrigins, developmentPath, sandboxPath, Long.MAX_VALUE, DEVELOPMENT_PATH_ORIGIN_SEMANTIC_UUID);
+                  addPathOrigin(pathOrigins, masterPath, primordialPath, Long.MAX_VALUE, TermAux.MASTER_PATH_ORIGIN_SEMANTIC_UUID);
+                  addPathOrigin(pathOrigins, sandboxPath, primordialPath, Long.MAX_VALUE, TermAux.SANDBOX_PATH_ORIGIN_SEMANTIC_UUID);
+                  addPathOrigin(pathOrigins, developmentPath, sandboxPath, Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH_ORIGIN_SEMANTIC_UUID);
                   popParent();
                popParent();
             createConcept("Content Metadata");
             pushParent(current());
                createConcept(TermAux.DATABASE_UUID);
                //This is used for the version of the maven artifact that contains the source
-               createConcept("Source Artifact Version").addAssemblageMembership(STRING_SEMANTIC);
+               createConcept("Source Artifact Version").addAssemblageMembership(TermAux.STRING_SEMANTIC);
                //This is used for the version of the source content itself - often times teh same as Source Artifact Version, except in cases
                //where the source content contains multiple versioned things in a single release, like a fhir xml bundle 
-               createConcept("Source Content Version").addAssemblageMembership(STRING_SEMANTIC);
-               createConcept("Source Release Date").addAssemblageMembership(STRING_SEMANTIC);
-               createConcept("Converter Version").addAssemblageMembership(STRING_SEMANTIC);
-               createConcept("Converted IBDF Artifact Version").addAssemblageMembership(STRING_SEMANTIC);
-               createConcept("Converted IBDF Artifact Classifier").addAssemblageMembership(STRING_SEMANTIC);
+               createConcept("Source Content Version").addAssemblageMembership(TermAux.STRING_SEMANTIC);
+               createConcept("Source Release Date").addAssemblageMembership(TermAux.STRING_SEMANTIC);
+               createConcept("Converter Version").addAssemblageMembership(TermAux.STRING_SEMANTIC);
+               createConcept("Converted IBDF Artifact Version").addAssemblageMembership(TermAux.STRING_SEMANTIC);
+               createConcept("Converted IBDF Artifact Classifier").addAssemblageMembership(TermAux.STRING_SEMANTIC);
                popParent();
             createConcept(TermAux.LANGUAGE);
             pushParent(current());  
@@ -504,7 +514,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             //Note, that each of these language concepts does still have two parents - one here, of LANGUAGE, and the other being DESCRIPTION_ASSEMBLAGE.
                createConcept(TermAux.ENGLISH_LANGUAGE, 
                      TermAux.DESCRIPTION_ASSEMBLAGE.getNid())
-                       .addComponentSemantic(DESCRIPTION_SEMANTIC, SEMANTIC_TYPE)
+                       .addComponentSemantic(TermAux.DESCRIPTION_SEMANTIC, TermAux.SEMANTIC_TYPE)
                        .addComponentIntSemantic(TEXT_FOR_DESCRIPTION, 0, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(DESCRIPTION_TYPE_FOR_DESCRIPTION, 2, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
@@ -512,6 +522,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                        .addUuids(UUID.fromString("45021920-9567-11e5-8994-feff819cdc9f"));
                createConcept(TermAux.SPANISH_LANGUAGE, 
                      TermAux.DESCRIPTION_ASSEMBLAGE.getNid())
+                       .addComponentSemantic(TermAux.DESCRIPTION_SEMANTIC, TermAux.SEMANTIC_TYPE)
                        .addComponentIntSemantic(TEXT_FOR_DESCRIPTION, 0, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(DESCRIPTION_TYPE_FOR_DESCRIPTION, 2, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
@@ -519,6 +530,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                        .addUuids(UUID.fromString("45021c36-9567-11e5-8994-feff819cdc9f"));
                createConcept(TermAux.FRENCH_LANGUAGE, 
                      TermAux.DESCRIPTION_ASSEMBLAGE.getNid())
+                       .addComponentSemantic(TermAux.DESCRIPTION_SEMANTIC, TermAux.SEMANTIC_TYPE)
                        .addComponentIntSemantic(TEXT_FOR_DESCRIPTION, 0, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(DESCRIPTION_TYPE_FOR_DESCRIPTION, 2, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
@@ -526,6 +538,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                        .addUuids(UUID.fromString("45021dbc-9567-11e5-8994-feff819cdc9f"));
                createConcept(TermAux.DANISH_LANGUAGE, 
                      TermAux.DESCRIPTION_ASSEMBLAGE.getNid())
+                       .addComponentSemantic(TermAux.DESCRIPTION_SEMANTIC, TermAux.SEMANTIC_TYPE)
                        .addComponentIntSemantic(TEXT_FOR_DESCRIPTION, 0, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(DESCRIPTION_TYPE_FOR_DESCRIPTION, 2, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
@@ -533,6 +546,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                        .addUuids(UUID.fromString("45021f10-9567-11e5-8994-feff819cdc9f"));
                createConcept(TermAux.POLISH_LANGUAGE, 
                      TermAux.DESCRIPTION_ASSEMBLAGE.getNid())
+                       .addComponentSemantic(TermAux.DESCRIPTION_SEMANTIC, TermAux.SEMANTIC_TYPE)
                        .addComponentIntSemantic(TEXT_FOR_DESCRIPTION, 0, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(DESCRIPTION_TYPE_FOR_DESCRIPTION, 2, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
@@ -540,6 +554,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                        .addUuids(UUID.fromString("45022140-9567-11e5-8994-feff819cdc9f"));
                createConcept(TermAux.DUTCH_LANGUAGE, 
                      TermAux.DESCRIPTION_ASSEMBLAGE.getNid())
+                       .addComponentSemantic(TermAux.DESCRIPTION_SEMANTIC, TermAux.SEMANTIC_TYPE)
                        .addComponentIntSemantic(TEXT_FOR_DESCRIPTION, 0, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(DESCRIPTION_TYPE_FOR_DESCRIPTION, 2, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
@@ -547,6 +562,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                        .addUuids(UUID.fromString("45022280-9567-11e5-8994-feff819cdc9f"));
                createConcept(TermAux.LITHUANIAN_LANGUAGE, 
                      TermAux.DESCRIPTION_ASSEMBLAGE.getNid())
+                       .addComponentSemantic(TermAux.DESCRIPTION_SEMANTIC, TermAux.SEMANTIC_TYPE)
                        .addComponentIntSemantic(TEXT_FOR_DESCRIPTION, 0, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(DESCRIPTION_TYPE_FOR_DESCRIPTION, 2, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
@@ -554,6 +570,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                        .addUuids(UUID.fromString("45022410-9567-11e5-8994-feff819cdc9f"));
                createConcept(TermAux.CHINESE_LANGUAGE, 
                      TermAux.DESCRIPTION_ASSEMBLAGE.getNid())
+                       .addComponentSemantic(TermAux.DESCRIPTION_SEMANTIC, TermAux.SEMANTIC_TYPE)
                        .addComponentIntSemantic(TEXT_FOR_DESCRIPTION, 0, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(DESCRIPTION_TYPE_FOR_DESCRIPTION, 2, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
@@ -561,6 +578,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                        .addUuids(UUID.fromString("45022532-9567-11e5-8994-feff819cdc9f"));
                createConcept(TermAux.JAPANESE_LANGUAGE, 
                      TermAux.DESCRIPTION_ASSEMBLAGE.getNid())
+                       .addComponentSemantic(TermAux.DESCRIPTION_SEMANTIC, TermAux.SEMANTIC_TYPE)
                        .addComponentIntSemantic(TEXT_FOR_DESCRIPTION, 0, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(DESCRIPTION_TYPE_FOR_DESCRIPTION, 2, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
@@ -568,6 +586,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                        .addUuids(UUID.fromString("450226cc-9567-11e5-8994-feff819cdc9f"));
                createConcept(TermAux.SWEDISH_LANGUAGE, 
                      TermAux.DESCRIPTION_ASSEMBLAGE.getNid())
+                       .addComponentSemantic(TermAux.DESCRIPTION_SEMANTIC, TermAux.SEMANTIC_TYPE)
                        .addComponentIntSemantic(TEXT_FOR_DESCRIPTION, 0, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION, 1, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
                        .addComponentIntSemantic(DESCRIPTION_TYPE_FOR_DESCRIPTION, 2, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS)
@@ -687,7 +706,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Existential restriction").setPrimordialUuid(NodeSemantic.ROLE_SOME.getSemanticUuid());
                popParent();
             createConcept("Logical feature").addDescription("A property is a characteristic of a class - a directed binary relation that specifies some attribute which is true for instances of that class. Properties sometimes act as data values, or links to other instances. Properties may exhibit logical features, for example, by being transitive, symmetric, inverse and functional. Properties may also have domains and ranges.",
-                DEFINITION_DESCRIPTION_TYPE
+                TermAux.DEFINITION_DESCRIPTION_TYPE
             ).setModule(TermAux.KOMET_MODULE);
             pushParent(current());
                 createConcept("Transitive feature").setModule(TermAux.KOMET_MODULE);
@@ -774,8 +793,8 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ObservableFields.ASSEMBLAGE_FOR_CONSTRAINT);
                   createConcept("Promotion source path").setModule(TermAux.KOMET_MODULE);
                   createConcept("Promotion destination path").setModule(TermAux.KOMET_MODULE);
-                  createConcept("Concept to find").setModule(KOMET_MODULE);
-                  createConcept("Replacement concept").setModule(KOMET_MODULE);
+                  createConcept("Concept to find").setModule(TermAux.KOMET_MODULE);
+                  createConcept("Replacement concept").setModule(TermAux.KOMET_MODULE);
                   popParent();
                createConcept("Configuration properties").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
@@ -1240,12 +1259,12 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.ASSOCIATED_PARAMETER_QUERY_CLAUSE).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.JOIN_QUERY_CLAUSE).setModule(TermAux.KOMET_MODULE);
                createConcept(ASSEMBLAGE_LIST_FOR_QUERY).setModule(TermAux.KOMET_MODULE);
-               createConcept(ORIGIN_STAMP_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
-               createConcept(LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
-               createConcept(LOGIC_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
-               createConcept(PREMISE_TYPE_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
-               createConcept(MANIFOLD_COORDINATE_KEY).setModule(TermAux.KOMET_MODULE);
-               createConcept(VIEW_COORDINATE_KEY).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.ORIGIN_STAMP_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.LANGUAGE_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.LOGIC_COORDINATE_KEY_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.PREMISE_TYPE_FOR_MANIFOLD).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.MANIFOLD_COORDINATE_KEY).setModule(TermAux.KOMET_MODULE);
+               createConcept(TermAux.VIEW_COORDINATE_KEY).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.CONCEPT_HAS_TAXONOMY_DISTANCE_FROM).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.INTEGER_REFERENCE).setModule(TermAux.KOMET_MODULE);
                createConcept(TermAux.BOOLEAN_REFERENCE).setModule(TermAux.KOMET_MODULE);

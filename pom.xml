@@ -179,8 +179,12 @@
          <id>bintray</id>
          <name>bintray</name>
          <url>https://jcenter.bintray.com</url>
-         <releases><enabled>true</enabled></releases>
-         <snapshots><enabled>false</enabled></snapshots>
+         <releases>
+             <enabled>true</enabled>
+         </releases>
+         <snapshots>
+             <enabled>false</enabled>
+         </snapshots>
       </repository>
    </repositories>
 
@@ -754,6 +758,11 @@
             <artifactId>xodus-environment</artifactId>
             <version>${xodus.version}</version>
          </dependency>
+         <dependency>
+             <groupId>net.sf.saxon</groupId>
+             <artifactId>Saxon-HE</artifactId>
+             <version>10.1</version>
+         </dependency>
       </dependencies>
    </dependencyManagement>
 
@@ -1044,6 +1053,7 @@
                                  <goal>generateDMNModel</goal>
                                  <goal>generateModel</goal>
                                  <goal>injectreactive</goal>
+                                 <goal>validateDMN</goal>
                               </goals>
                            </pluginExecutionFilter>
                            <action>

@@ -7,14 +7,9 @@
         <version>5.1.1-BATCH-SNAPSHOT</version>
     </parent>
     <groupId>sh.isaac.provider</groupId>
-    <artifactId>postgresql-datastore</artifactId>
+    <artifactId>datastore-postgresql</artifactId>
     <packaging>jar</packaging>
     <name>ISAAC provider: Datastore - PostgreSQL</name>
-    <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-    </properties>
     <dependencies>
         <dependency>
             <groupId>com.zaxxer</groupId>
