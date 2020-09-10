@@ -180,7 +180,12 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
 
     @Override
     public ConceptSpecification getRoot() {
-        return Get.concept(this.rootNid);
+        return Get.conceptSpecification(this.rootNid);
+    }
+
+    @Override
+    public int getDigraphIdentityNid() {
+        return this.digraphIdentityNid;
     }
 
     @Override
