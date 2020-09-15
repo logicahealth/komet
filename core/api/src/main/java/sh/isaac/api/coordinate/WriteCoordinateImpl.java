@@ -34,6 +34,26 @@ public class WriteCoordinateImpl implements WriteCoordinate
 	final Optional<Transaction> transaction;
 	final Optional<Status> status;
 	final Optional<Long> time;
+	
+	public WriteCoordinateImpl(Status status, long time, int authorNid, int moduleNid, int pathNid, Transaction transaction)
+	{
+		this.status = Optional.of(status);
+		this.time = Optional.of(time);
+		this.authorNid = authorNid;
+		this.moduleNid = moduleNid;
+		this.pathNid = pathNid;
+		this.transaction = Optional.ofNullable(transaction);
+	}
+	
+	public WriteCoordinateImpl(long time, int authorNid, int moduleNid, int pathNid, Transaction transaction)
+	{
+		this.status = Optional.empty();
+		this.time = Optional.of(time);
+		this.authorNid = authorNid;
+		this.moduleNid = moduleNid;
+		this.pathNid = pathNid;
+		this.transaction = Optional.ofNullable(transaction);
+	}
 
 	public WriteCoordinateImpl(int authorNid, int moduleNid, int pathNid, Transaction transaction)
 	{

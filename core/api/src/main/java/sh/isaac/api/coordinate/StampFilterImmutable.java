@@ -167,6 +167,13 @@ public class StampFilterImmutable
     }
 
 
+    /**
+     * 
+     * @param allowedStates
+     * @param stampPosition
+     * @param moduleNids - null is treated as an empty set, which allows any module
+     * @return
+     */
     public static StampFilterImmutable make(StatusSet allowedStates,
                          StampPosition stampPosition,
                          ImmutableIntSet moduleNids) {

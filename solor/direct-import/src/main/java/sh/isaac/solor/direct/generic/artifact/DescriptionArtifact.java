@@ -1,10 +1,9 @@
 package sh.isaac.solor.direct.generic.artifact;
 
+import java.util.UUID;
 import sh.isaac.api.Status;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.utility.LanguageMap;
-import java.util.UUID;
 
 /**
  * 2019-03-07

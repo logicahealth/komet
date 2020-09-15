@@ -74,8 +74,8 @@ public final class LanguageCoordinateImmutable implements LanguageCoordinate, Im
                                        LanguageCoordinateImmutable nextPriorityLanguageCoordinate) {
         this.languageConceptNid = languageConceptNid;
         this.descriptionTypePreferenceList = descriptionTypePreferenceList;
-        this.dialectAssemblagePreferenceList = dialectAssemblagePreferenceList;
-        this.modulePreferenceListForLanguage = modulePreferenceListForLanguage;
+        this.dialectAssemblagePreferenceList = dialectAssemblagePreferenceList == null ? IntLists.immutable.empty() : dialectAssemblagePreferenceList;
+        this.modulePreferenceListForLanguage = modulePreferenceListForLanguage == null ? IntLists.immutable.empty() : modulePreferenceListForLanguage;
         this.nextPriorityLanguageCoordinate = nextPriorityLanguageCoordinate;
     }
     
@@ -173,6 +173,14 @@ public final class LanguageCoordinateImmutable implements LanguageCoordinate, Im
                 languageCoordinateImmutable -> languageCoordinateImmutable.setupCache());
     }
 
+    /**
+     * 
+     * @param languageConceptNid
+     * @param descriptionTypePreferenceList
+     * @param dialectAssemblagePreferenceList
+     * @param modulePreferenceListForLanguage - if null, treated as empty
+     * @return
+     */
     public static LanguageCoordinateImmutable make(int languageConceptNid,
                                                    ImmutableIntList descriptionTypePreferenceList,
                                                    ImmutableIntList dialectAssemblagePreferenceList,

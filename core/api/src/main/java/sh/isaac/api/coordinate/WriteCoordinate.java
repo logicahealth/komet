@@ -84,4 +84,14 @@ public interface WriteCoordinate
 	default public EditCoordinateImmutable toEditCoordinate() {
 		return EditCoordinateImmutable.make(getAuthorNid(), getModuleNid(), getPathNid(), getModuleNid());
 	}
+	
+
+	/**
+	 * @param transactionName - optional
+	 * @return a new WriteCoordinate with a new transaction
+	 */
+	default public WriteCoordinate startTransaction(String transactionName) 
+	{
+		return new WriteCoordinateImpl(Get.commitService().newTransaction(transactionName), this);
+	}
 }

@@ -586,7 +586,19 @@ public interface ManifoldCoordinate {
         return Get.conceptSpecification(getPathNidForAnalog());
     }
 
-    ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis);
+    public ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis);
+    
+    public ManifoldCoordinate makeCoordinateAnalog(PremiseType premiseType);
+    
+	/**
+	 * @param stampFilter - new stampFilter to use to in the new ManifoldCoordinate, for both the {@link ManifoldCoordinate#getViewStampFilter()} and
+	 * {@link ManifoldCoordinate#getVertexStampFilter()} 
+	 * @return a new manifold coordinate
+	 */
+	default ManifoldCoordinate makeCoordinateAnalog(StampFilter stampFilter) {
+		return ManifoldCoordinateImmutable.make(stampFilter, this.getLanguageCoordinate(), this.getVertexSort(), stampFilter.getAllowedStates(), this.getNavigationCoordinate(),
+				this.getLogicCoordinate(), this.getCurrentActivity(), this.getEditCoordinate());
+	}
 
     default ManifoldCoordinate makeCoordinateAnalog(Instant classifyInstant) {
         return makeCoordinateAnalog(classifyInstant.toEpochMilli());

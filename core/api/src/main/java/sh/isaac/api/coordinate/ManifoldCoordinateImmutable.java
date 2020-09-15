@@ -1,12 +1,13 @@
 package sh.isaac.api.coordinate;
 
 
-import java.util.Objects;
 import java.util.EnumSet;
+import java.util.Objects;
 import java.util.UUID;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.Get;
+import sh.isaac.api.GlobalDatastoreConfiguration;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.commit.CommitListener;
@@ -56,6 +57,10 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
         SINGLETONS.clear();
     }
 
+    /**
+     * @see #make(StampFilter, LanguageCoordinate, VertexSort, StatusSet, NavigationCoordinate, LogicCoordinate, Activity, EditCoordinate)
+     * for defaults on null values 
+     */
     private ManifoldCoordinateImmutable(StampFilterImmutable viewStampFilter,
                                         LanguageCoordinateImmutable languageCoordinate,
                                         VertexSort vertexSort,
@@ -64,21 +69,23 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
                                         LogicCoordinateImmutable logicCoordinateImmutable,
                                         Activity activity,
                                         EditCoordinateImmutable editCoordinate) {
-        if (activity == null) {
-            throw new NullPointerException("Activity cannot be null");
-        }
-        this.viewStampFilter = viewStampFilter;
-        this.languageCoordinate = languageCoordinate;
-        this.vertexSort = vertexSort;
-        this.vertexStampFilter = StampFilterImmutable.make(vertexStatusSet,
+        this.viewStampFilter = viewStampFilter == null ? 
+            Get.configurationService().getGlobalDatastoreConfiguration().getDefaultManifoldCoordinate().getViewStampFilter().toStampFilterImmutable() : viewStampFilter;
+        this.languageCoordinate = languageCoordinate == null ? 
+            Get.configurationService().getGlobalDatastoreConfiguration().getDefaultLanguageCoordinate().toLanguageCoordinateImmutable() : languageCoordinate;
+        this.vertexSort = vertexSort == null ? VertexSortNone.SINGLETON : vertexSort;
+        this.vertexStampFilter = vertexStatusSet == null ? viewStampFilter : StampFilterImmutable.make(vertexStatusSet,
                 viewStampFilter.getStampPosition(),
                 viewStampFilter.getModuleNids(),
                 viewStampFilter.getExcludedModuleNids(),
                 viewStampFilter.getModulePriorityOrder());
-        this.navigationCoordinateImmutable = navigationCoordinateImmutable;
-        this.logicCoordinateImmutable = logicCoordinateImmutable;
-        this.activity = activity;
-        this.editCoordinate = editCoordinate;
+        this.navigationCoordinateImmutable = navigationCoordinateImmutable == null ? 
+            Get.configurationService().getGlobalDatastoreConfiguration().getDefaultManifoldCoordinate().toNavigationCoordinateImmutable() : navigationCoordinateImmutable;
+        this.logicCoordinateImmutable = logicCoordinateImmutable == null ? 
+            Get.configurationService().getGlobalDatastoreConfiguration().getDefaultLogicCoordinate().toLogicCoordinateImmutable() : logicCoordinateImmutable;
+        this.activity = activity == null ? Activity.DEVELOPING : activity;
+        this.editCoordinate = editCoordinate == null ? Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get().toEditCoordinate() :
+            editCoordinate;
     }
 
     private ManifoldCoordinateImmutable(ByteArrayDataBuffer in, int objectMarshalVersion) {
@@ -184,7 +191,20 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
                 throw new UnsupportedOperationException("Unsupported version: " + objectMarshalVersion);
         }
     }
-    public static ManifoldCoordinateImmutable make(StampFilter edgeStampFilter,
+    
+    /**
+     * 
+     * @param viewStampFilter - if null, uses {@link GlobalDatastoreConfiguration#getDefaultManifoldCoordinate()#getViewStampFilter()}
+     * @param languageCoordinate - if null, uses {@link GlobalDatastoreConfiguration#getDefaultLanguageCoordinate()}
+     * @param vertexSort - if null, does no sorting (using {@link VertexSortNone} )
+     * @param vertexStatusSet - if null, use the statusSet from the viewStampFilter
+     * @param navigationCoordinate - if null, uses {@link GlobalDatastoreConfiguration#getDefaultManifoldCoordinate()#toNavigationCoordinateImmutable()
+     * @param logicCoordinate - if null, uses {@link GlobalDatastoreConfiguration#getDefaultLogicCoordinate()}
+     * @param activity - if null, uses {@link Activity#DEVELOPING}
+     * @param editCoordinate - if null, uses the {@link GlobalDatastoreConfiguration#getDefaultWriteCoordinate()} converted to an edit coordinate
+     * @return
+     */
+    public static ManifoldCoordinateImmutable make(StampFilter viewStampFilter,
                                                    LanguageCoordinate languageCoordinate,
                                                    VertexSort vertexSort,
                                                    StatusSet vertexStatusSet,
@@ -192,7 +212,7 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
                                                    LogicCoordinate logicCoordinate,
                                                    Activity activity,
                                                    EditCoordinate editCoordinate) {
-         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(edgeStampFilter.toStampFilterImmutable(),
+         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(viewStampFilter.toStampFilterImmutable(),
                  languageCoordinate.toLanguageCoordinateImmutable(),
                  vertexSort,
                  vertexStatusSet,
@@ -351,6 +371,19 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
                 vertexSort,
                 getVertexStatusSet(),
                 navigationCoordinateImmutable,
+                logicCoordinateImmutable,
+                activity,
+                editCoordinate);
+    }
+    
+    @Override
+    public ManifoldCoordinateImmutable makeCoordinateAnalog(PremiseType premiseType) {
+        return new ManifoldCoordinateImmutable(
+                viewStampFilter,
+                languageCoordinate,
+                vertexSort,
+                getVertexStatusSet(),
+                NavigationCoordinateImmutable.make(premiseType),
                 logicCoordinateImmutable,
                 activity,
                 editCoordinate);

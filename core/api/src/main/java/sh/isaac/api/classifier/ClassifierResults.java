@@ -39,28 +39,25 @@
 
 package sh.isaac.api.classifier;
 
-import sh.isaac.api.Get;
-import sh.isaac.api.commit.CommitRecord;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampFilter;
-import sh.isaac.api.util.time.DateTimeUtil;
-
+import static sh.isaac.api.util.time.DateTimeUtil.TEXT_FORMAT_WITH_ZONE;
 import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-
-import static sh.isaac.api.util.time.DateTimeUtil.TEXT_FORMAT_WITH_ZONE;
+import sh.isaac.api.Get;
+import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.marshal.Marshalable;
 
 /**
  * The interface ClassifierResults.
  *
  * @author kec
  */
-public interface ClassifierResults {
+public interface ClassifierResults extends Marshalable{
 
    /**
     * Get the set of concepts sent to the classifier for evaluation.
@@ -114,10 +111,6 @@ public interface ClassifierResults {
 
    ManifoldCoordinate getManifoldCoordinate();
 
-   LogicCoordinate getLogicCoordinate();
-
-   EditCoordinate getEditCoordinate();
-
    Instant getCommitTime();
 
    default String getDefaultText() {
@@ -126,5 +119,16 @@ public interface ClassifierResults {
       sb.append(" written to the ");
       sb.append(Get.conceptDescriptionText(getEditCoordinate().getDefaultModuleNid()));
       return sb.toString();
+   }
+   
+
+   @Deprecated
+   default public LogicCoordinate getLogicCoordinate() {
+       return getManifoldCoordinate().getLogicCoordinate();
+   }
+
+   @Deprecated
+   default EditCoordinate getEditCoordinate() {
+       return getManifoldCoordinate().getEditCoordinate();
    }
 }

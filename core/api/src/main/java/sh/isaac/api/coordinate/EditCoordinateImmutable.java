@@ -46,11 +46,38 @@ public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordin
         this.destinationModuleNid = destinationModuleNid;
     }
 
+    /**
+     * 
+     * @param authorNid
+     * @param defaultModuleNid The default module is the module for new content when developing.
+     * @param promotionPathNid
+     * @param destinationModuleNid The destination module is the module that existing content is moved to when Modularizing
+     * @return
+     */
     public static EditCoordinateImmutable make(int authorNid, int defaultModuleNid, int promotionPathNid, int destinationModuleNid) {
         return SINGLETONS.computeIfAbsent(new EditCoordinateImmutable(authorNid, defaultModuleNid, promotionPathNid, destinationModuleNid),
                 editCoordinateImmutable -> editCoordinateImmutable);
     }
+    
+    /**
+     * 
+     * @param authorNid
+     * @param moduleNid Used for both developing. and modularizing activities
+     * @param promotionPathNid
+     * @return
+     */
+    public static EditCoordinateImmutable make(int authorNid, int moduleNid, int promotionPathNid) {
+        return SINGLETONS.computeIfAbsent(new EditCoordinateImmutable(authorNid, moduleNid, promotionPathNid, moduleNid),
+                editCoordinateImmutable -> editCoordinateImmutable);
+    }
 
+    /**
+     * @param author
+     * @param defaultModule The default module is the module for new content when developing.
+     * @param promotionPath
+     * @param destinationModule The destination module is the module that existing content is moved to when Modularizing
+     * @return
+     */
     public static EditCoordinateImmutable make(ConceptSpecification author, ConceptSpecification defaultModule, ConceptSpecification promotionPath,
                                                ConceptSpecification destinationModule) {
         return make(author.getNid(), defaultModule.getNid(), promotionPath.getNid(), destinationModule.getNid());

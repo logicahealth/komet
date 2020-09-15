@@ -237,16 +237,6 @@ public class ClassifierResultsImpl implements ClassifierResults, Marshalable {
     }
 
     @Override
-    public LogicCoordinate getLogicCoordinate() {
-        return manifoldCoordinate.getLogicCoordinate();
-    }
-
-    @Override
-    public EditCoordinate getEditCoordinate() {
-        return manifoldCoordinate.getEditCoordinate();
-    }
-
-    @Override
     public Instant getCommitTime() {
         return this.manifoldCoordinate.getViewStampFilter().getTimeAsInstant();
     }
@@ -255,6 +245,4 @@ public class ClassifierResultsImpl implements ClassifierResults, Marshalable {
     public Set<Integer> getConceptsWithInferredChanges() {
         return conceptsWithInferredChanges;
     }
-
-
 }

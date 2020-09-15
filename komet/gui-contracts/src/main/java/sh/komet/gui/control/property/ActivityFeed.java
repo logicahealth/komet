@@ -200,6 +200,11 @@ public class ActivityFeed implements ManifoldCoordinate {
     }
 
     @Override
+    public ManifoldCoordinate makeCoordinateAnalog(PremiseType premiseType) {
+        return this.owningViewForActivityFeed.getManifoldCoordinate().makeCoordinateAnalog(premiseType);
+    }
+
+	@Override
     public PremiseSet getPremiseTypes() {
         return this.owningViewForActivityFeed.getManifoldCoordinate().getPremiseTypes();
     }

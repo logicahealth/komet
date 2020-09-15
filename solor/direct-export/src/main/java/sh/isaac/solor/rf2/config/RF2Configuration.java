@@ -24,7 +24,6 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.util.UuidT3Generator;
-import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.solor.rf2.utility.PreExportUtility;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
