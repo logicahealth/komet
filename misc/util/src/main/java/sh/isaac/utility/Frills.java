@@ -118,7 +118,6 @@ import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPositionImmutable;
-import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.coordinate.StatusSet;
 import sh.isaac.api.coordinate.WriteCoordinate;
 import sh.isaac.api.coordinate.WriteCoordinateImpl;
@@ -228,7 +227,7 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 	 * @param referencedComponentSubRestriction - optional - if specified, and the referencedComponentRestriction is of type semantic, then this can
 	 *            further restrict the type of semantic this can be applied to. See {@link DynamicUtility#configureDynamicRestrictionData(IsaacObjectType, VersionType)}
 	 * 
-	 * @return the concept chronology that represents the new dynamic semantic type.
+	 * @return the DynamicUsageDescription with the info on the newly created dynamic semantic type.
 	 */
 	public static DynamicUsageDescription buildNewDynamicSemanticUsageDescription(WriteCoordinate writeCoordinate, String semanticFQN,
 			String semanticPreferredTerm, String semanticDescription, DynamicColumnInfo[] columns, Integer parentConceptNid,
@@ -902,7 +901,7 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 			return null;
 		}
 		
-		WriteCoordinate toUse = new WriteCoordinateImpl(wc, status);
+		WriteCoordinate toUse = wc.getStatus() == status ? wc : new WriteCoordinateImpl(wc, status);
 
 		VersionUpdatePair<T> versionsHolder = new VersionUpdatePair<>();
 		if (chronology instanceof SemanticChronology)
@@ -2147,25 +2146,9 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 	 * @param stamp Filter from which to generate StampCoordinate
 	 * @return StampCoordinate corresponding to Filter values
 	 *
-	 *         StampPrecedence set to StampPrecedence.TIME
-	 *
 	 *         Use StampCoordinate.makeCoordinateAnalog() to customize result
 	 */
-	public static StampFilter getStampCoordinateFromStamp(Stamp stamp)
-	{
-		return getStampCoordinateFromStamp(stamp, StampPrecedence.TIME);
-	}
-
-	/**
-	 * Gets the stamp coordinate from stamp.
-	 *
-	 * @param stamp Filter from which to generate StampCoordinate
-	 * @param precedence Precedence to assign StampCoordinate
-	 * @return StampCoordinate corresponding to Filter values
-	 *
-	 *         Use StampCoordinate.makeCoordinateAnalog() to customize result
-	 */
-	public static StampFilter getStampCoordinateFromStamp(Stamp stamp, StampPrecedence precedence)
+	public static StampFilter getStampFilterFromStamp(Stamp stamp)
 	{
 		final StampPosition stampPosition = StampPositionImmutable.make(stamp.getTime(), stamp.getPathNid());
 		final StampFilter stampCoordinate = StampFilterImmutable.make(StatusSet.of(stamp.getStatus()), stampPosition,
@@ -2181,25 +2164,9 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 	 * @param version StampedVersion from which to generate StampCoordinate
 	 * @return StampCoordinate corresponding to StampedVersion values
 	 *
-	 *         StampPrecedence set to StampPrecedence.TIME
-	 *
 	 *         Use StampCoordinate.makeCoordinateAnalog() to customize result
 	 */
-	public static StampFilter getStampCoordinateFromVersion(StampedVersion version)
-	{
-		return getStampCoordinateFromVersion(version, StampPrecedence.TIME);
-	}
-
-	/**
-	 * Gets the stamp coordinate from version.
-	 *
-	 * @param version StampedVersion from which to generate StampCoordinate
-	 * @param precedence the precedence
-	 * @return StampCoordinate corresponding to StampedVersion values
-	 *
-	 *         Use StampCoordinate.makeCoordinateAnalog() to customize result
-	 */
-	public static StampFilter getStampCoordinateFromVersion(StampedVersion version, StampPrecedence precedence)
+	public static StampFilter getStampFilterFromVersion(StampedVersion version)
 	{
 		final StampPosition stampPosition = StampPositionImmutable.make(version.getTime(), version.getPathNid());
 		final StampFilter stampCoordinate = StampFilterImmutable.make(StatusSet.of(version.getStatus()), stampPosition,

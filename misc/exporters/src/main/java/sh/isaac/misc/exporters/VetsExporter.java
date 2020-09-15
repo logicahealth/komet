@@ -1035,7 +1035,7 @@ public class VetsExporter {
          //This doesn't happen for concept that represent subsets, for example.
          log.debug("Failed to find a description flagged as preferred on concept " + Get.identifierService().getUuidPrimordialForNid(conceptNid));
          String description = Frills.getDescription(conceptNid, STAMP_COORDINATES,
-                 Coordinates.Language.UsEnglishPreferredName()).orElse("ERROR!");
+                 Coordinates.Language.UsEnglishRegularName()).orElse("ERROR!");
          if (description.equals("ERROR!"))
          {
             log.error("Failed to find any description on concept " + Get.identifierService().getUuidPrimordialForNid(conceptNid));
