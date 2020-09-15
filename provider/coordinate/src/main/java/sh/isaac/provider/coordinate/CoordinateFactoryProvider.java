@@ -85,7 +85,7 @@ public class CoordinateFactoryProvider
      */
     @Override
     public int caseSignificanceToConceptNid(boolean initialCaseSignificant) {
-        return LanguageCoordinates.caseSignificanceToConceptSequence(initialCaseSignificant);
+        return TermAux.caseSignificanceToConceptNid(initialCaseSignificant);
     }
 
     /**
@@ -96,7 +96,7 @@ public class CoordinateFactoryProvider
      */
     @Override
     public boolean conceptIdToCaseSignificance(int id) {
-        return LanguageCoordinates.conceptIdToCaseSignificance(id);
+        return TermAux.conceptIdToCaseSignificance(id);
     }
 
     /**
@@ -497,7 +497,7 @@ public class CoordinateFactoryProvider
      * @return the us english language preferred term coordinate
      */
     @Override
-    public LanguageCoordinate getUsEnglishLanguagePreferredTermCoordinate() {
-        return Coordinates.Language.UsEnglishPreferredName();
+    public LanguageCoordinate getUsEnglishLanguageRegularTermCoordinate() {
+        return Coordinates.Language.UsEnglishRegularName();
     }
 }

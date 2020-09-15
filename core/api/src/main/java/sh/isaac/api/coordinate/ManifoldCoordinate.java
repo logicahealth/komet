@@ -295,7 +295,7 @@ public interface ManifoldCoordinate {
 
     default String getPreferredDescriptionText(int conceptNid) {
         try {
-            return getLanguageCoordinate().getPreferredDescriptionText(conceptNid, getViewStampFilter())
+            return getLanguageCoordinate().getRegularDescriptionText(conceptNid, getViewStampFilter())
                     .orElse("No desc for: " + Get.conceptDescriptionText(conceptNid));
         } catch (NoSuchElementException ex) {
             return ex.getLocalizedMessage();
@@ -325,7 +325,7 @@ public interface ManifoldCoordinate {
 
 
     default LatestVersion<DescriptionVersion> getPreferredDescription(int conceptNid) {
-        return getLanguageCoordinate().getPreferredDescription(conceptNid, getViewStampFilter());
+        return getLanguageCoordinate().getRegularDescription(conceptNid, getViewStampFilter());
     }
 
     default LatestVersion<DescriptionVersion> getPreferredDescription(ConceptSpecification concept) {
@@ -590,15 +590,15 @@ public interface ManifoldCoordinate {
     
     public ManifoldCoordinate makeCoordinateAnalog(PremiseType premiseType);
     
-	/**
-	 * @param stampFilter - new stampFilter to use to in the new ManifoldCoordinate, for both the {@link ManifoldCoordinate#getViewStampFilter()} and
-	 * {@link ManifoldCoordinate#getVertexStampFilter()} 
-	 * @return a new manifold coordinate
-	 */
-	default ManifoldCoordinate makeCoordinateAnalog(StampFilter stampFilter) {
-		return ManifoldCoordinateImmutable.make(stampFilter, this.getLanguageCoordinate(), this.getVertexSort(), stampFilter.getAllowedStates(), this.getNavigationCoordinate(),
-				this.getLogicCoordinate(), this.getCurrentActivity(), this.getEditCoordinate());
-	}
+    /**
+     * @param stampFilter - new stampFilter to use to in the new ManifoldCoordinate, for both the {@link ManifoldCoordinate#getViewStampFilter()} and
+     * {@link ManifoldCoordinate#getVertexStampFilter()} 
+     * @return a new manifold coordinate
+     */
+    default ManifoldCoordinate makeCoordinateAnalog(StampFilter stampFilter) {
+        return ManifoldCoordinateImmutable.make(stampFilter, this.getLanguageCoordinate(), this.getVertexSort(), stampFilter.getAllowedStates(), this.getNavigationCoordinate(),
+                this.getLogicCoordinate(), this.getCurrentActivity(), this.getEditCoordinate());
+    }
 
     default ManifoldCoordinate makeCoordinateAnalog(Instant classifyInstant) {
         return makeCoordinateAnalog(classifyInstant.toEpochMilli());

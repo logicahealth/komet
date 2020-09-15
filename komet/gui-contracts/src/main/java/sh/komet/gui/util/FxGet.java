@@ -597,8 +597,8 @@ public class FxGet implements StaticIsaacCache {
                 }
             }
         });
-        activeConceptMemberList.sort((o1, o2) -> NaturalOrder.compareStrings(o1.getPreferredDescriptionText().get(),
-                o2.getPreferredDescriptionText().get()));
+        activeConceptMemberList.sort((o1, o2) -> NaturalOrder.compareStrings(o1.getRegularDescriptionText().get(),
+                o2.getRegularDescriptionText().get()));
         return activeConceptMemberList;
     }
 

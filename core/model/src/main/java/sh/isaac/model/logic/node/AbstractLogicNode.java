@@ -450,7 +450,7 @@ public abstract class AbstractLogicNode
          sequenceForDescription = getNodeSemantic().getConceptNid();
       }
 
-      LatestVersion<DescriptionVersion> latestDescription = languageCoordinate.getPreferredDescription(
+      LatestVersion<DescriptionVersion> latestDescription = languageCoordinate.getRegularDescription(
                                                                 sequenceForDescription,
               stampFilter);
 

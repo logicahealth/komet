@@ -84,7 +84,7 @@ public class AssociationInstance
    {
       if (assnType_ == null)
       {
-         assnType_ = AssociationType.read(this.semantic.getAssemblageNid(), stampFilter, Get.languageCoordinateService().getUsEnglishLanguagePreferredTermCoordinate());
+         assnType_ = AssociationType.read(this.semantic.getAssemblageNid(), stampFilter, Get.languageCoordinateService().getUsEnglishLanguageRegularTermCoordinate());
       }
       return assnType_;
    }

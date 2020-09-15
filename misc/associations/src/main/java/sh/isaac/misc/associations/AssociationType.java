@@ -234,7 +234,7 @@ public class AssociationType
 				localWriteCoord.getTransaction().get().commit().get();
 			}
 
-		return read(rdud.getDynamicUsageDescriptorNid(), stampFilter, Get.languageCoordinateService().getUsEnglishLanguagePreferredTermCoordinate());
+		return read(rdud.getDynamicUsageDescriptorNid(), stampFilter, Get.languageCoordinateService().getUsEnglishLanguageRegularTermCoordinate());
 	}
 	catch (Exception e)
 	{

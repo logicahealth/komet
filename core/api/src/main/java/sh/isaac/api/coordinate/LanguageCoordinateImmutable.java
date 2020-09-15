@@ -268,35 +268,9 @@ public final class LanguageCoordinateImmutable implements LanguageCoordinate, Im
         return Get.conceptSpecification(this.languageConceptNid);
     }
 
-
-    @Override
-    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
-        return Get.languageCoordinateService()
-                .getSpecifiedDescription(stampFilter, descriptionList, new int[]{TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()}, this);
-    }
-
-    @Override
-    public LatestVersion<DescriptionVersion> getFullyQualifiedDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
-        return Get.languageCoordinateService()
-                .getSpecifiedDescription(stampFilter, descriptionList, new int[]{TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()}, this);
-    }
-
-    @Override
-    public LatestVersion<DescriptionVersion> getPreferredDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
-        return Get.languageCoordinateService()
-                .getSpecifiedDescription(stampFilter, descriptionList, new int[]{TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()}, this);
-    }
-
     @Override
     public LanguageCoordinateImmutable toLanguageCoordinateImmutable() {
         return this;
-    }
-
-
-    @Override
-    public LatestVersion<DescriptionVersion> getDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
-        return Get.languageCoordinateService()
-                .getSpecifiedDescription(stampFilter, descriptionList, this);
     }
 
     @Override
@@ -344,7 +318,7 @@ public final class LanguageCoordinateImmutable implements LanguageCoordinate, Im
         }
     }
     @Override
-    public Optional<String> getPreferredDescriptionText(int componentNid, StampFilter stampFilter) {
+    public Optional<String> getRegularDescriptionText(int componentNid, StampFilter stampFilter) {
         Cache<Integer, String> preferredCache = this.preferredCaches.computeIfAbsent(stampFilter.toStampFilterImmutable(),
                 stampFilterImmutable -> Caffeine.newBuilder().maximumSize(100000).build());
 
@@ -361,7 +335,7 @@ public final class LanguageCoordinateImmutable implements LanguageCoordinate, Im
         switch (Get.identifierService().getObjectTypeForComponent(componentNid)) {
             case CONCEPT: {
                 LatestVersion<DescriptionVersion> latestDescription
-                        = getPreferredDescription(Get.conceptService().getConceptDescriptions(componentNid), stampFilter);
+                        = getRegularDescription(Get.conceptService().getConceptDescriptions(componentNid), stampFilter);
                 return latestDescription.isPresent() ? latestDescription.get().getText() : null;
             }
             case SEMANTIC: {

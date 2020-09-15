@@ -37,7 +37,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.Coordinates;
@@ -46,7 +45,6 @@ import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
-import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
 
@@ -332,28 +330,28 @@ public class QueryProviderTest {
 	@Test
 	public void testExternalDescriptionExpand() {
 		
-		ConceptSpecification[] expandedList = LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR}, null);
+		int[] expandedList = Coordinates.Language.expandDescriptionTypePreferenceList(null, MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid());
 		
 		Assert.assertEquals(expandedList.length, 4);
-		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR, expandedList[0]);
+		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid(), expandedList[0]);
 		HashSet<UUID> expected = new HashSet<>();
 		expected.add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid());
 		expected.add(UUID.fromString("f98669ec-27fb-526d-97f1-5162e11e24e1"));
 		expected.add(UUID.fromString("e00ac5df-d8e4-562e-ba52-105812bdde52"));
 		expected.add(UUID.fromString("26a7bba3-7807-5a9c-a9c1-ebf0934cb5f4"));
 
-		for (ConceptSpecification spec : expandedList)
+		for (int spec : expandedList)
 		{
-			Assert.assertTrue(expected.contains(spec.getPrimordialUuid()));
+			Assert.assertTrue(expected.contains(Get.identifierService().getUuidPrimordialForNid(spec)));
 		}
 		
-		ConceptSpecification[] reexpandedList = LanguageCoordinates.expandDescriptionTypePreferenceList(expandedList, null);
+		int[] reexpandedList = Coordinates.Language.expandDescriptionTypePreferenceList(null, expandedList);
 		
 		Assert.assertEquals(reexpandedList.length, 4);
-		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR, reexpandedList[0]);
-		for (ConceptSpecification spec : reexpandedList)
+		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid(), reexpandedList[0]);
+		for (int spec : reexpandedList)
 		{
-			Assert.assertTrue(expected.contains(spec.getPrimordialUuid()));
+			Assert.assertTrue(expected.contains(Get.identifierService().getUuidPrimordialForNid(spec)));
 		}
 	}
 	

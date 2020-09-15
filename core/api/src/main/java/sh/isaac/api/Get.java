@@ -1128,7 +1128,7 @@ public class Get
                                             LanguageCoordinate languageCoordinate) {
       switch (component.getVersionType()) {
          case CONCEPT: {
-            Optional<String> latestDescriptionText = languageCoordinate.getPreferredDescriptionText(component.getNid(), stampFilter);
+            Optional<String> latestDescriptionText = languageCoordinate.getRegularDescriptionText(component.getNid(), stampFilter);
             if (latestDescriptionText.isPresent()) {
                return latestDescriptionText.get();
             }

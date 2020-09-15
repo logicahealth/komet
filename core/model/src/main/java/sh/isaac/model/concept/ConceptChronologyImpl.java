@@ -457,7 +457,7 @@ public class ConceptChronologyImpl
    @Override
    public LatestVersion<DescriptionVersion> getPreferredDescription(LanguageCoordinate languageCoordinate,
                                                                     StampFilter stampFilter) {
-      return languageCoordinate.getPreferredDescription(getConceptDescriptionList(), stampFilter);
+      return languageCoordinate.getRegularDescription(getConceptDescriptionList(), stampFilter);
    }
 }
 

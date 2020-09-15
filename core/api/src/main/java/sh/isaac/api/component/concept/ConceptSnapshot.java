@@ -54,6 +54,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.IdentifiedStampedVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -119,21 +120,21 @@ public interface ConceptSnapshot
    /**
     * Gets the preferred description.
     *
-    * @return The preferred description for this concept. Optional in case
+    * @return {@link LanguageCoordinate#getRegularDescription(int, sh.isaac.api.coordinate.StampFilter)} Optional in case
     * there is no description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   LatestVersion<DescriptionVersion> getPreferredDescription();
+   LatestVersion<DescriptionVersion> getRegularDescription();
    
    /**
     * Gets the preferred description text.
     *
-    * @return The preferred description text for this concept. Optional in case
+    * @return The text extracted from {@link #getRegularDescription()}  Optional in case
     * there is no preferred description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   default LatestVersion<String> getPreferredDescriptionText() {
-       LatestVersion<DescriptionVersion> latest = getPreferredDescription();
+   default LatestVersion<String> getRegularDescriptionText() {
+       LatestVersion<DescriptionVersion> latest = getRegularDescription();
        if (latest.isPresent()) {
            return LatestVersion.of(latest.get().getText());
        }

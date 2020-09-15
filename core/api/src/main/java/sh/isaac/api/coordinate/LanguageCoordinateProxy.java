@@ -97,8 +97,8 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
    }
 
    @Override
-   default LatestVersion<DescriptionVersion> getPreferredDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
-      return getLanguageCoordinate().getPreferredDescription(descriptionList, stampFilter);
+   default LatestVersion<DescriptionVersion> getRegularDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
+      return getLanguageCoordinate().getRegularDescription(descriptionList, stampFilter);
    }
 
    @Override

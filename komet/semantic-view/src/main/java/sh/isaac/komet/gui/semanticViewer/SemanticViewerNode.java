@@ -101,6 +101,7 @@ import javafx.stage.Window;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
@@ -1809,7 +1810,8 @@ public class SemanticViewerNode extends DetailNodeAbstract
 			setComponent(newValue.getNid(), null, null, null, true);
 			toolTipProperty.set("attached semantics for: " 
 					+ this.viewProperties.getFullyQualifiedDescriptionText(newValue.getNid()));
-			displayFSN_.set(this.viewProperties.getManifoldCoordinate().getLanguageCoordinate().isFQNPreferred());
+			displayFSN_.set(this.viewProperties.getManifoldCoordinate().getLanguageCoordinate().getDescriptionTypePreferenceList()[0] == 
+					TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid());
 		}
 		else
 		{

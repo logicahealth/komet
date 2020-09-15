@@ -807,7 +807,7 @@ public class ChronologyProvider
         public ConceptSnapshotProvider(ManifoldCoordinate manifoldCoordinate) {
             this.manifoldCoordinate = manifoldCoordinate;
             this.stampFilterImmutable = manifoldCoordinate.getVertexStampFilter().toStampFilterImmutable();
-            this.regNameCoord = Coordinates.Language.AnyLanguageRegularName();
+            this.regNameCoord = Coordinates.Language.AnyLanguageRegularName(false);
         }
 
         @Override
@@ -832,7 +832,7 @@ public class ChronologyProvider
 
         @Override
         public String conceptDescriptionText(int conceptNid) {
-            Optional<String> description = this.manifoldCoordinate.getLanguageCoordinate().getPreferredDescriptionText(conceptNid, this.manifoldCoordinate.getViewStampFilter());
+            Optional<String> description = this.manifoldCoordinate.getLanguageCoordinate().getRegularDescriptionText(conceptNid, this.manifoldCoordinate.getViewStampFilter());
             if (description.isPresent()) {
                 return description.get();
             }

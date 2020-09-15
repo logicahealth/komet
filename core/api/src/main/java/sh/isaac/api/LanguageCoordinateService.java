@@ -185,6 +185,6 @@ public interface LanguageCoordinateService {
     *
     * @return the us english language preferred term coordinate
     */
-   LanguageCoordinate getUsEnglishLanguagePreferredTermCoordinate();
+   LanguageCoordinate getUsEnglishLanguageRegularTermCoordinate();
 }
 
