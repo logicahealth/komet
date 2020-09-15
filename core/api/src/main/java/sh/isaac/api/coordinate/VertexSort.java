@@ -1,10 +1,10 @@
 package sh.isaac.api.coordinate;
 
-import sh.isaac.api.component.concept.ConceptSpecification;
-
 import java.util.UUID;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.marshal.Marshalable;
 
-public interface VertexSort {
+public interface VertexSort extends Marshalable {
 
     /**
      *
