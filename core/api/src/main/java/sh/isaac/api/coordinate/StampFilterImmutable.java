@@ -293,7 +293,8 @@ public class StampFilterImmutable
 
     @Override
     public StampFilterImmutable makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
-        MutableIntSet mis = IntSets.mutable.ofAll(modules.stream().mapToInt(conceptSpecification -> conceptSpecification.getNid()));
+        MutableIntSet mis = modules == null ? IntSets.mutable.empty() : 
+            IntSets.mutable.ofAll(modules.stream().mapToInt(conceptSpecification -> conceptSpecification.getNid()));
         if (add) {
             mis.addAll(this.moduleNids);
         }

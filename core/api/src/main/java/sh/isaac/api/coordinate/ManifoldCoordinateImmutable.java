@@ -213,12 +213,13 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
                                                    Activity activity,
                                                    EditCoordinate editCoordinate) {
          return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(viewStampFilter.toStampFilterImmutable(),
-                 languageCoordinate.toLanguageCoordinateImmutable(),
+                 languageCoordinate == null ? null : languageCoordinate.toLanguageCoordinateImmutable(),
                  vertexSort,
                  vertexStatusSet,
-                 navigationCoordinate.toNavigationCoordinateImmutable(),
-                 logicCoordinate.toLogicCoordinateImmutable(),
-                         activity, editCoordinate.toEditCoordinateImmutable()),
+                 navigationCoordinate == null ? null : navigationCoordinate.toNavigationCoordinateImmutable(),
+                 logicCoordinate == null ? null : logicCoordinate.toLogicCoordinateImmutable(),
+                 activity, 
+                 editCoordinate == null ? null : editCoordinate.toEditCoordinateImmutable()),
                         manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
     }
 
@@ -243,11 +244,12 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
                                                          LogicCoordinate logicCoordinate, Activity activity, EditCoordinate editCoordinate) {
         NavigationCoordinateImmutable dci = NavigationCoordinateImmutable.makeStated(logicCoordinate);
         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(stampFilter.toStampFilterImmutable(),
-                        languageCoordinate.toLanguageCoordinateImmutable(),
+                        languageCoordinate == null ? null : languageCoordinate.toLanguageCoordinateImmutable(),
                         VertexSortNaturalOrder.SINGLETON,
                         stampFilter.getAllowedStates(), dci,
                         Coordinates.Logic.ElPlusPlus(),
-                        activity, editCoordinate.toEditCoordinateImmutable()),
+                        activity, 
+                        editCoordinate == null ? null : editCoordinate.toEditCoordinateImmutable()),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
     }
 
@@ -255,13 +257,15 @@ public class ManifoldCoordinateImmutable implements ManifoldCoordinate, Immutabl
                                                            LanguageCoordinate languageCoordinate,
                                                            LogicCoordinate logicCoordinate,
                                                            Activity activity, EditCoordinate editCoordinate) {
-        NavigationCoordinateImmutable dci = NavigationCoordinateImmutable.makeInferred(logicCoordinate);
+        NavigationCoordinateImmutable nci = NavigationCoordinateImmutable.makeInferred(logicCoordinate);
         return SINGLETONS.computeIfAbsent(new ManifoldCoordinateImmutable(stampFilter.toStampFilterImmutable(),
-                        languageCoordinate.toLanguageCoordinateImmutable(),
+                        languageCoordinate == null ? null : languageCoordinate.toLanguageCoordinateImmutable(),
                         VertexSortNaturalOrder.SINGLETON,
-                        stampFilter.getAllowedStates(), dci,
+                        stampFilter.getAllowedStates(), 
+                        nci,
                         Coordinates.Logic.ElPlusPlus(),
-                        activity, editCoordinate.toEditCoordinateImmutable()),
+                        activity, 
+                        editCoordinate == null ? null : editCoordinate.toEditCoordinateImmutable()),
                 manifoldCoordinateImmutable -> manifoldCoordinateImmutable);
     }
 

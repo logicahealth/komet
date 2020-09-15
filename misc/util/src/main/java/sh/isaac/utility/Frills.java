@@ -483,14 +483,14 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 		try
 		{
 			//ensure the provided stamp includes the metadata module
-			if (stampFilter.getModuleNids().size() > 0 && !stampFilter.getModuleNids().contains(MetaData.PRIMORDIAL_MODULE____SOLOR.getNid()))
+			if (stampToUse.getModuleNids().size() > 0 && !stampToUse.getModuleNids().contains(MetaData.PRIMORDIAL_MODULE____SOLOR.getNid()))
 			{
-				MutableIntSet moduleNids = IntSets.mutable.of(stampFilter.getModuleNids().toArray());
+				MutableIntSet moduleNids = IntSets.mutable.of(stampToUse.getModuleNids().toArray());
 				moduleNids.add(MetaData.PRIMORDIAL_MODULE____SOLOR.getNid());
 				stampToUse = StampFilterImmutable.make(stampToUse.getAllowedStates(), stampToUse.getStampPosition(), moduleNids.toImmutable(),
 						stampToUse.getModulePriorityOrder());
 			}
-			if (stampFilter.getStampPosition().getTime() != Long.MAX_VALUE)
+			if (stampToUse.getStampPosition().getTime() != Long.MAX_VALUE)
 			{
 				stampToUse = stampToUse.makeCoordinateAnalog(Long.MAX_VALUE);
 			}
@@ -515,7 +515,7 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 		}
 		catch (Exception e)
 		{
-			LOG.error("Problem looking up termTypeConcept for module {} at stamp {}", conceptModuleNid, stampFilter);
+			LOG.error("Problem looking up termTypeConcept for module {} at stamp {}", conceptModuleNid, stampFilter, e);
 		}
 		//None of the parents has a path to MODULE_SOLOR
 		return null;

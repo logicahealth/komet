@@ -247,7 +247,7 @@ public interface AssemblageService {
          int assemblageConceptNid);
 
    /**
-    * Gets the SemanticChronologies from assemblage.
+    * Gets the SemanticChronologies from assemblage.  Note, this may return a parallel stream!
     *
     * @param <C>
     * @param assemblageConceptNid the assemblage concept nid
