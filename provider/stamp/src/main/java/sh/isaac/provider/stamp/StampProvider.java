@@ -87,6 +87,7 @@ import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.datastore.ExtendedStoreData;
 import sh.isaac.api.datastore.extendedStore.ExtendedStoreStandAlone;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
+import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.DataToBytesUtils;
@@ -176,14 +177,14 @@ public class StampProvider
      * @return the task
      */
     @Override
-    public synchronized Task<Void> cancel(Transaction transaction) {
+    public synchronized TimedTask<Void> cancel(Transaction transaction) {
         CancelTask task = new CancelTask(transaction);
         Get.workExecutors().getExecutor().execute(task);
         return task;
     }
 
     @Override
-    public synchronized Task<Void> commit(Transaction transaction, long commitTime) {
+    public synchronized TimedTask<Void> commit(Transaction transaction, long commitTime) {
         CommitTask task = new CommitTask(transaction, commitTime);
         Get.workExecutors().getForkJoinPoolExecutor().execute(task);
         return task;

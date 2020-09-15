@@ -1119,12 +1119,12 @@ public class PostgresStampProvider
     }
 
     @Override
-    public Task<Void> cancel(Transaction transaction) {
+    public TimedTask<Void> cancel(Transaction transaction) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Task<Void> commit(Transaction transaction, long commitTime) {
+    public TimedTask<Void> commit(Transaction transaction, long commitTime) {
         throw new UnsupportedOperationException();
     }
 

@@ -40,6 +40,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.UUID;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
@@ -266,5 +267,18 @@ public abstract class TimedTask<T>
 
     public void setCanCancel(boolean canCancel) {
         this.canCancel = canCancel;
+    }
+    
+    /**
+     * Calls {@link #get() but translates exceptions to runtime exceptions for convenient use in streaming APIs.}
+     *
+     * @return the no throw
+     */
+    public T getNoThrow() {
+       try {
+          return get();
+       } catch (InterruptedException | ExecutionException e) {
+          throw new RuntimeException(e);
+       }
     }
 }

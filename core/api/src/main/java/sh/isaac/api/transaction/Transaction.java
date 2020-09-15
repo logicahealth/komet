@@ -1,18 +1,17 @@
 package sh.isaac.api.transaction;
 
-import javafx.concurrent.Task;
+import java.time.Instant;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
 import sh.isaac.api.ProgressTracker;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.observable.ObservableVersion;
-
-import java.time.Instant;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentSkipListSet;
+import sh.isaac.api.task.TimedTask;
 
 public interface Transaction {
 
@@ -54,7 +53,7 @@ public interface Transaction {
 
     CommitTask commitObservableVersions(String commitComment, ObservableVersion... versionsToCommit);
 
-    Task<Void> cancel();
+    TimedTask<Void> cancel();
     
     /**
      * @return true, if indexers (which normally trigger on commit) should index this content, or false, 

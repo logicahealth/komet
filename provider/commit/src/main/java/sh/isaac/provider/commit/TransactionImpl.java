@@ -1,6 +1,16 @@
 package sh.isaac.provider.commit;
 
-import javafx.concurrent.Task;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
@@ -14,13 +24,8 @@ import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.transaction.Transaction;
-
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * TODO add record of if component passed tests and is ready for commit (an optimization with possible side effects).
@@ -175,7 +180,7 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
     }
 
     @Override
-    public Task<Void> cancel() {
+    public TimedTask<Void> cancel() {
         return ((CommitProvider) Get.commitService()).cancel(this);
     }
 

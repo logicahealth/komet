@@ -238,7 +238,7 @@ public interface CommitService
    * @return a new transaction that will perform tests depending on value of performTests.
    */
    default Transaction newTransaction(String transactionName) {
-      return newTransaction(Optional.of(transactionName), ChangeCheckerMode.ACTIVE);
+      return newTransaction(Optional.ofNullable(transactionName), ChangeCheckerMode.ACTIVE);
    }
 
    /**

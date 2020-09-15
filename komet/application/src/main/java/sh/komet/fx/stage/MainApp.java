@@ -479,7 +479,7 @@ public class MainApp
     protected void shutdown() {
         FxGet.sync();
         for (Transaction transaction: Get.commitService().getPendingTransactionList()) {
-            transaction.cancel();
+            transaction.cancel().getNoThrow();
         }
         Get.applicationStates().remove(ApplicationStates.RUNNING);
         Get.applicationStates().add(ApplicationStates.STOPPING);
@@ -488,7 +488,7 @@ public class MainApp
         } catch (BackingStoreException ex) {
             LOG.error(ex.getLocalizedMessage(), ex);
         }
-        Thread shutdownThread = new Thread(() -> {  //Can't use the thread poool for this, because shutdown 
+        Thread shutdownThread = new Thread(() -> {  //Can't use the thread pool for this, because shutdown 
             //system stops the thread pool, which messes up the shutdown sequence.
             LookupService.shutdownSystem();
             Platform.runLater(() -> {

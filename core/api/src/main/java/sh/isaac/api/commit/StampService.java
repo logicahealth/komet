@@ -42,7 +42,6 @@ package sh.isaac.api.commit;
 import java.time.Instant;
 import java.util.UUID;
 import java.util.stream.IntStream;
-import javafx.concurrent.Task;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.primitive.ImmutableLongList;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -59,6 +58,7 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.coordinate.StampPositionImmutable;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
+import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.transaction.Transaction;
 
 /**
@@ -92,7 +92,7 @@ public interface StampService
     * @param transaction the author nid
     * @return the task
     */
-   Task<Void> cancel(Transaction transaction);
+   TimedTask<Void> cancel(Transaction transaction);
 
    /**
     * Used by the commit manger to commit a
@@ -103,7 +103,7 @@ public interface StampService
     * @param commitTime the commit time to associate with this transaction.
     * @return the task
     */
-   Task<Void> commit(Transaction transaction, long commitTime);
+   TimedTask<Void> commit(Transaction transaction, long commitTime);
 
    /**
     * Describe stamp sequence.

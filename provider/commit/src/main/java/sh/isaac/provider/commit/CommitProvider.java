@@ -114,6 +114,7 @@ import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
+import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.DataToBytesUtils;
@@ -396,7 +397,7 @@ public class CommitProvider
      * @return the task
      * TODO: Consider removal
      */
-    protected Task<Void> cancel(TransactionImpl transaction) {
+    protected TimedTask<Void> cancel(TransactionImpl transaction) {
         PendingTransactions.removeTransaction(transaction);
         return Get.stampService()
                 .cancel(transaction);

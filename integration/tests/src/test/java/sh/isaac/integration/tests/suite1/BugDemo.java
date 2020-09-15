@@ -98,7 +98,7 @@ public class BugDemo
 			transaction.commit();
 			Assert.fail("build worked when it shouldn't have");
 		} catch (Exception e) {
-			transaction.cancel();
+			transaction.cancel().getNoThrow();
 			// expected
 		}
 

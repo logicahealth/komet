@@ -433,14 +433,7 @@ public class VHATIsAHasParentSynchronizingChronologyChangeListener implements Ch
 						}
 						else
 						{
-							try
-							{
-								writeCoordinate.getTransaction().get().cancel().get();
-							}
-							catch (Exception e)
-							{
-								throw new RuntimeException(e);
-							}
+							writeCoordinate.getTransaction().get().cancel().getNoThrow();
 						}
 					}
 				};
