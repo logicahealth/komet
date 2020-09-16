@@ -37,9 +37,13 @@
 
 package sh.isaac.api.index;
 
+import org.eclipse.collections.api.set.ImmutableSet;
+import sh.isaac.api.Get;
+import sh.isaac.api.VersionManagmentPathService;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampPositionImmutable;
 
 /**
  * A class for passing Author, Module and/or Path restrictions into lucene queries.
@@ -49,77 +53,91 @@ import sh.isaac.api.coordinate.StampFilter;
  */
 public class AuthorModulePathRestriction {
 
-   private NidSet authors;
-   private NidSet modules;
-   private NidSet paths;
+	private NidSet authors;
+	private NidSet modules;
+	private NidSet paths;
 
-   private AuthorModulePathRestriction() {
+	private AuthorModulePathRestriction() {
 
-   }
+	}
 
-   public static AuthorModulePathRestriction restrictAuthor(NidSet authors) {
-      AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
-      ar.authors = authors;
-      return ar;
-   }
+	public static AuthorModulePathRestriction restrictAuthor(NidSet authors) {
+		AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
+		ar.authors = authors;
+		return ar;
+	}
 
-   public static AuthorModulePathRestriction restrictModule(NidSet modules) {
-      AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
-      ar.modules = modules;
-      return ar;
-   }
+	public static AuthorModulePathRestriction restrictModule(NidSet modules) {
+		AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
+		ar.modules = modules;
+		return ar;
+	}
 
-   public static AuthorModulePathRestriction restrictPath(NidSet paths) {
-      AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
-      ar.paths = paths;
-      return ar;
-   }
+	public static AuthorModulePathRestriction restrictPath(NidSet paths) {
+		AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
+		ar.paths = paths;
+		return ar;
+	}
 
-   public static AuthorModulePathRestriction restrict(NidSet authors,
-         NidSet modules,
-         NidSet paths) {
-      AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
-      ar.authors = authors;
-      ar.modules = modules;
-      ar.paths = paths;
-      return ar;
-   }
-   
-   /**
-    * Build an AuthorModulePathRestriction by extracting the modules and Path from the manifold coordinate
-    * @param mc
-    * @return
-    */
-   public static AuthorModulePathRestriction restrict(ManifoldCoordinate mc) {
-      AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
-      ar.authors = new NidSet();
-      ar.modules = NidSet.of(mc.getVertexStampFilter().getModuleNids().toArray());
-      ar.paths = NidSet.of(new int[] { mc.getVertexStampFilter().getStampPosition().getPathForPositionNid() });
-      return ar;
-   }
-   
-   /**
-    * Build an AuthorModulePathRestriction by extracting the modules and Path from the manifold coordinate
-    * @param stampFilter
-    * @return
-    */
-   public static AuthorModulePathRestriction restrict(StampFilter stampFilter) {
-      AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
-      ar.authors = new NidSet();
-      ar.modules = NidSet.of(stampFilter.getModuleNids().toArray());
-      ar.paths = NidSet.of(new int[] { stampFilter.getStampPosition().getPathForPositionConcept().getNid() });
-      return ar;
-   }
+	public static AuthorModulePathRestriction restrict(NidSet authors,
+			NidSet modules,
+			NidSet paths) {
+		AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
+		ar.authors = authors;
+		ar.modules = modules;
+		ar.paths = paths;
+		return ar;
+	}
+	
+	/**
+	 * Build an AuthorModulePathRestriction by extracting the modules and Path from the {@link ManifoldCoordinate#getViewStampFilter()}
+	 * Path is pulled recursively, including its origins, from the {@link VersionManagmentPathService#getOrigins(int)}
+	 * @see #restrict(StampFilter)
+	 * @param mc
+	 * @return
+	 */
+	public static AuthorModulePathRestriction restrict(ManifoldCoordinate mc) {
+		return restrict(mc.getViewStampFilter());
+	}
+	
+	/**
+	 * Build an AuthorModulePathRestriction by extracting the modules and Path from the StampFilter
+	 * Path is pulled recursively, including its origins, from the {@link VersionManagmentPathService#getOrigins(int)}
+	 * @param stampFilter
+	 * @return
+	 */
+	public static AuthorModulePathRestriction restrict(StampFilter stampFilter) {
+		AuthorModulePathRestriction ar = new AuthorModulePathRestriction();
+		ar.authors = new NidSet();
+		ar.modules = NidSet.of(stampFilter.getModuleNids().toArray());
+		ar.paths = new NidSet();
+		ar.paths.add(stampFilter.getStampPosition().getPathForPositionConcept().getNid());
+		//So, paths have a hierarchy now.  Buried away in another provider.  In every use case I can think of, we would also want the origin path included.
+		ImmutableSet<StampPositionImmutable> sp = Get.versionManagmentPathService().getOrigins(stampFilter.getStampPosition().getPathForPositionConcept().getNid());
+		addPathNids(sp, ar.paths);
+		return ar;
+	}
+	
+	private static void addPathNids(ImmutableSet<StampPositionImmutable> sp, NidSet setToAddTo)
+	{
+		if (sp == null) {
+			return;
+		}
+		for (StampPositionImmutable spi : sp) {
+			setToAddTo.add(spi.getPathForPositionNid());
+			addPathNids(spi.getPathOrigins(), setToAddTo);
+		}
+	}
 
-   public NidSet getAuthors() {
-      return authors;
-   }
+	public NidSet getAuthors() {
+		return authors;
+	}
 
-   public NidSet getModules() {
-      return modules;
-   }
+	public NidSet getModules() {
+		return modules;
+	}
 
-   public NidSet getPaths() {
-      return paths;
-   }
+	public NidSet getPaths() {
+		return paths;
+	}
 }

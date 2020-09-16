@@ -214,7 +214,7 @@ public interface AssemblageService {
        return results;
    }
    /**
-    * Gets the SemanticChronology for component from assemblage.
+    * Gets the SemanticChronology for component from assemblage.  Caution, this may return a parallel stream!
     *
     * @param <C>
     * @param componentNid the component nid

@@ -86,6 +86,7 @@ public final class StampPositionImmutable
      *
      * @return the time
      */
+    @Override
     public long getTime() {
         return this.time;
     }
@@ -112,19 +113,8 @@ public final class StampPositionImmutable
         return Integer.compare(this.pathForPositionNid, o.getPathForPositionNid());
     }
 
-    //~--- get methods ---------------------------------------------------------
 
-
-    /**
-     * Gets the stamp path.
-     *
-     * @return the stamp path
-     */
-    public StampPath getStampPath() {
-        throw new UnsupportedOperationException();
-        //return new StampPathImpl(this.stampPathConceptSpecification);
-    }
-
+    @Override
     public int getPathForPositionNid() {
         return this.pathForPositionNid;
     }
@@ -208,6 +198,4 @@ public final class StampPositionImmutable
         }
         return this.stampPath.getPathOrigins();
     }
-
-
 }
