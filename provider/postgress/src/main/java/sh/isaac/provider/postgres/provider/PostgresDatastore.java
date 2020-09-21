@@ -21,7 +21,6 @@ import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.collections.SpinedNidIntMap;
 import sh.isaac.provider.datastore.cache.CacheBootstrap;
-import sh.isaac.provider.datastore.cache.DatastoreAndIdentiferService;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -57,9 +56,9 @@ import sh.isaac.provider.postgres.PostgresProvider;
 @Service
 @RunLevel(value = LookupService.SL_L1)
 @Rank(value = 500)
-public class PostgresDatastore implements DatastoreAndIdentiferService, CacheBootstrap {
+public class PostgresDatastore implements DataStoreSubService, IdentifierService, CacheBootstrap {
 
-    DatastoreAndIdentiferService backingStore;
+    CacheProvider backingStore;
     PostgresProvider postgresProvider;
 
     public PostgresDatastore() {
@@ -92,12 +91,16 @@ public class PostgresDatastore implements DatastoreAndIdentiferService, CacheBoo
     }
 
     @Override
-    public IntStream getNidStream() {
+    public IntStream getNidStream(boolean parallel) {
         int maxNid = this.getMaxNid();
-        return IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
+        IntStream is = IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
                 .filter((value) -> {
                     return this.getAssemblageOfNid(value).isPresent();
                 });
+        if (parallel) {
+            is.parallel();
+        }
+        return is;
     }
 
     @Override
@@ -156,8 +159,8 @@ public class PostgresDatastore implements DatastoreAndIdentiferService, CacheBoo
     }
 
     @Override
-    public IntStream getNidStreamOfType(IsaacObjectType objectType) {
-        return this.backingStore.getNidStreamOfType(objectType); 
+    public IntStream getNidStreamOfType(IsaacObjectType objectType, boolean parallel) {
+        return this.backingStore.getNidStreamOfType(objectType, parallel); 
     }
 
     @Override
@@ -206,8 +209,8 @@ public class PostgresDatastore implements DatastoreAndIdentiferService, CacheBoo
     }
 
     @Override
-    public IntStream getNidsForAssemblage(int assemblageNid) {
-        return this.backingStore.getNidsForAssemblage(assemblageNid); 
+    public IntStream getNidsForAssemblage(int assemblageNid, boolean parallel) {
+        return this.backingStore.getNidsForAssemblage(assemblageNid, parallel); 
     }
 
     @Override
@@ -311,8 +314,8 @@ public class PostgresDatastore implements DatastoreAndIdentiferService, CacheBoo
     }
 
     @Override
-    public IntStream getNidsForAssemblage(ConceptSpecification assemblageSpecification) {
-        return this.backingStore.getNidsForAssemblage(assemblageSpecification); 
+    public IntStream getNidsForAssemblage(ConceptSpecification assemblageSpecification, boolean parallel) {
+        return this.backingStore.getNidsForAssemblage(assemblageSpecification, parallel); 
     }
 
     @Override

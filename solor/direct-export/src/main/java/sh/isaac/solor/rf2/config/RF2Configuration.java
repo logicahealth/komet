@@ -270,7 +270,7 @@ public class RF2Configuration {
             case CONCEPT:
             case IDENTIFIER:
 
-                this.intStreamSupplier = () -> Get.conceptService().getConceptNidStream();
+                this.intStreamSupplier = () -> Get.conceptService().getConceptNidStream(false);
                 this.exportCount = Get.conceptService().getConceptCount();
 
                 break;
@@ -280,32 +280,32 @@ public class RF2Configuration {
                 this.intStreamSupplier = () -> Arrays.stream(
                         this.noTreeTaxonomySnapshot
                                 .getTaxonomyChildConceptNids(MetaData.LANGUAGE____SOLOR.getNid()))
-                        .flatMap(nid -> Get.assemblageService().getSemanticNidStream(nid));
+                        .flatMap(nid -> Get.assemblageService().getSemanticNidStream(nid, false));
 
                 Arrays.stream(
                         this.noTreeTaxonomySnapshot
                         .getTaxonomyChildConceptNids(MetaData.LANGUAGE____SOLOR.getNid()))
-                        .forEach(nid -> this.exportCount += identifierService.getNidsForAssemblage(nid).count());
+                        .forEach(nid -> this.exportCount += identifierService.getNidsForAssemblage(nid, true).count());
 
                 break;
             case RELATIONSHIP:
 
-                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid());
-                this.exportCount = identifierService.getNidsForAssemblage(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid()).count();
+                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid(), false);
+                this.exportCount = identifierService.getNidsForAssemblage(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid(), true).count();
 
                 break;
             case STATED_RELATIONSHIP:
 
-                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid());
-                this.exportCount = identifierService.getNidsForAssemblage(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid()).count();
+                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid(), false);
+                this.exportCount = identifierService.getNidsForAssemblage(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid(), true).count();
 
                 break;
 
             case LANGUAGE_REFSET:
             case REFSET:
 
-                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(assemblageNid);
-                this.exportCount = identifierService.getNidsForAssemblage(assemblageNid).count();
+                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(assemblageNid, false);
+                this.exportCount = identifierService.getNidsForAssemblage(assemblageNid, true).count();
 
                 break;
             default :

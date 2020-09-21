@@ -201,7 +201,7 @@ public class DocBook {
             builder.append("</entry></row>");
         }
 
-        Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(concept.getNid(), TermAux.SNOMED_IDENTIFIER.getNid())
+        Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(concept.getNid(), TermAux.SNOMED_IDENTIFIER.getNid(), false)
                 .forEach(((semanticChronology) -> {
                     LatestVersion<StringVersion> latest = semanticChronology.getLatestVersion(manifold.getViewStampFilter());
                     if (latest.isPresent()) {

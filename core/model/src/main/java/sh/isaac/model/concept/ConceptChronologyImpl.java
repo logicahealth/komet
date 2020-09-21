@@ -377,10 +377,7 @@ public class ConceptChronologyImpl
       }
 
       final Optional<SemanticChronology> definitionChronologyOptional = Get.assemblageService()
-                                                                         .getSemanticChronologyStreamForComponentFromAssemblage(
-                                                                               getNid(),
-                                                                                     assemblageSequence)
-                                                                         .findFirst();
+            .getSemanticChronologyStreamForComponentFromAssemblage(getNid(), assemblageSequence, false).findFirst();
 
       if (definitionChronologyOptional.isPresent()) {
          

@@ -32,7 +32,7 @@ import java.util.function.BinaryOperator;
 import java.util.stream.IntStream;
 
 public class CacheProvider
-        implements DatastoreAndIdentiferService {
+        implements DataStoreSubService, IdentifierService {
     private static final Logger LOG = LogManager.getLogger();
 
 
@@ -164,14 +164,18 @@ public class CacheProvider
     }
 
     @Override
-    public IntStream getNidStreamOfType(IsaacObjectType objectType) {
+    public IntStream getNidStreamOfType(IsaacObjectType objectType, boolean parallel) {
         int maxNid = this.identifierService.getMaxNid();
         NidSet allowedAssemblages = this.getAssemblageNidsForType(objectType);
 
-        return IntStream.rangeClosed(Integer.MIN_VALUE + 1, maxNid)
+        IntStream is = IntStream.rangeClosed(Integer.MIN_VALUE + 1, maxNid)
                 .filter((value) -> {
                     return allowedAssemblages.contains(this.getAssemblageOfNid(value).orElseGet(() -> Integer.MAX_VALUE));
                 });
+        if (parallel) {
+            is.parallel();
+        }
+        return is;
     }
 
     @Override
@@ -280,13 +284,13 @@ public class CacheProvider
 
 
     @Override
-    public IntStream getNidsForAssemblage(int assemblageNid) {
-        return this.identifierService.getNidsForAssemblage(assemblageNid);
+    public IntStream getNidsForAssemblage(int assemblageNid, boolean parallel) {
+        return this.identifierService.getNidsForAssemblage(assemblageNid, parallel);
     }
 
     @Override
-    public IntStream getNidStream() {
-        return this.identifierService.getNidStream();
+    public IntStream getNidStream(boolean parallel) {
+        return this.identifierService.getNidStream(parallel);
     }
 
     @Override

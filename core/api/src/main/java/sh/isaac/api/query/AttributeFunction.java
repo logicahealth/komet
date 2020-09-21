@@ -123,7 +123,7 @@ public class AttributeFunction {
             case SCT_ID:
                 return (funcName, nid, stampCoordinate, query) -> {
                     Optional<SemanticChronology> optionalSctidChronology = 
-                    Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(nid.intValue(), TermAux.SNOMED_IDENTIFIER.getNid()).findFirst();
+                    Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(nid.intValue(), TermAux.SNOMED_IDENTIFIER.getNid(), false).findFirst();
                     if (optionalSctidChronology.isPresent()) {
                         LatestVersion<StringVersion> optionalSctidVersion = optionalSctidChronology.get().getLatestVersion(stampCoordinate);
                         if (optionalSctidVersion.isPresent()) {

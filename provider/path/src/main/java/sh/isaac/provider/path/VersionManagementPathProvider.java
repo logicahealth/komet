@@ -130,7 +130,7 @@ public class VersionManagementPathProvider
          ConcurrentHashMap<Integer, ImmutableSet<StampBranchImmutable>> newForkMap = new ConcurrentHashMap<>();
 
          Get.assemblageService()
-            .getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid())
+            .getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid(), true)
             .forEach((pathSemantic) -> {
                         final int pathNid = pathSemantic.getReferencedComponentNid();
                         ImmutableSet<StampPositionImmutable> pathOrigins = getOrigins(pathNid);
@@ -161,7 +161,7 @@ public class VersionManagementPathProvider
     * @return the from disk
     */
    private Optional<StampPathImmutable> getFromDisk(int stampPathNid) {
-      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(stampPathNid, TermAux.PATH_ASSEMBLAGE.getNid()).map((semanticChronicle) -> {
+      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(stampPathNid, TermAux.PATH_ASSEMBLAGE.getNid(), true).map((semanticChronicle) -> {
                         int pathId = semanticChronicle.getReferencedComponentNid();
                         assert pathId == stampPathNid:
                                "pathId: " + pathId + " stampPathSequence: " + stampPathNid;
@@ -192,7 +192,7 @@ public class VersionManagementPathProvider
     */
    private ImmutableSet<StampPositionImmutable> getPathOriginsFromDb(int nid) {
       ImmutableSet<StampPositionImmutable> origins = Sets.immutable.fromStream(Get.assemblageService()
-              .getSemanticChronologyStreamForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid())
+              .getSemanticChronologyStreamForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid(), true)
               .map((pathOrigin) -> {
                  Nid1_Long2_Version originSemantic = (Nid1_Long2_Version) pathOrigin.getVersionList().get(0);
                  return StampPositionImmutable.make(originSemantic.getLong2(), originSemantic.getNid1());
@@ -219,7 +219,7 @@ public class VersionManagementPathProvider
     */
    @Override
    public Collection<? extends StampPathImmutable> getPaths() {
-      return Get.assemblageService().getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid()).map((semanticChronicle) -> {
+      return Get.assemblageService().getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid(), true).map((semanticChronicle) -> {
                         int pathId = semanticChronicle.getReferencedComponentNid();
                         final StampPathImmutable stampPath = StampPathImmutable.make(pathId);
 

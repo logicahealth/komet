@@ -317,7 +317,7 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 	public static boolean definesAssociation(int conceptNid)
 	{
 		return IS_ASSOCIATION_CLASS.get(conceptNid, nid -> {
-			return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(nid, DynamicConstants.get().DYNAMIC_ASSOCIATION.getNid())
+			return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(nid, DynamicConstants.get().DYNAMIC_ASSOCIATION.getNid(), false)
 					.anyMatch(semantic -> true);
 		});
 	}
@@ -344,7 +344,7 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 		if (Get.identifierService().getObjectTypeForComponent(assemblageNid) == IsaacObjectType.CONCEPT)
 		{
 			Optional<SemanticChronology> semantic = Get.assemblageService()
-					.getSemanticChronologyStreamForComponentFromAssemblage(assemblageNid, MetaData.IDENTIFIER_SOURCE____SOLOR.getNid()).findAny();
+					.getSemanticChronologyStreamForComponentFromAssemblage(assemblageNid, MetaData.IDENTIFIER_SOURCE____SOLOR.getNid(), false).findAny();
 			if (semantic.isPresent())
 			{
 				return true;
@@ -389,7 +389,7 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 
 		return IS_MAPPING_CLASS.get(conceptNid, nid -> {
 			return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptNid,
-					IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getNid()).anyMatch(semantic -> true);
+					IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getNid(), false).anyMatch(semantic -> true);
 		});
 	}
 
@@ -726,7 +726,9 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 			int... optionalModuleSequences)
 	{
 		final MutableIntSet moduleSet = IntSets.mutable.of(requiredModuleSequence);
-		moduleSet.addAll(optionalModuleSequences);
+		if (optionalModuleSequences != null) {
+			moduleSet.addAll(optionalModuleSequences);
+		}
 
 		final StampFilter newStampCoordinate = StampFilterImmutable.make(existingStampFilter.getAllowedStates(), existingStampFilter.getStampPosition(),
 				moduleSet.toImmutable(), existingStampFilter.getModulePriorityOrder());
@@ -1201,7 +1203,7 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 	 */
 	public static Optional<SemanticChronology> getAnnotationSemantic(int componentNid, int assemblageConceptId)
 	{
-		Set<SemanticChronology> semanticSet = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(componentNid, assemblageConceptId)
+		Set<SemanticChronology> semanticSet = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(componentNid, assemblageConceptId, true)
 				.collect(Collectors.toSet());
 		switch (semanticSet.size())
 		{
@@ -1310,7 +1312,7 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 	{
 		final Optional<SemanticChronology> semantic = Get.assemblageService()
 				.getSemanticChronologyStreamForComponentFromAssemblage(conceptNid,
-						(stated ? Coordinates.Logic.ElPlusPlus().getStatedAssemblageNid() : Coordinates.Logic.ElPlusPlus().getInferredAssemblageNid()))
+						(stated ? Coordinates.Logic.ElPlusPlus().getStatedAssemblageNid() : Coordinates.Logic.ElPlusPlus().getInferredAssemblageNid()), false)
 				.findAny();
 
 		if (semantic.isPresent())
@@ -1443,7 +1445,7 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 		final AtomicReference<Boolean> answer = new AtomicReference<>();
 
 		// Ignore the language annotation... treat preferred in any language as good enough for our purpose here...
-		Get.assemblageService().getSemanticChronologyStreamForComponent(descriptionSemanticNid).forEach(nestedSemantic -> {
+		Get.assemblageService().getSemanticChronologyStreamForComponent(descriptionSemanticNid, true).forEach(nestedSemantic -> {
 			if (nestedSemantic.getVersionType() == VersionType.COMPONENT_NID)
 			{
 				final LatestVersion<ComponentNidVersion> latest = ((SemanticChronology) nestedSemantic).getLatestVersion(
@@ -1454,21 +1456,20 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 				{
 					if (latest.get().getComponentNid() == MetaData.PREFERRED____SOLOR.getNid())
 					{
-						if ((answer.get() != null) && (answer.get() != true))
+						Boolean old = answer.getAndSet(true);
+						if ((old != null) && (old.booleanValue() != true))
 						{
 							throw new RuntimeException("contradictory annotations about preferred status!");
 						}
-
-						answer.set(true);
+						
 					}
 					else if (latest.get().getComponentNid() == MetaData.ACCEPTABLE____SOLOR.getNid())
 					{
-						if ((answer.get() != null) && (answer.get() != false))
+						Boolean old = answer.getAndSet(false);
+						if ((old != null) && (old.booleanValue() != false))
 						{
 							throw new RuntimeException("contradictory annotations about preferred status!");
 						}
-
-						answer.set(false);
 					}
 					else
 					{
@@ -1499,7 +1500,7 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 	public static boolean isDescriptionInverse(SemanticChronology descriptionChronology, StampFilter stampFilter, boolean activeOnly)
 	{
 		return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(descriptionChronology.getNid(),
-				DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getNid()).anyMatch(semanticC -> {
+				DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getNid(), false).anyMatch(semanticC -> {
 					return activeOnly ? descriptionChronology.isLatestVersionActive(
 							(stampFilter == null) ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter()
 									: stampFilter)
@@ -1541,7 +1542,7 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 						: stampFilter);
 				AtomicReference<UUID> type = new AtomicReference<>();
 				Get.assemblageService()
-						.getSemanticChronologyStreamForComponentFromAssemblage(descriptionType, DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid())
+						.getSemanticChronologyStreamForComponentFromAssemblage(descriptionType, DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid(), true)
 						.forEach(semanticChronlogy -> {
 							//This semantic is defined as a dynamic semantic with a single column of UUID data, which MUST be one of the three
 							//core description types.There should only be one active core type ref on a description type.
@@ -1549,13 +1550,9 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 							if (lv.isPresent())
 							{
 								DynamicUUID uuid = (DynamicUUID) lv.get().getData(0);
-								if (type.get() != null)
+								if (type.getAndSet(uuid.getDataUUID()) != null)
 								{
-									LOG.error("Description type {} has multiple active core type annotations!Result will be arbitrary", descriptionType);
-								}
-								else
-								{
-									type.set(uuid.getDataUUID());
+									LOG.error("Description type {} has multiple active core type annotations! Result will be arbitrary", descriptionType);
 								}
 							}
 						});
@@ -1588,7 +1585,7 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 	{
 		final ArrayList<DescriptionVersion> results = new ArrayList<>();
 
-		Get.assemblageService().getSemanticChronologyStreamForComponent(conceptNid).forEach(descriptionC -> {
+		Get.assemblageService().getSemanticChronologyStreamForComponent(conceptNid, true).forEach(descriptionC -> {
 			if (descriptionC.getVersionType() == VersionType.DESCRIPTION)
 			{
 				final LatestVersion<DescriptionVersion> latest = ((SemanticChronology) descriptionC).getLatestVersion(
@@ -1597,7 +1594,9 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 
 				if (latest.isPresentAnd(dv -> dv.getDescriptionTypeConceptNid() == descriptionType.getNid()))
 				{
-					results.add(latest.get());
+					synchronized(results) {
+						results.add(latest.get());
+					}
 				}
 			}
 		});
@@ -1751,7 +1750,7 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 	 */
 	public static Optional<SemanticChronology> getInferredDefinitionChronology(int conceptId, LogicCoordinate logicCoordinate)
 	{
-		return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getInferredAssemblageNid()).findAny();
+		return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getInferredAssemblageNid(), false).findAny();
 	}
 
 	/**
@@ -2186,7 +2185,7 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 	 */
 	public static Optional<SemanticChronology> getStatedDefinitionChronology(int conceptId, LogicCoordinate logicCoordinate)
 	{
-		return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getStatedAssemblageNid()).findAny();
+		return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptId, logicCoordinate.getStatedAssemblageNid(), false).findAny();
 	}
 
 	/**
@@ -2502,13 +2501,15 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 	{
 		List<SimpleDisplayConcept> allDynamicSemanticDefConcepts = new ArrayList<>();
 
-		Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid()).forEach(semanticC -> {
+		Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), true).forEach(semanticC -> {
 			//This will be a nid of a description - need to get the referenced component of that description
 			int annotatedDescriptionNid = semanticC.getReferencedComponentNid();
 			try
 			{
-				allDynamicSemanticDefConcepts
+				synchronized(allDynamicSemanticDefConcepts) {
+					allDynamicSemanticDefConcepts
 						.add(new SimpleDisplayConcept(Get.assemblageService().getSemanticChronology(annotatedDescriptionNid).getReferencedComponentNid()));
+				}
 			}
 			catch (Exception e)
 			{
@@ -2524,10 +2525,12 @@ public class Frills implements DynamicColumnUtility, IsaacCache
 	{
 		List<ConceptChronology> identifierAnnotatedConcepts = new ArrayList<>();
 
-		Get.assemblageService().getSemanticChronologyStream(MetaData.IDENTIFIER_SOURCE____SOLOR.getNid()).sequential()
+		Get.assemblageService().getSemanticChronologyStream(MetaData.IDENTIFIER_SOURCE____SOLOR.getNid(), false)
 				.forEach(identifierAnnotationSemanticChronology -> {
-					identifierAnnotatedConcepts
+					synchronized(identifierAnnotatedConcepts) {
+						identifierAnnotatedConcepts
 							.add(Get.conceptService().getConceptChronology(identifierAnnotationSemanticChronology.getReferencedComponentNid()));
+					}
 				});
 		return identifierAnnotatedConcepts;
 	}

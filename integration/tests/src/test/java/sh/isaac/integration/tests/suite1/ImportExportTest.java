@@ -193,7 +193,7 @@ public class ImportExportTest {
 
          if (exportStats.concepts.get() != this.importStats.concepts.get()) {
             Get.conceptService()
-               .getConceptChronologyStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid())
+               .getConceptChronologyStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid(), true)
                .forEach((conceptChronology) -> LOG.info(conceptChronology));
          }
 
@@ -358,7 +358,7 @@ public class ImportExportTest {
          Get.startIndexTask().get();
          commitService.postProcessImportNoChecks();
          LOG.info("Loaded components: " + this.importStats);
-         LOG.info("Concept count: " + Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT).count());
+         LOG.info("Concept count: " + Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT, true).count());
       } catch (final FileNotFoundException e) {
          Assert.fail("File not found", e);
       } catch (InterruptedException ex) {

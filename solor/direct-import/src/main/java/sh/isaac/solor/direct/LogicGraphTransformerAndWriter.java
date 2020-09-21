@@ -228,7 +228,8 @@ StatusSet allowedStates,
     
             if (assertions.size() > 0) {
                 boolean defined = false; // Change to use list instead of stream...
-                Stream<SemanticChronology> implicationChronologyStream = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptNid, legacyImplicationAssemblageNid);
+                Stream<SemanticChronology> implicationChronologyStream = Get.assemblageService()
+                        .getSemanticChronologyStreamForComponentFromAssemblage(conceptNid, legacyImplicationAssemblageNid, true);
                 List<SemanticChronology> implicationList = implicationChronologyStream.collect(Collectors.toList());
                 if (implicationList.size() == 1) {
                     SemanticChronology implicationChronology = implicationList.get(0);

@@ -966,21 +966,15 @@ public class FileSystemDataStore
       return getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).get(sequence);
    }
 
-/** 
+   /** 
     * {@inheritDoc}
     */
    @Override
-   public IntStream getNidsForAssemblage(int assemblageNid)
+   public IntStream getNidsForAssemblage(int assemblageNid, boolean parallel)
    {
-      return getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).valueStream();
+      return parallel ? getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).parallelValueStream() :
+         getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).valueStream();
    }
-
-    @Override
-    public IntStream getNidsForAssemblageParallel(int assemblageNid)
-    {
-        return getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).parallelValueStream();
-    }
-
 
     /**
     * {@inheritDoc}

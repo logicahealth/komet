@@ -280,18 +280,20 @@ public class MVExtendedStore<K, V, VT> implements ExtendedStoreData<K, VT>
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Stream<VT> getValueStream()
+	public Stream<VT> getValueStream(boolean parallel)
 	{
-		return backingStore.values().stream().map((in) -> valueDeserializer.apply(in));
+		return parallel ? backingStore.values().parallelStream().map((in) -> valueDeserializer.apply(in))
+				: backingStore.values().stream().map((in) -> valueDeserializer.apply(in));
 	}
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
-	public Stream<Entry<K, VT>> getStream()
+	public Stream<Entry<K, VT>> getStream(boolean parallel)
 	{
-		return backingStore.entrySet().stream().map((in) -> 
+		Stream<Entry<K, V>> stream = parallel ? backingStore.entrySet().parallelStream()  : backingStore.entrySet().stream(); 
+		return stream.map((in) -> 
 		{
 			return new Entry<K, VT>()
 			{

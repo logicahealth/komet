@@ -695,7 +695,7 @@ public class Get
           nid,
           configurationService().getGlobalDatastoreConfiguration()
                                 .getDefaultLogicCoordinate()
-                                .getInferredAssemblageNid())
+                                .getInferredAssemblageNid(), false)
                                 .findAny();
    }
 
@@ -974,7 +974,7 @@ public class Get
           nid,
           configurationService().getGlobalDatastoreConfiguration()
                                 .getDefaultLogicCoordinate()
-                                .getStatedAssemblageNid())
+                                .getStatedAssemblageNid(), false)
                                 .findAny();
    }
 

@@ -66,7 +66,7 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
          
          
          updateMessage("Transforming stated logical definitions...");
-         Get.conceptService().getConceptNidStream(conceptAssemblageNid).forEach((conceptNid) -> {
+         Get.conceptService().getConceptNidStream(conceptAssemblageNid, false).forEach((conceptNid) -> {
              ImmutableIntSet relNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, statedRelationshipAssemblageNid);
                statedTransformList.add(new TransformationGroup(conceptNid, relNids.toArray(), PremiseType.STATED));
                if (statedTransformList.size() == transformSize) {
@@ -89,7 +89,7 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
          completedUnitOfWork();
          List<TransformationGroup> inferredTransformList = new ArrayList<>();
          
-         Get.conceptService().getConceptNidStream(conceptAssemblageNid).forEach((conceptNid) -> {
+         Get.conceptService().getConceptNidStream(conceptAssemblageNid, false).forEach((conceptNid) -> {
              ImmutableIntSet relNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, inferredRelationshipAssemblageNid);
                inferredTransformList.add(new TransformationGroup(conceptNid, relNids.toArray(), PremiseType.INFERRED));
                if (inferredTransformList.size() == transformSize) {

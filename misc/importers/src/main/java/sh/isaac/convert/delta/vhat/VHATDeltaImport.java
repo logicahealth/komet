@@ -102,9 +102,9 @@ import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.utility.Frills;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -1056,7 +1056,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 					boolean membershipExists = descriptionUUID == null ? false
 							: Get.assemblageService()
 									.getSemanticChronologyStreamForComponentFromAssemblage(Get.identifierService().getNidForUuids(descriptionUUID),
-											Get.identifierService().getNidForUuids(this.vuidToSubsetMap.get(sm.getVUID())))
+											Get.identifierService().getNidForUuids(this.vuidToSubsetMap.get(sm.getVUID())), false)
 									.findAny().isPresent();
 					if (sm.getAction() == ActionType.ADD && membershipExists)
 					{
@@ -1303,7 +1303,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 			return Optional.empty();
 		}
 		return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(Get.identifierService().getNidForUuids(referencedComponent),
-				Get.identifierService().getNidForUuids(propertyType)).filter(semantic -> {
+				Get.identifierService().getNidForUuids(propertyType), true).filter(semantic -> {
 					if (semantic.getVersionType() == VersionType.STRING)
 					{
 						LatestVersion<StringVersionImpl> sv = semantic.getLatestVersion(this.readbackCoordinate);
@@ -1330,7 +1330,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 	private Optional<UUID> findAssociationSemantic(UUID sourceConcept, UUID associationType, UUID targetConcept)
 	{
 		return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(Get.identifierService().getNidForUuids(sourceConcept),
-				Get.identifierService().getNidForUuids(associationType)).filter(semantic -> {
+				Get.identifierService().getNidForUuids(associationType), true).filter(semantic -> {
 					if (semantic.getVersionType() == VersionType.DYNAMIC)
 					{
 						LatestVersion<DynamicImpl> sv = semantic.getLatestVersion(this.readbackCoordinate);
@@ -1607,7 +1607,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 					final UUID finalDescRef = descRef;
 					
 					// copy all other nested components
-					Get.assemblageService().getSemanticChronologyStreamForComponent(oldSc.getNid()).forEach(existingNestedSemantic -> {
+					Get.assemblageService().getSemanticChronologyStreamForComponent(oldSc.getNid(), false).forEach(existingNestedSemantic -> {
 						if (existingNestedSemantic.getAssemblageNid() == MetaData.CODE____SOLOR.getNid()
 								|| existingNestedSemantic.getAssemblageNid() == MetaData.VUID____SOLOR.getNid()
 								|| existingNestedSemantic.getAssemblageNid() == MetaData.US_ENGLISH_DIALECT____SOLOR.getNid())
@@ -1744,7 +1744,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 	private static void copy(DirectWriteHelper dwh, UUID existingParentComponent, SemanticChronology copyOfParentComponent,
 							StampFilter readbackCoordinate, long time)
 	{
-		Get.assemblageService().getSemanticChronologyStreamForComponent(Get.nidForUuids(existingParentComponent)).forEach(existingNestedSemantic -> {
+		Get.assemblageService().getSemanticChronologyStreamForComponent(Get.nidForUuids(existingParentComponent), false).forEach(existingNestedSemantic -> {
 			LatestVersion<Version> latestVersionOfExistingNestedSemantic = existingNestedSemantic.getLatestVersion(readbackCoordinate);
 
 			if (latestVersionOfExistingNestedSemantic.isPresent() && latestVersionOfExistingNestedSemantic.get().getStatus() == Status.ACTIVE)
@@ -1805,7 +1805,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 	private List<Chronology> recursiveRetireNested(UUID component)
 	{
 		ArrayList<Chronology> updated = new ArrayList<>();
-		Get.assemblageService().getSemanticChronologyStreamForComponent(Get.identifierService().getNidForUuids(component)).forEach(semantic -> {
+		Get.assemblageService().getSemanticChronologyStreamForComponent(Get.identifierService().getNidForUuids(component), false).forEach(semantic -> {
 			try
 			{
 				Optional<Chronology> oc = Frills.resetStatusWithNoCommit(Status.INACTIVE, semantic.getNid(), this.writeCoordinate, this.readbackCoordinate);
@@ -1897,7 +1897,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 					case UPDATE:
 						Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(Get.nidForUuids(description), Get.identifierService()
 								// There really shouldn't be more than one of these, but if there is, no harm in changing state on all of them.
-								.getNidForUuids(this.vuidToSubsetMap.get(sm.getVUID()))).forEach(sc -> {
+								.getNidForUuids(this.vuidToSubsetMap.get(sm.getVUID())), true).forEach(sc -> {
 									LatestVersion<DynamicVersion> ds = sc.getLatestVersion(this.readbackCoordinate);
 									if (ds.isPresent())
 									{

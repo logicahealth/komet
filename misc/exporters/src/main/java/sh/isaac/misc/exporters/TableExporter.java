@@ -126,7 +126,7 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 				new String[] {"UUID", "IsaacObjectType", "VersionType", "Assemblage", "Status", "Time", "Author", "Module", "Path", "Description"}, 
 				new Class[] {UUID.class, String.class, String.class, UUID.class, String.class, Time.class, UUID.class, UUID.class, UUID.class, String.class});
 		
-		Get.conceptService().getConceptChronologyStream().sequential().forEach(concept -> {
+		Get.conceptService().getConceptChronologyStream(false).forEach(concept -> {
 			
 			UUID[] uuids = concept.getUuids();
 			if (uuids.length > 1)
@@ -164,7 +164,7 @@ public class TableExporter extends TimedTaskWithProgressTracker<Void>
 	{		
 		HashMap<Integer, DataTypeWriter> semanticWriters = new HashMap<>();
 
-		Get.assemblageService().getSemanticChronologyStream().sequential().forEach(semantic -> {
+		Get.assemblageService().getSemanticChronologyStream(false).forEach(semantic -> {
 			
 			UUID[] uuids = semantic.getUuids();
 			if (uuids.length > 1)

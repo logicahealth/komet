@@ -83,7 +83,7 @@ public class DataStoreUuidToIntMap implements UuidToIntMap
 	@Override
 	public boolean containsValue(int value)
 	{
-		return data.getValueStream().anyMatch((incoming) -> incoming.intValue() == value);
+		return data.getValueStream(true).anyMatch((incoming) -> incoming.intValue() == value);
 	}
 
 	/**

@@ -61,7 +61,7 @@ public class ExportViewController {
         this.exportButton.setDisable(true);
         this.exportTypeChoiceBox.getSelectionModel().selectFirst();
 
-        Get.assemblageService().getSemanticNidStream(MetaData.LIVD_ASSEMBLAGE____SOLOR.getNid())
+        Get.assemblageService().getSemanticNidStream(MetaData.LIVD_ASSEMBLAGE____SOLOR.getNid(), false)
                 .forEach(nid -> {
 
 //                    System.out.println("break");

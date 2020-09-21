@@ -123,7 +123,7 @@ public class AssemblageViewProvider extends DetailNodeAbstract {
         ConceptSpecification focus = TermAux.UNINITIALIZED_COMPONENT_ID;
         if (component != null) {
             focus = Get.concept(component.getNid());
-            int count = (int) Get.identifierService().getNidsForAssemblage(focus.getNid()).count();
+            int count = (int) Get.identifierService().getNidsForAssemblage(focus.getNid(), true).count();
             toolTipProperty.set("View of all " + count + " " + viewProperties.getPreferredDescriptionText(focus) + " assemblage elements");
             this.conceptLabelToolbar.getRightInfoLabel().setText(NumberUtil.formatWithGrouping(count) + " ");
             this.assemblageDetailController.updateFocus(component, count);

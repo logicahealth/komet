@@ -320,11 +320,12 @@ public class StampAliasMap {
     /**
      * Gets the stamp alias stream.
      *
+	 * @param parallel true to allow parallel, false for single threaded
      * @return the stamp alias stream
      */
-    public Stream<StampAlias> getStampAliasStream() {
+    public Stream<StampAlias> getStampAliasStream(boolean parallel) {
        return dataStore == null ?
-               StreamSupport.stream(this.aliasStampMap.keyValuesView().collect(each -> new StampAlias(each.getTwo(), each.getOne())).spliterator(), false):
-               aliasToStamp.getStream().map(entry -> new StampAlias(entry.getValue(), entry.getKey()));
+               StreamSupport.stream(this.aliasStampMap.keyValuesView().collect(each -> new StampAlias(each.getTwo(), each.getOne())).spliterator(), parallel):
+               aliasToStamp.getStream(parallel).map(entry -> new StampAlias(entry.getValue(), entry.getKey()));
     }
 }

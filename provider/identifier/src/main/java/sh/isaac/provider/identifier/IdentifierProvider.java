@@ -314,13 +314,10 @@ public class IdentifierProvider
     }
 
     @Override
-    public IntStream getNidsForAssemblage(int assemblageNid) {
-        return store.getNidsForAssemblage(assemblageNid);
+    public IntStream getNidsForAssemblage(int assemblageNid, boolean parallel) {
+        return store.getNidsForAssemblage(assemblageNid, parallel);
     }
-    @Override
-    public IntStream getNidsForAssemblageParallel(int assemblageNid) {
-        return store.getNidsForAssemblageParallel(assemblageNid);
-    }
+
     @Override
     public Optional<UUID> getDataStoreId() {
         return store.getDataStoreId();
@@ -337,23 +334,31 @@ public class IdentifierProvider
     }
 
     @Override
-    public IntStream getNidStreamOfType(IsaacObjectType objectType) {
+    public IntStream getNidStreamOfType(IsaacObjectType objectType, boolean parallel) {
         int maxNid = this.uuidIntMapMap.getMaxNid();
         NidSet allowedAssemblages = this.store.getAssemblageNidsForType(objectType);
 
-        return IntStream.rangeClosed(IdentifierProvider.FIRST_NID, maxNid)
+        IntStream is = IntStream.rangeClosed(IdentifierProvider.FIRST_NID, maxNid)
                 .filter((value) -> {
                     return allowedAssemblages.contains(this.store.getAssemblageOfNid(value).orElseGet(() -> Integer.MAX_VALUE));
                 });
+        if (parallel) {
+            is = is.parallel();
+        }
+        return is;
     }
 
     @Override
-    public IntStream getNidStream() {
+    public IntStream getNidStream(boolean parallel) {
         int maxNid = this.uuidIntMapMap.getMaxNid();
-        return IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
+        IntStream is = IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
                 .filter((value) -> {
                     return this.store.getAssemblageOfNid(value).isPresent();
                 });
+        if (parallel) {
+            is = is.parallel();
+        }
+        return is;
     }
 
     @Override

@@ -122,16 +122,18 @@ public interface AssemblageService {
    /**
     * Gets the SemanticChronology stream.
     *
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronology stream
     */
-   Stream<SemanticChronology> getSemanticChronologyStream();
+   Stream<SemanticChronology> getSemanticChronologyStream(boolean parallel);
 
    /**
     * Gets the SemanticChronology key stream.
     *
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronology key stream
     */
-   IntStream getSemanticNidStream();
+   IntStream getSemanticNidStream(boolean parallel);
 
    /**
     * 
@@ -159,9 +161,10 @@ public interface AssemblageService {
     * Gets the SemanticChronology key stream.
     *
     * @param assemblageConceptNid The nid for the assemblage to select the nids from
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronology key stream
     */
-   IntStream getSemanticNidStream(int assemblageConceptNid);
+   IntStream getSemanticNidStream(int assemblageConceptNid, boolean parallel);
 
    /**
     * Gets the SemanticChronology nids for component.
@@ -203,9 +206,10 @@ public interface AssemblageService {
     *
     * @param <C>
     * @param componentNid the component nid
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronology for component
     */
-   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid);
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid, boolean parallel);
 
    default <C extends SemanticChronology> List<C> getSemanticChronologiesForComponent(int componentNid) {
        ImmutableIntSet ids = getSemanticNidsForComponent(componentNid);
@@ -214,15 +218,15 @@ public interface AssemblageService {
        return results;
    }
    /**
-    * Gets the SemanticChronology for component from assemblage.  Caution, this may return a parallel stream!
+    * Gets the SemanticChronology for component from assemblage.
     *
     * @param <C>
     * @param componentNid the component nid
     * @param assemblageConceptNids The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronologies for component from assemblage
     */
-   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
-         Set<Integer> assemblageConceptNids);
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids, boolean parallel);
 
     default <C extends SemanticChronology> List<C> getSemanticChronologiesForComponentFromAssemblages(int componentNid,
                                                                                                       Set<Integer> assemblageConceptNids) {
@@ -241,47 +245,52 @@ public interface AssemblageService {
     * @param <C>
     * @param componentNid the component nid
     * @param assemblageConceptNid the assemblage concept nid
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronologies for component from assemblage
     */
    <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid,
-         int assemblageConceptNid);
+         int assemblageConceptNid, boolean parallel);
 
    /**
     * Gets the SemanticChronologies from assemblage.  Note, this may return a parallel stream!
     *
     * @param <C>
     * @param assemblageConceptNid the assemblage concept nid
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronologies from assemblage
     */
-   <C extends SemanticChronology> Stream<C> getSemanticChronologyStream(int assemblageConceptNid);
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStream(int assemblageConceptNid, boolean parallel);
 
    /**
-    * Gets the SemanticChronologies from assemblage.
+    * Gets the SemanticChronologies from assemblage.  Note, this may return a parallel stream!
     *
     * @param <C>
-    * @param assemblageConceptNid the assemblage concept nic
+    * @param assemblageConceptNid the assemblage concept nid
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronologies from assemblage
     */
-   <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptNid);
+   <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptNid, boolean parallel);
 
    /**
     * Gets the referenced component nids from assemblage.
     *
     * @param conceptSpecification the assemblage concept specification
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the referenced component nids as an IntStream
     */
-   default IntStream getReferencedComponentNidStreamFromAssemblage(ConceptSpecification conceptSpecification) {
-      return getReferencedComponentNidStreamFromAssemblage(conceptSpecification.getNid());
+   default IntStream getReferencedComponentNidStreamFromAssemblage(ConceptSpecification conceptSpecification, boolean parallel) {
+      return getReferencedComponentNidStreamFromAssemblage(conceptSpecification.getNid(), parallel);
    }
    
    /**
     * Gets the referenced component nids from assemblage.
     *
     * @param assemblageConceptNid the assemblage concept nid
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the referenced component nids as an IntStream
     */
-   default IntStream getReferencedComponentNidStreamFromAssemblage(int assemblageConceptNid) {
-      return getSemanticChronologyStream(assemblageConceptNid).mapToInt((semantic) -> semantic.getReferencedComponentNid());
+   default IntStream getReferencedComponentNidStreamFromAssemblage(int assemblageConceptNid, boolean parallel) {
+      return getSemanticChronologyStream(assemblageConceptNid, parallel).mapToInt((semantic) -> semantic.getReferencedComponentNid());
    }
    
    /**

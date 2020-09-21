@@ -45,7 +45,7 @@ public class Rf2OwlTransformer extends TimedTaskWithProgressTracker<Void> implem
             List<TransformationGroup> statedTransformList = new ArrayList<>();
 
             updateMessage("Transforming stated OWL expressions...");
-            Get.conceptService().getConceptNidStream(conceptAssemblageNid).forEach((conceptNid) -> {
+            Get.conceptService().getConceptNidStream(conceptAssemblageNid, false).forEach((conceptNid) -> {
 
                 ImmutableIntSet owlNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, owlAssemblageNid);
 

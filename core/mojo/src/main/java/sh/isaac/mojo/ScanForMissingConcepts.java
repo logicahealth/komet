@@ -73,11 +73,14 @@ public class ScanForMissingConcepts extends AbstractMojo
 		{
 			ArrayList<UUID> missingComponents = new ArrayList<>();
 			AtomicInteger semanticScanCount = new AtomicInteger();
-			Get.assemblageService().getSemanticChronologyStream().parallel().forEach(sc -> {
+			Get.assemblageService().getSemanticChronologyStream(true).forEach(sc -> {
 				semanticScanCount.getAndIncrement();
 				if (ios.getChronology(sc.getReferencedComponentNid()).isEmpty())
 				{
-					missingComponents.add(is.getUuidPrimordialForNid(sc.getReferencedComponentNid()));
+					UUID temp = is.getUuidPrimordialForNid(sc.getReferencedComponentNid());
+					synchronized(missingComponents) {
+						missingComponents.add(temp);
+					}
 				}
 			});
 			if (missingComponents.size() > 0)
@@ -103,11 +106,14 @@ public class ScanForMissingConcepts extends AbstractMojo
 		{
 			AtomicInteger conceptScanCount = new AtomicInteger();
 			ArrayList<UUID> missingDescriptions = new ArrayList<>();
-			Get.conceptService().getConceptChronologyStream().parallel().forEach(c -> {
+			Get.conceptService().getConceptChronologyStream(true).forEach(c -> {
 				conceptScanCount.getAndIncrement();
 				if (as.getDescriptionsForComponent(c.getNid()).size() == 0)
 				{
-					missingDescriptions.add(is.getUuidPrimordialForNid(c.getNid()));
+					UUID temp = is.getUuidPrimordialForNid(c.getNid());
+					synchronized(missingDescriptions) {
+						missingDescriptions.add(temp);
+					}
 				}
 			});
 			if (missingDescriptions.size() > 0)

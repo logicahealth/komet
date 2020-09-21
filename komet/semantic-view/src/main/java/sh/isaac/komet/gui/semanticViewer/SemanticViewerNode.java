@@ -991,7 +991,7 @@ public class SemanticViewerNode extends DetailNodeAbstract
 					catch (Exception e)
 					{
 						//Its either a mis-configured dynamic semantic, or its a static semantic.  Check and see...
-						Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStream(viewFocusNid_).findAny();
+						Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStream(viewFocusNid_, false).findAny();
 						if (sc.isPresent())
 						{
 							rdud = DynamicUsageDescriptionImpl.mockOrRead(sc.get());
@@ -1483,7 +1483,7 @@ public class SemanticViewerNode extends DetailNodeAbstract
 	private ArrayList<TreeItem<SemanticGUI>> getDataRows(int componentNid, TreeItem<SemanticGUI> nestUnder) 
 			throws IOException
 	{
-		ArrayList<TreeItem<SemanticGUI>> rowData = createFilteredRowData(Get.assemblageService().getSemanticChronologyStreamForComponent(componentNid));
+		ArrayList<TreeItem<SemanticGUI>> rowData = createFilteredRowData(Get.assemblageService().getSemanticChronologyStreamForComponent(componentNid, true));
 		
 		if (nestUnder != null)
 		{
@@ -1505,7 +1505,9 @@ public class SemanticViewerNode extends DetailNodeAbstract
 		{
 			for (Version ds :  semanticC.getVersionList())
 			{
-				allVersions.add((SemanticVersion)ds);
+				synchronized(allVersions) {
+					allVersions.add((SemanticVersion)ds);
+				}
 			}
 		});
 		
@@ -1574,7 +1576,7 @@ public class SemanticViewerNode extends DetailNodeAbstract
 	{
 		Hashtable<UUID, Hashtable<UUID, List<DynamicColumnInfo>>> columns = new Hashtable<>();
 		
-		Get.assemblageService().getSemanticChronologyStreamForComponent(componentNid).forEach(semanticC ->
+		Get.assemblageService().getSemanticChronologyStreamForComponent(componentNid, false).forEach(semanticC ->
 		{
 			boolean assemblageWasNull = false;
 			for (DynamicColumnInfo column :  DynamicUsageDescriptionImpl.mockOrRead(semanticC).getColumnInfo())
@@ -1731,8 +1733,8 @@ public class SemanticViewerNode extends DetailNodeAbstract
 		
 		
 		ArrayList<TreeItem<SemanticGUI>> rowData = createFilteredRowData(viewFocus_ == ViewFocus.ASSEMBLAGE ? 
-				Get.assemblageService().getSemanticChronologyStream(nid) :
-					Get.assemblageService().getSemanticChronologyStreamForComponent(nid));
+				Get.assemblageService().getSemanticChronologyStream(nid, true) :
+					Get.assemblageService().getSemanticChronologyStreamForComponent(nid, true));
 
 		if (rowData.size() == 0)
 		{

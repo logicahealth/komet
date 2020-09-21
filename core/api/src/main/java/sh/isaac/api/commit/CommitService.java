@@ -207,16 +207,18 @@ public interface CommitService
    /**
     * Gets the stamp alias stream.
     *
+    * @param parallel true to allow parallel, false for single threaded
     * @return the stamp alias stream
     */
-   Stream<StampAlias> getStampAliasStream();
+   Stream<StampAlias> getStampAliasStream(boolean parallel);
 
    /**
     * Gets the stamp comment stream.
     *
+    * @param parallel true to allow parallel, false for single threaded
     * @return the stamp comment stream
     */
-   Stream<StampComment> getStampCommentStream();
+   Stream<StampComment> getStampCommentStream(boolean parallel);
 
    /**
     * Gets the uncommitted component text summary.

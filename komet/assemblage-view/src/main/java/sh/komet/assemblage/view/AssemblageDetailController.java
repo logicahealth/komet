@@ -182,7 +182,7 @@ public class AssemblageDetailController {
                TreeItem<ObservableCategorizedVersion> assemblageRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
                ObservableList<ObservableChronology> children = FXCollections.observableArrayList();
                ObservableChronologyService observableChronologyService = Get.observableChronologyService();
-               Get.identifierService().getNidsForAssemblage(focusObject.getNid())
+               Get.identifierService().getNidsForAssemblage(focusObject.getNid(), false)
                        .forEach((nid) ->
                                children.add(observableChronologyService.getObservableChronology(nid)));
                addChildren(assemblageRoot, children, true);

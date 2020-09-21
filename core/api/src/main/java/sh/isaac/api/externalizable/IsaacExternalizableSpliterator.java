@@ -68,13 +68,13 @@ public class IsaacExternalizableSpliterator
     */
    public IsaacExternalizableSpliterator() {
       this.streams.add(Get.conceptService()
-                          .getConceptChronologyStream());
+                          .getConceptChronologyStream(true));
       this.streams.add(Get.assemblageService()
-                          .getSemanticChronologyStream());
+                          .getSemanticChronologyStream(true));
       this.streams.add(Get.commitService()
-                          .getStampAliasStream());
+                          .getStampAliasStream(true));
       this.streams.add(Get.commitService()
-                          .getStampCommentStream());
+                          .getStampCommentStream(true));
    }
 
    //~--- methods -------------------------------------------------------------

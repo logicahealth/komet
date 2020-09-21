@@ -1315,28 +1315,18 @@ public class CommitProvider
         return dataStore == null ? this.databaseValidity : dataStore.getDataStoreStartState();
     }
 
-    /**
-     * Gets the stamp alias stream.
-     *
-     * @return the stamp alias stream
-     */
     @Override
-    public Stream<StampAlias> getStampAliasStream() {
-        return this.stampAliasMap.getStampAliasStream();
+    public Stream<StampAlias> getStampAliasStream(boolean parallel) {
+        return this.stampAliasMap.getStampAliasStream(parallel);
     }
 
     public Set<Task<?>> getPendingCommitTasks() {
         return pendingCommitTasks;
     }
 
-    /**
-     * Gets the stamp comment stream.
-     *
-     * @return the stamp comment stream
-     */
     @Override
-    public Stream<StampComment> getStampCommentStream() {
-        return this.stampCommentMap.getStampCommentStream();
+    public Stream<StampComment> getStampCommentStream(boolean parallel) {
+        return this.stampCommentMap.getStampCommentStream(parallel);
     }
 
     @Override

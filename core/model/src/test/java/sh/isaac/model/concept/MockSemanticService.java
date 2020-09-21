@@ -151,27 +151,15 @@ public class MockSemanticService
       return this.semanticMap.get(semanticId);
    }
 
-   /**
-    * Gets the semantic chronology stream.
-    *
-    * @return the semantic chronology stream
-    */
    @Override
-   public Stream<SemanticChronology> getSemanticChronologyStream() {
-      return this.semanticMap.values()
-                           .stream();
+   public Stream<SemanticChronology> getSemanticChronologyStream(boolean parallel) {
+      return parallel ? this.semanticMap.values().parallelStream() : this.semanticMap.values().stream();
    }
 
-   /**
-    * Gets the semantic key stream.
-    *
-    * @return the semantic key stream
-    */
    @Override
-   public IntStream getSemanticNidStream() {
-      return this.semanticMap.keySet()
-                           .stream()
-                           .mapToInt(i -> i);
+   public IntStream getSemanticNidStream(boolean parallel) {
+      return parallel ? this.semanticMap.keySet().parallelStream().mapToInt(i -> i) : 
+              this.semanticMap.keySet().stream().mapToInt(i -> i);
    }
 
    /**
@@ -217,7 +205,7 @@ public class MockSemanticService
     * @return the semantics for component
     */
    @Override
-   public Stream<SemanticChronology> getSemanticChronologyStreamForComponent(int componentNid) {
+   public Stream<SemanticChronology> getSemanticChronologyStreamForComponent(int componentNid, boolean parallel) {
       throw new UnsupportedOperationException();
    }
 
@@ -230,7 +218,7 @@ public class MockSemanticService
     */
    @Override
    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid,
-         int assemblageConceptNid) {
+         int assemblageConceptNid, boolean parallel) {
       throw new UnsupportedOperationException();
    }
 
@@ -241,7 +229,7 @@ public class MockSemanticService
     * @return the semantics from assemblage
     */
    @Override
-   public Stream<SemanticChronology> getSemanticChronologyStream(int assemblageConceptNid) {
+   public Stream<SemanticChronology> getSemanticChronologyStream(int assemblageConceptNid, boolean parallel) {
       throw new UnsupportedOperationException();
    }
 
@@ -270,7 +258,7 @@ public class MockSemanticService
    }
 
    @Override
-   public IntStream getSemanticNidStream(int assemblageNid) {
+   public IntStream getSemanticNidStream(int assemblageNid, boolean parallel) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
@@ -304,13 +292,13 @@ public class MockSemanticService
     }
 
     @Override
-    public <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptNid) {
+    public <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptNid, boolean parallel) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
    
    @Override
    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
-      Set<Integer> assemblageConceptNids) {
+      Set<Integer> assemblageConceptNids, boolean parallel) {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 

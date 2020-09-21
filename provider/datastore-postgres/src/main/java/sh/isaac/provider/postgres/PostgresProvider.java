@@ -921,7 +921,7 @@ public class PostgresProvider
     }
 
     @Override // DataStoreSubService:DataStore
-    public IntStream getNidsForAssemblage(int assemblageNid) {
+    public IntStream getNidsForAssemblage(int assemblageNid, boolean parallel) {
         NidSet results = new NidSet();
         try (Connection conn = this.ds.getConnection();
             PreparedStatement stmt = conn.prepareStatement(sqlReadNidsForAssemblage())) {
@@ -935,12 +935,7 @@ public class PostgresProvider
         } catch (SQLException ex) {
             LOG.error(ex.getLocalizedMessage(), ex);
         }
-        return results.stream();
-    }
-
-    @Override // DataStoreSubService:DataStore
-    public IntStream getNidsForAssemblageParallel(int assemblageNid) {
-        return getNidsForAssemblage(assemblageNid).parallel();
+        return parallel ? results.parallelStream() : results.stream();
     }
 
     @Override // DataStoreSubService:DataStore
@@ -1003,8 +998,8 @@ public class PostgresProvider
     }
 
     @Override
-    public IntStream getNidStreamOfType(IsaacObjectType objectType) {
-        return this.identifierProvider.getNidStreamOfType(objectType);
+    public IntStream getNidStreamOfType(IsaacObjectType objectType, boolean parallel) {
+        return this.identifierProvider.getNidStreamOfType(objectType, parallel);
     }
 
     @Override
@@ -1103,11 +1098,15 @@ public class PostgresProvider
     }
 
     @Override
-    public IntStream getNidStream() {
+    public IntStream getNidStream(boolean parallel) {
         int maxNid = this.getMaxNid();
-        return IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
+        IntStream is = IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
                 .filter((value) -> {
                     return this.getAssemblageOfNid(value).isPresent();
                 });
+        if (parallel) {
+            is = is.parallel();
+        }
+        return is;
     }
 }

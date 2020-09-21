@@ -71,8 +71,8 @@ import sh.isaac.misc.constants.terminology.data.Terminology.CodeSystem.Version.C
 import sh.isaac.misc.constants.terminology.data.Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Relationships.Relationship;
 import sh.isaac.utility.Frills;
 
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.Marshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.Marshaller;
 import javax.xml.datatype.DatatypeConfigurationException;
 import javax.xml.datatype.DatatypeFactory;
 import javax.xml.datatype.XMLGregorianCalendar;
@@ -299,12 +299,12 @@ public class VetsExporter {
 
       List<Terminology.CodeSystem.Version.MapSets.MapSet> xmlMapSetCollection = new ArrayList<>();
 
-      Get.conceptService().getConceptChronologyStream().forEach((concept) ->
+      Get.conceptService().getConceptChronologyStream(false).forEach((concept) ->
       {
          if (fullExportMode) 
          {
             Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage( concept.getNid(),
-                  IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getNid()).forEach(mappingSemantic -> 
+                  IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getNid(), false).forEach(mappingSemantic -> 
             {
                Terminology.CodeSystem.Version.MapSets.MapSet xmlMapSet = new Terminology.CodeSystem.Version.MapSets.MapSet();
                xmlMapSet.setAction(determineAction(concept, startDate, endDate));
@@ -326,7 +326,7 @@ public class VetsExporter {
                   if (cv.isPresent()) 
                   {
                      Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(cv.get().getChronology().getNid(),
-                           IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getNid()).forEach(mappingStrExt -> {
+                           IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_STRING_EXTENSION.getNid(), false).forEach(mappingStrExt -> {
                         LatestVersion<DynamicVersion> mappingStrExtVersion = mappingStrExt.getLatestVersion(STAMP_COORDINATES);
 
                         // TODO:DA review
@@ -520,7 +520,7 @@ public class VetsExporter {
    {
       ArrayList<PropertyType> pts = new ArrayList<>();
 
-      Get.assemblageService().getSemanticChronologyStreamForComponent(componentNid).forEach((semantic) ->
+      Get.assemblageService().getSemanticChronologyStreamForComponent(componentNid, false).forEach((semantic) ->
       {
          //skip code and vuid properties - they have special handling
          if (semantic.getAssemblageNid() != MetaData.VUID____SOLOR.getNid() && semantic.getAssemblageNid() != MetaData.CODE____SOLOR.getNid()
@@ -548,7 +548,7 @@ public class VetsExporter {
    {
       ArrayList<Terminology.CodeSystem.Version.MapSets.MapSet.MapEntries.MapEntry> mes = new ArrayList<>();
       
-      Get.assemblageService().getSemanticChronologyStream(componentNid).forEach(semantic ->
+      Get.assemblageService().getSemanticChronologyStream(componentNid, false).forEach(semantic ->
       {
          LatestVersion<DynamicVersion> semanticVersion = semantic.getLatestVersion(STAMP_COORDINATES);
          if (semanticVersion.isPresent() && semanticVersion.get().getData() != null && semanticVersion.get().getData().length > 0)
@@ -625,7 +625,9 @@ public class VetsExporter {
                         }
                      }
                   }
-                  mes.add(me);
+                  synchronized(mes) {
+                     mes.add(me);
+                  }
                }
             } 
             catch (NumberFormatException nfe)
@@ -761,7 +763,7 @@ public class VetsExporter {
 
       List<DesignationType> designations = new ArrayList<>();
 
-      Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid()).forEach(semantic ->
+      Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid(), false).forEach(semantic ->
       {
          if (semantic.getVersionType() == VersionType.DESCRIPTION)
          {
@@ -820,7 +822,7 @@ public class VetsExporter {
                         new Terminology.CodeSystem.Version.CodedConcepts.CodedConcept.Designations.Designation.SubsetMemberships();
 
 
-                  Get.assemblageService().getSemanticChronologyStreamForComponent(semantic.getNid()).forEach((nestedSemantic) -> {
+                  Get.assemblageService().getSemanticChronologyStreamForComponent(semantic.getNid(), false).forEach((nestedSemantic) -> {
                      //skip code and vuid properties - they are handled already
                      
                      if (nestedSemantic.getAssemblageNid() != MetaData.VUID____SOLOR.getNid() 
@@ -1171,7 +1173,7 @@ public class VetsExporter {
    private boolean hasSemanticModifiedInDateRange(int nid, long startDate)
    {
       //Check all the nested semantics
-      return Get.assemblageService().getSemanticChronologyStreamForComponent(nid).anyMatch(sc ->
+      return Get.assemblageService().getSemanticChronologyStreamForComponent(nid, false).anyMatch(sc ->
       {
          LatestVersion<Version> sv = sc.getLatestVersion(STAMP_COORDINATES);
          if (sv.isPresent())
@@ -1199,7 +1201,7 @@ public class VetsExporter {
    {
 
       Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(componentNid,
-            MetaData.CODE____SOLOR.getNid()).findFirst();
+            MetaData.CODE____SOLOR.getNid(), false).findFirst();
       if (sc.isPresent())
       {
          //There was a bug in the older terminology loaders which loaded 'Code' as a static semantic, but marked it as a dynamic semantic.

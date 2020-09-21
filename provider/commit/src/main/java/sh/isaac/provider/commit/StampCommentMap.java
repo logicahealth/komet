@@ -237,10 +237,10 @@ public class StampCommentMap {
      *
      * @return the stamp comment stream
      */
-    public Stream<StampComment> getStampCommentStream() {
+    public Stream<StampComment> getStampCommentStream(boolean parallel) {
       return dataStore == null ?
-              StreamSupport.stream(this.stampCommentMap.keyValuesView().collect(each -> new StampComment(each.getTwo(), each.getOne())).spliterator(), false) :
-               stampToComment.getStream().map(entry -> new StampComment(entry.getValue(), entry.getKey()));
+              StreamSupport.stream(this.stampCommentMap.keyValuesView().collect(each -> new StampComment(each.getTwo(), each.getOne())).spliterator(), parallel) :
+               stampToComment.getStream(parallel).map(entry -> new StampComment(entry.getValue(), entry.getKey()));
     }
 }
 

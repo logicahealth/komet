@@ -163,14 +163,14 @@ public abstract class ExtendedStoreWithSerializer<K, V> implements ExtendedStore
 	}
 
 	@Override
-	public Stream<V> getValueStream()
+	public Stream<V> getValueStream(boolean parallel)
 	{
-		return backingMap.values().stream();
+		return parallel ? backingMap.values().parallelStream() : backingMap.values().stream();
 	}
 
 	@Override
-	public Stream<Map.Entry<K, V>> getStream()
+	public Stream<Map.Entry<K, V>> getStream(boolean parallel)
 	{
-		return backingMap.entrySet().stream();
+		return parallel ? backingMap.entrySet().parallelStream() : backingMap.entrySet().stream();
 	}
 }

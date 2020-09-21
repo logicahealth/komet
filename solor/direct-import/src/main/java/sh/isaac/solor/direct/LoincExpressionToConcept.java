@@ -90,7 +90,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             if (!Get.identifierService().hasUuid(expressionRefset.getPrimordialUuid())) {
                 return null;
             }
-            Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid()).parallel().forEach((semanticChronology) -> {
+            Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid(), true).forEach((semanticChronology) -> {
                 for (Version version : semanticChronology.getVersionList()) {
                     String loincCode;
                     String sctExpression;
@@ -362,8 +362,8 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
         else {
            //The concept is present - see if it already has a logic graph.  If so, don't write a logic graph, as the logic graph from the 
            //loinc converter is likely better than this one.
-            Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(Get.identifierService().getNidForUuids(conceptUuid), 
-                    graphAssemblageNid).findFirst();
+            Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
+                    Get.identifierService().getNidForUuids(conceptUuid), graphAssemblageNid, false).findFirst();
             if (sc.isPresent()) {
                 //Not even going to check its state - active or not, its likely better.
                 LOG.trace("Not creating Loinc Expression for Concept as one already exists for {}", conceptUuid);

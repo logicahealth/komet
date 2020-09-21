@@ -99,7 +99,7 @@ public class AssociationType
 		{
 			
 			if (Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(desc.getNid(), 
-					DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getNid()).anyMatch(nestedSemantic ->
+					DynamicConstants.get().DYNAMIC_ASSOCIATION_INVERSE_NAME.getNid(), false).anyMatch(nestedSemantic ->
 			{
 				if (nestedSemantic.getVersionType() == VersionType.DYNAMIC)
 				{
@@ -118,7 +118,7 @@ public class AssociationType
 		{
 			if (Frills.isDescriptionPreferred(desc.getNid(), localStamp) &&
 					Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(desc.getNid(), 
-							DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid()).anyMatch(nestedSemantic ->
+							DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), false).anyMatch(nestedSemantic ->
 			{
 				if (nestedSemantic.getVersionType() == VersionType.DYNAMIC)
 				{

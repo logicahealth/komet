@@ -186,14 +186,14 @@ public class ExtendedStoreStandAlone<K, VI, VE> implements ExtendedStoreData<K, 
 	}
 
 	@Override
-	public Stream<VE> getValueStream()
+	public Stream<VE> getValueStream(boolean parallel)
 	{
-		return data.getValueStream();
+		return data.getValueStream(parallel);
 	}
 
 	@Override
-	public Stream<Map.Entry<K, VE>> getStream()
+	public Stream<Map.Entry<K, VE>> getStream(boolean parallel)
 	{
-		return data.getStream();
+		return data.getStream(parallel);
 	}
 }

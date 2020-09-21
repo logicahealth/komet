@@ -114,11 +114,13 @@ public class DescriptionIndexer extends LuceneIndexer
 			LOG.info("System contains " + metadataConcepts.size() + " metadata concepts");
 			
 			//add in any dynamic semantic definition concepts from outside the metadata tree.
-			Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid()).forEach(semanticC -> {
+			Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), true).forEach(semanticC -> {
 				//Dynamic semantics are nested... need to walk up two, to get to the concept...
 				Optional<Integer> nearestConcept = Util.getNearestConcept(semanticC.getNid());
 				if (nearestConcept.isPresent()) {
-					metadataConcepts.add(nearestConcept.get());
+					synchronized(metadataConcepts) {
+						metadataConcepts.add(nearestConcept.get());
+					}
 				}
 			});
 			//for full correctness here, one should also include static semantics defined outside the metadata tree - but we don't make any in the rest API, 
@@ -218,10 +220,13 @@ public class DescriptionIndexer extends LuceneIndexer
 
 		final Set<String> uniqueExtensionTypes = new HashSet<>();
 
-		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(semanticChronology.getNid(), getDescriptionExtendedTypeNid()).forEach(nestedSemantic -> {
+		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(semanticChronology.getNid(), getDescriptionExtendedTypeNid(), true)
+			.forEach(nestedSemantic -> {
 			for (Version nestedVersions : nestedSemantic.getVersionList()) {
 				// this is a UUID, but we want to treat it as a string anyway
-				uniqueExtensionTypes.add(((DynamicVersion) nestedVersions).getData()[0].getDataObject().toString());
+				synchronized (uniqueExtensionTypes) {
+					uniqueExtensionTypes.add(((DynamicVersion) nestedVersions).getData()[0].getDataObject().toString());
+				}
 			}
 		});
 

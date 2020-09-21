@@ -450,7 +450,9 @@ public enum DynamicDataType {
       ArrayList<SemanticChronology> chronologies = new ArrayList<>();
       
       Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(childConceptNid, 
-            TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid()).forEach(chronology -> chronologies.add(chronology));
+            TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid(), false).forEach(chronology -> {
+              chronologies.add(chronology);
+            });
       
       ArrayList<Integer> destiniationNids = new ArrayList<>(chronologies.size());
       

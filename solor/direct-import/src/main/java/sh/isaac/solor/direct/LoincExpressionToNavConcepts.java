@@ -114,7 +114,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
         if (!Get.identifierService().hasUuid(expressionRefset.getPrimordialUuid())) {
                 return null;
             }
-            Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid()).parallel().forEach((semanticChronology) -> {
+            Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid(), true).forEach((semanticChronology) -> {
                 for (Version version : semanticChronology.getVersionList()) {
                     String loincCode;
                     String sctExpression;

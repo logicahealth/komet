@@ -54,7 +54,6 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -69,18 +68,16 @@ import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class ChronologyImpl.
  *
  * @author kec
  */
 public abstract class ChronologyImpl
-        implements Chronology, ChronologySerializeable {
+        implements Chronology, ChronologySerializeable, Comparable<ChronologyImpl> {
 
     protected static final Logger LOG = LogManager.getLogger();
 
-    //~--- fields --------------------------------------------------------------
     /**
      * Position in the data where chronicle data ends, and version data starts.
      */
@@ -124,7 +121,6 @@ public abstract class ChronologyImpl
      */
     private final CopyOnWriteArrayList<Version> writtenVersions = new CopyOnWriteArrayList<>();
 
-    //~--- constructors --------------------------------------------------------
     /**
      * No argument constructor for reconstituting an object previously
      * serialized together with the readData(ByteArrayDataBuffer data) method.
@@ -183,7 +179,6 @@ public abstract class ChronologyImpl
         ModelGet.identifierService().setupNid(this.nid, this.assemblageNid, this.getIsaacObjectType(), versionType);
     }
 
-    //~--- methods -------------------------------------------------------------
     /**
      * Adds the additional uuids.
      *
@@ -319,7 +314,7 @@ public abstract class ChronologyImpl
         if (addAttachments) {
             builder.append("\n[[\n");
             AtomicInteger attachmentCount = new AtomicInteger(0);
-            Get.assemblageService().getSemanticChronologyStreamForComponent(this.getNid()).forEach((semantic) -> {
+            Get.assemblageService().getSemanticChronologyStreamForComponent(this.getNid(), false).forEach((semantic) -> {
                 builder.append("ATTACHMENT ").append(attachmentCount.incrementAndGet())
                         .append(":\n  ");
                 ((SemanticChronologyImpl) semantic).toString(builder, false);
@@ -547,7 +542,7 @@ public abstract class ChronologyImpl
         db.setPosition(db.getLimit());
     }
 
-    //~--- set methods ---------------------------------------------------------
+
     /**
      * Gets the additional chronicle fields.
      *
@@ -572,7 +567,7 @@ public abstract class ChronologyImpl
         Get.identifierService().assignNid(getUuids());
     }
 
-    //~--- get methods ---------------------------------------------------------
+
     /**
      * Gets the additional uuids.
      *
@@ -780,13 +775,6 @@ public abstract class ChronologyImpl
         return versionStartPosition;
     }
 
-    /**
-     * Gets the latest version.
-     *
-     * @param <V>
-     * @param filter the coordinate
-     * @return the latest version
-     */
     @Override
     public <V extends Version> LatestVersion<V> getLatestVersion(StampFilter filter) {
         final RelativePositionCalculator calc = filter.getRelativePositionCalculator();
@@ -860,7 +848,7 @@ public abstract class ChronologyImpl
     @Override
     public <V extends SemanticChronology> List<V> getSemanticChronologyList() {
         return Get.assemblageService()
-                .<V>getSemanticChronologyStreamForComponent(this.nid)
+                .<V>getSemanticChronologyStreamForComponent(this.nid, true)
                 .collect(Collectors.toList());
     }
 
@@ -873,7 +861,7 @@ public abstract class ChronologyImpl
     @Override
     public <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblage(int assemblageSequence) {
         return Get.assemblageService()
-                .<V>getSemanticChronologyStreamForComponentFromAssemblage(this.nid, assemblageSequence)
+                .<V>getSemanticChronologyStreamForComponentFromAssemblage(this.nid, assemblageSequence, true)
                 .collect(Collectors.toList());
     }
 
@@ -945,7 +933,6 @@ public abstract class ChronologyImpl
 
     }
 
-
     /**
      * Gets the version list.
      *
@@ -990,7 +977,6 @@ public abstract class ChronologyImpl
         return builder.keys().elements();
     }
 
-    //~--- set methods ---------------------------------------------------------
     /**
      * Overwrites existing versions. Use to remove duplicates, etc. Deliberately
      * not advertised in standard API, as this call may lose audit data.
@@ -1004,7 +990,6 @@ public abstract class ChronologyImpl
         versions.forEach((V version) -> addVersion(version));
     }
 
-    //~--- get methods ---------------------------------------------------------
     /**
      * Gets the versions for stamps.
      *
@@ -1138,5 +1123,13 @@ public abstract class ChronologyImpl
 
         return dataArray;
     }
-    
+
+    /**
+     * Simple sorting to enforce consistent ordering of chronologies, when streaming chronologies from providers, and wanting to sort them for a 
+     * consistent iteration order for paging.
+     */
+    @Override
+    public int compareTo(ChronologyImpl o) {
+        return Integer.compare(this.nid, o.nid);
+    }
 }

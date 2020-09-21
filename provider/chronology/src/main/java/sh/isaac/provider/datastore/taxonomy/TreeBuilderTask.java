@@ -92,7 +92,7 @@ public class TreeBuilderTask
       this.conceptAssemblageNid               = manifoldCoordinate.getLogicCoordinate().getConceptAssemblageNid();
       LookupService.registerStoppable(this, LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL);
       this.conceptCount = (int) Get.identifierService()
-                                   .getNidsForAssemblage(conceptAssemblageNid)
+                                   .getNidsForAssemblage(conceptAssemblageNid, true)
                                    .count();
       this.addToTotalWork(conceptCount * 2); // once to construct tree, ones to traverse tree
       this.updateTitle("Generating " + manifoldCoordinate.getPremiseTypes().toUserString() + " Navigator for: " +
@@ -133,9 +133,7 @@ public class TreeBuilderTask
    private Tree compute() {
 
       GraphCollectorIsolated  collector = new GraphCollectorIsolated(this.taxonomyDataProvider,this.manifoldCoordinate, this.vertexSort);
-      IntStream       conceptNidStream = Get.identifierService()
-                                            .getNidsForAssemblage(conceptAssemblageNid);
-      long count = conceptNidStream.count();
+      long count =  Get.identifierService().getNidsForAssemblage(conceptAssemblageNid, true).count();
       if (count == 0) {
          LOG.info("Empty concept stream in TreeBuilderTask");
       } 
@@ -143,7 +141,7 @@ public class TreeBuilderTask
       if (stopRequested) {
          throw new CancellationException("Stop requested during compute");
       }
-      conceptNidStream = Get.identifierService().getNidsForAssemblage(conceptAssemblageNid);
+      IntStream conceptNidStream = Get.identifierService().getNidsForAssemblage(conceptAssemblageNid, false);
 
       HashTreeBuilderIsolated graphBuilder = conceptNidStream.filter((conceptNid) -> {
                completedUnitOfWork();

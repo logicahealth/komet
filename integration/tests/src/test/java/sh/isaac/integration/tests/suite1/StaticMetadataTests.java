@@ -30,7 +30,7 @@ public class StaticMetadataTests
 		LOG.info("Testing Static Metadata Structure");
 
 		AtomicInteger testCount = new AtomicInteger();
-		Get.assemblageService().getSemanticChronologyStream(TermAux.SEMANTIC_TYPE.getNid()).forEach(semanticC -> {
+		Get.assemblageService().getSemanticChronologyStream(TermAux.SEMANTIC_TYPE.getNid(), true).forEach(semanticC -> {
 			// We don't change the state / care about the state on the semantic. We update the state on the concept.
 			LatestVersion<SemanticVersion> latest = semanticC.getLatestVersion(Coordinates.Filter.DevelopmentLatestActiveOnly());
 			if (latest.isPresent())

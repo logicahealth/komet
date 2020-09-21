@@ -127,7 +127,7 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
 				if (ds.getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid())
 				{
 					final Optional<SemanticChronology> nestesdSemantic = Get.assemblageService()
-							.getSemanticChronologyStreamForComponentFromAssemblage(ds.getNid(), DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid())
+							.getSemanticChronologyStreamForComponentFromAssemblage(ds.getNid(), DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), false)
 							.findAny();
 					if (nestesdSemantic.isPresent())
 					{
@@ -154,7 +154,7 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
 					+ "DynamicSemantic.DYNAMIC_DEFINITION_DESCRIPTION");
 		}
 
-		Get.assemblageService().getSemanticChronologyStreamForComponent(assemblageConcept.getNid()).forEach(semantic -> {
+		Get.assemblageService().getSemanticChronologyStreamForComponent(assemblageConcept.getNid(), true).forEach(semantic -> {
 			if (semantic.getVersionType() == VersionType.DYNAMIC)
 			{
 				final LatestVersion<? extends DynamicVersion> semanticVersion = ((SemanticChronology) semantic)
@@ -249,9 +249,11 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
 									}
 								}
 							}
-
-							allowedColumnInfo.put(column, new DynamicColumnInfo(assemblageConcept.getPrimordialUuid(), column, descriptionUUID, type,
+							
+							synchronized(allowedColumnInfo) {
+								allowedColumnInfo.put(column, new DynamicColumnInfo(assemblageConcept.getPrimordialUuid(), column, descriptionUUID, type,
 									defaultData, columnRequired, validators, validatorsData));
+							}
 						}
 						catch (final Exception e)
 						{
@@ -397,7 +399,7 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
 				//We need an instance of a semantic, to get the data, or an instance of Keiths latest (inconsistently applied) pattern
 				//Try to read from metadata first.
 				Optional<SemanticChronology> metadata = Get.assemblageService()
-						.getSemanticChronologyStreamForComponentFromAssemblage(assemblageNid, TermAux.SEMANTIC_TYPE.getNid()).findFirst();
+						.getSemanticChronologyStreamForComponentFromAssemblage(assemblageNid, TermAux.SEMANTIC_TYPE.getNid(), false).findFirst();
 				if (metadata.isPresent())
 				{
 					//Read this semantic, to find out the type info
@@ -469,7 +471,7 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
 					}
 				}
 				//Try to figure out from an actual usage
-				Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStream(assemblageNid).findFirst();
+				Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStream(assemblageNid, false).findFirst();
 				if (sc.isPresent())
 				{
 					return mockOrRead(sc.get());
@@ -664,12 +666,14 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
 		// The (undocumented) pattern that seems to be in place for some (not all) static semantics is multiple instances
 		// of a ComponentInteger semantic which tell you the column title, and column order.
 		SortedMap<Integer, Integer> columnTitles = Collections.synchronizedSortedMap(new TreeMap<Integer, Integer>());
-		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(assemblageBeingDefinedNid, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS.getNid())
+		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(assemblageBeingDefinedNid, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS.getNid(), true)
 				.forEach(semantic -> {
 					LatestVersion<Nid1_Int2_Version> lvs = semantic.getLatestVersion(Coordinates.Filter.DevelopmentLatest());
 					if (lvs.isPresent())
 					{
-						columnTitles.put(lvs.get().getInt2(), lvs.get().getNid1());
+						synchronized (columnTitles) {
+							columnTitles.put(lvs.get().getInt2(), lvs.get().getNid1());
+						}
 					}
 					else {
 						logger.debug("Annotation not present?");
@@ -807,7 +811,7 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
 				if (ds.getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid())
 				{
 					final Optional<SemanticChronology> nestesdSemantic = Get.assemblageService()
-							.getSemanticChronologyStreamForComponentFromAssemblage(ds.getNid(), DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid())
+							.getSemanticChronologyStreamForComponentFromAssemblage(ds.getNid(), DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), false)
 							.findAny();
 					if (nestesdSemantic.isPresent())
 					{

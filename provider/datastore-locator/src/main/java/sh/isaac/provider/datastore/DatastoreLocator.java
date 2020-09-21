@@ -348,9 +348,9 @@ public class DatastoreLocator implements SequenceStore, ExtendedStore, MasterDat
 	 * {@inheritDoc}
 	 */
 	@Override
-	public IntStream getNidsForAssemblage(int assemblageNid)
+	public IntStream getNidsForAssemblage(int assemblageNid, boolean parallel)
 	{
-		return dataStore.getNidsForAssemblage(assemblageNid);
+		return dataStore.getNidsForAssemblage(assemblageNid, parallel);
 	}
 
 	/**

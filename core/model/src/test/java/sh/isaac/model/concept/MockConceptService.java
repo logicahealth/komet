@@ -135,15 +135,10 @@ public class MockConceptService
       return false;
    }
 
-   /**
-    * Gets the concept chronology stream.
-    *
-    * @return the concept chronology stream
-    */
+
    @Override
-   public Stream<ConceptChronology> getConceptChronologyStream() {
-      return this.conceptsMap.values()
-                             .stream();
+   public Stream<ConceptChronology> getConceptChronologyStream(boolean parallel) {
+      return parallel ? this.conceptsMap.values().parallelStream() : this.conceptsMap.values().stream();
    }
 
    /**
@@ -156,17 +151,10 @@ public class MockConceptService
       return this.conceptsMap.size();
    }
 
-
-   /**
-    * Gets the concept key stream.
-    *
-    * @return the concept key stream
-    */
    @Override
-   public IntStream getConceptNidStream() {
-      return this.conceptsMap.keySet()
-                             .stream()
-                             .mapToInt(i -> i);
+   public IntStream getConceptNidStream(boolean parallel) {
+      return parallel ? this.conceptsMap.keySet().parallelStream().mapToInt(i -> i) : 
+          this.conceptsMap.keySet().stream().mapToInt(i -> i);
    }
 
    /**
@@ -218,12 +206,12 @@ public class MockConceptService
    }
 
    @Override
-   public Stream<ConceptChronology> getConceptChronologyStream(IntSet conceptNids) {
+   public Stream<ConceptChronology> getConceptChronologyStream(IntSet conceptNids, boolean parallel) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public Stream<ConceptChronology> getConceptChronologyStream(int assemblageNid) {
+   public Stream<ConceptChronology> getConceptChronologyStream(int assemblageNid, boolean parallel) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
@@ -233,7 +221,7 @@ public class MockConceptService
    }
 
    @Override
-   public IntStream getConceptNidStream(int assemblageNid) {
+   public IntStream getConceptNidStream(int assemblageNid, boolean parallel) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

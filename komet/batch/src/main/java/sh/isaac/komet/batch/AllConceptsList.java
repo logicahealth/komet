@@ -23,12 +23,12 @@ public class AllConceptsList implements ComponentList {
 
     @Override
     public int listSize() {
-        return (int) Get.identifierService().getNidsForAssemblage(TermAux.SOLOR_CONCEPT_ASSEMBLAGE).count();
+        return (int) Get.identifierService().getNidsForAssemblage(TermAux.SOLOR_CONCEPT_ASSEMBLAGE, true).count();
     }
 
     @Override
     public Stream<Chronology> getComponentStream() {
-        return Get.conceptService().getConceptChronologyStream().map(conceptChronology -> (Chronology) conceptChronology);
+        return Get.conceptService().getConceptChronologyStream(true).map(conceptChronology -> (Chronology) conceptChronology);
     }
 
     @Override

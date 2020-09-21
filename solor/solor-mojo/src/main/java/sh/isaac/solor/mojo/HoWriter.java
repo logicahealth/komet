@@ -918,11 +918,13 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
     }
 
     private void addItemsIfNew(String[] hoRec, int index, int conceptNid, ConceptSpecification assemblage, int stamp) {
-        HashSet<String> existing = new HashSet();
-        Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptNid, assemblage.getNid())
+        HashSet<String> existing = new HashSet<>();
+        Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptNid, assemblage.getNid(), false)
                 .forEach(semanticChronology -> {
                     for (Version v : semanticChronology.getVersionList()) {
-                        existing.add(((StringVersion) v).getString());
+                        synchronized(existing) {
+                            existing.add(((StringVersion) v).getString());
+                        }
                     }
                 });
 
@@ -941,11 +943,13 @@ public class HoWriter extends TimedTaskWithProgressTracker<Void> {
         if (Boolean.valueOf(hoRec[MAPPED_TO_ALLERGEN])) {
             return;
         }
-        HashSet<String> existing = new HashSet();
-        Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(snomedNid, TermAux.ENGLISH_LANGUAGE.getNid())
+        HashSet<String> existing = new HashSet<>();
+        Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(snomedNid, TermAux.ENGLISH_LANGUAGE.getNid(), false)
                 .forEach(semanticChronology -> {
                     for (Version v : semanticChronology.getVersionList()) {
-                        existing.add(((DescriptionVersion) v).getText());
+                        synchronized(existing) {
+                            existing.add(((DescriptionVersion) v).getText());
+                        }
                     }
                 });
 

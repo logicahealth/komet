@@ -39,7 +39,7 @@ public class AddConceptsInModule extends TimedTaskWithProgressTracker<Void> impl
             AtomicInteger conceptsProcessed = new AtomicInteger();
             AtomicInteger conceptsAdded = new AtomicInteger();
             addToTotalWork(Get.conceptService().getConceptCount());
-            Get.conceptService().getConceptChronologyStream().forEach(conceptChronology -> {
+            Get.conceptService().getConceptChronologyStream(true).forEach(conceptChronology -> {
                 LatestVersion<Version> latest = conceptChronology.getLatestVersion(this.viewProperties.getManifoldCoordinate().getViewStampFilter());
                 if (latest.isPresent()) {
                     if (latest.get().getModuleNid() == moduleNid) {

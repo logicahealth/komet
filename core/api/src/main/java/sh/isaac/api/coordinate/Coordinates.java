@@ -256,7 +256,7 @@ public class Coordinates implements StaticIsaacCache {
                 MutableIntObjectMap<MutableIntSet> equivalentTypes = MutableIntObjectMapFactoryImpl.INSTANCE.empty();
 
                 //Collect the mappings from core types -> non core types
-                IntStream nids = Get.identifierService().getNidsForAssemblage(DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid());
+                IntStream nids = Get.identifierService().getNidsForAssemblage(DynamicConstants.get().DYNAMIC_DESCRIPTION_CORE_TYPE.getNid(), false);
                 nids.forEach(nid -> {
                     SemanticChronology sc = Get.assemblageService().getSemanticChronology(nid);
                     DynamicVersion dv = (DynamicVersion) sc.getLatestVersion(filter).get();

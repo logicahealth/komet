@@ -307,8 +307,8 @@ public class ChangeSetLoadProvider
     }
 
     private UUID readSemanticDbId() {
-        Optional<SemanticChronology> sdic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
-                .findFirst();
+        Optional<SemanticChronology> sdic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
+              TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid(), false).findFirst();
         if (sdic.isPresent()) {
             LatestVersion<Version> sdi = sdic.get().getLatestVersion(Coordinates.Filter.DevelopmentLatest());
             if (sdi.isPresent()) {

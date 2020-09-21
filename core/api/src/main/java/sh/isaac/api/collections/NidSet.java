@@ -82,6 +82,7 @@ public class NidSet extends AbstractIntSet<NidSet> {
 
    /**
     * Instantiates a new nid set.
+    * Dan notes, this implementation appears to be NOT THREAD SAFE.  No Parallel streams!
     *
     * @param memberStream the member stream
     */
@@ -132,7 +133,7 @@ public class NidSet extends AbstractIntSet<NidSet> {
    }
 
    /**
-    * Of.
+    * Dan notes, this implementation appears to be NOT THREAD SAFE.  No Parallel streams!
     *
     * @param memberStream the member stream
     * @return the nid set

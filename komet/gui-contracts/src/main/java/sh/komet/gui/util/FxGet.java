@@ -481,7 +481,7 @@ public class FxGet implements StaticIsaacCache {
     }
 
     private static void addPaths() {
-        Get.identifierService().getNidsForAssemblage(TermAux.PATH_ASSEMBLAGE).forEach(semanticNid -> {
+        Get.identifierService().getNidsForAssemblage(TermAux.PATH_ASSEMBLAGE, false).forEach(semanticNid -> {
             SemanticChronology pathConceptSemantic = Get.assemblageService().getSemanticChronology(semanticNid);
             StampPathImmutable path = StampPathImmutable.make(pathConceptSemantic.getReferencedComponentNid());
             String pathDescription = Get.defaultCoordinate().getPreferredDescriptionText(path.getPathConceptNid());

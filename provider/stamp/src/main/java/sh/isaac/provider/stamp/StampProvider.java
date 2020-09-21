@@ -512,7 +512,7 @@ public class StampProvider
             this.stampSequence_PathNid_Map.clear();
             this.uncommittedStampIntegerConcurrentHashMap.clear();
             
-            inverseStampMap.getStream().forEach(stampPair ->
+            inverseStampMap.getStream(false).forEach(stampPair ->
             {
                 this.stampMap.merge(stampPair.getValue(), new int[]{stampPair.getKey()}, this::mergeSequences);
                 if (stampPair.getKey() >= nextStampSequence.get()) {
@@ -520,7 +520,7 @@ public class StampProvider
                 }
             });
 
-            sequenceToUncommittedStamp.getStream().forEach(stampPair ->
+            sequenceToUncommittedStamp.getStream(true).forEach(stampPair ->
             {
                 this.uncommittedStampIntegerConcurrentHashMap.put(stampPair.getValue(), stampPair.getKey());
             });

@@ -52,8 +52,6 @@ import sh.isaac.utility.Frills;
 
 public class SimpleQA extends QATask
 {
-	StampFilter coordinate;
-
 	private final Pattern illegalChars = Pattern.compile(".*[\\t\\r\\n@$#\\\\].*");
 	private final QAResults results = new QAResults();
 	
@@ -61,7 +59,7 @@ public class SimpleQA extends QATask
 
 	public SimpleQA(StampFilter coordinate)
 	{
-		this.coordinate = coordinate;
+		super(coordinate);
 	}
 
 	@Override
@@ -69,7 +67,7 @@ public class SimpleQA extends QATask
 	{
 		//Just a one-off rule for now, for testing the overall API flow
 		
-		Get.conceptService().getConceptChronologyStream().parallel().forEach((ConceptChronology concept) -> {
+		Get.conceptService().getConceptChronologyStream(true).forEach((ConceptChronology concept) -> {
 			
 			LatestVersion<ConceptVersion> cv = concept.getLatestVersion(coordinate);
 			if (cv.isPresent() && cv.get().isActive())
@@ -79,7 +77,7 @@ public class SimpleQA extends QATask
 				{
 					AtomicInteger fqnCount = new AtomicInteger();
 					AtomicInteger rnCount = new AtomicInteger();
-					Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid()).forEach((SemanticChronology semantic) -> {
+					Get.assemblageService().getSemanticChronologyStreamForComponent(concept.getNid(), true).forEach((SemanticChronology semantic) -> {
 						if (semantic.getVersionType() == VersionType.DESCRIPTION)
 						{
 							LatestVersion<DescriptionVersion> dv = semantic.getLatestVersion(coordinate);

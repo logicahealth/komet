@@ -115,7 +115,7 @@ public class AssociationUtilities
 		{
 			 return results;
 		}
-		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(componentNid, associationTypes)
+		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(componentNid, associationTypes, true)
 			.forEach(associationC -> 
 				{
 					LatestVersion<Version> latest = associationC.getLatestVersion(localStamp);
@@ -123,7 +123,10 @@ public class AssociationUtilities
 					{
 						if (latest.get().getSemanticType() == VersionType.DYNAMIC) 
 						{
-							results.add(AssociationInstance.read((DynamicVersion)latest.get(), stampFilter));
+							AssociationInstance ai = AssociationInstance.read((DynamicVersion)latest.get(), stampFilter); 
+							synchronized(results) {
+								results.add(ai);
+							}
 						}
 						else
 						{
@@ -197,13 +200,15 @@ public class AssociationUtilities
 	{
 		ArrayList<AssociationInstance> results = new ArrayList<>();
 		StampFilter localFilter = stampFilter == null ? Get.configurationService().getUserConfiguration(Optional.empty()).getPathCoordinate().getStampFilter() : stampFilter;
-		Get.assemblageService().getSemanticChronologyStream(associationTypeConceptNid)
+		Get.assemblageService().getSemanticChronologyStream(associationTypeConceptNid, true)
 			.forEach(associationC -> 
 				{
 					LatestVersion<Version> latest = associationC.getLatestVersion(localFilter);
 					if (latest.isPresent())
 					{
-						results.add(AssociationInstance.read((DynamicVersion)latest.get(), stampFilter));
+						synchronized(results) {
+							results.add(AssociationInstance.read((DynamicVersion)latest.get(), stampFilter));
+						}
 					}
 					
 				});
@@ -217,10 +222,7 @@ public class AssociationUtilities
 	{
 		HashSet<Integer> result = new HashSet<>();
 
-		Get.assemblageService().getSemanticChronologyStream(getAssociationNid()).forEach(associationC ->
-		{
-			result.add(associationC.getReferencedComponentNid());
-		});
+		Get.assemblageService().getSemanticChronologyStream(getAssociationNid(), false).forEach(associationC -> result.add(associationC.getReferencedComponentNid()));
 		return result;
 	}
 
