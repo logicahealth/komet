@@ -4,6 +4,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.qa.QAResults;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
@@ -20,7 +21,10 @@ public abstract class QATask extends TimedTaskWithProgressTracker<QAResults>
 {
 	private static Logger log = LogManager.getLogger();
 	
-	{
+	StampFilter coordinate;
+	
+	protected QATask(StampFilter coordinate) {
+		this.coordinate = coordinate;
 		QARunStorage qrs = Get.service(QARunStorage.class);
 		qrs.qaQueued(this.getTaskId(), getFilter());
 		super.stateProperty().addListener(change -> 

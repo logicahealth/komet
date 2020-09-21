@@ -209,9 +209,7 @@ public interface ManifoldCoordinate {
 
     LogicCoordinate getLogicCoordinate();
 
-    default LanguageCoordinate getLanguageCoordinate() {
-        return getLanguageCoordinate();
-    }
+    LanguageCoordinate getLanguageCoordinate();
 
     default Optional<String> getFullyQualifiedName(int nid, StampFilter filter) {
         return this.getLanguageCoordinate().getFullyQualifiedNameText(nid, filter);

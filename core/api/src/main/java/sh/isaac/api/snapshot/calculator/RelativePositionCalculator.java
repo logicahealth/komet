@@ -368,7 +368,10 @@ public class RelativePositionCalculator implements StaticIsaacCache {
 
       // precedingSegments is cumulative, each recursive call adds another
       precedingSegments.add(segment.segmentSequence);
-      pathNidSegmentMap.put(destination.getPathForPositionNid(), segment);
+      Segment old = pathNidSegmentMap.put(destination.getPathForPositionNid(), segment);
+      if (old != null) {
+         LOG.error("Overwrite segment {} with {} for path {}", old, segment, destination.getPathForPositionConcept());
+      }
       destination.getPathOrigins()
                  .stream()
                  .forEach((StampPositionImmutable origin) -> {
