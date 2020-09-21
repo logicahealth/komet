@@ -372,7 +372,7 @@ public class VHATImportHK2Direct extends DirectConverterBaseMojo implements Dire
 
 			statusUpdates.accept("Processing deferred validations and updates...");
 			dwh.processTaxonomyUpdates();
-			Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+			dwh.clearIsaacCaches();
 			dwh.processDelayedValidations();
 			
 			// this could be removed from final release. Just added to help debug editor problems.

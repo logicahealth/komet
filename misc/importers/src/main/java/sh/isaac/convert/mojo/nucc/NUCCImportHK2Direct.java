@@ -287,7 +287,7 @@ public class NUCCImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		}
 
 		dwh.processTaxonomyUpdates();
-		Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+		dwh.clearIsaacCaches();
 		
 		log.info("Processed " + dataRows + " rows");
 		statusUpdates.accept("Processed " + dataRows + " rows");

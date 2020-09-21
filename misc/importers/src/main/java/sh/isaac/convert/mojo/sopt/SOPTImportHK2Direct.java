@@ -329,7 +329,7 @@ public class SOPTImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		}
 
 		dwh.processTaxonomyUpdates();
-		Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+		dwh.clearIsaacCaches();
 		
 		log.info("Processed " + conceptCount + " concepts");
 

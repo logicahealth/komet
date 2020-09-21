@@ -411,7 +411,7 @@ public class FHIRImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		}
 
 		dwh.processTaxonomyUpdates();
-		Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+		dwh.clearIsaacCaches();
 		
 		log.info("Load Statistics");
 

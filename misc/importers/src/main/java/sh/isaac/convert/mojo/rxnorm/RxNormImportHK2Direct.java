@@ -688,7 +688,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 		this.hasTTYType.close();
 
 		dwh.processTaxonomyUpdates();
-		Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+		dwh.clearIsaacCaches();
 
 		log.info("Load Statistics");
 

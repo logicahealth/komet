@@ -39,39 +39,28 @@
 
 package sh.isaac.pombuilder;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-
 import java.nio.charset.Charset;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-
 import java.util.HashMap;
 import java.util.Map.Entry;
-
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.maven.pom._4_0.Model;
 import org.apache.maven.pom._4_0.ObjectFactory;
-
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Marshaller;
 import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * {@link FileUtil}.

@@ -496,7 +496,7 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 			statusUpdates.accept("Processing Taxonomy Updates");
 			progressUpdate.accept(0d, -1d);
 			dwh.processTaxonomyUpdates();
-			Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+			dwh.clearIsaacCaches();
 			
 			progressUpdate.accept(1d, 1d);
 			

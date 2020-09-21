@@ -286,7 +286,7 @@ public class CPTImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		}
 		
 		dwh.processTaxonomyUpdates();
-		Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+		dwh.clearIsaacCaches();
 
 		advanceProgressLine();
 		log.info("Load Statistics");

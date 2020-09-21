@@ -61,7 +61,7 @@ import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 
-import javax.xml.bind.JAXBException;
+import jakarta.xml.bind.JAXBException;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -243,7 +243,7 @@ public class CVXImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		}
 		
 		dwh.processTaxonomyUpdates();
-		Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+		dwh.clearIsaacCaches();
 		
 		log.info("Processed " + conceptCount + " concepts");
 		statusUpdates.accept("Processed " + conceptCount + " concepts");

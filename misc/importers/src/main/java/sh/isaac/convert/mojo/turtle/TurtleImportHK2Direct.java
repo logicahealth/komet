@@ -640,7 +640,7 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 			
 			statusUpdates.accept("Processing taxonomy updates");
 			dwh.processTaxonomyUpdates();
-			Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+			dwh.clearIsaacCaches();
 			statusUpdates.accept("Processing delayed validations");
 			dwh.processDelayedValidations();
 		}

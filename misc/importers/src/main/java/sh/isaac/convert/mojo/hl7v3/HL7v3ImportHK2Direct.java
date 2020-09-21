@@ -66,7 +66,7 @@ import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 
-import javax.xml.bind.*;
+import jakarta.xml.bind.*;
 import javax.xml.transform.stream.StreamSource;
 import java.io.File;
 import java.io.IOException;
@@ -719,7 +719,7 @@ public class HL7v3ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 			}
 			
 			dwh.processTaxonomyUpdates();
-			Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+			dwh.clearIsaacCaches();
 
 			log.info("Created " + codeSystemCount + " code systems");
 			log.info("Skipped " + skippedEmptyCodeSystems + " code systems for being empty");

@@ -219,7 +219,7 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		}
 		
 		dwh.processTaxonomyUpdates();
-		Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+		dwh.clearIsaacCaches();
 
 		advanceProgressLine();
 		statusUpdates.accept("Processed " + conceptCount + " concepts");

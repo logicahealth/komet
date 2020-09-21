@@ -37,6 +37,7 @@ import sh.isaac.api.AssemblageService;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.TaxonomyService;
 import sh.isaac.api.bootstrap.TermAux;
@@ -60,13 +61,13 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.coordinate.Coordinates;
-import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.coordinate.WriteCoordinate;
 import sh.isaac.api.coordinate.WriteCoordinateImpl;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.UuidFactory;
@@ -793,6 +794,27 @@ public class DirectWriteHelper
 			{
 				throw new RuntimeException("Delayed Validations Failed", e);
 			}
+		}
+	}
+	
+	public void clearIsaacCaches() 
+	{
+		Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+		//Reset the cache in the language coordinates, that keeps track of external description expansions
+		LookupService.getService(Coordinates.class).reset();
+		resetLangCoordDescTypes(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultLanguageCoordinate());
+		Get.indexDescriptionService().refreshQueryEngine();
+	}
+	
+	private void resetLangCoordDescTypes(ObservableLanguageCoordinate olc)
+	{
+		olc.setDescriptionTypePreferenceList(
+				Coordinates.Language.expandDescriptionTypePreferenceList(null, 
+						olc.getDescriptionTypePreferenceList()));
+		
+		if (olc.getNextPriorityLanguageCoordinate().isPresent()) 
+		{
+			resetLangCoordDescTypes((ObservableLanguageCoordinate)olc.getNextPriorityLanguageCoordinate().get());
 		}
 	}
 

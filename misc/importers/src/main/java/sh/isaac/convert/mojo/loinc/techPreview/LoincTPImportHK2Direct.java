@@ -413,7 +413,7 @@ public class LoincTPImportHK2Direct extends DirectConverterBaseMojo implements D
 			loincExpressionDebug.close();
 
 			dwh.processTaxonomyUpdates();
-			Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+			dwh.clearIsaacCaches();
 			log.info("Created " + conCounter + " concepts total");
 			
 			log.info("Data Load Summary:");
