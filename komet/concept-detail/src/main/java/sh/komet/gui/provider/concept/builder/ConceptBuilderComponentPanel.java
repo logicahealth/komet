@@ -16,10 +16,15 @@
  */
 package sh.komet.gui.provider.concept.builder;
 
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
@@ -41,8 +46,6 @@ import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.RowConstraints;
 import javafx.scene.text.Text;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
@@ -54,11 +57,9 @@ import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.observable.ObservableDescriptionDialect;
 import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
@@ -66,12 +67,11 @@ import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
 import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Nid1_Int2_VersionImpl;
+import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.control.concept.NewConceptVersionEditor;
 import sh.komet.gui.control.description.dialect.DescriptionDialectEditor;
-import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.style.PseudoClasses;
-import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
@@ -250,10 +250,10 @@ public class ConceptBuilderComponentPanel
                                     this.observableVersion.getPrimordialUuid(),
                                     TermAux.SEMANTIC_TYPE.getNid());
                     semanticTypeSemanticVersion.setComponentNid(semanticType.getNid());
-                    semanticTypeSemanticVersion.setStatus(Status.ACTIVE);
-                    semanticTypeSemanticVersion.setAuthorNid(this.observableVersion.getAuthorNid());
-                    semanticTypeSemanticVersion.setModuleNid(this.observableVersion.getModuleNid());
-                    semanticTypeSemanticVersion.setPathNid(this.observableVersion.getPathNid());
+                    semanticTypeSemanticVersion.setStatus(Status.ACTIVE, null);
+                    semanticTypeSemanticVersion.setAuthorNid(this.observableVersion.getAuthorNid(), null);
+                    semanticTypeSemanticVersion.setModuleNid(this.observableVersion.getModuleNid(), null);
+                    semanticTypeSemanticVersion.setPathNid(this.observableVersion.getPathNid(), null);
                     versionsToCommit.add(semanticTypeSemanticVersion);
                     if (semanticType.getNid() != TermAux.MEMBERSHIP_SEMANTIC.getNid()) {
                         // create concepts for each field
@@ -261,10 +261,10 @@ public class ConceptBuilderComponentPanel
                         // create the concept
                         ObservableConceptVersionImpl fieldConcept
                                 = new ObservableConceptVersionImpl(Get.newUuidWithAssignment(), MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid());
-                        fieldConcept.setStatus(Status.ACTIVE);
-                        fieldConcept.setAuthorNid(this.observableVersion.getAuthorNid());
-                        fieldConcept.setModuleNid(this.observableVersion.getModuleNid());
-                        fieldConcept.setPathNid(this.observableVersion.getPathNid());
+                        fieldConcept.setStatus(Status.ACTIVE, null);
+                        fieldConcept.setAuthorNid(this.observableVersion.getAuthorNid(), null);
+                        fieldConcept.setModuleNid(this.observableVersion.getModuleNid(), null);
+                        fieldConcept.setPathNid(this.observableVersion.getPathNid(), null);
                         versionsToCommit.add(fieldConcept);
 
                         // Add a definition for the concept...
@@ -277,18 +277,18 @@ public class ConceptBuilderComponentPanel
                         ObservableLogicGraphVersionImpl fieldStatedDef = new ObservableLogicGraphVersionImpl(fieldConcept.getPrimordialUuid(), 
                                 TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid());
                         fieldStatedDef.setGraphData(logicalExpression.getData(DataTarget.INTERNAL));
-                        fieldStatedDef.setStatus(Status.ACTIVE);
-                        fieldStatedDef.setAuthorNid(this.observableVersion.getAuthorNid());
-                        fieldStatedDef.setModuleNid(this.observableVersion.getModuleNid());
-                        fieldStatedDef.setPathNid(this.observableVersion.getPathNid());
+                        fieldStatedDef.setStatus(Status.ACTIVE, null);
+                        fieldStatedDef.setAuthorNid(this.observableVersion.getAuthorNid(), null);
+                        fieldStatedDef.setModuleNid(this.observableVersion.getModuleNid(), null);
+                        fieldStatedDef.setPathNid(this.observableVersion.getPathNid(), null);
                         versionsToCommit.add(fieldStatedDef);
 
                         // add the descriptions
                         String fieldName = conceptEditor.getFieldNameForSemantic();
-                        addDescriptionAndDialect(fieldConcept, fieldName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR, versionsToCommit);
+                        addDescriptionAndDialect(fieldConcept, fieldName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR, versionsToCommit, null);
 
                         String fsnFieldName = fieldName + " field of " + conceptText.get();
-                        addDescriptionAndDialect(fieldConcept, fsnFieldName, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR, versionsToCommit);
+                        addDescriptionAndDialect(fieldConcept, fsnFieldName, MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR, versionsToCommit, null);
 
                         // Add concept for field to proper refset. 
                         Observable_Nid1_Int2_VersionImpl fieldAssociation = new Observable_Nid1_Int2_VersionImpl(Get.newUuidWithAssignment(),
@@ -296,10 +296,10 @@ public class ConceptBuilderComponentPanel
                                 TermAux.ASSEMBLAGE_SEMANTIC_FIELDS.getNid());
                         fieldAssociation.setNid1(fieldConcept.getNid());
                         fieldAssociation.setInt2(0);
-                        fieldAssociation.setStatus(Status.ACTIVE);
-                        fieldAssociation.setAuthorNid(this.observableVersion.getAuthorNid());
-                        fieldAssociation.setModuleNid(this.observableVersion.getModuleNid());
-                        fieldAssociation.setPathNid(this.observableVersion.getPathNid());
+                        fieldAssociation.setStatus(Status.ACTIVE, null);
+                        fieldAssociation.setAuthorNid(this.observableVersion.getAuthorNid(), null);
+                        fieldAssociation.setModuleNid(this.observableVersion.getModuleNid(), null);
+                        fieldAssociation.setPathNid(this.observableVersion.getPathNid(), null);
                         versionsToCommit.add(fieldAssociation);
                     }
                 }
@@ -325,7 +325,7 @@ public class ConceptBuilderComponentPanel
     }
 
     protected void addDescriptionAndDialect(ObservableConceptVersionImpl concept, String description,
-            ConceptSpecification descriptionType, List<ObservableVersion> versionsToCommit) throws NoSuchElementException {
+            ConceptSpecification descriptionType, List<ObservableVersion> versionsToCommit, Transaction t) throws NoSuchElementException {
         // create a name
         ObservableDescriptionVersionImpl preferredName = new ObservableDescriptionVersionImpl(Get.newUuidWithAssignment(),
                 concept.getPrimordialUuid(),
@@ -334,19 +334,19 @@ public class ConceptBuilderComponentPanel
         preferredName.setCaseSignificanceConceptNid(MetaData.DESCRIPTION_NOT_CASE_SENSITIVE____SOLOR.getNid());
         preferredName.setDescriptionTypeConceptNid(descriptionType.getNid());
         preferredName.setLanguageConceptNid(MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
-        preferredName.setStatus(Status.ACTIVE);
-        preferredName.setAuthorNid(this.observableVersion.getAuthorNid());
-        preferredName.setModuleNid(this.observableVersion.getModuleNid());
-        preferredName.setPathNid(this.observableVersion.getPathNid());
+        preferredName.setStatus(Status.ACTIVE, t);
+        preferredName.setAuthorNid(this.observableVersion.getAuthorNid(), t);
+        preferredName.setModuleNid(this.observableVersion.getModuleNid(), t);
+        preferredName.setPathNid(this.observableVersion.getPathNid(), t);
         versionsToCommit.add(preferredName);
 
         ObservableComponentNidVersionImpl dialect = new ObservableComponentNidVersionImpl(Get.newUuidWithAssignment(),
                 preferredName.getPrimordialUuid(),
                 TermAux.US_DIALECT_ASSEMBLAGE.getNid());
-        dialect.setStatus(Status.ACTIVE);
-        dialect.setAuthorNid(this.observableVersion.getAuthorNid());
-        dialect.setModuleNid(this.observableVersion.getModuleNid());
-        dialect.setPathNid(this.observableVersion.getPathNid());
+        dialect.setStatus(Status.ACTIVE, t);
+        dialect.setAuthorNid(this.observableVersion.getAuthorNid(), t);
+        dialect.setModuleNid(this.observableVersion.getModuleNid(), t);
+        dialect.setPathNid(this.observableVersion.getPathNid(), t);
         dialect.setComponentNid(MetaData.PREFERRED____SOLOR.getNid());
         versionsToCommit.add(dialect);
     }

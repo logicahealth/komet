@@ -159,10 +159,10 @@ public class AddAttachmentMenuItems {
     }
 
     protected void setupWithChronicle(ObservableVersionImpl version) throws NoSuchElementException {
-        version.setStatus(Status.ACTIVE);
-        version.setAuthorNid(this.manifoldCoordinate.getAuthorNidForChanges());
-        version.setModuleNid(this.manifoldCoordinate.getModuleNidForAnalog(version));
-        version.setPathNid(this.manifoldCoordinate.getPathNidForAnalog());
+        version.setStatus(Status.ACTIVE, null);
+        version.setAuthorNid(this.manifoldCoordinate.getAuthorNidForChanges(), null);
+        version.setModuleNid(this.manifoldCoordinate.getModuleNidForAnalog(version), null);
+        version.setPathNid(this.manifoldCoordinate.getPathNidForAnalog(), null);
         version.setChronology(new ObservableSemanticChronologyImpl((SemanticChronology) version.createIndependentChronicle()));
     }
 

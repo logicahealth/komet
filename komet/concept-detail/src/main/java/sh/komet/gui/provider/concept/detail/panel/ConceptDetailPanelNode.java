@@ -36,6 +36,28 @@
  */
 package sh.komet.gui.provider.concept.detail.panel;
 
+import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
+import static sh.komet.gui.style.StyleClasses.ADD_DESCRIPTION_BUTTON;
+import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.prefs.BackingStoreException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.mahout.math.list.IntArrayList;
+import org.apache.mahout.math.map.OpenIntIntHashMap;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+
 //~--- JDK imports ------------------------------------------------------------
 
 import javafx.animation.Animation;
@@ -51,15 +73,18 @@ import javafx.geometry.Insets;
 import javafx.geometry.Side;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.ToggleButton;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.apache.mahout.math.list.IntArrayList;
-import org.apache.mahout.math.map.OpenIntIntHashMap;
-import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
-import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -67,7 +92,12 @@ import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.commit.*;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.ChronologyChangeListener;
+import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.commit.CommitTask;
+import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -97,20 +127,6 @@ import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
-import java.util.prefs.BackingStoreException;
-
-import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
-import static sh.komet.gui.style.StyleClasses.ADD_DESCRIPTION_BUTTON;
-import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- classes ----------------------------------------------------------------
 /**
  *
  * @author kec
@@ -341,8 +357,7 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         return ft;
     }
     
-    private void handleCommit(ObservableDescriptionDialect observableDescriptionDialect, 
-            ObservableVersion[] versionsToCommit) {
+    private void handleCommit(ObservableDescriptionDialect observableDescriptionDialect, ObservableVersion[] versionsToCommit) {
         Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
         CommitTask commitTask = transaction.commitObservableVersions("", versionsToCommit);
         Get.executor().execute(() -> {
@@ -500,8 +515,8 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
                     = new ObservableDescriptionDialect(optionalFocus.get().getPrimordialUuid(), MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
             newDescriptions.add(newDescriptionDialect);
             newDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
-            newDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
-            newDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
+            newDescriptionDialect.getDescription().setStatus(Status.ACTIVE, null);
+            newDescriptionDialect.getDialect().setStatus(Status.ACTIVE, null);
             clearComponents();
         }
     }

@@ -109,8 +109,8 @@ public class CategorizedVersion
    }
 
    @Override
-   public void setAuthorNid(int authorNid) {
-      delegate.setAuthorNid(authorNid);
+   public void setAuthorNid(int authorNid, Transaction t) {
+      delegate.setAuthorNid(authorNid, t);
    }
 
    @Override
@@ -129,8 +129,8 @@ public class CategorizedVersion
    }
 
    @Override
-   public void setModuleNid(int moduleNid) {
-      delegate.setModuleNid(moduleNid);
+   public void setModuleNid(int moduleNid, Transaction t) {
+      delegate.setModuleNid(moduleNid, t);
    }
 
    @Override
@@ -144,8 +144,8 @@ public class CategorizedVersion
    }
 
    @Override
-   public void setPathNid(int pathNid) {
-      delegate.setPathNid(pathNid);
+   public void setPathNid(int pathNid, Transaction t) {
+      delegate.setPathNid(pathNid, t);
    }
 
    @Override
@@ -169,13 +169,13 @@ public class CategorizedVersion
    }
 
    @Override
-   public void setTime(long time) {
-      delegate.setTime(time);
+   public void setTime(long time, Transaction t) {
+      delegate.setTime(time, t);
    }
 
    @Override
-   public void setStatus(Status state) {
-      delegate.setStatus(state);
+   public void setStatus(Status state, Transaction t) {
+      delegate.setStatus(state, t);
    }
 
    @Override

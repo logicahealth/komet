@@ -36,19 +36,21 @@
  */
 package sh.isaac.model;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.util.List;
 import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.transaction.Transaction;
 
-//~--- classes ----------------------------------------------------------------
+
+//TODO when a setter is called that changes the stamp sequence, should the old stamp sequence be removed from the transaction?
+//makeMutable puts the (current) stamp into the transaction.... then a set call to module or path changes the stamp, and puts the new 
+//stamp in the transaction.  But should the old be removed?
+
 /**
  * The Class VersionImpl.
  *
@@ -67,7 +69,6 @@ public abstract class VersionImpl
     */
    private int stampSequence;
 
-   //~--- constructors --------------------------------------------------------
    /**
     * Instantiates a new object version impl.
     *
@@ -78,8 +79,6 @@ public abstract class VersionImpl
       this.chronicle = (ChronologyImpl) chronicle;
       this.stampSequence = stampSequence;
    }
-
-   //~--- methods -------------------------------------------------------------
 
    @Override
    public void addAdditionalUuids(UUID... uuids)
@@ -190,11 +189,6 @@ public abstract class VersionImpl
 
    protected abstract int editDistance2(VersionImpl other, int editDistance);
 
-   /**
-    * Hash code.
-    *
-    * @return the int
-    */
    @Override
    public int hashCode() {
       int hash = 7;
@@ -203,11 +197,6 @@ public abstract class VersionImpl
       return hash;
    }
 
-   /**
-    * To string.
-    *
-    * @return the string
-    */
    @Override
    public String toString() {
       return toString(new StringBuilder()).toString();
@@ -226,11 +215,6 @@ public abstract class VersionImpl
       return builder;
    }
 
-   /**
-    * To user string.
-    *
-    * @return the string
-    */
    @Override
    public String toUserString() {
       return toString();
@@ -257,31 +241,19 @@ public abstract class VersionImpl
       data.putStampSequence(this.stampSequence);
    }
 
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the author nid.
-    *
-    * @return the author nid
-    */
    @Override
    public int getAuthorNid() {
       return Get.stampService()
               .getAuthorNidForStamp(this.stampSequence);
    }
 
-   //~--- set methods ---------------------------------------------------------
-   /**
-    * Sets the author nid.
-    *
-    * @param authorSequence the new author nid
-    */
    @Override
-   public void setAuthorNid(int authorSequence) {
+   public void setAuthorNid(int authorSequence, Transaction t) {
       if (this.stampSequence != -1) {
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
-                 .getStampSequence(getStatus(),
+                 .getStampSequence(t, getStatus(),
                          getTime(),
                          authorSequence,
                          getModuleNid(),
@@ -289,12 +261,6 @@ public abstract class VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the commit state.
-    *
-    * @return the commit state
-    */
    @Override
    public CommitStates getCommitState() {
       if (isUncommitted()) {
@@ -304,30 +270,19 @@ public abstract class VersionImpl
       return CommitStates.COMMITTED;
    }
 
-   /**
-    * Gets the module nid.
-    *
-    * @return the module nid
-    */
    @Override
    public int getModuleNid() {
       return Get.stampService()
               .getModuleNidForStamp(this.stampSequence);
    }
 
-   //~--- set methods ---------------------------------------------------------
-   /**
-    * Sets the module nid.
-    *
-    * @param moduleSequence the new module nid
-    */
    @Override
-   public void setModuleNid(int moduleSequence) {
+   public void setModuleNid(int moduleSequence, Transaction t) {
       if (this.stampSequence != -1) {
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
-                 .getStampSequence(getStatus(),
+                 .getStampSequence(t, getStatus(),
                          getTime(),
                          getAuthorNid(),
                          moduleSequence,
@@ -335,18 +290,13 @@ public abstract class VersionImpl
       }
    }
 
-   /**
-    * Sets the state.
-    *
-    * @param state the new state
-    */
    @Override
-   public void setStatus(Status state) {
+   public void setStatus(Status state, Transaction t) {
       if (this.stampSequence != -1) {
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
-                 .getStampSequence(state,
+                 .getStampSequence(t, state,
                          getTime(),
                          getAuthorNid(),
                          getModuleNid(),
@@ -354,41 +304,24 @@ public abstract class VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the nid.
-    *
-    * @return the nid
-    */
    @Override
    public int getNid() {
       return this.chronicle.getNid();
    }
 
-   /**
-    * Gets the path nid.
-    *
-    * @return the path nid
-    */
    @Override
    public int getPathNid() {
       return Get.stampService()
               .getPathNidForStamp(this.stampSequence);
    }
 
-   //~--- set methods ---------------------------------------------------------
-   /**
-    * Sets the path nid.
-    *
-    * @param pathSequence the new path nid
-    */
    @Override
-   public void setPathNid(int pathSequence) {
+   public void setPathNid(int pathSequence, Transaction t) {
       if (this.stampSequence != -1) {
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
-                 .getStampSequence(getStatus(),
+                 .getStampSequence(t, getStatus(),
                          getTime(),
                          getAuthorNid(),
                          getModuleNid(),
@@ -396,62 +329,35 @@ public abstract class VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Gets the primordial uuid.
-    *
-    * @return the primordial uuid
-    */
    @Override
    public UUID getPrimordialUuid() {
       return this.chronicle.getPrimordialUuid();
    }
 
-   /**
-    * Gets the stamp sequence.
-    *
-    * @return the stamp sequence
-    */
    @Override
    public int getStampSequence() {
       return this.stampSequence;
    }
 
-   /**
-    * Gets the status.
-    *
-    * @return the status
-    */
    @Override
    public Status getStatus() {
       return Get.stampService()
               .getStatusForStamp(this.stampSequence);
    }
 
-   /**
-    * Gets the time.
-    *
-    * @return the time
-    */
    @Override
    public long getTime() {
       return Get.stampService()
               .getTimeForStamp(this.stampSequence);
    }
 
-   //~--- set methods ---------------------------------------------------------
-   /**
-    * Sets the time.
-    *
-    * @param time the new time
-    */
    @Override
-   public void setTime(long time) {
+   public void setTime(long time, Transaction t) {
       if (this.stampSequence != -1) {
          checkUncommitted();
          int oldStampSequence = this.stampSequence;
          this.stampSequence = Get.stampService()
-                 .getStampSequence(getStatus(),
+                 .getStampSequence(t, getStatus(),
                          time,
                          getAuthorNid(),
                          getModuleNid(),
@@ -459,22 +365,11 @@ public abstract class VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-   /**
-    * Checks if uncommitted.
-    *
-    * @return true, if uncommitted
-    */
    @Override
    public boolean isUncommitted() {
       return Get.stampService().isUncommitted(stampSequence);
    }
 
-   /**
-    * Gets the uuid list.
-    *
-    * @return the uuid list
-    */
    @Override
    public List<UUID> getUuidList() {
       return this.chronicle.getUuidList();

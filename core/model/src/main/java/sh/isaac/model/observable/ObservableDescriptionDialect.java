@@ -181,27 +181,27 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     }
 
     @Override
-    public void setStatus(Status state) {
+    public void setStatus(Status state, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setAuthorNid(int authorSequence) {
+    public void setAuthorNid(int authorSequence, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setModuleNid(int moduleSequence) {
+    public void setModuleNid(int moduleSequence, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setPathNid(int pathSequence) {
+    public void setPathNid(int pathSequence, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setTime(long time) {
+    public void setTime(long time, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
