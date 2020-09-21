@@ -132,7 +132,7 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 		try
 		{
 			log.debug("Writing concepts to RF2 structure");
-			Get.conceptService().getConceptChronologyStream().parallel().forEach(cc ->
+			Get.conceptService().getConceptChronologyStream(true).forEach(cc ->
 			{
 				try
 				{
@@ -213,7 +213,7 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 			});
 			
 			log.debug("Writing concepts to RF2 structure");
-			Get.assemblageService().getSemanticChronologyStream().parallel().forEach(sc ->
+			Get.assemblageService().getSemanticChronologyStream(true).forEach(sc ->
 			{
 				try
 				{
@@ -416,7 +416,7 @@ public class RF2Exporter extends TimedTaskWithProgressTracker<File>
 
 	private String getDefinitionStatusId(ConceptVersion cv)
 	{
-		Optional<SemanticChronology> sc = as.getSemanticChronologyStreamForComponentFromAssemblage(cv.getNid(), statedLogicGraphLookupNid).findFirst();
+		Optional<SemanticChronology> sc = as.getSemanticChronologyStreamForComponentFromAssemblage(cv.getNid(), statedLogicGraphLookupNid, false).findFirst();
 		if (sc.isPresent())
 		{
 			//Was it defined at this time stamp...

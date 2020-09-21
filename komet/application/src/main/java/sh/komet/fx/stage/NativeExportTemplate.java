@@ -76,7 +76,7 @@ public class NativeExportTemplate extends TimedTaskWithProgressTracker<Integer> 
            updateMessage("Counting identifiers...");
            int[] assemblageNids = Get.identifierService().getAssemblageNids();
            for (int assemblageNid: assemblageNids) {
-               Get.identifierService().getNidsForAssemblage(assemblageNid).forEach((nid) -> {
+               Get.identifierService().getNidsForAssemblage(assemblageNid, false).forEach((nid) -> {
                    identifierCount++;
                });
            }
@@ -91,7 +91,7 @@ public class NativeExportTemplate extends TimedTaskWithProgressTracker<Integer> 
               dos.writeInt(identifierCount);
               for (int assemblageNid: assemblageNids) {
                   VersionType versionType = Get.assemblageService().getVersionTypeForAssemblage(assemblageNid);
-                  Get.identifierService().getNidsForAssemblage(assemblageNid).forEach((nid) -> {
+                  Get.identifierService().getNidsForAssemblage(assemblageNid, false).forEach((nid) -> {
                       try {
                           dos.writeInt(nid);
                           UUID[] uuids = Get.identifierService().getUuidArrayForNid(nid);
@@ -155,12 +155,12 @@ public class NativeExportTemplate extends TimedTaskWithProgressTracker<Integer> 
               ZipEntry taxonomy = new ZipEntry("taxonomy");
               zipOut.putNextEntry(taxonomy);
               TaxonomyService taxonomyService = Get.taxonomyService();
-              long count = Get.identifierService().getNidsForAssemblage(TermAux.SOLOR_CONCEPT_ASSEMBLAGE).count();
+              long count = Get.identifierService().getNidsForAssemblage(TermAux.SOLOR_CONCEPT_ASSEMBLAGE, true).count();
               int[] conceptNids = new int[(int) count];
               dos.writeInt(conceptNids.length);
               addToTotalWork(conceptNids.length);
               AtomicInteger taxonomyCount = new AtomicInteger();
-              Get.identifierService().getNidsForAssemblage(TermAux.SOLOR_CONCEPT_ASSEMBLAGE).forEach((int nid)-> {
+              Get.identifierService().getNidsForAssemblage(TermAux.SOLOR_CONCEPT_ASSEMBLAGE, false).forEach((int nid)-> {
                   try {
                       taxonomyCount.incrementAndGet();
                       dos.writeInt(nid);
@@ -183,7 +183,7 @@ public class NativeExportTemplate extends TimedTaskWithProgressTracker<Integer> 
               ZipEntry ibdfEntry = new ZipEntry("ibdf");
               zipOut.putNextEntry(ibdfEntry);
               for (int assemblageNid: assemblageNids) {
-                  Get.identifierService().getNidsForAssemblage(assemblageNid).forEach((nid) -> {
+                  Get.identifierService().getNidsForAssemblage(assemblageNid, false).forEach((nid) -> {
                       Optional<? extends Chronology> chronologyOptional = Get.identifiedObjectService().getChronology(nid);
                       if (chronologyOptional.isPresent()) {
                           exportCount++;
