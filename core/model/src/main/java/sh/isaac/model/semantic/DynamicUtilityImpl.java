@@ -245,7 +245,7 @@ public class DynamicUtilityImpl
       DescriptionBuilder<SemanticChronology, ? extends MutableDescriptionVersion> definitionBuilder = descriptionBuilderService
             .getDescriptionBuilder(semanticDescription, conceptNid, TermAux.DEFINITION_DESCRIPTION_TYPE, TermAux.ENGLISH_LANGUAGE);
       definitionBuilder.addPreferredInDialectAssemblage(TermAux.US_DIALECT_ASSEMBLAGE);
-      definitionBuilder.setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null);
+      definitionBuilder.setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid());
 
       final SemanticChronology definitionSemantic = write ? definitionBuilder.buildAndWrite(localWc).getNoThrow() 
             : definitionBuilder.build(localWc);
