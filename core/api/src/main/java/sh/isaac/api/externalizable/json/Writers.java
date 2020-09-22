@@ -49,6 +49,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import com.cedarsoftware.util.io.JsonWriter;
+import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -231,6 +232,10 @@ public class Writers {
          output.write("\"referencedComponentNid\":\"");
          output.write(sc.getReferencedComponentNid() + "");
          output.write("\",");
+         mainWriter.newLine();
+         output.write("\"referencedComponentUuid\":\"");
+         output.write(Get.identifierService().getUuidPrimordialStringForNid(sc.getReferencedComponentNid()) + "");
+         output.write("\",");
 
          final List<SemanticVersion> versions = sc.getVersionList();
 
@@ -283,10 +288,9 @@ public class Writers {
             output.write("\"path\":\"");
             output.write(sv.getPathNid() + "");
             output.write("\",");
-
             if (sv instanceof DescriptionVersion) {
                final DescriptionVersion ds = (DescriptionVersion) sv;
-
+               mainWriter.newLine();
                output.write("\"caseSignificanceNid\":\"");
                output.write(ds.getCaseSignificanceConceptNid() + "");
                output.write("\",");
@@ -301,15 +305,20 @@ public class Writers {
                mainWriter.newLine();
                output.write("\"text\":");
                mainWriter.write(ds.getText());
+               //don't need closing ", its already done by mainWriter
             } else if (sv instanceof ComponentNidVersion) {
                final ComponentNidVersion cns = (ComponentNidVersion) sv;
-
+               mainWriter.newLine();
                output.write("\"componentNid\":\"");
                output.write(cns.getComponentNid() + "");
+               output.write("\",");
+               mainWriter.newLine();
+               output.write("\"componentNidUuid\":\"");
+               output.write(Get.identifierService().getUuidPrimordialStringForNid(cns.getComponentNid()) + "");
                output.write("\"");
             } else if (sv instanceof DynamicVersion) {
                final DynamicVersion ds = (DynamicVersion) sv;
-
+               mainWriter.newLine();
                output.write("\"data\":\"");
                output.write(ds.dataToString());
                output.write("\"");
@@ -322,28 +331,38 @@ public class Writers {
                final LogicNode           root = le.getRoot();
 
                ArrayList<String> parents = new ArrayList<>();
-               for (final LogicNode necessaryOrSufficient: root.getChildren()) {
-                  for (final LogicNode connector: necessaryOrSufficient.getChildren()) {
-                     for (final LogicNode target: connector.getChildren()) {
-                        if (target.getNodeSemantic() == NodeSemantic.CONCEPT) {
-                           // Hack ALERT!
-                           // This should look like this: Concept[1] ISAAC metadata (ISAAC) <14>
-                           final String conceptString = target.toString();
-                           if (conceptString.contains("<") && conceptString.contains(">")) {
-                              parents.add(conceptString.substring(conceptString.lastIndexOf('<') + 1,
-                                    conceptString.lastIndexOf('>')));
-                           } else {
-                              output.write("\"logicGraph\":\"NOT_YET_REPRESENTED\"");
-                           }
-                        } else {
-                           output.write("\"logicGraph\":\"NOT_YET_REPRESENTED\"");
-                        }
-                     }
-                  }
+               try {
+                   for (final LogicNode necessaryOrSufficient: root.getChildren()) {
+                     for (final LogicNode connector: necessaryOrSufficient.getChildren()) {
+                         for (final LogicNode target: connector.getChildren()) {
+                            if (target.getNodeSemantic() == NodeSemantic.CONCEPT) {
+                               // Hack ALERT!
+                               // This should look like this: Concept[1] ISAAC metadata (ISAAC) <14>
+                               final String conceptString = target.toString();
+                               if (conceptString.contains("<") && conceptString.contains(">")) {
+                                  parents.add(conceptString.substring(conceptString.lastIndexOf('<') + 1,
+                                        conceptString.lastIndexOf('>')));
+                               } else {
+                                  mainWriter.newLine();
+                                  output.write("\"logicGraph\":\"NOT_YET_REPRESENTED\"");
+                               }
+                            } else {
+                               mainWriter.newLine();
+                               output.write("\"logicGraph\":\"NOT_YET_REPRESENTED\"");
+                            }
+                         }
+                      }
+                   }
+               }
+               catch (Exception e) {
+                   //Can happen during diff, when system not loaded
+                   mainWriter.newLine();
+                   output.write("\"logicGraph\":\"NOT_YET_REPRESENTED\"");
                }
                
                if (parents.size() > 0)
                {
+                  mainWriter.newLine();
                   output.write("\"parentConceptNid\":[");
                   mainWriter.tabIn();
                   for (int i = 0; i < parents.size(); i++)
@@ -359,13 +378,13 @@ public class Writers {
                }
             } else if (sv instanceof LongVersion) {
                final LongVersion ls = (LongVersion) sv;
-
+               mainWriter.newLine();
                output.write("\"long\":\"");
                output.write(ls.getLongValue() + "");
                output.write("\"");
             } else if (sv instanceof StringVersion) {
                final StringVersion ss = (StringVersion) sv;
-
+               mainWriter.newLine();
                output.write("\"string\":\"");
                output.write(ss.getString());
                output.write("\"");
