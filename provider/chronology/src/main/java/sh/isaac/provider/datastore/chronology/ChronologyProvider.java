@@ -849,11 +849,7 @@ public class ChronologyProvider
 
         @Override
         public String conceptDescriptionText(int conceptNid) {
-            Optional<String> description = this.manifoldCoordinate.getLanguageCoordinate().getRegularDescriptionText(conceptNid, this.manifoldCoordinate.getViewStampFilter());
-            if (description.isPresent()) {
-                return description.get();
-            }
-            description = this.manifoldCoordinate.getLanguageCoordinate().getFullyQualifiedNameText(conceptNid, this.manifoldCoordinate.getViewStampFilter());
+            Optional<String> description = this.manifoldCoordinate.getLanguageCoordinate().getDescriptionText(conceptNid, this.manifoldCoordinate.getViewStampFilter());
             if (description.isPresent()) {
                 return description.get();
             }

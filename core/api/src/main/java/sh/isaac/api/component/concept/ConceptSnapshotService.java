@@ -55,9 +55,7 @@ public interface ConceptSnapshotService {
    /**
     * Simple method for getting text of the description of a concept.
     * This method will return a description type according to the constraints of
-    * the
-    * {@code StampCoordinate} and the default
-    * {@code LanguageCoordinate}.
+    * the {@code StampCoordinate} and the default {@code LanguageCoordinate}.
     * @param conceptNid of the concept to get the description for
     * @return a description for this concept. If no description can be found,
     * {@code "No desc for: " + UUID;} will be returned.

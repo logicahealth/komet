@@ -400,13 +400,10 @@ public class Get
 
    /**
     * Simple method for getting text of the description of a concept. This
-    * method will try first to return the fully specified description, or the
-    * preferred description, as specified in the default
-    * {@code StampCoordinate} and the default {@code LanguageCoordinate}.
+    * method will use the rules of the default {@code StampCoordinate} and the default {@code LanguageCoordinate}.
     * 
     * Note that this implementation does rely on the configuration of the 
-    * {@link #defaultConceptSnapshotService()} - if that configuration is changed, 
-    * the behavior of this method will follow.
+    * {@link #defaultConceptSnapshotService()} - if that configuration is changed, the behavior of this method will follow.
     *
     * @param conceptNid nid of the concept to get the description for
     * @return a description for this concept. If no description can be found, {@code "No desc for: " + UUID;} will be returned.
