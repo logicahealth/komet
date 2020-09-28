@@ -651,8 +651,12 @@ public class LookupService {
     */
    public static <T> List<T> getServices(Class<T> contractOrImpl) {
       final List<T> services = get().getAllServices(contractOrImpl, new Annotation[0]);
-
-      LOG.debug("LookupService returning {} for {}", services, contractOrImpl.getName());
+      final List<String> serviceNames = new ArrayList<>();
+      
+      for (T service : services) {
+          serviceNames.add(service.getClass().getName());
+      }
+      LOG.debug("LookupService returning {} for {}", serviceNames, contractOrImpl.getName());
       return services;
    }
    
@@ -664,14 +668,16 @@ public class LookupService {
    public static <T> List<T> getActiveServices(Class<T> contractOrImpl) {
       
       final List<T> services = new ArrayList<>();
+      final List<String> serviceNames = new ArrayList<>();
       get().getAllServiceHandles(contractOrImpl).forEach(serviceHandle ->
       {
          if (serviceHandle.isActive()) {
             services.add(serviceHandle.getService());
+            serviceNames.add(serviceHandle.getClass().getName());
          }
       });
 
-      LOG.debug("LookupService returning active services {} for {}", services, contractOrImpl.getName());
+      LOG.debug("LookupService returning active services {} for {}", serviceNames, contractOrImpl.getName());
       return services;
    }
 
