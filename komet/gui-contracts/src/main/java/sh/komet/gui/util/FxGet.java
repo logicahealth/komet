@@ -29,6 +29,7 @@ import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;
@@ -36,6 +37,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitListener;
 import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -196,7 +198,15 @@ public class FxGet implements StaticIsaacCache {
      */
     @Override
     public void reset() {
-        Get.commitService().removeCommitListener(COMMIT_LISTENER);
+        CommitListener local = COMMIT_LISTENER;
+        if (local != null) {
+            //During shutdown, reset it called after a runlevel change.  Do NOT restart the commit service while only trying to clean up.
+            //In reality, this static class probably shouldn't be static, if it wasnt to keep state with things that have run levels.... 
+            List<CommitService> cs = LookupService.getActiveServices(CommitService.class);
+            if (cs.size() > 0) {
+                cs.get(0).removeCommitListener(local);
+            }
+        }
         COMMIT_LISTENER = null;
         DIALOG_SERVICE = null;
         RULES_DRIVEN_KOMET_SERVICE = null;
