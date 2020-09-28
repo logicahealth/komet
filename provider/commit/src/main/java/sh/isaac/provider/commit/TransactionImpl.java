@@ -319,9 +319,8 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
         StringBuilder sb = new StringBuilder();
         if (transactionName.isPresent()) {
             sb.append(transactionName.get()).append(" ");
-        } else {
-            sb.append(transactionId.toString());
-        }
+        } 
+        sb.append(transactionId.toString());
         sb.append(" - changeChecker: ").append(changeCheckerMode).append(" index after commit - ").append(indexAfterCommit);
         return sb.toString();
     }

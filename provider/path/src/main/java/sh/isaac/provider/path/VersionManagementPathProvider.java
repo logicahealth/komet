@@ -124,7 +124,7 @@ public class VersionManagementPathProvider
    private void setupPathMap() {
       LOCK.lock();
       
-      LOG.info("Rebuilding the path map.  Old map size: {}", (this.pathMap == null ? 0 : this.pathMap.size()));
+      LOG.debug("Rebuilding the path map.  Old map size: {}", (this.pathMap == null ? 0 : this.pathMap.size()));
       try {
          ConcurrentHashMap<Integer, StampPathImmutable> newMap = new ConcurrentHashMap<>();
          ConcurrentHashMap<Integer, ImmutableSet<StampBranchImmutable>> newForkMap = new ConcurrentHashMap<>();

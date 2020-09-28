@@ -72,7 +72,7 @@ public class TransactionCommitTask extends CommitTask {
             throws Exception {
         try {
             // need to track
-            LOG.debug("TransactionCommitTask for transaction {} begins ", transaction);
+            LOG.debug("TransactionCommitTask for transaction {} begins, comment: {} ", transaction, commitComment);
             if (!this.transaction.readyToCommit(this.checkers, this.alertCollection, this)) {
                 return Optional.empty();
             }
@@ -96,7 +96,7 @@ public class TransactionCommitTask extends CommitTask {
             }
             else{
                 this.alertCollection.add(new AlertObject("nothing to commit", "Nothing was found to commit", AlertType.INFORMATION, AlertCategory.COMMIT));
-                LOG.warn("Nothing to commit in transaction {}", transaction);
+                LOG.warn("Nothing to commit in transaction {} : {}", transaction, this.commitComment);
                 return Optional.empty();
             }
         } catch (final Exception e1) {
