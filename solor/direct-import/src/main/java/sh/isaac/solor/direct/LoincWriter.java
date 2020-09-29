@@ -214,8 +214,8 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
 
                     Status status = mapStatus(loincRecord[STATUS]);
 
-                    int recordStamp = stampService.getStampSequence(status, commitTime, authorNid, moduleNid, pathNid);
-                    int descriptionStamp = stampService.getStampSequence(Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
+                    int recordStamp = stampService.getStampSequence(transaction, status, commitTime, authorNid, moduleNid, pathNid);
+                    int descriptionStamp = stampService.getStampSequence(transaction, Status.ACTIVE, commitTime, authorNid, moduleNid, pathNid);
                         // See if the concept is created (from the SNOMED/LOINC expressions.
                     if (loincRecord[LOINC_NUM].contains("14749-6")) {
                         LOG.info("Found 14749-6");
@@ -367,7 +367,7 @@ public class LoincWriter extends TimedTaskWithProgressTracker<Void> {
     public SemanticChronology addLogicGraph(Transaction transaction, String loincCode,
                                             LogicalExpression logicalExpression, int module, Status status) {
 
-        int stamp = Get.stampService().getStampSequence(Status.ACTIVE,
+        int stamp = Get.stampService().getStampSequence(transaction, Status.ACTIVE,
                 commitTime, TermAux.USER.getNid(),
                 TermAux.SOLOR_OVERLAY_MODULE.getNid(),
                 TermAux.DEVELOPMENT_PATH.getNid());

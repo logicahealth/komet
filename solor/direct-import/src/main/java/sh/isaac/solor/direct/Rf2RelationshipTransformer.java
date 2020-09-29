@@ -44,9 +44,15 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
    final int transformSize = 10240;
    final IdentifierService identifierService = ModelGet.identifierService();
    private final ImportType importType;
+   private Transaction transaction;
 
-   public Rf2RelationshipTransformer(ImportType importType) {
-       this.importType = importType;
+   /**
+    * @param transaction - if provided, does NOT commit the transaction.  If not provided, creates and commits its own transaction.
+    * @param importType
+    */
+   public Rf2RelationshipTransformer(Transaction transaction, ImportType importType) {
+      this.importType = importType;
+      this.transaction = transaction;
       Get.activeTasks().add(this);
       updateTitle("Converting RF2 to EL++ " + importType);
       
@@ -65,7 +71,10 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
 
          List<TransformationGroup> statedTransformList = new ArrayList<>();
          
-         Transaction transaction = Get.commitService().newTransaction(Optional.of("stated definitions transform"), ChangeCheckerMode.INACTIVE, false);
+         boolean commit = (transaction == null);
+         if (commit) {
+             transaction = Get.commitService().newTransaction(Optional.of("stated definitions transform"), ChangeCheckerMode.INACTIVE, false);
+         }
          
          updateMessage("Transforming stated rf2 relationships...");
          Get.conceptService().getConceptNidStream(conceptAssemblageNid, false).forEach((conceptNid) -> {
@@ -107,7 +116,9 @@ public class Rf2RelationshipTransformer extends TimedTaskWithProgressTracker<Voi
          Get.executor().submit(remainingInferredTransformer);
          
          writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-         transaction.commit().get();
+         if (commit) {
+             transaction.commit().get();
+         }
          completedUnitOfWork();
          updateMessage("Completed transformation");
 

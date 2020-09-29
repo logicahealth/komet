@@ -177,6 +177,7 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
 
 		// Every time concept created add membership to "All CPT Concepts"
+		allICDConceptsRefset = dwh.makeRefsetTypeConcept(null, "All " + termName + " Concepts", null, null, contentTime);
 		HIPPA_Valid = dwh.makeRefsetTypeConcept(null, "HIPAA Valid", null, null, contentTime);
 
 		// Create CPT root concept under SOLOR_CONCEPT____SOLOR

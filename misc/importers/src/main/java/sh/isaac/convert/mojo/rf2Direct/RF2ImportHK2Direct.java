@@ -188,7 +188,7 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 			f.get();
 
 			log.info("Transforming relationships");
-			Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(it);
+			Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(transaction, it);
 			Future<?> transformTask = Get.executor().submit(transformer);
 			transformTask.get();
 			

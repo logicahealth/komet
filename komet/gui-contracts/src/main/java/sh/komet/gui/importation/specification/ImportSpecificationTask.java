@@ -59,7 +59,7 @@ public class ImportSpecificationTask extends TimedTaskWithProgressTracker<Void> 
 
             if(this.isRF2RelationshipTransformed) {
                 updateMessage("Transforming to SOLOR...");
-                Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(null);//TODO: Import Selected from the SNOMED Specificaiton
+                Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(transaction, null);//TODO: Import Selected from the SNOMED Specificaiton
                 Future<?> transformTask = Get.executor().submit(transformer);
                 transformTask.get();
             }

@@ -265,7 +265,7 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 			LookupService.get().getService(DataStore.class).registerDataWriteListener(listener);
 
 			convertContent(statusUpdate -> {}, (workDone, workTotal) -> {});
-			transaction.commit();
+			log.info(transaction.commit().get());
 			LookupService.shutdownSystem();
 
 			listener.close();
