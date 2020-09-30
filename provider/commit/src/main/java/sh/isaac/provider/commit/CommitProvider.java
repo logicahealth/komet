@@ -906,8 +906,7 @@ public class CommitProvider
 
             //Continue using our own local storage in the case of FileSystem data even though the file system store
             //now supports the extended APIs for performance reasons
-            if (Get.dataStore().implementsExtendedStoreAPI() && (Get.dataStore() instanceof DataStoreSubService) 
-                    && ((DataStoreSubService)Get.dataStore()).getDataStoreType() != DatabaseImplementation.FILESYSTEM) {
+            if (Get.dataStore().implementsExtendedStoreAPI() && Get.dataStore().getDataStoreType() != DatabaseImplementation.FILESYSTEM) {
                 dataStore = (ExtendedStore) Get.dataStore();
                 nidStore = dataStore.<Integer, byte[], NidSet>getStore(NID_STORE_NAME,
                         (valueToSerialize) -> valueToSerialize == null ? null : DataToBytesUtils.getBytes(valueToSerialize::write),
@@ -923,7 +922,7 @@ public class CommitProvider
                                 throw new RuntimeException(e);
                             }
                         });
-                LOG.info("DataStore implements extended API, will be used for Commit Provider");
+                LOG.info("DataStore implements extended API, will be used for Commit provider");
             } else {
                 this.dbFolderPath = dataStorePath.resolve("commit-provider");
 
@@ -943,7 +942,7 @@ public class CommitProvider
 
                 Files.createDirectories(this.commitManagerFolder);
 
-                LOG.debug("Commit provider starting in {} using local storage", this.commitManagerFolder.toFile().getCanonicalFile().toString());
+                LOG.info("Commit provider starting in {} using local storage", this.commitManagerFolder.toFile().getCanonicalFile().toString());
 
                 if (!this.dataStoreId.isPresent()) {
                     this.dataStoreId = LookupService.get().getService(MetadataService.class).getDataStoreId();

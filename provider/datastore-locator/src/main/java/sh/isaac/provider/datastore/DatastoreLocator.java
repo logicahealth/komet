@@ -410,6 +410,12 @@ public class DatastoreLocator implements SequenceStore, ExtendedStore, MasterDat
 		return dataStore.implementsExtendedStoreAPI();
 	}
 	
+	@Override
+	public DatabaseImplementation getDataStoreType()
+	{
+		return dataStore.getDataStoreType();
+	}
+	
 	/** 
 	 * {@inheritDoc}
 	 */

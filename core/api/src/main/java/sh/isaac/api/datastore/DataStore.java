@@ -48,6 +48,7 @@ import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
@@ -209,5 +210,10 @@ public interface DataStore
    default boolean implementsExtendedStoreAPI() {
       return false;
    }
+   
+   /**
+    * @return The implementation type of the data store in use
+    */
+   public DatabaseImplementation getDataStoreType();
 }
 

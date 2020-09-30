@@ -117,8 +117,7 @@ public class IdentifierProvider
 
             //Continue using local implementation when the FileSystem store is in use, even though the filesystem store
             //now supports extended APIs for performance reasons
-            if (this.store.implementsExtendedStoreAPI() && (Get.dataStore() instanceof DataStoreSubService) 
-                    && ((DataStoreSubService)Get.dataStore()).getDataStoreType() != DatabaseImplementation.FILESYSTEM) {
+            if (this.store.implementsExtendedStoreAPI() && Get.dataStore().getDataStoreType() != DatabaseImplementation.FILESYSTEM) {
                 uuidIntMapMap = new DataStoreUuidToIntMap((ExtendedStore) this.store);
             } else {
                 this.uuidIntMapMap = UuidIntMapMapFileBased.create(uuidNidMapDirectory);
