@@ -255,6 +255,7 @@ public class LoadTermstore extends AbstractMojo
 	@Override
 	public void execute() throws MojoExecutionException
 	{
+		long start = System.currentTimeMillis();
 		//Quiet down some noisy xodus loggers
 		SLF4jUtils.quietDownXodus();
 
@@ -433,7 +434,7 @@ public class LoadTermstore extends AbstractMojo
 				// Loading with activeOnly set to true causes a number of gaps in the concept /
 				getLog().warn("Skipped components during import.");
 			}
-			getLog().info("Final item count: " + this.itemCount);
+			getLog().info("Final item count: " + this.itemCount + " in " + (System.currentTimeMillis() - start) + " ms");
 			LookupService.syncAll();
 			Get.startIndexTask().get();
 

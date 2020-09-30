@@ -64,6 +64,7 @@ public class ScanForMissingConcepts extends AbstractMojo
 	@Override
 	public void execute() throws MojoExecutionException
 	{
+		long start = System.currentTimeMillis();
 		Headless.setHeadless();
 
 		IdentifierService is = Get.identifierService();
@@ -133,5 +134,6 @@ public class ScanForMissingConcepts extends AbstractMojo
 				getLog().info("No missing descriptions found.  Scanned " + conceptScanCount.get() + " concepts");
 			}
 		}
+		getLog().info("scan done in " + (System.currentTimeMillis() - start) + " ms");
 	}
 }
