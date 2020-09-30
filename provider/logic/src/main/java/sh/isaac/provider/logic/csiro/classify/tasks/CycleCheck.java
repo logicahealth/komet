@@ -65,7 +65,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 {
 	private Logger log = LogManager.getLogger();
 	private ManifoldCoordinate mc;
-	private HashSet<Integer> orphans = new HashSet<>();
+	private ConcurrentHashMap<Integer, Boolean> orphans = new ConcurrentHashMap<>();
 
 	/**
 	 * Set up a new cycle checker task
@@ -102,7 +102,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 			if (results.size() > 0)
 			{
 				log.info("Found {} concepts with cycles in their path to root", results.size());
-				return new ClassifierResultsImpl(results, orphans, mc);
+				return new ClassifierResultsImpl(results, orphans.keySet(), mc);
 			}
 			else
 			{
@@ -153,7 +153,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 
 		{
 			//orphan
-			orphans.add(nid);
+			orphans.put(nid, Boolean.FALSE);
 		}
 		return result;
 	}
@@ -202,6 +202,6 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 	 * @return The list of orphaned oncepts identified during the cycle check
 	 */
 	public Set<Integer> getOrphans() {
-		return orphans;
+		return orphans.keySet();
 	}
 }
