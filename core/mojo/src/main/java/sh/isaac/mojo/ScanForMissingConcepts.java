@@ -72,29 +72,27 @@ public class ScanForMissingConcepts extends AbstractMojo
 
 		{
 			ArrayList<UUID> missingComponents = new ArrayList<>();
+			AtomicInteger missingCount = new AtomicInteger();
 			AtomicInteger semanticScanCount = new AtomicInteger();
 			Get.assemblageService().getSemanticChronologyStream(true).forEach(sc -> {
 				semanticScanCount.getAndIncrement();
 				if (ios.getChronology(sc.getReferencedComponentNid()).isEmpty())
 				{
-					UUID temp = is.getUuidPrimordialForNid(sc.getReferencedComponentNid());
-					synchronized(missingComponents) {
-						missingComponents.add(temp);
+					int newSize = missingCount.incrementAndGet();
+					if (newSize < 100) {
+						UUID temp = is.getUuidPrimordialForNid(sc.getReferencedComponentNid());
+						synchronized(missingComponents) {
+							missingComponents.add(temp);
+						}
 					}
 				}
 			});
-			if (missingComponents.size() > 0)
+			if (missingCount.get() > 0)
 			{
-				getLog().error("There are " + missingComponents.size() + " referenced components which are not present in the database");
-				int breaker = 0;
+				getLog().error("There are " + missingCount.get() + " referenced components which are not present in the database.  Examples:");
 				for (UUID uuid : missingComponents)
 				{
 					getLog().error("Missing: " + uuid);
-					breaker++;
-					if (breaker > 100)
-					{
-						break;
-					}
 				}
 			}
 			else
