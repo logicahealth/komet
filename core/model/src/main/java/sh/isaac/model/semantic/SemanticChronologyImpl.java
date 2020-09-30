@@ -302,10 +302,13 @@ public class SemanticChronologyImpl
          break;
 
       default:
+         //probably means UNKNOWN, which is a typically a problem - write both the nid and the UUID to aid in tracking it down.
          builder.append(Get.identifierService()
                            .getObjectTypeForComponent(this.referencedComponentNid))
                 .append(" ")
-                .append(this.referencedComponentNid);
+                .append(this.referencedComponentNid)
+                .append(" ")
+                .append(Get.identifierService().getUuidPrimordialStringForNid(this.referencedComponentNid));
       }
 
       builder.append(" <")

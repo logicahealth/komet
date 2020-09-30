@@ -34,6 +34,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -176,7 +177,6 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                  // 900062011000036108 = AU module
                  if (relationshipRecord[RF2_MODULE_SCTID_INDEX].equals("900062011000036108")) {
                      UUID relUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_SCT_ID_INDEX]);
-                     identifierService.addUuidForNid(relUuid, relationshipToWrite.getNid());
                      relationshipToWrite.addAdditionalUuids(relUuid);
                  }
                  
@@ -193,7 +193,8 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                  // add to sct identifier assemblage
                  UUID identifierUuid;
 
-                 identifierUuid = UuidT5Generator.get(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(), relationshipRecord[RF2_REL_SCT_ID_INDEX]);
+                 identifierUuid = UuidFactory.getUuidForStringSemantic(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(), TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(), 
+                         relationshipToWrite.getPrimordialUuid(), relationshipRecord[RF2_REL_SCT_ID_INDEX], null); 
 
                  SemanticChronologyImpl sctIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
                          identifierUuid,
