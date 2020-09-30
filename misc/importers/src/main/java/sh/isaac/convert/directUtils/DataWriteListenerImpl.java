@@ -18,11 +18,14 @@ package sh.isaac.convert.directUtils;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.DataWriterService;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.provider.ibdf.BinaryDataWriterProvider;
 
 /**
@@ -37,6 +40,7 @@ public class DataWriteListenerImpl implements DataWriteListener
 	
 	private BinaryDataWriterProvider writer;
 	private Set<Integer> assemblageTypesToIgnore;
+	private ConcurrentHashMap<Integer, Boolean> chainedIgnores = new ConcurrentHashMap<>(); 
 	int ignored = 0;
 	
 	public DataWriteListenerImpl(Path ibdfFileToWrite, Set<Integer> assemblageTypesToIgnore) throws IOException 
@@ -63,10 +67,13 @@ public class DataWriteListenerImpl implements DataWriteListener
 	@Override
 	public void writeData(Chronology data)
 	{
-		if (assemblageTypesToIgnore != null && assemblageTypesToIgnore.contains(data.getAssemblageNid()))
+		if (assemblageTypesToIgnore != null && 
+				(assemblageTypesToIgnore.contains(data.getAssemblageNid()) ||
+						(data.getIsaacObjectType() == IsaacObjectType.SEMANTIC && chainedIgnores.containsKey(((SemanticChronology)data).getReferencedComponentNid()))))
 		{
 			//ignore - these are just intermediate things Keith creates, that we don't actually want / need in the DB
 			ignored++;
+			chainedIgnores.put(data.getNid(), Boolean.FALSE);
 		}
 		else
 		{
