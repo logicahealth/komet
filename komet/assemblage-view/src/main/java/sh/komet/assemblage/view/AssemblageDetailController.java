@@ -17,7 +17,9 @@
 package sh.komet.assemblage.view;
 
 import java.net.URL;
+import java.util.Optional;
 import java.util.ResourceBundle;
+import java.util.UUID;
 
 import javafx.beans.Observable;
 import javafx.beans.value.ObservableValue;
@@ -27,19 +29,33 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.TreeItemPropertyValueFactory;
+import javafx.scene.input.DragEvent;
+import javafx.scene.input.Dragboard;
+import javafx.scene.input.TransferMode;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.CategorizedVersions;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.concept.ConceptVersion;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticBuilderService;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
 import sh.komet.gui.cell.treetable.TreeTableAuthorTimeCellFactory;
 import sh.komet.gui.cell.treetable.TreeTableConceptCellFactory;
 import sh.komet.gui.cell.treetable.TreeTableGeneralCellFactory;
@@ -48,6 +64,7 @@ import sh.komet.gui.cell.treetable.TreeTableTimeCellFactory;
 import sh.komet.gui.cell.treetable.TreeTableWhatCellFactory;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.drag.drop.IsaacClipboard;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -121,7 +138,100 @@ public class AssemblageDetailController {
       assemblageModulePathColumn.setText("module\npath");
       assemblageExtensionTreeTable.setTableMenuButtonVisible(true);
       assemblageExtensionTreeTable.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+
+      assemblageExtensionTreeTable.setOnDragOver(this::dragOver);
+      assemblageExtensionTreeTable.setOnDragDropped(this::dragDropped);
    }
+   private void dragDropped(DragEvent event) {
+      // TODO refactor DropHelper to use here, or refactor here to use DropHelper...
+      Dragboard db = event.getDragboard();
+      boolean success = false;
+      if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT)) {
+         ConceptChronology conceptChronology = Get.serializer()
+                 .toObject(db, IsaacClipboard.ISAAC_CONCEPT);
+         addMember(conceptChronology);
+         success = true;
+      } else if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT_VERSION)) {
+         ConceptVersion conceptVersion = Get.serializer()
+                 .toObject(db, IsaacClipboard.ISAAC_CONCEPT_VERSION);
+
+         addMember(conceptVersion.getChronology());
+         success = true;
+      } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION)) {
+         SemanticChronology semanticChronology = Get.serializer()
+                 .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION);
+         addMember(Get.concept(semanticChronology.getReferencedComponentNid()));
+         success = true;
+
+      } else if (db.hasContent(IsaacClipboard.ISAAC_DESCRIPTION_VERSION)) {
+         DescriptionVersion descriptionVersion = Get.serializer()
+                 .toObject(db, IsaacClipboard.ISAAC_DESCRIPTION_VERSION);
+         addMember(Get.concept(descriptionVersion.getReferencedComponentNid()));
+         success = true;
+      }
+      /* let the source know if the droped item was successfully
+       * transferred and used */
+      event.setDropCompleted(success);
+
+      event.consume();
+   }
+
+   private void addMember(ConceptSpecification newMember) {
+      if (assemblageExtensionTreeTable.getRoot() == null) {
+         FxGet.dialogs().showErrorDialog("Drop failed", "No active assemblage", "Dropped concept " + newMember.getFullyQualifiedName());
+      } else {
+         // check to see if already there...
+         boolean duplicate = false;
+         for (TreeItem<ObservableCategorizedVersion> element: assemblageExtensionTreeTable.getRoot().getChildren()) {
+            if (element.getValue().getChronology() != null && newMember.getNid() == ((SemanticChronology) element.getValue().getChronology()).getReferencedComponentNid()) {
+               duplicate = true;
+               FxGet.dialogs().showInformationDialog("Already a member", newMember.getFullyQualifiedName() + " is already a member.");
+               break;
+            }
+         }
+         if (!duplicate) {
+
+            int assemblageConceptNid = assemblageExtensionTreeTable.getRoot().getValue().getNid();
+            int referencedComponentNid = newMember.getNid();
+            // add member
+            // TODO consider if we should make the action undoable... Other than retiring mistakes.
+           SemanticBuilder<? extends SemanticChronology> memberBuilder = Get.semanticBuilderService().getMembershipSemanticBuilder(referencedComponentNid, assemblageConceptNid);
+           Transaction t = Get.commitService().newTransaction(Optional.of("New member from Assemblage drag & drop"), ChangeCheckerMode.ACTIVE);
+           memberBuilder.build(t, viewProperties.getManifoldCoordinate());
+           t.commit();
+//            UUID elementPrimordialUuid = UUID.randomUUID();
+//            int elementNid = Get.identifierService().assignNid(elementPrimordialUuid);
+//            ObservableSemanticVersionImpl memberSemantic = new ObservableSemanticVersionImpl(elementPrimordialUuid, referencedComponentUuid, assemblageNid);
+//
+//            ObservableCategorizedVersion memberCategorizedVersion = new ObservableCategorizedVersion(memberSemantic, null);
+//            TreeItem<ObservableCategorizedVersion> tempItem = new TreeItem<>(memberCategorizedVersion);
+//            assemblageExtensionTreeTable.getRoot().getChildren().add(tempItem);
+//
+//            FxGet.dialogs().showInformationDialog("Added member", "Added member " + newMember.getFullyQualifiedName());
+         }
+      }
+   }
+
+
+   private void dragOver(DragEvent event) {
+      // TODO refactor DropHelper to use here, or refactor here to use DropHelper...
+
+      /* accept it only if it is  not dragged from the same node */
+      if (assemblageExtensionTreeTable.getRoot() != null && event.getGestureSource() != this) {
+         Dragboard db = event.getDragboard();
+         if (db.hasContent(IsaacClipboard.ISAAC_CONCEPT)) {
+            ConceptChronology conceptChronology = Get.serializer()
+                    .toObject(db, IsaacClipboard.ISAAC_CONCEPT);
+
+            if (assemblageExtensionTreeTable.getRoot().getValue().getNid() != conceptChronology.getNid()) {
+               /* allow for both copying */
+               event.acceptTransferModes(TransferMode.COPY);
+            }
+         }
+      }
+      event.consume();
+   }
+
 
    private void addChildren(TreeItem<ObservableCategorizedVersion> parent,
            ObservableList<? extends ObservableChronology> children, boolean addSemantics) {
@@ -182,9 +292,17 @@ public class AssemblageDetailController {
                TreeItem<ObservableCategorizedVersion> assemblageRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
                ObservableList<ObservableChronology> children = FXCollections.observableArrayList();
                ObservableChronologyService observableChronologyService = Get.observableChronologyService();
+
                Get.identifierService().getNidsForAssemblage(focusObject.getNid())
-                       .forEach((nid) ->
-                               children.add(observableChronologyService.getObservableChronology(nid)));
+                       .forEach((nid) -> {
+                                  ObservableChronology semanticChronology = observableChronologyService.getObservableChronology(nid);
+                                  LatestVersion<ObservableVersion> latest = semanticChronology.getLatestObservableVersion(this.viewProperties.getManifoldCoordinate().getViewStampFilter());
+                                  latest.ifPresent(observableVersion -> {
+                                     children.add(semanticChronology);
+                                  });
+                                 }
+                               );
+
                addChildren(assemblageRoot, children, true);
                assemblageExtensionTreeTable.setRoot(assemblageRoot);
          }

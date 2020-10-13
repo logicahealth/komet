@@ -47,6 +47,11 @@
             <artifactId>javafx-fxml</artifactId>
         </dependency>
         <dependency>
+            <groupId>sh.isaac.provider</groupId>
+            <artifactId>classifier-elk</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>batch</artifactId>
             <version>${project.version}</version>

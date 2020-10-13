@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CountDownLatch;
+import java.util.function.Predicate;
+
 import javafx.beans.property.SimpleListProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -18,6 +20,7 @@ import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -48,8 +51,10 @@ public class SimpleSearchService extends Service<NidSet> {
     private final double PROGRESS_MAX_VALUE = 100;
     private final double PROGRESS_INCREMENT_VALUE = 33.333; //Hard Coded based on Current Filter Algorithm (3 parts)
     private double PROGRESS_CURRENT = 0;
+    private final Predicate<DescriptionVersion> filter;
 
-    public SimpleSearchService() {
+    public SimpleSearchService(Predicate<DescriptionVersion> filter) {
+        this.filter = filter;
         this.query = new Query(TermAux.ENGLISH_LANGUAGE);
         this.descriptionLuceneMatch = new DescriptionLuceneMatch(this.query);
         query.setRoot(descriptionLuceneMatch);
@@ -71,7 +76,7 @@ public class SimpleSearchService extends Service<NidSet> {
 
                     runLuceneDescriptionQuery(results);
                     NidSet allowedConceptNids = findAllKindOfConcepts(results, taxonomySnapshot);
-                    filterAllSemanticsBasedOnReferencedConcepts(results, allowedConceptNids, filteredValues, taxonomySnapshot);
+                    filterAllSemanticsBasedOnReferencedConcepts(results, allowedConceptNids, filteredValues, taxonomySnapshot, filter);
 
                     results.clear();
                     results.addAll(filteredValues);
@@ -159,7 +164,7 @@ public class SimpleSearchService extends Service<NidSet> {
             }
 
             private void filterAllSemanticsBasedOnReferencedConcepts(NidSet results, NidSet allowedConceptNids,
-                    NidSet filteredValues, TaxonomySnapshot taxonomySnapshot) {
+                    NidSet filteredValues, TaxonomySnapshot taxonomySnapshot, Predicate<DescriptionVersion> filter) {
 
                 if (results.isEmpty()) {
                     updateProgress(computeProgress(PROGRESS_INCREMENT_VALUE), PROGRESS_MAX_VALUE);
@@ -179,7 +184,7 @@ public class SimpleSearchService extends Service<NidSet> {
                                     .getSemanticChronology(componentNid);
                             switch (semanticChronology.getVersionType()) {
                                 case DESCRIPTION:
-                                    handleDescription(semanticChronology, allowedConceptNids, taxonomySnapshot, filteredValues);
+                                    handleDescription(semanticChronology, allowedConceptNids, taxonomySnapshot, filteredValues, filter);
                                     break;
                                 case STRING:
                                     // TODO SHORT TERM: Find a description for the concept or description associated
@@ -211,14 +216,20 @@ public class SimpleSearchService extends Service<NidSet> {
 
             }
 
-            protected void handleDescription(SemanticChronology semanticChronology, NidSet allowedConceptNids, TaxonomySnapshot taxonomySnapshot, NidSet filteredValues) {
+            protected void handleDescription(SemanticChronology semanticChronology, NidSet allowedConceptNids, TaxonomySnapshot taxonomySnapshot, NidSet filteredValues,
+                                             Predicate<DescriptionVersion> filter) {
                 LatestVersion<DescriptionVersion> description = semanticChronology.getLatestVersion(getViewProperties().getViewStampFilter());
                 if (!description.isPresent()) {
                     return;
                 }
                 DescriptionVersion descriptionVersion = description.get();
+                if (!filter.test(descriptionVersion)) {
+                    return;
+                }
                 int conceptNid = descriptionVersion.getReferencedComponentNid();
-                if (!Get.conceptActiveService().isConceptActive(conceptNid, viewProperties.getViewStampFilter().toStampFilterImmutable())) {
+                ConceptChronology concept = Get.concept(conceptNid);
+                LatestVersion<Version> latestConceptVersion = concept.getLatestVersion(viewProperties.getViewStampFilter());
+                if (latestConceptVersion.isAbsent()) {
                     return;
                 }
                 if (!getParentNids().isEmpty()) {

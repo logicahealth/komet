@@ -77,7 +77,7 @@ public abstract class TimedTask<T>
     /**
      * The progress update interval.
      */
-    public Duration progressUpdateDuration = Duration.ofMillis(10);
+    public Duration progressUpdateDuration = Duration.ofMillis(500);
 
     /**
      * Seconds per minute.
@@ -100,7 +100,7 @@ public abstract class TimedTask<T>
     /**
      * The update ticker.
      */
-    private final FxTimer updateTimer = FxTimer.createPeriodic(progressUpdateDuration, this::generateProgressMessage);
+    protected final FxTimer updateTimer = FxTimer.createPeriodic(progressUpdateDuration, this::generateProgressMessage);
 
     /**
      * The start time.

@@ -226,8 +226,7 @@ public class CellHelper {
     public void updateItem(ObservableVersion version, Labeled label, TableColumnBase tableColumn) {
         label.setWrapText(true);
 
-        VersionType semanticType = version.getChronology()
-                .getVersionType();
+        VersionType semanticType = version.getSemanticType();
 
         label.setGraphic(null);
         label.setContentDisplay(ContentDisplay.TEXT_ONLY);

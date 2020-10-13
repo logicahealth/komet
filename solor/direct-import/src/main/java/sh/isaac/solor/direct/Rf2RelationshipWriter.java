@@ -193,7 +193,8 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                  // add to sct identifier assemblage
                  UUID identifierUuid;
 
-                 identifierUuid = UuidT5Generator.get(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(), relationshipRecord[RF2_REL_SCT_ID_INDEX]);
+                 identifierUuid = UuidT5Generator.get(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(),
+                         betterRelUuid.toString() + relationshipRecord[RF2_REL_SCT_ID_INDEX]);
 
                  SemanticChronologyImpl sctIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
                          identifierUuid,

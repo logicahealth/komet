@@ -127,7 +127,7 @@ public class ProcessClassificationResults
         Get.activeTasks().add(this);
         setStartTime();
         try {
-            log.info("Processing classication results");
+            log.info("Processing classification results");
             if (inputData == null) {
                 throw new RuntimeException("Input data to ProcessClassificationResults must be specified by calling setInput prior to executing");
             }
@@ -281,10 +281,6 @@ public class ProcessClassificationResults
         // JVisualVM tells me that all of this work is occurring on a single thread.  Need to figure out why...
         affectedConcepts.parallelStream().forEach((conceptNid) -> {
             try {
-                if (Get.configurationService().isVerboseDebugEnabled() && TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
-                    LOG.info("FOUND WATCH: " + TestConcept.CARBOHYDRATE_OBSERVATION);
-                }
-
                 final ImmutableIntSet inferredSemanticNids
                         = assemblageService.getSemanticNidsForComponentFromAssemblage(conceptNid,
                                 this.inputData.getLogicCoordinate().getInferredAssemblageNid());

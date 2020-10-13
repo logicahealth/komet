@@ -153,7 +153,7 @@ public class FxUtils {
         return anchorPane;
     }
 
-    public static AnchorPane setupHeaderPanel(String leftString, Button rightNode) {
+    public static AnchorPane setupHeaderPanel(String leftString, Button rightNode, Button settingNode) {
         AnchorPane anchorPane = new AnchorPane();
         GridPane headerGrid = new GridPane();
         AnchorPane.setLeftAnchor(headerGrid, 1.0);
@@ -195,6 +195,25 @@ public class FxUtils {
                 new Insets(2));
         headerGrid.getChildren()
                 .add(fillerPane);
+
+        if (settingNode != null) {
+            GridPane.setConstraints(
+                    settingNode,
+                    3,
+                    0,
+                    1,
+                    1,
+                    HPos.RIGHT,
+                    VPos.BOTTOM,
+                    Priority.NEVER,
+                    Priority.NEVER,
+                    new Insets(2));
+            headerGrid.getChildren()
+                    .add(settingNode);
+
+            settingNode.setBorder(Border.EMPTY);
+            settingNode.setBackground(makeBackground(Color.TRANSPARENT));
+        }
 
         if (rightNode != null) {
             GridPane.setConstraints(

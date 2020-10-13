@@ -55,6 +55,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.logic.LogicService;
+import sh.isaac.api.logic.LogicServiceSnoRocket;
 import sh.isaac.model.configuration.EditCoordinates;
 import sh.isaac.mojo.external.QuasiMojo;
 
@@ -77,7 +78,7 @@ public class FullClassification
    public void execute()
             throws MojoExecutionException {
       try {
-         final LogicService    logicService    = LookupService.getService(LogicService.class);
+         final LogicService    logicService    = LookupService.getService(LogicServiceSnoRocket.class);
          EditCoordinate        editCoordinate  = EditCoordinates.getDefaultUserSolorOverlay();
          final LogicCoordinate logicCoordinate = Coordinates.Logic.ElPlusPlus();
 

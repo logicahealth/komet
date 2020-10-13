@@ -58,6 +58,7 @@ import sh.isaac.api.coordinate.*;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicService;
+import sh.isaac.api.logic.LogicServiceSnoRocket;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
@@ -86,7 +87,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Service(name = "logic provider")
 @RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class LogicProvider
-        implements LogicService {
+        implements LogicServiceSnoRocket {
 
     /**
      * The Constant LOG.

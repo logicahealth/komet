@@ -205,7 +205,7 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract implements GuiCo
         final ParallelTransition parallelTransition = new ParallelTransition();
         this.conceptPanel = new ConceptBuilderComponentPanel(viewProperties, conceptVersion, false, textField.textProperty());
         parallelTransition.getChildren().add(addComponent(conceptPanel, new Insets(10, 5, 1, 5)));
-        AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton);
+        AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton, null);
         descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
         parallelTransition.getChildren()
                 .add(addNode(descriptionHeader));

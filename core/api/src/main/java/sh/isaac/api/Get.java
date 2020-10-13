@@ -93,6 +93,7 @@ import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.logic.LogicService;
+import sh.isaac.api.logic.LogicServiceSnoRocket;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.navigation.NavigationService;
@@ -166,7 +167,7 @@ public class Get
    private static LogicalExpressionBuilderService logicalExpressionBuilderService;
 
    /** The logic service. */
-   private static LogicService logicService;
+   private static LogicServiceSnoRocket logicService;
 
    /** The path service. */
    private static VersionManagmentPathService versionManagementPathService;
@@ -703,7 +704,7 @@ public class Get
     */
    public static LogicService logicService() {
       if (logicService == null) {
-         logicService = getService(LogicService.class);
+         logicService = getService(LogicServiceSnoRocket.class);
       }
 
       return logicService;

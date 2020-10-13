@@ -321,8 +321,9 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                .addComponentSemantic(UUID.fromString("b1cb6636-014c-58c9-ba81-048fb7905253"), TermAux.MEMBERSHIP_SEMANTIC, SEMANTIC_TYPE)
                .addDescription("A parent concept and membership assemblage used to group identifiers", TermAux.DEFINITION_DESCRIPTION_TYPE);
             pushParent(current());
-               createConcept(TermAux.RXNORM_CUI).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
-               createConcept("SCTID").mergeFromSpec(TermAux.SNOMED_IDENTIFIER).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
+               createConcept(TermAux.RXNORM_CUI).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE, CONCEPT_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE);
+               createConcept("SCTID").mergeFromSpec(TermAux.SNOMED_IDENTIFIER).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE,
+                       DESCRIPTION_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE, CONCEPT_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE);
                createConcept(TermAux.ISAAC_UUID).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("VUID", "Vets Unique Identifier").addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("Code").setPrimordialUuid("803af596-aea8-5184-b8e1-45f801585d17")
@@ -330,6 +331,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                ConceptBuilder loincBuilder = createConcept("LOINC ID assemblage");
                loincBuilder.addComponentSemantic(UUID.fromString("79dd5256-ede4-56d8-8ff6-3aba8767786b"), STRING_SEMANTIC, SEMANTIC_TYPE).addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                loincBuilder.getPreferredDescriptionBuilder().setDescriptionText("LOINC ID");
+               loincBuilder.addAssemblageMembership(CONCEPT_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE);
                createConcept("Clinvar Variant ID").addComponentSemantic(UUID.fromString("87c7af7e-3e45-541c-8402-523ff2f7db18"), STRING_SEMANTIC, SEMANTIC_TYPE)
                    .addAssemblageMembership(TermAux.IDENTIFIER_SOURCE);
                createConcept("NCBI Gene ID").addComponentSemantic(UUID.fromString("040e9fe1-b3f3-5721-b970-66b16f8faf07"), STRING_SEMANTIC, SEMANTIC_TYPE)
@@ -383,6 +385,15 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept(TermAux.REFLECTION_CLASS_ASSEMBLAGE);
                createConcept(TermAux.PROVIDER_CLASS_ASSEMBLAGE);
                createConcept(TermAux.ASSEMBLAGE_SEMANTIC_FIELDS);
+               createConcept("Komet environment assemblage").setModule(TermAux.KOMET_MODULE);
+               pushParent(current());
+                    createConcept(TermAux.DETAIL_ORDER_OPTIONS_ASSEMBLAGE).setModule(TermAux.KOMET_MODULE);
+                    createConcept(TermAux.CONCEPT_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE).setModule(TermAux.KOMET_MODULE);
+                    createConcept(TermAux.DESCRIPTION_TYPE_ORDER_OPTIONS_ASSEMBLAGE).setModule(TermAux.KOMET_MODULE);
+                    createConcept(TermAux.DESCRIPTION_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE).setModule(TermAux.KOMET_MODULE);
+                    createConcept(TermAux.AXIOM_ORDER_OPTIONS_ASSEMBLAGE).setModule(TermAux.KOMET_MODULE);
+                    createConcept(TermAux.AXIOM_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE).setModule(TermAux.KOMET_MODULE);
+                    popParent();
                createConcept("RxNorm Assemblages").setModule(TermAux.KOMET_MODULE);
                pushParent(current());
                     createConcept("Active ingredient is different").setModule(TermAux.KOMET_MODULE);
@@ -425,8 +436,13 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                pushParent(current());
                   createConcept(TermAux.ENGLISH_DIALECT_ASSEMBLAGE).addComponentSemantic(UUID.fromString("1efad98f-1448-53bd-b0bf-168b788f0428"), CONCEPT_SEMANTIC, SEMANTIC_TYPE);
                   pushParent(current());
-                     createConcept("GB English dialect").mergeFromSpec(TermAux.GB_DIALECT_ASSEMBLAGE).addComponentSemantic(UUID.fromString("d34e3933-797a-55a5-8425-36dca1e99c90"), CONCEPT_SEMANTIC, SEMANTIC_TYPE);
-                     createConcept("US English dialect").mergeFromSpec(TermAux.US_DIALECT_ASSEMBLAGE).addComponentSemantic(UUID.fromString("1c54bec0-ded0-5121-bd93-62929c4b329b"), CONCEPT_SEMANTIC, SEMANTIC_TYPE);
+                     createConcept("GB English dialect").mergeFromSpec(TermAux.GB_DIALECT_ASSEMBLAGE)
+                             .addComponentSemantic(UUID.fromString("d34e3933-797a-55a5-8425-36dca1e99c90"), CONCEPT_SEMANTIC, SEMANTIC_TYPE)
+                                .addAssemblageMembership(DESCRIPTION_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE);
+                     createConcept("US English dialect").mergeFromSpec(TermAux.US_DIALECT_ASSEMBLAGE)
+                             .addComponentSemantic(UUID.fromString("1c54bec0-ded0-5121-bd93-62929c4b329b")
+                                     , CONCEPT_SEMANTIC, SEMANTIC_TYPE)
+                             .addAssemblageMembership(DESCRIPTION_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE);
                      pushParent(current());
                         createConcept("US Nursing dialect").addComponentSemantic(UUID.fromString("f061d440-513b-53d1-ada5-700550614561"), CONCEPT_SEMANTIC, SEMANTIC_TYPE).setPrimordialUuid("6e447636-1085-32ff-bc36-6748a45255de");
                         popParent();
@@ -447,10 +463,13 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   popParent();
                createConcept("Logic assemblage");
                pushParent(current());
-                  createConcept(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE).addComponentSemantic(UUID.fromString("16be5d9b-0d0f-5573-8dca-8a21257688d2"), TermAux.LOGICAL_EXPRESSION_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE).addComponentSemantic(UUID.fromString("8cff3e39-0cdf-55d5-8986-d701ee828072"), TermAux.LOGICAL_EXPRESSION_SEMANTIC, SEMANTIC_TYPE);
-                  createConcept(TermAux.SRF_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
+                  createConcept(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE).addComponentSemantic(UUID.fromString("16be5d9b-0d0f-5573-8dca-8a21257688d2"), TermAux.LOGICAL_EXPRESSION_SEMANTIC, SEMANTIC_TYPE)
+                          .addAssemblageMembership(AXIOM_ORDER_OPTIONS_ASSEMBLAGE);
+                  createConcept(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE).addComponentSemantic(UUID.fromString("8cff3e39-0cdf-55d5-8986-d701ee828072"), TermAux.LOGICAL_EXPRESSION_SEMANTIC, SEMANTIC_TYPE)
+                          .addAssemblageMembership(AXIOM_ORDER_OPTIONS_ASSEMBLAGE);
+                  createConcept(TermAux.SRF_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE).addAssemblageMembership(AXIOM_ORDER_OPTIONS_ASSEMBLAGE);
                   ConceptBuilder builder = createConcept(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE);
+                  builder.addAssemblageMembership(AXIOM_ORDER_OPTIONS_ASSEMBLAGE);
                   builder.getPreferredDescriptionBuilder().setDescriptionText("SNOMED legacy implication");
                   createConcept("Clinvar Definition Assemblage");
                   createConcept("CVX Definition Assemblage");
@@ -463,11 +482,11 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   popParent();
                createConcept(TermAux.EXTERNAL_DATA_ASSEMBLAGE);
                pushParent(current());
-                  createConcept(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE);
-                  createConcept(TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE);
-                  createConcept(TermAux.SRF_INFERRED_RELATIONSHIP_ASSEMBLAGE);
-                  createConcept(TermAux.SRF_STATED_RELATIONSHIP_ASSEMBLAGE);
-                  createConcept(TermAux.LOINC_RECORD_ASSEMBLAGE);
+                  createConcept(TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE).addAssemblageMembership(AXIOM_ORDER_OPTIONS_ASSEMBLAGE);
+                  createConcept(TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE).addAssemblageMembership(AXIOM_ORDER_OPTIONS_ASSEMBLAGE);
+                  createConcept(TermAux.SRF_INFERRED_RELATIONSHIP_ASSEMBLAGE).addAssemblageMembership(AXIOM_ORDER_OPTIONS_ASSEMBLAGE);
+                  createConcept(TermAux.SRF_STATED_RELATIONSHIP_ASSEMBLAGE).addAssemblageMembership(AXIOM_ORDER_OPTIONS_ASSEMBLAGE);
+                  createConcept(TermAux.LOINC_RECORD_ASSEMBLAGE).addAssemblageMembership(AXIOM_ORDER_OPTIONS_ASSEMBLAGE);
                   createConcept("Clinvar Variant to Gene Non-Defining Taxonomy");
                   createConcept("Clinvar Gene to Phenotype Non-Defining Taxonomy");
                   createConcept("UMLS equivalency assemblage");
@@ -639,12 +658,14 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
             pushParent(current());
 
                final ConceptBuilder fsn = createConcept(TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE);
+               fsn.addAssemblageMembership(DESCRIPTION_TYPE_ORDER_OPTIONS_ASSEMBLAGE);
                fsn.addUuids(UUID.fromString("5e1fe940-8faf-11db-b606-0800200c9a66")); // RF1 FSN
                
                final ConceptBuilder syn = createConcept(TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
+               syn.addAssemblageMembership(DESCRIPTION_TYPE_ORDER_OPTIONS_ASSEMBLAGE);
                syn.addUuids(UUID.fromString("d6fad981-7df6-3388-94d8-238cc0465a79"));
                syn.addDescription("Synonym", TermAux.REGULAR_NAME_DESCRIPTION_TYPE);
-               createConcept(TermAux.DEFINITION_DESCRIPTION_TYPE);
+               createConcept(TermAux.DEFINITION_DESCRIPTION_TYPE).addAssemblageMembership(DESCRIPTION_TYPE_ORDER_OPTIONS_ASSEMBLAGE);
                popParent();
             createConcept(TermAux.DESCRIPTION_TYPE_IN_SOURCE_TERMINOLOGY); // SOLOR extended description types are created under this node
             createConcept(TermAux.RELATIONSHIP_TYPE_IN_SOURCE_TERMINOLOGY); // SOLOR extended relationship types are created under this node
@@ -783,6 +804,13 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                createConcept("Unmodeled taxonomic concept");
                createConcept(TermAux.UNINITIALIZED_COMPONENT_ID);
                popParent();
+            createConcept("Component type focus").setModule(TermAux.KOMET_MODULE);
+            pushParent(current());
+                createConcept("Concept focus").addAssemblageMembership(DETAIL_ORDER_OPTIONS_ASSEMBLAGE).setModule(TermAux.KOMET_MODULE);
+                createConcept("Description focus").addAssemblageMembership(DETAIL_ORDER_OPTIONS_ASSEMBLAGE).setModule(TermAux.KOMET_MODULE);
+                createConcept("Axiom focus").addAssemblageMembership(DETAIL_ORDER_OPTIONS_ASSEMBLAGE).setModule(TermAux.KOMET_MODULE);
+                createConcept("Lineage focus").addAssemblageMembership(DETAIL_ORDER_OPTIONS_ASSEMBLAGE).setModule(TermAux.KOMET_MODULE);
+                popParent();
             createConcept("Object properties");
             pushParent(current());
                createConcept("Action properties");
@@ -1057,7 +1085,7 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(CONCEPT_VERSION);
                   createConcept(ObservableFields.CONCEPT_IS_ASSEMBLAGE);
                   popParent();
-               createConcept("Corelation properties");
+               createConcept("Correlation properties");
                pushParent(current());
                   createConcept(CORELATION_REFERENCE_EXPRESSION);
                   createConcept(CORELATION_COMPARISON_EXPRESSION);
@@ -1071,6 +1099,15 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(ObservableFields.KOMET_USER_LIST);
                   createConcept(ObservableFields.MODULE_FOR_USER);
                   createConcept(ObservableFields.PATH_FOR_USER);
+                  createConcept(ObservableFields.AXIOM_ORDER_FOR_DETAILS_PANE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(ObservableFields.DESCRIPTION_TYPE_ORDER_FOR_DETAILS_PANE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(ObservableFields.DETAIL_ORDER_FOR_DETAILS_PANE).setModule(TermAux.KOMET_MODULE);
+                  createConcept(ObservableFields.SEMANTIC_ORDER_FOR_CONCEPT_DETAILS).setModule(TermAux.KOMET_MODULE);
+                  createConcept(ObservableFields.SEMANTIC_ORDER_FOR_DESCRIPTION_DETAILS).setModule(TermAux.KOMET_MODULE);
+                  createConcept(ObservableFields.SEMANTIC_ORDER_FOR_AXIOM_DETAILS).setModule(TermAux.KOMET_MODULE);
+                  createConcept(ObservableFields.WILDCARD_FOR_ORDER).addAssemblageMembership(DETAIL_ORDER_OPTIONS_ASSEMBLAGE,
+                          DESCRIPTION_TYPE_ORDER_OPTIONS_ASSEMBLAGE, DESCRIPTION_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE,
+                          AXIOM_ORDER_OPTIONS_ASSEMBLAGE, AXIOM_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE, CONCEPT_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE).setModule(TermAux.KOMET_MODULE);
                   popParent();
                createConcept("Semantic properties");
                pushParent(current());

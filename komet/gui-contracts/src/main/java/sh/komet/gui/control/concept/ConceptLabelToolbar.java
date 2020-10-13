@@ -34,6 +34,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.manifold.ManifoldMenuModel;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.control.toggle.OnOffToggleSwitch;
@@ -54,7 +55,16 @@ public class ConceptLabelToolbar {
 
    protected static final Logger LOG = LogManager.getLogger();
    final ViewProperties viewProperties;
-   final MenuButton activityLinkMenu = new MenuButton();
+   final MenuButton coordinateMenuButton = new MenuButton();
+   final Menu coordinatesMenu = new Menu("Coordinates", Iconography.COORDINATES.getStyledIconographic());
+   final Menu activityFeedMenu = new Menu("Activity feed");
+   {
+      coordinateMenuButton.getItems().addAll(coordinatesMenu, activityFeedMenu);
+      coordinateMenuButton.setGraphic(Iconography.COORDINATES.getStyledIconographic());
+
+   }
+   ManifoldMenuModel manifoldMenuModel;
+
    final ConceptLabelWithDragAndDrop conceptLabel;
    final Label rightInfoLabel = new Label("");
    final GridPane toolBarGrid = new GridPane();
@@ -134,9 +144,9 @@ public class ConceptLabelToolbar {
          MenuItem activityItem = new MenuItemWithText(feed.getFeedName(), getGraphicForActivityFeed(feed.getFeedName()));
          activityItem.setUserData(feed.getFullyQualifiedActivityFeedName());
          activityItem.addEventHandler(ActionEvent.ACTION, this::activityFeedEventHandler);
-         activityLinkMenu.getItems().add(activityItem);
+         activityFeedMenu.getItems().add(activityItem);
       });
-      activityLinkMenu.getItems().sort(Comparator.comparing(MenuItem::getText));
+      activityFeedMenu.getItems().sort(Comparator.comparing(MenuItem::getText));
 
       ArrayList<Menu> otherViewFeeds = new ArrayList<>();
       ViewProperties.getAll().forEach(anotherView -> {
@@ -153,12 +163,13 @@ public class ConceptLabelToolbar {
       });
       otherViewFeeds.sort(Comparator.comparing(Menu::getText));
 
-      activityLinkMenu.getItems().addAll(otherViewFeeds);
+      activityFeedMenu.getItems().addAll(otherViewFeeds);
 
-      activityLinkMenu.setGraphic(getGraphicForActivityFeed(activityFeedProperty.get().getFeedName()));
+      activityFeedMenu.setGraphic(getGraphicForActivityFeed(activityFeedProperty.get().getFeedName()));
       this.activityFeedProperty = activityFeedProperty;
+      manifoldMenuModel = new ManifoldMenuModel(viewProperties, coordinateMenuButton, this.coordinatesMenu);
       activityFeedProperty.addListener((observable, oldValue, newValue) -> {
-         activityLinkMenu.setGraphic(getGraphicForActivityFeed(newValue.getFeedName()));
+         activityFeedMenu.setGraphic(getGraphicForActivityFeed(newValue.getFeedName()));
       });
    }
 
@@ -173,8 +184,8 @@ public class ConceptLabelToolbar {
       ConceptLabelToolbar gctb = new ConceptLabelToolbar(viewProperties, conceptFocusProperty,
               descriptionTextUpdater, selectionIndexProperty, unlink, activityFeedProperty, focusTabOnConceptChange,
               contextMenuProviders);
-      GridPane.setConstraints(gctb.activityLinkMenu, 0, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.NEVER, Priority.NEVER);
-      gctb.toolBarGrid.getChildren().add(gctb.activityLinkMenu);
+      GridPane.setConstraints(gctb.coordinateMenuButton, 0, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.NEVER, Priority.NEVER);
+      gctb.toolBarGrid.getChildren().add(gctb.coordinateMenuButton);
       GridPane.setConstraints(gctb.conceptLabel, 1, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.ALWAYS, Priority.NEVER);
       gctb.conceptLabel.setMaxWidth(2000);
       gctb.conceptLabel.setMinWidth(100);

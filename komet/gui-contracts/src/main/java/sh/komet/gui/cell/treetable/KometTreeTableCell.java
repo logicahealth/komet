@@ -83,7 +83,7 @@ public abstract class KometTreeTableCell<C> extends TreeTableCell<ObservableCate
                   pseudoClassStateChanged(LOGICAL_DEFINITION_PSEUDO_CLASS, false);
                   pseudoClassStateChanged(DESCRIPTION_PSEUDO_CLASS, false);
             SemanticVersion semanticVersion = observableVersion.unwrap();
-            switch (semanticVersion.getChronology().getVersionType()) {
+            switch (semanticVersion.getSemanticType()) {
                case DESCRIPTION:
                   pseudoClassStateChanged(DESCRIPTION_PSEUDO_CLASS, true);
                   break;

@@ -27,6 +27,10 @@ import sh.isaac.api.transaction.Transaction;
  * @author kec
  */
 public interface Version extends MutableStampedVersion, IdentifiedStampedVersion {
+
+    default int getNid() {
+        return getChronology().getNid();
+    }
     /**
      * Gets the chronology.
      *

@@ -116,7 +116,8 @@ public class WriteAndCheckChronicle
       //in the middle of being written on another thread, and some of the data store providers don't cleanly handle the read back of a partially 
       //written item.
       updateProgress(-1, Long.MAX_VALUE);           // Indeterminate progress
-      Get.activeTasks().add(this);
+      //Get.activeTasks().add(this); !!too much overhead created by trying to track individual writes in the progress tracker.
+      // TODO consider alternatives like batch progress for write and check chronicle.
    }
 
    //~--- methods -------------------------------------------------------------
@@ -188,7 +189,7 @@ public class WriteAndCheckChronicle
          return null;
       } finally {
          this.writeSemaphore.release();
-         Get.activeTasks().remove(this);
+         //Get.activeTasks().remove(this); !!too much overhead created by trying to track individual writes in the progress tracker.
       }
    }
 }

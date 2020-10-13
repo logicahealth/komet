@@ -47,7 +47,7 @@ public class SimpleSearchViewFactory implements ConceptSearchNodeFactory {
          FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/komet/gui/search/fxml/SimpleSearch.fxml"));
          loader.load();
          SimpleSearchController simpleSearchController = loader.getController();
-         simpleSearchController.setViewProperties(viewProperties, viewProperties.getActivityFeed(ViewProperties.SEARCH));
+         simpleSearchController.setViewProperties(viewProperties.makeOverride(), viewProperties.getActivityFeed(ViewProperties.SEARCH));
          return simpleSearchController;
       } catch (IOException ex) {
          throw new RuntimeException(ex);

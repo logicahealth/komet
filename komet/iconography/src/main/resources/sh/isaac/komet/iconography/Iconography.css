@@ -955,7 +955,17 @@ limitations under the License.
    -icons-color: #52646d;
 }
 
+.coordinates {
+   -glyph-name: "CROSSHAIRS_GPS";
+   -glyph-size: 18;
+   -icons-color: #52646d;
+}
 
+.settings-sliders {
+   -glyph-name: "SLIDERS";
+   -glyph-size: 18;
+   -icons-color: #52646d;
+}
 .navigation-badge {
    -glyph-size: 10;
    -icons-color: darkgrey;

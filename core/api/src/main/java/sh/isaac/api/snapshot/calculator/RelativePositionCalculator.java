@@ -726,6 +726,7 @@ public class RelativePositionCalculator {
     * @return the latest version
     */
    public <V extends ObservableVersion> LatestVersion<V> getLatestVersion(ObservableChronology chronicle) {
+      // TODO this observable method is slightly different than the primitive version. Is that to support temporary observable only versions?
       final HashSet<V> latestVersionSet = new HashSet<>();
 
       chronicle.getVersionList()
@@ -748,10 +749,22 @@ public class RelativePositionCalculator {
       }
 
       if (latestVersionList.size() == 1) {
-         return new LatestVersion<>(latestVersionList.get(0));
+         if (allowedStates.contains(latestVersionList.get(0).getStatus())) {
+            return new LatestVersion<>(latestVersionList.get(0));
+         }
+         return new LatestVersion<>();
       }
-
-      return new LatestVersion<>(latestVersionList.get(0), latestVersionList.subList(1, latestVersionList.size()));
+      if (allowedStates.contains(latestVersionList.get(0).getStatus())) {
+         return new LatestVersion<>(latestVersionList.get(0), latestVersionList.subList(1, latestVersionList.size()));
+      }
+      for (int i = 1; i < latestVersionList.size(); i++) {
+         if (allowedStates.contains(latestVersionList.get(i).getStatus())) {
+            final List<V> latestVersionSubList = new ArrayList<>(latestVersionSet);
+            latestVersionSubList.remove(i);
+            return new LatestVersion<>(latestVersionList.get(0), latestVersionSubList);
+         }
+      }
+      return new LatestVersion<>();
    }
 
    //~--- inner classes -------------------------------------------------------

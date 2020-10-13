@@ -64,11 +64,13 @@ public class CategorizedVersions<V extends Version> {
    private final LatestVersion<V> latestVersion;
    private final StampSequenceSet latestStampSequences;
    private final StampSequenceSet allStampSequences;
+   private final Chronology chronology;
 
    //~--- constructors --------------------------------------------------------
 
    public CategorizedVersions(LatestVersion<V> latestVersion, Chronology chronology) {
       boolean observableWrap = false;
+      this.chronology = chronology;
 
       if (chronology instanceof ObservableChronology) {
          observableWrap = true;
@@ -91,6 +93,14 @@ public class CategorizedVersions<V extends Version> {
    }
 
    //~--- methods -------------------------------------------------------------
+   public int getNid() {
+      return this.chronology.getNid();
+   }
+
+   public int getAssemblageNid() {
+      return this.chronology.getAssemblageNid();
+   }
+
 
    @Override
    public String toString() {

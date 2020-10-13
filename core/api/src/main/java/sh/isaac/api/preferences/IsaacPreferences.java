@@ -1141,6 +1141,9 @@ public interface IsaacPreferences {
         }
         return Optional.empty();
      }
+    default List<ConceptProxy> getConceptList(Enum key, ConceptSpecification[] defaultList) {
+        return getConceptList(key, Arrays.asList(defaultList));
+    }
 
     default List<ConceptProxy> getConceptList(Enum key, List<? extends ConceptSpecification> defaultList) {
         Optional<List<ConceptProxy>> optionalList = getOptionalConceptList(enumToGeneralKey(key));

@@ -32,6 +32,8 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.ComponentProxy;
@@ -52,6 +54,9 @@ import sh.komet.gui.util.FxGet;
  * @author kec
  */
 public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecification> {
+
+    private final Logger LOG = LogManager.getLogger();
+
 
     private final SimpleObjectProperty<ConceptSpecification> conceptSpecificationValue;
     private final MenuButton menuButton = new MenuButton();
@@ -114,18 +119,24 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
             this.menuButton.getItems().add(fixedWidthManifoldSeparator);
             WindowPreferences windowPreferences = FxGet.windowPreferences(this.menuButton);
 
-            for (ActivityFeed activityFeed: windowPreferences.getViewPropertiesForWindow().getActivityFeeds()) {
-                if (!activityFeed.feedHistoryProperty().isEmpty()) {
-                    Menu activityFeedHistory = new Menu(activityFeed.getFeedName());
-                    this.menuButton.getItems().add(activityFeedHistory);
-                    for (ComponentProxy record : activityFeed.feedHistoryProperty()) {
+            if (windowPreferences.getViewPropertiesForWindow() != null &&
+                    windowPreferences.getViewPropertiesForWindow().getActivityFeeds() != null) {
+                for (ActivityFeed activityFeed: windowPreferences.getViewPropertiesForWindow().getActivityFeeds()) {
+                    if (!activityFeed.feedHistoryProperty().isEmpty()) {
+                        Menu activityFeedHistory = new Menu(activityFeed.getFeedName());
+                        this.menuButton.getItems().add(activityFeedHistory);
+                        for (ComponentProxy record : activityFeed.feedHistoryProperty()) {
 
-                        MenuItem historyMenuItem = new MenuItem(record.getComponentString());
-                        historyMenuItem.setUserData(record);
-                        historyMenuItem.setOnAction(this::handleAction);
-                        activityFeedHistory.getItems().add(historyMenuItem);
+                            MenuItem historyMenuItem = new MenuItem(record.getComponentString());
+                            historyMenuItem.setUserData(record);
+                            historyMenuItem.setOnAction(this::handleAction);
+                            activityFeedHistory.getItems().add(historyMenuItem);
+                        }
                     }
                 }
+            } else {
+                FxGet.dialogs().showErrorDialog("Null pointer error", "windowPreferences has null view properties or activity feed", windowPreferences.toString());
+                LOG.error("windowPreferences has null view properties or activity feed: " + windowPreferences);
             }
         }
     }

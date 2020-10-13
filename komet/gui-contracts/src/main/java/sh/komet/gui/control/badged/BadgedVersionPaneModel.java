@@ -617,7 +617,8 @@ public abstract class BadgedVersionPaneModel {
         if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
             componentType.setText(" FQN");
         } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
-            componentType.setText(" NĀM");
+            //componentType.setText(" NĀM");
+            componentType.setText(" NAME");
         } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
             componentType.setText(" DEF");
         } else {

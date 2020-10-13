@@ -37,7 +37,7 @@
    <top>
       <GridPane fx:id="topGridPane" styleClass="top-grid-pane" BorderPane.alignment="CENTER">
         <columnConstraints>
-            <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="30.0" />
+            <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="45.0" />
           <ColumnConstraints hgrow="NEVER" minWidth="10.0" prefWidth="100.0" />
           <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
             <ColumnConstraints hgrow="SOMETIMES" />
@@ -60,13 +60,10 @@
                   <Font name="System Bold" size="14.0" />
                </font>
             </Label>
-            <MenuButton fx:id="viewPropertiesButton" maxHeight="28.0" maxWidth="28.0" minHeight="28.0" minWidth="28.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="28.0" style="-fx-background-color: transparent;">
+            <MenuButton fx:id="viewPropertiesButton" maxHeight="28.0" maxWidth="50.0" minHeight="28.0" minWidth="50.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="50.0" style="-fx-background-color: transparent;">
               <items>
                   <Menu fx:id="windowCoordinates" mnemonicParsing="false" text="Coordinates" />
               </items>
-               <padding>
-                  <Insets left="-8.0" />
-               </padding>
             </MenuButton>
          </children>
       </GridPane>

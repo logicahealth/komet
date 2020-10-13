@@ -18,8 +18,10 @@ package sh.komet.gui.util;
 
 import javafx.beans.property.*;
 import javafx.collections.*;
+import javafx.geometry.Point2D;
 import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
+import javafx.scene.robot.Robot;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.controlsfx.control.PropertySheet;
@@ -125,6 +127,8 @@ public class FxGet implements StaticIsaacCache {
 
     private static ViewProperties preferenceViewProperties;
 
+    private static Robot robot = new Robot();
+
     public static List<GuiSearcher> searchers() {
         return SEARCHER_LIST;
     }
@@ -138,6 +142,10 @@ public class FxGet implements StaticIsaacCache {
             DIALOG_SERVICE = Get.service(DialogService.class);
         }
         return DIALOG_SERVICE;
+    }
+
+    public static Point2D getMouseLocation() {
+        return robot.getMousePosition();
     }
 
     public static StatusMessageService statusMessageService() {
@@ -605,7 +613,7 @@ public class FxGet implements StaticIsaacCache {
 
     public static ViewProperties preferenceViewProperties() {
         if (preferenceViewProperties == null) {
-            preferenceViewProperties = ViewProperties.make(UUID.fromString("1db21f81-c884-4dd7-8bf5-2befc955c887"), "Preferences view",
+            preferenceViewProperties = ViewProperties.make(UUID.fromString("1db21f81-c884-4dd7-8bf5-2befc955c887"), ViewProperties.PREFERENCES,
                     new ObservableManifoldCoordinateImpl(Coordinates.Manifold.DevelopmentInferredRegularNameSort()),
                     new ObservableEditCoordinateImpl(Coordinates.Edit.Default()));
         }

@@ -130,6 +130,7 @@ public class MultiParentGraphViewController implements RefreshListener {
                                  ManifoldCoordinateImmutable oldValue,
                                  ManifoldCoordinateImmutable newValue) {
         this.menuUpdate();
+        this.refreshTaxonomy();
     }
 
     @FXML
@@ -173,6 +174,9 @@ public class MultiParentGraphViewController implements RefreshListener {
 
         this.topBorderPane.setCenter(this.treeView);
         toolBar.getItems().add(this.navigationLabel);
+
+        this.navigationMenuButton.setGraphic(Iconography.COORDINATES.getStyledIconographic());
+
     }
 
     @FXML
@@ -200,6 +204,7 @@ public class MultiParentGraphViewController implements RefreshListener {
         this.nodePreferences = nodePreferences;
         this.viewProperties = viewProperties;
         this.manifoldCoordinate = this.viewProperties.getManifoldCoordinate();
+        this.navigationCoordinateMenu.setGraphic(Iconography.COORDINATES.getStyledIconographic());
         this.manifoldMenuModel = new ManifoldMenuModel(viewProperties, navigationMenuButton, navigationCoordinateMenu);
         this.menuUpdate();
         FxGet.pathCoordinates().addListener((MapChangeListener<UuidStringKey, StampPathImmutable>) change -> menuUpdate());

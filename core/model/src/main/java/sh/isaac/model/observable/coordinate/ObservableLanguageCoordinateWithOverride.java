@@ -50,7 +50,7 @@ public class ObservableLanguageCoordinateWithOverride extends ObservableLanguage
 
             int[] descriptionTypePreferenceList = updatedCoordinate.getDescriptionTypePreferenceList();
             if (descriptionTypePreferenceListProperty().isOverridden()) {
-                descriptionTypePreferenceList = getModulePreferenceListForLanguage();
+                descriptionTypePreferenceList = getDescriptionTypePreferenceList();
             }
 
             int[] dialectAssemblagePreferenceList = updatedCoordinate.getDialectAssemblagePreferenceList();

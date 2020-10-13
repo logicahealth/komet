@@ -15,29 +15,53 @@
  */
 package sh.komet.fx.stage;
 
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.units.qual.A;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.primitive.ImmutableLongList;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.*;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.logic.LogicServiceElk;
+import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.sync.MergeFailOption;
 import sh.isaac.api.sync.MergeFailure;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.UuidFactory;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.gui.exporter.ExportView;
+import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
+import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
+import sh.komet.fx.stage.spreadsheet.IndustryImporter;
+import sh.komet.fx.stage.spreadsheet.OccupationImporter;
+import sh.komet.fx.stage.spreadsheet.SocImporter2010;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.WindowPreferences;
@@ -49,10 +73,8 @@ import javax.inject.Singleton;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -300,17 +322,52 @@ public class KometBaseMenus implements MenuProvider {
                 });
 
 
+                MenuItem loadIndustry = new MenuItemWithText("Load Industry");
+                loadIndustry.setUserData(windowPreference);
+                loadIndustry.setOnAction((ActionEvent event) -> {
+                    IndustryImporter importer = new IndustryImporter();
+                    Get.workExecutors().getExecutor().execute(importer);
+                });
+
+                MenuItem loadSOC = new MenuItemWithText("Load SOC");
+                loadSOC.setUserData(windowPreference);
+                loadSOC.setOnAction((ActionEvent event) -> {
+                    SocImporter2010 importer = new SocImporter2010();
+                    Get.workExecutors().getExecutor().execute(importer);
+                });
+
+                MenuItem loadOccupation = new MenuItemWithText("Load Occupation");
+                loadOccupation.setUserData(windowPreference);
+                loadOccupation.setOnAction((ActionEvent event) -> {
+                    OccupationImporter importer = new OccupationImporter();
+                    Get.workExecutors().getExecutor().execute(importer);
+                });
+
+                MenuItem testElk = new MenuItemWithText("Test elk");
+                testElk.setUserData(windowPreference);
+                testElk.setOnAction((ActionEvent event) -> {
+                    LogicServiceElk logicServiceElk = Get.service(LogicServiceElk.class);
+                    if (logicServiceElk != null) {
+                        Get.workExecutors().getExecutor().execute(() -> {
+                            ClassifierService elkClassifier = logicServiceElk.getClassifierService(windowPreference.getViewPropertiesForWindow().getManifoldCoordinate().toManifoldCoordinateImmutable());
+                            elkClassifier.classify();
+                            LOG.info("Classify complete...");
+                        });
+                    }
+                });
+
                 return new MenuItem[]{
                         showActiveModules, showActivePaths, showActiveAuthors, showCommitTimes,
                         completeClassify, completeReindex, recomputeTaxonomy,
                     transformSourcesFull, transformSourcesActiveOnly, testGAE,
-                        transformModuleDependencies
+                        transformModuleDependencies, testElk, loadOccupation, loadIndustry, loadSOC
                 };
             }
         }
 
         return new MenuItem[]{};
     }
+
 
     private void testGAE(ActionEvent actionEvent) {
         ConceptProxy gaeProxy = new ConceptProxy("Granulomatous amebic encephalitis (disorder)", UUID.fromString("8202f7c4-8390-3c72-96fa-a34d3d21c032"));

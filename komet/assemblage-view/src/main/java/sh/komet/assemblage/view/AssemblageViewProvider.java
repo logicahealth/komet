@@ -18,13 +18,16 @@ package sh.komet.assemblage.view;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
 import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
+import javafx.scene.Parent;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
@@ -32,6 +35,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.commit.CommitListener;
+import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
@@ -52,8 +57,10 @@ import static sh.komet.gui.style.StyleClasses.ASSEMBLAGE_DETAIL;
 /**
  * @author kec
  */
-public class AssemblageViewProvider extends DetailNodeAbstract {
+public class AssemblageViewProvider extends DetailNodeAbstract implements CommitListener {
     protected static final Logger LOG = LogManager.getLogger();
+
+    private final UUID listenerUuid = UUID.randomUUID();
 
     {
         toolTipProperty.setValue("listing of assemblage members");
@@ -71,6 +78,11 @@ public class AssemblageViewProvider extends DetailNodeAbstract {
 
     public AssemblageViewProvider(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
         super(viewProperties, activityFeed, preferencesNode, getContextMenuProviders(viewProperties, activityFeed));
+        Get.commitService().addCommitListener(this);
+        this.viewProperties.getManifoldCoordinate().addListener((observable, oldValue, newValue) -> {
+            getFocusedObject().ifPresent(identifiedObject -> updateFocusedObject(identifiedObject));
+        });
+
         try {
             if (activityFeed.isLinked()) {
                 FxGet.dialogs().showErrorDialog(new IllegalStateException("Activity feed for assemblage must be unlinked... Found " +
@@ -113,9 +125,24 @@ public class AssemblageViewProvider extends DetailNodeAbstract {
                 }
             });
             rootPane.setTop(searchToolbar.getSearchToolbar());
+            this.detailPane.parentProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue == null) {
+                    Get.commitService().removeCommitListener(this);
+                }
+            });
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
+    }
+
+    @Override
+    public UUID getListenerUuid() {
+        return listenerUuid;
+    }
+
+    @Override
+    public void handleCommit(CommitRecord commitRecord) {
+        Platform.runLater(() -> getFocusedObject().ifPresent(identifiedObject -> updateFocusedObject(identifiedObject)));
     }
 
     @Override

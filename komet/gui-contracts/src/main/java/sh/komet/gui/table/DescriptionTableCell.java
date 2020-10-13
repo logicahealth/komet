@@ -12,11 +12,16 @@ import javafx.scene.control.Labeled;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumnBase;
 import javafx.scene.image.Image;
+import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
+import sh.isaac.api.Get;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.drag.drop.DragImageMaker;
@@ -49,7 +54,10 @@ public class DescriptionTableCell<T extends IdentifiedObject> extends TableCell<
 
    private double   dragOffset = 0;
 
-   public DescriptionTableCell() {
+   private final ViewProperties viewProperties;
+
+   public DescriptionTableCell(ViewProperties viewProperties) {
+      this.viewProperties = viewProperties;
       this.setOnDragDetected(new DragDetectedCellEventHandler());
       this.setOnDragDone(new DragDoneEventHandler());
    }
@@ -58,6 +66,8 @@ public class DescriptionTableCell<T extends IdentifiedObject> extends TableCell<
    protected void updateItem(String item, boolean empty) {
       super.updateItem(item, empty);
       this.setText(null);
+
+
       Text text = new Text(item);
       text.wrappingWidthProperty()
               .bind(this.getTableView().widthProperty()
@@ -65,7 +75,36 @@ public class DescriptionTableCell<T extends IdentifiedObject> extends TableCell<
       setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
       text.getStyleClass()
               .addAll(getStyleClass());
-      this.setGraphic(text);
+
+      ObservableDescriptionVersion rowItem = (ObservableDescriptionVersion) this.getTableRow().getItem();
+      if (rowItem == null) {
+         this.setGraphic(text);
+      } else {
+         boolean conceptActive = Get.conceptActiveService().isConceptActive(rowItem.getReferencedComponentNid(), this.viewProperties.getViewStampFilter().toStampFilterImmutable());
+         boolean descriptionActive = rowItem.getStatus().isActive();
+         if (conceptActive && descriptionActive) {
+            this.setGraphic(text);
+         } else {
+
+            StringBuilder sb = new StringBuilder();
+            if (descriptionActive) {
+               sb.append("\u22A8"); // unicode true
+            } else {
+               sb.append("\u22AD"); // unicode not true
+            }
+            sb.append(" ");
+            if (conceptActive) {
+               sb.append("\u22A8"); // unicode true
+            } else {
+               sb.append("\u22AD"); // unicode not true
+            }
+            sb.append("| ");
+            sb.append(item);
+            text.setText(sb.toString());
+            //HBox graphic = new HBox(Iconography.DELETE_TRASHCAN.getIconographic(), text);
+            this.setGraphic(text);
+         }
+      }
    }
 
    @Override

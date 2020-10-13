@@ -280,6 +280,10 @@ public class PropertyEditorFactory implements Callback<PropertySheet.Item, Prope
     private PropertyEditor<?> createConceptListEditor(PropertySheetConceptListWrapper propertySheetConceptListWrapper) {
         ConceptListEditor editor = new ConceptListEditor(manifoldCoordinate);
         editor.setValue(propertySheetConceptListWrapper.getValue());
+
+        propertySheetConceptListWrapper.getConstraints().ifPresent(conceptSpecifications ->
+            editor.setAllowedValues(conceptSpecifications));
+
         return editor;
     }
 

@@ -152,14 +152,14 @@ public final class PropertyPatternImplicationWithNids
         StringBuilder sb = new StringBuilder("PropertyPatternImplication[");
         sb.append(getNodeIndex());
         sb.append(nodeIdSuffix);
-        sb.append("] pattern: ");
+        sb.append("] pattern: '");
         for (int i = 0; i < this.propertyPattern.length; i++) {
             sb.append(Get.conceptDescriptionText(this.propertyPattern[i]));
             if (i < this.propertyPattern.length - 1) {
                 sb.append(", ");
             }
         }
-        sb.append(" implication: ");
+        sb.append("'; implication: ");
         sb.append(Get.conceptDescriptionText(this.propertyImplication));
         sb.append(super.toString(nodeIdSuffix));
 

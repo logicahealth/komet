@@ -213,6 +213,8 @@ public enum Iconography implements Icons {
    REDO(FONT_AWSOME, "redo"),
    DELETE_TRASHCAN(MATERIAL_ICON, "delete-trashcan"),
    LIST(MATERIAL_DESIGNS_WEBFONT, "list-icon"),
+   COORDINATES(MATERIAL_DESIGNS_WEBFONT, "coordinates"),
+   SETTINGS_SLIDERS(FONT_AWSOME, "settings-sliders"),
 
    // MaterialDesignIcon.MENU_DOWN
    // MaterialDesignIcon.MENU_RIGHT

@@ -70,9 +70,11 @@ public class ViewProperties {
     public static final String LIST = "list";
     public static final String CONCEPT_BUILDER = "concept builder";
     public static final String FLWOR = "flwor";
+    public static final String PREFERENCES = "preferences";
+
 
     public static final ImmutableList<String> ACTIVITY_FEED_NAMES =
-            Lists.immutable.of(ANY, UNLINKED, SEARCH, NAVIGATION, CLASSIFICATION, CORRELATION, LIST, FLWOR, CONCEPT_BUILDER);
+            Lists.immutable.of(ANY, UNLINKED, SEARCH, NAVIGATION, CLASSIFICATION, CORRELATION, LIST, FLWOR, CONCEPT_BUILDER, PREFERENCES);
 
     public enum Keys {
         NAME_PREFIX, NAME_SUFFIX,
@@ -94,6 +96,7 @@ public class ViewProperties {
         ICONOGRAPHIC_SUPPLIER.put(CLASSIFICATION, () -> Iconography.INFERRED.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(LIST, () -> Iconography.LIST.getIconographic());
         ICONOGRAPHIC_SUPPLIER.put(CONCEPT_BUILDER, () -> Iconography.NEW_CONCEPT.getIconographic());
+        ICONOGRAPHIC_SUPPLIER.put(PREFERENCES, () -> Iconography.SETTINGS_SLIDERS.getIconographic());
     }
     public static Optional<Node> getOptionalGraphicForActivityFeed(ActivityFeed activityFeed) {
         return getOptionalGraphicForActivityFeed(activityFeed.getFeedName());

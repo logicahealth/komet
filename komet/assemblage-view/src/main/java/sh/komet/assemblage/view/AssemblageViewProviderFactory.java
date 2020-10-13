@@ -38,7 +38,7 @@ public class AssemblageViewProviderFactory  implements ExplorationNodeFactory {
 
    @Override
    public AssemblageViewProvider createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
-      AssemblageViewProvider assemblageViewProvider = new AssemblageViewProvider(viewProperties, activityFeed, preferencesNode);
+      AssemblageViewProvider assemblageViewProvider = new AssemblageViewProvider(viewProperties.makeOverride(), activityFeed, preferencesNode);
       return assemblageViewProvider;
    }
 

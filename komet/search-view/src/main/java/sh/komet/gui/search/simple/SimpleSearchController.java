@@ -48,7 +48,6 @@ import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
@@ -57,15 +56,19 @@ import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.set.OpenIntHashSet;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.komet.gui.graphview.MultiParentGraphCell;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.clipboard.ClipboardHelper;
+import sh.komet.gui.control.manifold.CoordinateMenuFactory;
+import sh.komet.gui.control.manifold.ManifoldMenuModel;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
@@ -75,13 +78,15 @@ import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.gui.table.DescriptionTableCell;
 
 import java.util.*;
+import java.util.function.Predicate;
+
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.contract.GuiSearcher;
 
 /**
  * @author kec
  */
-public class SimpleSearchController extends ExplorationNodeAbstract implements GuiSearcher, ConceptExplorationNode {
+public class SimpleSearchController extends ExplorationNodeAbstract implements GuiSearcher, ConceptExplorationNode, Predicate<DescriptionVersion> {
 
     {
         titleProperty.setValue(SimpleSearchViewFactory.MENU_TEXT);
@@ -92,30 +97,24 @@ public class SimpleSearchController extends ExplorationNodeAbstract implements G
     private static final KeyCodeCombination keyCodeCopy = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
     private static final Logger              LOG               = LogManager.getLogger();
 
-    private final SimpleSearchService                         searchService        = new SimpleSearchService();
+    private final SimpleSearchService                         searchService        = new SimpleSearchService(this::test);
     private final SimpleListProperty<Integer> draggedTaxonomyConceptsForFilteringListProperty =
             new SimpleListProperty<>(FXCollections.observableArrayList());
 
     private final SimpleObjectProperty<ConceptSpecification> selectedConceptSpecificationProperty = new SimpleObjectProperty<>();
 
     private final ContextMenu copyMenu = new ContextMenu();
-    private final MenuItem copySelectedDescriptions = new MenuItem("copy selected descriptions");
-    private final MenuItem copySelectedConcepts = new MenuItem("copy selected concepts");
-    private final MenuItem copyAllDescriptions = new MenuItem("copy all descriptions");
-    private final MenuItem copyAllConcepts = new MenuItem("copy all concepts");
+
+    @FXML
+    MenuButton searchPanelMenuButton;
+
+    @FXML
+    Menu coordinatesMenu;
+
     private ActivityFeed activityFeed;
 
-    {
-        // add menu items to menu
-        copySelectedDescriptions.setOnAction(this::copySelectedDescriptionsToClipboard);
-        copySelectedConcepts.setOnAction(this::copySelectedConceptsToClipboard);
-        copyAllDescriptions.setOnAction(this::copyAllDescriptionsToClipboard);
-        copyAllConcepts.setOnAction(this::copyAllConceptsToClipboard);
-        copyMenu.getItems().add(copySelectedConcepts);
-        copyMenu.getItems().add(copySelectedDescriptions);
-        copyMenu.getItems().add(copyAllConcepts);
-        copyMenu.getItems().add(copyAllDescriptions);
-    }
+    private ManifoldMenuModel manifoldMenuModel;
+
 
     @FXML
     AnchorPane                                                mainAnchorPane;
@@ -131,6 +130,19 @@ public class SimpleSearchController extends ExplorationNodeAbstract implements G
     private FlowPane searchTagFlowPane;
     @FXML
     private Label searchTextFieldLabel;
+
+    @FXML
+    private CheckBox defCheckBox;
+
+    @FXML
+    private CheckBox namCheckBox;
+
+    @FXML
+    private CheckBox fqnCheckBox;
+
+    @FXML
+    private CheckBox anyCheckBox;
+
 
     @Override
     public void savePreferences() {
@@ -191,14 +203,31 @@ public class SimpleSearchController extends ExplorationNodeAbstract implements G
         assert searchTextFieldLabel != null :
                 "fx:id=\"searchTextFieldLabel\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
 
+
+        searchPanelMenuButton.setGraphic(Iconography.COORDINATES.getStyledIconographic());
+
+        anyCheckBox.selectedProperty().addListener(((observable, wasSelected, isSelected) -> {
+            if (isSelected == false && fqnCheckBox.isSelected() && namCheckBox.isSelected() && defCheckBox.isSelected()) {
+                defCheckBox.setSelected(false);
+            }
+            updateTypeChecks(isSelected);
+        }));
+        fqnCheckBox.selectedProperty().addListener(((observable, wasSelected, isSelected) -> {
+            updateTypeChecks(isSelected);
+        }));
+        namCheckBox.selectedProperty().addListener(((observable, wasSelected, isSelected) -> {
+            updateTypeChecks(isSelected);
+        }));
+        defCheckBox.selectedProperty().addListener(((observable, wasSelected, isSelected) -> {
+            updateTypeChecks(isSelected);
+        }));
+
         this.resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
         this.resultTable.setOnDragDone(new DragDoneEventHandler());
-        this.resultColumn.setCellValueFactory(new PropertyValueFactory("Result"));
+        //this.resultColumn.setCellValueFactory(new PropertyValueFactory("Result"));
         this.resultColumn.setCellValueFactory((TableColumn.CellDataFeatures<ObservableDescriptionVersion,
                 String> param) -> param.getValue()
                 .textProperty());
-        this.resultColumn.setCellFactory((TableColumn<ObservableDescriptionVersion,
-                String> stringText) -> new DescriptionTableCell());
 
         resultTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         resultTable.widthProperty().addListener((observable, oldValue, newValue) -> {
@@ -258,6 +287,21 @@ public class SimpleSearchController extends ExplorationNodeAbstract implements G
         });
 
     }
+
+    private void updateTypeChecks(Boolean isSelected) {
+        if (!isSelected) {
+            anyCheckBox.setSelected(false);
+        } else if (fqnCheckBox.isSelected() && namCheckBox.isSelected() && defCheckBox.isSelected()) {
+            anyCheckBox.setSelected(true);
+        }
+        if (anyCheckBox.isSelected()) {
+            fqnCheckBox.setSelected(true);
+            namCheckBox.setSelected(true);
+            defCheckBox.setSelected(true);
+        }
+        executeSearch();
+    }
+
     @FXML
     public void copySelectedConceptsToClipboard(Event event) {
         final Set<Integer> rows = new TreeSet<>();
@@ -313,6 +357,14 @@ public class SimpleSearchController extends ExplorationNodeAbstract implements G
         initializeProgressBar();
         initializeSearchService();
         initializeSearchTagFlowPlane();
+
+        this.coordinatesMenu.setGraphic(Iconography.COORDINATES.getStyledIconographic());
+
+        this.manifoldMenuModel = new ManifoldMenuModel(viewProperties, searchPanelMenuButton, this.coordinatesMenu);
+
+        CoordinateMenuFactory.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(),
+                this.coordinatesMenu.getItems(), this.viewProperties.getManifoldCoordinate());
+
     }
 
     private void initializeSearchTextField(){
@@ -329,7 +381,7 @@ public class SimpleSearchController extends ExplorationNodeAbstract implements G
 
         Label allLabel = new Label();
         allLabel.setGraphic(Iconography.SEARCH_FILTER.getIconographic());
-        allLabel.setText("All");
+        allLabel.setText("All concept kinds");
         allLabel.setStyle("-fx-background-color: transparent;" +"-fx-background-insets: 0;" + "-fx-padding:5;"
                 + "-fx-font-weight:bold;");
 
@@ -367,10 +419,18 @@ public class SimpleSearchController extends ExplorationNodeAbstract implements G
             labelFromDrop.setTooltip(dragAndDropToolTip);
             labelFromDrop.setOnMouseEntered(mouseEnteredEvent
                     -> labelFromDrop.setCursor(Cursor.HAND));
-
             this.searchTagFlowPane.getChildren().add(labelFromDrop);
             this.draggedTaxonomyConceptsForFilteringListProperty.get().add(droppedChronology.getNid());
 
+        });
+
+        this.draggedTaxonomyConceptsForFilteringListProperty.addListener((ListChangeListener<Integer>) c -> {
+            if (c.getList().isEmpty()) {
+                allLabel.setText("All concept kinds");
+            } else {
+                allLabel.setText("Only: ");
+            }
+            executeSearch();
         });
     }
 
@@ -425,9 +485,15 @@ public class SimpleSearchController extends ExplorationNodeAbstract implements G
         searchTextField.setText(searchText);
     }
 
-    public void setViewProperties(ViewProperties manifold, ActivityFeed activityFeed) {
-        this.viewProperties = manifold;
+    public void setViewProperties(ViewProperties viewProperties, ActivityFeed activityFeed) {
+        this.viewProperties = viewProperties;
+        this.viewProperties.getManifoldCoordinate().addListener((observable, oldValue, newValue) -> {
+            executeSearch();
+        });
         this.activityFeed = activityFeed;
+        this.resultColumn.setCellFactory((TableColumn<ObservableDescriptionVersion,
+                String> stringText) -> new DescriptionTableCell(this.viewProperties));
+
         initializeControls();
     }
 
@@ -477,4 +543,22 @@ public class SimpleSearchController extends ExplorationNodeAbstract implements G
         return this.activityFeed;
     }
 
+    @Override
+    public boolean test(DescriptionVersion descriptionVersion) {
+        if (anyCheckBox.isSelected()) {
+            return true;
+        }
+
+        if (fqnCheckBox.isSelected() && descriptionVersion.getDescriptionTypeConceptNid() == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
+            return true;
+        }
+        if (namCheckBox.isSelected() && descriptionVersion.getDescriptionTypeConceptNid() == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
+            return true;
+        }
+
+        if (defCheckBox.isSelected() && descriptionVersion.getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
+            return true;
+        }
+        return false;
+    }
 }

@@ -241,7 +241,8 @@ public class KometStageController
         assert classifierMenuButton != null :
                 "fx:id=\"classifierMenuButton\" was not injected: check your FXML file 'KometStageScene.fxml'.";
 
-
+        windowCoordinates.setGraphic(Iconography.COORDINATES.getStyledIconographic());
+        viewPropertiesButton.setGraphic(Iconography.COORDINATES.getStyledIconographic());
         leftHBox.getChildren()
                 .add(createWrappedTabPane(this.newTabMenuButtons, this.leftTabPane));
         centerHBox.getChildren()
@@ -263,7 +264,6 @@ public class KometStageController
         this.centerTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
         this.rightTabPane.setTabDragPolicy(TabPane.TabDragPolicy.REORDER);
     }
-
     private List<MenuItem> getTaskMenuItems() {
         ArrayList<MenuItem> items = new ArrayList<>();
 

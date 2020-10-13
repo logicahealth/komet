@@ -16,14 +16,20 @@
  */
 package sh.komet.gui.control.concept;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import javafx.beans.property.ListProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.ChoiceBox;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedListProperty;
 import sh.komet.gui.control.property.ViewProperties;
 
 /**
@@ -34,6 +40,8 @@ public class PropertySheetConceptListWrapper implements PropertySheet.Item {
 
     private final ListProperty<ConceptSpecification> conceptListProperty;
     private final String name;
+    private SimpleEqualityBasedListProperty<ConceptSpecification> allowedValuesListProperty;
+    private SimpleBooleanProperty allowDuplicates = new SimpleBooleanProperty(false);
 
     public PropertySheetConceptListWrapper(ManifoldCoordinate manifoldCoordinate, ListProperty<ConceptSpecification> conceptListProperty) {
         if (manifoldCoordinate == null) {
@@ -79,8 +87,37 @@ public class PropertySheetConceptListWrapper implements PropertySheet.Item {
         }
      }
 
+    public void setConstraints(ConceptSpecification[] constraints) {
+        setConstraints(Arrays.asList(constraints));
+    }
+
+    public void setConstraints(List<? extends ConceptSpecification> constraints) {
+        setConstraints(FXCollections.observableArrayList(constraints));
+    }
+
+    public void setConstraints(ObservableList<? extends ConceptSpecification> constraints) {
+        this.allowedValuesListProperty = new SimpleEqualityBasedListProperty(constraints);
+    }
+
+
+    public Optional<SimpleEqualityBasedListProperty<ConceptSpecification>> getConstraints() {
+        return Optional.ofNullable(this.allowedValuesListProperty);
+     }
+
     @Override
     public Optional<ObservableValue<? extends Object>> getObservableValue() {
         return Optional.of(conceptListProperty);
-    }     
+    }
+
+    public boolean allowDuplicates() {
+        return allowDuplicates.get();
+    }
+
+    public SimpleBooleanProperty allowDuplicatesProperty() {
+        return allowDuplicates;
+    }
+
+    public void setAllowDuplicates(boolean allowDuplicates) {
+        this.allowDuplicates.set(allowDuplicates);
+    }
 }

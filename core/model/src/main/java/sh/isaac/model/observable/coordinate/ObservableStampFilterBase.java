@@ -37,6 +37,7 @@ public abstract class ObservableStampFilterBase extends ObservableCoordinateImpl
     private final ListProperty<ConceptSpecification> modulePriorityOrderProperty;
 
     /**
+     * Remove listener note...
      * Note that if you don't declare a listener as final in this way, and just use method references, or
      * a direct lambda expression, you will not be able to remove the listener, since each method reference will create
      * a new object, and they won't compare equal using object identity.

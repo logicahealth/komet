@@ -368,7 +368,21 @@ public enum ObservableFields
    MANIFOLD_COORDINATE_REFERENCE("Manifold coordinate reference", "manifold"),
 
    IMAGE_DATA_FOR_SEMANTIC("Image data for semantic", "Image data"),
-;
+
+   AXIOM_ORDER_FOR_DETAILS_PANE("Detail pane axiom order", "Axiom order"),
+
+   DESCRIPTION_TYPE_ORDER_FOR_DETAILS_PANE("Detail pane description type order", "Description type order"),
+
+   DETAIL_ORDER_FOR_DETAILS_PANE("Detail pane order", "Detail order"),
+
+   SEMANTIC_ORDER_FOR_CONCEPT_DETAILS("Order for concept attachments", "Concept attachment order"),
+
+   SEMANTIC_ORDER_FOR_DESCRIPTION_DETAILS("Order for description attachments", "Description attachment order"),
+
+   SEMANTIC_ORDER_FOR_AXIOM_DETAILS("Order for axiom attachments", "Axiom attachment order"),
+
+   WILDCARD_FOR_ORDER("Any component", "Any component"),
+   ;
    // this, ObservableFields..toExternalString()
 
    /** The Constant namespace. */

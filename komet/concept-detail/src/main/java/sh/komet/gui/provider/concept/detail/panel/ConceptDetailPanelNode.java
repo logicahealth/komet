@@ -44,51 +44,59 @@ import javafx.animation.ParallelTransition;
 import javafx.application.Platform;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.Event;
-import javafx.geometry.HPos;
-import javafx.geometry.Insets;
-import javafx.geometry.Side;
-import javafx.geometry.VPos;
+import javafx.event.EventHandler;
+import javafx.geometry.*;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
 import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.list.IntArrayList;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
+import org.controlsfx.control.PopOver;
+import org.controlsfx.control.PropertySheet;
+import org.eclipse.collections.api.list.primitive.IntList;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.IntSet;
 import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.*;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
-import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.observable.ObservableDescriptionDialect;
+import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedListProperty;
 import sh.komet.gui.control.ExpandControl;
 import sh.komet.gui.control.StampControl;
 import sh.komet.gui.control.badged.ComponentPaneModel;
 import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
 import sh.komet.gui.control.concept.MenuSupplierForFocusConcept;
-import sh.komet.gui.control.manifold.ManifoldMenuModel;
+import sh.komet.gui.control.concept.PropertySheetConceptListWrapper;
 import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.DetailNodeAbstract;
 import sh.komet.gui.provider.concept.builder.ConceptBuilderComponentPanel;
@@ -96,6 +104,7 @@ import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
+import sh.komet.gui.util.FxUtils;
 
 import java.util.*;
 import java.util.concurrent.ExecutionException;
@@ -104,7 +113,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.prefs.BackingStoreException;
 
-import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
 import static sh.komet.gui.style.StyleClasses.ADD_DESCRIPTION_BUTTON;
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 
@@ -112,11 +120,23 @@ import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 
 //~--- classes ----------------------------------------------------------------
 /**
+ * The setConcept(IdentifiedObject component) method starts the layout process.
+ *
+ * The animateLayout() method controls which components are rendered, in what order.
+ *
+ * The addChronology(ObservableChronology observableChronology, ParallelTransition parallelTransition) method
+ * adds each top level focus.
+ *
  *
  * @author kec
  */
 public class ConceptDetailPanelNode extends DetailNodeAbstract
 implements ChronologyChangeListener, Supplier<List<MenuItem>> {
+    public enum ConceptDetailNodeKeys {
+        AXIOM_ORDER, DETAIL_ORDER, DESCRIPTION_TYPE_ORDER,
+        CONCEPT_SEMANTICS_ORDER, DESCRIPTION_SEMANTIC_ORDER,
+        AXIOM_SEMANTIC_ORDER;
+    }
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -136,37 +156,94 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
     private final GridPane versionBranchGrid = new GridPane();
     private final GridPane toolGrid = new GridPane();
     private final ExpandControl expandControl = new ExpandControl();
-    private final MenuButton manifoldMenuButton = new MenuButton();
-    {
-        manifoldMenuButton.setContentDisplay(GRAPHIC_ONLY);
-        manifoldMenuButton.setPadding(new Insets(0, 0, 0, -8));
-        manifoldMenuButton.setPopupSide(Side.BOTTOM);
-    }
     private final Label expandControlLabel = new Label("Expand All", expandControl);
+    private final Button panelSettings = new Button(null, Iconography.SETTINGS_SLIDERS.getStyledIconographic());
+    private final Button conceptFocusSettings = new Button(null, Iconography.SETTINGS_SLIDERS.getStyledIconographic());
+    private final Button descriptionFocusSettings = new Button(null, Iconography.SETTINGS_SLIDERS.getStyledIconographic());
+    private final Button axiomFocusSettings = new Button(null, Iconography.SETTINGS_SLIDERS.getStyledIconographic());
     private final OpenIntIntHashMap stampOrderHashMap = new OpenIntIntHashMap();
     private final Button addDescriptionButton = new Button("+ Add");
     private final ToggleButton versionGraphToggle = new ToggleButton("", Iconography.SOURCE_BRANCH_1.getIconographic());
     private final ArrayList<Integer> sortedStampSequences = new ArrayList<>();
     private final List<ComponentPaneModel> componentPaneModels = new ArrayList<>();
     private final ScrollPane scrollPane;
-    private final ManifoldMenuModel manifoldMenuModel;
 
 
 
     private final ObservableList<ObservableDescriptionDialect> newDescriptions = FXCollections.observableArrayList();
+
+    // Preference items
+    private final SimpleEqualityBasedListProperty<ConceptSpecification> detailOrderList = new SimpleEqualityBasedListProperty<>(this,
+            ObservableFields.DETAIL_ORDER_FOR_DETAILS_PANE.toExternalString(),
+            FXCollections.observableArrayList());
+
+    private final SimpleEqualityBasedListProperty<ConceptSpecification> descriptionTypeList = new SimpleEqualityBasedListProperty<>(this,
+            ObservableFields.DESCRIPTION_TYPE_ORDER_FOR_DETAILS_PANE.toExternalString(),
+            FXCollections.observableArrayList());
+
+    private final SimpleEqualityBasedListProperty<ConceptSpecification> axiomSourceList = new SimpleEqualityBasedListProperty<>(this,
+            ObservableFields.AXIOM_ORDER_FOR_DETAILS_PANE.toExternalString(),
+            FXCollections.observableArrayList());
+
+    private final SimpleEqualityBasedListProperty<ConceptSpecification> semanticOrderForConceptDetails = new SimpleEqualityBasedListProperty<>(this,
+            ObservableFields.SEMANTIC_ORDER_FOR_CONCEPT_DETAILS.toExternalString(),
+            FXCollections.observableArrayList());
+
+    private final SimpleEqualityBasedListProperty<ConceptSpecification> semanticOrderForDescriptionDetails = new SimpleEqualityBasedListProperty<>(this,
+            ObservableFields.SEMANTIC_ORDER_FOR_DESCRIPTION_DETAILS.toExternalString(),
+            FXCollections.observableArrayList());
+
+    private final SimpleEqualityBasedListProperty<ConceptSpecification> semanticOrderForAxiomDetails = new SimpleEqualityBasedListProperty<>(this,
+            ObservableFields.SEMANTIC_ORDER_FOR_AXIOM_DETAILS.toExternalString(),
+            FXCollections.observableArrayList());
+
+
+    private final PropertySheetConceptListWrapper detailsSettingsWrapper;
+    private final PropertySheetConceptListWrapper conceptSettingsWrapper;
+    private final PropertySheetConceptListWrapper descriptionAttachmentsOrderWrapper;
+    private final PropertySheetConceptListWrapper descriptionSettingsWrapper;
+    private final PropertySheetConceptListWrapper axiomSettingsWrapper;
+    private final PropertySheetConceptListWrapper semanticOrderForAxiomDetailsWrapper;
+
 
     //~--- initializers --------------------------------------------------------
     {
         expandControlLabel.setGraphicTextGap(0);
     }
 
+    private static final ConceptSpecification[] defaultDetailOrder = new ConceptSpecification[] {
+            MetaData.CONCEPT_FOCUS____SOLOR, MetaData.DESCRIPTION_FOCUS____SOLOR,
+            MetaData.AXIOM_FOCUS____SOLOR
+    };
+
+    private static final ConceptSpecification[] defaultDescriptionTypeOrder = new ConceptSpecification[] {
+            TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE, TermAux.REGULAR_NAME_DESCRIPTION_TYPE, TermAux.DEFINITION_DESCRIPTION_TYPE,
+            ObservableFields.WILDCARD_FOR_ORDER
+    };
+
+    private static final ConceptSpecification[] defaultAxiomSourceOrder = new ConceptSpecification[] {
+            TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE, TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE, ObservableFields.WILDCARD_FOR_ORDER
+    };
+
+    private static final ConceptSpecification[] defaultSemanticOrderForConcept = new ConceptSpecification[] {
+            TermAux.SNOMED_IDENTIFIER, MetaData.LOINC_ID_ASSEMBLAGE____SOLOR,
+            MetaData.RXNORM_CUI____SOLOR,
+            ObservableFields.WILDCARD_FOR_ORDER
+    };
+
+    private static final ConceptSpecification[] defaultSemanticOrderForDescription = new ConceptSpecification[] {
+            MetaData.US_ENGLISH_DIALECT____SOLOR, MetaData.GB_ENGLISH_DIALECT____SOLOR, TermAux.SNOMED_IDENTIFIER, ObservableFields.WILDCARD_FOR_ORDER
+    };
+
+    private static final ConceptSpecification[] defaultSemanticOrderForAxiom = new ConceptSpecification[] {
+            ObservableFields.WILDCARD_FOR_ORDER
+    };
+
     //~--- constructors --------------------------------------------------------
     public ConceptDetailPanelNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferences) {
         super(viewProperties, activityFeed, preferences, MenuSupplierForFocusConcept.getArray());
-        this.manifoldMenuModel = new ManifoldMenuModel(viewProperties, this.manifoldMenuButton);
-        manifoldMenuButton.getItems().add(manifoldMenuModel.getCoordinateMenu());
 
-        this.manifoldMenuModel.updateManifoldMenu();
+
 
         this.detailPane.getStyleClass()
                 .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
@@ -199,9 +276,93 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
             titleProperty.set(ConceptLabelWithDragAndDrop.EMPTY_TEXT);
         }
 
+        this.detailOrderList.setAll(preferences.getConceptList(ConceptDetailNodeKeys.DETAIL_ORDER, defaultDetailOrder));
+        this.descriptionTypeList.setAll(preferences.getConceptList(ConceptDetailNodeKeys.DESCRIPTION_TYPE_ORDER, defaultDescriptionTypeOrder));
+        this.axiomSourceList.setAll(preferences.getConceptList(ConceptDetailNodeKeys.AXIOM_ORDER, defaultAxiomSourceOrder));
+        this.semanticOrderForConceptDetails.setAll(preferences.getConceptList(ConceptDetailNodeKeys.CONCEPT_SEMANTICS_ORDER, defaultSemanticOrderForConcept));
+        this.semanticOrderForDescriptionDetails.setAll(preferences.getConceptList(ConceptDetailNodeKeys.DESCRIPTION_SEMANTIC_ORDER, defaultSemanticOrderForDescription));
+        this.semanticOrderForAxiomDetails.setAll(preferences.getConceptList(ConceptDetailNodeKeys.AXIOM_SEMANTIC_ORDER, defaultSemanticOrderForAxiom));
+
+
         this.savePreferences();
         Platform.runLater(() ->  resetConceptFromFocus());
+        this.viewProperties.getManifoldCoordinate().addListener((observable, oldValue, newValue) -> {
+            Platform.runLater(() ->  resetConceptFromFocus());
+        });
 
+        detailsSettingsWrapper = new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), detailOrderList);
+        detailsSettingsWrapper.setConstraints(FxGet.activeConceptMembers(TermAux.DETAIL_ORDER_OPTIONS_ASSEMBLAGE,viewProperties.getManifoldCoordinate()));
+        detailsSettingsWrapper.setAllowDuplicates(false);
+        panelSettings.setOnAction(makeChangeSettingsAction(detailsSettingsWrapper));
+
+        conceptSettingsWrapper = new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), semanticOrderForConceptDetails);
+        conceptSettingsWrapper.setConstraints(FxGet.activeConceptMembers(TermAux.CONCEPT_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE,viewProperties.getManifoldCoordinate()));
+        conceptSettingsWrapper.setAllowDuplicates(false);
+        conceptFocusSettings.setOnAction(makeChangeSettingsAction(conceptSettingsWrapper));
+
+        descriptionAttachmentsOrderWrapper = new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), semanticOrderForDescriptionDetails);
+        descriptionAttachmentsOrderWrapper.setConstraints(FxGet.activeConceptMembers(TermAux.DESCRIPTION_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE,viewProperties.getManifoldCoordinate()));
+        descriptionAttachmentsOrderWrapper.setAllowDuplicates(false);
+
+        descriptionSettingsWrapper = new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), descriptionTypeList);
+        descriptionSettingsWrapper.setConstraints(FxGet.activeConceptMembers(TermAux.DESCRIPTION_TYPE_ORDER_OPTIONS_ASSEMBLAGE,viewProperties.getManifoldCoordinate()));
+        descriptionSettingsWrapper.setAllowDuplicates(false);
+        descriptionFocusSettings.setOnAction(makeChangeSettingsAction(descriptionSettingsWrapper, descriptionAttachmentsOrderWrapper));
+
+        axiomSettingsWrapper = new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), axiomSourceList);
+        axiomSettingsWrapper.setConstraints(FxGet.activeConceptMembers(TermAux.AXIOM_ORDER_OPTIONS_ASSEMBLAGE,viewProperties.getManifoldCoordinate()));
+        axiomSettingsWrapper.setAllowDuplicates(false);
+
+        semanticOrderForAxiomDetailsWrapper = new PropertySheetConceptListWrapper(viewProperties.getManifoldCoordinate(), semanticOrderForAxiomDetails);
+        semanticOrderForAxiomDetailsWrapper.setConstraints(FxGet.activeConceptMembers(TermAux.AXIOM_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE,viewProperties.getManifoldCoordinate()));
+        semanticOrderForAxiomDetailsWrapper.setAllowDuplicates(false);
+        axiomFocusSettings.setOnAction(makeChangeSettingsAction(axiomSettingsWrapper, semanticOrderForAxiomDetailsWrapper));
+
+        detailOrderList.addListener(this::handleSettingsChange);
+        descriptionTypeList.addListener(this::handleSettingsChange);
+        axiomSourceList.addListener(this::handleSettingsChange);
+        semanticOrderForConceptDetails.addListener(this::handleSettingsChange);
+        descriptionTypeList.addListener(this::handleSettingsChange);
+
+        this.axiomSourceList.setAll(preferences.getConceptList(ConceptDetailNodeKeys.AXIOM_ORDER, defaultAxiomSourceOrder));
+        this.semanticOrderForConceptDetails.setAll(preferences.getConceptList(ConceptDetailNodeKeys.CONCEPT_SEMANTICS_ORDER, defaultSemanticOrderForConcept));
+        this.semanticOrderForDescriptionDetails.setAll(preferences.getConceptList(ConceptDetailNodeKeys.DESCRIPTION_SEMANTIC_ORDER, defaultSemanticOrderForDescription));
+        this.semanticOrderForAxiomDetails.setAll(preferences.getConceptList(ConceptDetailNodeKeys.AXIOM_SEMANTIC_ORDER, defaultSemanticOrderForAxiom));
+
+    }
+
+
+
+    private void handleSettingsChange(ListChangeListener.Change<? extends ConceptSpecification> c) {
+        Platform.runLater(() -> {
+            resetConceptFromFocus();
+            //Platform.runLater(() -> popOver.show(popOver.getOwnerNode(), popOverArrowLocation.getX(), popOverArrowLocation.getY(), Duration.ZERO));
+            Get.executor().execute(() -> savePreferences());
+        });
+    }
+
+    private EventHandler<ActionEvent> makeChangeSettingsAction(PropertySheetConceptListWrapper... listWrapper) {
+        EventHandler<ActionEvent> changeSettingsHandler = new EventHandler<ActionEvent>() {
+            @Override
+            public void handle(ActionEvent event) {
+                PropertySheet propertySheet = new PropertySheet();
+                propertySheet.setMode(PropertySheet.Mode.NAME);
+                propertySheet.setSearchBoxVisible(false);
+                propertySheet.setModeSwitcherVisible(false);
+                propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties.getManifoldCoordinate()));
+                propertySheet.getItems().addAll(listWrapper);
+                PopOver popOver = new PopOver();
+                popOver.setContentNode(propertySheet);
+                popOver.setCloseButtonEnabled(true);
+                popOver.setHeaderAlwaysVisible(false);
+                popOver.setTitle("");
+                Point2D popOverArrowLocation = FxGet.getMouseLocation();
+                popOver.show(ConceptDetailPanelNode.this.getNode(), popOverArrowLocation.getX(), popOverArrowLocation.getY());
+
+                event.consume();
+            }
+        };
+        return changeSettingsHandler;
     }
 
     @Override
@@ -216,6 +377,14 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
             this.preferences.putInt(Keys.ACTIVITY_SELECTION_INDEX, this.selectionIndexProperty.getValue());
         }
        this.preferences.put(Keys.ACTIVITY_FEED_NAME, this.getActivityFeed().getFullyQualifiedActivityFeedName());
+
+        this.preferences.putConceptList(ConceptDetailNodeKeys.DETAIL_ORDER, this.detailOrderList);
+        this.preferences.putConceptList(ConceptDetailNodeKeys.DESCRIPTION_TYPE_ORDER, this.descriptionTypeList);
+        this.preferences.putConceptList(ConceptDetailNodeKeys.AXIOM_ORDER, this.axiomSourceList);
+        this.preferences.putConceptList(ConceptDetailNodeKeys.CONCEPT_SEMANTICS_ORDER, this.semanticOrderForConceptDetails);
+        this.preferences.putConceptList(ConceptDetailNodeKeys.DESCRIPTION_SEMANTIC_ORDER, this.semanticOrderForDescriptionDetails);
+        this.preferences.putConceptList(ConceptDetailNodeKeys.AXIOM_SEMANTIC_ORDER, this.semanticOrderForAxiomDetails);
+
         try {
             this.preferences.sync();
         } catch (BackingStoreException e) {
@@ -260,19 +429,21 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
                 }
             }
         }
+        detailsSettingsWrapper.setConstraints(FxGet.activeConceptMembers(TermAux.DETAIL_ORDER_OPTIONS_ASSEMBLAGE,viewProperties.getManifoldCoordinate()));
+        conceptSettingsWrapper.setConstraints(FxGet.activeConceptMembers(TermAux.CONCEPT_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE,viewProperties.getManifoldCoordinate()));
+        descriptionAttachmentsOrderWrapper.setConstraints(FxGet.activeConceptMembers(TermAux.DESCRIPTION_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE,viewProperties.getManifoldCoordinate()));
+        descriptionSettingsWrapper.setConstraints(FxGet.activeConceptMembers(TermAux.DESCRIPTION_TYPE_ORDER_OPTIONS_ASSEMBLAGE,viewProperties.getManifoldCoordinate()));
+        axiomSettingsWrapper.setConstraints(FxGet.activeConceptMembers(TermAux.AXIOM_ORDER_OPTIONS_ASSEMBLAGE,viewProperties.getManifoldCoordinate()));
+        semanticOrderForAxiomDetailsWrapper.setConstraints(FxGet.activeConceptMembers(TermAux.AXIOM_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE,viewProperties.getManifoldCoordinate()));
     }
 
-    private void addChronology(ObservableChronology observableChronology, ParallelTransition parallelTransition) {
-        if (ComponentPaneModel.isSemanticTypeSupported(observableChronology.getVersionType())) {
-            CategorizedVersions<ObservableCategorizedVersion> oscCategorizedVersions
-                    = observableChronology.getCategorizedVersions(
-                            this.viewProperties.getManifoldCoordinate().getVertexStampFilter());
+    private void addCategorizedVersions(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions, List<ConceptSpecification> semanticOrderForChronology, ParallelTransition parallelTransition) {
+        categorizedVersions.getLatestVersion().ifPresent(observableCategorizedVersion -> {
+            parallelTransition.getChildren()
+                    .add(addComponent(categorizedVersions));
+        });
+        if (categorizedVersions.getLatestVersion().isPresent()) {
 
-            if (oscCategorizedVersions.getLatestVersion()
-                    .isPresent()) {
-                parallelTransition.getChildren()
-                        .add(addComponent(oscCategorizedVersions));
-            }
         }
     }
 
@@ -357,7 +528,6 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
     private void animateLayout() {
         componentPanelBox.getChildren().clear();
 
-        AtomicBoolean axiomHeaderAdded = new AtomicBoolean(false);
         populateVersionBranchGrid();
         componentPanelBox.getChildren().add(toolGrid);
 
@@ -369,17 +539,102 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
                 titleProperty.set(this.titleLabel.getText());
             }
 
-            toolTipProperty.set(
-                    "concept details for: " + this.viewProperties.getFullyQualifiedDescriptionText(newValue));
-
             ObservableConceptChronology observableConceptChronology = Get.observableChronologyService()
                     .getObservableConceptChronology(
                             newValue.getNid());
-            final ParallelTransition parallelTransition = new ParallelTransition();
+            animateFocus(observableConceptChronology);
+        });
+    }
 
-            addChronology(observableConceptChronology, parallelTransition);
+    private void animateFocus(ObservableConceptChronology observableConceptChronology) {
 
-            /* TODO finish lineage view
+        final ParallelTransition parallelTransition = new ParallelTransition();
+        List<CategorizedVersions<ObservableCategorizedVersion>> descriptionSemantics = new ArrayList<>();
+        List<CategorizedVersions<ObservableCategorizedVersion>> axiomSemantics = new ArrayList<>();
+        List<CategorizedVersions<ObservableCategorizedVersion>> otherSemantics = new ArrayList<>();
+
+        CategorizedVersions<ObservableCategorizedVersion> categorizedConceptVersions = observableConceptChronology.getCategorizedVersions(
+                this.viewProperties.getManifoldCoordinate().getViewStampFilter());
+
+        observableConceptChronology.getObservableSemanticList().forEach(observableSemanticChronology -> {
+            CategorizedVersions<ObservableCategorizedVersion> categorizedVersions
+                    = observableSemanticChronology.getCategorizedVersions(
+                    this.viewProperties.getManifoldCoordinate().getViewStampFilter());
+            categorizedVersions.getLatestVersion().ifPresent(semanticVersion -> {
+                switch (observableSemanticChronology.getVersionType()) {
+                    case DESCRIPTION:
+                        descriptionSemantics.add(categorizedVersions);
+                        break;
+                    case LOGIC_GRAPH:
+                        axiomSemantics.add(categorizedVersions);
+                        break;
+                    default:
+                        otherSemantics.add(categorizedVersions);
+                }
+            });
+        });
+
+        for (ConceptSpecification focus: this.detailOrderList) {
+            if (focus.getNid() == MetaData.CONCEPT_FOCUS____SOLOR.getNid()) {
+                AnchorPane conceptHeader = setupHeaderPanel("CONCEPT", null, conceptFocusSettings);
+                conceptHeader.pseudoClassStateChanged(PseudoClasses.CONCEPT_PSEUDO_CLASS, true);
+                parallelTransition.getChildren()
+                        .add(addNode(conceptHeader));
+                toolTipProperty.set(
+                        "concept details for: " + this.viewProperties.getFullyQualifiedDescriptionText(observableConceptChronology));
+
+                addCategorizedVersions(categorizedConceptVersions,
+                                        semanticOrderForConceptDetails, parallelTransition);
+            } else if (focus.getNid() == MetaData.DESCRIPTION_FOCUS____SOLOR.getNid()) {
+                AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton, descriptionFocusSettings);
+
+                addDescriptionButton.getStyleClass()
+                        .setAll(ADD_DESCRIPTION_BUTTON.toString());
+
+                addDescriptionButton.setOnAction(this::newDescription);
+                descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
+                parallelTransition.getChildren()
+                        .add(addNode(descriptionHeader));
+
+                Iterator<ObservableDescriptionDialect> iter = newDescriptions.iterator();
+                while (iter.hasNext()) {
+                    ObservableDescriptionDialect descDialect = iter.next();
+                    if (descDialect.getCommitState() == CommitStates.UNCOMMITTED) {
+                        ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(this.viewProperties,
+                                descDialect, true, null);
+                        parallelTransition.getChildren().add(addComponent(descPanel));
+                        descPanel.setCommitHandler((event) -> {
+                            newDescriptions.remove(descDialect);
+                            this.handleCommit(descDialect, descPanel.getVersionsToCommit());
+                            clearComponents();
+                        });
+                        descPanel.setCancelHandler((event) -> {
+                            newDescriptions.remove(descDialect);
+                            clearComponents();
+                        });
+
+                    } else {
+                        iter.remove();
+                    }
+                }
+                // add description versions here...
+                filterAndSortDescriptions(descriptionSemantics, descriptionTypeList)
+                        .forEach(categorizedVersions -> addCategorizedVersions(categorizedVersions,
+                                semanticOrderForDescriptionDetails, parallelTransition));
+
+
+            } else if (focus.getNid() == MetaData.AXIOM_FOCUS____SOLOR.getNid()) {
+                AnchorPane axiomHeader = setupHeaderPanel("AXIOMS", null, axiomFocusSettings);
+                axiomHeader.pseudoClassStateChanged(PseudoClasses.LOGICAL_DEFINITION_PSEUDO_CLASS, true);
+                parallelTransition.getChildren()
+                        .add(addNode(axiomHeader));
+                // add axiom versions here...
+                filterAndSortByAssemblage(axiomSemantics, axiomSourceList)
+                        .forEach(categorizedVersions ->
+                                addCategorizedVersions(categorizedVersions,
+                                        semanticOrderForAxiomDetails, parallelTransition));
+            } // else if (lineage view) {
+             /* TODO finish lineage view
             AnchorPane lineageHeader = setupHeaderPanel("LINEAGE", null);
             parallelTransition.getChildren()
                     .add(addNode(lineageHeader));
@@ -387,110 +642,86 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
             parallelTransition.getChildren()
                     .add(addNode(LineageTree.makeLineageTree(newValue, this.manifoldProperty.get())));
             */
-            AnchorPane descriptionHeader = setupHeaderPanel("DESCRIPTIONS", addDescriptionButton);
-
-            addDescriptionButton.getStyleClass()
-                    .setAll(ADD_DESCRIPTION_BUTTON.toString());
-
-            addDescriptionButton.setOnAction(this::newDescription);
-            descriptionHeader.pseudoClassStateChanged(PseudoClasses.DESCRIPTION_PSEUDO_CLASS, true);
-            parallelTransition.getChildren()
-                    .add(addNode(descriptionHeader));
-
-            Iterator<ObservableDescriptionDialect> iter = newDescriptions.iterator();
-            while (iter.hasNext()) {
-                ObservableDescriptionDialect descDialect = iter.next();
-                if (descDialect.getCommitState() == CommitStates.UNCOMMITTED) {
-                    ConceptBuilderComponentPanel descPanel = new ConceptBuilderComponentPanel(this.viewProperties,
-                            descDialect, true, null);
-                    parallelTransition.getChildren().add(addComponent(descPanel));
-                    descPanel.setCommitHandler((event) -> {
-                        newDescriptions.remove(descDialect);
-                        this.handleCommit(descDialect, descPanel.getVersionsToCommit());
-                        clearComponents();
-                    });
-                    descPanel.setCancelHandler((event) -> {
-                        newDescriptions.remove(descDialect);
-                        clearComponents();
-                    });
-                    
-                } else {
-                    iter.remove();
+            // }
+        }
+        parallelTransition.play();
+    }
+    public static List<CategorizedVersions<ObservableCategorizedVersion>> filterAndSortByAssemblage(List<CategorizedVersions<ObservableCategorizedVersion>> semantics,
+                                                                                                    SimpleEqualityBasedListProperty<ConceptSpecification> assemblagePriorityList) {
+        // SimpleEqualityBasedListProperty<ConceptSpecification>
+        // Delete any versions not active in configuration
+        IntList assemblageOrderList = IntLists.immutable.ofAll(assemblagePriorityList.stream().mapToInt(value -> value.getNid()));
+        List<CategorizedVersions<ObservableCategorizedVersion>> filteredAndSortedSemantics = new ArrayList<>(semantics.size());
+        if (!assemblageOrderList.contains(MetaData.ANY_COMPONENT____SOLOR.getNid())) {
+            // need to filter
+            IntSet allowedAssemblageSet = IntSets.immutable.ofAll(assemblageOrderList);
+            semantics.stream().forEach(observableCategorizedVersion -> {
+                if (allowedAssemblageSet.contains(observableCategorizedVersion.getAssemblageNid())) {
+                    filteredAndSortedSemantics.add(observableCategorizedVersion);
                 }
+            });
+        } else {
+            filteredAndSortedSemantics.addAll(semantics);
+        }
+        // now need to sort...
+        filteredAndSortedSemantics.sort((o1, o2) -> {
+            int o1index = assemblageOrderList.indexOf(o1.getAssemblageNid());
+            int o2index = assemblageOrderList.indexOf(o2.getAssemblageNid());
+            if (o1index == o2index) {
+                // same assemblage
+                return o1.toString().compareTo(o2.toString());
             }
-            // Sort them...
-            observableConceptChronology.getObservableSemanticList()
-                    .filtered((semanticChronology) -> {
-                        switch (semanticChronology.getVersionType()) {
-                            case DESCRIPTION:
-                            case LOGIC_GRAPH:
-
-                                    LatestVersion<SemanticVersion> latest
-                                            = semanticChronology.getLatestVersion(
-                                            this.viewProperties.getManifoldCoordinate().getViewStampFilter());
-                                    return latest.isPresent();
-
-                            default:
-                                return false;
-                        }
-                    })
-                    .sorted(
-                            (o1, o2) -> {
-                                switch (o1.getVersionType()) {
-                                    case DESCRIPTION:
-                                        if (o2.getVersionType() == VersionType.DESCRIPTION) {
-                                            DescriptionVersion dv1 = (DescriptionVersion) o1.getVersionList()
-                                                    .get(0);
-                                            DescriptionVersion dv2 = (DescriptionVersion) o2.getVersionList()
-                                                    .get(0);
-
-                                            if (dv1.getDescriptionTypeConceptNid()
-                                            == dv2.getDescriptionTypeConceptNid()) {
-                                                return 0;
-                                            }
-
-                                            if (dv1.getDescriptionTypeConceptNid()
-                                            == MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid()) {
-                                                return -1;
-                                            }
-
-                                            return 1;
-                                        }
-
-                                        return -1;
-
-                                    case LOGIC_GRAPH:
-                                        if (o2.getVersionType() == VersionType.LOGIC_GRAPH) {
-                                            if (o1.getAssemblageNid() == o2.getAssemblageNid()) {
-                                                return 0;
-                                            }
-
-                                            if (o1.getAssemblageNid()
-                                            == this.viewProperties.getManifoldCoordinate().getLogicCoordinate().getInferredAssemblageNid()) {
-                                                return -1;
-                                            }
-
-                                            return 1;
-                                        }
-
-                                        return 1;
-                                }
-
-                                return 0;  // others already filtered out...
-                            })
-                    .forEach(
-                            (osc) -> {
-                                if (osc.getVersionType() == VersionType.LOGIC_GRAPH && !axiomHeaderAdded.get()) {
-                                    axiomHeaderAdded.set(true);
-                                    AnchorPane axiomHeader = setupHeaderPanel("AXIOMS", null);
-                                    axiomHeader.pseudoClassStateChanged(PseudoClasses.LOGICAL_DEFINITION_PSEUDO_CLASS, true);
-                                    parallelTransition.getChildren()
-                                            .add(addNode(axiomHeader));
-                                }
-                                addChronology(osc, parallelTransition);
-                            });
-            parallelTransition.play();
+            if (o1index == -1) {
+                return 1;
+            }
+            if (o2index == -1) {
+                return -1;
+            }
+            return (o1index < o2index) ? -1 : 1;
         });
+        return filteredAndSortedSemantics;
+    }
+
+
+
+
+    public static List<CategorizedVersions<ObservableCategorizedVersion>> filterAndSortDescriptions(List<CategorizedVersions<ObservableCategorizedVersion>> descriptionSemantics,
+                                                                                                     SimpleEqualityBasedListProperty<ConceptSpecification> typeList) {
+        // SimpleEqualityBasedListProperty<ConceptSpecification>
+        // Delete any versions not active in configuration
+        IntList typeOrderList = IntLists.immutable.ofAll(typeList.stream().mapToInt(value -> value.getNid()));
+        List<CategorizedVersions<ObservableCategorizedVersion>> filteredAndSortedDescriptions = new ArrayList<>(descriptionSemantics.size());
+        if (!typeOrderList.contains(MetaData.ANY_COMPONENT____SOLOR.getNid())) {
+            // need to filter
+            IntSet descTypeSet = IntSets.immutable.ofAll(typeOrderList);
+            descriptionSemantics.stream().forEach(observableCategorizedVersion -> {
+                observableCategorizedVersion.getLatestVersion().ifPresent(observableDescriptionVersion -> {
+                    if (descTypeSet.contains(((DescriptionVersion) observableDescriptionVersion.unwrap()).getDescriptionTypeConceptNid())) {
+                        filteredAndSortedDescriptions.add(observableCategorizedVersion);
+                    }
+                });
+             });
+        } else {
+            filteredAndSortedDescriptions.addAll(descriptionSemantics);
+        }
+        // now need to sort...
+        filteredAndSortedDescriptions.sort((o1, o2) -> {
+            int o1index = typeOrderList.indexOf(((DescriptionVersion) o1.getLatestVersion().get().unwrap()).getDescriptionTypeConceptNid());
+            int o2index = typeOrderList.indexOf(((DescriptionVersion) o2.getLatestVersion().get().unwrap()).getDescriptionTypeConceptNid());
+            if (o1index == o2index) {
+                // alphabetical by text if types are the same
+                return NaturalOrder.compareStrings(((DescriptionVersion) o1.getLatestVersion().get().unwrap()).getText(),
+                        ((DescriptionVersion) o2.getLatestVersion().get().unwrap()).getText());
+            }
+            if (o1index == -1) {
+                return 1;
+            }
+            if (o2index == -1) {
+                return -1;
+            }
+            return (o1index < o2index) ? -1 : 1;
+        });
+        return filteredAndSortedDescriptions;
     }
 
     private void newDescription(Event event) {
@@ -593,18 +824,22 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
 
 
         GridPane.setConstraints(
-                this.manifoldMenuButton,
+                panelSettings,
                 2,
                 0,
                 1,
                 1,
                 HPos.RIGHT,
-                VPos.CENTER,
+                VPos.BOTTOM,
                 Priority.NEVER,
                 Priority.NEVER,
                 new Insets(2));
         this.toolGrid.getChildren()
-                .add(this.manifoldMenuButton);
+                .add(panelSettings);
+
+        panelSettings.setBorder(Border.EMPTY);
+        panelSettings.setBackground(FxUtils.makeBackground(Color.TRANSPARENT));
+
         componentPanelBox.getChildren()
                 .add(toolGrid);
     }
