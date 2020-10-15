@@ -92,7 +92,7 @@ public class ForSet {
     public Map<ConceptSpecification, NidSet> getCollectionMap() {
         Map<ConceptSpecification, NidSet> collections = new HashMap<>();
         for (ConceptSpecification assemblage: assemblageSpecificationsForSet) {
-            NidSet assemblageNids = NidSet.of(Get.identifierService().getNidsForAssemblage(assemblage));
+            NidSet assemblageNids = NidSet.of(Get.identifierService().getNidsForAssemblage(assemblage, false));
             collections.put(assemblage, assemblageNids);
         }
         return collections;
@@ -109,7 +109,7 @@ public class ForSet {
    public Map<ConceptSpecification, NidSet> getPossibleComponents() {
         Map<ConceptSpecification, NidSet> possibleComponents = new HashMap<>(assemblageSpecificationsForSet.size());
         for (ConceptSpecification spec: assemblageSpecificationsForSet) {
-            possibleComponents.put(spec, NidSet.of(Get.identifierService().getNidsForAssemblage(spec)));
+            possibleComponents.put(spec, NidSet.of(Get.identifierService().getNidsForAssemblage(spec, false)));
         }
         return possibleComponents;
     }        

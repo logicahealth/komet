@@ -16,10 +16,17 @@
  */
 package sh.komet.gui.control.axiom;
 
+import static sh.komet.gui.style.PseudoClasses.INACTIVE_PSEUDO_CLASS;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.PopOver;
+import org.controlsfx.control.action.Action;
+import org.controlsfx.control.action.ActionGroup;
+import org.controlsfx.control.action.ActionUtils;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
 import javafx.geometry.Bounds;
@@ -59,10 +66,6 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import org.controlsfx.control.PopOver;
-import org.controlsfx.control.action.Action;
-import org.controlsfx.control.action.ActionGroup;
-import org.controlsfx.control.action.ActionUtils;
 import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
@@ -83,7 +86,16 @@ import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.model.logic.node.*;
+import sh.isaac.model.logic.node.AbstractLogicNode;
+import sh.isaac.model.logic.node.LiteralNodeBoolean;
+import sh.isaac.model.logic.node.LiteralNodeDouble;
+import sh.isaac.model.logic.node.LiteralNodeInstant;
+import sh.isaac.model.logic.node.LiteralNodeInteger;
+import sh.isaac.model.logic.node.LiteralNodeString;
+import sh.isaac.model.logic.node.NecessarySetNode;
+import sh.isaac.model.logic.node.PropertySetNode;
+import sh.isaac.model.logic.node.RootNode;
+import sh.isaac.model.logic.node.SufficientSetNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
 import sh.isaac.model.logic.node.internal.PropertyPatternImplicationWithNids;
@@ -97,19 +109,13 @@ import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
-import static sh.komet.gui.style.PseudoClasses.INACTIVE_PSEUDO_CLASS;
-
 /**
  *
  * @author kec
  */
 public class AxiomView {
 
-    private static final int INDENT_PIXELS = 25;
-    private static final Border ROLE_BORDER = new Border(
-            new BorderStroke(Color.BLACK, BorderStrokeStyle.SOLID,
-                    new CornerRadii(10), new BorderWidths(1, 1, 1, 1))
-    );
+    private static final Logger LOG = LogManager.getLogger();
     private static final Border CHILD_BOX_BORDER = new Border(
             new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0, 0, 0, 0))
     );
@@ -162,6 +168,8 @@ public class AxiomView {
             case STATED:
                 node.pseudoClassStateChanged(PseudoClasses.STATED_PSEUDO_CLASS, true);
                 node.pseudoClassStateChanged(PseudoClasses.INFERRED_PSEUDO_CLASS, false);
+                break;
+            default :
                 break;
         }
 
@@ -827,7 +835,7 @@ public class AxiomView {
         }
 
         private void handleDragDetected(MouseEvent event) {
-            System.out.println("Drag detected: " + event);
+            LOG.debug("Drag detected: " + event);
 
             DragImageMaker dragImageMaker = new DragImageMaker(titleLabel);
             Dragboard db = titleLabel.startDragAndDrop(TransferMode.COPY);
@@ -869,14 +877,14 @@ public class AxiomView {
         }
 
         private void handleDragDone(DragEvent event) {
-            System.out.println("Dragging done: " + event);
+            LOG.debug("Dragging done: " + event);
             titleLabel.setBackground(originalBackground);
             this.transferMode = null;
         }
 
         private void handleDragEntered(DragEvent event) {
             if (editable) {
-                System.out.println("Dragging entered: " + event);
+                LOG.debug("Dragging entered: " + event);
                 this.originalBackground = titleLabel.getBackground();
 
                 Color backgroundColor;
@@ -901,13 +909,13 @@ public class AxiomView {
         }
 
         private void handleDragExited(DragEvent event) {
-            System.out.println("Dragging exited: " + event);
+            LOG.debug("Dragging exited: " + event);
             titleLabel.setBackground(originalBackground);
             this.transferMode = null;
         }
 
         private void handleDragOver(DragEvent event) {
-            // System.out.println("Dragging over: " + event );
+            // LOG.debug("Dragging over: " + event );
             if (this.transferMode != null) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
                 event.consume();

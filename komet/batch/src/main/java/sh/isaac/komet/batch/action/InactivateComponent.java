@@ -49,7 +49,7 @@ public class InactivateComponent extends ActionItem {
         Optional<? extends Chronology> optionalChronology = Get.identifiedObjectService().getChronology(conceptToInactivateProperty.get().getNid());
         if (optionalChronology.isPresent()) {
             Chronology chronology = optionalChronology.get();
-            chronology.createMutableVersion(transaction, Status.INACTIVE, manifoldCoordinate);
+            chronology.createMutableVersion(manifoldCoordinate.getWriteCoordinate(transaction, null, Status.INACTIVE));
             Get.identifiedObjectService().putChronologyData(chronology);
         }
     }

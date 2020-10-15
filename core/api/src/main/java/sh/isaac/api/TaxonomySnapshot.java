@@ -39,17 +39,10 @@
 
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
-
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.eclipse.collections.api.collection.ImmutableCollection;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.navigation.Navigator;
 import sh.isaac.api.tree.Tree;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface TaxonomySnapshot.
@@ -58,9 +51,15 @@ import sh.isaac.api.tree.Tree;
  */
 public interface TaxonomySnapshot extends Navigator {
 
-
    /**
-    * Checks if kind of.
+    * 
+    * @param conceptNid concept to test if it is a leaf node
+    * @return true if the node is a leaf (it has no children)
+    */
+   boolean isLeaf(int conceptNid);
+   
+   /**
+    * true if child is any level descendent of parent, or child == parent
     *
     * @param childConceptNid the child id
     * @param parentConceptNid the parent id
@@ -72,6 +71,15 @@ public interface TaxonomySnapshot extends Navigator {
       }
       return isDescendentOf(childConceptNid, parentConceptNid);
    }
+   
+   /**
+    * same as {@link #isKindOf(int, int)}, except doesn't allow descendentConceptNid == parentConceptNid
+    *
+    * @param descendantConceptNid the descendant id
+    * @param ancestorConceptNid the parent id
+    * @return true, if descendent of
+    */
+   boolean isDescendentOf(int descendantConceptNid, int ancestorConceptNid);
 
    /**
     * Gets the kind of nid set.

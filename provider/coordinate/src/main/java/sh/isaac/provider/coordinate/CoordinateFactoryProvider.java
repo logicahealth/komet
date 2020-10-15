@@ -85,7 +85,7 @@ public class CoordinateFactoryProvider
      */
     @Override
     public int caseSignificanceToConceptNid(boolean initialCaseSignificant) {
-        return LanguageCoordinates.caseSignificanceToConceptSequence(initialCaseSignificant);
+        return TermAux.caseSignificanceToConceptNid(initialCaseSignificant);
     }
 
     /**
@@ -96,18 +96,7 @@ public class CoordinateFactoryProvider
      */
     @Override
     public boolean conceptIdToCaseSignificance(int id) {
-        return LanguageCoordinates.conceptIdToCaseSignificance(id);
-    }
-
-    /**
-     * Concept id to iso 639.
-     *
-     * @param nid the nid
-     * @return the string
-     */
-    @Override
-    public String conceptIdToIso639(int nid) {
-        return LanguageCoordinates.conceptNidToIso639(nid);
+        return TermAux.conceptIdToCaseSignificance(id);
     }
 
     /**
@@ -334,18 +323,6 @@ public class CoordinateFactoryProvider
     }
 
     /**
-     * Iso 639 to concept nid.
-     *
-     * @param iso639text the iso 639 text
-     * @return the int
-     */
-    @Override
-    public int iso639toConceptNid(String iso639text) {
-        return LanguageCoordinates.iso639toConceptNid(iso639text);
-    }
-
-    //~--- get methods ---------------------------------------------------------
-    /**
      * Gets the acceptable concept nid.
      *
      * @return the acceptable concept nid
@@ -520,7 +497,7 @@ public class CoordinateFactoryProvider
      * @return the us english language preferred term coordinate
      */
     @Override
-    public LanguageCoordinate getUsEnglishLanguagePreferredTermCoordinate() {
-        return Coordinates.Language.UsEnglishPreferredName();
+    public LanguageCoordinate getUsEnglishLanguageRegularTermCoordinate() {
+        return Coordinates.Language.UsEnglishRegularName();
     }
 }

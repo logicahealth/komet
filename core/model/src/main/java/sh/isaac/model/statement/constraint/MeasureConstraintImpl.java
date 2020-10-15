@@ -16,15 +16,12 @@
  */
 package sh.isaac.model.statement.constraint;
 
-import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.BrittleVersion;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.statement.constraints.MeasureConstraints;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
@@ -55,23 +52,6 @@ public class MeasureConstraintImpl
       super(container, stampSequence);
    }
 
-    public MeasureConstraintImpl(MeasureConstraintImpl old, int stampSequence) {
-        super(old.getChronology(), stampSequence);
-        this.setConstraintDescription(old.constraintDescription);
-        this.setInitialLowerBound(old.initialLowerBound);
-        this.setInitialUpperBound(old.initialUpperBound);
-        this.setInitialGranularity(old.initialGranularity);
-        this.setInitialIncludeUpperBound(old.initialIncludeUpperBound);
-        this.setInitialIncludeLowerBound(old.initialIncludeLowerBound);
-        this.setMinimumValue(old.minimumValue);
-        this.setMaximumValue(old.maximumValue);
-        this.setMinimumGranularity(old.minimumGranularity);
-        this.setMaximumGranularity(old.maximumGranularity);
-        this.setShowRange(old.showRange);
-        this.setShowGranularity(old.showGranularity);
-        this.setShowIncludeBounds(old.showIncludeBounds);
-        this.setMeasureSemanticConstraintAssemblageNid(old.measureSemanticConstraintAssemblageNid);
-    }
    public MeasureConstraintImpl(SemanticChronology container, 
            int stampSequence, ByteArrayDataBuffer data) {
       super(container, stampSequence);
@@ -113,13 +93,30 @@ public class MeasureConstraintImpl
       data.putBoolean(this.showIncludeBounds);
       data.putNid(this.measureSemanticConstraintAssemblageNid);
    }
-   //~--- methods -------------------------------------------------------------
 
-    public <V extends Version> V setupAnalog(int stampSequence) {
-        final MeasureConstraintImpl newVersion = new MeasureConstraintImpl(this, stampSequence);
-        getChronology().addVersion(newVersion);
-        return (V) newVersion;
-    }
+   @SuppressWarnings("unchecked")
+   @Override
+   public <V extends Version> V makeAnalog(int stampSequence) {
+      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
+      final MeasureConstraintImpl newVersion = new MeasureConstraintImpl((SemanticChronology) this, stampSequence);
+      newVersion.setConstraintDescription(constraintDescription);
+      newVersion.setInitialLowerBound(initialLowerBound);
+      newVersion.setInitialUpperBound(initialUpperBound);
+      newVersion.setInitialGranularity(initialGranularity);
+      newVersion.setInitialIncludeUpperBound(initialIncludeUpperBound);
+      newVersion.setInitialIncludeLowerBound(initialIncludeLowerBound);
+      newVersion.setMinimumValue(minimumValue);
+      newVersion.setMaximumValue(maximumValue);
+      newVersion.setMinimumGranularity(minimumGranularity);
+      newVersion.setMaximumGranularity(maximumGranularity);
+      newVersion.setShowRange(showRange);
+      newVersion.setShowGranularity(showGranularity);
+      newVersion.setShowIncludeBounds(showIncludeBounds);
+      newVersion.setMeasureSemanticConstraintAssemblageNid(measureSemanticConstraintAssemblageNid);
+      
+      chronologyImpl.addVersion(newVersion);
+      return (V) newVersion;
+   }
 
     @Override
    protected boolean deepEquals3(AbstractVersionImpl other) {

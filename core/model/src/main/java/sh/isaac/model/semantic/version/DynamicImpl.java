@@ -49,23 +49,20 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.constants.DynamicConstants;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.model.semantic.DynamicUtilityImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.types.DynamicNidImpl;
 import sh.isaac.model.semantic.types.DynamicTypeToClassUtility;
 import sh.isaac.model.semantic.types.DynamicUUIDImpl;
-import sh.isaac.api.component.semantic.version.MutableDynamicVersion;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
-import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 
 /**
  * {@link DynamicImpl}.
@@ -148,10 +145,17 @@ public class DynamicImpl
    public void setReferencedComponentVersionType(VersionType versionType) {
       this.referencedComponentVersionType = versionType;
    }
-   public <V extends Version> V setupAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
+
+   
+   /**
+    * {@inheritDoc}
+    */
+   @SuppressWarnings("unchecked")
+   @Override
+   public <V extends Version> V makeAnalog(int stampSequence)
+   {
       final DynamicImpl newVersion = new DynamicImpl(this, stampSequence);
-      chronologyImpl.addVersion(newVersion);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 

@@ -86,7 +86,7 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
     protected Void call() throws Exception {
         ZonedDateTime zonedDateTime = DateTimeUtil.epochToZonedDateTime(System.currentTimeMillis());
         String dateTime = DateTimeUtil.format(zonedDateTime);
-        Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+        Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
         ConceptSpecification assemblageSpec = build(transaction, makeBuilder(assemblageName, "SOLOR", MetaData.ASSEMBLAGE____SOLOR), UUID.randomUUID().toString());
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
@@ -126,18 +126,10 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
                         .submit(writer);
             }
             writeSemaphore.acquireUninterruptibly(writePermits);
-            for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-                try {
-                    indexer.sync().get();
-                } catch (Exception e) {
-                    LOG.error("problem calling sync on index", e);
-                }
-            }
-            updateMessage("Synchronizing semantic database...");
-            Get.assemblageService().sync();
             writeSemaphore.release(writePermits);
         }
         transaction.commit();
+        LookupService.syncAll();
         return null;
     }
 
@@ -153,7 +145,7 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
 
     private ConceptSpecification build(Transaction transaction, ConceptBuilder builder, String uuidStr) throws IllegalStateException {
         int stampSequence = Get.stampService()
-                .getStampSequence(Status.ACTIVE,
+                .getStampSequence(transaction, Status.ACTIVE,
                         System.currentTimeMillis(),
                         MetaData.USER____SOLOR.getNid(),
                         MetaData.SOLOR_MODULE____SOLOR.getNid(),

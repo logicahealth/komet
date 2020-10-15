@@ -48,8 +48,10 @@ import org.apache.maven.plugins.annotations.Mojo;
  */
 @Mojo(name = "convert-RF2-direct-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES)
 public class RF2ImportMojoDirect extends RF2ImportHK2Direct
-
 {
+	/**
+	 * This constructor is for maven and HK2 and should not be used at runtime.
+	 */
 	public RF2ImportMojoDirect()
 	{
 		//For maven

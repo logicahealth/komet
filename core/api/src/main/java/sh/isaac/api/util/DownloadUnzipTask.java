@@ -61,7 +61,7 @@ import javafx.concurrent.Task;
 
 import org.apache.commons.lang3.StringUtils;
 
-import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.progress.ProgressMonitor;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -216,10 +216,10 @@ public class DownloadUnzipTask
             zipFile.extractAll(this.targetFolder.getAbsolutePath());
 
             while (zipFile.getProgressMonitor()
-                          .getState() == ProgressMonitor.STATE_BUSY) {
+                          .getState() == ProgressMonitor.State.BUSY) {
                if (this.cancel) {
                   zipFile.getProgressMonitor()
-                         .cancelAllTasks();
+                         .setCancelAllTasks(true);
                   LOG.debug("Download cancelled");
                   throw new Exception("Cancelled!");
                }

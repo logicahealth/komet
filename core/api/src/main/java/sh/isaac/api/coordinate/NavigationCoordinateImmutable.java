@@ -1,10 +1,10 @@
 package sh.isaac.api.coordinate;
 
+import java.util.Objects;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
-import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.*;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -12,14 +12,9 @@ import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 
-import javax.annotation.PreDestroy;
-import java.util.Objects;
-
 @Service
-@RunLevel(value = LookupService.SL_L2)
-// Singleton from the perspective of HK2 managed instances, there will be more than one
-// StampFilterImmutable created in normal use.
-public final class NavigationCoordinateImmutable implements NavigationCoordinate, ImmutableCoordinate {
+//This class is not treated as a service, however, it needs the annotation, so that the reset() gets fired at appropriate times.
+public final class NavigationCoordinateImmutable implements NavigationCoordinate, ImmutableCoordinate, StaticIsaacCache {
 
     private static final ConcurrentReferenceHashMap<NavigationCoordinateImmutable, NavigationCoordinateImmutable> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
@@ -35,10 +30,7 @@ public final class NavigationCoordinateImmutable implements NavigationCoordinate
         this.navigationConceptNids = null;
      }
 
-    /**
-     * {@inheritDoc}
-     */
-    @PreDestroy
+    @Override
     public void reset() {
         SINGLETONS.clear();
     }

@@ -36,6 +36,39 @@
  */
 package sh.isaac.convert.mojo.rxnorm;
 
+import java.beans.PropertyVetoException;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.Consumer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.glassfish.hk2.api.PerLookup;
@@ -55,14 +88,12 @@ import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.api.util.UuidT3Generator;
-import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.convert.mojo.rxnorm.rrf.RXNCONSO;
 import sh.isaac.convert.mojo.rxnorm.rrf.RXNSAT;
 import sh.isaac.converters.sharedUtils.sql.TableDefinition;
-import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.converters.sharedUtils.umlsUtils.AbbreviationExpansion;
 import sh.isaac.converters.sharedUtils.umlsUtils.RRFDatabaseHandle;
 import sh.isaac.converters.sharedUtils.umlsUtils.Relationship;
@@ -72,31 +103,6 @@ import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
-
-import java.beans.PropertyVetoException;
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.nio.file.FileVisitOption;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
-import java.util.function.BiFunction;
-import java.util.function.Consumer;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * {@link RxNormImportHK2Direct}
@@ -161,16 +167,13 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 	protected List<String> sabsToInclude;
 
 	/**
-	 * This constructor is for maven and HK2 and should not be used at runtime.  You should
-	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter)} method on it.
-	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
+	 * This constructor is for HK2 and should not be used at runtime.  You should 
+	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter, Transaction)} method on it.
 	 */
-	protected RxNormImportHK2Direct() {
-	}
-	protected RxNormImportHK2Direct(Transaction transaction)
+	protected RxNormImportHK2Direct() 
 	{
 		//for HK2
-		super(transaction);
+		super();
 	}
 
 	@Override
@@ -198,21 +201,10 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 		}
 	}
 
-	/**
-	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent()}
-	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
-	 * 
-	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String,
-	 *      sh.isaac.api.coordinate.StampCoordinate)
-	 */
 	@Override
-	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter)
+	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter, Transaction transaction)
 	{
-		this.outputDirectory = outputDirectory;
-		this.inputFileLocationPath = inputFolder;
-		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
-		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		this.readbackCoordinate = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
+		super.configure(outputDirectory, inputFolder, converterSourceArtifactVersion, stampFilter, transaction);
 		
 		if (this.outputDirectory == null)
 		{
@@ -226,7 +218,6 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 				throw new RuntimeException(e);
 			}
 		}
-
 		//You can set this on low memory systems, if necessary to reduce the footprint.  
 		//Also, play with the SABs and tty types in the ibdf pom config.
 		//this.converterUUID.setUUIDMapState(false);
@@ -312,11 +303,11 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer)
+	 * @see DirectConverter#convertContent(Consumer, BiConsumer)
 	 */
 	@Override
-	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		try
 		{
@@ -697,7 +688,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 		this.hasTTYType.close();
 
 		dwh.processTaxonomyUpdates();
-		Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+		dwh.clearIsaacCaches();
 
 		log.info("Load Statistics");
 
@@ -744,14 +735,14 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 		this.mapToIsa.add("tradename_of");
 		this.mapToIsa.add("has_tradename");
 
-		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.RXNORM_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(),
+		dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), MetaData.RXNORM_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(),
 				converterUUID, RXNORM_TERMINOLOGY_NAME, false);
 
 		setupModule(RXNORM_TERMINOLOGY_NAME, MetaData.RXNORM_MODULES____SOLOR.getPrimordialUuid(), 
 				Optional.of("http://www.nlm.nih.gov/research/umls/rxnorm"), defaultTime);
 
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(transaction, true, true, true, true, true, true, defaultTime);
+		dwh.makeMetadataHierarchy(true, true, true, true, true, true, defaultTime);
 
 		loadMetaData();
 
@@ -893,141 +884,141 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 	 */
 	private void loadMetaData() throws Exception
 	{
-		cpcRefsetConcept = dwh.makeRefsetTypeConcept(transaction, null, cpcRefsetConceptKey, null, null, defaultTime);
-		allCUIRefsetConcept = dwh.makeRefsetTypeConcept(transaction, null, allCUIConcepts, null, null, defaultTime);
+		cpcRefsetConcept = dwh.makeRefsetTypeConcept(null, cpcRefsetConceptKey, null, null, defaultTime);
+		allCUIRefsetConcept = dwh.makeRefsetTypeConcept(null, allCUIConcepts, null, null, defaultTime);
 
 		// from http://www.nlm.nih.gov/research/umls/rxnorm/docs/2013/rxnorm_doco_full_2013-2.html#s12_8
-		dwh.makeOtherMetadataRootNode(transaction, sourceMetadata, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Versioned CUI", "VCUI", null,
+		dwh.makeOtherMetadataRootNode(sourceMetadata, defaultTime);
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Versioned CUI", "VCUI", null,
 				"CUI of the versioned SRC concept for a source", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Root CUI", "RCUI", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Root CUI", "RCUI", null,
 				"CUI of the root SRC concept for a source", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Versioned Source Abbreviation", "VSAB", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Versioned Source Abbreviation", "VSAB", null,
 				"The versioned source abbreviation_ for a source, e.g., NDDF_2004_11_03", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Root Source Abbreviation", "RSAB", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Root Source Abbreviation", "RSAB", null,
 				"The root source abbreviation_, for a source e.g. NDDF", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Source Official Name", "SON", null, "The official name for a source",
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Source Official Name", "SON", null, "The official name for a source",
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Source Family", "SF", null, "The Source Family for a source",
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Source Family", "SF", null, "The Source Family for a source",
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Source Version", "SVER", null, "The source version, e.g., 2001",
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Source Version", "SVER", null, "The source version, e.g., 2001",
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Meta Start Date", "VSTART", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Meta Start Date", "VSTART", null,
 				"The date a source became active, e.g., 2001_04_03", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Meta End Date", "VEND", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Meta End Date", "VEND", null,
 				"The date a source ceased to be active, e.g., 2001_05_10", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Meta Insert Version", "IMETA", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Meta Insert Version", "IMETA", null,
 				"The version of the Metathesaurus a source first appeared, e.g., 2001AB", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Meta Remove Version", "RMETA", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Meta Remove Version", "RMETA", null,
 				"The version of the Metathesaurus a source was removed, e.g., 2001AC", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Source License Contact", "SLC", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Source License Contact", "SLC", null,
 				"The source license contact information. A semi-colon separated list containing the following fields: Name; Title; Organization; Address 1; Address 2; City; State or Province; Country; Zip or Postal Code; Telephone; Contact Fax; Email; URL", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Source Content Contact", "SCC", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Source Content Contact", "SCC", null,
 				"The source content contact information. A semi-colon separated list containing the following fields: Name; Title; Organization; Address 1; Address 2; City; State or Province; Country; Zip or Postal Code; Telephone; Contact Fax; Email; URL", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Source Restriction Level", "SRL", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Source Restriction Level", "SRL", null,
 				"0,1,2,3,4 - explained in the License Agreement.", 
 				DynamicDataType.UUID, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Term Frequency", "TFR", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Term Frequency", "TFR", null,
 				"The number of terms for this source in RXNCONSO.RRF, e.g., 12343 (not implemented yet)", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "CUI Frequency", "CFR", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "CUI Frequency", "CFR", null,
 				"The number of CUIs associated with this source, e.g., 10234 (not implemented yet)", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Context Type", "CXTY", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Context Type", "CXTY", null,
 				"The type of relationship label (Section 2.4.2 of UMLS Reference Manual)", 
 				DynamicDataType.UUID, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Term Type List", "TTYL", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Term Type List", "TTYL", null,
 				"Term type list from source, e.g., MH,EN,PM,TQ", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Attribute Name List", "ATNL", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Attribute Name List", "ATNL", null,
 				"The attribute name list, e.g., MUI,RN,TH,...", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Language", "LAT", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Language", "LAT", null,
 				"The language of the terms in the source", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Character Encoding", "CENC", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Character Encoding", "CENC", null,
 				"Character set as specified by the IANA official names for character assignments http://www.iana.org/assignments/character-sets", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Current Version", "CURVER", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Current Version", "CURVER", null,
 				"A Y or N flag indicating whether or not this row corresponds to the current version of the named source", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Source in Subset", "SABIN", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Source in Subset", "SABIN", null,
 				"A Y or N flag indicating whether or not this row is represented in the current MetamorphoSys subset. Initially always Y where CURVER is Y, but later is recomputed by MetamorphoSys.", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Source short name", "SSN", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Source short name", "SSN", null,
 				"The short name of a source as used by the NLM Knowledge Source Server.", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(sourceMetadata), null, "Source citation", "SCIT", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(sourceMetadata), null, "Source citation", "SCIT", null,
 				"Citation information for a source. A semi-colon separated list containing the following fields: Author(s); Author(s) address; Author(s) organization; Editor(s); Title; Content Designator; Medium Designator; Edition; Place of Publication; Publisher; Date of Publication/copyright; Date of revision; Location; Extent; Series; Availability Statement (URL); Language; Notes", 
 				DynamicDataType.STRING, null, defaultTime);
 
-		dwh.makeOtherMetadataRootNode(transaction, RRFMetadata, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "General Rel Type", null, null, null,
+		dwh.makeOtherMetadataRootNode(RRFMetadata, defaultTime);
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "General Rel Type", null, null, null,
 				DynamicDataType.UUID, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "Inverse General Rel Type", null, null, null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "Inverse General Rel Type", null, null, null,
 				DynamicDataType.UUID, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "Snomed Code", null, null, null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "Snomed Code", null, null, null,
 				DynamicDataType.UUID, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "Inverse Snomed Code", null, null, null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "Inverse Snomed Code", null, null, null,
 				DynamicDataType.UUID, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "Source asserted atom identifier", "SAUI", null, null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "Source asserted atom identifier", "SAUI", null, null,
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "Source asserted concept identifier", "SCUI", null, null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "Source asserted concept identifier", "SCUI", null, null,
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "Source Vocabulary", "SAB", null, null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "Source Vocabulary", "SAB", null, null,
 				DynamicDataType.UUID, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "Suppress", "SUPPRESS", null, null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "Suppress", "SUPPRESS", null, null,
 				DynamicDataType.UUID, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "Term Type Class", "tty_class", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "Term Type Class", "tty_class", null,
 				"The name of the column in RXNCONSO.RRF or RXNREL.RRF that contains the identifier to which the attribute is attached, e.g., CUI, AUI.", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "STYPE", null, null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "STYPE", null, null,
 				"The name of the column in RXNCONSO.RRF or RXNREL.RRF that contains the identifier to which the attribute is attached, e.g., CUI, AUI.", 
 				DynamicDataType.UUID, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "STYPE1", null, null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "STYPE1", null, null,
 				"The name of the column in RXNCONSO.RRF that contains the identifier used for the first concept or first atom in source of the relationship (e.g., 'AUI' or 'CUI')", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "STYPE2", null, null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "STYPE2", null, null,
 				"The name of the column in RXNCONSO.RRF that contains the identifier used for the second concept or second atom in the source of the relationship (e.g., 'AUI' or 'CUI')",
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "Source Asserted Attribute Identifier", "SATUI", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "Source Asserted Attribute Identifier", "SATUI", null,
 				"Source asserted attribute identifier (optional - present if it exists)", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "Semantic Type tree number", "STN", null, null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "Semantic Type tree number", "STN", null, null,
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "Semantic Type", "STY", null, null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "Semantic Type", "STY", null, null,
 				DynamicDataType.UUID, null, defaultTime);
 		// note - this is undocumented in RxNorm - used on the STY table - description_ comes from UMLS
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "Content View Flag", "CVF", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "Content View Flag", "CVF", null,
 				"Bit field used to flag rows included in Content View.", 
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "URI", null, null, null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "URI", null, null, null,
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "RG", null, null, "Machine generated and unverified indicator",
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "RG", null, null, "Machine generated and unverified indicator",
 				DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "Generic rel type", null, null, "Generic rel type for this relationship",
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "Generic rel type", null, null, "Generic rel type for this relationship",
 				DynamicDataType.UUID, null, defaultTime);
 		//Stupid hack to mark as ID
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "RXAUI", "Unique identifier for atom", null, "(RxNorm Atom Id)",
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "RXAUI", "Unique identifier for atom", null, "(RxNorm Atom Id)",
 				DynamicDataType.UNKNOWN, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "RXCUI", "RxNorm Concept ID", null, "RxNorm Unique identifier for concept",
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "RXCUI", "RxNorm Concept ID", null, "RxNorm Unique identifier for concept",
 				DynamicDataType.UNKNOWN, null, defaultTime);
 		
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "TUI", "Unique identifier of Semantic Type", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "TUI", "Unique identifier of Semantic Type", null,
 				"Machine generated and unverified indicator", DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "RUI", "Unique identifier for Relationship", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "RUI", "Unique identifier for Relationship", null,
 				"Machine generated and unverified indicator", DynamicDataType.STRING, null, defaultTime);
-		dwh.makeOtherTypeConcept(transaction, dwh.getOtherMetadataRootType(RRFMetadata), null, "ATUI", "Unique identifier for attribute", null,
+		dwh.makeOtherTypeConcept(dwh.getOtherMetadataRootType(RRFMetadata), null, "ATUI", "Unique identifier for attribute", null,
 				"Machine generated and unverified indicator", DynamicDataType.STRING, null, defaultTime);
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, defaultTime, readbackCoordinate);
@@ -1075,12 +1066,12 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 					{
 						log.info("No Abbreviation Expansion found for " + abbreviation + " using FSN: " + abbreviation + "  Alt:" + altName + " description:"
 								+ description);
-						dwh.makeAttributeTypeConcept(transaction, converterUUID.createNamespaceUUIDFromStrings(abbreviation, "ATN"),
+						dwh.makeAttributeTypeConcept(converterUUID.createNamespaceUUIDFromStrings(abbreviation, "ATN"),
 								abbreviation, null, altName, description, false, DynamicDataType.STRING, null, defaultTime);
 					}
 					else
 					{
-						dwh.makeAttributeTypeConcept(transaction, converterUUID.createNamespaceUUIDFromStrings(ae.getExpansion(), "ATN"),
+						dwh.makeAttributeTypeConcept(converterUUID.createNamespaceUUIDFromStrings(ae.getExpansion(), "ATN"),
 								ae.getExpansion(), null, ae.getAbbreviation(), ae.getDescription(), false, DynamicDataType.STRING, null, defaultTime);
 					}
 				}
@@ -1090,9 +1081,9 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 		// description types
 		{
 			log.info("Creating description_ types");
-			dwh.makeDescriptionTypeConcept(transaction, null, "Inverse FQN", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, defaultTime);
-			dwh.makeDescriptionTypeConcept(transaction, null, "Inverse Synonym", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, defaultTime);
-			dwh.makeDescriptionTypeConcept(transaction, null, "Inverse Description", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, defaultTime);
+			dwh.makeDescriptionTypeConcept(null, "Inverse FQN", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, defaultTime);
+			dwh.makeDescriptionTypeConcept(null, "Inverse Synonym", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, defaultTime);
+			dwh.makeDescriptionTypeConcept(null, "Inverse Description", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, defaultTime);
 			
 
 			final PreparedStatement ps;
@@ -1152,12 +1143,12 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 					if (ae == null)
 					{
 						log.error("No Abbreviation Expansion found for " + tty + " using fsn: " + tty + " alt: " + expandedForm);
-						descType = dwh.makeDescriptionTypeConcept(transaction, converterUUID.createNamespaceUUIDFromStrings(tty, "TTY"),
+						descType = dwh.makeDescriptionTypeConcept(converterUUID.createNamespaceUUIDFromStrings(tty, "TTY"),
 								tty, expandedForm, null, getCoreType(tty, classes), null, defaultTime);  
 					}
 					else
 					{
-						descType = dwh.makeDescriptionTypeConcept(transaction, converterUUID.createNamespaceUUIDFromStrings(ae.getExpansion(), "TTY"),
+						descType = dwh.makeDescriptionTypeConcept(converterUUID.createNamespaceUUIDFromStrings(ae.getExpansion(), "TTY"),
 								ae.getExpansion(), ae.getAbbreviation(), null, getCoreType(ae.getExpansion(), classes), 
 								null, defaultTime); 
 						if (StringUtils.isNotBlank(ae.getDescription()))
@@ -1201,7 +1192,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 
 					UUID sTypeUUID = dwh.getOtherType(RRFMetadata, "STYPE");
 					
-					final UUID c = dwh.makeConceptEnNoDialect(transaction,
+					final UUID c = dwh.makeConceptEnNoDialect(
 							converterUUID.createNamespaceUUIDFromString(sTypeUUID + ":" + name), 
 							name, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
 							new UUID[] {sTypeUUID}, Status.ACTIVE, defaultTime);
@@ -1311,7 +1302,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 
 						UUID SRLConcept = dwh.getOtherType(sourceMetadata, "SRL");
 						
-						final UUID c = dwh.makeConceptEnNoDialect(transaction,
+						final UUID c = dwh.makeConceptEnNoDialect(
 								converterUUID.createNamespaceUUIDFromString(SRLConcept + ":" + value), 
 								value, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
 								new UUID[] {SRLConcept}, Status.ACTIVE, defaultTime);
@@ -1349,7 +1340,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 			rs.close();
 			s.close();
 			
-			UUID sabsNode = dwh.makeOtherMetadataRootNode(transaction, sabs, defaultTime);
+			UUID sabsNode = dwh.makeOtherMetadataRootNode(sabs, defaultTime);
 
 			for (final String currentSab : sabList)
 			{
@@ -1360,7 +1351,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 				if (rs.next())
 				{
 					final String son = rs.getString("SON");
-					UUID cr = dwh.makeOtherTypeConcept(transaction, sabsNode, null, son, currentSab, null, null, DynamicDataType.STRING, null, defaultTime);
+					UUID cr = dwh.makeOtherTypeConcept(sabsNode, null, son, currentSab, null, null, DynamicDataType.STRING, null, defaultTime);
 
 					try
 					{
@@ -1441,7 +1432,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 					final String tui = rs.getString("TUI");
 					final String stn = rs.getString("STN");
 					final String sty = rs.getString("STY");
-					final UUID c = dwh.makeConceptEnNoDialect(transaction, converterUUID.createNamespaceUUIDFromString(
+					final UUID c = dwh.makeConceptEnNoDialect(converterUUID.createNamespaceUUIDFromString(
 							dwh.getOtherType(RRFMetadata, "STY") + ":" + sty),
 							sty, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
 							new UUID[] {dwh.getOtherType(RRFMetadata, "STY")}, Status.ACTIVE, defaultTime);
@@ -1644,7 +1635,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 			}
 
 			final boolean associationAsRel = this.mapToIsa.contains(r.getFQName());
-			UUID p = dwh.makeAssociationTypeConcept(transaction, null, ((r.getAltName() == null) ? r.getFQName() : r.getAltName()),
+			UUID p = dwh.makeAssociationTypeConcept(null, ((r.getAltName() == null) ? r.getFQName() : r.getAltName()),
 					((r.getAltName() == null) ? null : r.getFQName()), null, r.getDescription(),
 					((r.getInverseAltName() == null) ? r.getInverseFQName() : r.getInverseAltName()), null, null,
 					associationAsRel ? Arrays.asList(
@@ -2053,7 +2044,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 		// Have to add multiple parents at once, no place to keep all the other details. Load those as associations for now.
 		if (parents.size() > 0)
 		{
-			dwh.makeParentGraph(transaction, cuiConcept, parents, Status.ACTIVE, conceptTime);
+			dwh.makeParentGraph(cuiConcept, parents, Status.ACTIVE, conceptTime);
 		}
 	}
 
@@ -2309,7 +2300,7 @@ public class RxNormImportHK2Direct extends DirectConverterBaseMojo implements Di
 						throw new RuntimeException("Unexpected type in the attribute data within DOC: '" + type + "'");
 					}
 
-					final UUID created = dwh.makeConceptEnNoDialect(transaction,
+					final UUID created = dwh.makeConceptEnNoDialect(
 							converterUUID.createNamespaceUUIDFromString(parent + ":" + (loadAsDefinition ? value : name)), (loadAsDefinition ? value : name),
 							MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), new UUID[] { parent }, Status.ACTIVE, defaultTime);
 

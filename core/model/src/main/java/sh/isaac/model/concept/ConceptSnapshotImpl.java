@@ -238,8 +238,8 @@ public class ConceptSnapshotImpl
     * @return the preferred description
     */
    @Override
-   public LatestVersion<DescriptionVersion> getPreferredDescription() {
-      return getLanguageCoordinate().getPreferredDescription(getNid(), getViewStampFilter());
+   public LatestVersion<DescriptionVersion> getRegularDescription() {
+      return getLanguageCoordinate().getRegularDescription(getNid(), getViewStampFilter());
    }
 
    /**
@@ -295,7 +295,7 @@ public class ConceptSnapshotImpl
 
    @Override
    public Optional<String> getRegularName() {
-     return getLanguageCoordinate().getPreferredDescriptionText(getNid(), getViewStampFilter());
+     return getLanguageCoordinate().getRegularDescriptionText(getNid(), getViewStampFilter());
    }
 
    @Override
@@ -379,6 +379,11 @@ public class ConceptSnapshotImpl
     @Override
     public ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis) {
         return this.manifoldCoordinate.makeCoordinateAnalog(classifyTimeInEpochMillis);
+    }
+    
+    @Override
+    public ManifoldCoordinate makeCoordinateAnalog(PremiseType premiseType) {
+        return this.manifoldCoordinate.makeCoordinateAnalog(premiseType);
     }
 
     @Override

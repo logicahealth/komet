@@ -37,9 +37,14 @@
 package sh.isaac.model.taxonomy;
 
 import static sh.isaac.api.commit.StampService.FIRST_STAMP_SEQUENCE;
-
-import java.util.*;
+import java.util.Arrays;
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.IntFunction;
 import java.util.stream.IntStream;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.api.set.primitive.MutableIntSet;
@@ -49,19 +54,16 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.StampFilterImmutable;
+import sh.isaac.api.coordinate.TaxonomyFlag;
+import sh.isaac.api.coordinate.VertexSort;
 import sh.isaac.api.navigation.NavigationRecord;
 import sh.isaac.api.navigation.TypeStampNavigationRecord;
 import sh.isaac.api.navigation.TypeStampNavigationRecords;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
-
-import java.util.function.IntFunction;
-
-//~--- JDK imports ------------------------------------------------------------
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- classes ----------------------------------------------------------------
 /**
  * For each concept nid (a key in the map), there is a list of
  * type-stamp-flags. These type-stamp-flags compact into a primitive long value.
@@ -124,7 +126,6 @@ public class TaxonomyRecord implements NavigationRecord {
     private final IntObjectHashMap<TypeStampTaxonomyRecords> conceptNidRecordMap
             = new IntObjectHashMap<>(11);
 
-    //~--- constructors --------------------------------------------------------
     /**
      * Instantiates a new taxonomy record unpacked.
      */
@@ -158,7 +159,6 @@ public class TaxonomyRecord implements NavigationRecord {
         }
     }
 
-    //~--- methods -------------------------------------------------------------
     public void addConceptSequenceStampRecords(int conceptNid, TypeStampNavigationRecords newRecord) {
         if (this.conceptNidRecordMap.containsKey(conceptNid)) {
             final TypeStampTaxonomyRecords oldRecord = this.conceptNidRecordMap.get(conceptNid);
@@ -392,7 +392,6 @@ public class TaxonomyRecord implements NavigationRecord {
         return buf.toString();
     }
 
-    //~--- get methods ---------------------------------------------------------
     @Override
     public Optional<? extends TypeStampTaxonomyRecords> getConceptNidStampRecords(int conceptNid) {
         return Optional.ofNullable(this.conceptNidRecordMap.get(conceptNid));

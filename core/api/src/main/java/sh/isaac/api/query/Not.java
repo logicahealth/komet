@@ -114,7 +114,7 @@ public class Not
         final NidSet activeSet = new NidSet();
         StampFilter stampFilter = (StampFilter) getEnclosingQuery().getLetDeclarations().get(stampCoordinateKey);
 
-        Get.conceptService().getConceptChronologyStream(incomingComponents.get(this.getAssemblageForIteration())).forEach((ConceptChronology cc) -> {
+        Get.conceptService().getConceptChronologyStream(incomingComponents.get(this.getAssemblageForIteration()), false).forEach((ConceptChronology cc) -> {
             final LatestVersion<ConceptVersion> latestVersion
                     = cc.getLatestVersion(stampFilter);
 

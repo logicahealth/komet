@@ -35,24 +35,30 @@
  *
  */
 
-
-
 package sh.isaac.model.configuration;
 
-//~--- JDK imports ------------------------------------------------------------
-
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.ObservableList;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.*;
-import sh.isaac.api.observable.coordinate.*;
-import sh.isaac.model.observable.coordinate.*;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.api.coordinate.Activity;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.WriteCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
+import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampPath;
+import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
+import sh.isaac.model.observable.coordinate.ObservableStampPathImpl;
+import sh.isaac.model.observable.coordinate.ObservableStampPositionImpl;
 
 /**
  * The Class DefaultCoordinateProvider.
@@ -60,8 +66,7 @@ import sh.isaac.model.observable.coordinate.*;
  * @author kec
  */
 public class DefaultCoordinateProvider {
-   /** The observable edit coordinate. */
-   private final ObservableEditCoordinate observableEditCoordinate;
+   private final SimpleObjectProperty<WriteCoordinate> writeCoordinate;
 
    /** The observable language coordinate. */
    private final ObservableLanguageCoordinate observableLanguageCoordinate;
@@ -78,11 +83,9 @@ public class DefaultCoordinateProvider {
    /** The observable taxonomy coordinate. */
    private final ObservableManifoldCoordinate observableManifoldCoordinate;
 
-   //~--- methods -------------------------------------------------------------
-
    public DefaultCoordinateProvider() {
-      this.observableEditCoordinate =
-              new ObservableEditCoordinateImpl(EditCoordinates.getDefaultUserSolorOverlay());
+      this.writeCoordinate = new SimpleObjectProperty<WriteCoordinate>(new WriteCoordinateImpl(EditCoordinates.getDefaultUserSolorOverlay().getAuthorNidForChanges(), 
+            EditCoordinates.getDefaultUserSolorOverlay().getDefaultModuleNid(), EditCoordinates.getDefaultUserSolorOverlay().getPromotionPathNid()));
       this.observableStampPath = ObservableStampPathImpl.make(Coordinates.Path.Development());
       this.observableLogicCoordinate = new ObservableLogicCoordinateImpl(Coordinates.Logic.ElPlusPlus());
       this.observableLanguageCoordinate = new ObservableLanguageCoordinateImpl(
@@ -151,8 +154,8 @@ public class DefaultCoordinateProvider {
     *
     * @return the default edit coordinate
     */
-   public ObservableEditCoordinate getDefaultEditCoordinate() {
-      return this.observableEditCoordinate;
+   public ReadOnlyObjectProperty<WriteCoordinate> getDefaultWriteCoordinate() {
+      return this.writeCoordinate;
    }
 
    /**
@@ -194,12 +197,12 @@ public class DefaultCoordinateProvider {
    }
 
    /**
-    * Sets the default module.
+    * Sets the default write module.
     *
-    * @param conceptId the new default module
+    * @param moduleNid the new default module
     */
-   public void setDefaultModule(int conceptId) {
-      this.observableEditCoordinate.defaultModuleProperty().setValue(Get.conceptSpecification(conceptId));
+   public void setDefaultModule(int moduleNid) {
+      this.writeCoordinate.set(new WriteCoordinateImpl(this.writeCoordinate.get().getAuthorNid(), moduleNid, this.writeCoordinate.get().getPathNid()));
    }
 
    /**
@@ -209,7 +212,7 @@ public class DefaultCoordinateProvider {
     */
    public void setDefaultPath(ConceptSpecification pathSpecification) {
       this.observableStampPosition.pathConceptProperty().set(pathSpecification);
-      this.observableEditCoordinate.promotionPathProperty().set(pathSpecification);
+      this.writeCoordinate.set(new WriteCoordinateImpl(this.writeCoordinate.get().getAuthorNid(), this.writeCoordinate.get().getModuleNid(), pathSpecification.getNid()));
    }
 
    /**
@@ -265,16 +268,18 @@ public class DefaultCoordinateProvider {
             this.observableManifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().clear();
             this.observableManifoldCoordinate.getNavigationCoordinate().navigatorIdentifierConceptsProperty().add(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE);
             break;
+        default :
+            throw new RuntimeException("oops");
       }
    }
 
    /**
     * Sets the default user.
     *
-    * @param conceptId the new default user
+    * @param authorNid the new default user
     */
-   public void setDefaultUser(int conceptId) {
-      this.observableEditCoordinate.authorForChangesProperty().setValue(Get.conceptSpecification(conceptId));
+   public void setDefaultUser(int authorNid) {
+      this.writeCoordinate.set(new WriteCoordinateImpl(authorNid, this.writeCoordinate.get().getModuleNid(), this.writeCoordinate.get().getPathNid()));
    }
 }
 

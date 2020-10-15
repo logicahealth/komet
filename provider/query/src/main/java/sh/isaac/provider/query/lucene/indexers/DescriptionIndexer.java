@@ -16,6 +16,15 @@
  */
 package sh.isaac.provider.query.lucene.indexers;
 
+import java.io.IOException;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Predicate;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.TextField;
@@ -39,6 +48,7 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.index.AuthorModulePathRestriction;
@@ -46,12 +56,9 @@ import sh.isaac.api.index.ComponentSearchResult;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.util.SemanticTags;
+import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.provider.query.lucene.LuceneIndexer;
 import sh.isaac.provider.query.lucene.PerFieldAnalyzer;
-
-import java.io.IOException;
-import java.util.*;
-import java.util.function.Predicate;
 
 /**
  * Lucene Manager which specializes in indexing descriptions.
@@ -107,11 +114,13 @@ public class DescriptionIndexer extends LuceneIndexer
 			LOG.info("System contains " + metadataConcepts.size() + " metadata concepts");
 			
 			//add in any dynamic semantic definition concepts from outside the metadata tree.
-			Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid()).forEach(semanticC -> {
+			Get.assemblageService().getSemanticChronologyStream(DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), true).forEach(semanticC -> {
 				//Dynamic semantics are nested... need to walk up two, to get to the concept...
 				Optional<Integer> nearestConcept = Util.getNearestConcept(semanticC.getNid());
 				if (nearestConcept.isPresent()) {
-					metadataConcepts.add(nearestConcept.get());
+					synchronized(metadataConcepts) {
+						metadataConcepts.add(nearestConcept.get());
+					}
 				}
 			});
 			//for full correctness here, one should also include static semantics defined outside the metadata tree - but we don't make any in the rest API, 
@@ -170,26 +179,26 @@ public class DescriptionIndexer extends LuceneIndexer
 		String lastDescText = null;
 		String lastDescType = null;
 
-//		boolean isMetadata = false;
-//		if (metadataConcepts.size() > 0) {
-//			isMetadata = metadataConcepts.contains(semanticChronology.getReferencedComponentNid());
-//		}
+		boolean isMetadata = false;
+		if (metadataConcepts.size() > 0) {
+			isMetadata = metadataConcepts.contains(semanticChronology.getReferencedComponentNid());
+		}
 		
 		//This is an if instead of an else, to guard against the metadataConcepts cache being emptied during a one-off index op.
-//		if (!isMetadata && metadataConcepts.size() == 0){
-//			isMetadata = Get.taxonomyService().wasEverKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
-//
-//			if (!isMetadata) {
-//				//See if it defines a dynamic semantic, even if outside the metadata tree.
-//				isMetadata = DynamicUsageDescriptionImpl.isDynamicSemanticNoRead(semanticChronology.getReferencedComponentNid());
-//			}
-//			//For full correctness, this should check if it defines a static semantic, outside the metadata tree, but we don't in the rest API,
-//			//and komet doesn't currently use queries that depend on the metadata flag
-//		}
-//
-//		if (isMetadata) {
-//			doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
-//		}
+		if (!isMetadata && metadataConcepts.size() == 0){
+			isMetadata = Get.taxonomyService().wasEverKindOf(semanticChronology.getReferencedComponentNid(), TermAux.SOLOR_METADATA.getNid());
+			
+			if (!isMetadata) {
+				//See if it defines a dynamic semantic, even if outside the metadata tree.
+				isMetadata = DynamicUsageDescriptionImpl.isDynamicSemanticNoRead(semanticChronology.getReferencedComponentNid());
+			}
+			//For full correctness, this should check if it defines a static semantic, outside the metadata tree, but we don't in the rest API, 
+			//and komet doesn't currently use queries that depend on the metadata flag
+		}
+		
+		if (isMetadata) {
+			doc.add(new TextField(FIELD_CONCEPT_IS_METADATA, FIELD_CONCEPT_IS_METADATA_VALUE, Field.Store.NO));
+		}
 		
 		final Set<Integer> uniqueDescriptionTypes = new HashSet<>();
 
@@ -211,10 +220,13 @@ public class DescriptionIndexer extends LuceneIndexer
 
 		final Set<String> uniqueExtensionTypes = new HashSet<>();
 
-		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(semanticChronology.getNid(), getDescriptionExtendedTypeNid()).forEach(nestedSemantic -> {
+		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(semanticChronology.getNid(), getDescriptionExtendedTypeNid(), true)
+			.forEach(nestedSemantic -> {
 			for (Version nestedVersions : nestedSemantic.getVersionList()) {
 				// this is a UUID, but we want to treat it as a string anyway
-				uniqueExtensionTypes.add(((DynamicVersion) nestedVersions).getData()[0].getDataObject().toString());
+				synchronized (uniqueExtensionTypes) {
+					uniqueExtensionTypes.add(((DynamicVersion) nestedVersions).getData()[0].getDataObject().toString());
+				}
 			}
 		});
 
@@ -269,26 +281,26 @@ public class DescriptionIndexer extends LuceneIndexer
 			Integer sizeLimit,
 			Long targetGeneration) {
 		
-		String queryLocal = query.trim();
-		if (!queryLocal.startsWith("/") && !queryLocal.endsWith("/")) {
-			//don't activate this block, if it is a regexp.
-			if (!prefixSearch && SemanticTags.containsSemanticTag(query)) {
+		//don't trim trailing spaces on a prefix search, they tell us to not do a wildcard for the previous term.
+		String queryLocal = prefixSearch ? query.stripLeading() : query.trim();
+		
+		if (!prefixSearch && !queryLocal.startsWith("/") && !queryLocal.endsWith("/")) {
+			//don't activate this block, if it is a regexp, or if it is a prefix search
+			if (SemanticTags.containsSemanticTag(query)) {
 				//If they include a semantic tag, adjust their query so that the tag is not treated like a lucene grouping rule.
 				//Note, grouping rules are still allowed, so long as they aren't at the very end of the query (so they don't look like a semantic tag)
 				queryLocal = SemanticTags.stripSemanticTagIfPresent(queryLocal) + " \\(" + SemanticTags.findSemanticTagIfPresent(queryLocal).get() + "\\)";
 			}
 			
-			if (!prefixSearch) {
-				//If they include a [ or ], we want to auto escape them, unless they are a valid range query, which would be 
-				// [xx TO yy] 
-				//Also applies to {}
-				queryLocal = handleBrackets(queryLocal, '[', ']');
-				queryLocal = handleBrackets(queryLocal, '{', '}');
-				queryLocal = handleUnsupportedEscapeChars(queryLocal);
-			}
+			//If they include a [ or ], we want to auto escape them, unless they are a valid range query, which would be 
+			// [xx TO yy] 
+			//Also applies to {}
+			queryLocal = handleBrackets(queryLocal, '[', ']');
+			queryLocal = handleBrackets(queryLocal, '{', '}');
+			queryLocal = handleUnsupportedEscapeChars(queryLocal);
 		}
 		
-		Query q = buildTokenizedStringQuery(queryLocal, FIELD_INDEXED_STRING_VALUE, prefixSearch, metadataOnly);
+		Query q = buildTokenizedStringQuery(queryLocal, FIELD_INDEXED_STRING_VALUE, prefixSearch, metadataOnly, false);
 
 		q = restrictToSemantic(q, assemblageConcepts);
 
@@ -338,7 +350,12 @@ public class DescriptionIndexer extends LuceneIndexer
 					maxScore = score;
 				}
 			}
-
+			
+			//A coordinate for best-effort readback of descriptions
+			StampFilter sc = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultStampCoordinate().getStampFilter().makeCoordinateAnalog(Status.makeAnyStateSet());
+			
+			final String normalizedQueryLocal = queryLocal.toLowerCase(Locale.ENGLISH).trim();
+			
 			// normalize the scores between 0 and 1
 			for (final SearchResult sr : results) {
 				//This cast is safe, per the docs of the internal search
@@ -350,19 +367,19 @@ public class DescriptionIndexer extends LuceneIndexer
 				if (chronology.isPresent() && chronology.get().getIsaacObjectType() == IsaacObjectType.SEMANTIC) {
 					if (((SemanticChronology)chronology.get()).getVersionType() == VersionType.DESCRIPTION) {
 
-						LatestVersion<DescriptionVersion> dv = chronology.get().getLatestVersion(Get.defaultCoordinate().getViewStampFilter());
+						LatestVersion<DescriptionVersion> dv = chronology.get().getLatestVersion(sc);
 						if (dv.isPresent()) {
 							float adjustValue = 0f;
 							String matchingString = dv.get().getText().toLowerCase(Locale.ENGLISH);
-							String localQuery = queryLocal.toLowerCase(Locale.ENGLISH);
+							
 
-							if (matchingString.equals(localQuery)) {
+							if (matchingString.equals(normalizedQueryLocal)) {
 								// "exact match, bump by 2"
 								adjustValue = 2.0f;
 							}
-							else if (matchingString.startsWith(localQuery)) {
+							else if (matchingString.startsWith(normalizedQueryLocal)) {
 								// "add 1, plus a bit more boost based on the length of the matches (shorter matches get more boost)"
-								adjustValue = 1.0f + (1.0f - ((float) (matchingString.length() - localQuery.length()) / (float) matchingString.length()));
+								adjustValue = 1.0f + (1.0f - ((float) (matchingString.length() - normalizedQueryLocal.length()) / (float) matchingString.length()));
 							}
 
 							if (adjustValue > 0f) {

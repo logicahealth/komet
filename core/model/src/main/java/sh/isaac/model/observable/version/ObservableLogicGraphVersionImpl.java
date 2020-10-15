@@ -39,15 +39,10 @@
 
 package sh.isaac.model.observable.version;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
@@ -55,7 +50,6 @@ import sh.isaac.api.DataSource;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
-
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
@@ -64,16 +58,14 @@ import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.semantic.version.ObservableLogicGraphVersion;
-import sh.isaac.model.observable.commitaware.CommitAwareObjectProperty;
-import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.api.observable.semantic.version.ObservableLogicGraphVersion;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderImpl;
+import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.commitaware.CommitAwareObjectProperty;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 
 /**
  *
@@ -82,18 +74,15 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
 public class ObservableLogicGraphVersionImpl
         extends ObservableAbstractSemanticVersionImpl
          implements ObservableLogicGraphVersion {
-   /** The graph property. */
+
    ObjectProperty<byte[][]> logicGraphProperty;
 
-   //~--- constructors --------------------------------------------------------
    public ObservableLogicGraphVersionImpl(UUID referencedComponentUuid, int assemblageNid) {
       super(VersionType.LOGIC_GRAPH, Get.newUuidWithAssignment(), referencedComponentUuid, assemblageNid);
        LogicalExpressionBuilderImpl builder = new LogicalExpressionBuilderImpl();
        LogicalExpression emptyExpression = builder.build();
        setGraphData(emptyExpression.getData(DataTarget.INTERNAL));
    }
-   
-
 
    /**
     * Instantiates a new observable component nid version impl.
@@ -110,6 +99,7 @@ public class ObservableLogicGraphVersionImpl
       setGraphData(versionToClone.getGraphData());
    }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableLogicGraphVersionImpl analog = new ObservableLogicGraphVersionImpl(this, getChronology());
@@ -120,23 +110,16 @@ public class ObservableLogicGraphVersionImpl
         return (V) analog;
     }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Case significance concept nid property.
-    *
-    * @return the integer property
-    */
    @Override
    public ObjectProperty<byte[][]> logicGraphProperty() {
       if (this.stampedVersionProperty == null && this.logicGraphProperty == null) {
-         this.logicGraphProperty = new CommitAwareObjectProperty(
+         this.logicGraphProperty = new CommitAwareObjectProperty<>(
              this,
              ObservableFields.LOGIC_GRAPH_FOR_SEMANTIC.toExternalString(),
                  null);
       }
       if (this.logicGraphProperty == null) {
-         this.logicGraphProperty = new CommitAwareObjectProperty(
+         this.logicGraphProperty = new CommitAwareObjectProperty<>(
              this,
              ObservableFields.LOGIC_GRAPH_FOR_SEMANTIC.toExternalString(),
              getGraphData());
@@ -149,16 +132,14 @@ public class ObservableLogicGraphVersionImpl
       return this.logicGraphProperty;
    }
 
-    @Override
-    public <V extends Version> V setupAnalog(int stampSequence) {
-        LogicGraphVersion newVersion = getStampedVersion().setupAnalog(stampSequence);
-        ObservableLogicGraphVersionImpl newObservableVersion = new ObservableLogicGraphVersionImpl(
-                newVersion,
-                getChronology());
-        chronology.getVersionList()
-                .add(newObservableVersion);
-        return (V) newObservableVersion;
-    }
+   @SuppressWarnings("unchecked")
+   @Override
+   public <V extends Version> V makeAnalog(int stampSequence) {
+      LogicGraphVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+      ObservableLogicGraphVersionImpl newObservableVersion = new ObservableLogicGraphVersionImpl(newVersion, getChronology());
+      getChronology().getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
+   }
 
     @Override
    public String toString() {
@@ -177,18 +158,11 @@ public class ObservableLogicGraphVersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public byte[][] getExternalGraphData() {
       return ((MutableLogicGraphVersion) this.stampedVersionProperty.get()).getExternalGraphData();
    }
 
-   /**
-    * Gets the graph data.
-    *
-    * @return the graph data
-    */
    @Override
    public byte[][] getGraphData() {
       if (this.logicGraphProperty != null) {
@@ -198,13 +172,6 @@ public class ObservableLogicGraphVersionImpl
       return ((LogicGraphVersion) this.stampedVersionProperty.get()).getGraphData();
    }
 
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the case significance concept nid.
-    *
-    * @param graphData the new case significance concept nid
-    */
    @Override
    public final void setGraphData(byte[][] graphData) {
        if (this.stampedVersionProperty == null) {
@@ -217,8 +184,6 @@ public class ObservableLogicGraphVersionImpl
         ((MutableLogicGraphVersion) this.stampedVersionProperty.get()).setGraphData(graphData);
       }
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public LogicalExpression getLogicalExpression() {

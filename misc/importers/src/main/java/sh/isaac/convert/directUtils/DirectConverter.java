@@ -58,20 +58,18 @@ import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 public interface DirectConverter
 {
 	/**
-	 * Used to set the transaction in the case of a no-arg constructor.
-	 * @param transaction
-	 */
-	void setTransaction(Transaction transaction);
-
-	/**
+	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent(Consumer, BiConsumer)}
+	 * Maven executions do not use this method. 
+	 * 
 	 * @param outputDirectory - optional - if provided, debug info will be written here
 	 * @param inputFolder - the folder to search for the source file(s).  Implementors should only utilize
 	 * {@link Path} operations on the inputFolder, incase the input folder is coming from a {@link FileSystems} that
 	 * doesn't suport toFile, such as zip.
 	 * @param converterSourceArtifactVersion - the version number of the source file being passed in
 	 * @param stampFilter - the coordinate to use for readback in cases where content merges into existing content
+	 * @param transaction - transaction to use for this conversion run
 	 */
-	void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter);
+	void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter, Transaction transaction);
 
 	/**
 	 * Run the actual conversion
@@ -80,7 +78,7 @@ public interface DirectConverter
 	 * is work done, the second argument is work total.
 	 * @throws IOException
 	 */
-	void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progresUpdates) throws IOException;
+	void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progresUpdates) throws IOException;
 	
 	/**
 	 * @return the type of content this converter can handle

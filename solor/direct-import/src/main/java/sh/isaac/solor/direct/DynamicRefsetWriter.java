@@ -124,12 +124,12 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 	{
 		try
 		{
-			int authorNid = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate().getAuthorNidForChanges();
-			int pathNid = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultManifoldCoordinate().getVertexStampFilter().getPathNidForFilter();
+			int authorNid = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get().getAuthorNid();
+			int pathNid = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get().getPathNid();
 			List<String[]> noSuchElementList = new ArrayList<>();
 			HashSet<Integer> checkedDynamicTypes = new HashSet<>();
 
-			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
 			boolean skippedAny = false;
 			int skipped = 0;
 			for (String[] refsetRecord : refsetRecords)
@@ -175,7 +175,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 					int referencedComponentNid = nidFromSctid(refsetRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
 					TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(refsetRecord[EFFECTIVE_TIME_INDEX]));
 					long time = accessor.getLong(INSTANT_SECONDS) * 1000;
-					int versionStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
+					int versionStamp = stampService.getStampSequence(transaction, state, time, authorNid, moduleNid, pathNid);
 					
 					//Sanity checks to make sure we are correctly configured for the dynamic refex....
 					if (!checkedDynamicTypes.contains(assemblageNid))
@@ -271,7 +271,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 						}
 					}
 					
-					DynamicImpl dv = refsetMemberToWrite.createMutableVersion(versionStamp);
+					DynamicImpl dv = refsetMemberToWrite.createMutableVersion(transaction, versionStamp);
 					dv.setData(data);
 					index(refsetMemberToWrite);
 					assemblageService.writeSemanticChronology(refsetMemberToWrite);

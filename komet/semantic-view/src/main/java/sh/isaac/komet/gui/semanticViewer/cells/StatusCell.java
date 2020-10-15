@@ -44,6 +44,7 @@ import javafx.scene.control.Tooltip;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
 import sh.isaac.komet.gui.semanticViewer.SemanticGUI;
@@ -96,7 +97,7 @@ public class StatusCell extends TreeTableCell<SemanticGUI, SemanticGUI>
 					tooltipText += " and Current";
 				}
 				
-				if (item.getSemantic().getTime() == Long.MAX_VALUE)
+				if (item.getSemantic().getTime() == Long.MAX_VALUE || Get.stampService().isUncommitted(item.getSemantic().getStampSequence()))
 				{
 					sizeAndPosition(Images.YELLOW_DOT, sp, Pos.TOP_RIGHT);
 					tooltipText += " - Uncommitted";

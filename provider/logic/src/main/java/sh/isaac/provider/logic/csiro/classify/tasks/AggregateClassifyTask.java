@@ -39,27 +39,21 @@
 
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.property.ObjectProperty;
-import javafx.beans.property.Property;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Task;
+import java.time.Instant;
+import java.util.concurrent.Semaphore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import javafx.concurrent.Task;
 import sh.isaac.api.Get;
-import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.classifier.ClassifierResults;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.*;
-import sh.isaac.api.observable.coordinate.*;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.StatusSet;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.SequentialAggregateTask;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.isaac.provider.logic.LogicProvider;
-
-import java.time.Instant;
-import java.util.concurrent.Semaphore;
 
 /**
  * The Class AggregateClassifyTask.

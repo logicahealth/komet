@@ -39,8 +39,13 @@
 
 package sh.isaac.provider.path;
 
-//~--- JDK imports ------------------------------------------------------------
-
+import java.util.Collection;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Collectors;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.factory.Sets;
@@ -48,6 +53,8 @@ import org.eclipse.collections.api.set.ImmutableSet;
 import org.eclipse.collections.api.set.MutableSet;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.VersionManagmentPathService;
@@ -56,24 +63,15 @@ import sh.isaac.api.commit.CommitListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.StampBranchImmutable;
+import sh.isaac.api.coordinate.StampPath;
+import sh.isaac.api.coordinate.StampPathImmutable;
+import sh.isaac.api.coordinate.StampPosition;
+import sh.isaac.api.coordinate.StampPositionImmutable;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.util.Collection;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * TODO handle versions properly in path provider.
@@ -92,13 +90,9 @@ public class VersionManagementPathProvider
 
    private final UUID providerUuid = UUID.randomUUID();
 
-   //~--- fields --------------------------------------------------------------
-
    /** The path map. */
    ConcurrentHashMap<Integer, StampPathImmutable> pathMap;
    ConcurrentHashMap<Integer, ImmutableSet<StampBranchImmutable>> branchMap;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new path provider.
@@ -107,14 +101,6 @@ public class VersionManagementPathProvider
       //For HK2 only
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Exists.
-    *
-    * @param pathConceptId the path concept id
-    * @return true, if successful
-    */
    @Override
    public boolean exists(int pathConceptId) {
 
@@ -138,13 +124,13 @@ public class VersionManagementPathProvider
    private void setupPathMap() {
       LOCK.lock();
       
-      LOG.info("Rebuilding the path map.  Old map size: {}", (this.pathMap == null ? 0 : this.pathMap.size()));
+      LOG.debug("Rebuilding the path map.  Old map size: {}", (this.pathMap == null ? 0 : this.pathMap.size()));
       try {
          ConcurrentHashMap<Integer, StampPathImmutable> newMap = new ConcurrentHashMap<>();
          ConcurrentHashMap<Integer, ImmutableSet<StampBranchImmutable>> newForkMap = new ConcurrentHashMap<>();
 
          Get.assemblageService()
-            .getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid())
+            .getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid(), true)
             .forEach((pathSemantic) -> {
                         final int pathNid = pathSemantic.getReferencedComponentNid();
                         ImmutableSet<StampPositionImmutable> pathOrigins = getOrigins(pathNid);
@@ -167,7 +153,6 @@ public class VersionManagementPathProvider
       }
       LOG.info("Finished rebuilding the path map.  New map size: {}", this.pathMap.size());
    }
-    //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the from disk.
@@ -176,7 +161,7 @@ public class VersionManagementPathProvider
     * @return the from disk
     */
    private Optional<StampPathImmutable> getFromDisk(int stampPathNid) {
-      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(stampPathNid, TermAux.PATH_ASSEMBLAGE.getNid()).map((semanticChronicle) -> {
+      return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(stampPathNid, TermAux.PATH_ASSEMBLAGE.getNid(), true).map((semanticChronicle) -> {
                         int pathId = semanticChronicle.getReferencedComponentNid();
                         assert pathId == stampPathNid:
                                "pathId: " + pathId + " stampPathSequence: " + stampPathNid;
@@ -207,7 +192,7 @@ public class VersionManagementPathProvider
     */
    private ImmutableSet<StampPositionImmutable> getPathOriginsFromDb(int nid) {
       ImmutableSet<StampPositionImmutable> origins = Sets.immutable.fromStream(Get.assemblageService()
-              .getSemanticChronologyStreamForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid())
+              .getSemanticChronologyStreamForComponentFromAssemblage(nid, TermAux.PATH_ORIGIN_ASSEMBLAGE.getNid(), true)
               .map((pathOrigin) -> {
                  Nid1_Long2_Version originSemantic = (Nid1_Long2_Version) pathOrigin.getVersionList().get(0);
                  return StampPositionImmutable.make(originSemantic.getLong2(), originSemantic.getNid1());
@@ -234,7 +219,7 @@ public class VersionManagementPathProvider
     */
    @Override
    public Collection<? extends StampPathImmutable> getPaths() {
-      return Get.assemblageService().getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid()).map((semanticChronicle) -> {
+      return Get.assemblageService().getSemanticChronologyStream(TermAux.PATH_ASSEMBLAGE.getNid(), true).map((semanticChronicle) -> {
                         int pathId = semanticChronicle.getReferencedComponentNid();
                         final StampPathImmutable stampPath = StampPathImmutable.make(pathId);
 
@@ -306,12 +291,12 @@ public class VersionManagementPathProvider
    private RelativePosition traverseOrigins(int stamp, StampPath path) {
       StampService stampService = Get.stampService();
       for (final StampPosition origin: path.getPathOrigins()) {
-         if (origin.getPathConcept().getNid() == stampService.getPathNidForStamp(stamp)) {
+         if (origin.getPathForPositionConcept().getNid() == stampService.getPathNidForStamp(stamp)) {
             if (stampService.getTimeForStamp(stamp) <= origin.getTime()) {
                return RelativePosition.BEFORE;
             }
          } else {
-            traverseOrigins(stamp, StampPathImmutable.make(origin.getPathConcept().getNid()));
+            traverseOrigins(stamp, StampPathImmutable.make(origin.getPathForPositionConcept().getNid()));
          }
       }
       return RelativePosition.UNREACHABLE;

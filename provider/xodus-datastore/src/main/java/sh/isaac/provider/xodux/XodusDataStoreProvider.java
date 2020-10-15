@@ -40,7 +40,7 @@ import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.Rank;
@@ -116,6 +116,12 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	Cache<Integer, VersionType> assemblageToVersionTypeCache = Caffeine.newBuilder().maximumSize(100).build();
 
 	//TODO still need to fix the APIs to route the StampProvider, CommitProvider and UUIDIntMapMap into this API
+	
+    @Override
+    public DatabaseImplementation getDataStoreType()
+    {
+        return DatabaseImplementation.XODUS;
+    }
 	
 	/**
 	 * {@inheritDoc}
@@ -650,7 +656,8 @@ public class XodusDataStoreProvider implements DataStoreSubService
 	 * {@inheritDoc}
 	 */
 	@Override
-	public IntStream getNidsForAssemblage(final int assemblageNid)
+	//NOTE - this doesn't support parallel properly
+	public IntStream getNidsForAssemblage(final int assemblageNid, boolean parallel)
 	{
 		//TODO this is going to cause a leak, if they don't iterate the entire stream for whatever reason.
 		//Need to handle.  Hard to fix though, because I can't have a cleanup thread close the transaction, due to the same-thread rules in xodus.
@@ -788,7 +795,7 @@ public class XodusDataStoreProvider implements DataStoreSubService
 			}
 		};
 		
-		IntStream results = StreamSupport.intStream(streamSupplier, Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.SIZED, false);
+		IntStream results = StreamSupport.intStream(streamSupplier, Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.SIZED, parallel);
 		return results;
 	}
 

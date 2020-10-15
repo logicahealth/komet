@@ -118,7 +118,8 @@ public class ReplaceAllInExpression extends ActionItem {
                 if (expression.containsConcept(conceptToFindProperty.get())) {
                     LogicalExpression newExpression = expression.replaceAllConceptOccurences(conceptToFindProperty.get(),
                             replaceWithProperty.get());
-                    LogicGraphVersionImpl mutableVersion = latest.getChronology().createMutableVersion(transaction, Status.ACTIVE, manifoldCoordinate);
+                    LogicGraphVersionImpl mutableVersion = latest.getChronology().createMutableVersion(manifoldCoordinate
+                            .getWriteCoordinate(transaction, null, Status.ACTIVE));
                     mutableVersion.setLogicalExpression(newExpression);
                     versionChangeListener.versionChanged(latest, mutableVersion);
                     Get.identifiedObjectService().putChronologyData(mutableVersion.getChronology());

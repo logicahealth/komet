@@ -29,6 +29,11 @@ public class ObservableManifoldCoordinateWithOverride extends ObservableManifold
     public ManifoldCoordinateImmutable makeCoordinateAnalog(long classifyTimeInEpochMillis) {
         return getValue().makeCoordinateAnalog(classifyTimeInEpochMillis);
     }
+    
+    @Override
+    public ManifoldCoordinateImmutable makeCoordinateAnalog(PremiseType premiseType) {
+        return getValue().makeCoordinateAnalog(premiseType);
+    }
 
     @Override
     public void setExceptOverrides(ManifoldCoordinateImmutable updatedCoordinate) {

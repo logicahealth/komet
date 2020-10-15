@@ -1,5 +1,7 @@
 package sh.isaac.solor.direct;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.MetaData;
 import sh.isaac.api.*;
@@ -29,6 +31,9 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> {
+
+    private static final Logger LOG = LogManager.getLogger();
+
     /**
      * The never role group set.
      */
@@ -65,11 +70,20 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
     private final List<IndexBuilderService> indexers;
     private final ImportType importType;
     private final Instant commitTime;
+    private Transaction transaction;
 
     private static final AtomicInteger foundWatchCount = new AtomicInteger(0);
 
-    public OwlTransformerAndWriter(List<TransformationGroup> transformationRecords,
+    /**
+     * @param transaction - if supplied, this does NOT commit the transaction.  If not supplied, this creates (and commits) its own transaction.
+     * @param transformationRecords
+     * @param writeSemaphore
+     * @param importType
+     * @param commitTime
+     */
+    public OwlTransformerAndWriter(Transaction transaction, List<TransformationGroup> transformationRecords,
                                    Semaphore writeSemaphore, ImportType importType, Instant commitTime) {
+        this.transaction = transaction;
         this.transformationRecords = transformationRecords;
         this.writeSemaphore = writeSemaphore;
         this.importType = importType;
@@ -95,16 +109,18 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
     @Override
     protected Void call() throws Exception {
         try {
-            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+            boolean commitTransaction = this.transaction == null;
+            if (commitTransaction) {
+                this.transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
+            }
             int count = 0;
-
 
             for (TransformationGroup transformationGroup : transformationRecords) {
 
                 try {
                     transformOwlExpressions(transaction, transformationGroup.conceptNid, transformationGroup.semanticNids, transformationGroup.getPremiseType());
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    LOG.error("Erro in Owl Transform: ", e);
                 }
                 if (count % 1000 == 0) {
                     updateMessage("Processing concept: " + Get.conceptDescriptionText(transformationGroup.conceptNid));
@@ -112,7 +128,9 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
                 count++;
                 completedUnitOfWork();
             }
-            transaction.commit("OWL transformer");
+            if (commitTransaction) {
+                transaction.commit("OWL transformer");
+            }
             return null;
         } finally {
             this.writeSemaphore.release();

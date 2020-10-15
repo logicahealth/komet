@@ -278,7 +278,7 @@ public class MultiParentGraphItemImpl
     }
 
     void addChildren() {
-        LOG.debug("addChildren: conceptChronology={}", this.getValue());
+        LOG.trace("addChildren: conceptChronology={}", () -> this.getValue());
         if (getChildren().isEmpty()) {
             if (shouldDisplay()) {
                 FetchChildren fetchTask = new FetchChildren(childrenLoadedLatch, this);

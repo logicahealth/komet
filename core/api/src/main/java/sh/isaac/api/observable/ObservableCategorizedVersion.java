@@ -28,10 +28,8 @@ import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.CategorizedVersion;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.transaction.Transaction;
 
 /**
  *
@@ -39,7 +37,7 @@ import sh.isaac.api.transaction.Transaction;
  */
 public class ObservableCategorizedVersion extends CategorizedVersion implements ObservableVersion {
 
-   public ObservableCategorizedVersion(ObservableVersion delegate, CategorizedVersions categorizedVersions) {
+   public ObservableCategorizedVersion(ObservableVersion delegate, CategorizedVersions<CategorizedVersion> categorizedVersions) {
       super(delegate, categorizedVersions);
    }
       
@@ -121,14 +119,9 @@ public class ObservableCategorizedVersion extends CategorizedVersion implements 
     public Chronology createIndependentChronicle() {
         return getObservableVersion().createIndependentChronicle();
     }
-
+    
     @Override
     public Chronology createChronologyForCommit(int stampSequence) {
         return getObservableVersion().createIndependentChronicle();
-    }
-
-    @Override
-    public <V extends Version> V makeAnalog(Transaction transaction, ManifoldCoordinate mc) {
-        throw new UnsupportedOperationException();
     }
 }

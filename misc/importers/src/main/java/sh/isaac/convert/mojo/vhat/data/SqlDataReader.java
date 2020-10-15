@@ -345,7 +345,7 @@ public class SqlDataReader {
 
 			PreparedStatement s = _connection.prepareStatement(query);
 			s.setString(1, code);
-			s.setLong(2, codeSystemId);  //TODO with our (bad) h2 copy, this needs to be setSTring, instead of setLong
+			s.setLong(2, codeSystemId);  //with our (bad) h2 copy, this needs to be setSTring, instead of setLong
 			
 			ResultSet rs = s.executeQuery();
 			try
@@ -378,7 +378,7 @@ public class SqlDataReader {
 					+ " WHERE c.entity_id=?";
 		
 		PreparedStatement s = _connection.prepareStatement(query);
-		s.setLong(1, conceptEntityId);  //TODO with our (bad) h2 copy, this needs to be setSTring, instead of setLong
+		s.setLong(1, conceptEntityId);  //with our (bad) h2 copy, this needs to be setSTring, instead of setLong
 		
 		ResultSet rs = s.executeQuery();
 		ArrayList<ConceptImportDTO> results = new ArrayList<>();
@@ -982,7 +982,7 @@ public class SqlDataReader {
 						+ " AND r.source_entity_id=?";
 
 				PreparedStatement ps = _connection.prepareStatement(query);
-				ps.setLong(1, conceptEntityId.get());  //TODO with our (bad) h2 copy, this needs to be setSTring, instead of setLong
+				ps.setLong(1, conceptEntityId.get());  //with our (bad) h2 copy, this needs to be setSTring, instead of setLong
 				s = ps;
 				rs = ps.executeQuery();
 			}

@@ -47,6 +47,7 @@ import java.util.UUID;
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 
@@ -148,24 +149,73 @@ public interface ConceptBuilder
     /**
      * Useful for setting up a semantic type concept with the semantic fields, 
      * or an assemblage concept with the field concepts. 
-     * @param semanticUuid The uuid for the created semantic
      * @param componentUuid
      * @param fieldIndex
      * @param assemblage
-     * @return the ConceptBuilder for a fluent interface.
+     * @return the builder that was created to do the add, so it can be further modified if necessary.  Does NOT return the ConceptBuilder it was added to.
      */
-    ConceptBuilder addComponentIntSemantic(UUID semanticUuid, ConceptSpecification componentUuid, int fieldIndex, ConceptSpecification assemblage);
+   IdentifiedComponentBuilder<? extends SemanticChronology> createAddComponentIntSemantic(ConceptSpecification componentUuid, int fieldIndex, ConceptSpecification assemblage);
 
-    ConceptBuilder addStringSemantic(UUID semanticUuid, String text, ConceptSpecification assemblage);
+    /**
+     * Useful for setting up a semantic type concept with the semantic fields, 
+     * or an assemblage concept with the field concepts. 
+     * @param componentUuid
+     * @param fieldIndex
+     * @param assemblage
+    * @return this concept builder, for a fluent API.
+     */
+    ConceptBuilder addComponentIntSemantic(ConceptSpecification componentUuid, int fieldIndex, ConceptSpecification assemblage);
 
-    ConceptBuilder addComponentSemantic(UUID semanticUuid, ConceptSpecification semanticSpecification, ConceptSpecification assemblage);
+    /**
+     * @param text
+     * @param assemblage
+     * @return the builder that was created to do the add, so it can be further modified if necessary.  Does NOT return the ConceptBuilder it was added to.
+     */
+    IdentifiedComponentBuilder<? extends SemanticChronology> createAddStringSemantic(String text, ConceptSpecification assemblage);
+    
+   /**
+    * @param text
+    * @param assemblage
+    * @return this concept builder, for a fluent API.
+    */
+    ConceptBuilder addStringSemantic(String text, ConceptSpecification assemblage);
 
-    ConceptBuilder addFieldSemanticConcept(UUID semanticUuid, String fieldName, int fieldIndex);
+    /**
+     * @param semanticSpecification
+     * @param assemblage
+     * @return the builder that was created to do the add, so it can be further modified if necessary.  Does NOT return the ConceptBuilder it was added to.
+     */
+    IdentifiedComponentBuilder<? extends SemanticChronology> createAddComponentSemantic(ConceptSpecification semanticSpecification, ConceptSpecification assemblage);
 
-    default ConceptBuilder addFieldSemanticConcept(UUID semanticUuid, ConceptSpecification fieldSpecification, int fieldIndex) {
-        return addFieldSemanticConcept(semanticUuid, fieldSpecification.getPrimordialUuid(), fieldIndex);
+   /**
+    * @param semanticSpecification
+    * @param assemblage
+    * @return this concept builder, for a fluent API.
+    */
+    ConceptBuilder addComponentSemantic(ConceptSpecification semanticSpecification, ConceptSpecification assemblage);
+
+   /**
+    * @param fieldName
+    * @param fieldIndex
+    * @return the builder that was created to do the add, so it can be further modified if necessary.  Does NOT return the ConceptBuilder it was added to.
+    */
+   IdentifiedComponentBuilder<? extends SemanticChronology> createAddFieldSemanticConcept(String fieldName, int fieldIndex);
+
+   /**
+    * @param fieldSpecification
+    * @param fieldIndex
+    * @return the builder that was created to do the add, so it can be further modified if necessary.  Does NOT return the ConceptBuilder it was added to.
+    */
+   default IdentifiedComponentBuilder<? extends SemanticChronology> createAddFieldSemanticConcept(ConceptSpecification fieldSpecification, int fieldIndex) {
+      return createAddFieldSemanticConcept(fieldSpecification.getPrimordialUuid(), fieldIndex);
     }
 
-    ConceptBuilder addFieldSemanticConcept(UUID semanticUuid, UUID conceptUuid, int fieldIndex);
+    /**
+     * @param conceptUuid
+     * @param fieldIndex
+     * @return the builder that was created to do the add, so it can be further modified if necessary.  Does NOT return the ConceptBuilder it was added to.
+     */
+    IdentifiedComponentBuilder<? extends SemanticChronology> createAddFieldSemanticConcept(UUID conceptUuid, int fieldIndex);
+
 }
 

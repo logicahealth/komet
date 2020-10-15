@@ -176,7 +176,6 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                  // 900062011000036108 = AU module
                  if (relationshipRecord[RF2_MODULE_SCTID_INDEX].equals("900062011000036108")) {
                      UUID relUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_SCT_ID_INDEX]);
-                     identifierService.addUuidForNid(relUuid, relationshipToWrite.getNid());
                      relationshipToWrite.addAdditionalUuids(relUuid);
                  }
                  

@@ -24,10 +24,10 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.util.UuidT3Generator;
-import sh.isaac.model.configuration.LanguageCoordinates;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.solor.rf2.utility.PreExportUtility;
 import sh.isaac.solor.rf2.utility.RF2ExportHelper;
+import sh.isaac.utility.LanguageMap;
 
 public class RF2Configuration {
 
@@ -90,7 +90,7 @@ public class RF2Configuration {
         this.rf2ReleaseType = rf2ReleaseType;
         this.localDateTime = localDateTime;
         this.fileHeader = rf2ConfigType.getFileHeader();
-        this.message = rf2ConfigType.getMessage() + " - " + LanguageCoordinates.conceptNidToIso639(languageNid);
+        this.message = rf2ConfigType.getMessage() + " - " + LanguageMap.conceptNidToIso639(languageNid);
         this.parentDirectory = "/SnomedCT_SolorRF2_PRODUCTION_TIME1/"
                 .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(this.localDateTime));
         this.exportDirectory = exportDirectory.toString();
@@ -270,7 +270,7 @@ public class RF2Configuration {
             case CONCEPT:
             case IDENTIFIER:
 
-                this.intStreamSupplier = () -> Get.conceptService().getConceptNidStream();
+                this.intStreamSupplier = () -> Get.conceptService().getConceptNidStream(false);
                 this.exportCount = Get.conceptService().getConceptCount();
 
                 break;
@@ -280,32 +280,32 @@ public class RF2Configuration {
                 this.intStreamSupplier = () -> Arrays.stream(
                         this.noTreeTaxonomySnapshot
                                 .getTaxonomyChildConceptNids(MetaData.LANGUAGE____SOLOR.getNid()))
-                        .flatMap(nid -> Get.assemblageService().getSemanticNidStream(nid));
+                        .flatMap(nid -> Get.assemblageService().getSemanticNidStream(nid, false));
 
                 Arrays.stream(
                         this.noTreeTaxonomySnapshot
                         .getTaxonomyChildConceptNids(MetaData.LANGUAGE____SOLOR.getNid()))
-                        .forEach(nid -> this.exportCount += identifierService.getNidsForAssemblage(nid).count());
+                        .forEach(nid -> this.exportCount += identifierService.getNidsForAssemblage(nid, true).count());
 
                 break;
             case RELATIONSHIP:
 
-                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid());
-                this.exportCount = identifierService.getNidsForAssemblage(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid()).count();
+                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid(), false);
+                this.exportCount = identifierService.getNidsForAssemblage(TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid(), true).count();
 
                 break;
             case STATED_RELATIONSHIP:
 
-                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid());
-                this.exportCount = identifierService.getNidsForAssemblage(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid()).count();
+                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid(), false);
+                this.exportCount = identifierService.getNidsForAssemblage(TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid(), true).count();
 
                 break;
 
             case LANGUAGE_REFSET:
             case REFSET:
 
-                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(assemblageNid);
-                this.exportCount = identifierService.getNidsForAssemblage(assemblageNid).count();
+                this.intStreamSupplier = () -> Get.assemblageService().getSemanticNidStream(assemblageNid, false);
+                this.exportCount = identifierService.getNidsForAssemblage(assemblageNid, true).count();
 
                 break;
             default :
@@ -327,7 +327,7 @@ public class RF2Configuration {
         this.filePath = Paths.get(this.exportDirectory + this.parentDirectory +  this.rf2FileType.getFilePath()
                 .replace("TIME1", DateTimeFormatter.ofPattern("uuuuMMdd'T'HHmmss'Z'").format(localDateTime))
                 .replace("TIME2", DateTimeFormatter.ofPattern("uuuuMMdd").format(localDateTime))
-                .replace("LANGUAGE1", LanguageCoordinates.conceptNidToIso639(languageNid))
+                .replace("LANGUAGE1", LanguageMap.conceptNidToIso639(languageNid))
                 .replace("RELEASETYPE", this.rf2ReleaseType.toString()));
     }
 

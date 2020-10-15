@@ -39,10 +39,11 @@
 
 package sh.isaac.model.concept;
 
-//~--- JDK imports ------------------------------------------------------------
-
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import sh.isaac.api.Get;
-import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
@@ -50,7 +51,10 @@ import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacObjectType;
@@ -60,14 +64,6 @@ import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class ConceptChronologyImpl.
@@ -133,52 +129,23 @@ public class ConceptChronologyImpl
       }
       return false;
    }
-
-   /**
-    * Creates the mutable version.
-    *
-    * @param stampSequence the stamp sequence
-    * @return the concept version impl
-    */
+   
    @Override
    public ConceptVersionImpl createMutableVersion(int stampSequence) {
       final ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence);
-
       addVersion(newVersion);
       return newVersion;
    }
 
-
    @Override
-   public ConceptVersionImpl createMutableVersion(Transaction transaction, Status status, ManifoldCoordinate mc) {
-      LatestVersion<ConceptVersionImpl> latest = this.getLatestVersion(mc.getViewStampFilter());
-      final int stampSequence;
-      if (latest.isPresent()) {
-         stampSequence = Get.stampService()
-                 .getStampSequence(
-                         transaction,
-                         status,
-                         Long.MAX_VALUE,
-                         mc.getAuthorNidForChanges(),
-                         mc.getModuleNidForAnalog(latest.get()),
-                         mc.getPathNidForAnalog());
-      } else {
-         stampSequence = Get.stampService()
-                 .getStampSequence(
-                         transaction,
-                         status,
-                         Long.MAX_VALUE,
-                         mc.getAuthorNidForChanges(),
-                         mc.getModuleNidForAnalog(null),
-                         mc.getPathNidForAnalog());
-      }
-      final ConceptVersionImpl version = new ConceptVersionImpl(this, stampSequence);
-      transaction.addVersionToTransaction(version);
-      addVersion(version);
-      return version;
+   public ConceptVersionImpl createMutableVersion(Transaction transaction, int stampSequence) {
+      final ConceptVersionImpl newVersion = new ConceptVersionImpl(this, stampSequence);
+      transaction.addVersionToTransaction(newVersion);
+      addVersion(newVersion);
+      return newVersion;
    }
 
-   /**
+    /**
     * Make.
     *
     * @param data the data
@@ -410,10 +377,7 @@ public class ConceptChronologyImpl
       }
 
       final Optional<SemanticChronology> definitionChronologyOptional = Get.assemblageService()
-                                                                         .getSemanticChronologyStreamForComponentFromAssemblage(
-                                                                               getNid(),
-                                                                                     assemblageSequence)
-                                                                         .findFirst();
+            .getSemanticChronologyStreamForComponentFromAssemblage(getNid(), assemblageSequence, false).findFirst();
 
       if (definitionChronologyOptional.isPresent()) {
          
@@ -490,7 +454,7 @@ public class ConceptChronologyImpl
    @Override
    public LatestVersion<DescriptionVersion> getPreferredDescription(LanguageCoordinate languageCoordinate,
                                                                     StampFilter stampFilter) {
-      return languageCoordinate.getPreferredDescription(getConceptDescriptionList(), stampFilter);
+      return languageCoordinate.getRegularDescription(getConceptDescriptionList(), stampFilter);
    }
 }
 

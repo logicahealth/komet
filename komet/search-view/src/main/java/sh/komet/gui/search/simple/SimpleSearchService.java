@@ -97,7 +97,7 @@ public class SimpleSearchService extends Service<NidSet> {
                     descriptionLuceneMatch.let(descriptionLuceneMatch.getQueryStringKey(), queryString);
 
                     Map<ConceptSpecification, NidSet> incomingPossibleComponents = new HashMap<>();
-                    incomingPossibleComponents.put(TermAux.ENGLISH_LANGUAGE, NidSet.of(Get.identifierService().getNidsForAssemblage(TermAux.ENGLISH_LANGUAGE)));
+                    incomingPossibleComponents.put(TermAux.ENGLISH_LANGUAGE, NidSet.of(Get.identifierService().getNidsForAssemblage(TermAux.ENGLISH_LANGUAGE, false)));
                     descriptionLuceneMatch.setAssemblageForIteration(TermAux.ENGLISH_LANGUAGE);
 
                     Map<ConceptSpecification, NidSet> resultsMap = descriptionLuceneMatch.computePossibleComponents(incomingPossibleComponents);

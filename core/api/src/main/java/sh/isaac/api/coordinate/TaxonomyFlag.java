@@ -58,27 +58,27 @@ public enum TaxonomyFlag {
     /**
      * The stated flag.
      */
+    // 0010 0000
     STATED(0x10000000),
 
     /**
      * The inferred flag.
      */
-
-    // 0001 0000
+    // 0100 0000
     INFERRED(0x20000000),
 
     /**
      * A semantic flag.
      */
 
-    // 0010 0000
+    // 1000 0000
     SEMANTIC(0x40000000),
 
     /**
      * A non dl rel flag.
      */
 
-    // 0100 0000
+    // 0001 0000
     NON_DL_REL(0x08000000),
 
     /**

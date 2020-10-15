@@ -37,6 +37,10 @@
 
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
@@ -45,11 +49,9 @@ import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.classifier.ClassifierResults;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.logic.ClassifierResultsImpl;
-
-import java.util.*;
 
 /**
  * {@link CycleCheck}
@@ -63,7 +65,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 {
 	private Logger log = LogManager.getLogger();
 	private ManifoldCoordinate mc;
-	private HashSet<Integer> orphans = new HashSet<>();
+	private ConcurrentHashMap<Integer, Boolean> orphans = new ConcurrentHashMap<>();
 
 	/**
 	 * Set up a new cycle checker task
@@ -87,9 +89,9 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 		try
 		{
 			TaxonomySnapshot ts = Get.taxonomyService().getSnapshot(mc);
-			Map<Integer, Set<int[]>> results = new HashMap<>();
+			Map<Integer, Set<int[]>> results = new ConcurrentHashMap<>();
 			
-			Get.conceptService().getConceptNidStream().forEach(nid -> 
+			Get.conceptService().getConceptNidStream(true).forEach(nid -> 
 			{
 				Set<int[]> conceptCycles = getCycles(nid, ts);
 				if (conceptCycles.size() > 0)
@@ -100,7 +102,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 			if (results.size() > 0)
 			{
 				log.info("Found {} concepts with cycles in their path to root", results.size());
-				return new ClassifierResultsImpl(results, orphans, mc);
+				return new ClassifierResultsImpl(results, orphans.keySet(), mc);
 			}
 			else
 			{
@@ -151,7 +153,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 
 		{
 			//orphan
-			orphans.add(nid);
+			orphans.put(nid, Boolean.FALSE);
 		}
 		return result;
 	}
@@ -178,7 +180,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 			sb.append("\nnidOnPathToRoot: ").append(nidOnPathToRoot).append(" ").append(Get.conceptDescriptionText(nidOnPathToRoot));
 			sb.append("\npath: ").append(Get.conceptDescriptionTextList(path.toArray()));
 			sb.append("\nparents: ").append(Get.conceptDescriptionTextList(parents));
-			System.out.println(sb.toString());
+			LOG.debug(sb.toString());
 		}
 		for (int parent : parents)
 		{
@@ -200,6 +202,6 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 	 * @return The list of orphaned oncepts identified during the cycle check
 	 */
 	public Set<Integer> getOrphans() {
-		return orphans;
+		return orphans.keySet();
 	}
 }

@@ -21,7 +21,6 @@ import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.collections.SpinedIntIntArrayMap;
 import sh.isaac.model.collections.SpinedNidIntMap;
 import sh.isaac.provider.datastore.cache.CacheBootstrap;
-import sh.isaac.provider.datastore.cache.DatastoreAndIdentiferService;
 import java.nio.file.Path;
 import java.util.Collection;
 import java.util.List;
@@ -32,8 +31,8 @@ import java.util.UUID;
 import java.util.concurrent.Future;
 import java.util.function.BinaryOperator;
 import java.util.stream.IntStream;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.glassfish.hk2.api.Rank;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
@@ -42,11 +41,11 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.model.semantic.version.SemanticVersionImpl;
 import sh.isaac.provider.datastore.cache.CacheProvider;
 import sh.isaac.provider.postgres.PostgresProvider;
 
@@ -57,12 +56,18 @@ import sh.isaac.provider.postgres.PostgresProvider;
 @Service
 @RunLevel(value = LookupService.SL_L1)
 @Rank(value = 500)
-public class PostgresDatastore implements DatastoreAndIdentiferService, CacheBootstrap {
+public class PostgresDatastore implements DataStoreSubService, IdentifierService, CacheBootstrap {
 
-    DatastoreAndIdentiferService backingStore;
+    CacheProvider backingStore;
     PostgresProvider postgresProvider;
 
     public PostgresDatastore() {
+    }
+    
+    @Override
+    public DatabaseImplementation getDataStoreType()
+    {
+        return DatabaseImplementation.POSTGRESQL;
     }
 
     @Override
@@ -86,12 +91,16 @@ public class PostgresDatastore implements DatastoreAndIdentiferService, CacheBoo
     }
 
     @Override
-    public IntStream getNidStream() {
+    public IntStream getNidStream(boolean parallel) {
         int maxNid = this.getMaxNid();
-        return IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
+        IntStream is = IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
                 .filter((value) -> {
                     return this.getAssemblageOfNid(value).isPresent();
                 });
+        if (parallel) {
+            is.parallel();
+        }
+        return is;
     }
 
     @Override
@@ -150,8 +159,8 @@ public class PostgresDatastore implements DatastoreAndIdentiferService, CacheBoo
     }
 
     @Override
-    public IntStream getNidStreamOfType(IsaacObjectType objectType) {
-        return this.backingStore.getNidStreamOfType(objectType); 
+    public IntStream getNidStreamOfType(IsaacObjectType objectType, boolean parallel) {
+        return this.backingStore.getNidStreamOfType(objectType, parallel); 
     }
 
     @Override
@@ -200,8 +209,8 @@ public class PostgresDatastore implements DatastoreAndIdentiferService, CacheBoo
     }
 
     @Override
-    public IntStream getNidsForAssemblage(int assemblageNid) {
-        return this.backingStore.getNidsForAssemblage(assemblageNid); 
+    public IntStream getNidsForAssemblage(int assemblageNid, boolean parallel) {
+        return this.backingStore.getNidsForAssemblage(assemblageNid, parallel); 
     }
 
     @Override
@@ -305,8 +314,8 @@ public class PostgresDatastore implements DatastoreAndIdentiferService, CacheBoo
     }
 
     @Override
-    public IntStream getNidsForAssemblage(ConceptSpecification assemblageSpecification) {
-        return this.backingStore.getNidsForAssemblage(assemblageSpecification); 
+    public IntStream getNidsForAssemblage(ConceptSpecification assemblageSpecification, boolean parallel) {
+        return this.backingStore.getNidsForAssemblage(assemblageSpecification, parallel); 
     }
 
     @Override

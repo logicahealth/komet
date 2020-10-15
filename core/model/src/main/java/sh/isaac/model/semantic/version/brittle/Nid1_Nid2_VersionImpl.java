@@ -39,19 +39,12 @@
 
 package sh.isaac.model.semantic.version.brittle;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Version;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -62,6 +55,7 @@ public class Nid1_Nid2_VersionImpl
          implements Nid1_Nid2_Version {
    int nid1 = Integer.MAX_VALUE;
    int nid2 = Integer.MAX_VALUE;
+
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
@@ -71,8 +65,6 @@ public class Nid1_Nid2_VersionImpl
                       .describeStampSequence(this.getStampSequence())).append("}");
       return builder;
    }
-
-   //~--- constructors --------------------------------------------------------
 
    public Nid1_Nid2_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
@@ -85,13 +77,13 @@ public class Nid1_Nid2_VersionImpl
       this.nid2 = data.getNid();
    }
 
-   public Nid1_Nid2_VersionImpl(Nid1_Nid2_VersionImpl old,
+   private Nid1_Nid2_VersionImpl(Nid1_Nid2_VersionImpl old,
                                 int stampSequence) {
       super(old.getChronology(), stampSequence);
       this.setNid1(old.nid1);
       this.setNid2(old.nid2);
-
    }
+   
    /**
     * Write version data.
     *
@@ -103,9 +95,10 @@ public class Nid1_Nid2_VersionImpl
       data.putNid(this.nid1);
       data.putNid(this.nid2);
    }
-   //~--- methods -------------------------------------------------------------
 
-   public <V extends Version> V setupAnalog(int stampSequence) {
+   @Override
+   @SuppressWarnings("unchecked")
+   public <V extends Version> V makeAnalog(int stampSequence) {
       final Nid1_Nid2_VersionImpl newVersion = new Nid1_Nid2_VersionImpl(this, stampSequence);
       getChronology().addVersion(newVersion);
       return (V) newVersion;
@@ -129,32 +122,23 @@ public class Nid1_Nid2_VersionImpl
       return editDistance;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid1() {
       return nid1;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid1(int nid1) {
       this.nid1 = nid1;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid2() {
       return nid2;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid2(int nid2) {
       this.nid2 = nid2;
    }
 }
-

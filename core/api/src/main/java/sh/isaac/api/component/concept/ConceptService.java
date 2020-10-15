@@ -39,24 +39,16 @@
 
 package sh.isaac.api.component.concept;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.collections.IntSet;
-
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilterImmutable;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface ConceptService.
@@ -64,8 +56,7 @@ import sh.isaac.api.coordinate.StampFilterImmutable;
  * @author kec
  */
 @Contract
-public interface ConceptService
-        extends SharedConceptService {
+public interface ConceptService {
    /**
     * Write a concept to the concept service. Will not overwrite a concept if one already exists, rather it will
     * merge the written concept with the provided concept.
@@ -129,24 +120,27 @@ public interface ConceptService
     *
     * @param assemblageNid the nid for the assemblage within which the concepts to 
     * stream where created. 
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the concept chronology stream
     */
-   Stream<ConceptChronology> getConceptChronologyStream(int assemblageNid);
+   Stream<ConceptChronology> getConceptChronologyStream(int assemblageNid, boolean parallel);
 
    /**
     * Gets the concept chronology stream across all assemblages.
     *
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the concept chronology stream
     */
-   Stream<ConceptChronology> getConceptChronologyStream();
+   Stream<ConceptChronology> getConceptChronologyStream(boolean parallel);
 
    /**
     * Gets the concept chronology stream.
     *
     * @param conceptNids
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the concept chronology stream
     */
-   Stream<ConceptChronology> getConceptChronologyStream(IntSet conceptNids);
+   Stream<ConceptChronology> getConceptChronologyStream(IntSet conceptNids, boolean parallel);
 
    /**
     * Gets the concept count within the specified assemblage.
@@ -169,16 +163,18 @@ public interface ConceptService
     *
     * @param assemblageNid the nid for the assemblage within which the concepts to 
     * stream where created. 
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the concept key stream
     */
-   IntStream getConceptNidStream(int assemblageNid);
+   IntStream getConceptNidStream(int assemblageNid, boolean parallel);
 
   /**
     * Gets the concept nid stream across all assemblages.
     *
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the concept nid stream
     */
-   IntStream getConceptNidStream();
+   IntStream getConceptNidStream(boolean parallel);
 
    /**
     * Use in circumstances when not all concepts may have been loaded.

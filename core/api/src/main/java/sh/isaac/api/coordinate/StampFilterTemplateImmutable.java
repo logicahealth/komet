@@ -4,6 +4,7 @@ import org.eclipse.collections.api.list.primitive.ImmutableIntList;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -11,11 +12,10 @@ import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 
-import javax.annotation.PreDestroy;
 import java.util.Objects;
 import java.util.Set;
 
-public class StampFilterTemplateImmutable  implements StampFilterTemplate, ImmutableCoordinate {
+public class StampFilterTemplateImmutable  implements StampFilterTemplate, ImmutableCoordinate, StaticIsaacCache {
 
     private static final ConcurrentReferenceHashMap<StampFilterTemplateImmutable, StampFilterTemplateImmutable> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
@@ -36,10 +36,7 @@ public class StampFilterTemplateImmutable  implements StampFilterTemplate, Immut
         this.excludedModuleNids = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @PreDestroy
+    @Override
     public void reset() {
         SINGLETONS.clear();
     }

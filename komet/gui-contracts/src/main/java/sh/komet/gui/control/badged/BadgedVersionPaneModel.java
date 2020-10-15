@@ -1,5 +1,15 @@
 package sh.komet.gui.control.badged;
 
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.mahout.math.map.OpenIntIntHashMap;
+import org.controlsfx.control.PropertySheet;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -9,13 +19,24 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import org.apache.mahout.math.map.OpenIntIntHashMap;
-import org.controlsfx.control.PropertySheet;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -26,8 +47,14 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.*;
-import sh.isaac.api.component.semantic.version.brittle.LoincVersion;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.ImageVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
@@ -43,20 +70,16 @@ import sh.isaac.komet.flags.CountryFlagImages;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.komet.gui.control.ExpandControl;
-import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
 import sh.komet.gui.control.StampControl;
 import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.control.axiom.ConceptNode;
 import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
 import sh.komet.gui.control.text.TextAreaReadOnly;
 import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
-
-import java.io.ByteArrayInputStream;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BadgedVersionPaneModel {
     public static final int FIRST_COLUMN_WIDTH = 32;
@@ -489,38 +512,6 @@ public abstract class BadgedVersionPaneModel {
                     }
                     componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember"));
                     break;
-
-                case LOINC_RECORD: {
-                    if (isLatestPanel()) {
-                        componentType.setText("LNC");
-                    } else {
-                        componentType.setText("");
-                    }
-                    StringBuilder sb = new StringBuilder();
-                    sb.append(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
-                    LoincVersion lv = (LoincVersion) semanticVersion;
-                    sb.append("\nstatus: ");
-                    sb.append(lv.getLoincStatus());
-                    sb.append("\nlcn: ");
-                    sb.append(lv.getLongCommonName());
-                    sb.append("\nshort name: ");
-                    sb.append(lv.getShortName());
-                    sb.append("\ncomponent: ");
-                    sb.append(lv.getComponent());
-                    sb.append("\nmethod: ");
-                    sb.append(lv.getMethodType());
-                    sb.append("\nproperty: ");
-                    sb.append(lv.getProperty());
-                    sb.append("\nscale: ");
-                    sb.append(lv.getScaleType());
-                    sb.append("\nsystem: ");
-                    sb.append(lv.getSystem());
-                    sb.append("\ntiming: ");
-                    sb.append(lv.getTimeAspect());
-                    componentVBox.getChildren().setAll(addText(sb.toString()));
-
-                }
-                break;
 
                 case DYNAMIC:
                     if (isLatestPanel()) {

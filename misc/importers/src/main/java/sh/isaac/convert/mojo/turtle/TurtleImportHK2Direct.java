@@ -36,41 +36,55 @@
  */
 package sh.isaac.convert.mojo.turtle;
 
-import javafx.util.Pair;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.OptionalLong;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.datatypes.xsd.XSDDateTime;
-import org.apache.jena.rdf.model.*;
+import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.ModelFactory;
+import org.apache.jena.rdf.model.RDFNode;
+import org.apache.jena.rdf.model.ResIterator;
+import org.apache.jena.rdf.model.Resource;
+import org.apache.jena.rdf.model.Statement;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
+import javafx.util.Pair;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LanguageCode;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidFactory;
-import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
-import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.semantic.types.DynamicIntegerImpl;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.utility.LanguageMap;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.*;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * {@link TurtleImportHK2Direct}
@@ -114,16 +128,12 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 	private AnonymousNodeUtil anu;
 
 	/**
-	 * This constructor is for maven and HK2 and should not be used at runtime.  You should
-	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter)} method on it.
-	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
+	 * This constructor is for HK2 and should not be used at runtime.  You should 
+	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter, Transaction)} method on it.
 	 */
-	protected TurtleImportHK2Direct() {
-	}
-	public TurtleImportHK2Direct(Transaction transaction)
+	protected TurtleImportHK2Direct() 
 	{
 		// This constructor is for maven and hk2
-		super(transaction);
 	}
 	
 	@Override
@@ -144,22 +154,6 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 		return new SupportedConverterTypes[] {SupportedConverterTypes.BEVON};
 	}
 	
-	/**
-	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent()}
-	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
-	 * 
-	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String, sh.isaac.api.coordinate.StampFilter)
-	 */
-	@Override
-	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter)
-	{
-		this.outputDirectory = outputDirectory;
-		this.inputFileLocationPath = inputFolder;
-		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
-		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		this.readbackCoordinate = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
-	}
-
 	private void init()
 	{
 		//Each of these will only get created as a metadata concept if it is present in the dataset.
@@ -218,11 +212,11 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 	}
 
 	/**
-	 * {@inheritDoc}
-	 * @throws IOException 
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer)
+	 * @see DirectConverter#convertContent(Consumer, BiConsumer)
 	 */
 	@Override
-	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		init();
 		
@@ -332,7 +326,7 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 				{
 					//We don't have a module of our own yet, so put the "grouping" concept on the solor module.
 					moduleNid = MetaData.PRIMORDIAL_MODULE____SOLOR.getNid();
-					dwh = new DirectWriteHelper(MetaData.USER____SOLOR.getNid(), moduleNid, MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
+					dwh = new DirectWriteHelper(transaction, MetaData.USER____SOLOR.getNid(), moduleNid, MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 							termName, true);
 					dwh.makeConcept(parentModule, Status.ACTIVE, releaseTime);
 					
@@ -343,7 +337,7 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 					dwh.makeDescriptionEn(parentModule, title + " modules", regularName, 
 							insensitive, 
 							Status.ACTIVE, releaseTime, preferred);
-					dwh.makeParentGraph(transaction, parentModule, Arrays.asList(new UUID[] {MetaData.MODULE____SOLOR.getPrimordialUuid()}), Status.ACTIVE, releaseTime);
+					dwh.makeParentGraph(parentModule, Arrays.asList(new UUID[] {MetaData.MODULE____SOLOR.getPrimordialUuid()}), Status.ACTIVE, releaseTime);
 				}
 				
 				//We have now created a Bevon modules grouping concept.  Configure to that module for further work...
@@ -373,7 +367,7 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 				//Switch the direct write helper to the bevon module for the 'version specific' module...
 				if (dwh == null)
 				{
-					dwh = new DirectWriteHelper(authorNid, moduleNid, MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, termName, true);
+					dwh = new DirectWriteHelper(transaction, authorNid, moduleNid, MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, termName, true);
 				}
 				else
 				{
@@ -395,7 +389,7 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 				dwh.makeDescriptionEn(versionModule, title + " " + version + " module", regularName, 
 						insensitive, 
 						Status.ACTIVE, releaseTime, preferred);
-				dwh.makeParentGraph(transaction, versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
+				dwh.makeParentGraph(versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
 				
 				dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, converterSourceArtifactVersion, 
 						Optional.of(new Date(releaseTime).toString()), 
@@ -411,18 +405,18 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 				}
 				
 				//Set up our metadata hierarchy
-				dwh.makeMetadataHierarchy(transaction, true, true, true, true, true, true, releaseTime);
+				dwh.makeMetadataHierarchy(true, true, true, true, true, true, releaseTime);
 				
 				//Need to make the root concept, and its rel, prior to adding its descriptions - also the coregroup concept
 				rootConcept = getConceptUUID(preferredNamespaceUri, subject);  //make sure our nid is assigned to the combination of both nids.
 				//But also give it two UUIDs, so everything attached ends up in the right spot.
 				rootConceptId2 = getConceptUUID(subject);
 				dwh.makeConcept(rootConcept, Status.ACTIVE, releaseTime, new UUID[] {rootConceptId2});
-				dwh.makeParentGraph(transaction, rootConcept, Arrays.asList(new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}), Status.ACTIVE, releaseTime);
+				dwh.makeParentGraph(rootConcept, Arrays.asList(new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}), Status.ACTIVE, releaseTime);
 				
 				coreGroupConcept = getConceptUUID("http://rdfs.co/bevon/CoreGroup");
 				dwh.makeConcept(coreGroupConcept, Status.ACTIVE, releaseTime);
-				dwh.makeParentGraph(transaction, coreGroupConcept, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
+				dwh.makeParentGraph(coreGroupConcept, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
 				
 				//Create some types...
 				anu = new AnonymousNodeUtil(string -> getConceptUUID(string), resource -> conceptsToBeBuilt.put(getConceptUUID(resource.getURI()), resource));
@@ -460,7 +454,7 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 				{
 					if (allPredicates.contains(entry.getKey()))
 					{
-						dwh.makeRefsetTypeConcept(transaction, getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, releaseTime);
+						dwh.makeRefsetTypeConcept(getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, releaseTime);
 					}
 				}
 				
@@ -488,7 +482,7 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 								}
 							}
 						}
-						dwh.makeAssociationTypeConcept(transaction, getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, null, null,
+						dwh.makeAssociationTypeConcept(getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, null, null,
 								null, null, additionalParents, 
 								releaseTime);
 					}
@@ -521,7 +515,7 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 						//Add the relationships parent
 						additionalParents.add(dwh.getRelationTypesNode().get());
 						
-						dwh.makeAssociationTypeConcept(transaction, getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, null,
+						dwh.makeAssociationTypeConcept(getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue(), null, null,
 								null, null, null, additionalParents, releaseTime);
 						possibleAssociations.put(entry.getKey(), entry.getValue());
 					}
@@ -549,9 +543,9 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 							}
 						}
 						
-						UUID dynamicSemantic = dwh.makeAttributeTypeConcept(transaction, getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue().getNiceName(),
+						UUID dynamicSemantic = dwh.makeAttributeTypeConcept(getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue().getNiceName(),
 								null, false, null, additionalParents, releaseTime);
-						dwh.configureConceptAsDynamicAssemblage(transaction, dynamicSemantic, "Stores anonymous RDF node data",
+						dwh.configureConceptAsDynamicAssemblage(dynamicSemantic, "Stores anonymous RDF node data",
 								anu.getColumnConstructionInfo(entry.getKey()), entry.getValue().getReferencedComponentTypeRestriction(), 
 								entry.getValue().getReferencedComponentTypeSubRestriction(), releaseTime);
 						
@@ -582,7 +576,7 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 						}
 						
 						//"nice name" and FQN, URI as alt name
-						dwh.makeDescriptionTypeConcept(transaction, getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue().getKey(), null, entry.getValue().getValue(),
+						dwh.makeDescriptionTypeConcept(getConceptUUID(entry.getKey()), entry.getKey(), entry.getValue().getKey(), null, entry.getValue().getValue(),
 								additionalParents, releaseTime);
 					}
 				}
@@ -646,13 +640,12 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 			
 			statusUpdates.accept("Processing taxonomy updates");
 			dwh.processTaxonomyUpdates();
+			dwh.clearIsaacCaches();
 			statusUpdates.accept("Processing delayed validations");
 			dwh.processDelayedValidations();
 		}
 		finally
 		{
-			Get.taxonomyService().notifyTaxonomyListenersToRefresh();
-	
 			if (converterUUID != null && this.outputDirectory != null)
 			{
 				log.info("Dumping UUID Debug File");
@@ -698,7 +691,7 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 				dwh.makeDescriptionEnNoDialect(unresolvedConcepts, "These are external ontology references that were not fully resolved while processing this file.  They are created here"
 						+ " as placeholders, so they could be manually resolved and also to make the hierarchy navigable.", 
 						definition, Status.ACTIVE, releaseTime);
-				dwh.makeParentGraph(transaction, unresolvedConcepts, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
+				dwh.makeParentGraph(unresolvedConcepts, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
 			}
 			
 			Iterator<Entry<UUID, Resource>> i = conceptsToBeBuilt.entrySet().iterator();
@@ -716,7 +709,7 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 				{
 					dwh.makeDescriptionEnNoDialect(entry.getKey(), entry.getValue().getLocalName(), regularName, Status.ACTIVE, releaseTime);
 				}
-				dwh.makeParentGraph(transaction, entry.getKey(), Arrays.asList(new UUID[] {unresolvedConcepts}), Status.ACTIVE, releaseTime);
+				dwh.makeParentGraph(entry.getKey(), Arrays.asList(new UUID[] {unresolvedConcepts}), Status.ACTIVE, releaseTime);
 			}
 		}
 	}
@@ -983,12 +976,12 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 				dwh.makeDescriptionEnNoDialect(orphanParent, "These are ontology references that do not have any parents in the supplied ontology graph.", 
 						definition, 
 						Status.ACTIVE, releaseTime);
-				dwh.makeParentGraph(transaction, orphanParent, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
+				dwh.makeParentGraph(orphanParent, Arrays.asList(new UUID[] {rootConcept}), Status.ACTIVE, releaseTime);
 			}
 			parents.add(orphanParent);
 		}
 
-		UUID logicGraph = dwh.makeParentGraph(transaction, concept, parents, Status.ACTIVE, time);
+		UUID logicGraph = dwh.makeParentGraph(concept, parents, Status.ACTIVE, time);
 		HashSet<String> uniquePredicates = new HashSet<>();
 		for (Statement s : parentStatements)
 		{
@@ -1010,7 +1003,7 @@ public class TurtleImportHK2Direct extends DirectConverterBaseMojo implements Di
 		boolean madeRefset = false;
 		if (findPredicateValues("http://www.w3.org/1999/02/22-rdf-syntax-ns#_", true, propStatements).size() > 0)
 		{
-			dwh.configureConceptAsDynamicAssemblage(transaction, concept, collectionType, null, null, null, time);
+			dwh.configureConceptAsDynamicAssemblage(concept, collectionType, null, null, null, time);
 			madeRefset = true;
 		}
 

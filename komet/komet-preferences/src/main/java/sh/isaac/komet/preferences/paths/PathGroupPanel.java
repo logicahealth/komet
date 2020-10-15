@@ -136,7 +136,7 @@ public class PathGroupPanel extends ParentPanel implements CommitListener {
         Transaction transaction = Get.commitService().newTransaction(Optional.of("Path from preference panel"), ChangeCheckerMode.INACTIVE);
         builders.forEach(identifiedComponentBuilder -> {
             final List<Chronology> builtObjects = new ArrayList<>();
-            identifiedComponentBuilder.build(transaction, manifoldForPathCreation, builtObjects);
+            identifiedComponentBuilder.build(manifoldForPathCreation.getWriteCoordinate(transaction), builtObjects);
         });
         transaction.commit();
         setupButtonsForNew();

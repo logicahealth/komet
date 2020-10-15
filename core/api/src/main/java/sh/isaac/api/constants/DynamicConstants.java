@@ -59,7 +59,7 @@ package sh.isaac.api.constants;
  */
 import java.util.UUID;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
 

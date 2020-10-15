@@ -187,7 +187,7 @@ final public class MultiParentGraphCell
 
       item2.setOnAction(
           (ActionEvent e) -> {
-             System.out.println("Preferences");
+             LOG.debug("Preferences");
           });
       cm.getItems()
         .addAll(item1, item2);

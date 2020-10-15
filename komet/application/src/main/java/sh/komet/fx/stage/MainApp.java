@@ -148,10 +148,10 @@ public class MainApp
     protected void printMemoryInfo() {
         int mb = 1024*1024;
         Runtime runtime = Runtime.getRuntime();
-        System.out.println("** Used Memory:  " + ((runtime.totalMemory() - runtime.freeMemory()) / mb) + " mb");
-        System.out.println("** Free Memory:  " + (runtime.freeMemory() / mb) + " mb");
-        System.out.println("** Total Memory: " + (runtime.totalMemory() / mb) + " mb");
-        System.out.println("** Max Memory:   " + (runtime.maxMemory() / mb) + " mb");
+        LOG.info("** Used Memory:  " + ((runtime.totalMemory() - runtime.freeMemory()) / mb) + " mb");
+        LOG.info("** Free Memory:  " + (runtime.freeMemory() / mb) + " mb");
+        LOG.info("** Total Memory: " + (runtime.totalMemory() / mb) + " mb");
+        LOG.info("** Max Memory:   " + (runtime.maxMemory() / mb) + " mb");
     }
 
     public void replacePrimaryStage(Stage primaryStage) {
@@ -441,7 +441,7 @@ public class MainApp
 
     private void handleAbout(ActionEvent event) {
         event.consume();
-        System.out.println("Handle about...");
+        LOG.debug("Handle about...");
         printMemoryInfo();
 
         //create stage which has set stage style transparent
@@ -479,7 +479,7 @@ public class MainApp
     protected void shutdown() {
         FxGet.sync();
         for (Transaction transaction: Get.commitService().getPendingTransactionList()) {
-            transaction.cancel();
+            transaction.cancel().getNoThrow();
         }
         Get.applicationStates().remove(ApplicationStates.RUNNING);
         Get.applicationStates().add(ApplicationStates.STOPPING);
@@ -488,7 +488,7 @@ public class MainApp
         } catch (BackingStoreException ex) {
             LOG.error(ex.getLocalizedMessage(), ex);
         }
-        Thread shutdownThread = new Thread(() -> {  //Can't use the thread poool for this, because shutdown 
+        Thread shutdownThread = new Thread(() -> {  //Can't use the thread pool for this, because shutdown 
             //system stops the thread pool, which messes up the shutdown sequence.
             LookupService.shutdownSystem();
             Platform.runLater(() -> {

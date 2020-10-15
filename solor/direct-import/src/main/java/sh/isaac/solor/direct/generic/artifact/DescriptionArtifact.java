@@ -1,10 +1,9 @@
 package sh.isaac.solor.direct.generic.artifact;
 
+import java.util.UUID;
 import sh.isaac.api.Status;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.model.configuration.LanguageCoordinates;
-
-import java.util.UUID;
+import sh.isaac.utility.LanguageMap;
 
 /**
  * 2019-03-07
@@ -88,11 +87,11 @@ public final class DescriptionArtifact implements GenericArtifact {
     }
 
     public int getLanguageConceptNid() {
-        return LanguageCoordinates.iso639toConceptNid(this.iso639LanguageCode);
+        return LanguageMap.iso639toConceptNid(this.iso639LanguageCode);
     }
 
     public int getDescriptionAssemblageNid() {
-        return LanguageCoordinates.iso639toDescriptionAssemblageNid(this.iso639LanguageCode);
+        return LanguageMap.iso639toDescriptionAssemblageNid(this.iso639LanguageCode);
     }
 
     public int getTypeNid() {

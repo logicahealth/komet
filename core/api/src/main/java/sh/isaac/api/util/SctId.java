@@ -36,14 +36,10 @@
  */
 
 
-
 package sh.isaac.api.util;
 
-//~--- non-JDK imports --------------------------------------------------------
-
+import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * {@link SctId} contains validation utilities for SNOMED ID (SCT ID). A unique long
@@ -63,277 +59,308 @@ import org.apache.commons.lang3.StringUtils;
  * @see <a href="http://www.snomed.org/tig?t=trg2main_sctid">IHTSDO Technical Implementation Guide - SCT ID</a>
  */
 public class SctId {
-   /** The Fn F. */
 
-   // parts of the SCTID algorithm
-   private static final int[][] FnF = {
-      {
-         0, 1, 2, 3, 4, 5, 6, 7, 8, 9
-      }, {
-         1, 5, 7, 6, 2, 8, 3, 0, 9, 4
-      }, {
-         0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-      }, {
-         0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-      }, {
-         0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-      }, {
-         0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-      }, {
-         0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-      }, {
-         0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-      }, {
-         0, 0, 0, 0, 0, 0, 0, 0, 0, 0
-      }
-   };
+	// parts of the SCTID algorithm
+	private static final int[][] FnF = {
+		{
+			0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+		}, {
+			1, 5, 7, 6, 2, 8, 3, 0, 9, 4
+		}, {
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		}, {
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		}, {
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		}, {
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		}, {
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		}, {
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		}, {
+			0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+		}
+	};
 
-   /** The Dihedral. */
-   private static final int[][] Dihedral = {
-      {
-         0, 1, 2, 3, 4, 5, 6, 7, 8, 9
-      }, {
-         1, 2, 3, 4, 0, 6, 7, 8, 9, 5
-      }, {
-         2, 3, 4, 0, 1, 7, 8, 9, 5, 6
-      }, {
-         3, 4, 0, 1, 2, 8, 9, 5, 6, 7
-      }, {
-         4, 0, 1, 2, 3, 9, 5, 6, 7, 8
-      }, {
-         5, 9, 8, 7, 6, 0, 4, 3, 2, 1
-      }, {
-         6, 5, 9, 8, 7, 1, 0, 4, 3, 2
-      }, {
-         7, 6, 5, 9, 8, 2, 1, 0, 4, 3
-      }, {
-         8, 7, 6, 5, 9, 3, 2, 1, 0, 4
-      }, {
-         9, 8, 7, 6, 5, 4, 3, 2, 1, 0
-      }
-   };
-   private static final int[]   InverseD5 = {
-      0, 4, 3, 2, 1, 5, 6, 7, 8, 9
-   };
+	private static final int[][] Dihedral = {
+		{
+			0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+		}, {
+			1, 2, 3, 4, 0, 6, 7, 8, 9, 5
+		}, {
+			2, 3, 4, 0, 1, 7, 8, 9, 5, 6
+		}, {
+			3, 4, 0, 1, 2, 8, 9, 5, 6, 7
+		}, {
+			4, 0, 1, 2, 3, 9, 5, 6, 7, 8
+		}, {
+			5, 9, 8, 7, 6, 0, 4, 3, 2, 1
+		}, {
+			6, 5, 9, 8, 7, 1, 0, 4, 3, 2
+		}, {
+			7, 6, 5, 9, 8, 2, 1, 0, 4, 3
+		}, {
+			8, 7, 6, 5, 9, 3, 2, 1, 0, 4
+		}, {
+			9, 8, 7, 6, 5, 4, 3, 2, 1, 0
+		}
+	};
+	private static final int[]	InverseD5 = {
+		0, 4, 3, 2, 1, 5, 6, 7, 8, 9
+	};
 
-   private static final String[]   InverseD5Char = {
-      "0", "4", "3", "2", "1", "5", "6", "7", "8", "9"
-   };
+	private static final String[]	InverseD5Char = {
+		"0", "4", "3", "2", "1", "5", "6", "7", "8", "9"
+	};
 
-   //~--- static initializers -------------------------------------------------
+	static {
+		for (int i = 2; i < 8; i++) {
+			for (int j = 0; j < 10; j++) {
+				FnF[i][j] = FnF[i - 1][FnF[1][j]];
+			}
+		}
+	}
 
-   static {
-      for (int i = 2; i < 8; i++) {
-         for (int j = 0; j < 10; j++) {
-            FnF[i][j] = FnF[i - 1][FnF[1][j]];
-         }
-      }
-   }
+	/**
+	 * The Enum TYPE listing the possible types of SCT IDs. The second and third
+	 * digits from the right of the string rendering of the SCTID. The value of
+	 * the partition-identifier indicates the type of component that the SCTID
+	 * identifies (e.g. Concept, Description, Relationship, etc) and also
+	 * indicates whether the SCTID contains a namespace identifier.
+	 *
+	 */
+	public static enum TYPE
+	{
+		CONCEPT("00"), DESCRIPTION("01"), RELATIONSHIP("02"), 
+		CONCEPT_LF("10"), DESCRIPTION_LF("11"), RELATIONSHIP_LF("12"),
+		
+		//Old RF1 stuff, not likely to be used...
+		SUBSET("03"), CROSS_MAP_SET("04"), CROSS_MAP_TARGET("05"),
+		SUBSET_LF("13"), CROSS_MAP_SET_LF("14"), CROSS_MAP_TARGET_LF("15");
 
-   //~--- enums ---------------------------------------------------------------
+		private final String digits;
 
-   /**
-    * The Enum TYPE listing the possible types of SCT IDs. The second and third
-    * digits from the right of the string rendering of the SCTID. The value of
-    * the partition-identifier indicates the type of component that the SCTID
-    * identifies (e.g. Concept, Description, Relationship, etc) and also
-    * indicates whether the SCTID contains a namespace identifier.
-    *
-    */
-   public static enum TYPE {
-      /**
-       * Identifies the SCT ID as a concept.
-       */
-      CONCEPT("10"),
+		/**
+		 * Instantiates a new SCT ID type based on the <code>digits</code>.
+		 *
+		 * @param digits the digits specifying the SCT ID type
+		 */
+		private TYPE(String digits)
+		{
+			this.digits = digits;
+		}
 
-      /**
-       * Identifies the SCT ID as a description.
-       */
-      DESCRIPTION("11"),
+		/**
+		 * Gets the digits specifying the SCT ID type.
+		 *
+		 * @return the digits specifying the SCT ID type
+		 */
+		public String getDigits()
+		{
+			return this.digits;
+		}
+		
+		public boolean isLongForm()
+		{
+			return Integer.parseInt(digits) >= 10;
+		}
+		
+		public static TYPE parse(String input) throws IllegalArgumentException
+		{
+			for (TYPE t : TYPE.values())
+			{
+				if (t.digits.equals(input))
+				{
+					return t;
+				}
+			}
+			throw new IllegalArgumentException("Invalid Partition ID");
+		}
+	}
+	
+	private long itemId;
+	private Optional<String> namespace;
+	private TYPE type;
+	
+	public SctId(String sctid) throws IllegalArgumentException
+	{
+		if (!isValidSctId(sctid))
+		{
+			throw new IllegalArgumentException("Invalid SCTID string");
+		}
+		type = TYPE.parse(sctid.substring(sctid.length() - 3, sctid.length() - 1));
+		
+		if (type.isLongForm())
+		{
+			namespace = Optional.of(sctid.substring(sctid.length() - 10, sctid.length() - 3));
+		}
+		else
+		{
+			namespace = Optional.empty();
+		}
+		
+		itemId = Long.valueOf(sctid.substring(0, (sctid.length() - (namespace.isEmpty() ? 3 : 10))));
+	}
+	
 
-      /**
-       * Identifies the SCT ID as a relationship.
-       */
-      RELATIONSHIP("12"),
+	public long getItemId()
+	{
+		return itemId;
+	}
 
-      /**
-       * Identifies the SCT ID as a refset.
-       */
-      SUBSET("13");
+	public Optional<String> getNamespace()
+	{
+		return namespace;
+	}
 
-      /** The digits. */
-      private final String digits;
+	public TYPE getType()
+	{
+		return type;
+	}
 
-      //~--- constructors -----------------------------------------------------
 
-      /**
-       * Instantiates a new SCT ID type based on the <code>digits</code>.
-       *
-       * @param digits the digits specifying the SCT ID type
-       */
-      private TYPE(String digits) {
-         this.digits = digits;
-      }
 
-      //~--- get methods ------------------------------------------------------
+	/**
+	 * see {@link #isValidSctId(String)}.
+	 *
+	 * @param sctid the sctid
+	 * @return true, if valid SCTID
+	 */
+	public static boolean isValidSCTID(int sctid)
+	{
+		return isValidSctId(Integer.toString(sctid));
+	}
 
-      /**
-       * Gets the digits specifying the SCT ID type.
-       *
-       * @return the digits specifying the SCT ID type
-       */
-      public String getDigits() {
-         return this.digits;
-      }
-   }
+	/**
+	 * see {@link #isValidSctId(String)}.
+	 *
+	 * @param sctid the sctid
+	 * @return true, if valid sct id
+	 */
+	public static boolean isValidSctId(long sctid)
+	{
+		return isValidSctId(Long.toString(sctid));
+	}
 
-   //~--- get methods ---------------------------------------------------------
 
-   /**
-    * see {@link #isValidSctId(String)}.
-    *
-    * @param sctid the sctid
-    * @return true, if valid SCTID
-    */
-   public static boolean isValidSCTID(int sctid) {
-      return isValidSctId(Integer.toString(sctid));
-   }
+	/**
+	 * Generates an SCT ID based on the given {@code itemID}, {@code namespace}, and {@code type}.
+	 *
+	 * @param itemID the sequence to use for the item identifier
+	 * @param namespace the namespace to use
+	 * @param type the SCT ID type - must be a LONGFORM type - one that ends with _LF.
+	 * @return a string representation of the generated SCT ID
+	 */
+	public static String generate(long itemID, String namespace, TYPE type)
+	{
+		if (!type.isLongForm())
+		{
+			throw new IllegalArgumentException("Not legal to generate new shortform SCTIDs.  SCTIDs with a namespace must use longform.");
+		}
+		if (itemID <= 0)
+		{
+			throw new IllegalArgumentException("itemID must be > 0");
+		}
+		String mergedid = Long.toString(itemID) + namespace + type.digits;
+		final String generatedId =  mergedid + verhoeffCompute(mergedid);
+		if (!isValidSctId(generatedId))
+		{
+			throw new IllegalArgumentException("Final generated SCTID was invalid - perhaps itemID was out of valid range?");
+		}
+		return generatedId;
+	}
 
-   /**
-    * see {@link #isValidSctId(String)}.
-    *
-    * @param sctid the sctid
-    * @return true, if valid sct id
-    */
-   public static boolean isValidSctId(long sctid) {
-      return isValidSctId(Long.toString(sctid));
-   }
 
-   // TODO validate this code / make clean APIs when it is needed.
-// /**
-//  * Generates an SCT ID based on the given <code>sequence</code>, <code>projectId</code>, <code>namespaceId</code>, and <code>type</code>.
-//  *
-//  * @param sequence the sequence to use for the item identifier
-//  * @param projectId the id of the mapping project
-//  * @param namespaceId the <code>int</code> representation of the namespace to use
-//  * @param type the SCT ID type
-//  * @return a string representation of the generated SCT ID
-//  */
-// public static String generate(long sequence, int projectId, int namespaceId, TYPE type)
-// {
-//
-//         if (sequence <= 0)
-//         {
-//                 throw new RuntimeException("sequence must be > 0");
-//         }
-//
-//         String mergedid = Long.toString(sequence) + projectId + namespaceId + type.digits;
-//
-//         return mergedid + verhoeffCompute(mergedid);
-// }
-//
-// /**
-//  * Generates an SCT ID based on the given <code>sequence</code>, <code>namespaceString</code>, and <code>type</code>.
-//  *
-//  * @param sequence the sequence to use for the item identifier
-//  * @param namespaceString the <code>String</code> representation of the namespace to use
-//  * @param type the SCT ID type
-//  * @return a string representation of the generated SCT ID
-//  */
-// public static String generate(long sequence, String namespaceString, TYPE type)
-// {
-//         if (sequence <= 0)
-//         {
-//                 throw new RuntimeException("sequence must be > 0");
-//         }
-//         String mergedid = Long.toString(sequence) + namespaceString + type.digits;
-//         return mergedid + verhoeffCompute(mergedid);
-// }
-//
-// /**
-//  * Generates an SCT ID based on the given <code>sequence</code>, <code>namespaceId</code>, and <code>type</code>.
-//  *
-//  * @param sequence the sequence to use for the item identifier
-//  * @param namespaceId the <code>int</code> representation of the namespace to use
-//  * @param type the SCT ID type
-//  * @return a string representation of the generated SCT ID
-//  */
-// public static String generate(long sequence, int namespaceId, TYPE type)
-// {
-//
-//         if (sequence <= 0)
-//         {
-//                 throw new RuntimeException("sequence must be > 0");
-//         }
-//
-//         String mergedid = Long.toString(sequence) + namespaceId + type.digits;
-//
-//         return mergedid + verhoeffCompute(mergedid);
-// }
-// /**
-//  * Computes the check digit. The SCTID (See Component features - Identifiers) includes a check-digit, which is generated using Verhoeff's
-//  * dihedral check.
-//  *
-//  * @param idAsString a String representation of the SCT ID
-//  * @return the generated SCT ID
-//  * @see <a href="http://www.snomed.org/tig?t=trg_app_check_digit">IHTSDO Technical Implementation Guide - Verhoeff</a>
-//  */
- public static long verhoeffCompute(String idAsString)
- {
-         int check = 0;
-         for (int i = idAsString.length() - 1; i >= 0; i--)
-         {
-                 check = Dihedral[check][FnF[((idAsString.length() - i) % 8)][new Integer(new String(new char[] { idAsString.charAt(i) }))]];
+	
+	/**
+	 * Computes the check digit. The SCTID (See Component features - Identifiers) includes a check-digit, which is generated using Verhoeff's
+	 * dihedral check.
+	 *
+	 * @param idAsString a String representation of the SCT ID
+	 * @return the generated SCT ID
+	 * @see <a href="http://www.snomed.org/tig?t=trg_app_check_digit">IHTSDO Technical Implementation Guide - Verhoeff</a>
+	 */
 
-         }
-         return InverseD5[check];
- }
+	public static long verhoeffCompute(String idAsString)
+	{
+		int check = 0;
+		for (int i = idAsString.length() - 1; i >= 0; i--)
+		{
+			check = Dihedral[check][FnF[((idAsString.length() - i) % 8)][Integer.valueOf(new String(new char[] { idAsString.charAt(i) }))]];
 
- public static String verhoeffComputeStr(String idAsString)
- {
-         int check = 0;
-         for (int i = idAsString.length() - 1; i >= 0; i--)
-         {
-                 check = Dihedral[check][FnF[((idAsString.length() - i) % 8)][new Integer(new String(new char[] { idAsString.charAt(i) }))]];
+		}
+		return InverseD5[check];
+	}
 
-         }
-         return InverseD5Char[check];
- }
+	public static String verhoeffComputeStr(String idAsString)
+	{
+		int check = 0;
+		for (int i = idAsString.length() - 1; i >= 0; i--)
+		{
+			check = Dihedral[check][FnF[((idAsString.length() - i) % 8)][Integer.valueOf(new String(new char[] { idAsString.charAt(i) }))]];
+
+		}
+		return InverseD5Char[check];
+	}
  
-   /**
-    * Verifies the check digit of an SCT identifier.
-    *
-    * @param idAsString a String representation of the SCT ID
-    * @return <code>true</code>, if the checksum in the string is correct for an SCTID.
-    * @see <a href="http://www.snomed.org/tig?t=trg_app_check_digit">IHTSDO Technical Implementation Guide - Verhoeff</a>
-    */
-   public static boolean isValidSctId(String idAsString) {
-      if (StringUtils.isBlank(idAsString)) {
-         return false;
-      }
+	/**
+	 * Verifies the check digit of an SCT identifier.
+	 *
+	 * @param idAsString a String representation of the SCT ID
+	 * @return <code>true</code>, if the checksum in the string is correct for an SCTID.
+	 * @see <a href="http://www.snomed.org/tig?t=trg_app_check_digit">IHTSDO Technical Implementation Guide - Verhoeff</a>
+	 */
+	public static boolean isValidSctId(String idAsString)
+	{
+		if (StringUtils.isBlank(idAsString))
+		{
+			return false;
+		}
 
-      try {
-         final long l = Long.parseLong(idAsString);
+		try
+		{
+			final long l = Long.parseLong(idAsString);
 
-         if ((l < 100000) || (l > 999999999999999999l)) {
-            return false;
-         }
-      } catch (final NumberFormatException e) {
-         return false;
-      }
+			if ((l < 100000) || (l > 999999999999999999l))
+			{
+				return false;
+			}
+		}
+		catch (final NumberFormatException e)
+		{
+			return false;
+		}
+		
+		//validate it has a valid partition
+		try
+		{
+			TYPE t = TYPE.parse(idAsString.substring(idAsString.length() - 3, idAsString.length() - 1));
+			//Anything that is a long format must have a namespace, which brings our min length up to 11.
+			if (t.isLongForm() && idAsString.length() < 11)
+			{
+				return false;
+			}
+		}
+		catch (Exception e)
+		{
+			return false;
+		}
 
-      int check = 0;
+		int check = 0;
 
-      for (int i = idAsString.length() - 1; i >= 0; i--) {
-         check =
-            Dihedral[check][FnF[(idAsString.length() - i - 1) % 8][new Integer(new String(new char[] { idAsString.charAt(i) }))]];
-      }
+		for (int i = idAsString.length() - 1; i >= 0; i--)
+		{
+			check = Dihedral[check][FnF[(idAsString.length() - i - 1) % 8][Integer.valueOf(new String(new char[] { idAsString.charAt(i) }))]];
+		}
 
-      if (check != 0) {
-         return false;
-      } else {
-         return true;
-      }
-   }
+		if (check != 0)
+		{
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
 }
-

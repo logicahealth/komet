@@ -24,12 +24,12 @@ public class AllComponentList implements ComponentList {
 
     @Override
     public int listSize() {
-        return (int) Get.identifierService().getNidStream().count();
+        return (int) Get.identifierService().getNidStream(true).count();
     }
 
     @Override
     public Stream<Chronology> getComponentStream() {
-        return Get.identifiedObjectService().getChronologySteam();
+        return Get.identifiedObjectService().getChronologySteam(true);
     }
 
     @Override

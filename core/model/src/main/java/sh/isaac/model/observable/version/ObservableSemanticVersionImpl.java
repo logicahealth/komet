@@ -46,6 +46,7 @@ public class ObservableSemanticVersionImpl extends ObservableAbstractSemanticVer
         super(VersionType.MEMBER, primordialUuid, referencedComponentUuid, assemblageNid);
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableSemanticVersionImpl analog = new ObservableSemanticVersionImpl(this, getChronology());
@@ -61,16 +62,12 @@ public class ObservableSemanticVersionImpl extends ObservableAbstractSemanticVer
         // nothing to update
     }
 
-
-
+    @SuppressWarnings("unchecked")
     @Override
-    public <V extends Version> V setupAnalog(int stampSequence) {
-        SemanticVersion newVersion = getStampedVersion().setupAnalog(stampSequence);
-        ObservableSemanticVersionImpl newObservableVersion = new ObservableSemanticVersionImpl(
-                newVersion,
-                getChronology());
-        chronology.getVersionList()
-                .add(newObservableVersion);
+    public <V extends Version> V makeAnalog(int stampSequence) {
+        SemanticVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+        ObservableAbstractSemanticVersionImpl newObservableVersion = new ObservableSemanticVersionImpl(newVersion, getChronology());
+        getChronology().getVersionList().add(newObservableVersion);
         return (V) newObservableVersion;
     }
 

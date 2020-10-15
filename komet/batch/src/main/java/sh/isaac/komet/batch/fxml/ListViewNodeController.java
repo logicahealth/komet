@@ -3,43 +3,54 @@ package sh.isaac.komet.batch.fxml;
  * 'ListViewNode.fxml' Controller Class
  */
 
-import javafx.application.Platform;
-import javafx.beans.property.StringProperty;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
-import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.BorderPane;
-import javafx.stage.FileChooser;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
+import javafx.application.Platform;
+import javafx.beans.property.StringProperty;
+import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
+import javafx.fxml.FXML;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SelectionMode;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.BorderPane;
+import javafx.stage.FileChooser;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.util.UUIDUtil;
+import sh.isaac.api.util.UuidStringKey;
 import sh.isaac.komet.batch.AddConceptsInModule;
+import sh.komet.gui.control.manifold.CoordinateMenuFactory;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DropHelper;
 import sh.komet.gui.interfaces.ComponentList;
 import sh.komet.gui.row.DragAndDropRowFactory;
 import sh.komet.gui.table.version.VersionTable;
-import sh.komet.gui.control.manifold.CoordinateMenuFactory;
 import sh.komet.gui.util.FxGet;
-import sh.isaac.api.util.UuidStringKey;
-
-import java.io.*;
-import java.net.URL;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Stream;
 
 public class ListViewNodeController implements ComponentList {
     private static final Logger LOG = LogManager.getLogger();
@@ -319,7 +330,7 @@ public class ListViewNodeController implements ComponentList {
 
 
     public void close() {
-        System.out.println("Closing ListViewNodeController");
+        LOG.debug("Closing ListViewNodeController");
         FxGet.removeComponentList(this);
     }
 

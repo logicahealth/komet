@@ -13,6 +13,8 @@ import javafx.scene.layout.StackPane;
 import javafx.util.StringConverter;
 
 import java.time.LocalTime;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * <h1>Material Design Time Picker Skin</h1>
@@ -23,6 +25,8 @@ import java.time.LocalTime;
  */
 public class TimePickerSkin extends JFXGenericPickerSkin<LocalTime> {
 
+	private static final Logger LOG = LogManager.getLogger();
+	
     private TimePicker jfxTimePicker;
     // displayNode is the same as editorNode
     private TextField displayNode;
@@ -48,7 +52,7 @@ public class TimePickerSkin extends JFXGenericPickerSkin<LocalTime> {
         registerChangeListener(timePicker.converterProperty(), obs -> reflectUpdateDisplayNode());
         registerChangeListener(timePicker.editorProperty(), obs -> reflectUpdateDisplayNode());
         registerChangeListener(timePicker.showingProperty(), obs -> {
-            System.out.println("Showing: " + obs);
+            LOG.debug("Showing: " + obs);
             if (jfxTimePicker.isShowing()) {
                 show();
             } else {

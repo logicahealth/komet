@@ -50,7 +50,7 @@ public class EnumerateMembers extends ExtensionFunctionDefinition {
                     String assemblageUuidStr = arguments[0].head().getStringValue();
                     int assemblageNid = Get.nidForUuids(UUID.fromString(assemblageUuidStr));
                     int[] conceptNidsForElements = Get.assemblageService().getReferencedComponentNidStreamFromAssemblage(
-                            Get.identifierService().getNidForUuids(UUID.fromString(assemblageUuidStr))).toArray();
+                            Get.identifierService().getNidForUuids(UUID.fromString(assemblageUuidStr)), true).toArray();
 
                     final DocumentBuilder db = new Processor(context.getConfiguration()).newDocumentBuilder();
                     db.setTreeModel(TreeModel.LINKED_TREE);

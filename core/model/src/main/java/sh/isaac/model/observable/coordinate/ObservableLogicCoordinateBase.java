@@ -269,6 +269,9 @@ public abstract class ObservableLogicCoordinateBase
     */
    @Override
    public boolean equals(Object obj) {
+      if (obj instanceof ObservableLogicCoordinateBase) {
+         return this.getValue().equals(((ObservableLogicCoordinateBase)obj).getValue());
+      }
       return this.getValue().equals(obj);
    }
 

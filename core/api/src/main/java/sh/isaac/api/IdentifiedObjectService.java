@@ -69,6 +69,10 @@ public interface IdentifiedObjectService {
    
    void putChronologyData(Chronology chronology);
 
-   Stream<Chronology> getChronologySteam();
+   /**
+    * @param parallel true to allow a parallel stream, false for serial
+    * @return
+    */
+   Stream<Chronology> getChronologySteam(boolean parallel);
 }
 

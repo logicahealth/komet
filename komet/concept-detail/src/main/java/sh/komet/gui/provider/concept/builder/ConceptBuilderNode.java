@@ -143,8 +143,8 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract implements GuiCo
         ObservableDescriptionDialect newDescriptionDialect = new ObservableDescriptionDialect(conceptUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
         descriptions.add(newDescriptionDialect);
         newDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
-        newDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
-        newDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
+        newDescriptionDialect.getDescription().setStatus(Status.ACTIVE, null);
+        newDescriptionDialect.getDialect().setStatus(Status.ACTIVE, null);
         layoutBuilderComponents();
     }
 
@@ -166,7 +166,7 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract implements GuiCo
         textField.selectAll();
 
         this.conceptVersion = new ObservableConceptVersionImpl(conceptUuid, MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid());
-        this.conceptVersion.setStatus(Status.ACTIVE);
+        this.conceptVersion.setStatus(Status.ACTIVE, null);
 
         ObservableDescriptionDialect fqnDescriptionDialect;
         ObservableDescriptionDialect namDescriptionDialect;
@@ -176,25 +176,25 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract implements GuiCo
         descriptions.add(fqnDescriptionDialect);
 
         fqnDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
-        fqnDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
+        fqnDescriptionDialect.getDescription().setStatus(Status.ACTIVE, null);
         fqnDescriptionDialect.getDescription().setText(textField.getText());
         fqnDescriptionDialect.getDescription().textProperty().bindBidirectional(textField.textProperty());
-        fqnDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
+        fqnDescriptionDialect.getDialect().setStatus(Status.ACTIVE, null);
 
         namDescriptionDialect = new ObservableDescriptionDialect(conceptUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
         descriptions.add(namDescriptionDialect);
         namDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getNid());
-        namDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
-        namDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
+        namDescriptionDialect.getDescription().setStatus(Status.ACTIVE, null);
+        namDescriptionDialect.getDialect().setStatus(Status.ACTIVE, null);
 
         defDescriptionDialect = new ObservableDescriptionDialect(conceptUuid, MetaData.ENGLISH_LANGUAGE____SOLOR.getNid());
         descriptions.add(defDescriptionDialect);
-        defDescriptionDialect.getDescription().setStatus(Status.ACTIVE);
-        defDescriptionDialect.getDialect().setStatus(Status.ACTIVE);
+        defDescriptionDialect.getDescription().setStatus(Status.ACTIVE, null);
+        defDescriptionDialect.getDialect().setStatus(Status.ACTIVE, null);
         defDescriptionDialect.getDescription().setDescriptionTypeConceptNid(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid());
 
         this.statedDefinition = new ObservableLogicGraphVersionImpl(conceptUuid, viewProperties.getManifoldCoordinate().getLogicCoordinate().getStatedAssemblageNid());
-        this.statedDefinition.setStatus(Status.ACTIVE);
+        this.statedDefinition.setStatus(Status.ACTIVE, null);
         this.statedDefinition.assemblageNidProperty().set(viewProperties.getManifoldCoordinate().getLogicCoordinate().getStatedAssemblageNid());
 
         layoutBuilderComponents();
@@ -303,7 +303,6 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract implements GuiCo
                 componentPanelBox.getChildren().clear();
             });
         } else {
-            // TODO show errors. 
             for (AlertObject alert : commitTask.getAlerts()) {
                 switch (alert.getAlertType()) {
                     case ERROR:
@@ -318,9 +317,7 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract implements GuiCo
                         FxGet.dialogs().showInformationDialog(alert.getAlertTitle(),
                                 alert.getAlertDescription(), componentPanelBox.getScene().getWindow());
                         break;
-
                 }
-
             }
         }
 
@@ -351,12 +348,12 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract implements GuiCo
             throw new IllegalStateException("Logical expression is not meaningful");
         }
         for (ObservableVersion version: versionsToCommit) {
-            version.setAuthorNid(FxGet.currentUser().getNid());
+            version.setAuthorNid(FxGet.currentUser().getNid(), null);
             if (version.getModuleNid() == 0 || version.getModuleNid() == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()) {
-                version.setModuleNid(this.conceptVersion.getModuleNid());
+                version.setModuleNid(this.conceptVersion.getModuleNid(), null);
             }
             if (version.getPathNid() == 0 || version.getPathNid() == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()) {
-                version.setPathNid(this.conceptVersion.getPathNid());
+                version.setPathNid(this.conceptVersion.getPathNid(), null);
             }
         }
         return versionsToCommit.toArray(new ObservableVersion[versionsToCommit.size()]);

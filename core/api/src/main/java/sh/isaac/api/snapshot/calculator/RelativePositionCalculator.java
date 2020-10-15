@@ -39,23 +39,38 @@
 
 package sh.isaac.api.snapshot.calculator;
 
-//~--- JDK imports ------------------------------------------------------------
-
+import java.math.BigInteger;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
-import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.*;
+import sh.isaac.api.Get;
+import sh.isaac.api.StaticIsaacCache;
+import sh.isaac.api.Status;
+import sh.isaac.api.VersionManagmentPathService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.StampFilterImmutable;
+import sh.isaac.api.coordinate.StampPosition;
+import sh.isaac.api.coordinate.StampPositionImmutable;
+import sh.isaac.api.coordinate.StatusSet;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.dag.Node;
 import sh.isaac.api.identity.IdentifiedObject;
@@ -63,38 +78,20 @@ import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
-import java.math.BigInteger;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.ToLongFunction;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- classes ----------------------------------------------------------------
-
 /**
  * The Class RelativePositionCalculator.
  *
  * @author kec
  */
+//This class is not treated as a service, however, it needs the annotation, so that the reset() gets fired at appropriate times.
 @Service
-@RunLevel(value = LookupService.SL_L2)
-// Singleton from the perspective of HK2 managed instances, there will be more than one
-// RelativePositionCalculator created in normal use.
-public class RelativePositionCalculator {
+public class RelativePositionCalculator implements StaticIsaacCache {
    /** The Constant LOG. */
    private static final Logger LOG = LogManager.getLogger();
 
    private static final ConcurrentReferenceHashMap<StampFilterImmutable, RelativePositionCalculator> SINGLETONS =
            new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
                    ConcurrentReferenceHashMap.ReferenceType.WEAK);
-
-   //~--- fields --------------------------------------------------------------
 
    /** The error count. */
    private int  errorCount   = 0;
@@ -112,8 +109,6 @@ public class RelativePositionCalculator {
     * computer.
     */
    ConcurrentHashMap<Integer, Segment> pathNidSegmentMap;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new relative position calculator.
@@ -136,8 +131,6 @@ public class RelativePositionCalculator {
       this.pathNidSegmentMap = setupPathNidSegmentMap(filter.getStampPosition().toStampPositionImmutable());
       this.allowedStates          = filter.getAllowedStates();
    }
-
-   //~--- methods -------------------------------------------------------------
 
    /**
     * Fast relative position.
@@ -369,13 +362,16 @@ public class RelativePositionCalculator {
                                               ConcurrentSkipListSet<Integer> precedingSegments) {
       final Segment segment = new Segment(
                                   segmentSequence.getAndIncrement(),
-                                  destination.getPathConcept().getNid(),
+                                  destination.getPathForPositionConcept().getNid(),
                                   destination.getTime(),
                                   precedingSegments);
 
       // precedingSegments is cumulative, each recursive call adds another
       precedingSegments.add(segment.segmentSequence);
-      pathNidSegmentMap.put(destination.getPathForPositionNid(), segment);
+      Segment old = pathNidSegmentMap.put(destination.getPathForPositionNid(), segment);
+      if (old != null) {
+         LOG.error("Overwrite segment {} with {} for path {}", old, segment, destination.getPathForPositionConcept());
+      }
       destination.getPathOrigins()
                  .stream()
                  .forEach((StampPositionImmutable origin) -> {
@@ -498,17 +494,9 @@ public class RelativePositionCalculator {
                   break;
                }
 
-               // Duplicate values encountered.
-               RelativePositionCalculator.this.errorCount++;
-
-               if (RelativePositionCalculator.this.errorCount < 20) {
-                  LOG.warn(
-                          "{} should never happen. " + "\n  Data is malformed. \n   stamp: {}  \n   Part to test: {}",
-                          new Object[] { RelativePosition.EQUAL,
-                                  Get.stampService().describeStampSequence(stampSequence),
-                                  Get.stampService().describeStampSequence(prevStamp)});
-               }
-
+               // Duplicate values encountered.  Likely two stamps at the same time on different modules.
+               //TODO this should be using the module preference order to determine which one to put at the top...
+               stampsForPosition.add(stampSequence);
                break;
 
             case UNREACHABLE:
@@ -548,7 +536,6 @@ public class RelativePositionCalculator {
       return pathNidSegmentMapToSetup;
    }
 
-   //~--- get methods ---------------------------------------------------------
    private StampService getStampService() {
       if (this.stampService == null) {
          this.stampService = Get.stampService();
@@ -585,7 +572,7 @@ public class RelativePositionCalculator {
     * case of a contradiction) are active.
     */
    public boolean isLatestActive(int[] stampSequences) {
-      for (int stampSequence: getLatestCommittedStampSequencesAsSet(stampSequences)) {
+      for (int stampSequence: getLatestStampSequencesAsSet(stampSequences)) {
          if (getStampService().getStatusForStamp(stampSequence) == Status.ACTIVE) {
             return true;
          }
@@ -600,7 +587,7 @@ public class RelativePositionCalculator {
                .stream()
                .filter(
                    (newVersionToTest) -> ((newVersionToTest.getTime() != Long.MIN_VALUE) &&
-                         (newVersionToTest.getTime() != Long.MAX_VALUE)))
+                         (!Get.stampService().isUncommitted(newVersionToTest.getStampSequence()))))
                .filter((newVersionToTest) -> (onRoute(newVersionToTest)))
                .forEach(
                    (newVersionToTest) -> {
@@ -625,7 +612,7 @@ public class RelativePositionCalculator {
    }
 
    /**
-    * Gets the latest stamp sequences as a sorted set in an array.
+    * Gets the latest (committed only) stamp sequences as a sorted set in an array.
     *
     * @param stampSequences the stamp sequence stream
     * @return the latest stamp sequences as a sorted set in an array
@@ -639,12 +626,12 @@ public class RelativePositionCalculator {
    }
 
    /**
-    * Gets the latest stamp sequences as set. The latest stamp sequences independent of
-    * allowed states of the stamp coordinate are identified. Then, if those latest stamp's status values
-    * are included in the allowed states, then the stamps are included in the result. If none of the
-    * latest stamps are of an allowed state, then an empty set is returned.
+    * Gets the latest stamp sequences as an array, allowing uncommitted stamps.
+    * The latest stamp sequences independent of allowed states of the stamp coordinate are identified. 
+    * Then, if those latest stamp's status values are included in the allowed states, then the stamps are included in the result. 
+    * If none of the latest stamps are of an allowed state, then an empty set is returned.
     *
-    * @param stampSequences the stamp sequence stream
+    * @param stampSequences the input stamp sequences
     * @return the latest stamp sequences as an array. Empty array if none of the
     * latest stamps match the allowed states of the stamp coordinate.
     */
@@ -767,8 +754,6 @@ public class RelativePositionCalculator {
       return new LatestVersion<>();
    }
 
-   //~--- inner classes -------------------------------------------------------
-
    /**
     * The Class Segment.
     */
@@ -794,8 +779,6 @@ public class RelativePositionCalculator {
       /** The preceding segments. */
       ConcurrentSkipListSet<Integer> precedingSegments;
 
-      //~--- constructors -----------------------------------------------------
-
       /**
        * Instantiates a new segment.
        *
@@ -810,8 +793,6 @@ public class RelativePositionCalculator {
          this.endTime             = endTime;
          this.precedingSegments   = precedingSegments.clone();
       }
-
-      //~--- methods ----------------------------------------------------------
 
       /**
        * To string.
@@ -933,11 +914,7 @@ public class RelativePositionCalculator {
       }
    }
 
-
-   /** 
-    * {@inheritDoc}
-    */
-   @PreDestroy
+   @Override
    public void reset() {
       SINGLETONS.clear();
    }

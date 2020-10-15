@@ -87,7 +87,7 @@ public class MergePath extends ActionItem {
             } else {
                 // need to promote.
                 LOG.info("Promote: " + Get.conceptDescriptionText(latestVersion.get().getNid()) + " " + latestVersion.get());
-                Version analog = version.makeAnalog(transaction, mergeManifold);
+                Version analog = version.makeAnalog(mergeManifold.getWriteCoordinate(transaction, version));
                 Get.commitService().addUncommitted(transaction, analog);
                 versionChangeListener.versionChanged(version, analog);
             }

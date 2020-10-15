@@ -73,7 +73,7 @@ public class ObservableStampPositionWithOverride
     protected StampPositionImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends StampPositionImmutable> observable,
                                                                            StampPositionImmutable oldValue, StampPositionImmutable newValue) {
         if (!this.pathConceptProperty().isOverridden()) {
-            this.pathConceptProperty().setValue(newValue.getPathConcept());
+            this.pathConceptProperty().setValue(newValue.getPathForPositionConcept());
         }
         if (!this.timeProperty().isOverridden()) {
             this.timeProperty().set(newValue.getTime());

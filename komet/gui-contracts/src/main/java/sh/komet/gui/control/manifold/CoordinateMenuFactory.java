@@ -1,9 +1,18 @@
 package sh.komet.gui.control.manifold;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Set;
+import java.util.function.LongConsumer;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.list.primitive.ImmutableLongList;
+import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
+import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.Property;
-import javafx.beans.property.SetProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.ObservableSet;
@@ -11,28 +20,36 @@ import javafx.scene.control.CheckMenuItem;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SeparatorMenuItem;
-import org.eclipse.collections.api.list.ImmutableList;
-import org.eclipse.collections.api.list.primitive.ImmutableLongList;
-import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
-import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import sh.isaac.MetaData;
+import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
-import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.*;
-import sh.isaac.api.observable.coordinate.*;
+import sh.isaac.api.coordinate.Activity;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.NavigationCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampPathImmutable;
+import sh.isaac.api.coordinate.StatusSet;
+import sh.isaac.api.coordinate.VertexSort;
+import sh.isaac.api.coordinate.VertexSortNaturalOrder;
+import sh.isaac.api.coordinate.VertexSortNone;
+import sh.isaac.api.observable.coordinate.ObservableCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableNavigationCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampFilter;
+import sh.isaac.api.observable.coordinate.PropertyWithOverride;
 import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.api.util.UuidStringKey;
 import sh.isaac.api.util.time.DateTimeUtil;
+import sh.isaac.utility.Frills;
 import sh.komet.gui.util.FxGet;
-
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Set;
-import java.util.function.LongConsumer;
 
 public class CoordinateMenuFactory {
 
@@ -353,15 +370,17 @@ public class CoordinateMenuFactory {
     private static void addChangeItemsForEdit(ManifoldCoordinate manifoldCoordinate, ObservableList<MenuItem> menuItems, ObservableEditCoordinate observableCoordinate) {
         Menu changeAuthorMenu = new Menu("Change author");
         menuItems.add(changeAuthorMenu);
+
+        Set<Integer> authors = Frills.getAllChildrenOfConcept(TermAux.USER.getNid(), true, true, manifoldCoordinate.getViewStampFilter());
+        authors.add(TermAux.USER.getNid());
+        
         // Create author assemblage
-        for (ConceptSpecification author: new ConceptSpecification[] {TermAux.USER, MetaData.KEITH_EUGENE_CAMPBELL____SOLOR,
-                MetaData.DELOITTE_USER____SOLOR, MetaData.SUSAN_CASTILLO____SOLOR, MetaData.PENNI_HERNANDEZ____SOLOR, MetaData.IOANA_SINGUREANU____SOLOR,
-                MetaData.LOGICA_AUTHOR____SOLOR, MetaData.VA_AUTHOR____SOLOR, MetaData.HL7_AUTHOR____SOLOR}) {
+        for (Integer author: authors) {
             CheckMenuItem item = new CheckMenuItem(manifoldCoordinate.getPreferredDescriptionText(author));
-            item.setSelected(observableCoordinate.getAuthorNidForChanges() == author.getNid());
+            item.setSelected(observableCoordinate.getAuthorNidForChanges() == author);
             changeAuthorMenu.getItems().add(item);
             item.setOnAction(event -> {
-                observableCoordinate.authorForChangesProperty().setValue(author);
+                observableCoordinate.authorForChangesProperty().setValue(new ConceptProxy(author));
                 event.consume();
             });
         }

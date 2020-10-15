@@ -39,25 +39,23 @@
 
 package sh.isaac.model.concept;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.nio.file.Path;
-
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Future;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.collections.IntSet;
-import sh.isaac.api.component.concept.*;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptService;
+import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.component.concept.ConceptSnapshotService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilterImmutable;
 
@@ -137,15 +135,10 @@ public class MockConceptService
       return false;
    }
 
-   /**
-    * Gets the concept chronology stream.
-    *
-    * @return the concept chronology stream
-    */
+
    @Override
-   public Stream<ConceptChronology> getConceptChronologyStream() {
-      return this.conceptsMap.values()
-                             .stream();
+   public Stream<ConceptChronology> getConceptChronologyStream(boolean parallel) {
+      return parallel ? this.conceptsMap.values().parallelStream() : this.conceptsMap.values().stream();
    }
 
    /**
@@ -158,17 +151,10 @@ public class MockConceptService
       return this.conceptsMap.size();
    }
 
-
-   /**
-    * Gets the concept key stream.
-    *
-    * @return the concept key stream
-    */
    @Override
-   public IntStream getConceptNidStream() {
-      return this.conceptsMap.keySet()
-                             .stream()
-                             .mapToInt(i -> i);
+   public IntStream getConceptNidStream(boolean parallel) {
+      return parallel ? this.conceptsMap.keySet().parallelStream().mapToInt(i -> i) : 
+          this.conceptsMap.keySet().stream().mapToInt(i -> i);
    }
 
    /**
@@ -179,26 +165,6 @@ public class MockConceptService
    @Override
    public Optional<UUID> getDataStoreId() {
       return Optional.of(this.dbId);
-   }
-
-   /**
-    * Gets the database folder.
-    *
-    * @return the database folder
-    */
-   @Override
-   public Path getDataStorePath() {
-      return null;
-   }
-
-   /**
-    * Gets the database validity status.
-    *
-    * @return the database validity status
-    */
-   @Override
-   public DataStoreStartState getDataStoreStartState() {
-      return DataStoreStartState.NO_DATASTORE;
    }
 
    /**
@@ -240,12 +206,12 @@ public class MockConceptService
    }
 
    @Override
-   public Stream<ConceptChronology> getConceptChronologyStream(IntSet conceptNids) {
+   public Stream<ConceptChronology> getConceptChronologyStream(IntSet conceptNids, boolean parallel) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public Stream<ConceptChronology> getConceptChronologyStream(int assemblageNid) {
+   public Stream<ConceptChronology> getConceptChronologyStream(int assemblageNid, boolean parallel) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
@@ -255,12 +221,7 @@ public class MockConceptService
    }
 
    @Override
-   public IntStream getConceptNidStream(int assemblageNid) {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public Future<?> sync() {
+   public IntStream getConceptNidStream(int assemblageNid, boolean parallel) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 

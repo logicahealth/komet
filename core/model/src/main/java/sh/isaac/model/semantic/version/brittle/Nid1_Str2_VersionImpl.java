@@ -39,19 +39,12 @@
 
 package sh.isaac.model.semantic.version.brittle;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Str2_Version;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -62,6 +55,7 @@ public class Nid1_Str2_VersionImpl
          implements Nid1_Str2_Version {
    int    nid1 = Integer.MAX_VALUE;
    String str2 = null;
+   
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
@@ -71,8 +65,6 @@ public class Nid1_Str2_VersionImpl
                       .describeStampSequence(this.getStampSequence())).append("}");
       return builder;
    }
-
-   //~--- constructors --------------------------------------------------------
 
    public Nid1_Str2_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
@@ -84,11 +76,7 @@ public class Nid1_Str2_VersionImpl
       this.nid1 = data.getNid();
       this.str2 = data.getUTF();
    }
-   /**
-    * Write version data.
-    *
-    * @param data the data
-    */
+
    @Override
    public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
@@ -96,14 +84,13 @@ public class Nid1_Str2_VersionImpl
       data.putUTF(this.str2);
    }
 
-   //~--- methods -------------------------------------------------------------
-   public <V extends Version> V setupAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
+   @Override
+   @SuppressWarnings("unchecked")
+   public <V extends Version> V makeAnalog(int stampSequence) {
       final Nid1_Str2_VersionImpl newVersion = new Nid1_Str2_VersionImpl((SemanticChronology) this, stampSequence);
       newVersion.setNid1(this.nid1);
       newVersion.setStr2(this.str2);
-
-      chronologyImpl.addVersion(newVersion);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 
@@ -125,28 +112,20 @@ public class Nid1_Str2_VersionImpl
       return editDistance;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid1() {
       return nid1;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid1(int nid1) {
       this.nid1 = nid1;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr2() {
       return str2;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setStr2(String str2) {

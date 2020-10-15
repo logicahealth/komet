@@ -16,24 +16,21 @@
  */
 package sh.isaac.solor.direct;
 
-import java.time.Instant;
-import java.util.*;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.OptionalInt;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
@@ -55,7 +52,12 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampFilterImmutable;
+import sh.isaac.api.coordinate.StampPosition;
+import sh.isaac.api.coordinate.StampPositionImmutable;
+import sh.isaac.api.coordinate.StatusSet;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
@@ -109,9 +111,18 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
     private final List<IndexBuilderService> indexers;
     private final ImportType importType;
     private final Instant commitTime;
+    private Transaction transaction;
 
-    public LogicGraphTransformerAndWriter(List<TransformationGroup> transformationRecords,
+    /**
+     * @param transaction - optional, does NOT commit if transaction if provided, if not provided, creates its own transaction and commits.
+     * @param transformationRecords
+     * @param writeSemaphore
+     * @param importType
+     * @param commitTime
+     */
+    public LogicGraphTransformerAndWriter(Transaction transaction, List<TransformationGroup> transformationRecords,
             Semaphore writeSemaphore, ImportType importType, Instant commitTime) {
+        this.transaction = transaction;
         this.transformationRecords = transformationRecords;
         this.writeSemaphore = writeSemaphore;
         this.importType = importType;
@@ -137,19 +148,23 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
     @Override
     protected Void call() throws Exception {
         try {
-            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+            boolean commitTransaction = this.transaction == null;
+            if (commitTransaction) {
+                transaction = Get.commitService().newTransaction(Optional.of("LogicGraphTransformer"), ChangeCheckerMode.INACTIVE, false);
+            }
             int count = 0;
             for (TransformationGroup transformationGroup : transformationRecords) {
-                transformRelationships(transaction, transformationGroup.conceptNid, transformationGroup.semanticNids, transformationGroup.getPremiseType());
+                transformRelationships(transformationGroup.conceptNid, transformationGroup.semanticNids, transformationGroup.getPremiseType());
                 if (count % 1000 == 0) {
                     updateMessage("Processing concept: " + Get.conceptDescriptionText(transformationGroup.conceptNid));
                 }
                 count++;
                 completedUnitOfWork();
             }
-            //LOG.info("Precommit: " + transaction.getTransactionId());
-            transaction.commit("Logic graph transformer");
-            //LOG.info("Postcommit: " + transaction.getTransactionId());
+
+            if (commitTransaction) {
+                transaction.commit("Logic graph transformer").get();
+            }
             return null;
         } catch (Throwable t) {
             LOG.error(t.getLocalizedMessage(), t);
@@ -162,7 +177,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
         }
     }
 
-    private void transformAtTimePath(Transaction transaction, StampPosition stampPosition, int conceptNid, List<SemanticChronology> relationships, PremiseType premiseType) {
+    private void transformAtTimePath(StampPosition stampPosition, int conceptNid, List<SemanticChronology> relationships, PremiseType premiseType) {
 
         final LogicalExpressionBuilder logicalExpressionBuilder = Get.logicalExpressionBuilderService()
                 .getLogicalExpressionBuilder();
@@ -228,7 +243,8 @@ StatusSet allowedStates,
     
             if (assertions.size() > 0) {
                 boolean defined = false; // Change to use list instead of stream...
-                Stream<SemanticChronology> implicationChronologyStream = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptNid, legacyImplicationAssemblageNid);
+                Stream<SemanticChronology> implicationChronologyStream = Get.assemblageService()
+                        .getSemanticChronologyStreamForComponentFromAssemblage(conceptNid, legacyImplicationAssemblageNid, true);
                 List<SemanticChronology> implicationList = implicationChronologyStream.collect(Collectors.toList());
                 if (implicationList.size() == 1) {
                     SemanticChronology implicationChronology = implicationList.get(0);
@@ -263,7 +279,7 @@ StatusSet allowedStates,
 
 
                     // TODO [graph] what if the modules are different across the graph rels?
-                    addLogicGraph(transaction, conceptNid,
+                    addLogicGraph(conceptNid,
                             le,
                             premiseType,
                             stampPosition.getTime(),
@@ -285,7 +301,7 @@ StatusSet allowedStates,
      *
      * @param premiseType  stated or inferred
      */
-    private void transformRelationships(Transaction transaction, int conceptNid, int[] relNids, PremiseType premiseType) {
+    private void transformRelationships(int conceptNid, int[] relNids, PremiseType premiseType) {
         updateMessage("Converting " + premiseType + " relationships into logic graphs");
 
         List<SemanticChronology> relationshipChronologiesForConcept = new ArrayList<>();
@@ -304,7 +320,7 @@ StatusSet allowedStates,
             // OWL definitions after that date.
 
             if (stampPosition.getTime() < DateTimeUtil.parseWithZone("2019-07-31T00:00:00Z")) {
-                transformAtTimePath(transaction, stampPosition, conceptNid, relationshipChronologiesForConcept, premiseType);
+                transformAtTimePath(stampPosition, conceptNid, relationshipChronologiesForConcept, premiseType);
             }
         }
     }
@@ -318,7 +334,7 @@ StatusSet allowedStates,
      * @param moduleNid the module
      * @param stampFilter for determining current version if a graph already
      */
-    public void addLogicGraph(Transaction transaction, int conceptNid,
+    public void addLogicGraph(int conceptNid,
                               LogicalExpression logicalExpression,
                               PremiseType premiseType,
                               long time,
@@ -354,9 +370,9 @@ StatusSet allowedStates,
                 LogicalExpression latestExpression = logicGraphLatest.getLogicalExpression();
                 IsomorphicResults isomorphicResults = logicalExpression.findIsomorphisms(latestExpression);
                 if (!isomorphicResults.equivalent()) {
-                    int stamp = Get.stampService().getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, developmentPathNid);
+                    int stamp = Get.stampService().getStampSequence(transaction, Status.ACTIVE, time, authorNid, moduleNid, developmentPathNid);
                     final MutableLogicGraphVersion newVersion
-                            = existingGraph.createMutableVersion(stamp);
+                            = existingGraph.createMutableVersion(transaction, stamp);
 
                     newVersion.setGraphData(logicalExpression.getData(DataTarget.INTERNAL));
                     index(existingGraph);

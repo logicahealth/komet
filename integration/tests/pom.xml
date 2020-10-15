@@ -11,11 +11,6 @@
    <packaging>jar</packaging>
    <name>ISAAC integration: Tests</name>
    
-   <!-- Setting for XML tests, use this VHAT loader IBDF -->
-   <properties>
-      <vhat-loader-version>2017.09.07-198-loader-4.48-SNAPSHOT</vhat-loader-version>
-   </properties>
-
    <dependencies>
       <dependency>
          <groupId>sh.isaac.provider</groupId>
@@ -115,6 +110,12 @@
          <scope>test</scope>
       </dependency>
       <dependency>
+         <groupId>sh.isaac.misc</groupId>
+         <artifactId>importers-mojos</artifactId>
+         <version>${project.version}</version>
+         <scope>test</scope>
+      </dependency>
+      <dependency>
          <groupId>sh.isaac.core</groupId>
          <artifactId>log-config</artifactId>
          <version>${project.parent.version}</version>
@@ -168,65 +169,11 @@
                      <parallel>none</parallel>
                      <useSystemClassLoader>true</useSystemClassLoader>
                      <useManifestOnlyJar>false</useManifestOnlyJar>
-<!--                     <debugForkedProcess>true</debugForkedProcess>-->
-                     <argLine>-ea -Xmx12g -Djava.awt.headless=true</argLine>
-<!--                      <argLine>-Xmx8g -Xms8g -Djava.awt.headless=true -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine>-->
-<!--                        <debugForkedProcess>true</debugForkedProcess>-->
-                     <includes>
+                     <!-- <argLine>-Xmx8g -Xms8g -Djava.awt.headless=true -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine> -->
+                     <!--<debugForkedProcess>true</debugForkedProcess> -->
+                    <includes>
                         <!-- Let JUnit annotations decide -->
                         <include>**/*.class</include>
-                     </includes>
-                     <excludes>
-                        <exclude>**/VhatXmlTests.java</exclude>  <!-- This test requires special data, and may take a long time to execute -->
-                     </excludes>
-                  </configuration>
-               </plugin>
-            </plugins>
-         </build>
-      </profile>
-      <profile>
-         <id>vhat-xml-tests</id>
-         <activation>
-            <activeByDefault>false</activeByDefault>
-         </activation>
-         <build>
-            <plugins>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-dependency-plugin</artifactId>
-                  <executions>
-                     <execution>
-                        <id>extract-vhat-dependencies</id>
-                        <goals>
-                           <goal>unpack</goal>  
-                        </goals>
-                        <configuration>
-                           <skip>${skipTests}</skip>
-                           <artifactItems>
-                              <artifact>
-                                 <groupId>sh.isaac.terminology.converted</groupId>
-                                 <artifactId>vhat-ibdf</artifactId>
-                                 <version>${vhat-loader-version}</version>
-                                 <type>ibdf.zip</type>
-                              </artifact>
-                           </artifactItems>
-                           <outputDirectory>${project.build.directory}/suite3data</outputDirectory>
-                        </configuration>
-                     </execution>
-                  </executions>
-               </plugin>
-               <plugin>
-                  <groupId>org.apache.maven.plugins</groupId>
-                  <artifactId>maven-surefire-plugin</artifactId>
-                  <configuration>
-                     <forkCount>1</forkCount>
-                     <reuseForks>true</reuseForks>
-                     <parallel>false</parallel>
-                     <useSystemClassLoader>true</useSystemClassLoader>
-                     <useManifestOnlyJar>false</useManifestOnlyJar>
-                     <argLine>-ea -Xmx12g -Djava.awt.headless=true</argLine>
-                     <includes>
-                        <include>**/VhatXmlTests.java</include>
                      </includes>
                   </configuration>
                </plugin>

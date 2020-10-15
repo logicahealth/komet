@@ -16,17 +16,13 @@
  */
 package sh.isaac.model.semantic.version.brittle;
 
+import java.util.Objects;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_Version;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
-
-import java.util.Objects;
 
 /**
  *
@@ -39,6 +35,7 @@ public class Str1_Nid2_Nid3_Nid4_VersionImpl
    int    nid2 = Integer.MAX_VALUE;
    int    nid3 = Integer.MAX_VALUE;
    int    nid4 = Integer.MAX_VALUE;
+   
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
@@ -51,13 +48,11 @@ public class Str1_Nid2_Nid3_Nid4_VersionImpl
       return builder;
    }
 
-   //~--- constructors --------------------------------------------------------
-
    public Str1_Nid2_Nid3_Nid4_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
    }
 
-   public Str1_Nid2_Nid3_Nid4_VersionImpl(Str1_Nid2_Nid3_Nid4_VersionImpl old, int stampSequence) {
+   private Str1_Nid2_Nid3_Nid4_VersionImpl(Str1_Nid2_Nid3_Nid4_VersionImpl old, int stampSequence) {
       super(old.getChronology(), stampSequence);
       this.setStr1(old.str1);
       this.setNid2(old.nid2);
@@ -74,11 +69,6 @@ public class Str1_Nid2_Nid3_Nid4_VersionImpl
       this.nid4 = data.getNid();
    }
 
-   /**
-    * Write version data.
-    *
-    * @param data the data
-    */
    @Override
    public void writeVersionData(ByteArrayDataBuffer data) {
       super.writeVersionData(data);
@@ -88,15 +78,17 @@ public class Str1_Nid2_Nid3_Nid4_VersionImpl
       data.putNid(this.nid4);
    }
 
-   //~--- methods -------------------------------------------------------------
-
-
-   public <V extends Version> V setupAnalog(int stampSequence) {
+   @Override
+   @SuppressWarnings("unchecked")
+   public <V extends Version> V makeAnalog(int stampSequence) {
       final Str1_Nid2_Nid3_Nid4_VersionImpl newVersion = new Str1_Nid2_Nid3_Nid4_VersionImpl(this, stampSequence);
       getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected boolean deepEquals3(AbstractVersionImpl other) {
       return editDistance3(other, 0) == 0;
@@ -121,60 +113,43 @@ public class Str1_Nid2_Nid3_Nid4_VersionImpl
       return editDistance;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid3() {
       return nid3;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid3(int nid3) {
       this.nid3 = nid3;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid4() {
       return nid4;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid4(int nid4) {
       this.nid4 = nid4;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr1() {
       return str1;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setStr1(String str1) {
       this.str1 = str1;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid2() {
       return nid2;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid2(int nid) {
       this.nid2 = nid;
    }
 }
-

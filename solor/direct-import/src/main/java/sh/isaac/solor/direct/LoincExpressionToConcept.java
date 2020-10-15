@@ -90,7 +90,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             if (!Get.identifierService().hasUuid(expressionRefset.getPrimordialUuid())) {
                 return null;
             }
-            Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid()).parallel().forEach((semanticChronology) -> {
+            Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid(), true).forEach((semanticChronology) -> {
                 for (Version version : semanticChronology.getVersionList()) {
                     String loincCode;
                     String sctExpression;
@@ -336,9 +336,13 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
         final int graphAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
         Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
         if (!optionalConcept.isPresent()) {
+            int conceptStamp = Get.stampService().getStampSequence(Status.ACTIVE,
+                    commitTime, TermAux.USER.getNid(),
+                    MetaData.LOINC_MODULES____SOLOR.getNid(),
+                    TermAux.DEVELOPMENT_PATH.getNid());
             ConceptChronologyImpl conceptToWrite
                     = new ConceptChronologyImpl(conceptUuid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
-            conceptToWrite.createMutableVersion(stamp);
+            conceptToWrite.createMutableVersion(conceptStamp);
             Get.conceptService().writeConcept(conceptToWrite);
             index(conceptToWrite);
 
@@ -350,7 +354,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                     MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(),
                     conceptToWrite.getNid());
 
-            StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(stamp);
+            StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(conceptStamp);
             loincIdVersion.setString(loincCode);
             index(loincIdentifierToWrite);
             Get.assemblageService().writeSemanticChronology(loincIdentifierToWrite);
@@ -358,8 +362,8 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
         else {
            //The concept is present - see if it already has a logic graph.  If so, don't write a logic graph, as the logic graph from the 
            //loinc converter is likely better than this one.
-            Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(Get.identifierService().getNidForUuids(conceptUuid), 
-                    graphAssemblageNid).findFirst();
+            Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
+                    Get.identifierService().getNidForUuids(conceptUuid), graphAssemblageNid, false).findFirst();
             if (sc.isPresent()) {
                 //Not even going to check its state - active or not, its likely better.
                 LOG.trace("Not creating Loinc Expression for Concept as one already exists for {}", conceptUuid);

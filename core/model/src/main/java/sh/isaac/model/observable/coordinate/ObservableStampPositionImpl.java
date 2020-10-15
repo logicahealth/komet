@@ -86,13 +86,13 @@ public class ObservableStampPositionImpl
    protected ObjectProperty<ConceptSpecification> makePathConceptProperty(StampPosition stampPosition) {
       return new SimpleEqualityBasedObjectProperty(this,
               ObservableFields.PATH_FOR_PATH_COORDINATE.toExternalString(),
-              stampPosition.getPathConcept());
+              stampPosition.getPathForPositionConcept());
    }
 
    @Override
    protected StampPositionImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends StampPositionImmutable> observable,
                                                         StampPositionImmutable oldValue, StampPositionImmutable newValue) {
-      this.pathConceptProperty().setValue(newValue.getPathConcept());
+      this.pathConceptProperty().setValue(newValue.getPathForPositionConcept());
       this.timeProperty().set(newValue.getTime());
       return newValue;
    }

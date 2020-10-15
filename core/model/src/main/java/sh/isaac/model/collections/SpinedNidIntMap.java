@@ -99,7 +99,7 @@ public class SpinedNidIntMap {
                     throw new RuntimeException(ex);
                 }
             }
-            System.out.println("Spine count read: " + getSpineCount());
+            LOG.debug("Spine count read: " + getSpineCount());
             return spineFilesRead;
         } finally {
             diskSemaphore.release();

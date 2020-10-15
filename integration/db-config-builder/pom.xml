@@ -33,8 +33,8 @@
          <scope>test</scope>
       </dependency>
       <dependency>
-         <groupId>javax.xml.bind</groupId>
-         <artifactId>jaxb-api</artifactId>
+         <groupId>jakarta.xml.bind</groupId>
+         <artifactId>jakarta.xml.bind-api</artifactId>
       </dependency>
    </dependencies>
    
@@ -58,6 +58,26 @@
                   </configuration>
                </execution>
             </executions>
+         </plugin>
+         <plugin>
+             <!-- TODO when the above plugin finally supports jaxb3, we can get rid of this hack below. -->
+             <groupId>org.apache.maven.plugins</groupId>
+             <artifactId>maven-antrun-plugin</artifactId>
+             <executions>
+                 <execution>
+                     <phase>process-sources</phase>
+                     <configuration>
+                         <target>
+                             <replace token="javax.xml.bind." value="jakarta.xml.bind." dir="${project.build.directory}/generated-sources/">
+                                 <include name="**/*.java" />
+                             </replace>
+                         </target>
+                     </configuration>
+                     <goals>
+                         <goal>run</goal>
+                     </goals>
+                 </execution>
+             </executions>
          </plugin>
       </plugins>
    </build>

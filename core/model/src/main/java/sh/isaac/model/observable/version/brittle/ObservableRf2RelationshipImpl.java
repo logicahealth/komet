@@ -39,32 +39,24 @@
 
 package sh.isaac.model.observable.version.brittle;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.ArrayList;
 import java.util.List;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.ObservableRf2Relationship;
-import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -79,8 +71,6 @@ public class ObservableRf2RelationshipImpl
    IntegerProperty characteristicNidProperty;
    IntegerProperty modifierNidProperty;
 
-   //~--- constructors --------------------------------------------------------
-
    public ObservableRf2RelationshipImpl(Rf2Relationship stampedVersion, ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
    }
@@ -94,6 +84,7 @@ public class ObservableRf2RelationshipImpl
       setModifierNid(versionToClone.getModifierNid());
    }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableRf2RelationshipImpl analog = new ObservableRf2RelationshipImpl(this, getChronology());
@@ -103,8 +94,6 @@ public class ObservableRf2RelationshipImpl
         analog.setPathNid(mc.getPathNidForAnalog());
         return (V) analog;
     }
-
-   //~--- methods -------------------------------------------------------------
 
    @Override
    public IntegerProperty characteristicNidProperty() {
@@ -244,8 +233,6 @@ public class ObservableRf2RelationshipImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getCharacteristicNid() {
       if (this.characteristicNidProperty != null) {
@@ -254,8 +241,6 @@ public class ObservableRf2RelationshipImpl
 
       return getRf2RelationshipImpl().getCharacteristicNid();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setCharacteristicNid(int nid) {
@@ -271,8 +256,6 @@ public class ObservableRf2RelationshipImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getDestinationNid() {
       if (this.destinationNidProperty != null) {
@@ -281,8 +264,6 @@ public class ObservableRf2RelationshipImpl
 
       return getRf2RelationshipImpl().getDestinationNid();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setDestinationNid(int nid) {
@@ -298,8 +279,6 @@ public class ObservableRf2RelationshipImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getModifierNid() {
       if (this.modifierNidProperty != null) {
@@ -308,8 +287,6 @@ public class ObservableRf2RelationshipImpl
 
       return getRf2RelationshipImpl().getModifierNid();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setModifierNid(int nid) {
@@ -324,8 +301,6 @@ public class ObservableRf2RelationshipImpl
         getRf2RelationshipImpl().setModifierNid(nid);
       }
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public List<ReadOnlyProperty<?>> getProperties() {
@@ -359,8 +334,6 @@ public class ObservableRf2RelationshipImpl
       return getRf2RelationshipImpl().getRelationshipGroup();
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    @Override
    public final void setRelationshipGroup(int group) {
        if (this.stampedVersionProperty == null) {
@@ -375,8 +348,6 @@ public class ObservableRf2RelationshipImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    private Rf2RelationshipImpl getRf2RelationshipImpl() {
       return (Rf2RelationshipImpl) this.stampedVersionProperty.get();
    }
@@ -389,8 +360,6 @@ public class ObservableRf2RelationshipImpl
 
       return getRf2RelationshipImpl().getTypeNid();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setTypeNid(int nid) {
@@ -436,15 +405,12 @@ public class ObservableRf2RelationshipImpl
         return sc;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <V extends Version> V setupAnalog(int stampSequence) {
-        Rf2RelationshipImpl newVersion = getStampedVersion().setupAnalog(stampSequence);
-        ObservableRf2RelationshipImpl newObservableVersion = new ObservableRf2RelationshipImpl(
-                newVersion,
-                getChronology());
-        chronology.getVersionList()
-                .add(newObservableVersion);
-        return (V) newObservableVersion;
+    public <V extends Version> V makeAnalog(int stampSequence) {
+      Rf2RelationshipImpl newVersion = getStampedVersion().makeAnalog(stampSequence);
+      ObservableRf2RelationshipImpl newObservableVersion = new ObservableRf2RelationshipImpl(newVersion, getChronology());
+      getChronology().getVersionList().add(newObservableVersion);
+      return (V) newObservableVersion;
     }
 }
-

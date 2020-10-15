@@ -1,9 +1,16 @@
 package sh.komet.gui.control.badged;
 
+import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
+import java.util.HashMap;
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.mahout.math.map.OpenIntIntHashMap;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
-import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.Status;
+import sh.isaac.api.chronicle.CategorizedVersion;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
@@ -14,13 +21,8 @@ import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.style.StyleClasses;
 
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
-
 public class ComponentPaneModel extends BadgedVersionPaneModel {
+    private static final Logger LOG = LogManager.getLogger();
     private final CategorizedVersions<ObservableCategorizedVersion> categorizedVersions;
     private final AnchorPane extensionHeaderPanel = setupHeaderPanel("Attachments:");
     private final AnchorPane versionHeaderPanel = setupHeaderPanel("Change history:");
@@ -44,14 +46,14 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
 
         if (!this.categorizedVersions.getUncommittedVersions().isEmpty()) {
             if (this.categorizedVersions.getUncommittedVersions().size() > 1) {
-                System.err.println("Error: Can't handle more than one uncommitted version in this editor...");
+                LOG.error("Error: Can't handle more than one uncommitted version in this editor...");
             }
             ObservableCategorizedVersion uncommittedVersion = this.categorizedVersions.getUncommittedVersions().get(0);
             Optional<PropertySheetMenuItem> propertySheetMenuItem = uncommittedVersion.getUserObject(PROPERTY_SHEET_ATTACHMENT);
             if (propertySheetMenuItem.isPresent()) {
                 this.addEditingPropertySheet(propertySheetMenuItem.get());
             } else {
-                System.err.println("Warn: No property sheet editor for this uncommitted version...\n       " + uncommittedVersion.getPrimordialUuid()
+                LOG.error("Warn: No property sheet editor for this uncommitted version...\n       " + uncommittedVersion.getPrimordialUuid()
                         + "\n       " + uncommittedVersion + "\nWill treat uncommitted as a historic version. ");
                 versionPanes.add(new VersionPaneModel(viewProperties, uncommittedVersion, stampOrderHashMap,
                         getDisclosureStateMap()));
@@ -104,7 +106,6 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
             case STRING:
             case COMPONENT_NID:
             case LOGIC_GRAPH:
-            case LOINC_RECORD:
             case LONG:
             case MEMBER:
             case CONCEPT:

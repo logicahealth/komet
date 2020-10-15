@@ -253,6 +253,14 @@ public class DBConfigurationCreator
 			pd.setScope("compile");
 			
 			plugin.getDependencies().getDependency().add(pd);
+			
+			pd = new Dependency();
+			pd.setGroupId("sh.isaac.provider");
+			pd.setArtifactId("identifier");
+			pd.setVersion(metadataVersion);
+			pd.setScope("compile");
+			
+			plugin.getDependencies().getDependency().add(pd);
 			executions = new Executions();
 
 			// setup isaac

@@ -1,9 +1,10 @@
 package sh.isaac.api.task;
 
+import org.apache.commons.lang3.StringUtils;
 import javafx.application.Platform;
 import sh.isaac.api.Get;
 
-public class LabelTaskWithIndeterminateProgress extends TimedTaskWithProgressTracker {
+public class LabelTaskWithIndeterminateProgress extends TimedTaskWithProgressTracker<Void> {
     boolean finished = false;
     public LabelTaskWithIndeterminateProgress(String label) {
         Platform.runLater(() -> {
@@ -14,13 +15,24 @@ public class LabelTaskWithIndeterminateProgress extends TimedTaskWithProgressTra
 
     public void finished() {
         this.finished = true;
+        this.cancel(true);  //send interrupt to thread below
     }
 
     @Override
-    protected Object call() throws Exception {
+    protected Void call() throws Exception {
         try {
             while (!finished) {
-                Thread.sleep(1000);
+                try {
+                    Thread.sleep(1000);
+                }
+                catch (InterruptedException e) {
+                    if (finished) {
+                        break;
+                    }
+                    else {
+                        LOG.warn("Interupted, but I'm not finished?  Ignoring");
+                    }
+                }
             }
             return null;
         } finally {
@@ -29,6 +41,6 @@ public class LabelTaskWithIndeterminateProgress extends TimedTaskWithProgressTra
     }
 
     protected String getSimpleName() {
-        return simpleTitle;
+        return StringUtils.isBlank(simpleTitle) ? super.getSimpleName() : simpleTitle;
     }
 }

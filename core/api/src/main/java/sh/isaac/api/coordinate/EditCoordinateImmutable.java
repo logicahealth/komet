@@ -1,8 +1,8 @@
 package sh.isaac.api.coordinate;
 
-import org.glassfish.hk2.runlevel.RunLevel;
+import java.util.Objects;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.LookupService;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -10,14 +10,10 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 
-import javax.annotation.PreDestroy;
-import java.util.Objects;
 
+//This class is not treated as a service, however, it needs the annotation, so that the reset() gets fired at appropriate times.
 @Service
-@RunLevel(value = LookupService.SL_L2)
-// Singleton from the perspective of HK2 managed instances, there will be more than one
-// StampFilterImmutable created in normal use.
-public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordinate {
+public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordinate, StaticIsaacCache{
     private static final int marshalVersion = 2;
 
     private static final ConcurrentReferenceHashMap<EditCoordinateImmutable, EditCoordinateImmutable> SINGLETONS =
@@ -29,7 +25,6 @@ public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordin
     private final int promotionPathNid;
     private final int destinationModuleNid;
 
-
     private EditCoordinateImmutable() {
         // No arg constructor for HK2 managed instance
         // This instance just enables reset functionality...
@@ -38,10 +33,8 @@ public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordin
         this.promotionPathNid = Integer.MAX_VALUE;
         this.destinationModuleNid = Integer.MAX_VALUE;
     }
-    /**
-     * {@inheritDoc}
-     */
-    @PreDestroy
+
+    @Override
     public void reset() {
         SINGLETONS.clear();
     }
@@ -53,11 +46,38 @@ public class EditCoordinateImmutable implements EditCoordinate, ImmutableCoordin
         this.destinationModuleNid = destinationModuleNid;
     }
 
+    /**
+     * 
+     * @param authorNid
+     * @param defaultModuleNid The default module is the module for new content when developing.
+     * @param promotionPathNid
+     * @param destinationModuleNid The destination module is the module that existing content is moved to when Modularizing
+     * @return
+     */
     public static EditCoordinateImmutable make(int authorNid, int defaultModuleNid, int promotionPathNid, int destinationModuleNid) {
         return SINGLETONS.computeIfAbsent(new EditCoordinateImmutable(authorNid, defaultModuleNid, promotionPathNid, destinationModuleNid),
                 editCoordinateImmutable -> editCoordinateImmutable);
     }
+    
+    /**
+     * 
+     * @param authorNid
+     * @param moduleNid Used for both developing. and modularizing activities
+     * @param promotionPathNid
+     * @return
+     */
+    public static EditCoordinateImmutable make(int authorNid, int moduleNid, int promotionPathNid) {
+        return SINGLETONS.computeIfAbsent(new EditCoordinateImmutable(authorNid, moduleNid, promotionPathNid, moduleNid),
+                editCoordinateImmutable -> editCoordinateImmutable);
+    }
 
+    /**
+     * @param author
+     * @param defaultModule The default module is the module for new content when developing.
+     * @param promotionPath
+     * @param destinationModule The destination module is the module that existing content is moved to when Modularizing
+     * @return
+     */
     public static EditCoordinateImmutable make(ConceptSpecification author, ConceptSpecification defaultModule, ConceptSpecification promotionPath,
                                                ConceptSpecification destinationModule) {
         return make(author.getNid(), defaultModule.getNid(), promotionPath.getNid(), destinationModule.getNid());

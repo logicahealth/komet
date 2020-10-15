@@ -65,7 +65,6 @@ public class LIVDImporter {
                 e.printStackTrace();
             }
         }
-        Get.assemblageService().sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 }

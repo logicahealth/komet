@@ -53,7 +53,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import javax.xml.transform.Source;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
@@ -76,12 +76,18 @@ import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.PostCommitService;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.component.concept.*;
+import sh.isaac.api.component.concept.ConceptBuilderService;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptService;
+import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.component.concept.ConceptSnapshotService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.*;
 import sh.isaac.api.datastore.DataStore;
+import sh.isaac.api.datastore.MasterDataStore;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.BinaryDataServiceFactory;
 import sh.isaac.api.externalizable.DataWriterService;
@@ -100,6 +106,7 @@ import sh.isaac.api.navigation.NavigationService;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.progress.CompletedTasks;
@@ -206,14 +213,11 @@ public class Get
    private static IndexDescriptionQueryService descriptionIndexer;
    private static IndexSemanticQueryService semanticIndexer;
    
-   private static DataStore dataStore;
+   private static MasterDataStore dataStore;
    
    private static PreferencesService preferencesService;
    private static boolean useLuceneIndexes = true;
 
-   //TODO there is either a threading issue, with a load not waiting for a clean to complete, or, there is a bug in this IntObjectHashMap, 
-   //which leads to index out of bounds exceptions once in a while, during a build test.  Need to finish tracking down...
-   // Removed IntObjectHashMap and replaced with Eclipse Collections
    private static MutableIntObjectMap<ConceptSpecification> TERM_AUX_CACHE = null;
 
    /**
@@ -266,6 +270,15 @@ public class Get
        return getService(QueryHandler.class);
    }
    
+   /**
+    * @return The {@link PreferencesService} provider, which is pref store based on the java preferences API, which provides access 
+    * to the {@link IsaacPreferences} which allows storage of arbitrary data.  
+    * 
+    * This is primarily used by the Komet FX gui, and unless you know you specifically want this service, you will likely be much better
+    * served by using the {@link #configurationService()} API to get access to the {@link UserConfiguration} for storage of non-terminology 
+    * data, as it provides typed access to API specific parameters, and automatically handles passthru of different store types  - 
+    * userConfigPerDB -> user Config per OS -> Global config per DB
+    */
    public static PreferencesService preferencesService() {
       if (preferencesService == null) {
          preferencesService = getService(PreferencesService.class);
@@ -388,13 +401,10 @@ public class Get
 
    /**
     * Simple method for getting text of the description of a concept. This
-    * method will try first to return the fully specified description, or the
-    * preferred description, as specified in the default
-    * {@code StampCoordinate} and the default {@code LanguageCoordinate}.
+    * method will use the rules of the default {@code StampCoordinate} and the default {@code LanguageCoordinate}.
     * 
     * Note that this implementation does rely on the configuration of the 
-    * {@link #defaultConceptSnapshotService()} - if that configuration is changed, 
-    * the behavior of this method will follow.
+    * {@link #defaultConceptSnapshotService()} - if that configuration is changed, the behavior of this method will follow.
     *
     * @param conceptNid nid of the concept to get the description for
     * @return a description for this concept. If no description can be found, {@code "No desc for: " + UUID;} will be returned.
@@ -554,7 +564,10 @@ public class Get
 
    
    /**
-    * Configuration service.
+    * Get a reference to the {@link ConfigurationService} which also provides access to the {@link UserConfiguration}
+    * 
+    * These interfaces provide access to the global system configuration, and allow the reading and persisting of user and 
+    * database specific options.
     *
     * @return the configuration service
     */
@@ -680,7 +693,7 @@ public class Get
           nid,
           configurationService().getGlobalDatastoreConfiguration()
                                 .getDefaultLogicCoordinate()
-                                .getInferredAssemblageNid())
+                                .getInferredAssemblageNid(), false)
                                 .findAny();
    }
 
@@ -724,9 +737,8 @@ public class Get
    }
 
    /**
-    * Meta content service.
-    *
-    * @return the meta content service
+    * @return the implementation of the {@link MetaContentService} (if available) which allows for the storing of arbitrary data 
+    * that resides along-side the terminology data.
     */
    public static MetaContentService metaContentService() {
       if (metaContentService == null) {
@@ -767,7 +779,7 @@ public class Get
    
    public static DataStore dataStore() {
       if (dataStore == null) {
-         dataStore = getService(DataStore.class);
+         dataStore = getService(MasterDataStore.class);
       }
       return dataStore;
    }
@@ -898,6 +910,9 @@ public class Get
       return getServices(clazz);
    }
    
+   /**
+    * @return The service that manages the importation of terminology metadata content into the database
+    */
    public static MetadataService metadataService() {
       return service(MetadataService.class);
    }
@@ -957,7 +972,7 @@ public class Get
           nid,
           configurationService().getGlobalDatastoreConfiguration()
                                 .getDefaultLogicCoordinate()
-                                .getStatedAssemblageNid())
+                                .getStatedAssemblageNid(), false)
                                 .findAny();
    }
 
@@ -1111,7 +1126,7 @@ public class Get
                                             LanguageCoordinate languageCoordinate) {
       switch (component.getVersionType()) {
          case CONCEPT: {
-            Optional<String> latestDescriptionText = languageCoordinate.getPreferredDescriptionText(component.getNid(), stampFilter);
+            Optional<String> latestDescriptionText = languageCoordinate.getRegularDescriptionText(component.getNid(), stampFilter);
             if (latestDescriptionText.isPresent()) {
                return latestDescriptionText.get();
             }

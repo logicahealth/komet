@@ -39,15 +39,19 @@
 
 package sh.isaac.api.coordinate;
 
-//~--- JDK imports ------------------------------------------------------------
-
+import java.util.Collection;
+import java.util.Objects;
+import java.util.Set;
+import org.eclipse.collections.api.factory.set.primitive.ImmutableIntSetFactory;
 import org.eclipse.collections.api.list.primitive.ImmutableIntList;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
-import org.glassfish.hk2.runlevel.RunLevel;
+import org.eclipse.collections.impl.list.immutable.primitive.ImmutableIntListFactoryImpl;
+import org.eclipse.collections.impl.set.immutable.primitive.ImmutableIntSetFactoryImpl;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.LookupService;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -55,15 +59,6 @@ import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
-
-import javax.annotation.PreDestroy;
-import java.util.Collection;
-import java.util.Objects;
-import java.util.Set;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * A filter that operates in coordinate with path coordinate and the version computer. After the version computer computes the
@@ -82,12 +77,11 @@ import java.util.Set;
  * Created by kec on 2/16/15.
  *
  */
+//This class is not treated as a service, however, it needs the annotation, so that the reset() gets fired at appropriate times.
 @Service
-@RunLevel(value = LookupService.SL_L2)
-// Singleton from the perspective of HK2 managed instances, there will be more than one
-// StampFilterImmutable created in normal use.
+
 public class StampFilterImmutable
-        implements StampFilter, ImmutableCoordinate {
+        implements StampFilter, ImmutableCoordinate, StaticIsaacCache {
 
     private static final ConcurrentReferenceHashMap<StampFilterImmutable, StampFilterImmutable> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
@@ -112,10 +106,7 @@ public class StampFilterImmutable
         this.modulePreferenceOrder = null;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @PreDestroy
+    @Override
     public void reset() {
         SINGLETONS.clear();
     }
@@ -127,9 +118,9 @@ public class StampFilterImmutable
                                 ImmutableIntList modulePreferenceOrder) {
         this.allowedStates = allowedStates;
         this.stampPosition = stampPosition;
-        this.moduleNids = moduleNids;
+        this.moduleNids = moduleNids == null ? ImmutableIntSetFactoryImpl.INSTANCE.empty() : moduleNids;
         this.excludedModuleNids = excludedModuleNids;
-        this.modulePreferenceOrder = modulePreferenceOrder;
+        this.modulePreferenceOrder = modulePreferenceOrder == null ? ImmutableIntListFactoryImpl.INSTANCE.empty() : modulePreferenceOrder;
     }
 
     @Override
@@ -176,6 +167,13 @@ public class StampFilterImmutable
     }
 
 
+    /**
+     * 
+     * @param allowedStates
+     * @param stampPosition
+     * @param moduleNids - null is treated as an empty set, which allows any module
+     * @return
+     */
     public static StampFilterImmutable make(StatusSet allowedStates,
                          StampPosition stampPosition,
                          ImmutableIntSet moduleNids) {
@@ -294,11 +292,15 @@ public class StampFilterImmutable
 
 
     @Override
-    public StampFilterImmutable makeModuleAnalog(Collection<ConceptSpecification> modules) {
-        ImmutableIntSet moduleNidSet = IntSets.immutable.ofAll(modules.stream().mapToInt(conceptSpecification -> conceptSpecification.getNid()));
+    public StampFilterImmutable makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
+        MutableIntSet mis = modules == null ? IntSets.mutable.empty() : 
+            IntSets.mutable.ofAll(modules.stream().mapToInt(conceptSpecification -> conceptSpecification.getNid()));
+        if (add) {
+            mis.addAll(this.moduleNids);
+        }
         return make(this.allowedStates,
                 this.stampPosition,
-                moduleNidSet, this.excludedModuleNids, IntLists.immutable.empty());
+                mis.toImmutable(), this.excludedModuleNids, IntLists.immutable.empty());
     }
 
     @Override

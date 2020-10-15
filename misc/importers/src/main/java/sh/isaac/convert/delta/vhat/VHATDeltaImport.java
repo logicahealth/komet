@@ -102,9 +102,9 @@ import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.utility.Frills;
 
 import javax.xml.XMLConstants;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Unmarshaller;
+import jakarta.xml.bind.JAXBContext;
+import jakarta.xml.bind.JAXBException;
+import jakarta.xml.bind.Unmarshaller;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
@@ -131,7 +131,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 
 	private Map<Long, UUID> vuidToSubsetMap = new HashMap<>();
 	private LogicCoordinate logicreadbackCoordinate;
-	private ManifoldCoordinate manifoldCoordinate;
+	private WriteCoordinate writeCoordinate;
 	private LongSupplier vuidSupplier;
 	private HashSet<String> conceptsToBeCreated = new HashSet<>();
 	
@@ -141,6 +141,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 	private static final Logger LOG = LogManager.getLogger();
 	
 	/***
+	 * @param transaction transaction to import in
 	 * @param xmlData The data to import
 	 * @param author The user to attribute the changes to
 	 * @param module The module to put the changes on
@@ -151,7 +152,8 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 	 */
 	public VHATDeltaImport(Transaction transaction, String xmlData, UUID author, UUID module, UUID path, LongSupplier vuidSupplier, File debugOutputFolder) throws IOException
 	{
-		super(transaction);
+		super();
+		this.transaction = transaction;
 		this.vuidSupplier = vuidSupplier;
 		this.xmlData = xmlData;
 		this.outputDirectory = debugOutputFolder;
@@ -165,7 +167,8 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 		this.readbackCoordinate = StampFilterImmutable.make(StatusSet.ACTIVE_AND_INACTIVE, StampPositionImmutable.make(Long.MAX_VALUE, TermAux.DEVELOPMENT_PATH.getNid()),
 				modulesToRead.toImmutable(), IntLists.immutable.empty());
 
-		this.manifoldCoordinate = Coordinates.Manifold.DevelopmentStatedRegularNameSort();
+		this.writeCoordinate = new WriteCoordinateImpl(Get.identifierService().getNidForUuids(author), Get.identifierService().getNidForUuids(module),
+				Get.identifierService().getNidForUuids(path), transaction);
 
 		this.logicreadbackCoordinate = Coordinates.Logic.ElPlusPlus();
 		
@@ -173,22 +176,22 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 	
 		converterUUID = new ConverterUUID(TermAux.VHAT_MODULES.getPrimordialUuid(), false);
 		
-		dwh = new DirectWriteHelper(Get.nidForUuids(author), Get.nidForUuids(module), Get.nidForUuids(path), converterUUID, "VHAT", false);
+		dwh = new DirectWriteHelper(transaction, Get.nidForUuids(author), Get.nidForUuids(module), Get.nidForUuids(path), converterUUID, "VHAT", false);
 		converterUUID.configureNamespace(TermAux.VHAT_MODULES.getPrimordialUuid());  //Keep this on the vhat modules, rather than the passed in module.
 		
 		dwh.changeModule(Get.nidForUuids(module));
 
 		//Set up our metadata hierarchy - this call likely wont need to build concepts, but does need to init the internal placeholders
-		dwh.makeMetadataHierarchy(transaction, true, true, true, true, true, true, time);
+		dwh.makeMetadataHierarchy(true, true, true, true, true, true, time);
 		
-		convertContent(transaction, string -> {}, (progress, total) -> {});
+		convertContent(string -> {}, (progress, total) -> {});
 	}
 
 	/**
 	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
 	 */
 	@Override
-	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		try
 		{
@@ -490,10 +493,10 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 					case DESIGNATION_TYPE:
 						throw new RuntimeException("New extended designations types aren't supported yet");
 					case PROPERTY_TYPE:
-						this.dwh.makeAttributeTypeConcept(transaction, null, name, null, null, null, false, DynamicDataType.STRING, null, time);
+						this.dwh.makeAttributeTypeConcept(null, name, null, null, null, false, DynamicDataType.STRING, null, time);
 						break;
 					case RELATIONSHIP_TYPE:
-						this.dwh.makeAssociationTypeConcept(transaction, null, name, null, null, null, null, null, null, null, time);
+						this.dwh.makeAssociationTypeConcept(null, name, null, null, null, null, null, null, null, time);
 						break;
 					default :
 						throw new RuntimeException("Unexepected error");
@@ -518,7 +521,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 				switch (s.getAction())
 				{
 					case ADD:
-						UUID refset = this.dwh.makeRefsetTypeConcept(transaction, null, name, null, null, time);
+						UUID refset = this.dwh.makeRefsetTypeConcept(null, name, null, null, time);
 
 						Long vuid = s.getVUID() == null ? (this.vuidSupplier == null ? null : this.vuidSupplier.getAsLong()) : s.getVUID();
 
@@ -530,7 +533,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 						break;
 					case REMOVE:
 						UUID concept = dwh.addExistingTypeConcept(dwh.getRefsetTypesNode().get(), null, name);
-						ConceptVersion cv = Get.concept(concept).createMutableVersion(transaction, Status.INACTIVE, manifoldCoordinate);
+						ConceptVersion cv = Get.concept(concept).createMutableVersion(new WriteCoordinateImpl(writeCoordinate, Status.INACTIVE));
 						dwh.indexAndWrite(cv.getChronology());
 						break;
 					case NONE:
@@ -656,6 +659,8 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 												+ StringUtils.trim(r.getTypeName()) + ":" + r.getOldTargetCode());
 									}
 									break;
+								default :
+									throw new RuntimeException("oops");
 							}
 						}
 					}
@@ -1051,7 +1056,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 					boolean membershipExists = descriptionUUID == null ? false
 							: Get.assemblageService()
 									.getSemanticChronologyStreamForComponentFromAssemblage(Get.identifierService().getNidForUuids(descriptionUUID),
-											Get.identifierService().getNidForUuids(this.vuidToSubsetMap.get(sm.getVUID())))
+											Get.identifierService().getNidForUuids(this.vuidToSubsetMap.get(sm.getVUID())), false)
 									.findAny().isPresent();
 					if (sm.getAction() == ActionType.ADD && membershipExists)
 					{
@@ -1150,7 +1155,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 					case REMOVE:
 					{
 						concept = findConcept(cc.getCode()).get();
-						ConceptVersion cv = Get.concept(concept).createMutableVersion(transaction, Status.INACTIVE, manifoldCoordinate);
+						ConceptVersion cv = Get.concept(concept).createMutableVersion(new WriteCoordinateImpl(writeCoordinate, Status.INACTIVE));
 						dwh.indexAndWrite(cv.getChronology());
 						for (Chronology o : recursiveRetireNested(concept))
 						{
@@ -1163,7 +1168,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 						// We could, potentially support updating vuid, but the current system doesnt.
 						// so we only process activate / inactivate changes here.
 						concept = findConcept(cc.getCode()).get();
-						ConceptVersion cv = Get.concept(concept).createMutableVersion(transaction, cc.isActive() ? Status.ACTIVE : Status.INACTIVE, manifoldCoordinate);
+						ConceptVersion cv = Get.concept(concept).createMutableVersion(new WriteCoordinateImpl(writeCoordinate, cc.isActive() ? Status.ACTIVE : Status.INACTIVE));
 						dwh.indexAndWrite(cv.getChronology());
 						break;
 					}
@@ -1264,12 +1269,12 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 				{
 					// not allowing them to set the value to empty, just assume they only meant to change status in the case where new value is
 					// missing
-					MutableStringVersion mss = sc.createMutableVersion(transaction, isActive ? Status.ACTIVE : Status.INACTIVE, this.manifoldCoordinate);
+					MutableStringVersion mss = sc.createMutableVersion(new WriteCoordinateImpl(writeCoordinate, isActive ? Status.ACTIVE : Status.INACTIVE));
 					mss.setString(StringUtils.isBlank(newValue) ? oldValue : newValue);
 				}
 				else if (sc.getVersionType() == VersionType.DYNAMIC)
 				{
-					MutableDynamicVersion mds = sc.createMutableVersion(transaction, isActive ? Status.ACTIVE : Status.INACTIVE, this.manifoldCoordinate);
+					MutableDynamicVersion mds = sc.createMutableVersion(new WriteCoordinateImpl(writeCoordinate, isActive ? Status.ACTIVE : Status.INACTIVE));
 					if (mds.getDynamicUsageDescription().getColumnInfo().length != 1
 							|| mds.getDynamicUsageDescription().getColumnInfo()[0].getColumnDataType() != DynamicDataType.STRING)
 					{
@@ -1298,7 +1303,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 			return Optional.empty();
 		}
 		return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(Get.identifierService().getNidForUuids(referencedComponent),
-				Get.identifierService().getNidForUuids(propertyType)).filter(semantic -> {
+				Get.identifierService().getNidForUuids(propertyType), true).filter(semantic -> {
 					if (semantic.getVersionType() == VersionType.STRING)
 					{
 						LatestVersion<StringVersionImpl> sv = semantic.getLatestVersion(this.readbackCoordinate);
@@ -1325,7 +1330,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 	private Optional<UUID> findAssociationSemantic(UUID sourceConcept, UUID associationType, UUID targetConcept)
 	{
 		return Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(Get.identifierService().getNidForUuids(sourceConcept),
-				Get.identifierService().getNidForUuids(associationType)).filter(semantic -> {
+				Get.identifierService().getNidForUuids(associationType), true).filter(semantic -> {
 					if (semantic.getVersionType() == VersionType.DYNAMIC)
 					{
 						LatestVersion<DynamicImpl> sv = semantic.getLatestVersion(this.readbackCoordinate);
@@ -1559,8 +1564,8 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 
 						// not allowing them to set the value to empty, just assume they only meant to change status in the case where new value is
 						// missing
-						MutableDescriptionVersion mss = (MutableDescriptionVersion) sc.createMutableVersion(transaction, d.isActive() ? Status.ACTIVE : Status.INACTIVE,
-								this.manifoldCoordinate);
+						MutableDescriptionVersion mss = (MutableDescriptionVersion) sc.createMutableVersion(new WriteCoordinateImpl(writeCoordinate, d.isActive() ?
+								Status.ACTIVE : Status.INACTIVE));
 						mss.setText(
 								StringUtils.isBlank(newValue) ? (StringUtils.isBlank(d.getValueOld()) ? latest.get().getText() : d.getValueOld()) : newValue);
 						mss.setCaseSignificanceConceptNid(latest.get().getCaseSignificanceConceptNid());
@@ -1602,7 +1607,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 					final UUID finalDescRef = descRef;
 					
 					// copy all other nested components
-					Get.assemblageService().getSemanticChronologyStreamForComponent(oldSc.getNid()).forEach(existingNestedSemantic -> {
+					Get.assemblageService().getSemanticChronologyStreamForComponent(oldSc.getNid(), false).forEach(existingNestedSemantic -> {
 						if (existingNestedSemantic.getAssemblageNid() == MetaData.CODE____SOLOR.getNid()
 								|| existingNestedSemantic.getAssemblageNid() == MetaData.VUID____SOLOR.getNid()
 								|| existingNestedSemantic.getAssemblageNid() == MetaData.US_ENGLISH_DIALECT____SOLOR.getNid())
@@ -1656,7 +1661,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 
 								if (copyOfExistingNestedSemantic != null)
 								{
-									copy(dwh, copyOfExistingNestedSemantic, existingNestedSemantic, this.readbackCoordinate, this.manifoldCoordinate, time);
+									copy(dwh, copyOfExistingNestedSemantic, existingNestedSemantic, this.readbackCoordinate, time);
 								}
 							}
 						}
@@ -1699,7 +1704,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 					// retire the old semantic:
 					try
 					{
-						Optional<Chronology> oc = Frills.resetStatusWithNoCommit(transaction, Status.INACTIVE, oldSc.getNid(), this.manifoldCoordinate, this.readbackCoordinate);
+						Optional<Chronology> oc = Frills.resetStatusWithNoCommit(Status.INACTIVE, oldSc.getNid(), this.writeCoordinate, this.readbackCoordinate);
 						if (oc.isPresent())
 						{
 							dwh.indexAndWrite(oc.get());
@@ -1737,9 +1742,9 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 	}
 
 	private static void copy(DirectWriteHelper dwh, UUID existingParentComponent, SemanticChronology copyOfParentComponent,
-							 StampFilter readbackCoordinate, ManifoldCoordinate manifoldCoordinate, long time)
+							StampFilter readbackCoordinate, long time)
 	{
-		Get.assemblageService().getSemanticChronologyStreamForComponent(Get.nidForUuids(existingParentComponent)).forEach(existingNestedSemantic -> {
+		Get.assemblageService().getSemanticChronologyStreamForComponent(Get.nidForUuids(existingParentComponent), false).forEach(existingNestedSemantic -> {
 			LatestVersion<Version> latestVersionOfExistingNestedSemantic = existingNestedSemantic.getLatestVersion(readbackCoordinate);
 
 			if (latestVersionOfExistingNestedSemantic.isPresent() && latestVersionOfExistingNestedSemantic.get().getStatus() == Status.ACTIVE)
@@ -1786,7 +1791,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 
 				if (copyOfExistingNestedSemantic != null)
 				{
-					copy(dwh, copyOfExistingNestedSemantic, existingNestedSemantic, readbackCoordinate, manifoldCoordinate, time);
+					copy(dwh, copyOfExistingNestedSemantic, existingNestedSemantic, readbackCoordinate, time);
 				}
 			}
 		});
@@ -1800,10 +1805,10 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 	private List<Chronology> recursiveRetireNested(UUID component)
 	{
 		ArrayList<Chronology> updated = new ArrayList<>();
-		Get.assemblageService().getSemanticChronologyStreamForComponent(Get.identifierService().getNidForUuids(component)).forEach(semantic -> {
+		Get.assemblageService().getSemanticChronologyStreamForComponent(Get.identifierService().getNidForUuids(component), false).forEach(semantic -> {
 			try
 			{
-				Optional<Chronology> oc = Frills.resetStatusWithNoCommit(transaction, Status.INACTIVE, semantic.getNid(), this.manifoldCoordinate, this.readbackCoordinate);
+				Optional<Chronology> oc = Frills.resetStatusWithNoCommit(Status.INACTIVE, semantic.getNid(), this.writeCoordinate, this.readbackCoordinate);
 				if (oc.isPresent())
 				{
 					updated.add(oc.get());
@@ -1892,11 +1897,11 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 					case UPDATE:
 						Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(Get.nidForUuids(description), Get.identifierService()
 								// There really shouldn't be more than one of these, but if there is, no harm in changing state on all of them.
-								.getNidForUuids(this.vuidToSubsetMap.get(sm.getVUID()))).forEach(sc -> {
+								.getNidForUuids(this.vuidToSubsetMap.get(sm.getVUID())), true).forEach(sc -> {
 									LatestVersion<DynamicVersion> ds = sc.getLatestVersion(this.readbackCoordinate);
 									if (ds.isPresent())
 									{
-										sc.createMutableVersion(transaction, sm.isActive() ? Status.ACTIVE : Status.INACTIVE, this.manifoldCoordinate);
+										sc.createMutableVersion(new WriteCoordinateImpl(writeCoordinate, sm.isActive() ? Status.ACTIVE : Status.INACTIVE));
 										dwh.indexAndWrite(sc);
 									}
 								});
@@ -1959,7 +1964,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 						LatestVersion<Version> ds = sc.getLatestVersion(this.readbackCoordinate);
 						if (ds.isPresent())
 						{
-							MutableDynamicVersion mds = sc.createMutableVersion(transaction, r.isActive() ? Status.ACTIVE : Status.INACTIVE, this.manifoldCoordinate);
+							MutableDynamicVersion mds = sc.createMutableVersion(new WriteCoordinateImpl(writeCoordinate, r.isActive() ? Status.ACTIVE : Status.INACTIVE));
 							mds.setData(new DynamicData[] { new DynamicUUIDImpl(newTarget.isPresent() ? newTarget.get() : oldTarget.get()) });
 							dwh.indexAndWrite(sc);
 						}
@@ -2025,13 +2030,13 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 					NecessarySetNode nsn = lei.NecessarySet(lei.And(parentConceptNodes.toArray(new ConceptNodeWithNids[parentConceptNodes.size()])));
 					lei.getRoot().addChildren(nsn);
 
-					MutableLogicGraphVersion mlgs = logicGraph.get().createMutableVersion(transaction, Status.ACTIVE, this.manifoldCoordinate);
+					MutableLogicGraphVersion mlgs = logicGraph.get().createMutableVersion(new WriteCoordinateImpl(writeCoordinate, Status.ACTIVE));
 					mlgs.setGraphData(lei.getData(DataTarget.INTERNAL));
 				}
 				else
 				{
 					// If we ended up with nothing active, just read the current, and set the entire thing to inactive.
-					MutableLogicGraphVersion mlgs = logicGraph.get().createMutableVersion(transaction, Status.INACTIVE, this.manifoldCoordinate);
+					MutableLogicGraphVersion mlgs = logicGraph.get().createMutableVersion(new WriteCoordinateImpl(writeCoordinate, Status.INACTIVE));
 					mlgs.setGraphData(Frills.getLogicGraphVersion(logicGraph.get(), this.readbackCoordinate).get().getGraphData());
 				}
 				dwh.indexAndWrite(logicGraph.get());
@@ -2049,7 +2054,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 
 					NecessarySetNode nsn = lei.NecessarySet(lei.And(parentConceptNodes.toArray(new ConceptNodeWithNids[parentConceptNodes.size()])));
 					lei.getRoot().addChildren(nsn);
-					UUID graph = dwh.makeGraph(transaction, concept, null, lei, Status.ACTIVE, time);
+					UUID graph = dwh.makeGraph(concept, null, lei, Status.ACTIVE, time);
 					dwh.makeExtendedRelationshipTypeAnnotation(graph,  VHATConstants.VHAT_HAS_PARENT_ASSOCIATION_TYPE.getPrimordialUuid(), time);
 				}
 			}
@@ -2115,7 +2120,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 						dwh.makeAssociation(dwh.getAssociationType("has_parent"), mapSetConcept, 
 								IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid(), Status.ACTIVE, time);
 						
-						dwh.makeParentGraph(transaction, mapSetConcept,
+						dwh.makeParentGraph(mapSetConcept,
 								Arrays.asList(new UUID[] {dwh.getRefsetTypesNode().get(), IsaacMappingConstants.get().DYNAMIC_SEMANTIC_MAPPING_SEMANTIC_TYPE.getPrimordialUuid()}), 
 								Status.ACTIVE, time);
 
@@ -2141,7 +2146,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 									DynamicDataType.STRING, null, false);
 						}
 
-						dwh.configureConceptAsDynamicAssemblage(transaction, mapSetConcept, ms.getName(), columns, IsaacObjectType.CONCEPT,
+						dwh.configureConceptAsDynamicAssemblage(mapSetConcept, ms.getName(), columns, IsaacObjectType.CONCEPT,
 								null, time);
 
 						// Annotate this concept as a mapset definition concept.
@@ -2189,7 +2194,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 						break;
 					case REMOVE:
 					{
-						ConceptVersion cv = Get.concept(findConcept(ms.getCode()).get()).createMutableVersion(transaction, Status.INACTIVE, manifoldCoordinate);
+						ConceptVersion cv = Get.concept(findConcept(ms.getCode()).get()).createMutableVersion(new WriteCoordinateImpl(writeCoordinate, Status.INACTIVE));
 						dwh.indexAndWrite(cv.getChronology());
 						mapSetConcept = cv.getPrimordialUuid();
 						for (Chronology o : recursiveRetireNested(mapSetConcept))
@@ -2206,8 +2211,8 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 						// We could, potentially support updating vuid, but the current system doesn't.
 						// Also, source / target stuff, but leaving as unhandled, for now.
 						// so we only process activate / inactivate changes here.
-						ConceptVersion cv = Get.concept(findConcept(ms.getCode()).get()).createMutableVersion(transaction,
-								ms.isActive() ? Status.ACTIVE : Status.INACTIVE, manifoldCoordinate);
+						ConceptVersion cv = Get.concept(findConcept(ms.getCode()).get()).createMutableVersion(new WriteCoordinateImpl(writeCoordinate, ms.isActive() 
+								? Status.ACTIVE : Status.INACTIVE));
 						dwh.indexAndWrite(cv.getChronology());
 						mapSetConcept = cv.getPrimordialUuid();
 						break;
@@ -2268,7 +2273,7 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 							SemanticChronology sc = Get.assemblageService().getSemanticChronology(
 									Get.identifierService().getNidForUuids(createNewMapItemUUID(mapSetConcept, me.getVUID().toString())));
 
-							MutableDynamicVersion mds = sc.createMutableVersion(transaction, me.isActive() ? Status.ACTIVE : Status.INACTIVE, this.manifoldCoordinate);
+							MutableDynamicVersion mds = sc.createMutableVersion(new WriteCoordinateImpl(writeCoordinate, me.isActive() ? Status.ACTIVE : Status.INACTIVE));
 							mds.setData(columnData);
 							dwh.indexAndWrite(sc);
 						}
@@ -2277,9 +2282,9 @@ public class VHATDeltaImport  extends DirectConverterBaseMojo
 					{
 						try
 						{
-							Optional<Chronology> oc = Frills.resetStatusWithNoCommit(transaction, Status.INACTIVE,
+							Optional<Chronology> oc = Frills.resetStatusWithNoCommit(Status.INACTIVE,
 									Get.identifierService().getNidForUuids(createNewMapItemUUID(mapSetConcept, me.getVUID().toString())),
-									this.manifoldCoordinate, this.readbackCoordinate);
+									this.writeCoordinate, this.readbackCoordinate);
 							if (oc.isPresent())
 							{
 								dwh.indexAndWrite(oc.get());

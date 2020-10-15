@@ -1,10 +1,9 @@
 package sh.isaac.api.coordinate;
 
 
-import org.glassfish.hk2.runlevel.RunLevel;
+import java.util.Objects;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
@@ -13,15 +12,9 @@ import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
-import java.util.Objects;
-
+//This class is not treated as a service, however, it needs the annotation, so that the reset() gets fired at appropriate times.
 @Service
-@RunLevel(value = LookupService.SL_L2)
-// Singleton from the perspective of HK2 managed instances, there will be more than one
-// StampFilterImmutable created in normal use.
-public final class LogicCoordinateImmutable implements LogicCoordinate, ImmutableCoordinate {
+public final class LogicCoordinateImmutable implements LogicCoordinate, ImmutableCoordinate, StaticIsaacCache {
 
     private static final ConcurrentReferenceHashMap<LogicCoordinateImmutable, LogicCoordinateImmutable> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
@@ -48,10 +41,8 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
         this.digraphIdentityNid = Integer.MAX_VALUE;
         this.rootNid = Integer.MAX_VALUE;
     }
-    /**
-     * {@inheritDoc}
-     */
-    @PreDestroy
+    
+    @Override
     public void reset() {
         SINGLETONS.clear();
     }
@@ -189,7 +180,12 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
 
     @Override
     public ConceptSpecification getRoot() {
-        return Get.concept(this.rootNid);
+        return Get.conceptSpecification(this.rootNid);
+    }
+
+    @Override
+    public int getDigraphIdentityNid() {
+        return this.digraphIdentityNid;
     }
 
     @Override

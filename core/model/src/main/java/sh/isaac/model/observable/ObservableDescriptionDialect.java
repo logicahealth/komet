@@ -47,12 +47,12 @@ import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
  */
 public class ObservableDescriptionDialect implements ObservableVersion {
     SimpleObjectProperty<ObservableDescriptionVersionImpl> descriptionProperty = 
-            new SimpleObjectProperty(
+            new SimpleObjectProperty<>(
                  this,
                  ObservableFields.DESCRIPTION_DIALECT_DESCRIPTION.toExternalString(),
                  null);
     SimpleObjectProperty<ObservableComponentNidVersionImpl> dialectProperty = 
-            new SimpleObjectProperty(
+            new SimpleObjectProperty<>(
                  this,
                  ObservableFields.DESCRIPTION_DIALECT_DIALECT.toExternalString(),
                  null);
@@ -171,13 +171,7 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     }
 
     @Override
-    public <V extends Version> V makeAnalog(ManifoldCoordinate mc) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-
-    @Override
-    public <V extends Version> V makeAnalog(Transaction transaction, ManifoldCoordinate mc) {
+    public <V extends Version> V makeAnalog(int stampSequence) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -187,27 +181,27 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     }
 
     @Override
-    public void setStatus(Status state) {
+    public void setStatus(Status state, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setAuthorNid(int authorSequence) {
+    public void setAuthorNid(int authorSequence, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setModuleNid(int moduleSequence) {
+    public void setModuleNid(int moduleSequence, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setPathNid(int pathSequence) {
+    public void setPathNid(int pathSequence, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setTime(long time) {
+    public void setTime(long time, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -254,11 +248,6 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     @Override
     public boolean deepEquals(Object other) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
-    public <V extends Version> V setupAnalog(int stampSequence) {
-        throw new UnsupportedOperationException();
     }
 
     @Override

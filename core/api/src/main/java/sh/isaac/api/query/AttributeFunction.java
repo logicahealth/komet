@@ -123,7 +123,7 @@ public class AttributeFunction {
             case SCT_ID:
                 return (funcName, nid, stampCoordinate, query) -> {
                     Optional<SemanticChronology> optionalSctidChronology = 
-                    Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(nid.intValue(), TermAux.SNOMED_IDENTIFIER.getNid()).findFirst();
+                    Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(nid.intValue(), TermAux.SNOMED_IDENTIFIER.getNid(), false).findFirst();
                     if (optionalSctidChronology.isPresent()) {
                         LatestVersion<StringVersion> optionalSctidVersion = optionalSctidChronology.get().getLatestVersion(stampCoordinate);
                         if (optionalSctidVersion.isPresent()) {
@@ -162,7 +162,7 @@ public class AttributeFunction {
                         Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
                             SemanticChronology descChronolgy = Get.assemblageService().getSemanticChronology(nid.intValue());
-                            LatestVersion<DescriptionVersion> description = lc.get().getPreferredDescription(descChronolgy.getReferencedComponentNid(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getRegularDescription(descChronolgy.getReferencedComponentNid(), stampCoordinate);
                             if (description.isPresent() && description.get().getNid() == nid.intValue()) {
                                 return Boolean.TRUE.toString();
                             }
@@ -199,7 +199,7 @@ public class AttributeFunction {
                     return (funcName, nid, stampCoordinate, query) -> {
                         Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
-                            LatestVersion<DescriptionVersion> description = lc.get().getPreferredDescription(nid.intValue(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getRegularDescription(nid.intValue(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getText();
                             }
@@ -211,7 +211,7 @@ public class AttributeFunction {
                     return (funcName, nid, stampCoordinate, query) -> {
                         Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
-                            LatestVersion<DescriptionVersion> description = lc.get().getPreferredDescription(nid.intValue(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getRegularDescription(nid.intValue(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getPrimordialUuid().toString();
                             }

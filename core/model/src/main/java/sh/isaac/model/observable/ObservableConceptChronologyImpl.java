@@ -39,36 +39,34 @@
 
 package sh.isaac.model.observable;
 
-//~--- JDK imports ------------------------------------------------------------
-
-
-//~--- non-JDK imports --------------------------------------------------------
 
 import java.util.List;
 import java.util.Optional;
-
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.*;
-import sh.isaac.api.observable.concept.ObservableConceptChronology;
-import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
-import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.observable.concept.ObservableConceptChronology;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.model.observable.version.ObservableConceptVersionImpl;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class ObservableConceptChronologyImpl.
@@ -78,8 +76,6 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 public class ObservableConceptChronologyImpl
         extends ObservableChronologyImpl
          implements ObservableConceptChronology {
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new observable concept chronology impl.
@@ -94,25 +90,11 @@ public class ObservableConceptChronologyImpl
       return (ConceptChronology) this.chronicledObjectLocal;
    }
 
-
-   /**
-    * Contains active description.
-    *
-    * @param descriptionText the description text
-    * @param stampFilter the stamp coordinate
-    * @return true, if successful
-    */
    @Override
    public boolean containsActiveDescription(String descriptionText, StampFilter stampFilter) {
       return this.getConceptChronology().containsDescription(descriptionText, stampFilter);
    }
 
-   /**
-    * Contains description.
-    *
-    * @param descriptionText the description text
-    * @return true, if successful
-    */
    @Override
    public boolean containsDescription(String descriptionText) {
       return this.getConceptChronology().containsDescription(descriptionText);
@@ -123,39 +105,18 @@ public class ObservableConceptChronologyImpl
       return (OV) new ObservableConceptVersionImpl((ConceptVersion) version, this);
    }
 
-   /**
-    * Creates the mutable version.
-    *
-    * @param stampSequence the stamp sequence
-    * @return the observable concept version impl
-    */
    @Override
    public ObservableConceptVersionImpl createMutableVersion(int stampSequence) {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
-
-   /**
-    * Creates the mutable version.
-    *
-    * @param state the state
-    * @param mc the ManifoldCoordinate
-    * @return the observable concept version impl
-    */
+   
    @Override
-   public ObservableConceptVersionImpl createMutableVersion(Transaction transaction, Status state, ManifoldCoordinate mc) {
+   public ObservableConceptVersionImpl createMutableVersion(Transaction transaction, int stampSequence) {
       throw new UnsupportedOperationException(
           "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
    }
 
-
-   /**
-    * Gets the fully specified description.
-    *
-    * @param languageCoordinate the language coordinate
-    * @param stampFilter the stamp coordinate
-    * @return the fully specified description
-    */
    @Override
    public LatestVersion<ObservableDescriptionVersion> getFullyQualifiedNameDescription(
            LanguageCoordinate languageCoordinate,
@@ -167,11 +128,6 @@ public class ObservableConceptChronologyImpl
       return getSpecifiedDescription(optionalFqn);
    }
 
-   /**
-    * Gets the observable version list.
-    *
-    * @return the observable version list
-    */
    @Override
    protected ObservableList<ObservableVersion> getObservableVersionList() {
       if (this.versionListProperty != null && this.versionListProperty.get() != null) {
@@ -186,13 +142,6 @@ public class ObservableConceptChronologyImpl
       return observableList;
    }
 
-   /**
-    * Gets the preferred description.
-    *
-    * @param languageCoordinate the language coordinate
-    * @param stampFilter the stamp coordinate
-    * @return the preferred description
-    */
    @Override
    public LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            LanguageCoordinate languageCoordinate,
@@ -295,6 +244,4 @@ public class ObservableConceptChronologyImpl
     public String toLongString() {
         return getConceptChronology().toLongString();
     }
-   
-   
 }

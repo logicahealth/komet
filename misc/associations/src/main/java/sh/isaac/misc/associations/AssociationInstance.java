@@ -36,6 +36,7 @@
  */
 package sh.isaac.misc.associations;
 
+import java.util.Optional;
 import org.apache.logging.log4j.LogManager;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
@@ -44,10 +45,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
-
-import java.util.Optional;
 
 
 /**
@@ -58,35 +56,35 @@ import java.util.Optional;
 public class AssociationInstance
 {
    private DynamicVersion semantic;
-   private ManifoldCoordinate manifoldCoordinate;
+   private StampFilter stampFilter;
    
    private transient AssociationType assnType_;
 
    //TODO [DAN 3] Write the code that checks the index states on startup
    
-   private AssociationInstance(DynamicVersion data, ManifoldCoordinate manifoldCoordinate)
+   private AssociationInstance(DynamicVersion data, StampFilter stampFilter)
    {
       this.semantic = data;
-      this.manifoldCoordinate = manifoldCoordinate;
+      this.stampFilter = stampFilter;
    }
    
    /**
     * Read the dynamic semantic instance (that represents an association) and turn it into an association object.
     * @param data - the semantic to read
-    * @param manifoldCoordinate - optional - only used during readback of the association type - will only be utilized
+    * @param stampFilter - optional - only used during readback of the association type - will only be utilized
     * if one calls {@link AssociationInstance#getAssociationType()} - see {@link AssociationType#read(int, StampFilter)}
     * @return
     */
-   public static AssociationInstance read(DynamicVersion data, ManifoldCoordinate manifoldCoordinate)
+   public static AssociationInstance read(DynamicVersion data, StampFilter stampFilter)
    {
-      return new AssociationInstance(data, manifoldCoordinate);
+      return new AssociationInstance(data, stampFilter);
    }
    
    public AssociationType getAssociationType()
    {
       if (assnType_ == null)
       {
-         assnType_ = AssociationType.read(this.semantic.getAssemblageNid(), manifoldCoordinate);
+         assnType_ = AssociationType.read(this.semantic.getAssemblageNid(), stampFilter, Get.languageCoordinateService().getUsEnglishLanguageRegularTermCoordinate());
       }
       return assnType_;
    }

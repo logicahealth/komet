@@ -8,7 +8,7 @@ import sh.isaac.api.StaticIsaacCache;
 import sh.komet.gui.contract.preferences.PersonaChangeListener;
 import sh.komet.gui.contract.preferences.PersonaItem;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.util.HashSet;
 
 @Service

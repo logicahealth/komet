@@ -377,19 +377,7 @@ public class CVXImporter extends GenericImporter<InputStream> {
 
         //Newly created Concepts
 
-        super.syncConceptsAndSemantics();
-
-        //Newly created Identifier Semantics
-
-        super.syncSemantics();
-
-        //Newly created Descriptions (add to new concept or append to already existing concept)
-
-        super.syncSemantics();
-
-        //Create a Dynamic Assemblage for other missing properties of CVX
-
-        super.syncSemantics();
+        super.waitForAll();
     }
 
     private void createIdentifierSemanticToExistingConcept(UUID existingComponent, String cvxCode, String vaccineStatus, String updateTime){

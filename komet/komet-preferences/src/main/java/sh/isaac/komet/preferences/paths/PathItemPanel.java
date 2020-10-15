@@ -40,7 +40,7 @@ public class PathItemPanel implements PreferenceGroup {
                 super.updateItem(item, empty);
                 if (!empty) {
                     this.setText(DateTimeUtil.format(item.getTime(), EASY_TO_READ_DATE_TIME_FORMAT) + "\non path: " +
-                            pathConcept.getPreferredDescriptionText(item.getPathConcept()));
+                            pathConcept.getPreferredDescriptionText(item.getPathForPositionConcept()));
                 } else {
                     this.setText("");
                 }
@@ -53,7 +53,7 @@ public class PathItemPanel implements PreferenceGroup {
         this.pathConcept = pathConcept;
         this.observablePathCoordinate = ObservableStampPathImpl.make(StampPathImmutable.make(pathConcept));
         this.positionListView.setItems(observablePathCoordinate.pathOriginsAsListProperty());
-        this.pathNameString = pathConcept.getPreferredDescriptionText().get();
+        this.pathNameString = pathConcept.getRegularDescriptionText().get();
         Label pathNameLabel = new Label("Path name");
         pathNameLabel.setPadding(new Insets(5, 20, 5, 10));
         Label pathName = new Label(this.pathNameString);

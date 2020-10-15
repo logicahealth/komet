@@ -142,5 +142,12 @@ public interface UuidToIntMap {
     * @return The best estimate of the number of bytes currently held in heap, for this map.
     */
    public int getMemoryInUse();
+   
+   /**
+    * Do any operation required for a clean shutdown.  default is a noop
+    */
+   default public void shutdown() {
+       //noop
+   }
 }
 

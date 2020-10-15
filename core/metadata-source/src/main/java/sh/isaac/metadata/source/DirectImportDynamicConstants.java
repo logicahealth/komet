@@ -38,7 +38,7 @@
 package sh.isaac.metadata.source;
 
 import java.util.UUID;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 // ~--- non-JDK imports --------------------------------------------------------
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.IsaacCache;

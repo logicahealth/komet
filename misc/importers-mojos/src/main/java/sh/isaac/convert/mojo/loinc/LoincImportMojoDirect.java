@@ -39,10 +39,6 @@ package sh.isaac.convert.mojo.loinc;
 
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
-import sh.isaac.convert.directUtils.DirectConverter;
-
-import java.io.File;
-import java.nio.file.Path;
 
 /**
  *
@@ -54,8 +50,7 @@ import java.nio.file.Path;
 public class LoincImportMojoDirect extends LoincImportHK2Direct
 {
 	/**
-	 * This constructor is for maven and should not be used at runtime. You should
-	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, sh.isaac.api.coordinate.StampFilter)} method on it.
+	 * This constructor is for maven and should not be used at runtime. 
 	 */
 	public LoincImportMojoDirect()
 	{

@@ -16,7 +16,7 @@
  */
 package sh.komet.assemblage.view;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
 import sh.isaac.MetaData;

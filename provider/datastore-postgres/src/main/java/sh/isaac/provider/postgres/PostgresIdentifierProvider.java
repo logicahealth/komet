@@ -35,8 +35,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
@@ -428,12 +428,8 @@ public class PostgresIdentifierProvider
     }
 
     @Override
-    public IntStream getNidsForAssemblage(int assemblageNid) {
-        return store.getNidsForAssemblage(assemblageNid);
-    }
-    @Override
-    public IntStream getNidsForAssemblageParallel(int assemblageNid) {
-        return store.getNidsForAssemblage(assemblageNid).parallel();
+    public IntStream getNidsForAssemblage(int assemblageNid, boolean parallel) {
+        return store.getNidsForAssemblage(assemblageNid, parallel);
     }
 
     @Override
@@ -452,23 +448,31 @@ public class PostgresIdentifierProvider
     }
 
     @Override
-    public IntStream getNidStreamOfType(IsaacObjectType objectType) {
+    public IntStream getNidStreamOfType(IsaacObjectType objectType, boolean parallel) {
         int maxNid = this.uuidIntMapMap.getMaxNid();
         NidSet allowedAssemblages = this.store.getAssemblageNidsForType(objectType);
 
-        return IntStream.rangeClosed(Integer.MIN_VALUE + 1, maxNid)
+        IntStream is = IntStream.rangeClosed(Integer.MIN_VALUE + 1, maxNid)
             .filter((value) -> {
                 return allowedAssemblages.contains(this.store.getAssemblageOfNid(value).orElseGet(() -> Integer.MAX_VALUE));
             });
+        if (parallel) {
+            is = is.parallel();
+        }
+        return is;
     }
 
     @Override
-    public IntStream getNidStream() {
+    public IntStream getNidStream(boolean parallel) {
         int maxNid = this.uuidIntMapMap.getMaxNid();
-        return IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
+        IntStream is = IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
                 .filter((value) -> {
                     return this.store.getAssemblageOfNid(value).isPresent();
                 });
+        if (parallel) {
+            is = is.parallel();
+        }
+        return is;
     }
 
     @Override

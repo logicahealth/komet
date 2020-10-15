@@ -50,6 +50,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.Get;
+import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
@@ -66,6 +67,7 @@ import sh.komet.gui.control.FixedSizePane;
 import sh.komet.gui.control.property.PropertyToPropertySheetItem;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.style.StyleClasses;
+import sh.komet.gui.util.FxGet;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -173,8 +175,22 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
                         editButton.setVisible(true);
                     });
                 } else {
-                    // TODO show errors. 
-                    commitTask.getAlerts();
+                    for (AlertObject alert : commitTask.getAlerts()) {
+                        switch (alert.getAlertType()) {
+                            case ERROR:
+                                FxGet.dialogs().showErrorDialog(alert.getAlertTitle(), alert.getAlertCategory().toString(),
+                                        alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
+                                break;
+                            case INFORMATION:
+                                FxGet.dialogs().showInformationDialog(alert.getAlertTitle(),
+                                        alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
+                                break;
+                            case WARNING:
+                                FxGet.dialogs().showInformationDialog(alert.getAlertTitle(),
+                                        alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
+                                break;
+                        }
+                    }
                 }
             } catch (InterruptedException | ExecutionException ex) {
                 LOG.error("Error committing change.", ex);

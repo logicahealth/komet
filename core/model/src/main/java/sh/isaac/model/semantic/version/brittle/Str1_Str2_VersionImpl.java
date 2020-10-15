@@ -39,19 +39,12 @@
 
 package sh.isaac.model.semantic.version.brittle;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Version;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -62,6 +55,7 @@ public class Str1_Str2_VersionImpl
          implements Str1_Str2_Version {
    String str1 = null;
    String str2 = null;
+   
    @Override
    public StringBuilder toString(StringBuilder builder) {
       builder.append(" ")
@@ -71,8 +65,6 @@ public class Str1_Str2_VersionImpl
                       .describeStampSequence(this.getStampSequence())).append("}");
       return builder;
    }
-
-   //~--- constructors --------------------------------------------------------
 
    public Str1_Str2_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
@@ -85,8 +77,7 @@ public class Str1_Str2_VersionImpl
       this.str2 = data.getUTF();
    }
 
-   public Str1_Str2_VersionImpl(Str1_Str2_VersionImpl old,
-                                int stampSequence) {
+   private Str1_Str2_VersionImpl(Str1_Str2_VersionImpl old, int stampSequence) {
       super(old.getChronology(), stampSequence);
       setStr1(old.str1);
       setStr2(old.str2);
@@ -105,12 +96,11 @@ public class Str1_Str2_VersionImpl
       data.putUTF(this.str2);
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   public <V extends Version> V setupAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
+   @Override
+   @SuppressWarnings("unchecked")
+   public <V extends Version> V makeAnalog(int stampSequence) {
       final Str1_Str2_VersionImpl newVersion = new Str1_Str2_VersionImpl(this, stampSequence);
-      chronologyImpl.addVersion(newVersion);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 
@@ -131,32 +121,23 @@ public class Str1_Str2_VersionImpl
       return editDistance;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr1() {
       return str1;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setStr1(String str1) {
       this.str1 = str1;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr2() {
       return str2;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setStr2(String str2) {
       this.str2 = str2;
    }
 }
-

@@ -39,19 +39,12 @@
 
 package sh.isaac.api.chronicle;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.List;
 import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Status;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.transaction.Transaction;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -62,14 +55,10 @@ public class CategorizedVersion
    private final Version             delegate;
    private final CategorizedVersions categorizedVersions;
 
-   //~--- constructors --------------------------------------------------------
-
    public CategorizedVersion(Version delegate, CategorizedVersions categorizedVersions) {
       this.delegate            = delegate;
       this.categorizedVersions = categorizedVersions;
    }
-
-   //~--- methods -------------------------------------------------------------
 
    @Override
    public void addAdditionalUuids(UUID... uuids) {
@@ -95,8 +84,8 @@ public class CategorizedVersion
    }
 
    @Override
-   public <V extends Version> V makeAnalog(ManifoldCoordinate mc) {
-      return delegate.makeAnalog(mc);
+   public <V extends Version> V makeAnalog(int stampSequence) {
+      return delegate.makeAnalog(stampSequence);
    }
 
    @Override
@@ -109,25 +98,20 @@ public class CategorizedVersion
       return delegate.toUserString();
    }
 
+   @SuppressWarnings("unchecked")
    public <V extends Version> V unwrap() {
       return (V) delegate;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getAuthorNid() {
       return delegate.getAuthorNid();
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    @Override
-   public void setAuthorNid(int authorNid) {
-      delegate.setAuthorNid(authorNid);
+   public void setAuthorNid(int authorNid, Transaction t) {
+      delegate.setAuthorNid(authorNid, t);
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public Chronology getChronology() {
@@ -144,14 +128,10 @@ public class CategorizedVersion
       return delegate.getModuleNid();
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    @Override
-   public void setModuleNid(int moduleNid) {
-      delegate.setModuleNid(moduleNid);
+   public void setModuleNid(int moduleNid, Transaction t) {
+      delegate.setModuleNid(moduleNid, t);
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public int getNid() {
@@ -163,14 +143,10 @@ public class CategorizedVersion
       return delegate.getPathNid();
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    @Override
-   public void setPathNid(int pathNid) {
-      delegate.setPathNid(pathNid);
+   public void setPathNid(int pathNid, Transaction t) {
+      delegate.setPathNid(pathNid, t);
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public UUID getPrimordialUuid() {
@@ -192,19 +168,15 @@ public class CategorizedVersion
       return delegate.getTime();
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    @Override
-   public void setTime(long time) {
-      delegate.setTime(time);
+   public void setTime(long time, Transaction t) {
+      delegate.setTime(time, t);
    }
 
    @Override
-   public void setStatus(Status state) {
-      delegate.setStatus(state);
+   public void setStatus(Status state, Transaction t) {
+      delegate.setStatus(state, t);
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public boolean isUncommitted() {
@@ -243,15 +215,5 @@ public class CategorizedVersion
     public boolean deepEquals(Object other) {
         return delegate.deepEquals(other);
     }
-
-   @Override
-   public <V extends Version> V makeAnalog(Transaction transaction, ManifoldCoordinate mc) {
-      return delegate.makeAnalog(transaction, mc);
-   }
-
-   @Override
-   public <V extends Version> V setupAnalog(int stampSequence) {
-      throw new UnsupportedOperationException();
-   }
 }
 

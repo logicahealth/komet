@@ -57,7 +57,10 @@ import sh.isaac.api.constants.SystemPropertyConstants;
  * 
  * Items in this core API are not persisted across runs.  
  * 
- * More specific configuration, which is persisted through the lifecycle, can be found in {@link #getGlobalDatastoreConfiguration()}
+ * More specific configuration, as a {@link UserConfiguration} which is persisted through the lifecycle, can be found in 
+ * {@link #getGlobalDatastoreConfiguration()}, or more usefully, in {@link #getUserConfiguration(Optional)}.  This latter 
+ * call provides user specific configuration where available (per OS, and DB), automatically falling back to the globals, 
+ * when not available.
  *  
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */

@@ -16,7 +16,7 @@
  */
 package sh.isaac.provider.progress;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;

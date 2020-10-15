@@ -55,7 +55,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
         }
         updateTitle("Fetching children for: " + this.parentName);
         Get.activeTasks().add(this);
-        LOG.debug("###Starting Adding children for: " + parentGraphItem.getValue()
+        LOG.trace("Starting Adding children for: " + parentGraphItem.getValue()
                                     + " from: " + fetcherId);
         
         FetchChildren oldFetcher = FETCHER_MAP.put(parentGraphItem.getValue().getNid(), this);
@@ -118,7 +118,7 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
                 Platform.runLater(
                         () -> {
                             if (!FetchChildren.this.isCancelled()) {
-                                LOG.debug("###Adding children for: " + parentGraphItem.getValue().getNid()
+                                LOG.trace("Adding children for: " + parentGraphItem.getValue().getNid()
                                         + " from: " + fetcherId);
                                 parentGraphItem.getChildren().setAll(childrenToAdd);
                                 parentGraphItem.setExpanded(true);
@@ -137,13 +137,12 @@ public class FetchChildren extends TimedTaskWithProgressTracker<Void> {
             Get.activeTasks().remove(this);
             FETCHER_MAP.remove(parentGraphItem.getValue().getNid());
             if (FetchChildren.this.isCancelled()) {
-                LOG.debug("###Canceled Adding children for: " + parentGraphItem.getValue().getNid()
+                LOG.debug("Canceled Adding children for: " + parentGraphItem.getValue().getNid()
                                     + " from: " + fetcherId);
             } else {
-                LOG.debug("###Finished Adding children for: " + parentGraphItem.getValue().getNid()
+                LOG.trace("Finished Adding children for: " + parentGraphItem.getValue().getNid()
                                     + " from: " + fetcherId);
             }
         }
     }
-
 }

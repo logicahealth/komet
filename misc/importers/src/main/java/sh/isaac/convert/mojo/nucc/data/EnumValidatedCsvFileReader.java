@@ -48,6 +48,7 @@ import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.io.input.BOMInputStream;
 import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 
 /**
  * 
@@ -71,8 +72,9 @@ public class EnumValidatedCsvFileReader<COLUMNS extends Enum<COLUMNS>>
 	 * @param f - target CSV file
 	 * @param columnsEnumClass - COLUMNS Enum class against which to validate number of columns and, optionally, headers
 	 * @throws IOException
+	 * @throws CsvValidationException 
 	 */
-	public EnumValidatedCsvFileReader(Path f, Class<COLUMNS> columnsEnumClass) throws IOException
+	public EnumValidatedCsvFileReader(Path f, Class<COLUMNS> columnsEnumClass) throws IOException, CsvValidationException
 	{
 		this(f, columnsEnumClass, true, true);
 	}
@@ -87,9 +89,10 @@ public class EnumValidatedCsvFileReader<COLUMNS extends Enum<COLUMNS>>
 	 *            This constructor throws IllegalArgumentException if validateHeaderAgainstColumnsEnum == true && headerExists == false
 	 * 
 	 * @throws IOException, IllegalArgumentException
+	 * @throws CsvValidationException 
 	 */
 	public EnumValidatedCsvFileReader(Path f, Class<COLUMNS> columnsEnumClass, boolean headerExists, boolean validateHeaderAgainstColumnsEnum)
-			throws IOException
+			throws IOException, CsvValidationException
 	{
 		this.columnsEnumClass = columnsEnumClass;
 
@@ -146,8 +149,9 @@ public class EnumValidatedCsvFileReader<COLUMNS extends Enum<COLUMNS>>
 	 * 
 	 * @return all the lines
 	 * @throws IOException
+	 * @throws CsvValidationException 
 	 */
-	public String[] readLine() throws IOException
+	public String[] readLine() throws IOException, CsvValidationException
 	{
 		String[] untrimmed = reader.readNext();
 		String[] trimmed = null;
@@ -183,8 +187,9 @@ public class EnumValidatedCsvFileReader<COLUMNS extends Enum<COLUMNS>>
 	 * 
 	 * @return the column map
 	 * @throws IOException
+	 * @throws CsvValidationException 
 	 */
-	public Map<COLUMNS, String> readLineAsMap() throws IOException
+	public Map<COLUMNS, String> readLineAsMap() throws IOException, CsvValidationException
 	{
 		String[] rowAsArray = readLine();
 		if (rowAsArray != null)

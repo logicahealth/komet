@@ -38,14 +38,8 @@
 
 
 package sh.isaac.model.semantic;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.NoSuchElementException;
 import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -70,9 +64,20 @@ import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.model.semantic.version.LongVersionImpl;
 import sh.isaac.model.semantic.version.SemanticVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
-import sh.isaac.model.semantic.version.brittle.*;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.model.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Int2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Long2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Str3_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Str2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 
 /**
  * The Class SemanticChronologyImpl.
@@ -85,8 +90,6 @@ public class SemanticChronologyImpl
 
    /** The referenced component nid. */
    int referencedComponentNid = Integer.MAX_VALUE;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new semantic chronology impl.
@@ -109,53 +112,15 @@ public class SemanticChronologyImpl
       this.referencedComponentNid = referencedComponentNid;
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Creates the mutable version.
-    *
-    * @param <V> the generic type
-    * @param stampSequence the stamp sequence
-    * @return the m
-    */
    @Override
    public <V extends Version> V createMutableVersion(int stampSequence) {
       final V version = createMutableVersionInternal(stampSequence);
       addVersion(version);
       return version;
    }
-
-   /**
-    * Creates the mutable version.
-    *
-    * @param <V> the generic type
-    * @param status the status
-    * @param mc the Manifold cooreinate
-    * @return the mutable version
-    */
+   
    @Override
-   public <V extends Version> V createMutableVersion(Transaction transaction, Status status, ManifoldCoordinate mc) {
-      LatestVersion<V> latest = this.getLatestVersion(mc.getViewStampFilter());
-      final int stampSequence;
-      if (latest.isPresent()) {
-         stampSequence = Get.stampService()
-                 .getStampSequence(
-                         transaction,
-                         status,
-                         Long.MAX_VALUE,
-                         mc.getAuthorNidForChanges(),
-                         mc.getModuleNidForAnalog(latest.get()),
-                         mc.getPathNidForAnalog());
-      } else {
-         stampSequence = Get.stampService()
-                 .getStampSequence(
-                         transaction,
-                         status,
-                         Long.MAX_VALUE,
-                         mc.getAuthorNidForChanges(),
-                         mc.getModuleNidForAnalog(null),
-                         mc.getPathNidForAnalog());
-      }
+   public <V extends Version> V createMutableVersion(Transaction transaction, int stampSequence) {
       final V version = createMutableVersionInternal(stampSequence);
       transaction.addVersionToTransaction(version);
       addVersion(version);
@@ -241,9 +206,6 @@ public class SemanticChronologyImpl
 
       case Str1_Str2_Nid3_Nid4_Nid5:
          return new Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(chronology, stampSequence, bb);
-
-      case LOINC_RECORD:
-         return new LoincVersionImpl(chronology, stampSequence, bb);
 
       default:
          throw new UnsupportedOperationException("ae Can't handle: " + chronology.versionType);
@@ -340,10 +302,13 @@ public class SemanticChronologyImpl
          break;
 
       default:
+         //probably means UNKNOWN, which is a typically a problem - write both the nid and the UUID to aid in tracking it down.
          builder.append(Get.identifierService()
                            .getObjectTypeForComponent(this.referencedComponentNid))
                 .append(" ")
-                .append(this.referencedComponentNid);
+                .append(this.referencedComponentNid)
+                .append(" ")
+                .append(Get.identifierService().getUuidPrimordialStringForNid(this.referencedComponentNid));
       }
 
       builder.append(" <")
@@ -432,9 +397,6 @@ public class SemanticChronologyImpl
 
       case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
          return (M) new Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl((SemanticChronology) this, stampSequence);
-         
-      case LOINC_RECORD:
-         return (M) new LoincVersionImpl((SemanticChronology) this, stampSequence);
 
       case Str1_Nid2_Nid3_Nid4:
           return (M) new Str1_Nid2_Nid3_Nid4_VersionImpl((SemanticChronology) this, stampSequence);

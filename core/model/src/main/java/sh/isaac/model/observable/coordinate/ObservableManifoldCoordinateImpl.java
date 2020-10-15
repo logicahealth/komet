@@ -72,6 +72,11 @@ public class ObservableManifoldCoordinateImpl extends ObservableManifoldCoordina
     public ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis) {
         return new ObservableManifoldCoordinateImpl(getValue().makeCoordinateAnalog(classifyTimeInEpochMillis));
     }
+    
+    @Override
+    public ManifoldCoordinate makeCoordinateAnalog(PremiseType premiseType) {
+        return new ObservableManifoldCoordinateImpl(getValue().makeCoordinateAnalog(premiseType));
+    }
 
     @Override
     public void setExceptOverrides(ManifoldCoordinateImmutable updatedCoordinate) {

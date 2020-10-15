@@ -32,7 +32,7 @@
 @prefix voaf: <http://purl.org/vocommons/voaf#> .
 @prefix dcam: <http://purl.org/dc/dcam/> .
 @prefix dcterms: <http://purl.org/dc/terms/> .
-@prefix chronology: <http://creativecommons.org/ns#> .
+@prefix cc: <http://creativecommons.org/ns#> .
 @prefix foaf: <http://xmlns.com/foaf/0.1/> .
 @prefix fowl: <http://www.w3.org/TR/2003/PR-owl-guide-20031209/food#> .
 @prefix food: <http://data.lirmm.fr/ontologies/food#> .
@@ -50,7 +50,7 @@
 # Ontology ####################################################################
 
 <http://rdfs.co/bevon/0.8>
-  a owl:Ontology , adms:SemanticAsset , voaf:Vocabulary , chronology:Work ;
+  a owl:Ontology , adms:SemanticAsset , voaf:Vocabulary , cc:Work ;
   dcterms:title "BEVON: Beverage Ontology"@en ;
   dcterms:description """
     Beverage Ontology is a Web vocabulary for describing beverages, mainly
@@ -152,7 +152,7 @@
     <http://rdfs.co/bevon/0.8/ttl> ,
     <http://rdfs.co/bevon/0.8/rdf> ;
   dcterms:rights "Copyright © 2013-2015 James G. Kim Some Rights Reserved." ;
-  chronology:license <http://creativecommons.org/licenses/by/4.0/> .
+  cc:license <http://creativecommons.org/licenses/by/4.0/> .
 
 <http://rdfs.co/bevon/0.8/html> dcterms:format [
   a dcterms:MediaType ;

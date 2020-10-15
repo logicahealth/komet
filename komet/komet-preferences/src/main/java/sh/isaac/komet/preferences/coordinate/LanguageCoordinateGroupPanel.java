@@ -33,7 +33,7 @@ public class LanguageCoordinateGroupPanel extends ParentPanel {
             new LanguageCoordinateItemPanel(usEnglishFullyQualifiedCoordinate, US_ENGLISH_FQN_COORDINATE_KEY.getString(), childUsEnglishFullyQualifiedPreferences, viewProperties, kpc);
 
 
-            LanguageCoordinate usEnglishPreferredCoordinate = Get.coordinateFactory().getUsEnglishLanguagePreferredTermCoordinate();
+            LanguageCoordinate usEnglishPreferredCoordinate = Get.coordinateFactory().getUsEnglishLanguageRegularTermCoordinate();
             IsaacPreferences childUsEnglishPreferences = addChild(US_ENGLISH_PREFERRED_COORDINATE_KEY.getUuid().toString(), LanguageCoordinateItemPanel.class);
             new LanguageCoordinateItemPanel(usEnglishPreferredCoordinate, US_ENGLISH_PREFERRED_COORDINATE_KEY.getString(), childUsEnglishPreferences, viewProperties, kpc);
 

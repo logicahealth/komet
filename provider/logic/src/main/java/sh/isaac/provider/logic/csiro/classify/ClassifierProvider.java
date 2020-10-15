@@ -72,7 +72,6 @@ public class ClassifierProvider
       return AggregateClassifyTask.get(this.manifoldCoordinate, cycleCheck);
    }
 
-   //~--- get methods ---------------------------------------------------------
    /**
     * Gets the concept nid for expression.
     *

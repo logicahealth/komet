@@ -1,6 +1,7 @@
 package sh.isaac.provider.commit;
 
 import javafx.concurrent.Task;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.Get;
 import sh.isaac.api.alert.AlertCategory;
@@ -43,7 +44,7 @@ public class TransactionCommitTask extends CommitTask {
      * @param transaction the transaction
      */
     private TransactionCommitTask(String commitComment,
-                                  CommitProvider commitProvider,
+                             CommitProvider commitProvider,
                              ConcurrentSkipListSet<ChangeChecker> checkers,
                              ConcurrentSkipListSet<AlertObject> alertCollection,
                              TransactionImpl transaction, Instant commitTime) {
@@ -56,7 +57,7 @@ public class TransactionCommitTask extends CommitTask {
         addToTotalWork(transaction.getCheckCountForTransaction());
         updateTitle("Commit");
         updateMessage(commitComment);
-        //LOG.info("Spawning CommitTask " + taskSequenceId);
+        LOG.info("TransactionCommitTask created for transaction {}", transaction);
         Get.activeTasks().add(this);
     }
 
@@ -71,6 +72,7 @@ public class TransactionCommitTask extends CommitTask {
             throws Exception {
         try {
             // need to track
+            LOG.debug("TransactionCommitTask for transaction {} begins, comment: {} ", transaction, commitComment);
             if (!this.transaction.readyToCommit(this.checkers, this.alertCollection, this)) {
                 return Optional.empty();
             }
@@ -79,20 +81,22 @@ public class TransactionCommitTask extends CommitTask {
 
 
             if (!transaction.getStampsForTransaction().isEmpty()) {
-                if (this.commitComment != null) {
+                if (StringUtils.isNotBlank(this.commitComment)) {
                     transaction.getStampsForTransaction().stream().forEach((stamp) -> commitProvider.addComment(stamp, this.commitComment));
                 }
                 final CommitRecord commitRecord = new CommitRecord(commitTime,
                         StampSequenceSet.of(transaction.getStampsForTransaction()),
                         new OpenIntIntHashMap(),
                         transaction.getComponentNidsForTransaction(),
-                        this.commitComment);
+                        this.commitComment, 
+                        transaction);
 
                 this.commitProvider.handleCommitNotification(commitRecord);
                 return Optional.of(commitRecord);
             }
             else{
                 this.alertCollection.add(new AlertObject("nothing to commit", "Nothing was found to commit", AlertType.INFORMATION, AlertCategory.COMMIT));
+                LOG.warn("Nothing to commit in transaction {} : {}", transaction, this.commitComment);
                 return Optional.empty();
             }
         } catch (final Exception e1) {
@@ -102,7 +106,7 @@ public class TransactionCommitTask extends CommitTask {
             PendingTransactions.removeTransaction(transaction);
             Get.activeTasks().remove(this);
             this.commitProvider.getPendingCommitTasks().remove(this);
-            //LOG.info("Finished CommitTask " + taskSequenceId);
+            LOG.debug("TransactionCommitTask for transaction {} ends ", transaction);
         }
     }
 

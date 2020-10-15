@@ -120,7 +120,8 @@ public abstract class ControllerForSpecification {
                 }
                 return viewProperties.getPreferredDescriptionText(o1.getNid1()).compareTo(viewProperties.getPreferredDescriptionText(o2.getNid1()));
             });
-            Optional<SemanticChronology> optionalSemanticType = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(assemblageSpec.getNid(), MetaData.SEMANTIC_TYPE____SOLOR.getNid()).findFirst();
+            Optional<SemanticChronology> optionalSemanticType = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
+                  assemblageSpec.getNid(), MetaData.SEMANTIC_TYPE____SOLOR.getNid(), false).findFirst();
             if (optionalSemanticType.isPresent()) {
                 //TODO, this won't work when there is more than one additional field of a type.
                 LatestVersion<ComponentNidVersion> componentNidVersion = optionalSemanticType.get().getLatestVersion(viewProperties.getViewStampFilter());

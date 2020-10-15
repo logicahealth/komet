@@ -36,12 +36,23 @@
  */
 package sh.isaac.provider.datastore.taxonomy;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import javafx.application.Platform;
-import javafx.beans.value.ObservableValue;
-import javafx.concurrent.Task;
-import javafx.concurrent.Worker.State;
+import java.lang.ref.WeakReference;
+import java.nio.file.Path;
+import java.util.EnumSet;
+import java.util.NoSuchElementException;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.function.BinaryOperator;
+import java.util.function.IntFunction;
+import java.util.function.Supplier;
+import java.util.stream.IntStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.collection.ImmutableCollection;
@@ -52,7 +63,21 @@ import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.*;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import javafx.application.Platform;
+import javafx.beans.value.ObservableValue;
+import javafx.concurrent.Task;
+import javafx.concurrent.Worker.State;
+import sh.isaac.api.ConceptActiveService;
+import sh.isaac.api.Edge;
+import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.RefreshListener;
+import sh.isaac.api.Status;
+import sh.isaac.api.SystemStatusService;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.IntSet;
@@ -62,7 +87,13 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.Activity;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.PremiseSet;
+import sh.isaac.api.coordinate.StampFilterImmutable;
+import sh.isaac.api.coordinate.StatusSet;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.navigation.NavigationRecord;
 import sh.isaac.api.navigation.NavigationService;
@@ -79,18 +110,6 @@ import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
 import sh.isaac.provider.datastore.navigator.NavigationAmalgam;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.lang.ref.WeakReference;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.function.BinaryOperator;
-import java.util.function.IntFunction;
-import java.util.function.Supplier;
-import java.util.stream.IntStream;
-
-//~--- classes ----------------------------------------------------------------
 /**
  *
  * @author kec
@@ -100,45 +119,26 @@ import java.util.stream.IntStream;
 public class TaxonomyProvider
         implements TaxonomyDebugService, ConceptActiveService, ChronologyChangeListener, NavigationService {
 
-    /**
-     * The Constant LOG.
-     */
     private static final Logger LOG = LogManager.getLogger();
 
-    //~--- fields --------------------------------------------------------------
     private final TaskCountManager taskCountManager = Get.taskCountManager();
 
-    /**
-     * The semantic nids for unhandled changes.
-     */
     private final ConcurrentSkipListSet<Integer> semanticNidsForUnhandledChanges = new ConcurrentSkipListSet<>();
-
     private final Set<Task<?>> pendingUpdateTasks = ConcurrentHashMap.newKeySet();
-    /**
-     * The tree cache.
-     */
     private final ConcurrentHashMap<SnapshotCacheKey, Task<Tree>> snapshotCache = new ConcurrentHashMap<>(5);
-    private final ConcurrentHashMap<SnapshotCacheKey, TaxonomySnapshot> noTreeSnapshotCache = new ConcurrentHashMap<>(5);
+    private final ConcurrentHashMap<SnapshotCacheKey, TaxonomySnapshot> noTreeSnapshotCache = new ConcurrentHashMap<>(50);  //These have a low footprint, can cache many
     private final NidSet isANidSet = new NidSet();  //init in startup
     private final NidSet childOfTypeNidSet = new NidSet();  //init in startup
     private final UUID listenerUUID = UUID.randomUUID();
 
-    /**
-     * The change listeners.
-     */
     ConcurrentSkipListSet<WeakReference<RefreshListener>> refreshListeners = new ConcurrentSkipListSet<>();
 
-    /**
-     * The identifier service.
-     */
     private IdentifierService identifierService;
     private DataStore store;
 
-    //~--- constructors --------------------------------------------------------
     public TaxonomyProvider() {
     }
 
-    //~--- methods -------------------------------------------------------------
     @Override
     public void addTaxonomyRefreshListener(RefreshListener refreshListener) {
         refreshListeners.add(new WeakReferenceRefreshListener(refreshListener));
@@ -221,7 +221,7 @@ public class TaxonomyProvider
                     LOG.error(ex);
                 }
             }
-            this.store.sync().get();
+            // Not our job to sync the data store
             return null;
         });
     }
@@ -230,8 +230,6 @@ public class TaxonomyProvider
     public void updateStatus(ConceptChronology conceptChronology) {
         ChronologyUpdate.handleStatusUpdate(conceptChronology);
     }
-    
-       
 
     @Override
     public void updateTaxonomy(SemanticChronology logicGraphChronology) {
@@ -244,11 +242,6 @@ public class TaxonomyProvider
         }
     }
 
-//    @Override
-//    public boolean wasEverKindOf(int childId, int parentId) {
-//        throw new UnsupportedOperationException(
-//                "Not supported yet.");  // To change body of generated methods, choose Tools | Templates.
-//    }
     /**
      * Start me.
      */
@@ -337,7 +330,6 @@ public class TaxonomyProvider
         }
     }
 
-    //~--- get methods ---------------------------------------------------------
     @Override
     public IntStream getAllRelationshipOriginNidsOfType(int destinationId, IntSet typeSequenceSet) {
         throw new UnsupportedOperationException(
@@ -403,8 +395,7 @@ public class TaxonomyProvider
     @Override
     public TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, Set<Status> allowedStates, boolean computeTree) {
 
-        ManifoldCoordinate statedManifold = ManifoldCoordinateImmutable.makeStated(StampFilterImmutable.make(StatusSet.of(allowedStates), pathNid, modules),
-                Coordinates.Language.UsEnglishPreferredName(), Activity.DEVELOPING, Coordinates.Edit.Default());
+        ManifoldCoordinate statedManifold = ManifoldCoordinateImmutable.makeStated(StampFilterImmutable.make(StatusSet.of(allowedStates), pathNid, modules), null);
 
         return computeTree ?
                 getSnapshot(statedManifold) :
@@ -474,8 +465,9 @@ public class TaxonomyProvider
         public String toString() {
             return "SnapshotCacheKey{" +
                     "taxPremiseType=" + taxPremiseTypes +
-                    ",\n   stampCoordinate=" + manifoldCoordinateUuid +
-                    ",\n   customSortHash=" + customSortHash +
+                    ", stampCoordinate=" + manifoldCoordinateUuid +
+                    ", customSortHash=" + customSortHash +
+
                     '}';
         }
 
@@ -512,7 +504,7 @@ public class TaxonomyProvider
             return treeTask;
         }
 
-        LOG.debug("Building tree for {}, cache key {}", mc, snapshotCacheKey.hashCode());
+        LOG.debug("Building tree for {}, cache key {}", () -> mc.getClass().getName() + "@" + Integer.toHexString(mc.hashCode()), () -> snapshotCacheKey.hashCode());
         IntFunction<int[]> taxonomyDataProvider = new IntFunction<int[]>() {
             final int assemblageNid = mc.getLogicCoordinate().getConceptAssemblageNid();
             @Override
@@ -535,7 +527,7 @@ public class TaxonomyProvider
             return previousTask;
         }
 
-        LOG.debug("Executing: " + snapshotCacheKey + "\n cache count is: " + this.snapshotCache.size());
+        LOG.debug("Executing: " + snapshotCacheKey + " -- cache count is: " + this.snapshotCache.size());
         Get.executor().execute(treeBuilderTask);
 
         return treeBuilderTask;
@@ -619,21 +611,16 @@ public class TaxonomyProvider
         return getTaxonomyRecord(parentNid).getTaxonomyRecordUnpacked().getDestinationConceptNidsOfType(childOfTypeNidSet).toArray();
     }
 
-    //~--- inner classes -------------------------------------------------------
-    /**
+   /**
      * The Class TaxonomySnapshotProvider.
      */
     private class TaxonomySnapshotProvider
             implements TaxonomySnapshot {
 
-        /**
-         * The manifoldCoordinate.
-         */
         final ManifoldCoordinate manifoldCoordinate;
         Tree treeSnapshot;
         final Task<Tree> treeTask;
 
-        //~--- constructors -----------------------------------------------------
         public TaxonomySnapshotProvider(ManifoldCoordinate manifoldCoordinate, Task<Tree> treeTask) {
             this.manifoldCoordinate = manifoldCoordinate;
             this.treeTask = treeTask;
@@ -701,9 +688,10 @@ public class TaxonomyProvider
                 switch (newValue) {
                     case SUCCEEDED: {
                         this.treeSnapshot = treeTask.get();
+                        break;
                     }
                     default :
-                        LOG.debug("Unhandled case: {}", newValue);
+                        //noop
                         break;
                 }
             } catch (InterruptedException | ExecutionException ex) {
@@ -712,14 +700,6 @@ public class TaxonomyProvider
             }
         }
 
-        //~--- get methods ------------------------------------------------------
-        /**
-         * Checks if child of.
-         *
-         * @param childId the child id
-         * @param parentId the parent id
-         * @return true, if child of
-         */
         @Override
         public boolean isChildOf(int childId, int parentId) {
             if (treeSnapshot != null) {
@@ -735,13 +715,6 @@ public class TaxonomyProvider
             return taxonomyRecordPrimitive.containsNidViaType(parentId, TermAux.IS_A.getNid(), manifoldCoordinate);
         }
 
-        /**
-         * Checks if kind of.
-         *
-         * @param childId the child id
-         * @param kindofNid the parent id
-         * @return true, if kind of
-         */
         @Override
         public boolean isKindOf(int childId, int kindofNid) {
             if (childId == kindofNid) {
@@ -796,12 +769,7 @@ public class TaxonomyProvider
             return false;
         }
 
-        /**
-         * Gets the kind of sequence set.
-         *
-         * @param rootId the root id
-         * @return the kind of sequence set
-         */
+
         @Override
         public ImmutableIntSet getKindOfConcept(int rootId) {
             MutableIntSet kindNids = IntSets.mutable.empty();
@@ -827,11 +795,6 @@ public class TaxonomyProvider
             return this.manifoldCoordinate;
         }
 
-        /**
-         * Gets the roots.
-         *
-         * @return the roots
-         */
         @Override
         public int[] getRootNids() {
             if (treeSnapshot != null) {
@@ -841,12 +804,6 @@ public class TaxonomyProvider
             return new int[]{TermAux.SOLOR_ROOT.getNid()};
         }
 
-        /**
-         * Gets the taxonomy child sequences.
-         *
-         * @param parentId the parent id
-         * @return the taxonomy child sequences
-         */
         @Override
         public int[] getTaxonomyChildConceptNids(int parentId) {
             if (treeSnapshot != null) {
@@ -867,12 +824,6 @@ public class TaxonomyProvider
             return !taxonomyRecordPrimitive.hasDestinationNidsOfType(childOfTypeNidSet, manifoldCoordinate);
         }
 
-        /**
-         * Gets the taxonomy parent sequences.
-         *
-         * @param childId the child id
-         * @return the taxonomy parent sequences
-         */
         @Override
         public int[] getTaxonomyParentConceptNids(int childId) {
             if (treeSnapshot != null) {
@@ -884,11 +835,6 @@ public class TaxonomyProvider
             return taxonomyRecordPrimitive.getDestinationNidsOfType(isANidSet, manifoldCoordinate);
         }
 
-        /**
-         * Gets the taxonomy tree.
-         *
-         * @return the taxonomy tree
-         */
         @Override
         public Tree getTaxonomyTree() {
             try {
@@ -924,6 +870,7 @@ public class TaxonomyProvider
         public boolean isChildOf(int childId, int parentId) {
             return childOfCache.computeIfAbsent(childId + ":" + parentId, (key) -> 
             {
+                //TODO [KEITH] shouldn't IS_A come from manifold coord?
                 TaxonomyRecordPrimitive taxonomyRecordPrimitive = getTaxonomyRecord(childId);
                 return taxonomyRecordPrimitive.containsNidViaType(parentId, TermAux.IS_A.getNid(), mc);
             });

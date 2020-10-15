@@ -68,6 +68,7 @@ public class Shutdown
             throws MojoExecutionException {
       Headless.setHeadless();
       try {
+         long start = System.currentTimeMillis();
          getLog().info("Shutdown terminology store");
 
          // ASSUMES setup has run already
@@ -75,7 +76,7 @@ public class Shutdown
 
          LookupService.shutdownSystem();
          
-         getLog().info("Done shutting down terminology store");
+         getLog().info("Done shutting down terminology store in " + (System.currentTimeMillis() - start) + " ms");
       } catch (final Exception e) {
          throw new MojoExecutionException("Database shutdown failure", e);
       }

@@ -3,6 +3,7 @@ package sh.isaac.solor.mojo;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import com.opencsv.exceptions.CsvValidationException;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -156,7 +157,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     @Override
     protected Void call() throws Exception {
         try {
-            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
 
             ConceptProxy covid19Proxy = new ConceptProxy("Disease caused by severe acute respiratory syndrome coronavirus 2 (disorder)",
                     UUID.fromString("938c3040-c6cb-3b9d-9a7e-489217d82aa9"));
@@ -293,7 +294,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
                     HDX_REVIEW_REQUIRED.getFullyQualifiedName(), stamp, HUMAN_DX_ASSEMBLAGES.getNid());
 
             File importDirectory = Get.configurationService().getIBDFImportPath().toFile();
-            System.out.println("Importing from: " + importDirectory.getAbsolutePath());
+            LOG.info("Importing from: " + importDirectory.getAbsolutePath());
 
             int fileCount = loadDatabase(transaction, importDirectory);
             transaction.commit("Health Ontology Import");
@@ -336,7 +337,7 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
     }
 
     private void readHo(Transaction transaction, CSVReader reader, ZipEntry entry)
-            throws IOException {
+            throws IOException, CsvValidationException {
         long commitTime = System.currentTimeMillis();
         AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
@@ -396,8 +397,6 @@ public class HoDirectImporter extends TimedTaskWithProgressTracker<Void>
             }
         }
         LOG.info("Deprecated entities: " + deprecated);
-        updateMessage("Synchronizing HO records to database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 

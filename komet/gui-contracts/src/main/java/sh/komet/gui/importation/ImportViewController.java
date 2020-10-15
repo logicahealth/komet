@@ -356,7 +356,7 @@ public class ImportViewController {
 
         }
         if (directImportType != null) {
-            Transaction transaction = Get.commitService().newTransaction(Optional.of("From ImportViewController"), ChangeCheckerMode.INACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.of("From ImportViewController"), ChangeCheckerMode.INACTIVE, false);
             ImportSelectedAndTransformTask importer
                     = new ImportSelectedAndTransformTask(transaction, manifold, directImportType, entriesToImport);
             transaction.commit();

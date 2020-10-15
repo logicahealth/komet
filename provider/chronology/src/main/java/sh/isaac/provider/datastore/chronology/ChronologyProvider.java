@@ -36,8 +36,21 @@
  */
 package sh.isaac.provider.datastore.chronology;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
@@ -45,7 +58,16 @@ import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.*;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import sh.isaac.api.DatastoreServices.DataStoreStartState;
+import sh.isaac.api.Get;
+import sh.isaac.api.IdentifierService;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.MetadataService;
+import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -66,7 +88,12 @@ import sh.isaac.api.component.semantic.version.MutableStringVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
@@ -79,20 +106,6 @@ import sh.isaac.model.ModelGet;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.concept.ConceptSnapshotImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -186,10 +199,6 @@ public class ChronologyProvider
                 .getResourceAsStream("sh/isaac/IsaacMetadataAuxiliary.ibdf");
         return Get.binaryDataReader(dataStream);
     }
-    @Override
-    public Future<?> sync() {
-        return this.store.sync();
-    }
     
     /**
     * {@inheritDoc}
@@ -253,7 +262,7 @@ public class ChronologyProvider
       Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
       Get.semanticBuilderService()
             .getStringSemanticBuilder(getDataStoreId().get().toString(), TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
-            .build(transaction, Coordinates.Manifold.DevelopmentInferredRegularNameSort()).get();
+            .buildAndWrite(Coordinates.Manifold.DevelopmentInferredRegularNameSort().getWriteCoordinate(transaction)).get();
       transaction.commit("Storing database ID on root concept").get();
     }
 
@@ -281,14 +290,9 @@ public class ChronologyProvider
      */
     @PreDestroy
     private void stopMe() {
-        try {
-            LOG.info("Stopping chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
-            this.sync().get();
-            this.metadataLoaded.set(-1);
-            LOG.info("Stopped chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
-        } catch (InterruptedException | ExecutionException ex) {
-            LOG.error(ex);
-        }
+        LOG.info("Stopping chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
+        this.metadataLoaded.set(-1);
+        LOG.info("Stopped chronology provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -352,8 +356,8 @@ public class ChronologyProvider
     }
 
     @Override
-    public Stream<ConceptChronology> getConceptChronologyStream() {
-      return ModelGet.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT).mapToObj((nid) -> {
+    public Stream<ConceptChronology> getConceptChronologyStream(boolean parallel) {
+      return ModelGet.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT, parallel).mapToObj((nid) -> {
          try {
             return (ConceptChronology) getConceptChronology(nid);
          } catch (NoSuchElementException e) {
@@ -363,8 +367,8 @@ public class ChronologyProvider
     }
 
    @Override
-   public Stream<ConceptChronology> getConceptChronologyStream(int assemblageNid) {
-      return Get.identifierService().getNidsForAssemblage(assemblageNid).mapToObj((nid) -> {
+   public Stream<ConceptChronology> getConceptChronologyStream(int assemblageNid, boolean parallel) {
+      return Get.identifierService().getNidsForAssemblage(assemblageNid, parallel).mapToObj((nid) -> {
          try {
             return (ConceptChronology) getConceptChronology(nid);
          } catch (NoSuchElementException e) {
@@ -374,9 +378,9 @@ public class ChronologyProvider
    }
 
     @Override
-    public Stream<ConceptChronology> getConceptChronologyStream(IntSet conceptNids) {
-        return conceptNids.parallelStream()
-                .mapToObj(
+    public Stream<ConceptChronology> getConceptChronologyStream(IntSet conceptNids, boolean parallel) {
+        IntStream is = parallel ? conceptNids.parallelStream() : conceptNids.stream();
+        return is.mapToObj(
                         (nid) -> {
                             return getConceptChronology(nid);
                         });
@@ -385,31 +389,29 @@ public class ChronologyProvider
     @Override
     public int getConceptCount() {
         return (int) ModelGet.identifierService()
-                .getNidStreamOfType(IsaacObjectType.CONCEPT)
-                .parallel()
+                .getNidStreamOfType(IsaacObjectType.CONCEPT, true)
                 .filter(nid -> hasConcept(nid))
                 .count();
     }
 
     @Override
    public int getConceptCount(int assemblageNid) {
-      return (int) getConceptNidStream(assemblageNid)
-            .parallel()
+      return (int) getConceptNidStream(assemblageNid, true)
             .filter(nid -> hasConcept(nid))
             .count();
    }
 
     @Override
-    public IntStream getConceptNidStream() {
+    public IntStream getConceptNidStream(boolean parallel) {
         return ModelGet.identifierService()
-                .getNidStreamOfType(IsaacObjectType.CONCEPT)
+                .getNidStreamOfType(IsaacObjectType.CONCEPT, parallel)
                 .filter(nid -> hasConcept(nid));
     }
 
     @Override
-    public IntStream getConceptNidStream(int assemblageNid) {
+    public IntStream getConceptNidStream(int assemblageNid, boolean parallel) {
         return Get.identifierService()
-                .getNidsForAssemblage(assemblageNid)
+                .getNidsForAssemblage(assemblageNid, parallel)
                 .filter(nid -> hasConcept(nid));
     }
 
@@ -418,7 +420,7 @@ public class ChronologyProvider
        UUID fromFile = store.getDataStoreId().orElse(null);
        
        //This is a sanity check, which gets run by the Lookup Service during the startup sequence.
-      Optional<SemanticChronology> sdic = getSemanticChronologyStreamForComponentFromAssemblage(TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
+      Optional<SemanticChronology> sdic = getSemanticChronologyStreamForComponentFromAssemblage(TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid(), false)
              .findFirst();
        if (sdic.isPresent()) {
           LatestVersion<Version> sdi = sdic.get().getLatestVersion(Coordinates.Filter.DevelopmentLatest());
@@ -431,7 +433,7 @@ public class ChronologyProvider
                          + "  Updating the semantic store to match the file store id.", temp, fromFile);
 
                    Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
-                   MutableStringVersion sv = sdic.get().createMutableVersion(transaction, Status.ACTIVE, Coordinates.Manifold.DevelopmentInferredRegularNameSort());
+                   MutableStringVersion sv = sdic.get().createMutableVersion(Coordinates.Manifold.DevelopmentInferredRegularNameSort().getWriteCoordinate(transaction));
                    sv.setString(fromFile.toString());
                    Get.commitService().addUncommitted(transaction, sv);
                    transaction.commit("Updating database ID on root concept").get();
@@ -443,16 +445,6 @@ public class ChronologyProvider
           }
        }
        return Optional.ofNullable(fromFile);
-    }
-
-    @Override
-    public Path getDataStorePath() {
-        return store.getDataStorePath();
-    }
-
-    @Override
-    public DataStoreStartState getDataStoreStartState() {
-        return store.getDataStoreStartState();
     }
 
     @Override
@@ -566,8 +558,8 @@ public class ChronologyProvider
     }
 
    @Override
-   public Stream<SemanticChronology> getSemanticChronologyStream() {
-      return getSemanticNidStream().mapToObj((value) -> {
+   public Stream<SemanticChronology> getSemanticChronologyStream(boolean parallel) {
+      return getSemanticNidStream(parallel).mapToObj((value) -> {
          try {
             return (SemanticChronology) getSemanticChronology(value);
          } catch (NoSuchElementException e) {
@@ -577,11 +569,12 @@ public class ChronologyProvider
    }
 
     @Override
-    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid) {
-        // TODO: when I make the stream parallel, there are some tests for the dynamic assemblages that fail.
-        // I wonder if they are making incorrect ordering assumptions, or similar.
-        return IntStream.of(store.getSemanticNidsForComponent(componentNid))
-                .mapToObj((int semanticNid) -> { 
+    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid, boolean parallel) {
+        IntStream is = IntStream.of(store.getSemanticNidsForComponent(componentNid));
+        if (parallel) {
+            is = is.parallel();
+        }
+    	return is.mapToObj((int semanticNid) -> { 
                 try {
                   return (C) getSemanticChronology(semanticNid);
                } catch (NoSuchElementException e) {
@@ -591,16 +584,20 @@ public class ChronologyProvider
     }
     
     @Override
-    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid, int assemblageConceptNid) {
-       return getSemanticChronologyStreamForComponentFromAssemblages(componentNid, Collections.singleton(assemblageConceptNid));
+    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid, int assemblageConceptNid, boolean parallel) {
+       return getSemanticChronologyStreamForComponentFromAssemblages(componentNid, Collections.singleton(assemblageConceptNid), parallel);
     }
     
     @Override
     public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
-          Set<Integer> assemblageConceptNids) {
+          Set<Integer> assemblageConceptNids, boolean parallel) {
        final ImmutableIntSet semanticSequences = getSemanticNidsForComponentFromAssemblages(componentNid, assemblageConceptNids);
 
-       return Arrays.stream(semanticSequences.toArray()).parallel().mapToObj((int semanticNid) -> {
+       IntStream is = Arrays.stream(semanticSequences.toArray());
+       if (parallel) {
+           is = is.parallel();
+       }
+       return is.mapToObj((int semanticNid) -> {
            try {
              return (C) getSemanticChronology(semanticNid);
           } catch (NoSuchElementException e) {
@@ -610,13 +607,17 @@ public class ChronologyProvider
     }
 
     @Override
-    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStream(int assemblageConceptNid) {
+    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStream(int assemblageConceptNid, boolean parallel) {
         switch (getObjectTypeForAssemblage(assemblageConceptNid)) {
             case SEMANTIC:
+            {
                 final ImmutableIntSet semanticSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
 
-                return Arrays.stream(semanticSequences.toArray()).parallel()
-                        .mapToObj((int semanticNid) -> 
+                IntStream is = Arrays.stream(semanticSequences.toArray());
+                if (parallel) {
+                    is = is.parallel();
+                }
+                return is.mapToObj((int semanticNid) -> 
                         {
                              try {
                                return (C) getSemanticChronology(semanticNid);
@@ -624,13 +625,19 @@ public class ChronologyProvider
                                return null; // This will happen if a nid was mapped, but the object wasn't stored.
                             }
                          }).filter(obj -> obj != null); // remove the nulls
-
+            }
             case UNKNOWN:
+            {
                 // perhaps not initialized...
                 final ImmutableIntSet elementSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
-                return (Stream<C>) Arrays.stream(elementSequences.toArray()).parallel().mapToObj((nid) -> getChronology(nid))
+                IntStream is = Arrays.stream(elementSequences.toArray());
+                if (parallel) {
+                    is = is.parallel();
+                }
+                return (Stream<C>)is.mapToObj((nid) -> getChronology(nid))
                         .filter((optionalObject) -> optionalObject.isPresent())
                         .map((optionalObject) -> optionalObject.get());
+            }
         }
         throw new IllegalStateException("Assemblage is of type "
                 + getObjectTypeForAssemblage(assemblageConceptNid)
@@ -638,16 +645,20 @@ public class ChronologyProvider
     }
 
     @Override
-    public <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptNid) {
+    public <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptNid, boolean parallel) {
         switch (getObjectTypeForAssemblage(assemblageConceptNid)) {
             case CONCEPT:
-                return (Stream<C>) getConceptChronologyStream(assemblageConceptNid);
+                return (Stream<C>) getConceptChronologyStream(assemblageConceptNid, parallel);
             case SEMANTIC:
-                return (Stream<C>) getSemanticChronologyStream(assemblageConceptNid);
+                return (Stream<C>) getSemanticChronologyStream(assemblageConceptNid, parallel);
             case UNKNOWN:
                 // perhaps not initialized...
                 final ImmutableIntSet elementSequences = getSemanticNidsFromAssemblage(assemblageConceptNid);
-                return (Stream<C>) Arrays.stream(elementSequences.toArray()).parallel().mapToObj((nid) -> getChronology(nid))
+                IntStream is = Arrays.stream(elementSequences.toArray());
+                if (parallel) {
+                    is = is.parallel();
+                }
+                return (Stream<C>) is.mapToObj((nid) -> getChronology(nid))
                         .filter((optionalObject) -> optionalObject.isPresent())
                         .map((optionalObject) -> optionalObject.get());
 
@@ -658,8 +669,8 @@ public class ChronologyProvider
     }
 
     @Override
-    public Stream<Chronology> getChronologySteam() {
-        return Get.identifierService().getNidStream().parallel().mapToObj(nid -> getChronology(nid))
+    public Stream<Chronology> getChronologySteam(boolean parallel) {
+        return Get.identifierService().getNidStream(parallel).mapToObj(nid -> getChronology(nid))
                 .filter(optionalChronology -> optionalChronology.isPresent())
                 .map(optionalChronology -> optionalChronology.get());
     }
@@ -667,28 +678,28 @@ public class ChronologyProvider
     @Override
     public int getSemanticCount() {
         return (int) ModelGet.identifierService()
-                .getNidStreamOfType(IsaacObjectType.SEMANTIC)
+                .getNidStreamOfType(IsaacObjectType.SEMANTIC, true)
                 .count();
     }
 
     @Override
     public int getSemanticCount(int assemblageNid) {
         return (int) ModelGet.identifierService()
-                .getNidsForAssemblage(assemblageNid)
+                .getNidsForAssemblage(assemblageNid, true)
                 .count();
     }
 
     @Override
-    public IntStream getSemanticNidStream() {
+    public IntStream getSemanticNidStream(boolean parallel) {
         return ModelGet.identifierService()
-                .getNidStreamOfType(IsaacObjectType.SEMANTIC)
+                .getNidStreamOfType(IsaacObjectType.SEMANTIC, parallel)
                 .filter(nid -> hasSemantic(nid));
     }
 
     @Override
-    public IntStream getSemanticNidStream(int assemblageNid) {
+    public IntStream getSemanticNidStream(int assemblageNid, boolean parallel) {
         return ModelGet.identifierService()
-                .getNidsForAssemblage(assemblageNid)
+                .getNidsForAssemblage(assemblageNid, parallel)
                 .filter(nid -> hasSemantic(nid));
     }
 
@@ -731,7 +742,7 @@ public class ChronologyProvider
     @Override
     public ImmutableIntSet getSemanticNidsFromAssemblage(int assemblageNid) {
         return IntSets.immutable.ofAll(ModelGet.identifierService()
-                .getNidsForAssemblage(assemblageNid)
+                .getNidsForAssemblage(assemblageNid, true)
                 .filter(nid -> hasSemantic(nid)));
     }
 
@@ -767,7 +778,7 @@ public class ChronologyProvider
             default:
             // fall through. 
         }
-        Optional<SemanticChronology> semanticChronologyOptional = getSemanticChronologyStream(assemblageNid).findFirst();
+        Optional<SemanticChronology> semanticChronologyOptional = getSemanticChronologyStream(assemblageNid, false).findFirst();
         if (semanticChronologyOptional.isPresent()) {
             this.store.putAssemblageVersionType(assemblageNid, semanticChronologyOptional.get().getVersionType());
             return semanticChronologyOptional.get().getVersionType();
@@ -813,7 +824,7 @@ public class ChronologyProvider
         public ConceptSnapshotProvider(ManifoldCoordinate manifoldCoordinate) {
             this.manifoldCoordinate = manifoldCoordinate;
             this.stampFilterImmutable = manifoldCoordinate.getVertexStampFilter().toStampFilterImmutable();
-            this.regNameCoord = Coordinates.Language.AnyLanguageRegularName();
+            this.regNameCoord = Coordinates.Language.AnyLanguageRegularName(false);
         }
 
         @Override
@@ -838,11 +849,7 @@ public class ChronologyProvider
 
         @Override
         public String conceptDescriptionText(int conceptNid) {
-            Optional<String> description = this.manifoldCoordinate.getLanguageCoordinate().getPreferredDescriptionText(conceptNid, this.manifoldCoordinate.getViewStampFilter());
-            if (description.isPresent()) {
-                return description.get();
-            }
-            description = this.manifoldCoordinate.getLanguageCoordinate().getFullyQualifiedNameText(conceptNid, this.manifoldCoordinate.getViewStampFilter());
+            Optional<String> description = this.manifoldCoordinate.getLanguageCoordinate().getDescriptionText(conceptNid, this.manifoldCoordinate.getViewStampFilter());
             if (description.isPresent()) {
                 return description.get();
             }

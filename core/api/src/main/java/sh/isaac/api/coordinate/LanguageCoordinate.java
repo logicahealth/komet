@@ -36,31 +36,26 @@
  */
 package sh.isaac.api.coordinate;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-//~--- non-JDK imports --------------------------------------------------------
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.Get;
+import sh.isaac.api.LanguageCoordinateService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.util.UUIDUtil;
 
-//~--- interfaces -------------------------------------------------------------
 /**
  * ImmutableCoordinate to manage the retrieval and display of language and dialect information.
  *
@@ -79,7 +74,7 @@ public interface LanguageCoordinate {
      * always have different uuids.
      */
    default UUID getLanguageCoordinateUuid() {
-       ArrayList<UUID> uuidList = new ArrayList();
+       ArrayList<UUID> uuidList = new ArrayList<>();
        if (getNextPriorityLanguageCoordinate().isPresent()) {
            uuidList.add(getNextPriorityLanguageCoordinate().get().getLanguageCoordinateUuid());
        }
@@ -95,31 +90,50 @@ public interface LanguageCoordinate {
     * then the next priority language coordinate will be tried until a description is found, 
     * or until there are no next priority language coordinates left. 
     * 
-    * @return 
+    * @return next priority, or null
     */
    Optional<? extends LanguageCoordinate> getNextPriorityLanguageCoordinate();
 
    /**
     * Return the latestDescription according to the type and dialect preferences of this {@code LanguageCoordinate}.
+    * @see LanguageCoordinateService#getSpecifiedDescription(StampFilter, List, LanguageCoordinate)
     *
     * @param descriptionList descriptions to consider
     * @param stampFilter the stamp coordinate
     * @return an optional latestDescription best matching the {@code LanguageCoordinate} constraints.
     */
-   LatestVersion<DescriptionVersion> getDescription(
-           List<SemanticChronology> descriptionList,
-           StampFilter stampFilter);
+   default public LatestVersion<DescriptionVersion> getDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
+       return Get.languageCoordinateService()
+               .getSpecifiedDescription(stampFilter, descriptionList, this);
+   }
 
-    default Optional<String> getDescriptionText(ConceptSpecification conceptSpecification, StampFilter stampFilter) {
-        return this.getDescriptionText(conceptSpecification.getNid(), stampFilter);
-    }
+   /**
+    * @see #getDescriptionText(int, StampFilter)
+    * 
+    * @param conceptSpecification
+    * @param stampFilter
+    * @return Return the latestDescription according to the type and dialect preferences of this {@code LanguageCoordinate}.
+    */
+   default Optional<String> getDescriptionText(ConceptSpecification conceptSpecification, StampFilter stampFilter) {
+      return this.getDescriptionText(conceptSpecification.getNid(), stampFilter);
+   }
 
-    default Optional<String> getDescriptionText(int componentNid, StampFilter stampFilter) {
-        return toLanguageCoordinateImmutable().getDescriptionText(componentNid, stampFilter);
-    }
+   /**
+    * @see LanguageCoordinateImmutable#getDescriptionText(int, StampFilter)
+    * 
+    * @param componentNid
+    * @param stampFilter
+    * @return Return the latestDescription according to the type and dialect preferences of this {@code LanguageCoordinate}.
+    */
+   default Optional<String> getDescriptionText(int componentNid, StampFilter stampFilter) {
+      return toLanguageCoordinateImmutable().getDescriptionText(componentNid, stampFilter);
+   }
+   
    /**
     * Return the latestDescription according to the type and dialect preferences of this {@code LanguageCoordinate}.
     * or a nested {@code LanguageCoordinate}
+    * 
+    * @see #getDescription(List, StampFilter)
     *
     * @param conceptNid the concept nid. 
     * @param stampFilter the stamp coordinate
@@ -165,27 +179,14 @@ public interface LanguageCoordinate {
     * @return the module preference list.  If this list is null or empty, the returned preferred
     * name in the multiple case is unspecified.
     */
-
    int[] getModulePreferenceListForLanguage();
-   ConceptSpecification[] getModuleSpecPreferenceListForLanguage();
+
    /**
-    * Convenience method - returns true if FQN is at the top of the latestDescription list.
-    *
-    * @return true, if FQN preferred
+    * @see #getModulePreferenceListForLanguage()
+    * @return
     */
-   public default boolean isFQNPreferred() {
-      for (final int descType : getDescriptionTypePreferenceList()) {
-         if (descType
-                 == Get.identifierService().getNidForUuids(
-                         TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getPrimordialUuid())) {
-            return true;
-         }
-
-         break;
-      }
-
-      return false;
-   }
+   ConceptSpecification[] getModuleSpecPreferenceListForLanguage();
+   
 
    /**
     * Gets the latestDescription of type {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}.  Will return empty, if 
@@ -195,9 +196,10 @@ public interface LanguageCoordinate {
     * @param stampFilter the stamp coordinate
     * @return the regular name latestDescription, if available
     */
-   LatestVersion<DescriptionVersion> getFullyQualifiedDescription(
-           List<SemanticChronology> descriptionList,
-           StampFilter stampFilter);
+   default public LatestVersion<DescriptionVersion> getFullyQualifiedDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
+       return Get.languageCoordinateService()
+               .getSpecifiedDescription(stampFilter, descriptionList, new int[]{TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()}, this);
+   }
 
    /**
     * Gets the latestDescription of type {@link TermAux#FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE}.  Will return empty, if 
@@ -221,33 +223,35 @@ public interface LanguageCoordinate {
    int getLanguageConceptNid();
 
    /**
-    * 
+    * @see #getLanguageConceptNid()
     * @return 
     */
     ConceptSpecification getLanguageConcept();
 
    /**
-    * Gets the latestDescription of type {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}, acording to dialect preferences.
+    * Gets the latestDescription of type {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}, according to dialect preferences.
     * Will return empty, if no matching description type is found in this or any nested language coordinates
     * 
     * @param descriptionList the latestDescription list
     * @param stampFilter the stamp coordinate
     * @return the regular name latestDescription, if available
     */
-   LatestVersion<DescriptionVersion> getPreferredDescription(
-           List<SemanticChronology> descriptionList,
-           StampFilter stampFilter);
+   default public LatestVersion<DescriptionVersion> getRegularDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
+      return Get.languageCoordinateService()
+             .getSpecifiedDescription(stampFilter, descriptionList, new int[]{TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()}, this);
+   }
 
    /**
-    * Return a description of type definition, or an empty latest version, if none are of type definition in this or any 
+    * Return a description of type {@link TermAux#DEFINITION_DESCRIPTION_TYPE}, or an empty latest version, if none are of type definition in this or any 
     * nested language coordinates
     * @param descriptionList
     * @param stampFilter
     * @return
     */
-   LatestVersion<DescriptionVersion> getDefinitionDescription(
-           List<SemanticChronology> descriptionList,
-           StampFilter stampFilter);
+   default public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
+       return Get.languageCoordinateService()
+               .getSpecifiedDescription(stampFilter, descriptionList, new int[]{TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()}, this);
+   }
 
    /**
     * Gets the latestDescription of type {@link TermAux#REGULAR_NAME_DESCRIPTION_TYPE}.  Will return empty, if 
@@ -257,12 +261,12 @@ public interface LanguageCoordinate {
     * @param stampFilter the stamp coordinate
     * @return the regular name latestDescription
     */
-   default LatestVersion<DescriptionVersion> getPreferredDescription(
+   default LatestVersion<DescriptionVersion> getRegularDescription(
            int conceptNid,
            StampFilter stampFilter) {
        Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptNid);
        if (optionalConcept.isPresent()) {
-           return getPreferredDescription(optionalConcept.get().getConceptDescriptionList(), stampFilter);
+           return getRegularDescription(optionalConcept.get().getConceptDescriptionList(), stampFilter);
        }
        return LatestVersion.empty();
    }
@@ -275,11 +279,11 @@ public interface LanguageCoordinate {
     * @param stampFilter the stamp coordinate
     * @return the regular name text
     */
-   default Optional<String> getPreferredDescriptionText(int componentNid, StampFilter stampFilter) {
+   default Optional<String> getRegularDescriptionText(int componentNid, StampFilter stampFilter) {
       switch (Get.identifierService().getObjectTypeForComponent(componentNid)) {
          case CONCEPT: {
             LatestVersion<DescriptionVersion> latestDescription
-               = getPreferredDescription(Get.conceptService().getConceptDescriptions(componentNid), stampFilter);
+               = getRegularDescription(Get.conceptService().getConceptDescriptions(componentNid), stampFilter);
             return latestDescription.isPresent() ? Optional.of(latestDescription.get().getText()) : Optional.empty();
          }
          case SEMANTIC: {

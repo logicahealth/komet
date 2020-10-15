@@ -1467,7 +1467,7 @@ public class LogicalExpressionImpl
                         if (getConceptBeingDefinedNid() == -1) {
                             LOG.debug("Role termination error for unspecified isomorphic concept. ");
                         } else {
-                            LOG.debug("Role termination error for isomorphic concept: '{}' [{}]", Get.conceptDescriptionText(getConceptBeingDefinedNid()), 
+                            LOG.info("Role termination error for isomorphic concept: '{}' [{}]", Get.conceptDescriptionText(getConceptBeingDefinedNid()), 
                                   Get.identifierService().getUuidPrimordialForNid(getConceptBeingDefinedNid()));
                         }
                         

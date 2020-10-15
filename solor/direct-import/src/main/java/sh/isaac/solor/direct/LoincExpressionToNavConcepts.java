@@ -36,7 +36,6 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -114,7 +113,7 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
         if (!Get.identifierService().hasUuid(expressionRefset.getPrimordialUuid())) {
                 return null;
             }
-            Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid()).parallel().forEach((semanticChronology) -> {
+            Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid(), true).forEach((semanticChronology) -> {
                 for (Version version : semanticChronology.getVersionList()) {
                     String loincCode;
                     String sctExpression;
@@ -661,20 +660,22 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
         try {
             taskCountManager.acquire();
             Get.executor().execute(() -> {
-                LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                                eb.and(eb.someRole(methodProxy.getNid(), eb.conceptAssertion(methodNid))))));
-
-                StringBuilder conceptNameBuilder = new StringBuilder();
-                conceptNameBuilder.append("Phenomenon observed by ");
-                conceptNameBuilder.append(manifold.getPreferredDescriptionText(methodNid));
-                buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                try {
+                    LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                    eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                            eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                    eb.and(eb.someRole(methodProxy.getNid(), eb.conceptAssertion(methodNid))))));
+    
+                    StringBuilder conceptNameBuilder = new StringBuilder();
+                    conceptNameBuilder.append("Phenomenon observed by ");
+                    conceptNameBuilder.append(manifold.getPreferredDescriptionText(methodNid));
+                    buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                } finally {
+                    taskCountManager.release();
+                }
             });
         } catch (InterruptedException ex) {
             LOG.error(ex);
-        } finally {
-            taskCountManager.release();
         }
     }
 
@@ -682,41 +683,45 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
         try {
             taskCountManager.acquire();
             Get.executor().execute(() -> {
-                LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                                eb.and(eb.someRole(methodProxy.getNid(), eb.conceptAssertion(methodNid))))));
-
-                StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
-                buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                try {
+                    LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                    eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                            eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                    eb.and(eb.someRole(methodProxy.getNid(), eb.conceptAssertion(methodNid))))));
+    
+                    StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
+                    buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                } finally {
+                    taskCountManager.release();
+                }
             });
         } catch (InterruptedException ex) {
             LOG.error(ex);
-        } finally {
-            taskCountManager.release();
         }
     }
     private void addObservesComponent(Transaction transaction, String conceptName, int componentNid, ConceptBuilderService builderService, int stamp) throws NoSuchElementException, IllegalStateException {
         try {
             taskCountManager.acquire();
             Get.executor().execute(() -> {
-                LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                                eb.and(eb.someRole(componentProxy.getNid(), eb.conceptAssertion(componentNid))))));
-
-                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                                eb.and(eb.someRole(processOutputProxy.getNid(), eb.conceptAssertion(componentNid))))));
-
-
-                StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
-                buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                try {
+                    LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                    eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                            eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                    eb.and(eb.someRole(componentProxy.getNid(), eb.conceptAssertion(componentNid))))));
+    
+                    eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                            eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                    eb.and(eb.someRole(processOutputProxy.getNid(), eb.conceptAssertion(componentNid))))));
+    
+    
+                    StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
+                    buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                } finally {
+                    taskCountManager.release();
+                }
             });
         } catch (InterruptedException ex) {
             LOG.error(ex);
-        } finally {
-            taskCountManager.release();
         }
     }
 
@@ -725,25 +730,27 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
         try {
             taskCountManager.acquire();
             Get.executor().execute(() -> {
-                LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                                eb.and(eb.someRole(componentProxy.getNid(), eb.conceptAssertion(componentNid))))));
-
-                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                                eb.and(eb.someRole(processOutputProxy.getNid(), eb.conceptAssertion(componentNid))))));
-
-
-                StringBuilder conceptNameBuilder = new StringBuilder();
-                conceptNameBuilder.append(manifold.getPreferredDescriptionText(componentNid));
-                conceptNameBuilder.append(" phenomenon");
-                buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                try {
+                    LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                    eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                            eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                    eb.and(eb.someRole(componentProxy.getNid(), eb.conceptAssertion(componentNid))))));
+    
+                    eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                            eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                    eb.and(eb.someRole(processOutputProxy.getNid(), eb.conceptAssertion(componentNid))))));
+    
+    
+                    StringBuilder conceptNameBuilder = new StringBuilder();
+                    conceptNameBuilder.append(manifold.getPreferredDescriptionText(componentNid));
+                    conceptNameBuilder.append(" phenomenon");
+                    buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                } finally {
+                    taskCountManager.release();
+                }
             });
         } catch (InterruptedException ex) {
             LOG.error(ex);
-        } finally {
-            taskCountManager.release();
         }
     }
 
@@ -751,39 +758,43 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
         try {
             taskCountManager.acquire();
             Get.executor().execute(() -> {
-                LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                                eb.and(eb.someRole(inheresInProxy.getNid(), eb.conceptAssertion(inheresInNid))))));
-
-                StringBuilder conceptNameBuilder = new StringBuilder();
-                conceptNameBuilder.append("Inheres in ");
-                conceptNameBuilder.append(manifold.getPreferredDescriptionText(inheresInNid));
-                conceptNameBuilder.append(" phenomenon");
-                buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                try {
+                    LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                    eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                            eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                    eb.and(eb.someRole(inheresInProxy.getNid(), eb.conceptAssertion(inheresInNid))))));
+    
+                    StringBuilder conceptNameBuilder = new StringBuilder();
+                    conceptNameBuilder.append("Inheres in ");
+                    conceptNameBuilder.append(manifold.getPreferredDescriptionText(inheresInNid));
+                    conceptNameBuilder.append(" phenomenon");
+                    buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                } finally {
+                    taskCountManager.release();
+                }
             });
         } catch (InterruptedException ex) {
             LOG.error(ex);
-        } finally {
-            taskCountManager.release();
         }
     }
     private void addInheresInConcept(Transaction transaction, String conceptName, int inheresInNid, ConceptBuilderService builderService, int stamp) throws IllegalStateException, NoSuchElementException {
         try {
             taskCountManager.acquire();
             Get.executor().execute(() -> {
-                LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
-                eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
-                        eb.someRole(MetaData.ROLE_GROUP____SOLOR,
-                                eb.and(eb.someRole(inheresInProxy.getNid(), eb.conceptAssertion(inheresInNid))))));
-
-                StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
-                buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                try {
+                    LogicalExpressionBuilder eb = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
+                    eb.sufficientSet(eb.and(eb.conceptAssertion(MetaData.PHENOMENON____SOLOR),
+                            eb.someRole(MetaData.ROLE_GROUP____SOLOR,
+                                    eb.and(eb.someRole(inheresInProxy.getNid(), eb.conceptAssertion(inheresInNid))))));
+    
+                    StringBuilder conceptNameBuilder = new StringBuilder(conceptName);
+                    buildConcept(transaction, builderService, conceptNameBuilder, eb, stamp);
+                } finally {
+                taskCountManager.release();
+            }
             });
         } catch (InterruptedException ex) {
             LOG.error(ex);
-        } finally {
-            taskCountManager.release();
         }
     }
 
@@ -791,10 +802,11 @@ public class LoincExpressionToNavConcepts extends TimedTaskWithProgressTracker<V
     private void buildConcept(Transaction transaction, ConceptBuilderService builderService, StringBuilder conceptNameBuilder, LogicalExpressionBuilder eb, int stamp) throws IllegalStateException, NoSuchElementException {
         String conceptName = conceptNameBuilder.toString();
         UUID primordialUuid = UuidT5Generator.get(UUID.fromString("d96cb408-b9ae-473d-a08d-ece06dbcedf9"), conceptName);
-        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName, primordialUuid,
+        ConceptBuilder builder = builderService.getDefaultConceptBuilder(conceptName,
                 "OP",
                 eb.build(),
                 TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
+        builder.setPrimordialUuid(primordialUuid);
         List<Chronology> builtObjects = new ArrayList<>();
         builder.build(transaction, stamp, builtObjects);
         for (Chronology chronology : builtObjects) {

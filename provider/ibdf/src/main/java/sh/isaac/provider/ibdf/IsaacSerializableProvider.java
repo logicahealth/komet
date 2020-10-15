@@ -18,7 +18,7 @@ package sh.isaac.provider.ibdf;
 
 import sh.isaac.model.datastream.IsaacExternalizableUnparsed;
 import java.nio.ByteBuffer;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.SerializationService;
 import sh.isaac.api.chronicle.Chronology;

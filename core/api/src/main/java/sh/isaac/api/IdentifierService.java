@@ -44,14 +44,13 @@
  */
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import java.util.*;
+import java.util.Collection;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.UUID;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -62,8 +61,6 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface IdentifierService.
@@ -112,36 +109,37 @@ public interface IdentifierService
    /**
     * Return the nids that represent all objects in the system of the specified type
     * @param objectType
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return
     */
-   IntStream getNidStreamOfType(IsaacObjectType objectType);
+   IntStream getNidStreamOfType(IsaacObjectType objectType, boolean parallel);
 
     /**
      *
+     * @param parallel true to allow a parallel stream, false for single threaded
      * @return a stream of all the native identifiers for the components
      */
-    IntStream getNidStream();
+    IntStream getNidStream(boolean parallel);
 
    /**
     * Return the nids of objects which are members of the specified assemblage
     * @param assemblageNid
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return
     */
-   IntStream getNidsForAssemblage(int assemblageNid);
+    IntStream getNidsForAssemblage(int assemblageNid, boolean parallel);
 
-    IntStream getNidsForAssemblageParallel(int assemblageNid);
    /**
     * TODO: add a method that gets all nids, not just nids for assemblage. 
     * @param assemblageSpecification
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return 
     */
-   default IntStream getNidsForAssemblage(ConceptSpecification assemblageSpecification) {
-       return getNidsForAssemblage(assemblageSpecification.getNid());
+   default IntStream getNidsForAssemblage(ConceptSpecification assemblageSpecification, boolean parallel) {
+       return getNidsForAssemblage(assemblageSpecification.getNid(), parallel);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
-    int getMaxNid();
+   int getMaxNid();
 
    /**
     * 

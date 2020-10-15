@@ -15,12 +15,10 @@
         <dependency>
             <groupId>org.eclipse.collections</groupId>
             <artifactId>eclipse-collections-api</artifactId>
-            <version>${eclipse-collections.version}</version>
         </dependency>
         <dependency>
             <groupId>org.eclipse.collections</groupId>
             <artifactId>eclipse-collections</artifactId>
-            <version>${eclipse-collections.version}</version>
         </dependency>
         <dependency>
             <groupId>com.tobiasdiez</groupId>
@@ -65,8 +63,11 @@
         <dependency>
             <groupId>org.glassfish.hk2</groupId>
             <artifactId>hk2</artifactId>
-            <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>org.glassfish.hk2.external</groupId>
+            <artifactId>jakarta.inject</artifactId>
+         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
@@ -84,12 +85,26 @@
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-text</artifactId>
+            <version>1.8</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
             <groupId>com.cedarsoftware</groupId>
             <artifactId>json-io</artifactId>
         </dependency>
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.xml.bind</groupId>
+            <artifactId>jakarta.xml.bind-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.annotation</groupId>
+            <artifactId>jakarta.annotation-api</artifactId>
         </dependency>
     </dependencies>
     <build>

@@ -64,6 +64,7 @@ public class ScanForMissingConcepts extends AbstractMojo
 	@Override
 	public void execute() throws MojoExecutionException
 	{
+		long start = System.currentTimeMillis();
 		Headless.setHeadless();
 
 		IdentifierService is = Get.identifierService();
@@ -72,26 +73,27 @@ public class ScanForMissingConcepts extends AbstractMojo
 
 		{
 			ArrayList<UUID> missingComponents = new ArrayList<>();
+			AtomicInteger missingCount = new AtomicInteger();
 			AtomicInteger semanticScanCount = new AtomicInteger();
-			Get.assemblageService().getSemanticChronologyStream().parallel().forEach(sc -> {
+			Get.assemblageService().getSemanticChronologyStream(true).forEach(sc -> {
 				semanticScanCount.getAndIncrement();
 				if (ios.getChronology(sc.getReferencedComponentNid()).isEmpty())
 				{
-					missingComponents.add(is.getUuidPrimordialForNid(sc.getReferencedComponentNid()));
+					int newSize = missingCount.incrementAndGet();
+					if (newSize < 100) {
+						UUID temp = is.getUuidPrimordialForNid(sc.getReferencedComponentNid());
+						synchronized(missingComponents) {
+							missingComponents.add(temp);
+						}
+					}
 				}
 			});
-			if (missingComponents.size() > 0)
+			if (missingCount.get() > 0)
 			{
-				getLog().error("There are " + missingComponents.size() + " referenced components which are not present in the database");
-				int breaker = 0;
+				getLog().error("There are " + missingCount.get() + " referenced components which are not present in the database.  Examples:");
 				for (UUID uuid : missingComponents)
 				{
 					getLog().error("Missing: " + uuid);
-					breaker++;
-					if (breaker > 100)
-					{
-						break;
-					}
 				}
 			}
 			else
@@ -103,11 +105,14 @@ public class ScanForMissingConcepts extends AbstractMojo
 		{
 			AtomicInteger conceptScanCount = new AtomicInteger();
 			ArrayList<UUID> missingDescriptions = new ArrayList<>();
-			Get.conceptService().getConceptChronologyStream().parallel().forEach(c -> {
+			Get.conceptService().getConceptChronologyStream(true).forEach(c -> {
 				conceptScanCount.getAndIncrement();
 				if (as.getDescriptionsForComponent(c.getNid()).size() == 0)
 				{
-					missingDescriptions.add(is.getUuidPrimordialForNid(c.getNid()));
+					UUID temp = is.getUuidPrimordialForNid(c.getNid());
+					synchronized(missingDescriptions) {
+						missingDescriptions.add(temp);
+					}
 				}
 			});
 			if (missingDescriptions.size() > 0)
@@ -129,5 +134,6 @@ public class ScanForMissingConcepts extends AbstractMojo
 				getLog().info("No missing descriptions found.  Scanned " + conceptScanCount.get() + " concepts");
 			}
 		}
+		getLog().info("scan done in " + (System.currentTimeMillis() - start) + " ms");
 	}
 }

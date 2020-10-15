@@ -52,7 +52,6 @@ import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.collections.NidSet;
@@ -77,8 +76,14 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
+import sh.isaac.api.bootstrap.TermAux;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.DoubleLiteral;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.Feature;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 
-import static sh.isaac.api.logic.LogicalExpressionBuilder.*;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -193,7 +198,7 @@ public class ImportExportTest {
 
          if (exportStats.concepts.get() != this.importStats.concepts.get()) {
             Get.conceptService()
-               .getConceptChronologyStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid())
+               .getConceptChronologyStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid(), true)
                .forEach((conceptChronology) -> LOG.info(conceptChronology));
          }
 
@@ -238,7 +243,7 @@ public class ImportExportTest {
                      });
          writer.close();
          LOG.info("exported components: " + exportStats);
-         Assert.assertEquals(exportStats, this.importStats);
+         Assert.assertEquals(this.importStats, exportStats);
 
          final BinaryDataReaderService reader = Get.binaryDataReader(Paths.get("target",
                                                                                "data",
@@ -314,7 +319,7 @@ public class ImportExportTest {
    )
    public void testGetAssemblageConceptNids() {
       int[] assemblageNids = ModelGet.dataStore().getAssemblageConceptNids();
-      Assert.assertEquals(assemblageNids.length, 22);
+      Assert.assertEquals(assemblageNids.length, 23);
       Assert.assertTrue(Arrays.toString(assemblageNids).contains(MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() + ""));
    }
 
@@ -358,7 +363,7 @@ public class ImportExportTest {
          Get.startIndexTask().get();
          commitService.postProcessImportNoChecks();
          LOG.info("Loaded components: " + this.importStats);
-         LOG.info("Concept count: " + Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT).count());
+         LOG.info("Concept count: " + Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT, true).count());
       } catch (final FileNotFoundException e) {
          Assert.fail("File not found", e);
       } catch (InterruptedException ex) {

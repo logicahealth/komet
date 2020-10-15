@@ -89,10 +89,7 @@ public class SolorMojo extends AbstractMojo {
 
             getLog().info("  Setup AppContext, data store location = " + Get.configurationService().getDataStoreFolderPath().toFile().getCanonicalPath());
             LookupService.startupIsaac();
-            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
-            //TODO We aren't yet making use of semantic indexes, so no reason to build them.  Disable for performance reasons.
-            //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
-            //be configured at the assemblage level.
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
             LookupService.getService(IndexBuilderService.class, "semantic index").setEnabled(true);
             DirectImporter rf2Importer = new DirectImporter(transaction, ImportType.valueOf(importType));
             getLog().info("  Importing RF2 files.");
@@ -124,7 +121,7 @@ public class SolorMojo extends AbstractMojo {
             if (transform) {
 
                 getLog().info("  Transforming RF2 relationships to SOLOR.");
-                Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.valueOf(importType));
+                Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(transaction, ImportType.valueOf(importType));
                 Future<?> transformTask = Get.executor().submit(transformer);
                 transformTask.get();
 

@@ -16,8 +16,9 @@
 package sh.isaac.api;
 
 import java.util.UUID;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 
 /**
  * The core, generic get/set methods that will be required of services like {@link UserConfigurationPerDB}
@@ -39,7 +40,7 @@ public interface UserConfigurationInternalImpl
 {
 	public enum ConfigurationOption 
 	{
-		EDIT_COORDINATE(ObservableEditCoordinate.class),
+		EDIT_COORDINATE(ReadOnlyObjectProperty.class),
 		LANGUAGE_COORDINATE(ObservableEditCoordinate.class),
 		LOGIC_COORDINATE(ObservableEditCoordinate.class),
 		MANIFOLD_COORDINATE(ObservableEditCoordinate.class),

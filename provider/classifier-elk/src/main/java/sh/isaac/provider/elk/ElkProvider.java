@@ -1,5 +1,7 @@
 package sh.isaac.provider.elk;
 
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,8 +30,6 @@ import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import java.io.*;
 import java.time.Instant;
 import java.util.*;

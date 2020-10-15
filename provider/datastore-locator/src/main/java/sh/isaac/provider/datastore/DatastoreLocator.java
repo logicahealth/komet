@@ -27,13 +27,13 @@ import java.util.concurrent.Future;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.stream.IntStream;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.Rank;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -41,9 +41,9 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.datastore.ChronologySerializeable;
-import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.datastore.ExtendedStoreData;
+import sh.isaac.api.datastore.MasterDataStore;
 import sh.isaac.api.datastore.SequenceStore;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
@@ -62,7 +62,7 @@ import sh.isaac.model.DataStoreSubService;
 @Service
 @RunLevel(value = LookupService.SL_L1)
 @Rank(value=500)
-public class DatastoreLocator implements DataStore, SequenceStore, ExtendedStore
+public class DatastoreLocator implements SequenceStore, ExtendedStore, MasterDataStore
 {
 	private static final Logger LOG = LogManager.getLogger();
 	private static final String dbType = "dbType.txt";
@@ -348,9 +348,9 @@ public class DatastoreLocator implements DataStore, SequenceStore, ExtendedStore
 	 * {@inheritDoc}
 	 */
 	@Override
-	public IntStream getNidsForAssemblage(int assemblageNid)
+	public IntStream getNidsForAssemblage(int assemblageNid, boolean parallel)
 	{
-		return dataStore.getNidsForAssemblage(assemblageNid);
+		return dataStore.getNidsForAssemblage(assemblageNid, parallel);
 	}
 
 	/**
@@ -410,6 +410,12 @@ public class DatastoreLocator implements DataStore, SequenceStore, ExtendedStore
 		return dataStore.implementsExtendedStoreAPI();
 	}
 	
+	@Override
+	public DatabaseImplementation getDataStoreType()
+	{
+		return dataStore.getDataStoreType();
+	}
+	
 	/** 
 	 * {@inheritDoc}
 	 */
@@ -450,8 +456,14 @@ public class DatastoreLocator implements DataStore, SequenceStore, ExtendedStore
 	 * {@inheritDoc}
 	 */
 	@Override
-	public <K, V, VT> ExtendedStoreData<K, VT> getStore(String storeName, Function<VT, V> valueSerializer, Function<V, VT> valueDeserializer)
+	public <K, VI, VE> ExtendedStoreData<K, VE> getStore(String storeName, Function<VE, VI> valueSerializer, Function<VI, VE> valueDeserializer)
 	{
 		return ((ExtendedStore)dataStore).getStore(storeName, valueSerializer, valueDeserializer);
+	}
+	
+	@Override
+	public void closeStore(String storeName)
+	{
+		((ExtendedStore)dataStore).closeStore(storeName);
 	}
 }

@@ -15,6 +15,12 @@
  */
 package sh.isaac.test;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ExecutionException;
 import org.apache.commons.io.FileUtils;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -29,18 +35,9 @@ import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.Coordinates;
-import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
-import sh.isaac.model.configuration.EditCoordinates;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Optional;
-import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 
 /**
  * @author a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
@@ -64,12 +61,12 @@ public class TSBugDemo
 			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			// Create a concept with two parents.
 			ConverterUUID converterUUID = new ConverterUUID(UUID.randomUUID(), true);
-			DirectWriteHelper dwh = new DirectWriteHelper(TermAux.USER.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid(), converterUUID, 
+			DirectWriteHelper dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid(), converterUUID, 
 					"hi", false);
 	
 			UUID concept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString("hi"), Status.ACTIVE, System.currentTimeMillis());
 			
-			UUID parentGraph = dwh.makeParentGraph(transaction, concept, Arrays.asList(new UUID[] {
+			UUID parentGraph = dwh.makeParentGraph(concept, Arrays.asList(new UUID[] {
 				MetaData.ACCEPTABLE____SOLOR.getPrimordialUuid(), 
 				MetaData.ACTIVE_ONLY_DESCRIPTION_LUCENE_MATCH____QUERY_CLAUSE.getPrimordialUuid(), 
 				MetaData.ACTIVE_ONLY_DESCRIPTION_REGEX_MATCH____QUERY_CLAUSE.getPrimordialUuid()}),
@@ -85,8 +82,7 @@ public class TSBugDemo
 			
 			//retire the 3-parent graph
 			MutableLogicGraphVersion v = Get.assemblageService().getSemanticChronology(Get.identifierService().getNidForUuids(parentGraph))
-					.createMutableVersion(transaction, Status.INACTIVE,
-							Coordinates.Manifold.DevelopmentStatedRegularNameSort());
+					.createMutableVersion(Coordinates.Manifold.DevelopmentStatedRegularNameSort().getWriteCoordinate(transaction, null, Status.INACTIVE));
 			v.setGraphData(data);
 			transaction.commit("test commit").get();
 
@@ -101,7 +97,7 @@ public class TSBugDemo
 
 			transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
 			//Make a new stated parent graph with only 2 parents
-			dwh.makeParentGraph(transaction, concept, Arrays.asList(new UUID[] {
+			dwh.makeParentGraph(concept, Arrays.asList(new UUID[] {
 					MetaData.ACTIVE_ONLY_DESCRIPTION_LUCENE_MATCH____QUERY_CLAUSE.getPrimordialUuid(), 
 					MetaData.ACTIVE_ONLY_DESCRIPTION_REGEX_MATCH____QUERY_CLAUSE.getPrimordialUuid()}),
 				 Status.ACTIVE, System.currentTimeMillis());

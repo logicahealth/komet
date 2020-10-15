@@ -36,25 +36,6 @@
  */
 package sh.isaac.convert.mojo.cpt;
 
-import org.apache.commons.lang3.StringUtils;
-import org.glassfish.hk2.api.PerLookup;
-import org.jvnet.hk2.annotations.Service;
-import sh.isaac.MetaData;
-import sh.isaac.api.Get;
-import sh.isaac.api.Status;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.coordinate.Coordinates;
-import sh.isaac.api.coordinate.StampFilter;
-import sh.isaac.api.transaction.Transaction;
-import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.convert.directUtils.DirectConverter;
-import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
-import sh.isaac.convert.directUtils.DirectWriteHelper;
-import sh.isaac.convert.mojo.cpt.TextReader.CPTFileType;
-import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
-import sh.isaac.pombuilder.converter.ConverterOptionParam;
-import sh.isaac.pombuilder.converter.SupportedConverterTypes;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileVisitOption;
@@ -62,12 +43,34 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+import org.apache.commons.lang3.StringUtils;
+import org.glassfish.hk2.api.PerLookup;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.MetaData;
+import sh.isaac.api.Get;
+import sh.isaac.api.Status;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.convert.directUtils.DirectConverter;
+import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
+import sh.isaac.convert.directUtils.DirectWriteHelper;
+import sh.isaac.convert.mojo.cpt.TextReader.CPTFileType;
+import sh.isaac.pombuilder.converter.ConverterOptionParam;
+import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 
 /**
  * {@link CPTImportHK2Direct}
@@ -80,17 +83,10 @@ public class CPTImportHK2Direct extends DirectConverterBaseMojo implements Direc
 {
 	/**
 	 * This constructor is for HK2 and should not be used at runtime.  You should 
-	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter)} method on it.
-
-	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
+	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter, Transaction)} method on it.
 	 */
 	protected CPTImportHK2Direct() {
-
-	}
-	protected CPTImportHK2Direct(Transaction transaction)
-	{
 		//for HK2 and the maven extension class
-		super(transaction);
 	}
 	
 	@Override
@@ -104,22 +100,6 @@ public class CPTImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	{
 		//noop, we don't require any.
 	}
-
-	/**
-	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent()}
-	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
-	 * 
-	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String, sh.isaac.api.coordinate.StampFilter)
-	 */
-	@Override
-	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter)
-	{
-		this.outputDirectory = outputDirectory;
-		this.inputFileLocationPath = inputFolder;
-		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
-		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		this.readbackCoordinate = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
-	}
 	
 	@Override
 	public SupportedConverterTypes[] getSupportedTypes()
@@ -128,11 +108,11 @@ public class CPTImportHK2Direct extends DirectConverterBaseMojo implements Direc
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer)
+	 * @see DirectConverter#convertContent(Consumer, BiConsumer)
 	 */
 	@Override
-	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdates) throws IOException
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdates) throws IOException
 	{
 		long contentTime;
 		try
@@ -206,30 +186,30 @@ public class CPTImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		statusUpdates.accept("Setting up metadata");
 		
 		//Right now, we are configured for the CPT grouping modules nid
-		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.CPT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
+		dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), MetaData.CPT_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"CPT", false);
 		
 		setupModule("CPT", MetaData.CPT_MODULES____SOLOR.getPrimordialUuid(), Optional.of("http://www.ama-assn.org/go/cpt"), contentTime);
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(transaction, true, true, true, false, true, false, contentTime);
+		dwh.makeMetadataHierarchy(true, true, true, false, true, false, contentTime);
 
-		dwh.makeDescriptionTypeConcept(transaction, null, "LONGULT", null, "Long Description Upper/Lower Case",
+		dwh.makeDescriptionTypeConcept(null, "LONGULT", null, "Long Description Upper/Lower Case",
 				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept(transaction, null, "MEDU", null, "Medium Description Upper Case",
+		dwh.makeDescriptionTypeConcept(null, "MEDU", null, "Medium Description Upper Case",
 				MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept(transaction, null, "SHORTU", null, "Short Description Upper Case",
+		dwh.makeDescriptionTypeConcept(null, "SHORTU", null, "Short Description Upper Case",
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
 
 		// Every time concept created add membership to "All CPT Concepts"
-		UUID allCPTConceptsRefset = dwh.makeRefsetTypeConcept(transaction, null, "All CPT Concepts", null, null, contentTime);
+		UUID allCPTConceptsRefset = dwh.makeRefsetTypeConcept(null, "All CPT Concepts", null, null, contentTime);
 
 		// Create CPT root concept under SOLOR_CONCEPT____SOLOR
-		final UUID cptRootConcept = dwh.makeConceptEnNoDialect(transaction, null, "CPT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+		final UUID cptRootConcept = dwh.makeConceptEnNoDialect(null, "CPT", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, contentTime);
 
 		log.info("Metadata load stats");
@@ -266,7 +246,7 @@ public class CPTImportHK2Direct extends DirectConverterBaseMojo implements Direc
 			{
 				// Make a new grouping concept
 				firstThree = d.code.substring(0, 3);
-				parent = dwh.makeConceptEnNoDialect(transaction, null, firstThree + "--", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+				parent = dwh.makeConceptEnNoDialect(null, firstThree + "--", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						new UUID[] {cptRootConcept}, Status.ACTIVE, contentTime);
 				dwh.makeDescriptionEnNoDialect(parent, "Grouping concept for all codes that start with " + firstThree, 
 						MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), Status.ACTIVE, contentTime);
@@ -286,7 +266,7 @@ public class CPTImportHK2Direct extends DirectConverterBaseMojo implements Direc
 			
 			UUID concept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString(d.code), Status.ACTIVE, contentTime);
 
-			dwh.makeParentGraph(transaction, concept, parent, Status.ACTIVE, contentTime);
+			dwh.makeParentGraph(concept, parent, Status.ACTIVE, contentTime);
 			dwh.makeBrittleStringAnnotation(MetaData.CODE____SOLOR.getPrimordialUuid(), concept, d.code, contentTime);
 
 			dwh.makeDynamicRefsetMember(allCPTConceptsRefset, concept, contentTime);
@@ -306,7 +286,7 @@ public class CPTImportHK2Direct extends DirectConverterBaseMojo implements Direc
 		}
 		
 		dwh.processTaxonomyUpdates();
-		Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+		dwh.clearIsaacCaches();
 
 		advanceProgressLine();
 		log.info("Load Statistics");

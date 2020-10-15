@@ -39,28 +39,22 @@
 
 package sh.isaac.provider.datastore.taxonomy;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import sh.isaac.api.coordinate.*;
-
 import java.util.concurrent.CancellationException;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.VertexSort;
 import sh.isaac.api.progress.Stoppable;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.model.taxonomy.GraphCollectorIsolated;
 import sh.isaac.model.tree.HashTreeBuilderIsolated;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -79,24 +73,14 @@ public class TreeBuilderTask
    private final ManifoldCoordinateImmutable manifoldCoordinate;
    private final VertexSort vertexSort;
 
-/*
-    public GraphCollectorIsolated(IntFunction<int[]> taxonomyDataProvider,
-                                  RelativePositionCalculator relativePositionCalculator,
-                                  int taxonomyFlags,
-                                  Optional<RelativePositionCalculator> optionalDestinationCalculator,
-                                  Optional<Function<int[],int[]>> optionalSortFunction) {
-
- */
-
-
    private static final Logger LOG = LogManager.getLogger();
 
-   //~--- constructors --------------------------------------------------------
    public TreeBuilderTask(IntFunction<int[]> taxonomyDataProvider,
                           ManifoldCoordinate manifoldCoordinate) {
       this(taxonomyDataProvider, manifoldCoordinate.toManifoldCoordinateImmutable(), manifoldCoordinate.getVertexSort());
    }
 
+   //TODO - not sure if this comment is relevant any longer: this tree builder doesn't properly pay attention to the DestinationStampCoordiante
    public TreeBuilderTask(IntFunction<int[]> taxonomyDataProvider,
                           ManifoldCoordinateImmutable manifoldCoordinate, VertexSort vertexSort) {
       if (taxonomyDataProvider == null) {
@@ -108,7 +92,7 @@ public class TreeBuilderTask
       this.conceptAssemblageNid               = manifoldCoordinate.getLogicCoordinate().getConceptAssemblageNid();
       LookupService.registerStoppable(this, LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL);
       this.conceptCount = (int) Get.identifierService()
-                                   .getNidsForAssemblage(conceptAssemblageNid)
+                                   .getNidsForAssemblage(conceptAssemblageNid, true)
                                    .count();
       this.addToTotalWork(conceptCount * 2); // once to construct tree, ones to traverse tree
       this.updateTitle("Generating " + manifoldCoordinate.getPremiseTypes().toUserString() + " Navigator for: " +
@@ -124,8 +108,6 @@ public class TreeBuilderTask
       Get.activeTasks()
          .add(this);
    }
-
-   //~--- methods -------------------------------------------------------------
 
    @Override
    protected Tree call()
@@ -151,9 +133,7 @@ public class TreeBuilderTask
    private Tree compute() {
 
       GraphCollectorIsolated  collector = new GraphCollectorIsolated(this.taxonomyDataProvider,this.manifoldCoordinate, this.vertexSort);
-      IntStream       conceptNidStream = Get.identifierService()
-                                            .getNidsForAssemblage(conceptAssemblageNid);
-      long count = conceptNidStream.count();
+      long count =  Get.identifierService().getNidsForAssemblage(conceptAssemblageNid, true).count();
       if (count == 0) {
          LOG.info("Empty concept stream in TreeBuilderTask");
       } 
@@ -161,7 +141,7 @@ public class TreeBuilderTask
       if (stopRequested) {
          throw new CancellationException("Stop requested during compute");
       }
-      conceptNidStream = Get.identifierService().getNidsForAssemblage(conceptAssemblageNid);
+      IntStream conceptNidStream = Get.identifierService().getNidsForAssemblage(conceptAssemblageNid, false);
 
       HashTreeBuilderIsolated graphBuilder = conceptNidStream.filter((conceptNid) -> {
                completedUnitOfWork();

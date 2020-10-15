@@ -145,7 +145,7 @@ public class GenerateIndexes extends TimedTask<Void> implements PersistTaskResul
          LOG.info("Semantic elements to index: " + semanticCount);
          this.componentCount = semanticCount;
 
-         Get.assemblageService().getSemanticChronologyStream().parallel().forEach((SemanticChronology semantic) -> {
+         Get.assemblageService().getSemanticChronologyStream(true).forEach((SemanticChronology semantic) -> {
             for (final IndexBuilderService i : this.indexers) {
                if (stopNow) {
                   throw new RuntimeException("Stop requested!");

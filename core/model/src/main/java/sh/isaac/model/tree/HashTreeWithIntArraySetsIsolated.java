@@ -540,16 +540,16 @@ public class HashTreeWithIntArraySetsIsolated
         Instant startInstant = Instant.now();
         float taxonomyDistance = descendentDepth(nid1, nid2);
         if (!Float.isNaN(taxonomyDistance)) {
-            if (debugDistance) System.out.println("Distance time 1: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
+            if (debugDistance) LOG.debug("Distance time 1: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
             return taxonomyDistance;
         }
         taxonomyDistance = descendentDepth(nid2, nid1);
         if (!Float.isNaN(taxonomyDistance)) {
-            if (debugDistance) System.out.println("Distance time 2: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
+            if (debugDistance) LOG.debug("Distance time 2: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
             return taxonomyDistance;
         }
         if (directed) {
-            if (debugDistance) System.out.println("Distance time 3: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
+            if (debugDistance) LOG.debug("Distance time 3: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
             return Float.NaN;
         }
 
@@ -569,7 +569,7 @@ public class HashTreeWithIntArraySetsIsolated
             for (int item: path) {
                 buff.append(item).append(" ");
             }
-            System.out.println(buff);
+            LOG.debug(buff);
 
         }
         List<int[]>  nid2AncestorNidArrays = getAncestorNidArrays(nid2);
@@ -580,7 +580,7 @@ public class HashTreeWithIntArraySetsIsolated
             for (int item: path) {
                 buff.append(item).append(" ");
             }
-            System.out.println(buff);
+            LOG.debug(buff);
 
         }
 
@@ -613,7 +613,7 @@ public class HashTreeWithIntArraySetsIsolated
                 sb.append("   ").append(element).append(": ").append(Get.conceptDescriptionText(element)).append("\n");
                 return true;
             });
-            System.out.println(sb.toString());
+            LOG.debug(sb.toString());
         }
 
         SortedSet<HashTreeWithIntArraySetsIsolated.DistanceRecord> nid1DistanceRecords = new TreeSet<>();
@@ -651,7 +651,7 @@ public class HashTreeWithIntArraySetsIsolated
             nid2DistanceRecords.forEach(distanceRecord -> {
                 sb.append("   ").append(distanceRecord).append("\n");
             });
-            System.out.println(sb);
+            LOG.debug(sb);
         }
 
         HashTreeWithIntArraySetsIsolated.Solution currentBestSolution = null;
@@ -683,7 +683,7 @@ public class HashTreeWithIntArraySetsIsolated
             possibleBestSolutions.forEach(solutionRecord -> {
                 sb.append("   ").append(solutionRecord).append("\n");
             });
-            System.out.println(sb);
+            LOG.debug(sb);
         }
         List<HashTreeWithIntArraySetsIsolated.Solution> bestSolutionList = new ArrayList<>();
         int bestSolutionDistance = Integer.MAX_VALUE;
@@ -701,7 +701,7 @@ public class HashTreeWithIntArraySetsIsolated
         }
 
 
-        if (debugDistance) System.out.println("Distance time 4: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
+        if (debugDistance) LOG.debug("Distance time 4: " + DurationUtil.format(Duration.between(startInstant, Instant.now())));
         return bestSolutionList;
     }
 
@@ -1163,7 +1163,7 @@ public class HashTreeWithIntArraySetsIsolated
                         if (inNid > 0) {
                             inNid = ModelGet.sequenceStore().getNidForElementSequence(assemblageNid, inNid);
                         }
-                        System.out.println(
+                        LOG.debug(
                                 prefix + Get.conceptDescriptionText(
                                         conceptNid) + " found in parent set of: " + inNid + " " + Get.conceptDescriptionText(
                                         inNid));
@@ -1178,7 +1178,7 @@ public class HashTreeWithIntArraySetsIsolated
                         if (inNid > 0) {
                             inNid = ModelGet.sequenceStore().getNidForElementSequence(assemblageNid, inNid);
                         }
-                        System.out.println(
+                        LOG.debug(
                                 prefix + Get.conceptDescriptionText(
                                         conceptNid) + " found in child set of: " + inNid + " " + Get.conceptDescriptionText(
                                         inNid));

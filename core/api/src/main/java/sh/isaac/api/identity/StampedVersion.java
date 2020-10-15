@@ -87,7 +87,7 @@ public interface StampedVersion {
 
    /**
     * A sequence starting at one that uniquely identifies a particular combination of
-    * state, time, author, module, and path. Filter sequences are idempotent, and there will be
+    * state, time, author, module, and path. Stamp sequences are idempotent, and there will be
     * only one stamp sequence for any unique combination of values.
     *
     * @return the stamp sequence of this version.

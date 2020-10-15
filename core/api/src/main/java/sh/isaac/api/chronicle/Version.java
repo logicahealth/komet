@@ -17,11 +17,9 @@
 package sh.isaac.api.chronicle;
 
 import java.util.UUID;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.commit.IdentifiedStampedVersion;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.coordinate.WriteCoordinate;
 
 /**
  * @author kec
@@ -41,61 +39,36 @@ public interface Version extends MutableStampedVersion, IdentifiedStampedVersion
     VersionType getSemanticType();
 
     /**
-     * Create a analog version with Long.MAX_VALUE as the time, indicating
-     * the version is uncommitted. It is the responsibility of the caller to
-     * add the mutable version to the commit manager when changes are complete
-     * prior to committing the component. Values for all properties except author,
-     * time, and path (which are provided by the edit coordinate) will be copied
-     * from this version.
-     *
-     * @param <V> the mutable version type
-     * @param mc  edit coordinate to provide the author and path for the mutable version
-     * @return the mutable version
-     * @deprecated use the make analog with the transaction instead.
-     */
-    default <V extends Version> V makeAnalog(ManifoldCoordinate mc) {
-        final int stampSequence = Get.stampService()
-                .getStampSequence(this.getStatus(),
-                        Long.MAX_VALUE,
-                        mc.getEditCoordinate().getAuthorNidForChanges(),
-                        mc.getModuleNidForAnalog(this),
-                        mc.getPathNidForAnalog());
-        return setupAnalog(stampSequence);
-    }
-
-    /**
-     * Create a analog version with Long.MAX_VALUE as the time, indicating
-     * the version is uncommitted. It is the responsibility of the caller to
-     * add the mutable version to the commit manager when changes are complete
-     * prior to committing the component. Values for all properties except time,
-     * author, and path will be copied from this version.
+     * Calls {@link #makeAnalog(int)} with a stamp created from the values provided by the supplied WriteCoordinate.
+     * This version will be passed into the WriteCoordinate for selecting the moduleNid.
      *
      * @param <V>         the mutable version type
-     * @param mc   the manifold coordinate to determine author, module, path for the analog.
-     * @param transaction the transaction that will govern persistence of the analog.
-     * @return the mutable version
+     * @param wc   the write coordinate to determine status, time, author, module, and path for the analog.
+     * @return the mutable version, with all properties beyond STAMP properties copied from this version.
      */
-    default <V extends Version> V makeAnalog(Transaction transaction, ManifoldCoordinate mc) {
+    default <V extends Version> V makeAnalog(WriteCoordinate wc) {
         final int stampSequence = Get.stampService()
-                .getStampSequence(transaction,
-                        this.getStatus(),
-                        Long.MAX_VALUE,
-                        mc.getEditCoordinate().getAuthorNidForChanges(),
-                        mc.getModuleNidForAnalog(this),
-                        mc.getPathNidForAnalog());
-        return setupAnalog(stampSequence);
+                .getStampSequence(wc.getTransaction().orElse(null),
+                        wc.getStatus(),
+                        wc.getTime(),
+                        wc.getAuthorNid(),
+                        wc.getModuleNid(),
+                        wc.getPathNid());
+        return makeAnalog(stampSequence);
     }
 
     /**
-     * Values for all properties except time,
-     * author, and path will be copied from this version.
+     * Create a analog version with the specified stamp.
+     * It is the responsibility of the caller to directly write the chronology to the store after 
+     * making any further changes.  Values for all properties except the STAMP properties will be copied 
+     * from this version. 
      *
-     * @param stampSequence
-     * @param <V>
-     * @return the mutable version
+     * @param <V> the mutable version type
+     * @param stampSequence the complete stamp for the mutable version
+     * @return the mutable version, with all properties beyond STAMP properties copied from this version.
      */
-    <V extends Version> V setupAnalog(int stampSequence);
-
+    <V extends Version> V makeAnalog(int stampSequence);
+    
     /**
      * Adds the additional uuids.
      *

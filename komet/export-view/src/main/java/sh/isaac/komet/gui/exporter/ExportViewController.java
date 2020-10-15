@@ -1,5 +1,9 @@
 package sh.isaac.komet.gui.exporter;
 
+import java.io.File;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.CheckListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -8,16 +12,11 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.controlsfx.control.CheckListView;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.solor.DirectExporterFactory;
+import sh.isaac.solor.rf2.RF2DirectExporter;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.exportation.ExportFormatType;
-
-import java.io.File;
 
 
 /*
@@ -62,10 +61,10 @@ public class ExportViewController {
         this.exportButton.setDisable(true);
         this.exportTypeChoiceBox.getSelectionModel().selectFirst();
 
-        Get.assemblageService().getSemanticNidStream(MetaData.LIVD_ASSEMBLAGE____SOLOR.getNid())
+        Get.assemblageService().getSemanticNidStream(MetaData.LIVD_ASSEMBLAGE____SOLOR.getNid(), false)
                 .forEach(nid -> {
 
-                    System.out.println("break");
+//                    System.out.println("break");
 
 
         });
@@ -88,14 +87,16 @@ public class ExportViewController {
     public void exportData(){
         switch(this.exportTypeChoiceBox.getSelectionModel().getSelectedItem()){
             case RF2:
-                Get.executor().execute(DirectExporterFactory.GetRF2DirectExporter(
+                Get.executor().execute(new RF2DirectExporter(
                         this.viewProperties.getManifoldCoordinate(),
                         this.selectedDirectory,
                         this.exportTypeChoiceBox.getSelectionModel().getSelectedItem().toString()
                 ));
                 break;
             case SRF:
-                break;
+            case SOF:
+            default :
+                throw new RuntimeException("Unsupported type");
         }
         this.exportStage.close();
     }

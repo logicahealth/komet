@@ -15,6 +15,7 @@
  */
 package sh.isaac.api.datastore;
 
+import java.io.IOException;
 import java.util.OptionalLong;
 import java.util.function.Function;
 
@@ -65,13 +66,23 @@ public interface ExtendedStore extends DataStore
 	public <K, V> ExtendedStoreData<K, V> getStore(String storeName);
 	
 	/**
+	 * The provided serializers should map your external type into a supported {@link SimpleTypeStoreHandler} type, and back again.
+	 * 
 	 * @param <K> The type of the key.  Should be simple type, like String, UUID, byte[], and the class versions of the primitive types.
-	 * @param <V> The type of the value to write to the datastore.  Should be a simple type, String, UUID, byte[], and the class versions of the primitive types.
-	 * @param <VT> The type of the value that you actually want to store.  You must provide the serializer / deserializer function.
+	 * @param <VI> The type of the value to write to the datastore.  Should be a simple type, String, UUID, byte[], and the class versions of the primitive types.
+	 * @param <VE> The type of the value that you actually want to store.  You must provide the serializer / deserializer function.
 	 * @param storeName The name of the store
 	 * @param valueSerializer The function that will turn a type <V> into <VT>.  Function must be null safe.
 	 * @param valueDeserializer The function that will turn a type <VT> into <V>.  Function must be null safe.
 	 * @return A store that handles the specified types.
 	 */
-	public <K, V, VT> ExtendedStoreData<K, VT> getStore(String storeName, Function<VT, V> valueSerializer, Function<V, VT> valueDeserializer);
+	public <K, VI, VE> ExtendedStoreData<K, VE> getStore(String storeName, Function<VE, VI> valueSerializer, Function<VI, VE> valueDeserializer);
+	
+	/**
+	 * Call this when you are finished with a store handed back via {@link #getStore(String)} or {@link #getStore(String, Function, Function)}
+	 * Tell the extended store to write out any unstored data in the specified extended store, and free any memory held.
+	 * @param storeName
+	 * @throws IOException 
+	 */
+	public void closeStore(String storeName);
 }

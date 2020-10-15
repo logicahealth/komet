@@ -22,7 +22,7 @@ import java.util.UUID;
 import javafx.event.ActionEvent;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;

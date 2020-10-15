@@ -39,9 +39,9 @@
 
 package sh.isaac.api.commit;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import javafx.concurrent.Task;
+import java.time.Instant;
+import java.util.UUID;
+import java.util.stream.IntStream;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.list.primitive.ImmutableLongList;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -58,15 +58,8 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.coordinate.StampPositionImmutable;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
+import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.transaction.Transaction;
-
-import java.time.Instant;
-import java.util.UUID;
-import java.util.stream.IntStream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * Created by kec on 1/2/16.
@@ -80,8 +73,6 @@ public interface StampService
     * (a zero by default) are not treated as valid stamp sequences.
     */
    int FIRST_STAMP_SEQUENCE = 1;
-
-   //~--- methods -------------------------------------------------------------
 
    /**
     * Used by the commit manger when committing a pending stamp.
@@ -101,7 +92,7 @@ public interface StampService
     * @param transaction the author nid
     * @return the task
     */
-   Task<Void> cancel(Transaction transaction);
+   TimedTask<Void> cancel(Transaction transaction);
 
    /**
     * Used by the commit manger to commit a
@@ -112,7 +103,7 @@ public interface StampService
     * @param commitTime the commit time to associate with this transaction.
     * @return the task
     */
-   Task<Void> commit(Transaction transaction, long commitTime);
+   TimedTask<Void> commit(Transaction transaction, long commitTime);
 
    /**
     * Describe stamp sequence.
@@ -143,17 +134,6 @@ public interface StampService
     * and time.
     */
    boolean stampSequencesEqualExceptAuthorAndTime(int stampSequence1, int stampSequence2);
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the activated stamp sequence.
-    *
-    * @param stampSequence a presumably inactive stamp sequence to create an active analog of.
-    * @return a stampSequence with a Status of {@link Status#ACTIVE}, but the
-    * same time, author, module, and path as the provided stamp sequence.
-    */
-   int getActiveStampSequence(int stampSequence);
 
    /**
     * Gets the author nid for stamp.
@@ -197,18 +177,6 @@ public interface StampService
     */
    int getPathNidForStamp(int stampSequence);
 
-   //~--- set methods ---------------------------------------------------------
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the retired stamp sequence.
-    *
-    * @param stampSequence a stamp sequence to create an analog of
-    * @return a stampSequence with a Status of {@link Status#INACTIVE}, but the
-    * same time, author, module, and path as the provided stamp sequence.
-    */
-   int getRetiredStampSequence(int stampSequence);
-
    /**
     * An idempotent operation to return a sequence that uniquely identified by
     * this combination of status, time, author, module, and path (STAMP). If an
@@ -240,7 +208,6 @@ public interface StampService
     *
     * @param transaction the transaction
     * @param status the status
-    * @param status the status
     * @param time the time
     * @param authorNid the author nid
     * @param moduleNid the module nid
@@ -249,13 +216,11 @@ public interface StampService
     */
     int getStampSequence(Transaction transaction, Status status, long time, int authorNid, int moduleNid, int pathNid);
 
-
-
-      /**
-       * Gets the stamp sequences.
-       *
-       * @return an IntStream of all stamp sequences known to the stamp service.
-       */
+  /**
+   * Gets the stamp sequences.
+   *
+   * @return an IntStream of all stamp sequences known to the stamp service.
+   */
    IntStream getStampSequences();
 
    /**

@@ -1,6 +1,16 @@
 package sh.isaac.provider.commit;
 
-import javafx.concurrent.Task;
+import java.time.Instant;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
@@ -14,13 +24,8 @@ import sh.isaac.api.commit.ChangeChecker;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.transaction.Transaction;
-
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * TODO add record of if component passed tests and is ready for commit (an optimization with possible side effects).
@@ -37,15 +42,17 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
     final UUID transactionId;
     final ChangeCheckerMode changeCheckerMode;
     final Optional<String> transactionName;
+    boolean indexAfterCommit = true;
 
-    public TransactionImpl(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode) {
-        this(transactionName, UUID.randomUUID(), changeCheckerMode);
+    public TransactionImpl(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode, boolean indexAfterCommit) {
+        this(transactionName, UUID.randomUUID(), changeCheckerMode, indexAfterCommit);
     }
 
-    private TransactionImpl(Optional<String> transactionName, UUID uuid, ChangeCheckerMode changeCheckerMode) {
+    private TransactionImpl(Optional<String> transactionName, UUID uuid, ChangeCheckerMode changeCheckerMode, boolean indexAfterCommit) {
         this.transactionId = uuid;
         this.changeCheckerMode = changeCheckerMode;
         this.transactionName = transactionName;
+        this.indexAfterCommit = indexAfterCommit;
         LOG.info("Created transaction: " + this);
     }
 
@@ -73,7 +80,8 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
 
     public TransactionImpl.TransactionsForPath addStampToTransaction(int stampSequence) {
         int pathNid = Get.stampService().getPathNidForStamp(stampSequence);
-        children.computeIfAbsent(pathNid, pathNidKey -> new TransactionsForPath(this.transactionName, this.changeCheckerMode, pathNidKey)).addStampToTransaction(stampSequence);
+        children.computeIfAbsent(pathNid, pathNidKey -> new TransactionsForPath(this.transactionName, this.changeCheckerMode, pathNidKey, this.indexAfterCommit))
+            .addStampToTransaction(stampSequence);
         return children.get(stampSequence);
     }
 
@@ -93,7 +101,11 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
 
     @Override
     public void addVersionToTransaction(Version v) {
-        children.computeIfAbsent(v.getPathNid(), pathNidKey -> new TransactionsForPath(this.transactionName, this.changeCheckerMode, pathNidKey)).addComponentNidToTransaction(v.getNid());
+        if (!v.isUncommitted()) {
+            throw new RuntimeException("The stamp for the version " + v + " was not created with this transaction " + this);
+        }
+        children.computeIfAbsent(v.getPathNid(), pathNidKey -> new TransactionsForPath(this.transactionName, this.changeCheckerMode, pathNidKey, this.indexAfterCommit))
+            .addComponentNidToTransaction(v.getNid());
     }
 
     @Override
@@ -168,7 +180,7 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
     }
 
     @Override
-    public Task<Void> cancel() {
+    public TimedTask<Void> cancel() {
         return ((CommitProvider) Get.commitService()).cancel(this);
     }
 
@@ -187,7 +199,7 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
     }
 
     public Transaction getTransactionForPath(int pathNid) {
-        return children.computeIfAbsent(pathNid, pathNidKey -> new TransactionsForPath(this.transactionName, this.changeCheckerMode, pathNidKey));
+        return children.computeIfAbsent(pathNid, pathNidKey -> new TransactionsForPath(this.transactionName, this.changeCheckerMode, pathNidKey, this.indexAfterCommit));
     }
 
     private class TransactionsForPath extends TransactionImpl {
@@ -195,13 +207,13 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
         final ConcurrentSkipListSet<Integer> components = new ConcurrentSkipListSet<>();
         final int pathNid;
 
-        public TransactionsForPath(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode, int pathNid) {
-            super(transactionName, changeCheckerMode);
+        public TransactionsForPath(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode, int pathNid, boolean indexAfterCommit) {
+            super(transactionName, changeCheckerMode, indexAfterCommit);
             this.pathNid = pathNid;
         }
 
-        public TransactionsForPath(Optional<String> transactionName, UUID uuid, ChangeCheckerMode changeCheckerMode, int pathNid) {
-            super(transactionName, uuid, changeCheckerMode);
+        public TransactionsForPath(Optional<String> transactionName, UUID uuid, ChangeCheckerMode changeCheckerMode, int pathNid, boolean indexAfterCommit) {
+            super(transactionName, uuid, changeCheckerMode, indexAfterCommit);
             this.pathNid = pathNid;
         }
         public boolean containsComponent(int nid) {
@@ -290,6 +302,11 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
             }
             return ready.get();
         }
+
+        @Override
+        public String toString() {
+            return super.toString() + " - child";
+        }
     }
 
     @Override
@@ -302,9 +319,15 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
         StringBuilder sb = new StringBuilder();
         if (transactionName.isPresent()) {
             sb.append(transactionName.get()).append(" ");
-        } else {
-            sb.append(transactionId.toString());
-        }
+        } 
+        sb.append(transactionId.toString());
+        sb.append(" - changeChecker: ").append(changeCheckerMode).append(" index after commit - ").append(indexAfterCommit);
         return sb.toString();
+    }
+
+    @Override
+    public boolean indexAfterCommit()
+    {
+        return indexAfterCommit;
     }
 }

@@ -80,6 +80,7 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         
         this.menuButton.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
+                LOG.debug("Adding meta f to " + menuButton.getText());
                 findItem.setAccelerator(new KeyCodeCombination(KeyCode.F, KeyCombination.META_DOWN));
                 ControlAcceleratorSupport.addAcceleratorsIntoScene(menuButton.getItems(), menuButton);
 

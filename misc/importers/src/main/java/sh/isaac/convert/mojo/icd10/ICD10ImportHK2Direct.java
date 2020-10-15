@@ -36,6 +36,17 @@
  */
 package sh.isaac.convert.mojo.icd10;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.codehaus.plexus.util.StringUtils;
@@ -45,26 +56,15 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.transaction.Transaction;
-import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.convert.mojo.icd10.data.ICD10;
 import sh.isaac.convert.mojo.icd10.reader.ICD10Reader;
-import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * {@link ICD10ImportHK2Direct}
@@ -89,16 +89,13 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 	protected String sourceType;
 
 	/**
-	 * This constructor is for maven and HK2 and should not be used at runtime.  You should 
-	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter)} method on it.
-	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
+	 * This constructor is for HK2 and should not be used at runtime.  You should 
+	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter, Transaction)} method on it.
 	 */
-	protected ICD10ImportHK2Direct() {
-	}
-	protected ICD10ImportHK2Direct(Transaction transaction)
+	protected ICD10ImportHK2Direct() 
 	{
 		//For HK2 / maven
-		super(transaction);
+		super();
 	}
 	
 	@Override
@@ -119,22 +116,6 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 			throw new RuntimeException("Unsupported converter option: " + internalName);
 		}
 	}
-
-	/**
-	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent()}
-	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
-	 * 
-	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String, sh.isaac.api.coordinate.StampFilter)
-	 */
-	@Override
-	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter)
-	{
-		this.outputDirectory = outputDirectory;
-		this.inputFileLocationPath = inputFolder;
-		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
-		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		this.readbackCoordinate = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
-	}
 	
 	@Override
 	public SupportedConverterTypes[] getSupportedTypes()
@@ -143,11 +124,11 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 	}
 	
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer)
+	 * @see DirectConverter#convertContent(Consumer, BiConsumer)
 	 */
 	@Override
-	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		this.statusUpdates = statusUpdates;
 		
@@ -172,7 +153,7 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		log.info("Setting up metadata for " + termName);
 		
 		//Right now, we are configured for the CPT grouping modules nid
-		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.ICD10_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
+		dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), MetaData.ICD10_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				termName, false);
 
 		setupModule(termName, MetaData.ICD10_MODULES____SOLOR.getPrimordialUuid(), 
@@ -183,23 +164,24 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		converterUUID.configureNamespace(Get.identifierService().getUuidPrimordialForNid(dwh.getModuleNid()));
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(transaction, true, true, true, false, true, false, contentTime);
+		dwh.makeMetadataHierarchy(true, true, true, false, true, false, contentTime);
 
-		dwh.makeDescriptionTypeConcept(transaction, null, "Short Description", null, null,
+		dwh.makeDescriptionTypeConcept(null, "Short Description", null, null,
 				MetaData.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeDescriptionTypeConcept(transaction, null, "Long Description", null, null,
+		dwh.makeDescriptionTypeConcept(null, "Long Description", null, null,
 				MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, contentTime);
 		
-		dwh.makeAttributeTypeConcept(transaction, null, "ICD-10 Order Number", null, null, true, null, null, contentTime);
+		dwh.makeAttributeTypeConcept(null, "ICD-10 Order Number", null, null, true, null, null, contentTime);
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, contentTime, readbackCoordinate);
 
 		// Every time concept created add membership to "All CPT Concepts"
-		HIPPA_Valid = dwh.makeRefsetTypeConcept(transaction, null, "HIPAA Valid", null, null, contentTime);
+		allICDConceptsRefset = dwh.makeRefsetTypeConcept(null, "All " + termName + " Concepts", null, null, contentTime);
+		HIPPA_Valid = dwh.makeRefsetTypeConcept(null, "HIPAA Valid", null, null, contentTime);
 
 		// Create CPT root concept under SOLOR_CONCEPT____SOLOR
-		icdRootConcept = dwh.makeConceptEnNoDialect(transaction, null, termName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+		icdRootConcept = dwh.makeConceptEnNoDialect(null, termName, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, contentTime);
 
 		log.info("Metadata load stats");
@@ -238,7 +220,7 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 		}
 		
 		dwh.processTaxonomyUpdates();
-		Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+		dwh.clearIsaacCaches();
 
 		advanceProgressLine();
 		statusUpdates.accept("Processed " + conceptCount + " concepts");
@@ -289,7 +271,7 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 			if (code.length() <= 3)
 			{
 				// Hang it on root
-				dwh.makeParentGraph(transaction, concept, icdRootConcept, status, contentTime);
+				dwh.makeParentGraph(concept, icdRootConcept, status, contentTime);
 			}
 			else
 			{
@@ -308,7 +290,7 @@ public class ICD10ImportHK2Direct extends DirectConverterBaseMojo implements Dir
 					}
 					else
 					{
-						dwh.makeParentGraph(transaction, concept, temp, status, contentTime);
+						dwh.makeParentGraph(concept, temp, status, contentTime);
 						break;
 					}
 				}

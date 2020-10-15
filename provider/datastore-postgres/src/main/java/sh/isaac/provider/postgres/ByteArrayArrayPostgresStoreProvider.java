@@ -1,11 +1,10 @@
 package sh.isaac.provider.postgres;
 
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.IsaacCache;
 import sh.isaac.model.collections.store.ByteArrayArrayStore;
 import sh.isaac.model.collections.store.ByteArrayArrayStoreProvider;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 @Service
 @Singleton

@@ -36,9 +36,24 @@
  */
 package sh.komet.fx.stage;
 
+import static sh.komet.gui.contract.MenuProvider.Keys.WINDOW_PREFERENCE_ABSOLUTE_PATH;
+import java.io.File;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.UUID;
+import java.util.prefs.BackingStoreException;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javafx.application.Platform;
-import javafx.beans.property.ObjectProperty;
 import javafx.beans.Observable;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ListChangeListener;
@@ -46,8 +61,19 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonBar;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.SplitPane;
+import javafx.scene.control.Tab;
+import javafx.scene.control.TabPane;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
@@ -56,22 +82,22 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.NaturalOrder;
-//import sh.isaac.convert.mojo.turtle.TurtleImportHK2Direct;
+import sh.isaac.convert.mojo.turtle.TurtleImportHK2Direct;
 import sh.isaac.komet.gui.exporter.ExportView;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.preferences.window.WindowPreferencePanel;
+import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.NodeFactory;
 import sh.komet.gui.contract.StatusMessageConsumer;
 import sh.komet.gui.contract.preferences.PersonaItem;
@@ -87,14 +113,6 @@ import sh.komet.gui.tab.TabWrapper;
 import sh.komet.gui.control.manifold.CoordinateMenuFactory;
 import sh.komet.gui.util.FxGet;
 
-import java.io.File;
-import java.net.URL;
-import java.util.*;
-import java.util.prefs.BackingStoreException;
-
-import static sh.komet.gui.contract.MenuProvider.Keys.WINDOW_PREFERENCE_ABSOLUTE_PATH;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * Root node of scene is given a UUID for unique identification.
@@ -121,7 +139,6 @@ public class KometStageController
     }
 
 
-    //~--- fields --------------------------------------------------------------
     ArrayList<TabPane> tabPanes = new ArrayList<>();
     @FXML  // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
@@ -188,8 +205,6 @@ public class KometStageController
         }
     }
 
-    //~--- methods -------------------------------------------------------------
-
     /**
      * When the button action event is triggered, refresh the user CSS file.
      *
@@ -204,11 +219,11 @@ public class KometStageController
         vanityBox.getScene()
                 .getStylesheets()
                 .add(FxGet.fxConfiguration().getUserCSSURL().toString());
+        LOG.debug("Updated css: " + FxGet.fxConfiguration().getUserCSSURL().toString());
         vanityBox.getScene()
                 .getStylesheets()
                 .add(FxGet.fxConfiguration().getIconographyCSSURL().toString());
-        System.out.println("Updated user css: " + FxGet.fxConfiguration().getUserCSSURL().toString());
-        System.out.println("Updated Iconography css: " + FxGet.fxConfiguration().getIconographyCSSURL().toString());
+        LOG.debug("Updated Iconography css: " + FxGet.fxConfiguration().getIconographyCSSURL().toString());
     }
 
     @Override
@@ -332,25 +347,33 @@ public class KometStageController
                 convertBeer.setOnAction((ActionEvent event) -> {
                     Get.executor().execute(() -> {
                         try {
-                            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
-                            //TODO turn Turtle import back on...
-                            //TurtleImportHK2Direct timd = new TurtleImportHK2Direct(transaction);
-                            //timd.configure(null, beer.toPath(), "0.8", null);
-                            //timd.convertContent(transaction, update -> {
-                            //}, (work, totalWork) -> {
-                            //});
-                            transaction.commit("Beer has arrived!");
-                            Get.indexDescriptionService().refreshQueryEngine();
+                            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE, false);
+                            TurtleImportHK2Direct timd = Get.service(TurtleImportHK2Direct.class);
+                            timd.configure(null, beer.toPath(), "0.8", null, transaction);
+                            timd.convertContent(update -> {}, (work, totalWork) -> {});
+                            Optional<CommitRecord> cr = transaction.commit("Beer has arrived!").get();  //TODO [DAN] this is broken, it isn't returning a commit record
+                            LOG.error("commit record empty? {}", cr);
+                            //if (cr.isPresent()) {
+	                            Get.indexDescriptionService().refreshQueryEngine();
+	                            Platform.runLater(() -> {
+	                                Alert alert = new Alert(AlertType.INFORMATION);
+	                                alert.setTitle("Beer has arrived!");
+	                                alert.setHeaderText("Beer has been imported!");
+	                                alert.initOwner(topGridPane.getScene().getWindow());
+	                                alert.setResizable(true);
+	                                alert.showAndWait();
+	                            });
+                            //}
+                        } catch (Exception e) {
+                            LOG.error("Beer failure", e);
                             Platform.runLater(() -> {
-                                Alert alert = new Alert(AlertType.INFORMATION);
-                                alert.setTitle("Beer has arrived!");
-                                alert.setHeaderText("Beer has been imported!");
+                                Alert alert = new Alert(AlertType.ERROR);
+                                alert.setTitle("Party Foul!");
+                                alert.setHeaderText("Something went wrong loading beer!");
                                 alert.initOwner(topGridPane.getScene().getWindow());
                                 alert.setResizable(true);
                                 alert.showAndWait();
                             });
-                        } catch (Exception e) {
-                            LOG.error("Beer failure", e);
                         }
                     });
                 });
@@ -465,7 +488,8 @@ public class KometStageController
             for (int paneIndex = 0; paneIndex < newTabMenuButtons.size(); paneIndex++) {
                 newTabMenuButtons.get(paneIndex).getItems().clear();
                 ObservableList<TabSpecification> nodeListForPaneIndex = windowPreferences.getNodesList(paneIndex);
-                Set<ConceptSpecification> allowedOptions = personaItem.getAllowedOptionsForPane(paneIndex);
+                //Ignore all of these silly hard-coded persona settings when we are debug mode, since they are completely mis-designed for modular plugin GUI components
+                Set<ConceptSpecification> allowedOptions = FxGet.fxConfiguration().isShowBetaFeaturesEnabled() ? new HashSet<>() : personaItem.getAllowedOptionsForPane(paneIndex);
                 if (allowedOptions.isEmpty()) {
                     allowedOptions.addAll(NODE_FACTORY_MAP.keySet());
                 }
@@ -603,6 +627,7 @@ public class KometStageController
 
     void handleCloseRequest(WindowEvent event) {
         stage.focusedProperty().removeListener(this.focusChangeListener);
+        MenuProvider.handleCloseRequest(event);
     }
 
     void handleFocusEvents(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
@@ -672,9 +697,9 @@ public class KometStageController
                 }
 
                 if (Get.configurationService().isVerboseDebugEnabled()) {
-                    System.out.println(buff.toString());
+                    LOG.info(() -> buff.toString());
                 } else {
-                    LOG.debug(buff.toString());
+                    LOG.trace(() -> buff.toString());
                 }
             }
         });

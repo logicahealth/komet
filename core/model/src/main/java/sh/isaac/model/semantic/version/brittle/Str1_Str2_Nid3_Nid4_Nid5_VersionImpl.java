@@ -20,10 +20,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.transaction.Transaction;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
 /**
@@ -39,8 +36,6 @@ public class Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
    int    nid4 = Integer.MAX_VALUE;
    int    nid5 = Integer.MAX_VALUE;
 
-   //~--- constructors --------------------------------------------------------
-
    public Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
    }
@@ -54,7 +49,8 @@ public class Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       this.nid4 = data.getNid();
       this.nid5 = data.getNid();
    }
-   public Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(Str1_Str2_Nid3_Nid4_Nid5_VersionImpl old,
+   
+   private Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(Str1_Str2_Nid3_Nid4_Nid5_VersionImpl old,
                                                int stampSequence) {
       super(old.getChronology(), stampSequence);
       setStr1(old.str1);
@@ -79,12 +75,10 @@ public class Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       data.putNid(this.nid5);
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   public <V extends Version> V setupAnalog(int stampSequence) {
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
+   @SuppressWarnings("unchecked")
+   public <V extends Version> V makeAnalog(int stampSequence) {
       final Str1_Str2_Nid3_Nid4_Nid5_Version newVersion = new Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(this, stampSequence);
-      chronologyImpl.addVersion(newVersion);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 
@@ -115,28 +109,20 @@ public class Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       return editDistance;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid3() {
       return nid3;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid3(int nid3) {
       this.nid3 = nid3;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid4() {
       return nid4;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid4(int nid4) {
@@ -148,35 +134,25 @@ public class Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       return nid5;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    @Override
    public void setNid5(int nid5) {
       this.nid5 = nid5;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public String getStr1() {
       return str1;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    @Override
    public void setStr1(String str1) {
       this.str1 = str1;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr2() {
       return str2;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setStr2(String str2) {

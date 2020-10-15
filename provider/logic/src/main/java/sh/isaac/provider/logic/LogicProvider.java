@@ -36,17 +36,32 @@
  */
 package sh.isaac.provider.logic;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import javafx.application.Platform;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
-import javafx.concurrent.Task;
+import java.io.File;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Future;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.concurrent.Task;
 import sh.isaac.api.DataSource;
+import sh.isaac.api.DatastoreServices;
+import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
@@ -54,30 +69,21 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.datastore.DataStore;
-import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.datastore.ExtendedStore;
+import sh.isaac.api.datastore.ExtendedStoreData;
+import sh.isaac.api.datastore.extendedStore.ExtendedStoreStandAlone;
 import sh.isaac.api.logic.LogicService;
 import sh.isaac.api.logic.LogicServiceSnoRocket;
 import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
+import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.model.logic.ClassifierResultsImpl;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.io.*;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class LogicProvider.
@@ -89,25 +95,19 @@ import java.util.concurrent.ConcurrentHashMap;
 public class LogicProvider
         implements LogicServiceSnoRocket {
 
-    /**
-     * The Constant LOG.
-     */
     private static final Logger LOG = LogManager.getLogger();
 
-    /**
-     * The Constant classifierServiceMap.
-     */
-    private static final Map<ClassifierServiceKey, ClassifierService> classifierServiceMap = new ConcurrentHashMap<>();
+    private static final String STORAGE_NAME = "logic-provider";
+    
+    private static final Map<ClassifierServiceKey, ClassifierService> CLASSIFIER_SERVICE_MAP = new ConcurrentHashMap<>();
 
-    private final Set<Task<?>> pendingLogicTasks = ConcurrentHashMap.newKeySet();
+    private transient final Set<Task<?>> pendingLogicTasks = ConcurrentHashMap.newKeySet();
 
-    private final ConcurrentHashMap<Instant, ClassifierResults[]> classifierResultMap = new ConcurrentHashMap<>();
+    private transient final ObservableList<Instant> classifierInstants = FXCollections.observableArrayList();
+    
+    private ExtendedStoreData<Instant, List<ClassifierResults>> classifierResultMap;
 
-    private final ObservableList<Instant> classifierInstants = FXCollections.observableArrayList();
-
-    private File classifierResultsFile;
-
-    //~--- constructors --------------------------------------------------------
+    private transient DataStore store;
 
     /**
      * Instantiates a new logic provider.
@@ -121,44 +121,41 @@ public class LogicProvider
         return pendingLogicTasks;
     }
 
-    //~--- methods -------------------------------------------------------------
-
     /**
      * Start me.
      */
     @PostConstruct
     private void startMe() {
         LOG.info("Starting LogicProvider for change to runlevel: " + LookupService.getProceedingToRunLevel());
-        classifierServiceMap.clear();
+        CLASSIFIER_SERVICE_MAP.clear();
         pendingLogicTasks.clear();
         // read from disk...
-        DataStore store = Get.service(DataStore.class);
-        File logicProviderDir = new File(store.getDataStorePath().toAbsolutePath().toFile(), "logic-provider");
-        logicProviderDir.mkdirs();
-        this.classifierResultsFile = new File(logicProviderDir, "classification-results");
-        if (this.classifierResultsFile.exists()) {
-            // Open and load...
-            try (DataInputStream input = new DataInputStream(new FileInputStream(this.classifierResultsFile))) {
-                ByteArrayDataBuffer buff = ByteArrayDataBuffer.make(input);
-                int instantCount = buff.getInt();
-                for (int i = 0; i < instantCount; i++) {
-                  Instant instant = Instant.ofEpochMilli(buff.getLong());
-                  LOG.info("Reading classifier results for: " + instant);
-                  ClassifierResultsImpl[] resultsForInstant = new ClassifierResultsImpl[buff.getInt()];
-                  for (int j = 0; j < resultsForInstant.length; j++) {
-                     resultsForInstant[j] = ClassifierResultsImpl.make(buff);
-                  }
-                  this.classifierResultMap.put(instant, resultsForInstant);
-                    if (Platform.isFxApplicationThread()) {
-                        classifierInstants.add(instant);
-                    } else {
-                        Platform.runLater(() -> { classifierInstants.add(instant); });
-                    }
-
-                }
-            } catch (IOException e) {
-               LOG.error(e);
-            }
+        store = Get.service(DataStore.class);
+        
+        if (!store.implementsExtendedStoreAPI()) {
+            LOG.debug("LogicProvider uses local file for storage");
+            File logicProviderDir = new File(store.getDataStorePath().toAbsolutePath().toFile(), STORAGE_NAME);
+            logicProviderDir.mkdirs();
+            File classifierResultsFile = new File(logicProviderDir, "classification-results");
+            
+            classifierResultMap = new ExtendedStoreStandAlone<Instant, byte[], List<ClassifierResults>>(classifierResultsFile, 
+                classifierResultInput -> MarshalUtil.toBytes(classifierResultInput), 
+                byteArrayInput -> MarshalUtil.fromBytes(byteArrayInput));
+        }
+        else {
+            LOG.debug("LogicProvider uses extended store API for storage");
+            //Instant isn't a great type to be letting MVStore serialize - but it should work, and we won't have a ton of these, so the extra overhead
+            //of having it use java serialization should be ok.  Alternatively, we could make the key a byte[], and do the instant / byte[] translation in 
+            //this class, but I don't think its worth the effort.
+            classifierResultMap = ((ExtendedStore)store).<Instant, byte[], List<ClassifierResults>>getStore(STORAGE_NAME, 
+                    classifierResultInput -> MarshalUtil.toBytes(classifierResultInput), 
+                    byteArrayInput -> MarshalUtil.fromBytes(byteArrayInput));
+        }
+        
+        if (Platform.isFxApplicationThread()) {
+            classifierInstants.addAll(classifierResultMap.keySet());
+        } else {
+            Platform.runLater(() -> { classifierInstants.addAll(classifierResultMap.keySet()); });
         }
     }
 
@@ -174,6 +171,7 @@ public class LogicProvider
         } catch (Exception e) {
             LOG.error(e);
         }
+
         LOG.info("Stopped LogicProvider  ");
     }
 
@@ -198,28 +196,17 @@ public class LogicProvider
                     }
                 }
                 completedUnitOfWork();
-
+                
                 updateMessage("Writing classifier results");
-                LogicProvider.this.classifierServiceMap.clear();
+                sync().get();
+                if (store.implementsExtendedStoreAPI()) {
+                    ((ExtendedStore)store).closeStore(STORAGE_NAME);
+                }
+                
+                CLASSIFIER_SERVICE_MAP.clear();
                 LogicProvider.this.pendingLogicTasks.clear();
-                ByteArrayDataBuffer buff = new ByteArrayDataBuffer();
-                Set<Map.Entry<Instant, ClassifierResults[]>> classifierResultsEntrySet = classifierResultMap.entrySet();
-                buff.putInt(classifierResultsEntrySet.size());
-                for (Map.Entry<Instant, ClassifierResults[]> entry: classifierResultsEntrySet) {
-                    buff.putLong(entry.getKey().toEpochMilli());
-                    LOG.info("Writing classifier results for: " + entry.getKey());
-                    buff.putInt(entry.getValue().length);
-                    for (ClassifierResults results: entry.getValue()) {
-                        ((ClassifierResultsImpl) results).putExternal(buff);
-                    }
-                }
-
-                // write to disk...
-                try (DataOutputStream output = new DataOutputStream(new FileOutputStream(LogicProvider.this.classifierResultsFile))) {
-                    buff.write(output);
-                } catch (IOException e) {
-                    LOG.error(e);
-                }
+                LogicProvider.this.classifierResultMap = null;
+                LogicProvider.this.store = null;
                 completedUnitOfWork();
                 return null;
             } finally {
@@ -228,9 +215,7 @@ public class LogicProvider
          }
     }
 
-    //~--- get methods ---------------------------------------------------------
-
-    /**
+     /**
      * Gets the classifier service.
      *
      * @param manifoldCoordinate the stamp coordinate
@@ -252,12 +237,12 @@ public class LogicProvider
         ManifoldCoordinateImmutable manifoldCoordinateImmutable = manifoldAnalog.toManifoldCoordinateImmutable();
         final ClassifierServiceKey key = new ClassifierServiceKey(manifoldCoordinateImmutable);
 
-        if (!classifierServiceMap.containsKey(key)) {
-            classifierServiceMap.putIfAbsent(key,
+        if (!CLASSIFIER_SERVICE_MAP.containsKey(key)) {
+            CLASSIFIER_SERVICE_MAP.putIfAbsent(key,
                     new ClassifierProvider(manifoldCoordinateImmutable));
         }
 
-        return classifierServiceMap.get(key);
+        return CLASSIFIER_SERVICE_MAP.get(key);
     }
 
     /**
@@ -313,8 +298,6 @@ public class LogicProvider
         return latestExpressions.get(0);
     }
 
-    //~--- inner classes -------------------------------------------------------
-
     /**
      * The Class ClassifierServiceKey.
      */
@@ -325,8 +308,6 @@ public class LogicProvider
          */
         ManifoldCoordinateImmutable manifoldCoordinateImmutable;
 
-        //~--- constructors -----------------------------------------------------
-
         /**
          * Instantiates a new classifier service key.
          * @param manifoldCoordinate the stamp coordinate
@@ -335,8 +316,6 @@ public class LogicProvider
         public ClassifierServiceKey(ManifoldCoordinateImmutable manifoldCoordinate) {
             this.manifoldCoordinateImmutable = manifoldCoordinate;
         }
-
-        //~--- methods ----------------------------------------------------------
 
         /**
          * Equals.
@@ -367,7 +346,6 @@ public class LogicProvider
         @Override
         public int hashCode() {
             int hash = 3;
-
             hash = 59 * hash + Objects.hashCode(this.manifoldCoordinateImmutable);
             return hash;
         }
@@ -380,7 +358,8 @@ public class LogicProvider
 
     @Override
     public Optional<ClassifierResults[]> getClassificationResultsForInstant(Instant instant) {
-        return Optional.ofNullable(classifierResultMap.get(instant));
+        List<ClassifierResults> result = classifierResultMap.get(instant);
+        return result == null ? Optional.empty() : Optional.of(result.toArray(new ClassifierResults[result.size()]));
     }
 
     @Override
@@ -391,12 +370,34 @@ public class LogicProvider
         } else {
             Platform.runLater(() -> { classifierInstants.add(classifierTime); });
         }
-        classifierResultMap.merge(classifierTime,
-                new ClassifierResults[]{classifierResults}, (classifierResults1, classifierResults2) -> {
+        classifierResultMap.accumulateAndGet(classifierTime,
+                Arrays.asList(new ClassifierResults[]{classifierResults}), (classifierResults1, classifierResults2) -> {
                     ArrayList<ClassifierResults> newResultList = new ArrayList<>();
-                    newResultList.addAll(Arrays.asList(classifierResults1));
-                    newResultList.addAll(Arrays.asList(classifierResults2));
-                    return newResultList.toArray(new ClassifierResults[newResultList.size()]);
+                    newResultList.addAll(classifierResults1);
+                    newResultList.addAll(classifierResults2);
+                    return newResultList;
                 });
+    }
+
+    public Path getDataStorePath() {
+        return store.getDataStorePath();
+    }
+
+     public DataStoreStartState getDataStoreStartState() {
+        return store.getDataStoreStartState();
+    }
+
+    public Optional<UUID> getDataStoreId() {
+        return store.getDataStoreId();
+    }
+
+    @SuppressWarnings("rawtypes")
+    public Future<?> sync() {
+        return Get.executor().submit(() -> {
+            if (classifierResultMap instanceof ExtendedStoreStandAlone) {
+                ((ExtendedStoreStandAlone)classifierResultMap).sync().get();
+            }  //If its not the stand along implementation, its not our problem to sync, the underlying data store will sync when necessary
+            return null;
+        });
     }
 }

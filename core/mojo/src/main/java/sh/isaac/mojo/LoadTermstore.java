@@ -38,15 +38,44 @@
 package sh.isaac.mojo;
 
 
-import com.cedarsoftware.util.io.JsonWriter;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import com.cedarsoftware.util.io.JsonWriter;
 import sh.isaac.api.ConfigurationService.BuildMode;
-import sh.isaac.api.*;
+import sh.isaac.api.DataTarget;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.Status;
+import sh.isaac.api.VersionManagmentPathService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -61,6 +90,7 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
@@ -72,21 +102,6 @@ import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
-
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static sh.isaac.api.logic.LogicalExpressionBuilder.*;
 
 /**
  * Goal which loads a database from ibdf files. try {@link LoadTermstoreSemaphore} for a newer implementation, however
@@ -240,6 +255,7 @@ public class LoadTermstore extends AbstractMojo
 	@Override
 	public void execute() throws MojoExecutionException
 	{
+		long start = System.currentTimeMillis();
 		//Quiet down some noisy xodus loggers
 		SLF4jUtils.quietDownXodus();
 
@@ -418,7 +434,7 @@ public class LoadTermstore extends AbstractMojo
 				// Loading with activeOnly set to true causes a number of gaps in the concept /
 				getLog().warn("Skipped components during import.");
 			}
-			getLog().info("Final item count: " + this.itemCount);
+			getLog().info("Final item count: " + this.itemCount + " in " + (System.currentTimeMillis() - start) + " ms");
 			LookupService.syncAll();
 			Get.startIndexTask().get();
 
@@ -618,7 +634,9 @@ public class LoadTermstore extends AbstractMojo
 									}
 									catch (Exception e)
 									{
-										getLog().error("Write Error - while processing: " + sc.toUserString(), e);
+										getLog().error("Write Error - while processing new object: " + sc.toUserString() + " existing object: " 
+												+ Get.assemblageService().getOptionalSemanticChronology(Get.identifierService().getNidForUuids(sc.getUuids())), e);
+										
 										throw e;
 									}
 								}

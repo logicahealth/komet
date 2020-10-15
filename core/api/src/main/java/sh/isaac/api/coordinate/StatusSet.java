@@ -13,7 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 /**
  * An immutable bitset implementation of a status set.
  */
-public class StatusSet implements ImmutableCoordinate {
+public class StatusSet implements ImmutableCoordinate, Iterable<Status> {
 
     private static final ConcurrentReferenceHashMap<StatusSet, StatusSet> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
@@ -170,5 +170,14 @@ public class StatusSet implements ImmutableCoordinate {
             }
             sb.append(status);
         }
+    }
+
+    @Override
+    public Iterator<Status> iterator() {
+        return toEnumSet().iterator();
+    }
+    
+    public int size() {
+        return toEnumSet().size();
     }
 }

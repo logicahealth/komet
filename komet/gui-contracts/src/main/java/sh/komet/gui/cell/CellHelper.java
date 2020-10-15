@@ -321,10 +321,6 @@ public class CellHelper {
                     processInt1_Int2_Str3_Str4_Str5_Nid6_Nid7(assemblageNameText, referencedComponentText, (Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version) semanticVersion);
                     break;
 
-                case LOINC_RECORD:
-                    processLOINC_RECORD(assemblageNameText, referencedComponentText, (LoincVersion) semanticVersion);
-                    break;
-
                 case Nid1_Int2:
                     processNid1_Int2(assemblageNameText, referencedComponentText, (Nid1_Int2_Version) semanticVersion);
                     break;
@@ -480,30 +476,6 @@ public class CellHelper {
                 "\n" +
                 cell.getManifoldCoordinate().getPreferredDescriptionText(brittleVersion.getNid7()) +
                 " ";
-        Text defaultText = new Text(buff);
-        addTextToCell(assemblageNameText, defaultText, referencedComponentText);
-    }
-    private void processLOINC_RECORD(Text assemblageNameText, Text referencedComponentText, LoincVersion brittleVersion) {
-
-        String buff = brittleVersion.getLoincNum() +
-                " " +
-                brittleVersion.getShortName() +
-                " - " +
-                brittleVersion.getLoincStatus() +
-                "\n" +
-                brittleVersion.getLongCommonName() +
-                "\nc:" +
-                brittleVersion.getComponent() +
-                " m: " +
-                brittleVersion.getMethodType() +
-                "\np: " +
-                brittleVersion.getProperty() +
-                " - " +
-                brittleVersion.getScaleType() +
-                " s: " +
-                brittleVersion.getSystem() +
-                " t: " +
-                brittleVersion.getTimeAspect();
         Text defaultText = new Text(buff);
         addTextToCell(assemblageNameText, defaultText, referencedComponentText);
     }

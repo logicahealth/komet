@@ -48,6 +48,8 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -70,6 +72,8 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
  */
 public abstract class AbstractLogicNode
          implements LogicNode {
+
+    private static final Logger LOG = LogManager.getLogger();
    /** The Constant NAMESPACE_UUID. */
    protected static final UUID NAMESPACE_UUID = UUID.fromString("d64c6d91-a37d-11e4-bcd8-0800200c9a66");
 
@@ -118,7 +122,7 @@ public abstract class AbstractLogicNode
     */
    public AbstractLogicNode(LogicalExpressionImpl logicGraphVersion, ByteArrayDataBuffer dataInputStream) {
       if (dataInputStream.getObjectDataFormatVersion() != 1) {
-         System.out.println("Format version error: " + dataInputStream.getObjectDataFormatVersion());
+         LOG.error("Format version error: " + dataInputStream.getObjectDataFormatVersion());
       }
       this.nodeIndex         = dataInputStream.getShort();
       this.logicalExpression = logicGraphVersion;
@@ -446,7 +450,7 @@ public abstract class AbstractLogicNode
          sequenceForDescription = getNodeSemantic().getConceptNid();
       }
 
-      LatestVersion<DescriptionVersion> latestDescription = languageCoordinate.getPreferredDescription(
+      LatestVersion<DescriptionVersion> latestDescription = languageCoordinate.getRegularDescription(
                                                                 sequenceForDescription,
               stampFilter);
 

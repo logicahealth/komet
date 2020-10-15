@@ -17,6 +17,8 @@
 package sh.komet.assemblage.view;
 
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.UUID;
@@ -38,6 +40,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.CategorizedVersions;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -197,8 +200,19 @@ public class AssemblageDetailController {
             // TODO consider if we should make the action undoable... Other than retiring mistakes.
            SemanticBuilder<? extends SemanticChronology> memberBuilder = Get.semanticBuilderService().getMembershipSemanticBuilder(referencedComponentNid, assemblageConceptNid);
            Transaction t = Get.commitService().newTransaction(Optional.of("New member from Assemblage drag & drop"), ChangeCheckerMode.ACTIVE);
-           memberBuilder.build(t, viewProperties.getManifoldCoordinate());
+           long time = System.currentTimeMillis();
+           int authorNid = viewProperties.getManifoldCoordinate().getAuthorNidForChanges();
+           int moduleNid = viewProperties.getManifoldCoordinate().getEditCoordinate().getDefaultModuleNid(); 
+           int pathNid = viewProperties.getManifoldCoordinate().getPathNidForChanges();
+           int stamp = Get.stampService().getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid);
+           
+           List<Chronology> builtObjects = new ArrayList();
+           
+           memberBuilder.build(t, stamp, builtObjects);
            t.commit();
+           for (Chronology builtObject: builtObjects) {
+               Get.identifiedObjectService().putChronologyData(builtObject);
+           }
 //            UUID elementPrimordialUuid = UUID.randomUUID();
 //            int elementNid = Get.identifierService().assignNid(elementPrimordialUuid);
 //            ObservableSemanticVersionImpl memberSemantic = new ObservableSemanticVersionImpl(elementPrimordialUuid, referencedComponentUuid, assemblageNid);
@@ -292,8 +306,7 @@ public class AssemblageDetailController {
                TreeItem<ObservableCategorizedVersion> assemblageRoot = new TreeItem<>(categorizedVersions.getLatestVersion().get());
                ObservableList<ObservableChronology> children = FXCollections.observableArrayList();
                ObservableChronologyService observableChronologyService = Get.observableChronologyService();
-
-               Get.identifierService().getNidsForAssemblage(focusObject.getNid())
+               Get.identifierService().getNidsForAssemblage(focusObject.getNid(), false)
                        .forEach((nid) -> {
                                   ObservableChronology semanticChronology = observableChronologyService.getObservableChronology(nid);
                                   LatestVersion<ObservableVersion> latest = semanticChronology.getLatestObservableVersion(this.viewProperties.getManifoldCoordinate().getViewStampFilter());

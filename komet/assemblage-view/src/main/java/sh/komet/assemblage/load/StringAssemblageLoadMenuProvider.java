@@ -24,7 +24,7 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptBuilderService;

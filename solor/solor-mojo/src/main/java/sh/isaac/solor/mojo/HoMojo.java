@@ -76,9 +76,6 @@ public class HoMojo extends AbstractMojo {
 
             getLog().info("  Setup AppContext, data store location = " + Get.configurationService().getDataStoreFolderPath().toFile().getCanonicalPath());
             LookupService.startupIsaac();
-            //TODO We aren't yet making use of semantic indexes, so no reason to build them.  Disable for performance reasons.
-            //However, once the index-config-per-assemblage framework is fixed, this should be removed, and the indexers will
-            //be configured at the assemblage level.
             LookupService.getService(IndexBuilderService.class, "semantic index").setEnabled(true);
             HoDirectImporter importer = new HoDirectImporter();
             getLog().info("  Importing Ho files.");

@@ -44,31 +44,29 @@
  */
 package sh.isaac.api.commit;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.time.Instant;
+import java.util.Optional;
 import java.util.Set;
-
-//~--- non-JDK imports --------------------------------------------------------
-
+import org.apache.commons.lang3.StringUtils;
 import org.apache.mahout.math.map.AbstractIntIntMap;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.collections.NidSet;
-
 import sh.isaac.api.collections.StampSequenceSet;
-import sh.isaac.api.coordinate.StampPrecedence;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.transaction.Transaction;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  * Used to notify listeners of a commit event.
  * @author kec
  */
 public class CommitRecord {
+
+   private static final short SERIAL_VERSION = 2;
+   
    /** The commit time. */
    protected Instant commitTime;
 
@@ -86,10 +84,16 @@ public class CommitRecord {
 
    /** The semantic nids in a commit. */
    protected NidSet semanticNidsInCommit;
-
-   //~--- constructors --------------------------------------------------------
+    
+   Optional<String> transactionName;
+   Optional<String> transactionId;
+   
+   private transient Optional<Transaction> transaction = Optional.empty();
 
    private CommitRecord(ByteArrayDataBuffer data) {
+      //Yes, this is broken if it tries to read serial version 1, because the serialization format never properly wrote the version.
+      //If we cared, would have to snoop at the bits, and try to figure out if there is a short there that parses to 1, but, I don't care...
+      int serVersion = data.getShort();
       this.commitTime = Instant.ofEpochMilli(data.getLong());
       this.stampsInCommit = StampSequenceSet.of(data.getIntArray());
       int mapSize = data.getInt();
@@ -100,9 +104,16 @@ public class CommitRecord {
       this.commitComment = data.getUTF();
       this.conceptNidsInCommit = NidSet.of(data.getNidArray());
       this.semanticNidsInCommit = NidSet.of(data.getNidArray());
-   }
+      if (serVersion > 1) {
+         String temp = data.getUTF();
+         transactionName = StringUtils.isBlank(temp) ? Optional.empty() : Optional.of(temp);
+         temp = data.getUTF();
+         transactionId = StringUtils.isBlank(temp) ? Optional.empty() : Optional.of(temp);
+      }
+    }
 
    public final void putExternal(ByteArrayDataBuffer out) {
+      out.putShort(SERIAL_VERSION);
       out.putLong(commitTime.toEpochMilli());
       out.putIntArray(stampsInCommit.asArray());
       out.putInt(stampAliases.size());
@@ -114,6 +125,8 @@ public class CommitRecord {
       out.putUTF(commitComment);
       out.putNidArray(conceptNidsInCommit.asArray());
       out.putNidArray(semanticNidsInCommit.asArray());
+      out.putUTF(transactionName.orElse(""));
+      out.putUTF(transactionId.orElse(""));
    }
 
    public static final CommitRecord make(ByteArrayDataBuffer data) {
@@ -130,23 +143,28 @@ public class CommitRecord {
     *
     * @param commitTime the commit time
     * @param stampsInCommit the stamps in commit
-    * @param stampAliases the stamp aliases
+    * @param stampAliases the stamp aliases - optional - null allowed
     * @param conceptNidsInCommit the concepts in commit
     * @param semanticNidsInCommit the semantics in commit
     * @param commitComment the commit comment
+    * @param transaction the transaction involved in this commit
     */
    public CommitRecord(Instant commitTime,
                        StampSequenceSet stampsInCommit,
                        OpenIntIntHashMap stampAliases,
                        NidSet conceptNidsInCommit,
                        NidSet semanticNidsInCommit,
-                       String commitComment) {
+                       String commitComment, 
+                       Transaction transaction) {
       this.commitTime       = commitTime;
       this.stampsInCommit   = StampSequenceSet.of(stampsInCommit);
-      this.stampAliases     = stampAliases.copy();
+      this.stampAliases     = stampAliases == null ? new OpenIntIntHashMap() : stampAliases.copy();
       this.conceptNidsInCommit = NidSet.of(conceptNidsInCommit);
       this.semanticNidsInCommit  = NidSet.of(semanticNidsInCommit);
       this.commitComment    = commitComment;
+      this.transactionName = transaction == null ? Optional.empty() : transaction.getTransactionName();
+      this.transactionId = transaction == null ? Optional.empty() : Optional.of(transaction.getTransactionId().toString());
+      this.transaction = Optional.ofNullable(transaction);
    }
 
    /**
@@ -157,15 +175,20 @@ public class CommitRecord {
     * @param stampAliases the stamp aliases
     * @param componentsInCommit the components in commit
     * @param commitComment the commit comment
+    * @param transaction the transaction involved in this commit
     */
    public CommitRecord(Instant commitTime,
                        StampSequenceSet stampsInCommit,
                        OpenIntIntHashMap stampAliases,
                        Set<Integer> componentsInCommit,
-                       String commitComment) {
+                       String commitComment, 
+                       Transaction transaction) {
       this.commitTime       = commitTime;
       this.stampsInCommit   = StampSequenceSet.of(stampsInCommit);
       this.stampAliases     = stampAliases.copy();
+      this.transactionName = transaction == null ? Optional.empty() : transaction.getTransactionName();
+      this.transactionId = transaction == null ? Optional.empty() : Optional.of(transaction.getTransactionId().toString());
+      this.transaction = Optional.ofNullable(transaction);
 
       this.conceptNidsInCommit = new NidSet();
       this.semanticNidsInCommit  = new NidSet();
@@ -180,8 +203,6 @@ public class CommitRecord {
       this.commitComment    = commitComment;
    }
 
-   //~--- methods -------------------------------------------------------------
-
    /**
     * To string.
     *
@@ -191,10 +212,9 @@ public class CommitRecord {
    public String toString() {
       return "CommitRecord{" + "commitTime=" + this.commitTime + ", stampsInCommit=" + this.stampsInCommit +
              ", stampAliases=" + this.stampAliases + ", commitComment=" + this.commitComment + ", conceptNidsInCommit=" +
-             this.conceptNidsInCommit + ", semanticNidsInCommit=" + this.semanticNidsInCommit + '}';
+             this.conceptNidsInCommit + ", semanticNidsInCommit=" + this.semanticNidsInCommit 
+             + ", transactionName=" + transactionName + ", transactionId=" + transactionId + "}";
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the commit comment.
@@ -249,5 +269,13 @@ public class CommitRecord {
    public StampSequenceSet getStampsInCommit() {
       return this.stampsInCommit;
    }
+
+    /**
+     * @return the transaction, if present
+     */
+    public Optional<Transaction> getTransaction()
+    {
+        return transaction;
+    }
 }
 

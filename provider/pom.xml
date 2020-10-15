@@ -10,17 +10,6 @@
     <packaging>pom</packaging>
     <name>ISAAC provider: (MMP)</name>
     <description>Aggregator project for provider ISAAC provider modules</description>
-    <profiles>
-        <profile>
-            <id>bdb</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>bdb-datastore</module>
-            </modules>
-        </profile>
-    </profiles>
     <modules>
         <module>commit</module>
         <module>coordinate</module>
@@ -45,6 +34,7 @@
         <module>datastore-postgres</module>
         <module>postgress</module>
         <module>datastore-cache</module>
+        <module>qa</module>
         <module>xslt-provider</module>
     </modules>
 </project>

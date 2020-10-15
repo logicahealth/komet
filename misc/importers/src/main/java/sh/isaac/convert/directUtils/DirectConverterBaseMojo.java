@@ -54,6 +54,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.StampFilter;
@@ -66,6 +67,7 @@ import sh.isaac.mojo.LoadTermstore;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.function.BiConsumer;
@@ -172,15 +174,8 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 
 	protected Transaction transaction;
 
-	public DirectConverterBaseMojo(Transaction transaction) {
-		this.transaction = transaction;
-	}
 	public DirectConverterBaseMojo() {
-		//noarg constructor for HK2. Must set transaction via setTransaction method. ;
-	}
-
-	public void setTransaction(Transaction transaction) {
-		this.transaction = transaction;
+		//noarg constructor for HK2. 
 	}
 
 	/**
@@ -242,6 +237,7 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 			LookupService.startupIsaac();
 			
 			readbackCoordinate = Coordinates.Filter.DevelopmentLatest();
+			transaction = Get.commitService().newTransaction(Optional.of("Direct Converter Mojo Import"), ChangeCheckerMode.ACTIVE, false);
 
 			Path[] filesToPreload = getIBDFFilesToPreload();
 			if (filesToPreload != null && filesToPreload.length > 0)
@@ -268,7 +264,8 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 			// we register this after the metadata has already been written.
 			LookupService.get().getService(DataStore.class).registerDataWriteListener(listener);
 
-			convertContent(transaction, statusUpdate -> {}, (workDone, workTotal) -> {});
+			convertContent(statusUpdate -> {}, (workDone, workTotal) -> {});
+			log.info(transaction.commit().get());
 			LookupService.shutdownSystem();
 
 			listener.close();
@@ -282,14 +279,40 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 	}
 
 	/**
+	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent(Consumer, BiConsumer)}
+	 * Maven executions do not use this method.  The reason this method lives here, is due to our convoluted classpath structure.
+	 * 
+	 * This method MUST align with the method signature 
+	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(File, Path, String, StampFilter, Transaction)
+	 * 
+	 * Even though this class is not tied to the DirectConverter interface.  (Classes that extend this class will also implement the interface)
+	 * 
+	 * @param outputDirectory - optional - if provided, debug info will be written here
+	 * @param inputFolder - the folder to search for the source file(s).  Implementors should only utilize
+	 * {@link Path} operations on the inputFolder, incase the input folder is coming from a {@link FileSystems} that
+	 * doesn't suport toFile, such as zip.
+	 * @param converterSourceArtifactVersion - the version number of the source file being passed in
+	 * @param stampFilter - the coordinate to use for readback in cases where content merges into existing content
+	 * @param transaction - transaction to use for this conversion run
+	 */
+	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter, Transaction transaction)
+	{
+		this.outputDirectory = outputDirectory;
+		this.inputFileLocationPath = inputFolder;
+		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
+		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
+		this.readbackCoordinate = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
+		this.transaction = transaction;
+	}
+	
+	/**
 	 * Where the logic should be implemented to actually do the conversion
-	 * @param transaction - the transaction controling the conversion.
 	 * @param statusUpdates - the converter should post status updates here.
 	 * @param progresUpdates - optional - if provided, the converter should post progress on workDone here, the first argument
 	 * is work done, the second argument is work total.
 	 * @throws IOException 
 	 */
-	protected abstract void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progresUpdates) throws IOException;
+	protected abstract void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progresUpdates) throws IOException;
 	
 	
 	/**
@@ -371,7 +394,7 @@ public abstract class DirectConverterBaseMojo extends AbstractMojo implements Mo
 					MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), 
 					Status.ACTIVE, releaseTime);
 		}
-		dwh.makeParentGraph(transaction, versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
+		dwh.makeParentGraph(versionModule, Arrays.asList(new UUID[] {parentModule}), Status.ACTIVE, releaseTime);
 		
 		dwh.makeTerminologyMetadataAnnotations(versionModule, converterSourceArtifactVersion, moduleVersionString.orElse(converterSourceArtifactVersion), 
 				Optional.of(new Date(releaseTime).toString()),Optional.ofNullable(converterOutputArtifactVersion), Optional.ofNullable(converterOutputArtifactClassifier), 

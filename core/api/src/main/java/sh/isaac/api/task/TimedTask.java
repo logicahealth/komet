@@ -36,30 +36,22 @@
  */
 package sh.isaac.api.task;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.time.Duration;
 import java.time.Instant;
-
-import java.util.concurrent.Callable;
+import java.util.UUID;
 import java.util.concurrent.CancellationException;
-import java.util.function.Consumer;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.application.Platform;
-
-import javafx.concurrent.Task;
-
-import javafx.concurrent.Worker;
+import java.util.function.Consumer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
 import sh.isaac.api.util.FxTimer;
-
 import sh.isaac.api.util.time.DurationUtil;
 
-import static javafx.concurrent.Worker.State.*;
-
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class TimedTask.
  *
@@ -69,9 +61,6 @@ import static javafx.concurrent.Worker.State.*;
 public abstract class TimedTask<T>
         extends Task<T> {
 
-    /**
-     * The Constant log.
-     */
     protected static final Logger LOG = LogManager.getLogger();
 
     /**
@@ -79,19 +68,8 @@ public abstract class TimedTask<T>
      */
     public Duration progressUpdateDuration = Duration.ofMillis(500);
 
-    /**
-     * Seconds per minute.
-     */
     static final int SECONDS_PER_MINUTE = 60;
-
-    /**
-     * Minutes per hour.
-     */
     static final int MINUTES_PER_HOUR = 60;
-
-    /**
-     * Seconds per hour.
-     */
     static final int SECONDS_PER_HOUR = SECONDS_PER_MINUTE * MINUTES_PER_HOUR;
 
     static final AtomicInteger TASK_SEQUENCE = new AtomicInteger();
@@ -102,40 +80,30 @@ public abstract class TimedTask<T>
      */
     protected final FxTimer updateTimer = FxTimer.createPeriodic(progressUpdateDuration, this::generateProgressMessage);
 
-    /**
-     * The start time.
-     */
     private Instant startTime;
-
-    /**
-     * The end time.
-     */
     private Instant endTime;
 
-    private boolean suppressCompletionLogIfLessThanSpecifiedDuration = true;
+    private long suppressionForTasksShorterThan = 5;
+    private static final int SUPPRESSION_TIME = 30;
+    private static final int SUPPRESSION_AFTER_X_IN_SUPRESSION_TIME = 10;
 
-    private long suppressionTimeDurationInSeconds = 5;
+    //Note that these timed expirations are not done on a strict schedule, it may take further activity to trigger them
+    private static Cache<String, AtomicInteger> suppressCache = Caffeine.newBuilder().expireAfterWrite(Duration.ofSeconds(SUPPRESSION_TIME))
+            .removalListener((key, value, cause) -> {
+                if (((AtomicInteger)value).get() > SUPPRESSION_AFTER_X_IN_SUPRESSION_TIME) {
+                    LOG.debug("Suppressed {} task completion logs from {}, next will be logged normally.", ((AtomicInteger)value).get() - SUPPRESSION_AFTER_X_IN_SUPRESSION_TIME, 
+                    key, SUPPRESSION_TIME);
+                }
+            }).build(); 
 
-    private static int suppressionCount = 0;
+    private Consumer<TimedTask<T>> completeMessageGenerator;
+    private Consumer<TimedTask<T>> progressMessageGenerator;
 
-    private static final int suppressionStartCount = 11;
-
-
-    /**
-     * The complete message generator.
-     */
-    Consumer<TimedTask<T>> completeMessageGenerator;
-
-    /**
-     * The progress message generator.
-     */
-    Consumer<TimedTask<T>> progressMessageGenerator;
-
-    protected final int taskSequenceId = TASK_SEQUENCE.incrementAndGet();
+    protected final UUID taskId = UUID.randomUUID();
 
     private boolean canCancel = false;
 
-    String simpleTitle = this.getClass().getSimpleName();
+    protected String simpleTitle = this.getClass().getSimpleName();
     {
         titleProperty().addListener((observable, oldValue, newValue) ->  simpleTitle = newValue);
     }
@@ -147,25 +115,23 @@ public abstract class TimedTask<T>
         this.progressUpdateDuration = progressUpdateDuration;
     }
 
-    public boolean getSuppressCompletionLogIfLessThanSpecifiedDuration() {
-        return suppressCompletionLogIfLessThanSpecifiedDuration;
-    }
-
-    public void setSuppressCompletionLogIfLessThanSpecifiedDuration(boolean suppressCompletionLogIfLessThanSpecifiedDuration) {
-        this.suppressCompletionLogIfLessThanSpecifiedDuration = suppressCompletionLogIfLessThanSpecifiedDuration;
-    }
-
-    public long getSuppressionTimeDurationInSeconds() {
-        return suppressionTimeDurationInSeconds;
-    }
-
-    public void setSuppressionTimeDurationInSeconds(long suppressionTimeDurationInSeconds) {
-        this.suppressionTimeDurationInSeconds = suppressionTimeDurationInSeconds;
+    /**
+     * Tasks that execute more quickly than this will be suppressed from the logs, if too many occur in a short time.
+     * @return
+     */
+    public long getSuppressionForTasksShorterThanSeconds() {
+        return suppressionForTasksShorterThan;
     }
 
     /**
-     * Done.
+     * Tasks longer than this value always have their end times logs.  Shorter than this, may be suppressed from the logs, if they 
+     * occur in too short of a window.  Set to max value, to disable suppression 
+     * @param suppressionTimeDurationInSeconds
      */
+    public void setSuppressionForTasksShorterThanSeconds(long suppressionTimeDurationInSeconds) {
+        this.suppressionForTasksShorterThan = suppressionTimeDurationInSeconds;
+    }
+
     @Override
     protected void done() {
         super.done();
@@ -177,21 +143,21 @@ public abstract class TimedTask<T>
                 updateMessage(getSimpleName() + " completed in " + DurationUtil.format(getDuration()));
             });
         }
-        if (suppressCompletionLogIfLessThanSpecifiedDuration) {
-            if (getDuration().getSeconds() > suppressionTimeDurationInSeconds) {
-                LOG.info(getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
-            } else {
-                if (suppressionCount < suppressionStartCount) {
-                    suppressionCount++;
-                    LOG.info(getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
-                    LOG.info("Suppression of task completion logging for tasks shorter than " + suppressionTimeDurationInSeconds +
-                            " seconds will occur after "+ (suppressionStartCount - suppressionCount) + " more completions.");
+
+        if (getDuration().getSeconds() > suppressionForTasksShorterThan) {
+            LOG.debug("{} {} completed in: {}", (() -> getSimpleName()),  (() -> taskId), (() -> DurationUtil.format(getDuration())));
+        } else {
+            AtomicInteger hitCount = suppressCache.get(getSimpleName(), (nameAgain -> new AtomicInteger(0)));
+            int total = hitCount.getAndIncrement();
+            if (total >= SUPPRESSION_AFTER_X_IN_SUPRESSION_TIME) { //More than SUPRESSION_AFTER_X_IN_SUPRESSION_TIME, in SUPRESSION_TIME seconds, stop printing them.
+                if (total == SUPPRESSION_AFTER_X_IN_SUPRESSION_TIME) {
+                    LOG.debug(" Tasks of type {} rapidly executing, will suppress tasks of this type for up to {} seconds.", getSimpleName(), SUPPRESSION_TIME);
                 }
             }
-        } else {
-            LOG.info(getSimpleName() + " " + taskSequenceId + " completed in: " + DurationUtil.format(getDuration()));
+            else {
+                LOG.debug("{} {} completed in: {}", (() -> getSimpleName()),  (() -> taskId), (() -> DurationUtil.format(getDuration())));
+            }
         }
-
 
         Platform.runLater(() -> {
             if (exceptionProperty().get() != null) {
@@ -210,19 +176,14 @@ public abstract class TimedTask<T>
         return getClass().getSimpleName();
     }
 
-    /**
-     * Failed.
-     */
     @Override
     protected void failed() {
         Throwable throwable = this.getException();
         if (throwable instanceof CancellationException) {
-            LOG.info("Timed task " + taskSequenceId + " " + this.getSimpleName() + " canceled");
+            LOG.info("Timed task " + taskId + " " + this.getSimpleName() + " canceled");
         } else {
-            LOG.warn("Timed task " + taskSequenceId + " failed!", throwable);
+            LOG.warn("Timed task " + taskId + " failed!", throwable);
         }
-
-
      }
 
     protected void generateProgressMessage() {
@@ -231,9 +192,6 @@ public abstract class TimedTask<T>
         }
     }
 
-    /**
-     * Running.
-     */
     @Override
     protected void running() {
         super.running();
@@ -300,15 +258,16 @@ public abstract class TimedTask<T>
     }
     
     /**
-     * @return a unique ID (within this JVM) for the task being executed.
+     * @return a unique ID for the task being executed.
      */
-    public int getTaskId() {
-        return taskSequenceId;
+    public UUID getTaskId() {
+        return taskId;
     }
 
+    @Override
     public String toString() {
 
-        return simpleTitle + " " + taskSequenceId + " " + getState();
+        return simpleTitle + " " + taskId + " " + getState();
     }
 
     public boolean canCancel() {
@@ -317,5 +276,18 @@ public abstract class TimedTask<T>
 
     public void setCanCancel(boolean canCancel) {
         this.canCancel = canCancel;
+    }
+    
+    /**
+     * Calls {@link #get() but translates exceptions to runtime exceptions for convenient use in streaming APIs.}
+     *
+     * @return the no throw
+     */
+    public T getNoThrow() {
+       try {
+          return get();
+       } catch (InterruptedException | ExecutionException e) {
+          throw new RuntimeException(e);
+       }
     }
 }

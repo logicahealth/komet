@@ -83,12 +83,10 @@ public class ObservableDynamicVersionImpl extends ObservableAbstractSemanticVers
 	public ObservableDynamicVersionImpl(DynamicVersion stampedVersion, ObservableSemanticChronology chronology)
 	{
 		super(stampedVersion, chronology);
-	}
-
-	public ObservableDynamicVersionImpl(ObservableDynamicVersionImpl versionToClone, ObservableSemanticChronology chronology)
-	{
-		super(versionToClone, chronology);
-		setData(versionToClone.getData());
+		if (stampedVersion instanceof ObservableDynamicVersionImpl)
+		{
+			setData(((ObservableDynamicVersionImpl)stampedVersion).getData());
+		}
 	}
 
 	public ObservableDynamicVersionImpl(UUID primordialUuid, UUID referencedComponentUuid, int assemblageNid)
@@ -96,6 +94,7 @@ public class ObservableDynamicVersionImpl extends ObservableAbstractSemanticVers
 		super(VersionType.STRING, primordialUuid, referencedComponentUuid, assemblageNid);
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc)
 	{
@@ -107,17 +106,15 @@ public class ObservableDynamicVersionImpl extends ObservableAbstractSemanticVers
 		return (V) analog;
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
-	public <V extends Version> V setupAnalog(int stampSequence) {
-		DynamicVersion newVersion = getStampedVersion().setupAnalog(stampSequence);
-		ObservableDynamicVersionImpl newObservableVersion = new ObservableDynamicVersionImpl(
-				newVersion,
-				getChronology());
-		chronology.getVersionList()
-				.add(newObservableVersion);
+	public <V extends Version> V makeAnalog(int stampSequence)
+	{
+		DynamicVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+		ObservableDynamicVersionImpl newObservableVersion = new ObservableDynamicVersionImpl(newVersion, getChronology());
+		getChronology().getVersionList().add(newObservableVersion);
 		return (V) newObservableVersion;
 	}
-
 
 	@Override
 	public ObjectProperty<DynamicData[]> dataProperty()

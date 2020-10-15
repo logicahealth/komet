@@ -54,9 +54,8 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinate;
 import sh.isaac.api.externalizable.IsaacObjectType;
-import sh.isaac.api.transaction.Transaction;
 
 /**
  * {@link DynamicUtility}
@@ -122,48 +121,34 @@ public interface DynamicUtility {
    public DynamicUsageDescription readDynamicUsageDescription(int assemblageNidOrSequence);
    
    /**
-    * Add all of the necessary metadata semantics onto the specified concept to make it a concept that defines a dynamic semantic assemblage
-    * See {@link DynamicUsageDescription} class for more details on this format.
-    * @param conceptNid - The concept that will define a dynamic semantic
-    * @param semanticDescription - The description that describes the purpose of this dynamic semantic
-    * @param columns - optional - the columns of data that this dynamic semantic needs to be able to store.
-    * @param referencedComponentTypeRestriction - optional - any component type restriction info for the columns
-    * @param referencedComponentTypeSubRestriction - optional - any compont sub-type restrictions for the columns
-    * @param manifoldCoordinate - optional - the edit coordinate to construct this on - if null, uses the system default coordinate
-    * @return all of the created (but uncommitted) SemanticChronologies
-    */
-   public SemanticChronology[] configureConceptAsDynamicSemantic(Transaction transaction, int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
-                                                                 IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, ManifoldCoordinate manifoldCoordinate);
-   
-   /**
-    * Add all of the necessary metadata semantics onto the specified concept to make it a concept that defines a dynamic semantic assemblage.
-    * 
     * NOTE!!! If this concept lives outside of the metadata tree, in order to get the proper markers into the lucene indes on ALL of the descriptions 
     * for this concept, once should reindex all of the descriptions attached to the passed in conceptNid, after writing the results of this call to the 
     * system.
     * 
+    * Add all of the necessary metadata semantics onto the specified concept to make it a concept that defines a dynamic semantic assemblage
     * See {@link DynamicUsageDescription} class for more details on this format.
+    * @param wc - optional - the edit coordinate to construct this on - if null, uses the system default coordinate
     * @param conceptNid - The concept that will define a dynamic semantic
     * @param semanticDescription - The description that describes the purpose of this dynamic semantic
     * @param columns - optional - the columns of data that this dynamic semantic needs to be able to store.
     * @param referencedComponentTypeRestriction - optional - any component type restriction info for the columns
-    * @param referencedComponentTypeSubRestriction - optional - any compont sub-type restrictions for the columns
-    * @param stampSequence - the stamp to construct this on
-    * @return all of the created (but unwritten) Chronology.  It is up to the caller to write the chronologies to the appropriate store.
+    * @param referencedComponentTypeSubRestriction - optional - any component sub-type restrictions for the columns
+    * @param write - if true, write immediately.  If false, caller is responsible for writing the chronologies to the data store.
+    * @return all of the created (but uncommitted) SemanticChronologies
     */
-   public List<Chronology> configureConceptAsDynamicSemantic(Transaction transaction, int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
-         IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, int stampSequence);
+   public SemanticChronology[] configureConceptAsDynamicSemantic(WriteCoordinate wc, int conceptNid, String semanticDescription, DynamicColumnInfo[] columns,
+                                                                 IsaacObjectType referencedComponentTypeRestriction, VersionType referencedComponentTypeSubRestriction, 
+                                                                 boolean write);
    
    /**
     * Create a new concept to be used in a column of a dynamic semantic definition
+    * @param wc - optional write coordinate to create on.  Uses system default if not provided
     * @param columnName - the FSN and regular name of the concept
     * @param columnDescription - the optional but highly recommended description of the column
-    * @param manifoldCoordinate - optional - uses default if not provided
     * @param extraParents - optional - by default, listed under {@link DynamicConstants#DYNAMIC_COLUMNS}
     * @return the list of chronology objects created but not committed
     */
-   public ArrayList<Chronology> buildUncommittedNewDynamicSemanticColumnInfoConcept(Transaction transaction, String columnName, String columnDescription,
-                                                                                    ManifoldCoordinate manifoldCoordinate, UUID[] extraParents);
+   public ArrayList<Chronology> buildUncommittedNewDynamicSemanticColumnInfoConcept(WriteCoordinate wc, String columnName, String columnDescription, UUID[] extraParents);
 
    /**
     * validate that the proposed dynamicData aligns with the definition.  This also fills in default values,

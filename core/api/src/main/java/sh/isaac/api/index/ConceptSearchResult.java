@@ -65,7 +65,7 @@ public class ConceptSearchResult implements SearchResult {
 	/** The Nid of the concept most closely related to the search result (the concept referenced by a description, for example). */
 	private int conceptNid;
 	
-	private ConceptSearchResult(StampFilter filterForSort)
+	private ConceptSearchResult(StampFilter coordForSort)
 	{
 		nids = new TreeSet<>(new Comparator<Map.Entry<Float,Integer>>()
 		{
@@ -73,15 +73,15 @@ public class ConceptSearchResult implements SearchResult {
 			public int compare(Map.Entry<Float,Integer> e1, Map.Entry<Float,Integer> e2) {
 				
 				int temp = -1 * Float.compare(e1.getKey(), e2.getKey());
-				if (temp == 0 && filterForSort != null)
+				if (temp == 0 && coordForSort != null)
 				{
 					//If same score, see if we can sort better by status...
-					if (Get.identifiedObjectService().getChronology(e1.getValue()).get().getLatestVersion(filterForSort).isPresentAnd(x -> x.isActive()))
+					if (Get.identifiedObjectService().getChronology(e1.getValue()).get().getLatestVersion(coordForSort).isPresentAnd(x -> x.isActive()))
 					{
 						//left (or both) is active, ranks higher, but invert.
 						return 1;
 					}
-					else if (Get.identifiedObjectService().getChronology(e2.getValue()).get().getLatestVersion(filterForSort).isPresentAnd(x -> x.isActive()))
+					else if (Get.identifiedObjectService().getChronology(e2.getValue()).get().getLatestVersion(coordForSort).isPresentAnd(x -> x.isActive()))
 					{
 						//right is active, ranks higher, but invert
 						return -1;
@@ -106,7 +106,8 @@ public class ConceptSearchResult implements SearchResult {
 
 	/**
 	 * Instantiates a new concept search result.
-	 *  @param conceptNid the concept Nid
+	 *
+	 * @param conceptNid the concept Nid
 	 * @param componentNid the component nid
 	 * @param score the score
 	 * @param stampFilterForNidRanking used to sort nids when the scores tie (prefer active over inactive)

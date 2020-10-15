@@ -33,6 +33,13 @@
          <artifactId>direct-import</artifactId>
          <version>${project.version}</version>
       </dependency>
+      <!-- When mojos execute, route all logging through log4j2 -->
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>log-config</artifactId>
+         <version>${project.parent.version}</version>
+         <scope>compile</scope>
+      </dependency>
       <dependency>
          <groupId>org.eclipse.collections</groupId>
          <artifactId>eclipse-collections-api</artifactId>
@@ -46,6 +53,7 @@
    <build>
       <plugins>
          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-plugin-plugin</artifactId>
             <executions>
                <execution>

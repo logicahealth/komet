@@ -62,7 +62,7 @@ public class LanguageCoordinateItemPanel extends AbstractPreferences {
             this.languageCoordinateItem = new ObservableLanguageCoordinateImpl(languageCoordinate);
         } else {
             setGroupName("US English");
-            LanguageCoordinateImmutable languageCoordinate = Coordinates.Language.UsEnglishPreferredName();
+            LanguageCoordinateImmutable languageCoordinate = Coordinates.Language.UsEnglishRegularName();
             this.languageCoordinateItem = new ObservableLanguageCoordinateImpl(languageCoordinate);
         }
         setup(viewProperties);

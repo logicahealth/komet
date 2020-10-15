@@ -1,13 +1,18 @@
 package sh.isaac.api.coordinate;
 
-import com.github.benmanes.caffeine.cache.Cache;
-import com.github.benmanes.caffeine.cache.Caffeine;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import org.eclipse.collections.api.list.primitive.ImmutableIntList;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
@@ -23,18 +28,9 @@ import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 
-import javax.annotation.PreDestroy;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.UUID;
-
+//This class is not treated as a service, however, it needs the annotation, so that the reset() gets fired at appropriate times.
 @Service
-@RunLevel(value = LookupService.SL_L2)
-
-// Singleton from the perspective of HK2 managed instances, there will be more than one
-// StampFilterImmutable created in normal use.
-public final class LanguageCoordinateImmutable implements LanguageCoordinate, ImmutableCoordinate, ChronologyChangeListener {
+public final class LanguageCoordinateImmutable implements LanguageCoordinate, ImmutableCoordinate, ChronologyChangeListener, StaticIsaacCache {
 
     private static final ConcurrentReferenceHashMap<LanguageCoordinateImmutable, LanguageCoordinateImmutable> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
@@ -78,10 +74,11 @@ public final class LanguageCoordinateImmutable implements LanguageCoordinate, Im
                                        LanguageCoordinateImmutable nextPriorityLanguageCoordinate) {
         this.languageConceptNid = languageConceptNid;
         this.descriptionTypePreferenceList = descriptionTypePreferenceList;
-        this.dialectAssemblagePreferenceList = dialectAssemblagePreferenceList;
-        this.modulePreferenceListForLanguage = modulePreferenceListForLanguage;
+        this.dialectAssemblagePreferenceList = dialectAssemblagePreferenceList == null ? IntLists.immutable.empty() : dialectAssemblagePreferenceList;
+        this.modulePreferenceListForLanguage = modulePreferenceListForLanguage == null ? IntLists.immutable.empty() : modulePreferenceListForLanguage;
         this.nextPriorityLanguageCoordinate = nextPriorityLanguageCoordinate;
     }
+    
     private LanguageCoordinateImmutable() {
         // No arg constructor for HK2 managed instance
         // This instance just enables reset functionality...
@@ -133,10 +130,7 @@ public final class LanguageCoordinateImmutable implements LanguageCoordinate, Im
         return getLanguageCoordinateUuid();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @PreDestroy
+    @Override
     public void reset() {
         SINGLETONS.clear();
     }
@@ -179,6 +173,14 @@ public final class LanguageCoordinateImmutable implements LanguageCoordinate, Im
                 languageCoordinateImmutable -> languageCoordinateImmutable.setupCache());
     }
 
+    /**
+     * 
+     * @param languageConceptNid
+     * @param descriptionTypePreferenceList
+     * @param dialectAssemblagePreferenceList
+     * @param modulePreferenceListForLanguage - if null, treated as empty
+     * @return
+     */
     public static LanguageCoordinateImmutable make(int languageConceptNid,
                                                    ImmutableIntList descriptionTypePreferenceList,
                                                    ImmutableIntList dialectAssemblagePreferenceList,
@@ -266,35 +268,9 @@ public final class LanguageCoordinateImmutable implements LanguageCoordinate, Im
         return Get.conceptSpecification(this.languageConceptNid);
     }
 
-
-    @Override
-    public LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
-        return Get.languageCoordinateService()
-                .getSpecifiedDescription(stampFilter, descriptionList, new int[]{TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()}, this);
-    }
-
-    @Override
-    public LatestVersion<DescriptionVersion> getFullyQualifiedDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
-        return Get.languageCoordinateService()
-                .getSpecifiedDescription(stampFilter, descriptionList, new int[]{TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()}, this);
-    }
-
-    @Override
-    public LatestVersion<DescriptionVersion> getPreferredDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
-        return Get.languageCoordinateService()
-                .getSpecifiedDescription(stampFilter, descriptionList, new int[]{TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()}, this);
-    }
-
     @Override
     public LanguageCoordinateImmutable toLanguageCoordinateImmutable() {
         return this;
-    }
-
-
-    @Override
-    public LatestVersion<DescriptionVersion> getDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
-        return Get.languageCoordinateService()
-                .getSpecifiedDescription(stampFilter, descriptionList, this);
     }
 
     @Override
@@ -342,7 +318,7 @@ public final class LanguageCoordinateImmutable implements LanguageCoordinate, Im
         }
     }
     @Override
-    public Optional<String> getPreferredDescriptionText(int componentNid, StampFilter stampFilter) {
+    public Optional<String> getRegularDescriptionText(int componentNid, StampFilter stampFilter) {
         Cache<Integer, String> preferredCache = this.preferredCaches.computeIfAbsent(stampFilter.toStampFilterImmutable(),
                 stampFilterImmutable -> Caffeine.newBuilder().maximumSize(100000).build());
 
@@ -359,7 +335,7 @@ public final class LanguageCoordinateImmutable implements LanguageCoordinate, Im
         switch (Get.identifierService().getObjectTypeForComponent(componentNid)) {
             case CONCEPT: {
                 LatestVersion<DescriptionVersion> latestDescription
-                        = getPreferredDescription(Get.conceptService().getConceptDescriptions(componentNid), stampFilter);
+                        = getRegularDescription(Get.conceptService().getConceptDescriptions(componentNid), stampFilter);
                 return latestDescription.isPresent() ? latestDescription.get().getText() : null;
             }
             case SEMANTIC: {

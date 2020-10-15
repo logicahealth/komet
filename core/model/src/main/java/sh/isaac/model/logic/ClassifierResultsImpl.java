@@ -1,18 +1,29 @@
 package sh.isaac.model.logic;
 
+import java.time.Instant;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeSet;
 import org.apache.mahout.math.list.IntArrayList;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.collections.IntArrayWrapper;
 import sh.isaac.api.commit.CommitRecord;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.marshal.Marshalable;
+import sh.isaac.api.marshal.Marshaler;
+import sh.isaac.api.marshal.Unmarshaler;
 
-import java.time.Instant;
-import java.util.*;
+public class ClassifierResultsImpl implements ClassifierResults, Marshalable {
 
-public class ClassifierResultsImpl implements ClassifierResults {
-
+    public static final int marshalVersion = 1;
     /**
      * Set of concepts potentially affected by the last classification.
      */
@@ -32,7 +43,7 @@ public class ClassifierResultsImpl implements ClassifierResults {
     private HashSet<Integer> orphanedConcepts = new HashSet<>();
 
     private final ManifoldCoordinateImmutable manifoldCoordinate;
-
+    
     private ClassifierResultsImpl(ByteArrayDataBuffer data) {
         this.classificationConceptSet = new HashSet<>();
         for (int nid: data.getNidArray()) {
@@ -88,7 +99,6 @@ public class ClassifierResultsImpl implements ClassifierResults {
         for (IntArrayWrapper wrapper: cleanEquivalentSets) {
             equivalentSets.add(wrapper.getWrappedSet());
         }
-
     }
 
     public final void putExternal(ByteArrayDataBuffer out) {
@@ -122,6 +132,40 @@ public class ClassifierResultsImpl implements ClassifierResults {
         this.manifoldCoordinate.marshal(out);
     }
 
+    @Override
+    @Marshaler
+    public final void marshal(ByteArrayDataBuffer out) {
+        out.putNidArray(this.classificationConceptSet);
+        out.putInt(equivalentSets.size());
+        for (int[] equivalentSet: equivalentSets) {
+            out.putNidArray(equivalentSet);
+        }
+        if (commitRecord.isPresent()) {
+            out.putBoolean(true);
+            this.commitRecord.get().putExternal(out);
+        } else {
+            out.putBoolean(false);
+        }
+
+        if (conceptsWithCycles.isPresent()) {
+            out.putBoolean(true);
+            Map<Integer, Set<int[]>> cycles = conceptsWithCycles.get();
+            out.putInt(cycles.size());
+            for (Map.Entry<Integer, Set<int[]>> entry: cycles.entrySet()) {
+                out.putNid(entry.getKey());
+                out.putInt(entry.getValue().size());
+                for (int[] cycle: entry.getValue()) {
+                    out.putNidArray(cycle);
+                }
+            }
+        } else {
+            out.putBoolean(false);
+        }
+        out.putNidArray(orphanedConcepts);
+        this.manifoldCoordinate.marshal(out);
+    }
+
+    @Unmarshaler
     public static final ClassifierResultsImpl make(ByteArrayDataBuffer data) {
         return new ClassifierResultsImpl(data);
     }
@@ -224,16 +268,6 @@ public class ClassifierResultsImpl implements ClassifierResults {
     }
 
     @Override
-    public LogicCoordinate getLogicCoordinate() {
-        return manifoldCoordinate.getLogicCoordinate();
-    }
-
-    @Override
-    public EditCoordinate getEditCoordinate() {
-        return manifoldCoordinate.getEditCoordinate();
-    }
-
-    @Override
     public Instant getCommitTime() {
         return this.manifoldCoordinate.getViewStampFilter().getTimeAsInstant();
     }
@@ -242,6 +276,4 @@ public class ClassifierResultsImpl implements ClassifierResults {
     public Set<Integer> getConceptsWithInferredChanges() {
         return conceptsWithInferredChanges;
     }
-
-
 }

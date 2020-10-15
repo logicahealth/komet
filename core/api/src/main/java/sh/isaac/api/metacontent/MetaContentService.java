@@ -48,6 +48,10 @@ import org.jvnet.hk2.annotations.Contract;
  *
  * An interface that allows the storage of information that is not terminology related.
  * Examples include user preferences, but the intent of the API is to be generic.
+ * 
+ * Implementations of this store do not need to persist data via git changesets, anything stored in this store
+ * should be considered to be lost, if a database is rebuilt from the initial data + changesets, until we get a 
+ * chance to update this API to allow persistence.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */

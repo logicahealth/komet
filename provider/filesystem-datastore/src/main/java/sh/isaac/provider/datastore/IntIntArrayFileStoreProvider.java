@@ -6,7 +6,7 @@ import sh.isaac.model.collections.SpineFileUtil;
 import sh.isaac.model.collections.store.IntIntArrayStore;
 import sh.isaac.model.collections.store.IntIntArrayStoreProvider;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.io.File;
 import java.nio.file.Path;
 

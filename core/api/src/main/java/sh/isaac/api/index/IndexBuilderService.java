@@ -101,7 +101,7 @@ public interface IndexBuilderService extends DatastoreServices, IndexQueryServic
    CompletableFuture<Long> index(Chronology chronicle);
    
    /**
-    * Index the Chronology in a maner appropriate to the indexer implementation.  Unlike {@link #index(Chronology)}, this 
+    * Index the Chronology in a manner appropriate to the indexer implementation.  Unlike {@link #index(Chronology)}, this 
     * operation occurs on the calling thread, and does not return until the index operation is complete.
     * 
     * @param chronicle

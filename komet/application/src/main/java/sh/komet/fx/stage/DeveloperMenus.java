@@ -37,7 +37,7 @@ import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.menu.MenuItemWithText;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -277,7 +277,7 @@ public class DeveloperMenus implements MenuProvider {
         List<TransformationGroup> transformationRecords = new ArrayList<>();
         transformationRecords.add(transformationGroup);
         Semaphore writeSemaphore = new Semaphore(1);
-        LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(transformationRecords,
+        LogicGraphTransformerAndWriter transformer = new LogicGraphTransformerAndWriter(null, transformationRecords,
                 writeSemaphore, ImportType.FULL, Instant.now());
         Get.executor().execute(transformer);
         transformer.get();

@@ -93,7 +93,7 @@ public class JsonDataWriterService
    /** The data path. */
    private Path dataPath;
    
-   boolean haveWritten = false;
+   volatile boolean haveWritten = false;
 
    //~--- constructors --------------------------------------------------------
 

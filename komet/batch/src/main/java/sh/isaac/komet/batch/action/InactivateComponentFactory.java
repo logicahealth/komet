@@ -3,7 +3,7 @@ package sh.isaac.komet.batch.action;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import static sh.isaac.komet.batch.action.InactivateComponent.INACTIVATE_COMPONENT;
 

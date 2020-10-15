@@ -61,39 +61,20 @@ import sh.isaac.api.observable.semantic.version.ObservableStringVersion;
  * @author kec
  */
 public enum VersionType {
-   /** The member. */
    MEMBER((byte) 0, "Member", "MBR"),
-
-   /** A component nid version*/
    COMPONENT_NID((byte) 1, "Component Nid", "REF"),
-
-   /** A long version. */
    LONG((byte) 2, "Long", "INT"),
-
-   /** A logic graph version. */
    LOGIC_GRAPH((byte) 4, "Logic Graph", "DEF"),
-
-   /** A string version. */
    STRING((byte) 5, "String", "STR"),
-
-   /** A dynamic version. */
    DYNAMIC((byte) 6, "Dynamic", "DYN"),
-
-   /** A description version. */
    DESCRIPTION((byte) 7, "Description", "DESC"),
-
-   /* A relationship adaptor version -- deprecated/removed. */
+   /* deprecated/removed. */
    //RELATIONSHIP_ADAPTOR((byte) 8, "Relationship Adapter"),
-
-   /** A concept version */
    CONCEPT((byte) 9, "Concept", "CON"),
-
-   /** An RF2 relationship for backwards compatibility. */
    RF2_RELATIONSHIP((byte) 10, "RF2 Relationship", "REL"),
 
-   /** An LOINC record. */
-   LOINC_RECORD((byte) 11, "LOINC Record", "LOINC"),
-
+   /* deprecated/removed. */
+   //LOINC_RECORD((byte) 11, "LOINC Record", "LOINC"),
    IMAGE((byte) 12, "Image", "IMG"),
 
    // Ideally, all of the below would be represented as dynamic semantics,
@@ -101,44 +82,27 @@ public enum VersionType {
    Nid1_Long2((byte) (Byte.MAX_VALUE - 14), "Component Long", "C1_Long2"),
 
    MEASURE_CONSTRAINTS((byte) (Byte.MAX_VALUE - 13), "Measure constraints", "Measure constraints"),
-
    Str1_Nid2_Nid3_Nid4((byte) (Byte.MAX_VALUE - 12), "String Component Component Component", "Str1_C2_C3_C4"),
-
    Str1_Str2_Nid3_Nid4_Nid5((byte) (Byte.MAX_VALUE - 11), "String String Component Component Component", "Str1_Str2_C3_C4_C5"),
-
    Nid1_Nid2((byte) (Byte.MAX_VALUE - 10), "Component Component", "C1_C2"),
-
    Nid1_Nid2_Int3((byte) (Byte.MAX_VALUE - 9), "Component Component Integer", "C1_C2_Int3"),
-
    Nid1_Nid2_Str3((byte) (Byte.MAX_VALUE - 8), "Component Component String", "C1_C2_Str3"),
-
    Nid1_Int2((byte) (Byte.MAX_VALUE - 7), "Component Integer", "C1_Int2"),
-
    Nid1_Str2((byte) (Byte.MAX_VALUE - 6), "Component String", "C1_Str2"),
-
    Nid1_Int2_Str3_Str4_Nid5_Nid6((byte) (Byte.MAX_VALUE - 5), "Component Integer String String Component Component", "C1_Int2_Str3_Str4_C5_C6"),
-
    Int1_Int2_Str3_Str4_Str5_Nid6_Nid7((byte) (Byte.MAX_VALUE - 4), "Integer Integer String String String Component Component", "Int1_Int2_Str3_Str4_Str5_C6_C7"),
-
    Str1_Str2((byte) (Byte.MAX_VALUE - 3), "String String", "Str1_Str2"),
-
    Str1_Str2_Nid3_Nid4((byte) (Byte.MAX_VALUE - 2), "String String Component Component", "Str1_Str2_C3_C4"),
-
    Str1_Str2_Str3_Str4_Str5_Str6_Str7((byte) (Byte.MAX_VALUE - 1), "String String String String String String String", "Str1_Str2_Str3_Str4_Str5_Str6_Str7"),
    
-   /** An unknown type of version. */
    UNKNOWN(Byte.MAX_VALUE, "Unknown", "UNKNOWN");
 
-   /** The semantic token. */
    final byte versionTypeToken;
 
-   /** The nice name. */
    final String niceName;
 
    /** The what name for use in the what column of tables. */
    final String whatName;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new semantic type.
@@ -151,8 +115,6 @@ public enum VersionType {
       this.niceName   = niceName;
       this.whatName   = whatName;
    }
-
-   //~--- methods -------------------------------------------------------------
 
    public String getWhatName() {
       return whatName;
@@ -242,9 +204,6 @@ public enum VersionType {
 
       case 10:
          return RF2_RELATIONSHIP;
-
-      case 11:
-          return LOINC_RECORD;
 
       case 12:
           return IMAGE;

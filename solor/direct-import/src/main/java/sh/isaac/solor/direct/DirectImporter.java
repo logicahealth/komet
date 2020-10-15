@@ -36,21 +36,6 @@
  */
 package sh.isaac.solor.direct;
 
-//~--- JDK imports ------------------------------------------------------------
-import sh.isaac.api.AssemblageService;
-import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.commit.ChangeCheckerMode;
-import sh.isaac.api.component.concept.ConceptService;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.index.IndexBuilderService;
-import sh.isaac.api.progress.PersistTaskResult;
-import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.api.transaction.Transaction;
-import sh.isaac.api.util.UuidT3Generator;
-import sh.isaac.solor.ContentProvider;
-import sh.isaac.solor.ContentStreamProvider;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -68,7 +53,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Semaphore;
@@ -77,12 +61,26 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.IOUtils;
+import sh.isaac.api.AssemblageService;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.coordinate.WriteCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
+import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.progress.PersistTaskResult;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
+import sh.isaac.solor.ContentProvider;
+import sh.isaac.solor.ContentStreamProvider;
 import sh.isaac.solor.direct.clinvar.ClinvarImporter;
 import sh.isaac.solor.direct.cvx.CVXImporter;
 import sh.isaac.solor.direct.livd.LIVDImporter;
@@ -108,7 +106,6 @@ public class DirectImporter
      */
     protected static final SimpleDateFormat DATE_PARSER = new SimpleDateFormat("yyyyMMdd");
 
-    //~--- fields --------------------------------------------------------------
     protected final Semaphore writeSemaphore = new Semaphore(WRITE_PERMITS);
 
     protected final ImportType importType;
@@ -117,7 +114,6 @@ public class DirectImporter
     protected File importDirectory;
     private HashMap<String, ArrayList<DynamicColumnInfo>> refsetColumnInfo = null;  //refset SCTID to column information from the refset spec
     private final Transaction transaction;
-    //~--- constructors --------------------------------------------------------
     public DirectImporter(Transaction transaction, ImportType importType) {
         this.transaction = transaction;
         this.importType = importType;
@@ -153,7 +149,7 @@ public class DirectImporter
         this.entriesToImport = null;
         this.importDirectory = importDirectory;
 
-        updateTitle("Importing from RF2 from" + importDirectory.getAbsolutePath());
+        updateTitle("Importing from " + importDirectory.getAbsolutePath());
         Get.activeTasks()
                 .add(this);
     }
@@ -181,12 +177,12 @@ public class DirectImporter
             } else {
                 File importDirectory = this.importDirectory == null ? Get.configurationService().getIBDFImportPath().toFile() : this.importDirectory;
 
-                System.out.println("Importing from: " + importDirectory.getAbsolutePath());
+                LOG.info("Importing from: " + importDirectory.getAbsolutePath());
 
                 int fileCount = loadDatabase(importDirectory, time, solorReleaseFormat);
 
                 if (fileCount == 0) {
-                    System.out.println("Import from: " + importDirectory.getAbsolutePath() + " failed.");
+                    LOG.info("Import from: " + importDirectory.getAbsolutePath() + " failed.");
                 }
             }
 
@@ -347,14 +343,12 @@ public class DirectImporter
 
         addToTotalWork(specificationsToImport.size());
 
-        Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
-
         for (ImportSpecification importSpecification : specificationsToImport) {
             String message = "Importing " + trimZipName(importSpecification.contentProvider.getStreamSourceName());
             updateMessage(message);
             LOG.info("\n\n" + message + "\n");
             if (message.toLowerCase().contains("loinc.csv")) {
-                System.out.println("About to import loinc...");
+                LOG.info("About to import loinc...");
             }
 
             try (ContentStreamProvider csp = importSpecification.contentProvider.get()) {
@@ -501,7 +495,7 @@ public class DirectImporter
             }
             completedUnitOfWork();
         }
-        transaction.commit("Direct import");
+        LookupService.syncAll();
         LOG.info("Loaded " + fileCount + " files in " + ((System.currentTimeMillis() - time) / 1000) + " seconds");
         return fileCount;
     }
@@ -703,7 +697,6 @@ public class DirectImporter
             ImportSpecification importSpecification) throws IOException {
         updateMessage("Importing RxNorm data...");
         long commitTime = System.currentTimeMillis();
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -757,15 +750,12 @@ public class DirectImporter
                 LOG.error("problem calling sync on index", e);
             }
         }
-        updateMessage("Synchronizing RxNorm to database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readINT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -810,8 +800,6 @@ public class DirectImporter
                 LOG.error("problem calling sync on index", e);
             }
         }
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
 
     }
@@ -844,7 +832,6 @@ public class DirectImporter
     private void readINT1_REFSET(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -882,15 +869,12 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readMEMBER_REFSET(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -928,15 +912,12 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readNID1_INT2_REFSET(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -974,15 +955,12 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readNID1_INT2_STR3_STR4_NID5_NID6_REFSET(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -1020,15 +998,12 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readNID1_NID2_INT3_REFSET(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -1066,15 +1041,12 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readNID1_NID2_REFSET(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -1112,15 +1084,12 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readNID1_NID2_STR3_REFSET(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -1158,15 +1127,12 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readNID1_REFSET(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -1204,15 +1170,12 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readNID1_STR2_REFSET(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -1250,15 +1213,12 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readSTR1_REFSET(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -1296,15 +1256,12 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readSTR1_STR2_NID3_NID4_REFSET(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -1374,15 +1331,12 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readSTR1_STR2_REFSET(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -1420,15 +1374,12 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readSTR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -1466,14 +1417,11 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readSTR1_NID2_NID3_NID4_REFSET(BufferedReader br,
             ImportSpecification importSpecification) throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -1511,14 +1459,11 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readSTR1_STR2_NID3_NID4_NID5_REFSET(BufferedReader br,
             ImportSpecification importSpecification) throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -1589,8 +1534,6 @@ public class DirectImporter
 
         updateMessage("Waiting for refset file completion...");
         this.writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
@@ -1713,13 +1656,15 @@ public class DirectImporter
                 Arrays.sort(assemblageStamps);
                 int stampSequence = assemblageStamps[assemblageStamps.length - 1];  //use the largest (newest) stamp on the concept, 
                 //since we probably just loaded the concept....
+                
+                WriteCoordinate wc = new WriteCoordinateImpl(this.transaction, stampSequence);
 
                 //TODO we need special handling for mapset conversion into our native mapset type
-                List<Chronology> items = LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(
-                    this.transaction,
+                SemanticChronology[] items = LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(
+                    wc,
                     nid,
                     "DynamicDefinition for refset " + Get.conceptDescriptionText(nid),
-                    refsetDescriptors.getValue().toArray(new DynamicColumnInfo[refsetDescriptors.getValue().size()]), null, null, stampSequence);
+                    refsetDescriptors.getValue().toArray(new DynamicColumnInfo[refsetDescriptors.getValue().size()]), null, null, false);
 
                 for (Chronology c : items) {
                     assemblageService.writeSemanticChronology((SemanticChronology)c);
@@ -1739,8 +1684,7 @@ public class DirectImporter
             try
             {
                 //make sure it is readable for future calls
-                assemblageService.sync().get();
-                Get.conceptService().sync().get();
+                LookupService.syncAll();
             }
             catch (Exception e)
             {
@@ -1799,8 +1743,6 @@ public class DirectImporter
             }
         }
         LOG.info("Read {} rows of data, and skipped {}", dataCount, skipped);
-        updateMessage("Synchronizing semantic database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
@@ -1818,7 +1760,6 @@ public class DirectImporter
 
     private void readConcepts(BufferedReader br, ImportSpecification importSpecification)
             throws IOException {
-        ConceptService conceptService = Get.conceptService();
         final int writeSize = 102400;
         String rowString;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
@@ -1871,14 +1812,11 @@ public class DirectImporter
                 LOG.error("problem calling sync on index", e);
             }
         }
-        updateMessage("Synchronizing concept database...");
-        conceptService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readDescriptions(BufferedReader br, ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -1932,14 +1870,11 @@ public class DirectImporter
                 LOG.error("problem calling sync on index", e);
             }
         }
-        updateMessage("Synchronizing description database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readDialect(BufferedReader br, ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -1989,15 +1924,12 @@ public class DirectImporter
                 LOG.error("problem calling sync on index", e);
             }
         }
-        updateMessage("Synchronizing dialect database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readInferredRelationships(BufferedReader br,
             ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -2049,14 +1981,11 @@ public class DirectImporter
                 LOG.error("problem calling sync on index", e);
             }
         }
-        updateMessage("Synchronizing relationship database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 
     private void readStatedRelationships(BufferedReader br, ImportSpecification importSpecification)
             throws IOException {
-        AssemblageService assemblageService = Get.assemblageService();
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         String rowString;
@@ -2108,8 +2037,6 @@ public class DirectImporter
                 LOG.error("problem calling sync on index", e);
             }
         }
-        updateMessage("Synchronizing relationship database...");
-        assemblageService.sync();
         this.writeSemaphore.release(WRITE_PERMITS);
     }
 

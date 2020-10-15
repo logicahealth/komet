@@ -30,10 +30,14 @@ import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.UUID;
 import java.util.stream.Stream;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import static sh.isaac.komet.batch.TransactionViewFactory.TRANSACTION_VIEW;
 
 public class TransactionViewNodeController implements ComponentList {
+
+    private static final Logger LOG = LogManager.getLogger();
 
     @FXML
     private ResourceBundle resources;
@@ -117,7 +121,7 @@ public class TransactionViewNodeController implements ComponentList {
     }
 
     public void close() {
-        System.out.println("Closing ListViewNodeController");
+        LOG.debug("Closing ListViewNodeController");
         FxGet.removeComponentList(this);
     }
 

@@ -36,27 +36,27 @@
  */
 package sh.isaac.model.builder;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-//~--- non-JDK imports --------------------------------------------------------
 import javafx.concurrent.Task;
-
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.commit.Stamp;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.coordinate.WriteCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.transaction.Transaction;
@@ -70,17 +70,8 @@ import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.model.semantic.version.LongVersionImpl;
 import sh.isaac.model.semantic.version.SemanticVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.SemanticBuildListenerI;
-import sh.isaac.api.component.semantic.SemanticBuilder;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.model.ModelGet;
-import sh.isaac.model.semantic.version.brittle.Nid1_Long2_VersionImpl;
 
-//~--- classes ----------------------------------------------------------------
+
 /**
  * The Class SemanticBuilderImpl.
  *
@@ -151,54 +142,25 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
     @Override
     public SemanticBuilderImpl<C> setPrimordialUuid(UUID uuid) {
-        return (SemanticBuilderImpl<C>) super.setPrimordialUuid(uuid); //To change body of generated methods, choose Tools | Templates.
+        return (SemanticBuilderImpl<C>) super.setPrimordialUuid(uuid); 
     }
-
+    
     @Override
     public SemanticBuilderImpl<C> setPrimordialUuid(String uuidString) {
-        return (SemanticBuilderImpl<C>) super.setPrimordialUuid(uuidString); //To change body of generated methods, choose Tools | Templates.
+        return (SemanticBuilderImpl<C>) super.setPrimordialUuid(uuidString);
     }
-
-    //~--- methods -------------------------------------------------------------
-    /**
-     * Builds the.
-     *
-     * @param stampSequence the stamp sequence
-     * @param builtObjects the built objects
-     * @return the c
-     * @throws IllegalStateException the illegal state exception
+    
+    /*
+     * Does not build subs, when buildSubs is false, or fire the after listener
      */
-    @Override
-    public C build(Transaction transaction, int stampSequence,
-                   List<Chronology> builtObjects)
-            throws IllegalStateException {
+    private C buildInternal(WriteCoordinate writeCoordinate, List<Chronology> builtObjects, boolean buildSubs) throws IllegalStateException {
         if (this.referencedComponentNid == Integer.MAX_VALUE) {
             this.referencedComponentNid = Get.identifierService()
                     .getNidForUuids(this.referencedComponentBuilder.getUuids());
         }
-        
-        if (getModule().isPresent()) {
-            Stamp requested = Get.stampService().getStamp(stampSequence);
-            stampSequence = Get.stampService().getStampSequence(requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
-        }
-         
-        final int finalStamp = stampSequence;
-        
-        List<SemanticBuildListenerI> semanticBuildListeners = LookupService.get().getAllServices(SemanticBuildListenerI.class);
-        for (SemanticBuildListenerI listener : semanticBuildListeners) {
-            if (listener != null) {
-                if (listener.isEnabled()) {
-                    // LOG.info("Calling " + listener.getListenerName() + ".applyBefore(...)");
-                    try {
-                        listener.applyBefore(finalStamp, builtObjects);
-                    } catch (RuntimeException e) {
-                        LOG.error("FAILED running " + listener.getListenerName() + ".applyBefore(...): ", e);
-                    }
-                } else {
-                    LOG.info("NOT calling " + listener.getListenerName() + ".applyBefore(...) because listener has been disabled");
-                }
-            }
-        }
+
+        WriteCoordinate forMain = status == null ? writeCoordinate : new WriteCoordinateImpl(writeCoordinate, status);
+
         SemanticVersion version = null;
         SemanticChronologyImpl semanticChronicle;
         
@@ -248,7 +210,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
         switch (this.semanticType) {
             case COMPONENT_NID:
                 final ComponentNidVersionImpl cnsi
-                        = (ComponentNidVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                        = (ComponentNidVersionImpl) semanticChronicle.createMutableVersion(forMain);
                 
                 cnsi.setComponentNid((Integer) this.parameters[0]);
                 version = cnsi;
@@ -256,7 +218,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
             case Nid1_Int2:
                 final Nid1_Int2_Version nid1int2
-                        = (Nid1_Int2_Version) semanticChronicle.createMutableVersion(finalStamp);
+                        = (Nid1_Int2_Version) semanticChronicle.createMutableVersion(forMain);
 
                 nid1int2.setNid1((Integer) this.parameters[0]);
                 nid1int2.setInt2((Integer) this.parameters[1]);
@@ -266,7 +228,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
             case Nid1_Long2:
                 final Nid1_Long2_Version nid1long2
-                        = (Nid1_Long2_Version) semanticChronicle.createMutableVersion(finalStamp);
+                        = (Nid1_Long2_Version) semanticChronicle.createMutableVersion(forMain);
 
                 nid1long2.setNid1((Integer) this.parameters[0]);
                 nid1long2.setLong2((Long) this.parameters[1]);
@@ -275,32 +237,32 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                 break;
 
             case LONG:
-                final LongVersionImpl lsi = (LongVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                final LongVersionImpl lsi = (LongVersionImpl) semanticChronicle.createMutableVersion(forMain);
                 version = lsi;
                 lsi.setLongValue((Long) this.parameters[0]);
                 break;
             
             case LOGIC_GRAPH:
                 final LogicGraphVersionImpl lgsi
-                        = (LogicGraphVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                        = (LogicGraphVersionImpl) semanticChronicle.createMutableVersion(forMain);
                 version = lgsi;
                 lgsi.setGraphData(((LogicalExpression) this.parameters[0]).getData(DataTarget.INTERNAL));
                 break;
             
             case MEMBER:
-                SemanticVersionImpl svi = semanticChronicle.createMutableVersion(finalStamp);
+                SemanticVersionImpl svi = semanticChronicle.createMutableVersion(forMain);
                 version = svi;
                 break;
             
             case STRING:
-                final StringVersionImpl ssi = (StringVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                final StringVersionImpl ssi = (StringVersionImpl) semanticChronicle.createMutableVersion(forMain);
                 version = ssi;
                 ssi.setString((String) this.parameters[0]);
                 break;
             
             case DESCRIPTION: {
                 final DescriptionVersionImpl dsi
-                        = (DescriptionVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                        = (DescriptionVersionImpl) semanticChronicle.createMutableVersion(forMain);
                 version = dsi;
                 dsi.setCaseSignificanceConceptNid((Integer) this.parameters[0]);
                 dsi.setDescriptionTypeConceptNid((Integer) this.parameters[1]);
@@ -310,7 +272,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             }
             
             case DYNAMIC: {
-                final DynamicImpl dsi = (DynamicImpl) semanticChronicle.createMutableVersion(finalStamp);
+                final DynamicImpl dsi = (DynamicImpl) semanticChronicle.createMutableVersion(forMain);
                 if (referencedComponentBuilder != null) {
                     dsi.setReferencedComponentVersionType(referencedComponentBuilder.getVersionType());
                 }
@@ -328,180 +290,30 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             default:
                 throw new UnsupportedOperationException("p Can't handle: " + this.semanticType);
         }
-        transaction.addVersionToTransaction(version);
-        getSemanticBuilders().forEach((builder) -> builder.build(transaction, finalStamp, builtObjects));
         builtObjects.add(semanticChronicle);
-        ModelGet.identifierService().setupNid(semanticChronicle.getNid(), semanticChronicle.getAssemblageNid(), semanticChronicle.getIsaacObjectType(), semanticChronicle.getVersionType());
-
-        for (SemanticBuildListenerI listener : semanticBuildListeners) {
-            if (listener != null) {
-                if (listener.isEnabled()) {
-                    // LOG.info("Calling " + listener.getListenerName() + ".applyAfter(...)");
-                    try {
-                        listener.applyAfter(finalStamp, version, builtObjects);
-                    } catch (RuntimeException e) {
-                        LOG.error("FAILED running " + listener.getListenerName() + ".applyAfter(...): ", e);
-                    }
-                } else {
-                    LOG.info("NOT calling " + listener.getListenerName() + ".applyAfter(...) because listener has been disabled");
-                }
-            }
+        
+        if (buildSubs) {
+            getSemanticBuilders().forEach((builder) -> builder.build(writeCoordinate, builtObjects));
         }
         return (C) semanticChronicle;
     }
 
-    /**
-     * Builds the.
-     *
-     * @param manifoldCoordinate the edit coordinate
-     * @param builtObjects the built objects
-     * @return the optional wait task
-     * @throws IllegalStateException the illegal state exception
-     */
     @Override
-    public OptionalWaitTask<C> build(Transaction transaction, ManifoldCoordinate manifoldCoordinate,
-                                     List<Chronology> builtObjects)
-            throws IllegalStateException {
-        
-        List<SemanticBuildListenerI> semanticBuildListeners = LookupService.get().getAllServices(SemanticBuildListenerI.class);
-        for (SemanticBuildListenerI listener : semanticBuildListeners) {
-            if (listener != null) {
-                if (listener.isEnabled()) {
-                    // LOG.info("Calling " + listener.getListenerName() + ".applyBefore(...)");
-                    try {
-                        listener.applyBefore(transaction, manifoldCoordinate, builtObjects);
-                    } catch (RuntimeException e) {
-                        LOG.error("FAILED running " + listener.getListenerName() + ".applyBefore(...): ", e);
-                    }
-                } else {
-                    LOG.info("NOT calling " + listener.getListenerName() + ".applyBefore(...) because listener has been disabled");
-                }
-            }
-        }
-        
-        if (this.referencedComponentNid == Integer.MAX_VALUE) {
-            this.referencedComponentNid = Get.identifierService()
-                    .getNidForUuids(this.referencedComponentBuilder.getUuids());
-        }
-        
-        SemanticVersion version;
-        SemanticChronologyImpl semanticChronology;
-        
-        final int semanticNid = getNid();
-        if (Get.assemblageService().hasSemantic(semanticNid)) {
-            semanticChronology = (SemanticChronologyImpl) Get.assemblageService().getSemanticChronology(semanticNid);
-            
-            if ((semanticChronology.getVersionType() != this.semanticType)
-                    || !semanticChronology.isIdentifiedBy(getPrimordialUuid())
-                    || (semanticChronology.getAssemblageNid() != this.assemblageId)
-                    || (semanticChronology.getReferencedComponentNid() != this.referencedComponentNid)) {
-                throw new RuntimeException("Builder is being used to attempt a mis-matched edit of an existing semantic!");
-            }
-        } else {
-            semanticChronology = new SemanticChronologyImpl(this.semanticType,
-                    getPrimordialUuid(),
-                    this.assemblageId,
-                    this.referencedComponentNid);
-        }
-        
-        semanticChronology.setAdditionalUuids(this.additionalUuids);
-        
-        switch (this.semanticType) {
-            case COMPONENT_NID:
-                final ComponentNidVersionImpl cnsi
-                        = semanticChronology.createMutableVersion(transaction, this.state,
-                        manifoldCoordinate, getModule());
-                version = cnsi;
-                cnsi.setComponentNid((Integer) this.parameters[0]);
-                break;
-            
-            case LONG:
-                final LongVersionImpl lsi = semanticChronology.createMutableVersion(transaction, this.state,
-                        manifoldCoordinate, getModule());
-                version = lsi;
-                lsi.setLongValue((Long) this.parameters[0]);
-                break;
+    public C build(Transaction transaction, int stampSequence, List<Chronology> builtObjects) throws IllegalStateException
+    {
+        return buildInternal(adjustForModule(new WriteCoordinateImpl(transaction, stampSequence)), builtObjects, true);
+    }
 
-            case Nid1_Long2:
-                final Nid1_Long2_VersionImpl nid1_long2_version = semanticChronology.createMutableVersion(transaction, this.state,
-                        manifoldCoordinate, getModule());
-                version = nid1_long2_version;
-                nid1_long2_version.setNid1((Integer) this.parameters[0]);
-                nid1_long2_version.setLong2((Long) this.parameters[1]);
-                break;
-            
-            case LOGIC_GRAPH:
-                final LogicGraphVersionImpl lgsi
-                        = semanticChronology.createMutableVersion(transaction, this.state,
-                        manifoldCoordinate, getModule());
-                version = lgsi;
-                lgsi.setGraphData(((LogicalExpression) this.parameters[0]).getData(DataTarget.INTERNAL));
-                break;
-            
-            case MEMBER:
-                final SemanticVersionImpl svi = semanticChronology.createMutableVersion(transaction, this.state, manifoldCoordinate, getModule());
-                version = svi;
-                break;
-            
-            case STRING:
-                final StringVersionImpl ssi = semanticChronology.createMutableVersion(transaction, this.state,
-                        manifoldCoordinate, getModule());
-                version = ssi;
-                ssi.setString((String) this.parameters[0]);
-                break;
-            
-            case DESCRIPTION: {
-                final DescriptionVersionImpl dsi
-                        = semanticChronology.createMutableVersion(transaction, this.state,
-                        manifoldCoordinate, getModule());
-                version = dsi;
-                dsi.setCaseSignificanceConceptNid((Integer) this.parameters[0]);
-                dsi.setDescriptionTypeConceptNid((Integer) this.parameters[1]);
-                dsi.setLanguageConceptNid((Integer) this.parameters[2]);
-                dsi.setText((String) this.parameters[3]);
-                break;
-            }
-            
-            case DYNAMIC: {
-                final DynamicImpl dsi = semanticChronology.createMutableVersion(transaction, this.state,
-                        manifoldCoordinate, getModule());
-                
-                if ((this.parameters != null) && (this.parameters.length > 0)) {
-                    // See notes in SemanticBuilderProvider - this casting / wrapping nonesense it to work around Java being stupid.
-                    dsi.setData(((AtomicReference<DynamicData[]>) this.parameters[0]).get());
-                }
-                version = dsi;
-                break;
-            }
-            
-            default:
-                throw new UnsupportedOperationException("q Can't handle: " + this.semanticType);
-        }
-        transaction.addVersionToTransaction(version);
-        Task<Void> primaryNested = Get.commitService()
-                .addUncommitted(transaction, semanticChronology);
-
+    @Override
+    public OptionalWaitTask<C> buildAndWrite(WriteCoordinate writeCoordinate, List<Chronology> builtObjects) throws IllegalStateException
+    {
+        WriteCoordinate forWrite = adjustForModule(writeCoordinate);
+        SemanticChronology sc = buildInternal(forWrite, builtObjects, false);
+        Task<Void> primaryNested = Get.commitService().addUncommitted(forWrite.getTransaction().get(), sc);
         final ArrayList<OptionalWaitTask<?>> nested = new ArrayList<>();
+        getSemanticBuilders().forEach((builder) -> nested.add(builder.buildAndWrite(forWrite, builtObjects)));
         
-        getSemanticBuilders().forEach((builder) -> {
-            getModule().ifPresent((moduleSpec) -> {
-                builder.setModule(moduleSpec);
-            });
-            nested.add(builder.build(transaction, manifoldCoordinate,
-                    builtObjects));
-        });
-        builtObjects.add(semanticChronology);
-        for (SemanticBuildListenerI listener : semanticBuildListeners) {
-            if (listener != null) {
-                if (listener.isEnabled()) {
-                    // LOG.info("Calling " + listener.getListenerName() + ".applyAfter(...)");
-                    listener.applyAfter(transaction, manifoldCoordinate, version, builtObjects);
-                } else {
-                    LOG.info("NOT calling " + listener.getListenerName() + ".applyAfter(...) because listener has been disabled");
-                }
-            }
-        }
-        return new OptionalWaitTask<>(primaryNested, (C) semanticChronology, nested);
+        return new OptionalWaitTask<>(primaryNested, (C) sc, nested);
     }
     
     @Override

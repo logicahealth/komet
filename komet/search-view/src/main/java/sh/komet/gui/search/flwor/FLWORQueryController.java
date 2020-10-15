@@ -693,7 +693,7 @@ public class FLWORQueryController extends ExplorationNodeAbstract {
     private void outputStyleInfo(String prefix, TreeTableCell nodeToStyle) {
         // System.out.println(prefix + " css metadata: " + nodeToStyle.getCssMetaData());
         // System.out.println(prefix + " style: " + nodeToStyle.getStyle());
-        System.out.println(prefix + " style classes: " + nodeToStyle.getStyleClass());
+        LOG.debug(prefix + " style classes: " + nodeToStyle.getStyleClass());
     }
 
     private Collection<? extends Action> setupContextMenu(final TreeTableRow<QueryClause> rowValue) {

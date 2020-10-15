@@ -1,21 +1,14 @@
 package sh.isaac.model.observable.coordinate;
 
-import javafx.beans.property.*;
+import java.util.Objects;
+import javafx.beans.property.LongProperty;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.StampPosition;
 import sh.isaac.api.coordinate.StampPositionImmutable;
-import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampPosition;
-import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedObjectProperty;
-
-import java.util.Objects;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class  ObservableStampPositionBase.
@@ -74,8 +67,6 @@ public abstract class ObservableStampPositionBase
         this.pathConceptProperty.removeListener(this.pathConceptChangedListener);
         this.timeProperty.removeListener(this.timeChangedListener);
     }
-
-    //~--- methods -------------------------------------------------------------
 
     @Override
     public StampPositionImmutable getStampPosition() {

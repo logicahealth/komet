@@ -39,24 +39,14 @@
 
 package sh.isaac.api.observable.concept;
 
-//~--- JDK imports ------------------------------------------------------------
-
-
-//~--- non-JDK imports --------------------------------------------------------
-
-
-import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
 import sh.isaac.api.transaction.Transaction;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface ObservableConceptChronology.
@@ -75,48 +65,17 @@ public interface ObservableConceptChronology
     */
    boolean containsActiveDescription(String descriptionText, StampFilter stampFilter);
 
-
-   /**
-    * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
-    * add persist the chronicle when changes to the mutable version are complete .
-    * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version.
-    * @return the mutable version
-    */
    @Override
    ObservableConceptVersion createMutableVersion(int stampSequence);
-
-   /**
-    * Create a mutable version with Long.MAX_VALUE as the time, indicating
-    * the version is uncommitted. It is the responsibility of the caller to
-    * add the mutable version to the commit manager when changes are complete
-    * prior to committing the component.
-    * @param state state of the created mutable version
-    * @param mc Manifold coordinate to provide the author, module, and path for the mutable version
-    * @return the mutable version
-    */
+   
    @Override
-   ObservableConceptVersion createMutableVersion(Transaction transaction, Status state, ManifoldCoordinate mc);
+   ObservableConceptVersion createMutableVersion(Transaction transaction, int stampSequence);
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the fully specified description.
-    *
-    * @param languageCoordinate the language coordinate
-    * @param stampFilter the stamp coordinate
-    * @return the fully specified description
-    */
    @Override
    LatestVersion<ObservableDescriptionVersion> getFullyQualifiedNameDescription(
            LanguageCoordinate languageCoordinate,
            StampFilter stampFilter);
 
-   /**
-    * Gets the fully specified description.
-    *
-    * @param manifoldCoordinate the language coordinate and the stamp coordinate
-    * @return the fully specified description
-    */
    @Override
    default LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
            ManifoldCoordinate manifoldCoordinate) {
@@ -124,27 +83,14 @@ public interface ObservableConceptChronology
       
    }
 
-   /**
-    * Gets the preferred description.
-    *
-    * @param languageCoordinate the language coordinate
-    * @param stampFilter the stamp coordinate
-    * @return the preferred description
-    */
    @Override
    LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            LanguageCoordinate languageCoordinate,
            StampFilter stampFilter);
-   /**
-    * Gets the preferred description.
-    *
-    * @param manifoldCoordinate the language coordinate and the stamp coordinate
-    * @return the preferred description
-    */
+
    @Override
    default LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            ManifoldCoordinate manifoldCoordinate) {
       return getPreferredDescription(manifoldCoordinate.getLanguageCoordinate(), manifoldCoordinate.getViewStampFilter());
    }
 }
-//~--- JDK imports ------------------------------------------------------------

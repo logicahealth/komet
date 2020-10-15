@@ -62,8 +62,8 @@ import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.provider.commit.CancelUncommittedStamps;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.sql.*;
@@ -192,9 +192,9 @@ public class PostgresStampProvider
     protected byte[] convertUncommittedStampToBytes(UncommittedStamp ustamp) {
         ByteArrayDataBuffer srcData = new ByteArrayDataBuffer();
 
-        srcData.putInt(ustamp.authorNid);
-        srcData.putInt(ustamp.moduleNid);
-        srcData.putInt(ustamp.pathNid);
+        srcData.putInt(ustamp.getAuthorNid());
+        srcData.putInt(ustamp.getModuleNid());
+        srcData.putInt(ustamp.getPathNid());
 
         int length = srcData.getPosition();
         byte[] destBytes = new byte[length];
@@ -202,6 +202,7 @@ public class PostgresStampProvider
         return destBytes;
     }
 
+    //TODO Dan Notes - no idea why this code is reinventing serialization, and its now wrong, since it misses the transaction details on the uncommitted stamp
     protected Stamp convertBytesToStamp(byte[] bytesIn) {
         ByteArrayDataBuffer byteBuffer = new ByteArrayDataBuffer(bytesIn);
         String statusName = byteBuffer.getUTF();
@@ -269,13 +270,13 @@ public class PostgresStampProvider
             (uncommittedStamp, stampSequence) -> {
                 // for each uncommitted stamp matching the author, remove the uncommitted stamp
                 // and replace with a canceled stamp.
-                if (uncommittedStamp.authorNid == authorNid) {
+                if (uncommittedStamp.getAuthorNid() == authorNid) {
                     final Stamp stamp = new Stamp(
-                        uncommittedStamp.status,
+                        uncommittedStamp.getStatus(),
                         Long.MIN_VALUE,
-                        uncommittedStamp.authorNid,
-                        uncommittedStamp.moduleNid,
-                        uncommittedStamp.pathNid);
+                        uncommittedStamp.getAuthorNid(),
+                        uncommittedStamp.getModuleNid(),
+                        uncommittedStamp.getPathNid());
 
                     addStamp(stamp, stampSequence);
                     map.remove(uncommittedStamp);
@@ -573,23 +574,6 @@ public class PostgresStampProvider
         }
     }
 
-    //~--- get methods ---------------------------------------------------------
-    /**
-     * Gets the activated stamp sequence.
-     *
-     * @param stampSequence the stamp sequence
-     * @return the activated stamp sequence
-     */
-    @Override
-    public int getActiveStampSequence(int stampSequence) {
-        return getStampSequence(
-            Status.ACTIVE,
-            getTimeForStamp(stampSequence),
-            getAuthorNidForStamp(stampSequence),
-            getModuleNidForStamp(stampSequence),
-            getPathNidForStamp(stampSequence));
-    }
-
     /**
      * Gets the author nid for stamp.
      *
@@ -610,7 +594,7 @@ public class PostgresStampProvider
         for (Map.Entry<UncommittedStamp, Integer> entry : cacheUncommittedStampToStampSequenceMap.get()
             .entrySet()) {
             if (entry.getValue() == stampSequence) {
-                return entry.getKey().authorNid;
+                return entry.getKey().getAuthorNid();
             }
         }
 
@@ -662,7 +646,7 @@ public class PostgresStampProvider
         for (Map.Entry<UncommittedStamp, Integer> entry : cacheUncommittedStampToStampSequenceMap.get()
             .entrySet()) {
             if (entry.getValue() == stampSequence) {
-                return entry.getKey().moduleNid;
+                return entry.getKey().getModuleNid();
             }
         }
 
@@ -709,7 +693,7 @@ public class PostgresStampProvider
         for (Map.Entry<UncommittedStamp, Integer> entry : cacheUncommittedStampToStampSequenceMap.get()
             .entrySet()) {
             if (entry.getValue() == stampSequence) {
-                return entry.getKey().pathNid;
+                return entry.getKey().getPathNid();
             }
         }
 
@@ -733,22 +717,6 @@ public class PostgresStampProvider
         }
 
         return pendingStampsForCommit;
-    }
-
-    /**
-     * Gets the retired stamp sequence.
-     *
-     * @param stampSequence the stamp sequence
-     * @return the retired stamp sequence
-     */
-    @Override
-    public int getRetiredStampSequence(int stampSequence) {
-        return getStampSequence(
-            Status.INACTIVE,
-            getTimeForStamp(stampSequence),
-            getAuthorNidForStamp(stampSequence),
-            getModuleNidForStamp(stampSequence),
-            getPathNidForStamp(stampSequence));
     }
 
     /**
@@ -867,7 +835,7 @@ public class PostgresStampProvider
         for (Map.Entry<UncommittedStamp, Integer> entry : cacheUncommittedStampToStampSequenceMap.get()
             .entrySet()) {
             if (entry.getValue() == stampSequence) {
-                return entry.getKey().status;
+                return entry.getKey().getStatus();
             }
         }
 
@@ -1006,7 +974,7 @@ public class PostgresStampProvider
             .entrySet()) {
             if (entry.getValue() == stampSequence) {
                 UncommittedStamp us = entry.getKey();
-                return new Stamp(us.status, Long.MAX_VALUE, us.authorNid, us.moduleNid, us.pathNid);
+                return us;
             }
         }
 
@@ -1151,12 +1119,12 @@ public class PostgresStampProvider
     }
 
     @Override
-    public Task<Void> cancel(Transaction transaction) {
+    public TimedTask<Void> cancel(Transaction transaction) {
         throw new UnsupportedOperationException();
     }
 
     @Override
-    public Task<Void> commit(Transaction transaction, long commitTime) {
+    public TimedTask<Void> commit(Transaction transaction, long commitTime) {
         throw new UnsupportedOperationException();
     }
 

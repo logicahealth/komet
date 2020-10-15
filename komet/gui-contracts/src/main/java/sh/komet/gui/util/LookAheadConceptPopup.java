@@ -529,7 +529,7 @@ public class LookAheadConceptPopup extends Popup implements TaskCompleteCallback
 			}
 			else if (event.getCode() == KeyCode.DOWN)
 			{
-				System.out.println("down " + event);
+				logger.debug("down " + event);
 				if (currentSelection < displayedSearchResults.getChildren().size() - 1)
 				{
 					currentSelection++;

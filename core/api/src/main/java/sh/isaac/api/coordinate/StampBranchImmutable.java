@@ -1,22 +1,17 @@
 package sh.isaac.api.coordinate;
 
-import org.glassfish.hk2.runlevel.RunLevel;
+import java.util.Objects;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
+import sh.isaac.api.StaticIsaacCache;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 
-import javax.annotation.PreDestroy;
-import java.util.Objects;
-
+//This class is not treated as a service, however, it needs the annotation, so that the reset() gets fired at appropriate times.
 @Service
-@RunLevel(value = LookupService.SL_L2)
-// Singleton from the perspective of HK2 managed instances, there will be more than one
-// StampFilterImmutable created in normal use.
-public class StampBranchImmutable implements StampBranch, ImmutableCoordinate {
+public class StampBranchImmutable implements StampBranch, ImmutableCoordinate, StaticIsaacCache {
 
     private static final ConcurrentReferenceHashMap<Integer, StampBranchImmutable> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.STRONG,
@@ -34,10 +29,8 @@ public class StampBranchImmutable implements StampBranch, ImmutableCoordinate {
         this.branchConceptNid = Integer.MAX_VALUE;
         this.branchOriginTime = Long.MIN_VALUE;
     }
-    /**
-     * {@inheritDoc}
-     */
-    @PreDestroy
+    
+    @Override
     public void reset() {
         SINGLETONS.clear();
     }

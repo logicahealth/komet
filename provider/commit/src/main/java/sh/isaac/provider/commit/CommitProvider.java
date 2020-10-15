@@ -41,15 +41,50 @@
  */
 package sh.isaac.provider.commit;
 
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableSet;
-import javafx.concurrent.Task;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.stream.Stream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.*;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import javafx.application.Platform;
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.concurrent.Task;
+import sh.isaac.api.ConfigurationService;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.MetadataService;
+import sh.isaac.api.SystemStatusService;
 import sh.isaac.api.alert.AlertCategory;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.alert.AlertType;
@@ -58,10 +93,18 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.commit.*;
+import sh.isaac.api.commit.ChangeChecker;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.CheckAndWriteTask;
+import sh.isaac.api.commit.ChronologyChangeListener;
+import sh.isaac.api.commit.CommitListener;
+import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.commit.CommitService;
+import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.datastore.ExtendedStoreData;
 import sh.isaac.api.externalizable.IsaacExternalizable;
@@ -71,30 +114,15 @@ import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
+import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.DataToBytesUtils;
 import sh.isaac.model.ChronologyImpl;
+import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-import java.io.*;
-import java.lang.ref.ReferenceQueue;
-import java.lang.ref.WeakReference;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Stream;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class CommitProvider.
@@ -142,7 +170,7 @@ public class CommitProvider
 
     private Optional<UUID> dataStoreId = Optional.empty();
 
-    private AtomicReference<Instant> lastCommitTime = new AtomicReference(Instant.MIN);
+    private AtomicReference<Instant> lastCommitTime = new AtomicReference<>(Instant.MIN);
 
     /**
      * The uncommitted nid lock.
@@ -236,6 +264,7 @@ public class CommitProvider
 
     private ExtendedStore dataStore = null;
     private ExtendedStoreData<Integer, NidSet> nidStore;
+    private static final String NID_STORE_NAME = "CommitProviderNidSetStore";
     private static final int uncommittedConceptsWithChecksNidSetId = 0;
     private static final int uncommittedConceptsNoChecksNidSetId = 1;
     private static final int uncommittedSemanticsWithChecksNidSetId = 2;
@@ -368,7 +397,7 @@ public class CommitProvider
      * @return the task
      * TODO: Consider removal
      */
-    protected Task<Void> cancel(TransactionImpl transaction) {
+    protected TimedTask<Void> cancel(TransactionImpl transaction) {
         PendingTransactions.removeTransaction(transaction);
         return Get.stampService()
                 .cancel(transaction);
@@ -388,6 +417,7 @@ public class CommitProvider
 
     public CommitTask commit(Transaction transaction, String commitComment,
                       ConcurrentSkipListSet<AlertObject> alertCollection, Instant commitTime) {
+        LOG.debug("Start commit with transaction: {}, comment: {}, alert count {}, commitTime {}", transaction, commitComment, alertCollection.size(), commitTime);
         Semaphore pendingWrites = writePermitReference.getAndSet(new Semaphore(WRITE_POOL_SIZE));
         pendingWrites.acquireUninterruptibly(WRITE_POOL_SIZE);
 
@@ -708,7 +738,7 @@ public class CommitProvider
      *
      * @param commitRecord the commit record
      */
-    protected void handleCommitNotification(CommitRecord commitRecord) {
+    public void handleCommitNotification(CommitRecord commitRecord) {
         this.changeListeners.forEach((listenerRef) -> {
             final ChronologyChangeListener listener = listenerRef.get();
 
@@ -730,11 +760,11 @@ public class CommitProvider
     }
 
     /**
-     * Handle commit notification.
+     * Handle change notification.
      *
      * @param chronology
      */
-    protected void handleChangeNotification(Chronology chronology) {
+    public void handleChangeNotification(Chronology chronology) {
         this.changeListeners.forEach((listenerRef) -> {
             final ChronologyChangeListener listener = listenerRef.get();
 
@@ -874,9 +904,11 @@ public class CommitProvider
             ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
             Path dataStorePath = configurationService.getDataStoreFolderPath();
 
-            if (Get.dataStore().implementsExtendedStoreAPI()) {
+            //Continue using our own local storage in the case of FileSystem data even though the file system store
+            //now supports the extended APIs for performance reasons
+            if (Get.dataStore().implementsExtendedStoreAPI() && Get.dataStore().getDataStoreType() != DatabaseImplementation.FILESYSTEM) {
                 dataStore = (ExtendedStore) Get.dataStore();
-                nidStore = dataStore.<Integer, byte[], NidSet>getStore("CommitProviderNidSetStore",
+                nidStore = dataStore.<Integer, byte[], NidSet>getStore(NID_STORE_NAME,
                         (valueToSerialize) -> valueToSerialize == null ? null : DataToBytesUtils.getBytes(valueToSerialize::write),
                         (valueToDeserialize)
                                 -> {
@@ -890,7 +922,7 @@ public class CommitProvider
                                 throw new RuntimeException(e);
                             }
                         });
-                LOG.info("DataStore implements extended API, will be used for Commit Provider");
+                LOG.info("DataStore implements extended API, will be used for Commit provider");
             } else {
                 this.dbFolderPath = dataStorePath.resolve("commit-provider");
 
@@ -910,7 +942,7 @@ public class CommitProvider
 
                 Files.createDirectories(this.commitManagerFolder);
 
-                LOG.debug("Commit provider starting in {} using local storage", this.commitManagerFolder.toFile().getCanonicalFile().toString());
+                LOG.info("Commit provider starting in {} using local storage", this.commitManagerFolder.toFile().getCanonicalFile().toString());
 
                 if (!this.dataStoreId.isPresent()) {
                     this.dataStoreId = LookupService.get().getService(MetadataService.class).getDataStoreId();
@@ -1061,6 +1093,10 @@ public class CommitProvider
             try {
                 this.updateMessage("CommitProvider sync");
                 sync().get();
+                if (nidStore != null) {
+                    dataStore.closeStore(NID_STORE_NAME);
+                    nidStore = null;
+                }
                 this.completedUnitOfWork();
                 this.updateMessage("CommitProvider write completion service stop");
                 CommitProvider.this.writeCompletionService.stop();
@@ -1084,9 +1120,11 @@ public class CommitProvider
                 CommitProvider.this.deferredImportNoCheckNids.get().clear();
                 this.completedUnitOfWork();
                 this.updateMessage("CommitProvider stamp alias map reset");
+                CommitProvider.this.stampAliasMap.shutdown();
                 CommitProvider.this.stampAliasMap = null;
                 this.completedUnitOfWork();
                 this.updateMessage("CommitProvider stamp commit map reset");
+                CommitProvider.this.stampCommentMap.shutdown();
                 CommitProvider.this.stampCommentMap = null;
                 this.completedUnitOfWork();
                 this.updateMessage("CommitProvider database sequence reset");
@@ -1107,11 +1145,11 @@ public class CommitProvider
                 this.updateMessage("CommitProvider pending commit tasks");
                 CommitProvider.this.pendingCommitTasks.clear();
                 this.completedUnitOfWork();
+                CommitProvider.this.dataStore = null;
                 return null;
             } finally {
                 Get.activeTasks().remove(this);
             }
-
         }
     }
 
@@ -1132,7 +1170,7 @@ public class CommitProvider
                 NidSet.of(this.uncommittedSemanticsNoChecksNidSet.stream()).write(out);
             }
         } else {
-            //Just need to write the uncommitted nidset data.   Everything else  is written on change
+            //Just need to write the uncommitted nidset data.   Everything else  is written on change in the MV store, 
             nidStore.put(uncommittedConceptsWithChecksNidSetId, NidSet.of(this.uncommittedConceptsWithChecksNidSet.stream()));
             nidStore.put(uncommittedConceptsNoChecksNidSetId, NidSet.of(this.uncommittedConceptsNoChecksNidSet.stream()));
             nidStore.put(uncommittedSemanticsWithChecksNidSetId, NidSet.of(this.uncommittedSemanticsWithChecksNidSet.stream()));
@@ -1276,28 +1314,18 @@ public class CommitProvider
         return dataStore == null ? this.databaseValidity : dataStore.getDataStoreStartState();
     }
 
-    /**
-     * Gets the stamp alias stream.
-     *
-     * @return the stamp alias stream
-     */
     @Override
-    public Stream<StampAlias> getStampAliasStream() {
-        return this.stampAliasMap.getStampAliasStream();
+    public Stream<StampAlias> getStampAliasStream(boolean parallel) {
+        return this.stampAliasMap.getStampAliasStream(parallel);
     }
 
     public Set<Task<?>> getPendingCommitTasks() {
         return pendingCommitTasks;
     }
 
-    /**
-     * Gets the stamp comment stream.
-     *
-     * @return the stamp comment stream
-     */
     @Override
-    public Stream<StampComment> getStampCommentStream() {
-        return this.stampCommentMap.getStampCommentStream();
+    public Stream<StampComment> getStampCommentStream(boolean parallel) {
+        return this.stampCommentMap.getStampCommentStream(parallel);
     }
 
     @Override
@@ -1442,14 +1470,14 @@ public class CommitProvider
     }
 
     @Override
-    public Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode performTests) {
+    public Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode, boolean indexOnCommit) {
         if (singleTransactionOnly && PendingTransactions.getPendingTransactionCount() > 0) {
             for (Transaction transaction: PendingTransactions.getConcurrentPendingTransactionList()) {
                 LOG.info("Pending transaction: " + transaction.getTransactionId());
             }
             throw new IllegalStateException("Second transaction.");
         }
-        TransactionImpl transaction = new TransactionImpl(transactionName, performTests);
+        TransactionImpl transaction = new TransactionImpl(transactionName, changeCheckerMode, indexOnCommit);
         if (logTransactionCreation) {
             logStackTrace(transaction);
         }
@@ -1474,6 +1502,9 @@ public class CommitProvider
 
     @Override
     public Task<Void> addUncommitted(Transaction transaction, Version version) {
+        if (!version.isUncommitted()) {
+            throw new RuntimeException("Invalid API pattern!  Cannot call addUncommitted with a stamp that was not created with a transaction");
+        }
         transaction.addVersionToTransaction(version);
         if (version.getChronology().getIsaacObjectType() == IsaacObjectType.CONCEPT) {
             return addUncommitted(transaction, (ConceptChronology) version.getChronology());

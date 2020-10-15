@@ -59,7 +59,7 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
    @Override
    protected Void call() throws Exception {
       try {
-         Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+         Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
          completedUnitOfWork();
          updateMessage("Importing new content...");
          DirectImporter importer = new DirectImporter(transaction, importType, entriesToImport);
@@ -68,7 +68,7 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
          completedUnitOfWork();
 
          updateMessage("Transforming to SOLOR...");
-         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(importType);
+         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(transaction, importType);
          Future<?> transformTask = Get.executor().submit(transformer);
          transformTask.get();
          completedUnitOfWork();

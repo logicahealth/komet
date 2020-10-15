@@ -41,7 +41,7 @@ package sh.isaac.mapping.constants;
 
 import java.util.UUID;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
 

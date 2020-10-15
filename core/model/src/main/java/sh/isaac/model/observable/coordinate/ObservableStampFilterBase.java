@@ -203,8 +203,8 @@ public abstract class ObservableStampFilterBase extends ObservableCoordinateImpl
     }
 
     @Override
-    public ObservableStampFilter makeModuleAnalog(Collection<ConceptSpecification> modules) {
-        return ObservableStampFilterImpl.make(getValue().makeModuleAnalog(modules));
+    public ObservableStampFilter makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add) {
+        return ObservableStampFilterImpl.make(getValue().makeModuleAnalog(modules, add));
     }
 
     @Override

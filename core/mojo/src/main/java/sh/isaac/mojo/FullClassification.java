@@ -85,7 +85,7 @@ public class FullClassification
          editCoordinate = EditCoordinateImmutable.make(logicCoordinate.getClassifierNid(),
                editCoordinate.getDefaultModuleNid(),
                editCoordinate.getPromotionPathNid(),
-                 editCoordinate.getDestinationModuleNid());
+               editCoordinate.getDestinationModuleNid());
 
          final Task<ClassifierResults> classifyTask =
             logicService.getClassifierService(Coordinates.Manifold.DevelopmentStatedRegularNameSort())

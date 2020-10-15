@@ -1,27 +1,19 @@
 package sh.isaac.api.coordinate;
 
 import org.eclipse.collections.api.set.ImmutableSet;
-import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.StaticIsaacCache;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.jsr166y.ConcurrentReferenceHashMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.Marshaler;
 import sh.isaac.api.marshal.Unmarshaler;
 
-import javax.annotation.PreDestroy;
-import javax.inject.Singleton;
-
+//This class is not treated as a service, however, it needs the annotation, so that the reset() gets fired at appropriate times.
 @Service
-@RunLevel(value = LookupService.SL_L2)
-// Singleton from the perspective of HK2 managed instances, there will be more than one
-// StampFilterImmutable created in normal use.
 public final class StampPositionImmutable
-        implements StampPosition, Comparable<StampPosition>, ImmutableCoordinate {
+        implements StampPosition, Comparable<StampPosition>, ImmutableCoordinate, StaticIsaacCache {
 
     private static final ConcurrentReferenceHashMap<StampPositionImmutable, StampPositionImmutable> SINGLETONS =
             new ConcurrentReferenceHashMap<>(ConcurrentReferenceHashMap.ReferenceType.WEAK,
@@ -44,11 +36,8 @@ public final class StampPositionImmutable
         this.time    = Long.MIN_VALUE;
         this.pathForPositionNid = Integer.MAX_VALUE;
     }
-
-    /**
-     * {@inheritDoc}
-     */
-    @PreDestroy
+    
+    @Override
     public void reset() {
         SINGLETONS.clear();
     }
@@ -64,12 +53,12 @@ public final class StampPositionImmutable
         this.pathForPositionNid = pathForPositionNid;
     }
 
-    public static StampPositionImmutable make(long time, int pathNid) {
-        return SINGLETONS.computeIfAbsent(new StampPositionImmutable(time, pathNid), stampPositionImmutable -> stampPositionImmutable);
+    public static StampPositionImmutable make(long time, int pathForPositionNid) {
+        return SINGLETONS.computeIfAbsent(new StampPositionImmutable(time, pathForPositionNid), stampPositionImmutable -> stampPositionImmutable);
     }
 
-    public static StampPositionImmutable make(long time, ConceptSpecification conceptSpecification) {
-        return SINGLETONS.computeIfAbsent(new StampPositionImmutable(time, conceptSpecification.getNid()), stampPositionImmutable -> stampPositionImmutable);
+    public static StampPositionImmutable make(long time, ConceptSpecification pathForPositionSpecification) {
+        return SINGLETONS.computeIfAbsent(new StampPositionImmutable(time, pathForPositionSpecification.getNid()), stampPositionImmutable -> stampPositionImmutable);
     }
 
     @Override
@@ -97,6 +86,7 @@ public final class StampPositionImmutable
      *
      * @return the time
      */
+    @Override
     public long getTime() {
         return this.time;
     }
@@ -123,19 +113,8 @@ public final class StampPositionImmutable
         return Integer.compare(this.pathForPositionNid, o.getPathForPositionNid());
     }
 
-    //~--- get methods ---------------------------------------------------------
 
-
-    /**
-     * Gets the stamp path.
-     *
-     * @return the stamp path
-     */
-    public StampPath getStampPath() {
-        throw new UnsupportedOperationException();
-        //return new StampPathImpl(this.stampPathConceptSpecification);
-    }
-
+    @Override
     public int getPathForPositionNid() {
         return this.pathForPositionNid;
     }
@@ -145,7 +124,7 @@ public final class StampPositionImmutable
      *
      * @return the stamp path concept nid
      */
-    public ConceptSpecification getPathConcept() {
+    public ConceptSpecification getPathForPositionConcept() {
         return Get.conceptSpecification(this.pathForPositionNid);
     }
 
@@ -219,6 +198,4 @@ public final class StampPositionImmutable
         }
         return this.stampPath.getPathOrigins();
     }
-
-
 }

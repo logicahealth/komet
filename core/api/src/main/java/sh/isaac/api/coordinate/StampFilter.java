@@ -1,9 +1,10 @@
 package sh.isaac.api.coordinate;
 
-import org.eclipse.collections.api.list.ImmutableList;
-import org.eclipse.collections.api.list.primitive.ImmutableIntList;
-import org.eclipse.collections.api.set.ImmutableSet;
-import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.time.Instant;
+import java.util.NoSuchElementException;
+import java.util.UUID;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -12,21 +13,13 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.api.util.UUIDUtil;
 
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.NoSuchElementException;
-import java.util.UUID;
-
-public interface StampFilter extends StampFilterTemplate, TimeBasedAnalogMaker<StampFilter>,
-        StateBasedAnalogMaker<StampFilter> {
+public interface StampFilter extends StampFilterTemplate, TimeBasedAnalogMaker<StampFilter>, StateBasedAnalogMaker<StampFilter> {
 
     /**
      * @return a content based uuid, such that identical stamp coordinates
      * will have identical uuids, and that different stamp coordinates will
      * always have different uuids.
      */
-
     default UUID getStampFilterUuid() {
         ArrayList<UUID> uuidList = new ArrayList<>();
         for (Status status: getAllowedStates().toEnumSet()) {
@@ -50,10 +43,11 @@ public interface StampFilter extends StampFilterTemplate, TimeBasedAnalogMaker<S
     /**
      * Create a new Filter ImmutableCoordinate identical to the this coordinate, but with the modules modified.
      * @param modules the new modules list.
+     * @param add - true, if the modules parameter should be appended to the existing modules, false if the 
      * supplied modules should replace the existing modules
      * @return the new path coordinate
      */
-    StampFilter makeModuleAnalog(Collection<ConceptSpecification> modules);
+    StampFilter makeModuleAnalog(Collection<ConceptSpecification> modules, boolean add);
 
     /**
      * Create a new Filter ImmutableCoordinate identical to the this coordinate, but with the path for position replaced.

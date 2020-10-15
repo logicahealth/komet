@@ -50,6 +50,7 @@ import org.eclipse.collections.impl.factory.primitive.IntLists;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Edge;
 import sh.isaac.api.Get;
+import sh.isaac.api.Status;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -61,6 +62,7 @@ import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.util.time.DateTimeUtil;
@@ -207,9 +209,7 @@ public interface ManifoldCoordinate {
 
     LogicCoordinate getLogicCoordinate();
 
-    default LanguageCoordinate getLanguageCoordinate() {
-        return getLanguageCoordinate();
-    }
+    LanguageCoordinate getLanguageCoordinate();
 
     default Optional<String> getFullyQualifiedName(int nid, StampFilter filter) {
         return this.getLanguageCoordinate().getFullyQualifiedNameText(nid, filter);
@@ -293,7 +293,7 @@ public interface ManifoldCoordinate {
 
     default String getPreferredDescriptionText(int conceptNid) {
         try {
-            return getLanguageCoordinate().getPreferredDescriptionText(conceptNid, getViewStampFilter())
+            return getLanguageCoordinate().getRegularDescriptionText(conceptNid, getViewStampFilter())
                     .orElse("No desc for: " + Get.conceptDescriptionText(conceptNid));
         } catch (NoSuchElementException ex) {
             return ex.getLocalizedMessage();
@@ -323,7 +323,7 @@ public interface ManifoldCoordinate {
 
 
     default LatestVersion<DescriptionVersion> getPreferredDescription(int conceptNid) {
-        return getLanguageCoordinate().getPreferredDescription(conceptNid, getViewStampFilter());
+        return getLanguageCoordinate().getRegularDescription(conceptNid, getViewStampFilter());
     }
 
     default LatestVersion<DescriptionVersion> getPreferredDescription(ConceptSpecification concept) {
@@ -584,10 +584,85 @@ public interface ManifoldCoordinate {
         return Get.conceptSpecification(getPathNidForAnalog());
     }
 
-    ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis);
+    public ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis);
+    
+    public ManifoldCoordinate makeCoordinateAnalog(PremiseType premiseType);
+    
+    /**
+     * @param stampFilter - new stampFilter to use to in the new ManifoldCoordinate, for both the {@link ManifoldCoordinate#getViewStampFilter()} and
+     * {@link ManifoldCoordinate#getVertexStampFilter()} 
+     * @return a new manifold coordinate
+     */
+    default ManifoldCoordinate makeCoordinateAnalog(StampFilter stampFilter) {
+        return ManifoldCoordinateImmutable.make(stampFilter, this.getLanguageCoordinate(), this.getVertexSort(), stampFilter.getAllowedStates(), this.getNavigationCoordinate(),
+                this.getLogicCoordinate(), this.getCurrentActivity(), this.getEditCoordinate());
+    }
 
     default ManifoldCoordinate makeCoordinateAnalog(Instant classifyInstant) {
         return makeCoordinateAnalog(classifyInstant.toEpochMilli());
     }
 
+    /**
+     * @see #getWriteCoordinate(Transaction, Version)
+     * @param transaction
+     * @return
+     */
+    default WriteCoordinate getWriteCoordinate() {
+        return getWriteCoordinate(null, null);
+    }
+
+    /**
+     * @see #getWriteCoordinate(Transaction, Version)
+     * @param transaction
+     * @return
+     */
+    default WriteCoordinate getWriteCoordinate(Transaction transaction) {
+        return getWriteCoordinate(transaction, null);
+    }
+    
+    /**
+     * @see #getWriteCoordinate(Transaction, Version, Status)
+     * @param transaction
+     * @param version
+     * @return
+     */
+    default WriteCoordinate getWriteCoordinate(Transaction transaction, Version version) {
+        return getWriteCoordinate(transaction, version, null);
+    }
+
+    /**
+     * Return a WriteCoordinate based on {@link #getPathNidForAnalog()}, {@link #getModuleNidForAnalog(Version)}, {@link #getAuthorNidForChanges()}
+     * @param transaction - optional - used if supplied
+     * @param version - optional - used if supplied in {@link #getModuleForAnalog(Version)}
+     * @param status - optional - used if supplied
+     * @return the equivalent WriteCoordinate
+     */
+    default WriteCoordinate getWriteCoordinate(Transaction transaction, Version version, Status status) {
+        return new WriteCoordinate() {
+            @Override
+            public Optional<Transaction> getTransaction() {
+                return Optional.ofNullable(transaction);
+            }
+            
+            @Override
+            public int getPathNid() {
+                return ManifoldCoordinate.this.getPathNidForAnalog();
+            }
+            
+            @Override
+            public int getModuleNid() {
+                return ManifoldCoordinate.this.getModuleNidForAnalog(version);
+            }
+            
+            @Override
+            public int getAuthorNid() {
+                return ManifoldCoordinate.this.getAuthorNidForChanges();
+            }
+
+            @Override
+            public Status getStatus() {
+                return status == null ? WriteCoordinate.super.getStatus() : status;
+            }
+        };
+    }
 }

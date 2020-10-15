@@ -17,10 +17,11 @@ package sh.isaac.api;
 
 import java.util.Optional;
 import org.jvnet.hk2.annotations.Contract;
-import sh.isaac.api.constants.SystemPropertyConstants;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import sh.isaac.api.constants.MemoryConfiguration;
+import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
@@ -49,9 +50,9 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	/**
 	 * Gets the default edit coordinate.
 	 *
-	 * @return an {@code ObservableEditCoordinate} based on the configuration defaults.
+	 * @return a write coordinate based on the configuration defaults.
 	 */
-	public ObservableEditCoordinate getDefaultEditCoordinate();
+	public ReadOnlyObjectProperty<WriteCoordinate> getDefaultWriteCoordinate();
 
 	/**
 	 * Gets the default language coordinate.
@@ -190,7 +191,7 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	 *
 	 * @param conceptId the nid of a concept
 	 */
-	public default void setDefaultModule(int conceptId)
+	public default void setDefaultEditModule(int conceptId)
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -202,7 +203,7 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	 *
 	 * @param pathConceptId
 	 */
-	public default void setDefaultPath(int pathConceptId)
+	public default void setDefaultEditPath(int pathConceptId)
 	{
 		throw new UnsupportedOperationException();
 	}

@@ -264,9 +264,6 @@ public class SimpleSearchController extends ExplorationNodeAbstract implements G
             }
         });
 
-        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-            searchTextField.setText("+tetra* +fallot");
-        }
         FxGet.searchers().add(this);
         resultTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             try {

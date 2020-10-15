@@ -6,13 +6,16 @@ import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.ModelGet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 
@@ -38,6 +41,8 @@ public class Rf2OwlTransformer extends TimedTaskWithProgressTracker<Void> implem
             updateMessage("Computing stated OWL expressions...");
             int conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
             int owlAssemblageNid = Get.nidForUuids(UUID.fromString("9a119252-b2da-3e62-8767-706558be8e4b"));
+            
+            Transaction transaction = Get.commitService().newTransaction(Optional.of("owl transform"), ChangeCheckerMode.INACTIVE, false);
 
             addToTotalWork(4);
             completedUnitOfWork();
@@ -45,7 +50,7 @@ public class Rf2OwlTransformer extends TimedTaskWithProgressTracker<Void> implem
             List<TransformationGroup> statedTransformList = new ArrayList<>();
 
             updateMessage("Transforming stated OWL expressions...");
-            Get.conceptService().getConceptNidStream(conceptAssemblageNid).forEach((conceptNid) -> {
+            Get.conceptService().getConceptNidStream(conceptAssemblageNid, false).forEach((conceptNid) -> {
 
                 ImmutableIntSet owlNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, owlAssemblageNid);
 
@@ -54,19 +59,20 @@ public class Rf2OwlTransformer extends TimedTaskWithProgressTracker<Void> implem
 
                 if (statedTransformList.size() == transformSize) {
                     List<TransformationGroup> listForTask = new ArrayList<>(statedTransformList);
-                    OwlTransformerAndWriter transformer = new OwlTransformerAndWriter(listForTask, writeSemaphore, this.importType, getStartTime());
+                    OwlTransformerAndWriter transformer = new OwlTransformerAndWriter(transaction, listForTask, writeSemaphore, this.importType, getStartTime());
                     Get.executor().submit(transformer);
                     statedTransformList.clear();
                 }
             });
             // pickup any items remaining in the list.
-            OwlTransformerAndWriter remainingStatedtransformer = new OwlTransformerAndWriter(statedTransformList, writeSemaphore, this.importType, getStartTime());
+            OwlTransformerAndWriter remainingStatedtransformer = new OwlTransformerAndWriter(transaction, statedTransformList, writeSemaphore, this.importType, getStartTime());
             Get.executor().submit(remainingStatedtransformer);
 
 
             completedUnitOfWork();
 
             writeSemaphore.acquireUninterruptibly(WRITE_PERMITS);
+            transaction.commit("Finishing owl transformation").get();
             completedUnitOfWork();
             updateMessage("Completed transformation");
 

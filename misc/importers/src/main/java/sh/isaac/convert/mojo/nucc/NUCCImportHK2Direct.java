@@ -36,6 +36,17 @@
  */
 package sh.isaac.convert.mojo.nucc;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
 import org.apache.commons.lang3.StringUtils;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
@@ -45,27 +56,16 @@ import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.transaction.Transaction;
-import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.convert.mojo.nucc.data.EnumValidatedTableData;
 import sh.isaac.convert.mojo.nucc.data.EnumValidatedTableDataReader;
-import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.model.semantic.types.DynamicNidImpl;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
 
 /**
  * {@link NUCCImportHK2Direct}
@@ -77,15 +77,12 @@ import java.util.function.Consumer;
 public class NUCCImportHK2Direct extends DirectConverterBaseMojo implements DirectConverter
 {
 	/**
-	 * This constructor is for maven and HK2 and should not be used at runtime.  You should
-	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter)} method on it.
-	 * For maven and HK2, Must set transaction via void setTransaction(Transaction transaction);
+	 * This constructor is for HK2 and should not be used at runtime.  You should 
+	 * get your reference of this class from HK2, and then call the {@link DirectConverter#configure(File, Path, String, StampFilter, Transaction)} method on it.
 	 */
-	protected NUCCImportHK2Direct() {
-	}
-	protected NUCCImportHK2Direct(Transaction transaction)
+	protected NUCCImportHK2Direct() 
 	{
-		super(transaction);
+		super();
 	}
 	
 	@Override
@@ -100,22 +97,6 @@ public class NUCCImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		//noop, we don't require any.
 	}
 	
-	/**
-	 * If this was constructed via HK2, then you must call the configure method prior to calling {@link #convertContent()}
-	 * If this was constructed via the constructor that takes parameters, you do not need to call this.
-	 * 
-	 * @see sh.isaac.convert.directUtils.DirectConverter#configure(java.io.File, java.io.File, java.lang.String, sh.isaac.api.coordinate.StampFilter)
-	 */
-	@Override
-	public void configure(File outputDirectory, Path inputFolder, String converterSourceArtifactVersion, StampFilter stampFilter)
-	{
-		this.outputDirectory = outputDirectory;
-		this.inputFileLocationPath = inputFolder;
-		this.converterSourceArtifactVersion = converterSourceArtifactVersion;
-		this.converterUUID = new ConverterUUID(UuidT5Generator.PATH_ID_FROM_FS_DESC, false);
-		this.readbackCoordinate = stampFilter == null ? Coordinates.Filter.DevelopmentLatest() : stampFilter;
-	}
-	
 	@Override
 	public SupportedConverterTypes[] getSupportedTypes()
 	{
@@ -123,11 +104,11 @@ public class NUCCImportHK2Direct extends DirectConverterBaseMojo implements Dire
 	}
 
 	/**
-	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Transaction, Consumer, BiConsumer))
-	 * @see DirectConverter#convertContent(Transaction, Consumer, BiConsumer))
+	 * @see sh.isaac.convert.directUtils.DirectConverterBaseMojo#convertContent(Consumer, BiConsumer)
+	 * @see DirectConverter#convertContent(Consumer, BiConsumer)
 	 */
 	@Override
-	public void convertContent(Transaction transaction, Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
+	public void convertContent(Consumer<String> statusUpdates, BiConsumer<Double, Double> progressUpdate) throws IOException
 	{
 		final Map<String, UUID> groupingValueConceptByValueMap = new HashMap<>();
 		final Map<String, UUID> classificationValueConceptByValueMap = new HashMap<>();
@@ -145,21 +126,21 @@ public class NUCCImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		}
 		
 		//Right now, we are configured for the NUCC grouping modules nid
-		dwh = new DirectWriteHelper(TermAux.USER.getNid(), MetaData.NUCC_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
+		dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), MetaData.NUCC_MODULES____SOLOR.getNid(), MetaData.DEVELOPMENT_PATH____SOLOR.getNid(), converterUUID, 
 				"NUCC", false);
 		
 		setupModule("NUCC", MetaData.NUCC_MODULES____SOLOR.getPrimordialUuid(), Optional.of("http://nucc.org/provider-taxonomy"), date.getTime());
 		
 		//Set up our metadata hierarchy
-		dwh.makeMetadataHierarchy(transaction, true, false, true, false, true, false, date.getTime());
+		dwh.makeMetadataHierarchy(true, false, true, false, true, false, date.getTime());
 		
 		dwh.linkToExistingAttributeTypeConcept(MetaData.CODE____SOLOR, date.getTime(), readbackCoordinate);
 		
-		dwh.makeAttributeTypeConcept(transaction, null, NUCCColumnsV1.Grouping.name(), null, null, false, DynamicDataType.NID, null, date.getTime());
-		dwh.makeAttributeTypeConcept(transaction, null, NUCCColumnsV1.Classification.name(), null, null, false, DynamicDataType.NID, null, date.getTime());
-		dwh.makeAttributeTypeConcept(transaction, null, NUCCColumnsV1.Specialization.name(), null, null, false, DynamicDataType.NID, null, date.getTime());
+		dwh.makeAttributeTypeConcept(null, NUCCColumnsV1.Grouping.name(), null, null, false, DynamicDataType.NID, null, date.getTime());
+		dwh.makeAttributeTypeConcept(null, NUCCColumnsV1.Classification.name(), null, null, false, DynamicDataType.NID, null, date.getTime());
+		dwh.makeAttributeTypeConcept(null, NUCCColumnsV1.Specialization.name(), null, null, false, DynamicDataType.NID, null, date.getTime());
 
-		dwh.makeRefsetTypeConcept(transaction, null, "All NUCC Concepts", null, null, date.getTime());
+		dwh.makeRefsetTypeConcept(null, "All NUCC Concepts", null, null, date.getTime());
 
 		// Switch on version to select proper Columns enum to use in constructing reader
 		final EnumValidatedTableDataReader<NUCCColumnsV1> importer = new EnumValidatedTableDataReader<>(inputFileLocationPath, NUCCColumnsV1.class);
@@ -180,7 +161,7 @@ public class NUCCImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		// Parent nuccMetadata ComponentReference
 
 		// Create NUCC root concept under SOLOR_CONCEPT____SOLOR
-		final UUID nuccRootConcept = dwh.makeConceptEnNoDialect(transaction, null, "NUCC", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+		final UUID nuccRootConcept = dwh.makeConceptEnNoDialect(null, "NUCC", MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 				new UUID[] {MetaData.SOLOR_CONCEPT____SOLOR.getPrimordialUuid()}, Status.ACTIVE, date.getTime());
 		
 		log.info("Metadata load stats");
@@ -205,7 +186,7 @@ public class NUCCImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			// Create the Grouping value concept as a child of both NUCC root and the Grouping property metadata concept
 			// and store in map for later retrieval
 			UUID conceptToMake = converterUUID.createNamespaceUUIDFromString(NUCCColumnsV1.Grouping.name() + "|" + value);
-			UUID valueConcept = dwh.makeConceptEnNoDialect(transaction, conceptToMake, value, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+			UUID valueConcept = dwh.makeConceptEnNoDialect(conceptToMake, value, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 					new UUID[] {dwh.getAttributeType(NUCCColumnsV1.Grouping.name()), nuccRootConcept}, 
 					Status.ACTIVE, date.getTime());
 
@@ -219,7 +200,7 @@ public class NUCCImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			if (StringUtils.isNotBlank(value))
 			{
 				UUID conceptToMake = converterUUID.createNamespaceUUIDFromString(NUCCColumnsV1.Classification.name() + "|" + value);
-				UUID valueConcept = dwh.makeConceptEnNoDialect(transaction, conceptToMake, value, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+				UUID valueConcept = dwh.makeConceptEnNoDialect(conceptToMake, value, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						new UUID[] {dwh.getAttributeType(NUCCColumnsV1.Classification.name())}, Status.ACTIVE, date.getTime());
 				classificationValueConceptByValueMap.put(value, valueConcept);
 			}
@@ -231,7 +212,7 @@ public class NUCCImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			if (StringUtils.isNotBlank(value))
 			{
 				UUID conceptToMake = converterUUID.createNamespaceUUIDFromString(NUCCColumnsV1.Specialization.name() + "|" + value);
-				UUID valueConcept = dwh.makeConceptEnNoDialect(transaction, conceptToMake, value, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+				UUID valueConcept = dwh.makeConceptEnNoDialect(conceptToMake, value, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						new UUID[] {dwh.getAttributeType(NUCCColumnsV1.Specialization.name())}, Status.ACTIVE, date.getTime());
 				specializationValueConceptByValueMap.put(value, valueConcept);
 			}
@@ -259,7 +240,7 @@ public class NUCCImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			try
 			{
 				// Create row concept
-				UUID concept = dwh.makeConceptEnNoDialect(transaction, null, row.get(NUCCColumnsV1.Code), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
+				UUID concept = dwh.makeConceptEnNoDialect(null, row.get(NUCCColumnsV1.Code), MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(),
 						new UUID[] {groupingValueConcept}, Status.ACTIVE, date.getTime());
 				
 				// Add required NUCC Code annotation
@@ -306,7 +287,7 @@ public class NUCCImportHK2Direct extends DirectConverterBaseMojo implements Dire
 		}
 
 		dwh.processTaxonomyUpdates();
-		Get.taxonomyService().notifyTaxonomyListenersToRefresh();
+		dwh.clearIsaacCaches();
 		
 		log.info("Processed " + dataRows + " rows");
 		statusUpdates.accept("Processed " + dataRows + " rows");

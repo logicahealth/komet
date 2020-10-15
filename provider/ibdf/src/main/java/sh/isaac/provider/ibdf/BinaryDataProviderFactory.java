@@ -47,7 +47,7 @@ import java.io.InputStream;
 
 import java.nio.file.Path;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
 
