@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.NodeChangeListener;
 import java.util.prefs.PreferenceChangeListener;
+import java.util.prefs.Preferences;
 
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.ConceptProxy;
@@ -138,7 +139,17 @@ public interface IsaacPreferences {
 
     default String enumToGeneralKey(Enum key) {
         UUID uuidPrefix = UUID.nameUUIDFromBytes(key.getDeclaringClass().getName().getBytes());
-        return uuidPrefix.toString() + "." + key.getDeclaringClass().getSimpleName() + "." + key.name();
+        String suffix = "." + key.getDeclaringClass().getSimpleName() + "." + key.name();
+        String stringKey = uuidPrefix + suffix;
+
+        if (stringKey.length() > Preferences.MAX_KEY_LENGTH) {
+            int sizeToRemove = stringKey.length() - Preferences.MAX_KEY_LENGTH;
+            stringKey = stringKey.substring(sizeToRemove);
+            if (stringKey.length() > Preferences.MAX_KEY_LENGTH) {
+                throw new IllegalStateException("Key length = " + stringKey.length());
+            }
+        }
+        return stringKey;
     }
 
     /**

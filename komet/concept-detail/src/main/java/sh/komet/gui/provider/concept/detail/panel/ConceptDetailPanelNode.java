@@ -133,8 +133,11 @@ import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 public class ConceptDetailPanelNode extends DetailNodeAbstract
 implements ChronologyChangeListener, Supplier<List<MenuItem>> {
     public enum ConceptDetailNodeKeys {
-        AXIOM_ORDER, DETAIL_ORDER, DESCRIPTION_TYPE_ORDER,
-        CONCEPT_SEMANTICS_ORDER, DESCRIPTION_SEMANTIC_ORDER,
+        AXIOM_ORDER,
+        DETAIL_ORDER,
+        DESCRIPTION_TYPE_ORDER,
+        CONCEPT_SEMANTICS_ORDER,
+        DESCRIPTION_SEMANTIC_ORDER,
         AXIOM_SEMANTIC_ORDER;
     }
 
