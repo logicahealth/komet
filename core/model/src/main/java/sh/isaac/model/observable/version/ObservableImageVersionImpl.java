@@ -82,7 +82,7 @@ public class ObservableImageVersionImpl
     @SuppressWarnings("unchecked")
     @Override
     public <V extends Version> V makeAnalog(int stampSequence) {
-        ImageVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+        ImageVersion newVersion = getOptionalStampedVersion().get().makeAnalog(stampSequence);
         ObservableImageVersionImpl newObservableVersion = new ObservableImageVersionImpl(newVersion, getChronology());
         chronology.getVersionList().add(newObservableVersion);
         return (V) newObservableVersion;

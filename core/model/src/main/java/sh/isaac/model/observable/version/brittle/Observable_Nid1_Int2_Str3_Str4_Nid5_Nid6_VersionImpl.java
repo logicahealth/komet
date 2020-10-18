@@ -431,7 +431,7 @@ public class Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl
     @SuppressWarnings("unchecked")
     @Override
     public <V extends Version> V makeAnalog(int stampSequence) {
-      Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl newVersion = this.getStampedVersion().makeAnalog(stampSequence);
+      Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl newVersion = this.getOptionalStampedVersion().get().makeAnalog(stampSequence);
       Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl newObservableVersion = 
               new Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl(newVersion, getChronology());
       getChronology().getVersionList().add(newObservableVersion);

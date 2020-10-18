@@ -314,6 +314,7 @@ public class StampProvider
                 if (time != Long.MAX_VALUE) {
                    sb.append(Instant.ofEpochMilli(time));
                 }
+                sb.append('_');
                 sb.append(sequenceToUncommittedStamp.get(stampSequence).getTransactionId());
                 sb.append(":");
             } else if (time == Long.MIN_VALUE) {

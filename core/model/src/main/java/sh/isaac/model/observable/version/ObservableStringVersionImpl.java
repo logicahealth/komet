@@ -105,7 +105,7 @@ public class ObservableStringVersionImpl
    @SuppressWarnings("unchecked")
    @Override
    public <V extends Version> V makeAnalog(int stampSequence) {
-      StringVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+      StringVersion newVersion = getOptionalStampedVersion().get().makeAnalog(stampSequence);
       ObservableStringVersionImpl newObservableVersion = new ObservableStringVersionImpl(newVersion, getChronology());
       getChronology().getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;

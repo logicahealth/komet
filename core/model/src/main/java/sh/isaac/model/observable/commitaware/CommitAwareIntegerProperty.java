@@ -45,6 +45,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableComponent;
+import sh.isaac.model.observable.version.ObservableVersionImpl;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -78,7 +79,19 @@ public class CommitAwareIntegerProperty
             throws RuntimeException {
       if (bean instanceof CommittableComponent) {
          final CommittableComponent committableComponent = (CommittableComponent) bean;
-
+         if (committableComponent instanceof ObservableVersionImpl) {
+            ObservableVersionImpl observableVersion = (ObservableVersionImpl) committableComponent;
+            if (observableVersion.getOptionalStampedVersion().isPresent()) {
+               if (observableVersion.getOptionalStampedVersion().get().isUncommitted()) {
+                  return;
+               } else {
+                  throw new UnsupportedOperationException("Cannot change observable value, component is already committed.");
+               }
+            } else {
+               // no stamped version indicates that observable has not been committed.
+               return;
+            }
+         }
          if (committableComponent.getCommitState() == CommitStates.COMMITTED) {
             throw new UnsupportedOperationException("Cannot change value, component is already committed.");
          }
@@ -94,8 +107,10 @@ public class CommitAwareIntegerProperty
     */
    @Override
    public void set(int newValue) {
-      checkChangesAllowed(getBean());
-      super.set(newValue);
+      if (newValue != getValue()) {
+         checkChangesAllowed(getBean());
+         super.set(newValue);
+      }
    }
 
    /**

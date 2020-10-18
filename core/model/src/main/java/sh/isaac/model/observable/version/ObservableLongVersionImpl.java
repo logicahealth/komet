@@ -123,7 +123,7 @@ public class ObservableLongVersionImpl
    @SuppressWarnings("unchecked")
    @Override
    public <V extends Version> V makeAnalog(int stampSequence) {
-      LongVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+      LongVersion newVersion = getOptionalStampedVersion().get().makeAnalog(stampSequence);
       ObservableLongVersionImpl newObservableVersion = new ObservableLongVersionImpl(newVersion, getChronology());
       getChronology().getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;

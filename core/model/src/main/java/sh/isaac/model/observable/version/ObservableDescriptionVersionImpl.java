@@ -222,7 +222,7 @@ public class ObservableDescriptionVersionImpl
    @SuppressWarnings("unchecked")
    @Override
    public <V extends Version> V makeAnalog(int stampSequence) {
-      DescriptionVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+      DescriptionVersion newVersion = getOptionalStampedVersion().get().makeAnalog(stampSequence);
       ObservableDescriptionVersionImpl newObservableVersion = new ObservableDescriptionVersionImpl(newVersion, getChronology());
       getChronology().getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;

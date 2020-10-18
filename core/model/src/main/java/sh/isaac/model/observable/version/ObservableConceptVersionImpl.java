@@ -103,7 +103,7 @@ public class ObservableConceptVersionImpl
     @SuppressWarnings("unchecked")
     @Override
     public <V extends Version> V makeAnalog(int stampSequence) {
-        ConceptVersion newVersion = this.getStampedVersion().makeAnalog(stampSequence);
+        ConceptVersion newVersion = this.getOptionalStampedVersion().get().makeAnalog(stampSequence);
         ObservableConceptVersionImpl newObservableVersion = new ObservableConceptVersionImpl(newVersion, getChronology());
         getChronology().getVersionList().add(newObservableVersion);
         return (V) newObservableVersion;

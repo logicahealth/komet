@@ -82,7 +82,7 @@ public class ObservableComponentNidVersionImpl
    @SuppressWarnings("unchecked")
    @Override
    public <V extends Version> V makeAnalog(int stampSequence) {
-      ComponentNidVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+      ComponentNidVersion newVersion = getOptionalStampedVersion().get().makeAnalog(stampSequence);
       ObservableComponentNidVersionImpl newObservableVersion = new ObservableComponentNidVersionImpl(newVersion, getChronology());
       getChronology().getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;

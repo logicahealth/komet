@@ -19,10 +19,14 @@ package sh.isaac.provider.commit;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.Optional;
+
+import javafx.beans.property.IntegerProperty;
+import javafx.concurrent.Task;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.Get;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.ChangeChecker;
@@ -31,8 +35,12 @@ import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.model.observable.ObservableChronologyImpl;
+import sh.isaac.model.observable.version.ObservableVersionImpl;
 
 /**
  *
@@ -100,13 +108,20 @@ public class SingleCommitTask extends CommitTask {
             int stampSequence = Get.stampService().getStampSequence(transaction, observableVersion.getStatus(),
                     commitTime, observableVersion.getAuthorNid(),
                     observableVersion.getModuleNid(), observableVersion.getPathNid());
+
             stampsInCommit.add(stampSequence);
-            
+
             Chronology chronologyForCommit = observableVersion.createChronologyForCommit(stampSequence);
-            ((CommitProvider) Get.commitService()).handleChangeNotification(chronologyForCommit);
+            Version version = chronologyForCommit.getVersionList().get(0);
+            ObservableVersionImpl observableVersionImpl = (ObservableVersionImpl) observableVersion;
+            observableVersionImpl.updateVersion(version);
+
+            ObservableChronologyImpl observableChronology = (ObservableChronologyImpl) observableVersionImpl.getChronology();
+            observableChronology.versionListProperty().add(observableVersionImpl);
             Get.identifiedObjectService().putChronologyData(chronologyForCommit);
-            
         }
+        Task<Void> stampCommitTask = Get.stampService().commit(this.transaction, commitTime);
+        stampCommitTask.get();
         CommitRecord commitRecord = new CommitRecord(Instant.ofEpochMilli(commitTime),
                 stampsInCommit,
                 stampAliases,

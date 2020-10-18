@@ -228,7 +228,7 @@ public class Observable_Nid1_Nid2_VersionImpl
     @Override
     @SuppressWarnings("unchecked")
     public <V extends Version> V makeAnalog(int stampSequence) {
-      Nid1_Nid2_VersionImpl newVersion = getStampedVersion().makeAnalog(stampSequence);
+      Nid1_Nid2_VersionImpl newVersion = getOptionalStampedVersion().get().makeAnalog(stampSequence);
       Observable_Nid1_Nid2_VersionImpl newObservableVersion = new Observable_Nid1_Nid2_VersionImpl(newVersion, getChronology());
       getChronology().getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;

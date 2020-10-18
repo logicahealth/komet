@@ -166,39 +166,43 @@ public class TreeTableGeneralCell
     }
 
     private void commitEdit(ActionEvent event) {
-        Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
-        CommitTask commitTask = transaction.commitObservableVersions("No comment", this.mutableVersion);
-        Get.executor().execute(() -> {
-            try {
-                Optional<CommitRecord> commitRecord = commitTask.get();
-                if (commitRecord.isPresent()) {
-                    Platform.runLater(() -> {
-                        editPanel.getChildren().clear();
-                        editButton.setVisible(true);
-                    });
-                } else {
-                    for (AlertObject alert : commitTask.getAlerts()) {
-                        switch (alert.getAlertType()) {
-                            case ERROR:
-                                FxGet.dialogs().showErrorDialog(alert.getAlertTitle(), alert.getAlertCategory().toString(),
-                                        alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
-                                break;
-                            case INFORMATION:
-                                FxGet.dialogs().showInformationDialog(alert.getAlertTitle(),
-                                        alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
-                                break;
-                            case WARNING:
-                                FxGet.dialogs().showInformationDialog(alert.getAlertTitle(),
-                                        alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
-                                break;
+        try {
+            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+            CommitTask commitTask = transaction.commitObservableVersions("No comment", this.mutableVersion);
+            Get.executor().execute(() -> {
+                try {
+                    Optional<CommitRecord> commitRecord = commitTask.get();
+                    if (commitRecord.isPresent()) {
+                        Platform.runLater(() -> {
+                            editPanel.getChildren().clear();
+                            editButton.setVisible(true);
+                        });
+                    } else {
+                        for (AlertObject alert : commitTask.getAlerts()) {
+                            switch (alert.getAlertType()) {
+                                case ERROR:
+                                    FxGet.dialogs().showErrorDialog(alert.getAlertTitle(), alert.getAlertCategory().toString(),
+                                            alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
+                                    break;
+                                case INFORMATION:
+                                    FxGet.dialogs().showInformationDialog(alert.getAlertTitle(),
+                                            alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
+                                    break;
+                                case WARNING:
+                                    FxGet.dialogs().showInformationDialog(alert.getAlertTitle(),
+                                            alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
+                                    break;
+                            }
                         }
                     }
+                } catch (InterruptedException | ExecutionException ex) {
+                    FxGet.dialogs().showErrorDialog("Error committing change.", ex);
                 }
-            } catch (InterruptedException | ExecutionException ex) {
-                LOG.error("Error committing change.", ex);
-            } finally {
-            }
-        });
+            });
+        }  catch (Throwable ex) {
+            FxGet.dialogs().showErrorDialog("Error committing change.", ex);
+        }
+
     }
 
     private void toggleEdit(ActionEvent event) {

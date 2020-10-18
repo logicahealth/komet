@@ -65,7 +65,7 @@ public class ObservableSemanticVersionImpl extends ObservableAbstractSemanticVer
     @SuppressWarnings("unchecked")
     @Override
     public <V extends Version> V makeAnalog(int stampSequence) {
-        SemanticVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+        SemanticVersion newVersion = getOptionalStampedVersion().get().makeAnalog(stampSequence);
         ObservableAbstractSemanticVersionImpl newObservableVersion = new ObservableSemanticVersionImpl(newVersion, getChronology());
         getChronology().getVersionList().add(newObservableVersion);
         return (V) newObservableVersion;

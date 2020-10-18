@@ -378,8 +378,9 @@ public abstract class ObservableChronologyImpl
                  
 
          this.getVersionList().forEach((observableVersion) -> {
-            StampedVersion oldVersion = ((ObservableVersionImpl) observableVersion).getStampedVersion();
-            oldSet.add(new DeepEqualsVersionWrapper((VersionImpl) oldVersion));
+            ((ObservableVersionImpl) observableVersion).getOptionalStampedVersion().ifPresent(oldVersion -> {
+               oldSet.add(new DeepEqualsVersionWrapper((VersionImpl) oldVersion));
+            });
          });
          
          Set<DeepEqualsVersionWrapper> newSet = new HashSet<>();
@@ -482,25 +483,26 @@ public abstract class ObservableChronologyImpl
             // Handle delete or merge... 
             while (observableVersions.hasNext()) {
                ObservableVersionImpl observableVersion = observableVersions.next();
-               VersionImpl version = observableVersion.getStampedVersion();
-               // see if equals
-               if (equalsStampVersionMap.containsKey(version.getStampSequence())) {
-                  observableVersion.updateVersion(equalsStampVersionMap.get(version.getStampSequence()));
-               } else if (cancelSet.contains(version)) {
-                  observableVersions.remove();
-               } else if (finalAlignmentMap.containsKey(version)) {
-                  VersionImpl updateVersion = finalAlignmentMap.get(version).iterator().next().getVersion();
-                  observableVersion.updateVersion(updateVersion);
-               } else if (oldVersionNewVersionMap.containsKey(version)) {
-                   VersionImpl updateVersion = oldVersionNewVersionMap.get(version);
-                   observableVersion.updateVersion(updateVersion);
-               } else {
-                   if (observableVersion.getCommitState() == CommitStates.CANCELED) {
-                       // OK, canceled content 
-                   } else {
-                       throw new IllegalStateException("No match for: " + observableVersion);
-                   }
-               }
+               observableVersion.getOptionalStampedVersion().ifPresent(version -> {
+                  // see if equals
+                  if (equalsStampVersionMap.containsKey(version.getStampSequence())) {
+                     observableVersion.updateVersion(equalsStampVersionMap.get(version.getStampSequence()));
+                  } else if (cancelSet.contains(version)) {
+                     observableVersions.remove();
+                  } else if (finalAlignmentMap.containsKey(version)) {
+                     VersionImpl updateVersion = finalAlignmentMap.get(version).iterator().next().getVersion();
+                     observableVersion.updateVersion(updateVersion);
+                  } else if (oldVersionNewVersionMap.containsKey(version)) {
+                     VersionImpl updateVersion = oldVersionNewVersionMap.get(version);
+                     observableVersion.updateVersion(updateVersion);
+                  } else {
+                     if (observableVersion.getCommitState() == CommitStates.CANCELED) {
+                        // OK, canceled content
+                     } else {
+                        throw new IllegalStateException("No match for: " + observableVersion);
+                     }
+                  }
+               });
             }
             // then add... 
             additionSet.forEach((version) -> {
@@ -512,8 +514,7 @@ public abstract class ObservableChronologyImpl
             Map<Integer, Version> stampVersionMap = ((ChronologyImpl) chronology).getStampVersionMap();
             this.getVersionList().forEach((observableVersion) -> {
                ObservableVersionImpl observableVersionImpl = (ObservableVersionImpl) observableVersion;
-               StampedVersion version = observableVersionImpl.getStampedVersion();
-               observableVersionImpl.updateVersion(stampVersionMap.get(version.getStampSequence()));
+               observableVersionImpl.getOptionalStampedVersion().ifPresent(version -> observableVersionImpl.updateVersion(stampVersionMap.get(version.getStampSequence())));
             });
          }
       }

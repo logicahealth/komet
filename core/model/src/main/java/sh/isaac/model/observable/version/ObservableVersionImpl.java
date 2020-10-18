@@ -131,7 +131,7 @@ public abstract class ObservableVersionImpl
     /**
      * The stamped version.
      */
-    protected final SimpleObjectProperty<VersionImpl> stampedVersionProperty;
+    protected SimpleObjectProperty<VersionImpl> stampedVersionProperty;
 
     /**
      * The chronology.
@@ -488,6 +488,10 @@ public abstract class ObservableVersionImpl
      * @param stampedVersion the stamped version
      */
     public final void updateVersion(Version stampedVersion) {
+        if (this.stampedVersionProperty == null) {
+            this.stampedVersionProperty = new SimpleObjectProperty<>((VersionImpl) stampedVersion);
+        }
+
         if (!this.stampedVersionProperty.get().getClass()
                 .equals(stampedVersion.getClass())) {
             throw new IllegalStateException(
@@ -716,8 +720,11 @@ public abstract class ObservableVersionImpl
         return Integer.MAX_VALUE;
     }
 
-    public VersionImpl getStampedVersion() {
-        return stampedVersionProperty.get();
+    public Optional<VersionImpl> getOptionalStampedVersion() {
+        if (stampedVersionProperty == null) {
+            return Optional.empty();
+        }
+        return Optional.ofNullable(stampedVersionProperty.get());
     }
 
     @Override
@@ -829,8 +836,8 @@ public abstract class ObservableVersionImpl
     public boolean deepEquals(Object other) {
         if (other instanceof ObservableVersionImpl) {
             ObservableVersionImpl otherObservable = (ObservableVersionImpl) other;
-            return this.getStampedVersion().deepEquals(otherObservable.getStampedVersion());
+            return this.getOptionalStampedVersion().get().deepEquals(otherObservable.getOptionalStampedVersion());
         }
-        return this.getStampedVersion().deepEquals(other);
+        return this.getOptionalStampedVersion().get().deepEquals(other);
     }
 }

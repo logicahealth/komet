@@ -13,7 +13,7 @@ public class PendingTransactions {
 
     private static final ConcurrentSkipListSet<Transaction> concurrentPendingTransactionSet = new ConcurrentSkipListSet<>();
 
-    private static final ObservableSet<Transaction> pendingTransactionObservableList = FXCollections.observableSet(new TreeSet<>());
+    private static final ObservableSet<Transaction> pendingTransactionObservableList = FXCollections.observableSet(new ConcurrentSkipListSet<>());
 
     private static final ObservableSet<Transaction> readOnlyPendingTransactionObservableList = FXCollections.unmodifiableObservableSet(pendingTransactionObservableList);
 
@@ -35,7 +35,7 @@ public class PendingTransactions {
 
     public static void removeTransaction(Transaction transaction) {
         pendingTransactionCount.decrementAndGet();
-        concurrentPendingTransactionSet.add(transaction);
+        concurrentPendingTransactionSet.remove(transaction);
         if (Platform.isFxApplicationThread()) {
             pendingTransactionObservableList.remove(transaction);
         } else {

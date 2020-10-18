@@ -110,7 +110,7 @@ public class ObservableDynamicVersionImpl extends ObservableAbstractSemanticVers
 	@Override
 	public <V extends Version> V makeAnalog(int stampSequence)
 	{
-		DynamicVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+		DynamicVersion newVersion = getOptionalStampedVersion().get().makeAnalog(stampSequence);
 		ObservableDynamicVersionImpl newObservableVersion = new ObservableDynamicVersionImpl(newVersion, getChronology());
 		getChronology().getVersionList().add(newObservableVersion);
 		return (V) newObservableVersion;

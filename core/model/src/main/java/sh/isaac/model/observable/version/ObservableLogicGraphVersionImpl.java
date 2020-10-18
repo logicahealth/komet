@@ -135,7 +135,7 @@ public class ObservableLogicGraphVersionImpl
    @SuppressWarnings("unchecked")
    @Override
    public <V extends Version> V makeAnalog(int stampSequence) {
-      LogicGraphVersion newVersion = getStampedVersion().makeAnalog(stampSequence);
+      LogicGraphVersion newVersion = getOptionalStampedVersion().get().makeAnalog(stampSequence);
       ObservableLogicGraphVersionImpl newObservableVersion = new ObservableLogicGraphVersionImpl(newVersion, getChronology());
       getChronology().getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;

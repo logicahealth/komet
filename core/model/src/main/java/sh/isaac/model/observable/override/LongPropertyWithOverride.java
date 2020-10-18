@@ -118,8 +118,10 @@ public class LongPropertyWithOverride extends SimpleLongProperty implements Prop
 
     @Override
     protected void invalidated() {
-        this.invalidationListeners.forEach(invalidationListener ->
-                invalidationListener.invalidated(this));
+        if (this.invalidationListeners != null) {
+            this.invalidationListeners.forEach(invalidationListener ->
+                    invalidationListener.invalidated(this));
+        }
     }
 
     @Override
