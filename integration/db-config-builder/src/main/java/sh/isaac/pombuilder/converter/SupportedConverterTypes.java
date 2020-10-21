@@ -69,7 +69,7 @@ public enum SupportedConverterTypes
 			new UploadFileInfo("", "https://loinc.org/downloads/files/loinc-multiaxial-hierarchy", 
 					"LOINC_2.54_MULTI-AXIAL_HIERARCHY.zip",
 					"The Multiaxial Hierarchy file is a zip file that contains a file named *multi-axial_hierarchy.csv.  The zip file containing the multiaxial hierarchy"
-					+ " must contain 'multi-axial_hierarchy' within its name", ".*multi\\-axial_hierarchy.*\\.zip$", true),
+					+ " must contain 'MultiAxialHierarchy' within its name, with or without hypens or underscores at word breaks", ".*multi[\\-]?axial[_]?hierarchy.*\\.zip$", true),
 			new UploadFileInfo("", "https://loinc.org/downloads/loinc",
 					"LOINC_ReleaseNotes.txt",
 					"The LOINC Release Notes file must be included for recent versions of LOINC.", ".*releasenotes\\.txt$", true)
@@ -117,6 +117,21 @@ public enum SupportedConverterTypes
 					+ "of hour, minute and second.",
 					".*_\\d{8}.*\\.zip$", true)
 	}, "rf2-ibdf-", "convert-RF2-direct-to-ibdf", "SnomedCT Extension", 
+			new String[] {"shared/licenses/sct.xml"},
+			new String[] {"shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
+	
+	SCT_EDITION("rf2-src-data-*-edition", "\\d{8}.*$", 
+			"A typical Snomed edition version number is '20170131' or '20170131T120000'.  The value here should be the same as the version number in the name of the uploaded "
+			+ "zip file.  This requires a 4 digit year, 2 digit month, 2 digit day.  Any values can be appended after the 8 digits.",
+			new String[] {}, new String[] {}, new UploadFileInfo[] {
+			new UploadFileInfo("Snomed Editions are a combination of the international release, plus an extension.",
+					"",
+					"SnomedCT_USEditionRF2_PRODUCTION_20200901T120000Z",
+					"The expected file is the RF2 release zip file.  The filename must end with .zip, and must contain the release date in the Snomed standard"
+					+ " naming convention (4 digit year, 2 digit month, 2 digit day) - it also now also accepts the new naming convention with T and 2 digits each "
+					+ "of hour, minute and second.",
+					".*_\\d{8}.*\\.zip$", true)
+	}, "rf2-ibdf-", "convert-RF2-direct-to-ibdf", "SnomedCT Edition", 
 			new String[] {"shared/licenses/sct.xml"},
 			new String[] {"shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
 	
