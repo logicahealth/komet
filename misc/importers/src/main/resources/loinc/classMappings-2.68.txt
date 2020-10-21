@@ -1,4 +1,4 @@
-#This information was captured from the PDF manual which came with the 2.66 release.  Its a pain to parse out of the PDF.  Hopefully, future releases
+#This information was captured from the PDF manual which came with the 2.68 release.  Its a pain to parse out of the PDF.  Hopefully, future releases
 #will include this information in an easily computable form.
 #
 # Clinical Term Classes
@@ -71,6 +71,8 @@ CLIN
 Clinical NEC (not elsewhere classified)
 CLIN.RISK
 Clinical Risk
+CLIN.VET
+Clinical veterinary
 CLINTRIAL
 Clinical trails
 DENTAL
@@ -119,6 +121,8 @@ EYE.HETEROPHORIA
 Ophthalmology heterophoria
 EYE.HX.NEI
 NEI eyeGENE’s eye history concepts
+EYE.LENSOMETRY
+Lensometry
 EYE.OCT
 Ophthalmology Optical Coherence Tomography (OCT)
 EYE.OCT.NEI
@@ -286,7 +290,7 @@ Trauma panel
 PANEL.TUMRRGT
 Tumor registry panel
 PANEL.UPDRS
-Unified Parkinson’s Disease Rating Scale (UPDRS) set
+Unified Parkinson's Disease Rating Scale (UPDRS) set
 PANEL.US.URO
 Urology ultrasound panel
 PANEL.VACCIN
@@ -320,7 +324,7 @@ Organ transplant
 TUMRRGT
 Tumor registry (NAACCR)
 UPDRS
-Unified Parkinson’s Disease Rating Scale (UPDRS)
+Unified Parkinson's Disease Rating Scale (UPDRS)
 US.URO
 Urological ultrasound
 VACCIN
@@ -440,6 +444,8 @@ PANEL.MISC
 Miscellaneous panel
 PANEL.MOLPATH
 Molecular pathology panel
+PANEL.MOLPATH.PHARMG
+Pharmacogenomics panel
 PANEL.OBS
 Obstetrics panel
 PANEL.PATH
@@ -480,7 +486,7 @@ Cardiac attachment
 ATTACH.CLINRPT
 Clinical report attachment
 ATTACH.CPHS
-Children’s Preventative Health System attachment
+Children's Preventative Health System attachment
 ATTACH.ED
 Emergency department attachment
 ATTACH.GENERAL
@@ -556,6 +562,8 @@ PANEL.SURVEY.CMS
 Centers for Medicare & Medicaid Services set
 PANEL.SURVEY.COOP
 Dartmouth Cooperative Functional Status Test (COOP) set
+PANEL.SURVEY.CSSRS
+Columbia Suicide Severity Rating Scale (CSSRS) set
 PANEL.SURVEY.DAST
 Drug Abuse Screening Test set
 PANEL.SURVEY.DUKE-AD
@@ -582,8 +590,8 @@ PANEL.SURVEY.HHS
 Department of Health and Humsn Services set
 PANEL.SURVEY.HIV-SSC
 Signs and Symptoms checklist for persons living with HIV set
-PANEL.SURVEY.howRU
-howRU outcomes instrument set
+PANEL.SURVEY.howRu
+howRu outcomes instrument set
 PANEL.SURVEY.IPAQ
 International Physical Activity Questionnaire (IPAQ) set
 PANEL.SURVEY.LIV-HIV
@@ -640,10 +648,14 @@ PANEL.SURVEY.RFC
 Residual Functional Capacity set
 PANEL.SURVEY.SAMHSA
 Substance Abuse and Mental Health Services Administration (SAMHSA) set
+PANEL.SURVEY.SEEK
+Safe Environment for Every Kid
 PANEL.SURVEY.USSGFHT
 United States Surgeon General Family Health Tool (USSGFHT) set
 PANEL.TIMP
 Test of Infant Motor Performance (TIMP) set
+PANEL.SURVEY.WELLRX
+WellRX Questionnaire set
 SURVEY.AAOS
 American Academy of Orthopaedic Surgeons (AAOS) survey
 SURVEY.ACT
@@ -674,6 +686,8 @@ SURVEY.CMS
 Centers for Medicare & Medicaid Services (CMS) survey
 SURVEY.COOP
 Dartmouth Cooperative Functional Status Test (COOP)
+SURVEY.CSSRS
+Columbia Suicide Severity Rating Scale (CSSRS)
 SURVEY.DAST
 Drug Abuse Screening Test (DAST)
 SURVEY.DUKE-AD
@@ -696,8 +710,8 @@ SURVEY.HARK
 Humiliation, Afraid, Rape, and Kick (HARK)
 SURVEY.HHS
 Department of Health and Human Services (HHS) survey
-SURVEY.howRU
-howRU outcomes instrument survey
+SURVEY.howRu
+howRu outcomes instrument survey
 SURVEY.HWS
 Healthy Weight Summary (HWS)
 SURVEY.IPAQ
@@ -765,7 +779,11 @@ SURVEY.RFC
 Residual Functional Capacity (RFC) survey
 SURVEY.SAMHSA
 Substance Abuse and Mental Health Services Administration (SAMHSA) survey
+SURVEY.SEEK
+Safe Environment for Every Kid
 SURVEY.USSGFHT
 United States Surgeon General Family Health Tool (USSGFHT) survey
 TIMP
 Test of Infant Motor Performance (TIMP) survey
+SURVEY.WELLRX
+WellRX Questionnaire

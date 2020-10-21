@@ -15,6 +15,31 @@
  */
 package sh.isaac.convert.mojo.loinc;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Map.Entry;
+import java.util.Optional;
+import java.util.TreeMap;
+import java.util.UUID;
+import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.glassfish.hk2.api.PerLookup;
@@ -24,34 +49,17 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
-import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.transaction.Transaction;
-import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.convert.directUtils.DirectConverterBaseMojo;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
-import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
 import sh.isaac.pombuilder.converter.ContentConverterCreator;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.direct.LoincDirectImporter;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.Map.Entry;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.BiConsumer;
-import java.util.function.Consumer;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * {@link LoincImportHK2Direct}
@@ -612,6 +620,13 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 			dwh.makeDescriptionTypeConcept(null, "DefinitionDescription", null, null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null,
 					time);
 		}
+		
+		if (sourceVersion >= 10)
+		{
+			//Added sometime after 2.66, but undocumented
+			dwh.makeDescriptionTypeConcept(null, "DisplayName", "Display Name", null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null,
+					time);
+		}
 
 		dwh.makeDescriptionTypeConcept(null, "SHORTNAME", "Short Name", null, MetaData.REGULAR_NAME_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid(), null, time);
 
@@ -716,10 +731,15 @@ public class LoincImportHK2Direct extends DirectConverterBaseMojo implements Dir
 			dwh.makeAttributeTypeConcept(null, "DOCUMENT_SECTION", "Document Section", null, false, DynamicDataType.STRING, null, time);
 		}
 		
+		if (sourceVersion <= 10)
+		{
+			//the release notes claim this will be deleted in Dec 2020.
+			dwh.makeAttributeTypeConcept(null, "SPECIES", "Species", null, false, DynamicDataType.STRING, null, time);
+		}
+		
 		dwh.makeAttributeTypeConcept(null, "CHNG_TYPE", "Change Type", null, false, DynamicDataType.STRING, null, time);
 		dwh.makeAttributeTypeConcept(null, "CLASSTYPE", "Class Type", null, false, DynamicDataType.STRING, null, time);
 		dwh.makeAttributeTypeConcept(null, "FORMULA", "Formula", null, false, DynamicDataType.STRING, null, time);
-		dwh.makeAttributeTypeConcept(null, "SPECIES", "Species", null, false, DynamicDataType.STRING, null, time);
 		dwh.makeAttributeTypeConcept(null, "EXMPL_ANSWERS", "Example Answers", null, false, DynamicDataType.STRING, null, time);
 		dwh.makeAttributeTypeConcept(null, "SURVEY_QUEST_TEXT", "Survey Question Text", null, false, DynamicDataType.STRING, null, time);
 		dwh.makeAttributeTypeConcept(null, "SURVEY_QUEST_SRC", "Survey Question Source", null, false, DynamicDataType.STRING, null, time);
