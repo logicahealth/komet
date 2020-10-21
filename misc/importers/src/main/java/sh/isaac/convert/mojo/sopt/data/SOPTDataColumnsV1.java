@@ -57,7 +57,7 @@ public enum SOPTDataColumnsV1
 	CodeSystemCode("Code System Code"), 
 	CodeSystemVersion("Code System Version"),
 	HL7Table0396Code("HL7 Table 0396 Code"),
-	ValueSetConceptDefinitionText("Value Set Concept Definition Text");  //added in V8
+	ValueSetConceptDefinitionText("Value Set Concept Definition Text");  //added in V8, then removed again in v9....
 
 	final private String columnName;
 
