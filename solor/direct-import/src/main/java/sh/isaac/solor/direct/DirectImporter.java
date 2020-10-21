@@ -61,6 +61,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 import java.util.zip.ZipInputStream;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.tuple.MutablePair;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
@@ -112,7 +113,7 @@ public class DirectImporter
 
     protected final List<ContentProvider> entriesToImport;
     protected File importDirectory;
-    private HashMap<String, ArrayList<DynamicColumnInfo>> refsetColumnInfo = null;  //refset SCTID to column information from the refset spec
+    private HashMap<String, ArrayList<MutablePair<DynamicColumnInfo, Integer>>> refsetColumnInfo = null;  //refset SCTID to column information from the refset spec
     private final Transaction transaction;
     public DirectImporter(Transaction transaction, ImportType importType) {
         this.transaction = transaction;
@@ -1560,8 +1561,6 @@ public class DirectImporter
              */
 
             LOG.info("Reading refset descriptors");
-            br.mark(100000);  //this should be big enough, if not, we should fail on reset
-
             /*
              * columns we care about are 6, 7 and 8: attributeDescription attributeType attributeOrder
              * attributeDescription is an SCTID column, which provides the concept to use as the column header concept
@@ -1579,62 +1578,89 @@ public class DirectImporter
              */
             if (!(importSpecification.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_") && 
                      importSpecification.contentProvider.getStreamSourceName().toLowerCase().contains("refsetdescriptor"))) {
-                throw new RuntimeException("der2_ccirefset_refsetdescriptor is missing or not sorted to the top of the refsets!");
+                //This isn't fatal, if its an extension that doesn't define any new types of refsets
+                LOG.info("der2_ccirefset_refsetdescriptor is missing or not sorted to the top of the refsets!");
+                refsetColumnInfo = new HashMap<>();
             }
-
-            /*
-             * Per the RF2 spec:
-             * Creation of Reference set descriptor data is mandatory when creating a new reference set in the International
-             * Release or in a National Extension .
-             * 
-             * TODO need to handle ancestor refset spec lookups....
-             * 
-             * Creation of a Reference set descriptor is optional when creating a reference set in another Extension. If a descriptor
-             * is not created, the descriptor of the closest ancestor of the reference set is used when validating reference set
-             * member records.
-             */
-            //Configure a hashmap of refsetId -> ArrayList<DynamicColumnInfo>
-            refsetColumnInfo = new HashMap<>();
-            String rowString;
-            while ((rowString = br.readLine()) != null) {
-                String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
-                String refsetId = columns[5].trim();  //we actually want the referencedComponentId, not the refsetId, because this is the refset that is being described.
-                int adjustedColumnNumber = Integer.parseInt(columns[8]) - 1;
-                UUID columnHeaderConcept = UuidT3Generator.fromSNOMED(columns[6]);
-                Status refsetState = Status.fromZeroOneToken(columns[2]);
-                
-                if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY && refsetState != Status.ACTIVE) {
-                    continue;
-                }
-
-                ArrayList<DynamicColumnInfo> refsetColumns = refsetColumnInfo.get(refsetId);
-                if (refsetColumns == null) {
-                    refsetColumns = new ArrayList<>();
-                    refsetColumnInfo.put(refsetId, refsetColumns);
-                }
-
-                if (adjustedColumnNumber < 0) {
-                    continue;  //We don't need this one, as it should always be referencedComponentId when processing the refset descriptor file
-                }
-
-                //TODO I can't figure out if/where the RF2 spec specifies whether columns can be optional or required.... default to optional for now.
-                refsetColumns.add(new DynamicColumnInfo(adjustedColumnNumber, columnHeaderConcept,
-                        DynamicDataType.translateSCTIDMetadata(columns[7]), null, false));
-            }
-            //At this point, we should have a hash, of how every single refset should be configured.  
-            //sort the column info and sanity check....
-            for (Entry<String, ArrayList<DynamicColumnInfo>> dci : refsetColumnInfo.entrySet()) {
-                Collections.sort(dci.getValue());
-                for (int i = 0; i < dci.getValue().size(); i++) {
-                    if (dci.getValue().get(i).getColumnOrder() != i) {
-                        throw new RuntimeException("Misconfiguration for refset " + dci.getKey() + " no info for column " + i);
+            else {
+                /*
+                 * Per the RF2 spec:
+                 * Creation of Reference set descriptor data is mandatory when creating a new reference set in the International
+                 * Release or in a National Extension .
+                 * 
+                 * TODO need to handle ancestor refset spec lookups....
+                 * 
+                 * Creation of a Reference set descriptor is optional when creating a reference set in another Extension. If a descriptor
+                 * is not created, the descriptor of the closest ancestor of the reference set is used when validating reference set
+                 * member records.
+                 */
+                br.mark(100000);  //this should be big enough, if not, we should fail on reset
+                //Configure a hashmap of refsetId -> ArrayList<Pair<DynamicColumnInfo, Integer>>
+                refsetColumnInfo = new HashMap<>();
+                String rowString;
+                while ((rowString = br.readLine()) != null) {
+                    String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
+                    String refsetId = columns[5].trim();  //we actually want the referencedComponentId, not the refsetId, because this is the refset that is being described.
+                    int adjustedColumnNumber = Integer.parseInt(columns[8]) - 1;
+                    UUID columnHeaderConcept = UuidT3Generator.fromSNOMED(columns[6]);
+                    Status refsetState = Status.fromZeroOneToken(columns[2]);
+                    int effectiveTime = Integer.parseInt(columns[1]);
+                    
+                    if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY && refsetState != Status.ACTIVE) {
+                        continue;
+                    }
+    
+                    ArrayList<MutablePair<DynamicColumnInfo, Integer>> refsetColumns = refsetColumnInfo.get(refsetId);
+                    if (refsetColumns == null) {
+                        refsetColumns = new ArrayList<>();
+                        refsetColumnInfo.put(refsetId, refsetColumns);
+                    }
+    
+                    if (adjustedColumnNumber < 0) {
+                        continue;  //We don't need this one, as it should always be referencedComponentId when processing the refset descriptor file
+                    }
+    
+                    //TODO I can't figure out if/where the RF2 spec specifies whether columns can be optional or required.... default to optional for now.
+                    DynamicColumnInfo newDCI = new DynamicColumnInfo(adjustedColumnNumber, columnHeaderConcept,
+                            DynamicDataType.translateSCTIDMetadata(columns[7]), null, false);
+                    boolean found = false;
+                    for (MutablePair<DynamicColumnInfo, Integer> existing : refsetColumns) {
+                        if (existing.getKey().getColumnOrder() == newDCI.getColumnOrder()) {
+                            //redefining a column... just keep the newer definition.
+                            if (effectiveTime > existing.getValue()) {
+                                LOG.info("Column was redefined from {} to {} in refset {}", existing.getKey(), newDCI, refsetId);
+                                existing.setLeft(newDCI);
+                            }
+                            else {
+                                LOG.info("Column was redefined from {} to {} in refset {}", newDCI, existing.getKey(), refsetId);
+                            }
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) {
+                        refsetColumns.add(new MutablePair<DynamicColumnInfo, Integer>(newDCI, effectiveTime));
                     }
                 }
+                //At this point, we should have a hash, of how every single refset should be configured.  
+                //sort the column info and sanity check....
+                for (Entry<String, ArrayList<MutablePair<DynamicColumnInfo, Integer>>> dci : refsetColumnInfo.entrySet()) {
+                    ArrayList<DynamicColumnInfo> temp = new ArrayList<>(dci.getValue().size());
+                    for (MutablePair<DynamicColumnInfo, Integer> pair : dci.getValue()) {
+                        temp.add(pair.getKey());
+                    }
+                    Collections.sort(temp);
+                    for (int i = 0; i < temp.size(); i++) {
+                        if (temp.get(i).getColumnOrder() != i) {
+                            throw new RuntimeException("Misconfiguration for refset " + dci.getKey() + " no info for column " + i);
+                        }
+                    }
+                }
+                br.reset();  //back the stream up, and actually process the refset now.
             }
-            br.reset();  //back the stream up, and actually process the refset now.
 
             //Use the metadata we just read, and properly annotate the concepts as dynamic semantics in our system.
-            for (Entry<String, ArrayList<DynamicColumnInfo>> refsetDescriptors : refsetColumnInfo.entrySet())
+            for (Entry<String, ArrayList<MutablePair<DynamicColumnInfo, Integer>>> refsetDescriptors : refsetColumnInfo.entrySet())
             {
                 //refset descriptors are SCTID to colInfo
                 // TODO would like to add a second parent to this concept into the metadata tree, but I don't think it knows how to
@@ -1664,7 +1690,7 @@ public class DirectImporter
                     wc,
                     nid,
                     "DynamicDefinition for refset " + Get.conceptDescriptionText(nid),
-                    refsetDescriptors.getValue().toArray(new DynamicColumnInfo[refsetDescriptors.getValue().size()]), null, null, false);
+                    refsetDescriptors.getValue().stream().map(MutablePair::getLeft).toArray(DynamicColumnInfo[]::new), null, null, false);
 
                 for (Chronology c : items) {
                     assemblageService.writeSemanticChronology((SemanticChronology)c);
@@ -1701,7 +1727,7 @@ public class DirectImporter
             String[] columns = checkWatchTokensAndSplit(rowString, importSpecification);
             if (dataCount == 1) {
                 //Another sanity check - the header-row length beyond column 5 should match the column definitions...
-                ArrayList<DynamicColumnInfo> dci = refsetColumnInfo.get(columns[DynamicRefsetWriter.ASSEMBLAGE_SCT_ID_INDEX]);
+                ArrayList<MutablePair<DynamicColumnInfo, Integer>> dci = refsetColumnInfo.get(columns[DynamicRefsetWriter.ASSEMBLAGE_SCT_ID_INDEX]);
                 if (dci != null && dci.size() != columns.length - DynamicRefsetWriter.VARIABLE_FIELD_START) {
                     throw new RuntimeException("Header information in " + importSpecification.contentProvider.getStreamSourceName()
                             + " does not match specification from the der2_ccirefset_refsetdescriptor file ");
