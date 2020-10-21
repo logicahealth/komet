@@ -117,42 +117,6 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
 		final ConceptChronology assemblageConcept = Get.conceptService().getConceptChronology(refexUsageDescriptorId);
 		this.refexUsageDescriptorNid = assemblageConcept.getNid();
 		final TreeMap<Integer, DynamicColumnInfo> allowedColumnInfo = new TreeMap<>();
-		for (final SemanticChronology descriptionSemantic : assemblageConcept.getConceptDescriptionList())
-		{
-			@SuppressWarnings("rawtypes")
-			final LatestVersion descriptionVersion = ((SemanticChronology) descriptionSemantic).getLatestVersion(Coordinates.Filter.DevelopmentLatest());
-			if (descriptionVersion.isPresent())
-			{
-				final DescriptionVersion ds = (DescriptionVersion) descriptionVersion.get();
-				if (ds.getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid())
-				{
-					final Optional<SemanticChronology> nestesdSemantic = Get.assemblageService()
-							.getSemanticChronologyStreamForComponentFromAssemblage(ds.getNid(), DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), false)
-							.findAny();
-					if (nestesdSemantic.isPresent())
-					{
-						this.semanticUsageDescription = ds.getText();
-					}
-				}
-
-				if (ds.getDescriptionTypeConceptNid() == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid())
-				{
-					this.name = ds.getText();
-				}
-
-				if ((this.semanticUsageDescription != null) && (this.name != null))
-				{
-					break;
-				}
-			}
-		}
-
-		if (StringUtils.isEmpty(this.semanticUsageDescription))
-		{
-			throw new RuntimeException("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for "
-					+ "a DynamicSemanticData Refex Type.  It must contain a description of type Definition with an annotation of type "
-					+ "DynamicSemantic.DYNAMIC_DEFINITION_DESCRIPTION");
-		}
 
 		Get.assemblageService().getSemanticChronologyStreamForComponent(assemblageConcept.getNid(), true).forEach(semantic -> {
 			if (semantic.getVersionType() == VersionType.DYNAMIC)
@@ -338,6 +302,57 @@ public class DynamicUsageDescriptionImpl implements DynamicUsageDescription, Sta
 			}
 
 			this.refexColumnInfo[i++] = allowedColumnInfo.get(key);
+		}
+		
+		//Read the descriptions
+		for (final SemanticChronology descriptionSemantic : assemblageConcept.getConceptDescriptionList())
+		{
+			@SuppressWarnings("rawtypes")
+			final LatestVersion descriptionVersion = ((SemanticChronology) descriptionSemantic).getLatestVersion(Coordinates.Filter.DevelopmentLatest());
+			if (descriptionVersion.isPresent())
+			{
+				final DescriptionVersion ds = (DescriptionVersion) descriptionVersion.get();
+				if (ds.getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid())
+				{
+					final Optional<SemanticChronology> nestesdSemantic = Get.assemblageService()
+							.getSemanticChronologyStreamForComponentFromAssemblage(ds.getNid(), DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), false)
+							.findAny();
+					if (nestesdSemantic.isPresent())
+					{
+						this.semanticUsageDescription = ds.getText();
+					}
+				}
+
+				if (ds.getDescriptionTypeConceptNid() == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid())
+				{
+					this.name = ds.getText();
+				}
+
+				if ((this.semanticUsageDescription != null) && (this.name != null))
+				{
+					break;
+				}
+			}
+		}
+
+		if (StringUtils.isEmpty(this.semanticUsageDescription))
+		{
+			//During content conversion, we often skip loading descriptions, which can cause this safety check to fail.  Log it as a warning, when we are 
+			//pretty sure its just a conversion loading issue, instead of throwing an error.
+			
+			//If it is length 0, and we didn't find a description, this probably isn't a dynamic refex, as we don't usually use dynamic refex just for a membership
+			//refset (though it is technically allowed)
+			if (this.refexColumnInfo.length == 0) {
+				throw new RuntimeException("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for "
+					+ "a DynamicSemanticData Refex Type.  It must contain a description of type Definition with an annotation of type "
+					+ "DynamicSemantic.DYNAMIC_DEFINITION_DESCRIPTION");
+			}
+			else {
+				logger.warn("The Assemblage concept: " + assemblageConcept + " is not correctly assembled for use as an Assemblage for "
+						+ "a DynamicSemanticData Refex Type.  It must contain a description of type Definition with an annotation of type "
+						+ "DynamicSemantic.DYNAMIC_DEFINITION_DESCRIPTION.  This warning can be ignored, if it occuring during a content conversion "
+						+ "when descriptions were not loaded into the system.");
+			}
 		}
 	}
 
