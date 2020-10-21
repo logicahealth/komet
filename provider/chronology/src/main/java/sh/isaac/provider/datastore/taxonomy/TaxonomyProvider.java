@@ -209,9 +209,10 @@ public class TaxonomyProvider
         return Get.executor().submit(() -> {
             for (Task<?> updateTask : pendingUpdateTasks) {
                 try {
-                    LOG.info("Waiting for completion of: " + updateTask.getTitle());
+                    LOG.debug("Waiting for completion of: {} ", updateTask);
                     updateTask.get();
-                    LOG.info("Completed: " + updateTask.getTitle());
+                    LOG.debug("Completed: {}", updateTask);
+                    Platform.runLater(() -> LOG.info("Completed: " + updateTask.getTitle()));
                 } catch (Throwable ex) {
                     LOG.error(ex);
                 }
