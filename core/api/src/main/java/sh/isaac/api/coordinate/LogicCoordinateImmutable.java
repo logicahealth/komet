@@ -194,9 +194,9 @@ public final class LogicCoordinateImmutable implements LogicCoordinate, Immutabl
                 "stated axioms:" + Get.conceptDescriptionText(this.statedAssemblageNid) + "<" + this.statedAssemblageNid + ">,\n" +
                 "inferred axioms:" + Get.conceptDescriptionText(this.inferredAssemblageNid) + "<" + this.inferredAssemblageNid + ">, \n" +
                 "profile:" + Get.conceptDescriptionText(this.descriptionLogicProfileNid) + "<" + this.descriptionLogicProfileNid + ">, \n" +
-                "classifier:" + Get.conceptDescriptionText(this.classifierNid) + "<" + this.classifierNid + ", \n>" +
-                "concepts:" + Get.conceptDescriptionText(this.conceptAssemblageNid) + "<" + this.conceptAssemblageNid + ", \n>" +
-                "digraph identity:" + Get.conceptDescriptionText(this.digraphIdentityNid) + "<" + this.digraphIdentityNid + ", \n>" +
+                "classifier:" + Get.conceptDescriptionText(this.classifierNid) + "<" + this.classifierNid + ">, \n" +
+                "concepts:" + Get.conceptDescriptionText(this.conceptAssemblageNid) + "<" + this.conceptAssemblageNid + ">, \n" +
+                "digraph identity:" + Get.conceptDescriptionText(this.digraphIdentityNid) + "<" + this.digraphIdentityNid + ">, \n" +
                 "root:" + Get.conceptDescriptionText(this.rootNid) + "<" + this.rootNid + ">,\n" +
         "}";
     }

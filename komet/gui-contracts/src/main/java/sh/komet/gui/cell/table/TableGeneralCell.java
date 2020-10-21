@@ -164,7 +164,7 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
     }
 
     private void commitEdit(ActionEvent event) {
-        Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+        Transaction transaction = Get.commitService().newTransaction(Optional.of("TreeTableGeneralCell commitEdit"), ChangeCheckerMode.ACTIVE);
         CommitTask commitTask = transaction.commitObservableVersions("No comment", this.mutableVersion);
         Get.executor().execute(() -> {
             try {

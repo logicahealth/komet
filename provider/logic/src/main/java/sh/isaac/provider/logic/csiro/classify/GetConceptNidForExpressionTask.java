@@ -164,7 +164,7 @@ public class GetConceptNidForExpressionTask
                                             "expression",
                                             this.expression,
                                             MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid());
-         WriteCoordinate wc = this.manifoldCoordinate.getWriteCoordinate(Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE));
+         WriteCoordinate wc = this.manifoldCoordinate.getWriteCoordinate(Get.commitService().newTransaction(Optional.of("GetConceptNidForExpressionTask"), ChangeCheckerMode.INACTIVE));
          final ConceptChronology concept = builder.buildAndWrite(wc).get();
 
          updateMessage("Commiting new expression...");

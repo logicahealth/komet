@@ -77,7 +77,7 @@ public abstract class SpreadsheetImporter extends TimedTaskWithProgressTracker<V
             addToTotalWork(count.get());
         }
 
-        Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+        Transaction transaction = Get.commitService().newTransaction(Optional.of("SpreadsheetImporter.load()"), ChangeCheckerMode.INACTIVE);
         int stampSequence = Get.stampService().getStampSequence(Status.ACTIVE, commitTime, author.getNid(), module.getNid(), path.getNid());
 
         addTopConcept(transaction, stampSequence);

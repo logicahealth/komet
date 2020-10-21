@@ -151,7 +151,7 @@ public class PropertySheetMenuItem
 
     public void commit() {
         try {
-            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.of("PropertySheetMenuItem commit()"), ChangeCheckerMode.ACTIVE);
             CommitTask commitTask = transaction.commitObservableVersions("No comment", getVersionInFlight());
             Optional<CommitRecord> optionalCommitRecord = commitTask.get();
             completionListeners.forEach((listener) -> {

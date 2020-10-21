@@ -296,7 +296,7 @@ public class IsaacTaxonomy {
            throws IOException {
       final long exportTime = System.currentTimeMillis();
 
-      Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
+      Transaction transaction = Get.commitService().newTransaction(Optional.of("IsaacTaxonomy.export"), ChangeCheckerMode.INACTIVE, false);
       final int stampSequence = Get.stampService()
               .getStampSequence(transaction, Status.ACTIVE,
                       exportTime,

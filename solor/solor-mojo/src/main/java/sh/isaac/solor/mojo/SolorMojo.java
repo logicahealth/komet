@@ -38,6 +38,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.solor.direct.*;
 import sh.isaac.solor.direct.rxnorm.RxNormDirectImporter;
 
@@ -89,20 +90,20 @@ public class SolorMojo extends AbstractMojo {
 
             getLog().info("  Setup AppContext, data store location = " + Get.configurationService().getDataStoreFolderPath().toFile().getCanonicalPath());
             LookupService.startupIsaac();
-            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
+            Transaction loadTransaction = Get.commitService().newTransaction(Optional.of("SolorMojo: " + DateTimeUtil.timeNowSimple()), ChangeCheckerMode.INACTIVE, false);
             LookupService.getService(IndexBuilderService.class, "semantic index").setEnabled(true);
-            DirectImporter rf2Importer = new DirectImporter(transaction, ImportType.valueOf(importType));
+            DirectImporter rf2Importer = new DirectImporter(loadTransaction, ImportType.valueOf(importType));
             getLog().info("  Importing RF2 files.");
             rf2Importer.run();
             LookupService.syncAll();
 
-            RxNormDirectImporter rxNormDirectImporter = new RxNormDirectImporter(transaction);
+            RxNormDirectImporter rxNormDirectImporter = new RxNormDirectImporter(loadTransaction);
             getLog().info("  Importing RxNorm files.");
             rxNormDirectImporter.run();
             LookupService.syncAll();
 
             getLog().info("Convert LOINC expressions...");
-            LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept(transaction);
+            LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept(loadTransaction);
             Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
             convertLoincTask.get();
 
@@ -110,25 +111,29 @@ public class SolorMojo extends AbstractMojo {
             //TODO change how we get the edit coordinates.
             ManifoldCoordinate coordinate = Get.coordinateFactory().createDefaultStatedManifoldCoordinate();
             EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-            LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(transaction, coordinate);
+            LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(loadTransaction, coordinate);
             Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
             addNavigationConceptsTask.get();
 
-            LoincDirectImporter loincImporter = new LoincDirectImporter(transaction);
+            LoincDirectImporter loincImporter = new LoincDirectImporter(loadTransaction);
             getLog().info("  Importing LOINC files.");
             loincImporter.run();
             LookupService.syncAll();
+            loadTransaction.commit("Solor mojo load");
             if (transform) {
+                Transaction transformTransaction = Get.commitService().newTransaction(Optional.of("SolorMojo transform: " +  DateTimeUtil.timeNowSimple()), ChangeCheckerMode.INACTIVE, false);
 
                 getLog().info("  Transforming RF2 relationships to SOLOR.");
-                Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(transaction, ImportType.valueOf(importType));
+                Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(transformTransaction, ImportType.valueOf(importType));
                 Future<?> transformTask = Get.executor().submit(transformer);
                 transformTask.get();
 
                 getLog().info(" Converting SNOMED OWL expressions...");
-                Rf2OwlTransformer rf2OwlTransformer = new Rf2OwlTransformer(ImportType.parseFromString(importType));
+                Rf2OwlTransformer rf2OwlTransformer = new Rf2OwlTransformer(ImportType.parseFromString(importType), transformTransaction);
                 Future<?> rf2OwlTransformTask = Get.executor().submit(rf2OwlTransformer);
                 rf2OwlTransformTask.get();
+
+                transformTransaction.commit("Solor mojo transformed");
 
                 getLog().info("Classifying new content...");
                 Task<ClassifierResults> classifierResultsTask
@@ -136,8 +141,7 @@ public class SolorMojo extends AbstractMojo {
                 ClassifierResults classifierResults = classifierResultsTask.get();
                 getLog().info(classifierResults.toString());
             }
-            transaction.commit("Solor mojo");
-            Get.startIndexTask().get();
+             Get.startIndexTask().get();
             LookupService.syncAll();  //This should be unnecessary....
             LookupService.shutdownIsaac();
         } catch (Throwable throwable) {

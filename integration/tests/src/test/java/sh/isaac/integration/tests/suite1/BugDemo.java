@@ -91,7 +91,7 @@ public class BugDemo
 						new DynamicData[] { new DynamicUUIDImpl(Get.identifierService().getUuidPrimordialForNid(MetaData.AND____SOLOR.getAssemblageNid())) }));
 
 		// build the description and the extended type
-		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.of("BugTestOne"), ChangeCheckerMode.INACTIVE);
 		try {
 			descriptionSemanticBuilder.build(new WriteCoordinateImpl(transaction, 
 					Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get().getStampSequence()));
@@ -128,7 +128,7 @@ public class BugDemo
 		LogicalExpression parentDef = defBuilder.build();
 		cb.setLogicalExpression(parentDef);
 
-		Transaction transaction1 = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+		Transaction transaction1 = Get.commitService().newTransaction(Optional.of("ExerciseStuff 1"), ChangeCheckerMode.ACTIVE);
 		cb.buildAndWrite(new WriteCoordinateImpl(transaction1, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get())).get();
 
 		Optional<CommitRecord> cr = transaction1.commit("created extended type concept").get();
@@ -150,7 +150,7 @@ public class BugDemo
 				Get.semanticBuilderService().getDynamicBuilder(descriptionSemanticBuilder, DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid(),
 						new DynamicData[] { new DynamicUUIDImpl(Get.identifierService().getUuidPrimordialForNid(cb.getNid())) }));
 
-		Transaction transaction2 = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+		Transaction transaction2 = Get.commitService().newTransaction(Optional.of("ExerciseStuff 2"), ChangeCheckerMode.ACTIVE);
 
 		// build the description and the extended type
 		SemanticChronology newDescription = descriptionSemanticBuilder.buildAndWrite(new WriteCoordinateImpl(transaction2, 
@@ -187,7 +187,7 @@ public class BugDemo
 	{
 		SemanticChronology lg = Frills.getLogicGraphChronology(MetaData.ACTION_PURPOSE____SOLOR.getNid(), true).get();
 
-		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+		Transaction transaction = Get.commitService().newTransaction(Optional.of("LogicGraphMergeBug"), ChangeCheckerMode.INACTIVE);
 		MutableLogicGraphVersion mlg = lg.createMutableVersion(new WriteCoordinateImpl(transaction, 
 				Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get()));
 

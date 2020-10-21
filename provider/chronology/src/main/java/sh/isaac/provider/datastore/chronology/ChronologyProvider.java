@@ -259,7 +259,7 @@ public class ChronologyProvider
         }
 
       //Store the DB id as a semantic
-      Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+      Transaction transaction = Get.commitService().newTransaction(Optional.of("Storing db data"), ChangeCheckerMode.ACTIVE);
       Get.semanticBuilderService()
             .getStringSemanticBuilder(getDataStoreId().get().toString(), TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
             .buildAndWrite(Coordinates.Manifold.DevelopmentInferredRegularNameSort().getWriteCoordinate(transaction)).get();
@@ -432,7 +432,7 @@ public class ChronologyProvider
                    LOG.info("Semantic Store has {} while file store has {}.  This is expected, if an IBDF file with an existing ID was merged into a datastore."
                          + "  Updating the semantic store to match the file store id.", temp, fromFile);
 
-                   Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+                   Transaction transaction = Get.commitService().newTransaction(Optional.of("Updating db id. "), ChangeCheckerMode.ACTIVE);
                    MutableStringVersion sv = sdic.get().createMutableVersion(Coordinates.Manifold.DevelopmentInferredRegularNameSort().getWriteCoordinate(transaction));
                    sv.setString(fromFile.toString());
                    Get.commitService().addUncommitted(transaction, sv);

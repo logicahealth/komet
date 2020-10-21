@@ -27,13 +27,9 @@
         <module>preferences</module>
         <module>filesystem-datastore</module>
         <module>chronology</module>
-        <module>xodus-datastore</module>
         <module>mv-datastore</module>
         <module>datastore-locator</module>
         <module>identifier</module>
-        <module>datastore-postgres</module>
-        <module>postgress</module>
-        <module>datastore-cache</module>
         <module>qa</module>
         <module>xslt-provider</module>
     </modules>

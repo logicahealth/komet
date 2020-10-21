@@ -82,6 +82,7 @@ import sh.isaac.api.task.AggregateTaskInput;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.model.logic.ClassifierResultsImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 
@@ -140,7 +141,7 @@ public class ProcessClassificationResults
             final Ontology inferredAxioms = this.inputData.getClassifiedOntology();
             Set<Integer> affectedConceptNids = this.inputData.getAffectedConceptNidSet();
             this.addToTotalWork(affectedConceptNids.size());
-            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.of("Process classification results: " + DateTimeUtil.timeNowSimple()), ChangeCheckerMode.INACTIVE);
             WriteCoordinate wc = manifoldCoordinate.getWriteCoordinate(transaction);
 
             final ClassifierResults classifierResults = collectResults(wc, inferredAxioms, affectedConceptNids);

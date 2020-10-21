@@ -21,11 +21,6 @@
 		project to reinclude the dependency of the datastore they want... -->
 		<dependency>
 			<groupId>sh.isaac.provider</groupId>
-			<artifactId>xodus-datastore</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sh.isaac.provider</groupId>
 			<artifactId>filesystem-datastore</artifactId>
 			<version>${project.parent.version}</version>
 		</dependency>

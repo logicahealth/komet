@@ -73,7 +73,7 @@ public class QueryProviderTest {
 		LookupService.startupIsaac();
 
 		TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
-		Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE, false);
+		Transaction transaction = Get.commitService().newTransaction(Optional.of("QueryProviderTest"), ChangeCheckerMode.ACTIVE, false);
 		timd.configure(null, Paths.get(QueryProviderTest.class.getResource("/turtle/bevontology-0.8.ttl").toURI()), "0.8", null, transaction);
 		timd.convertContent(update -> {}, (work, total) ->{});
 		transaction.commit().get();

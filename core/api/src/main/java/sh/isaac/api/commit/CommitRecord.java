@@ -210,10 +210,30 @@ public class CommitRecord {
     */
    @Override
    public String toString() {
-      return "CommitRecord{" + "commitTime=" + this.commitTime + ", stampsInCommit=" + this.stampsInCommit +
-             ", stampAliases=" + this.stampAliases + ", commitComment=" + this.commitComment + ", conceptNidsInCommit=" +
-             this.conceptNidsInCommit + ", semanticNidsInCommit=" + this.semanticNidsInCommit 
-             + ", transactionName=" + transactionName + ", transactionId=" + transactionId + "}";
+      StringBuilder sb = new StringBuilder();
+      sb.append("CommitRecord{commitTime=");
+      sb.append(this.commitTime);
+      sb.append(", stampsInCommit=");
+      sb.append(this.stampsInCommit);
+      sb.append(", stampAliases=");
+      sb.append(this.stampAliases);
+      sb.append(", commitComment=");
+      sb.append(this.commitComment);
+      sb.append(", conceptNidsInCommit=");
+      sb.append(this.conceptNidsInCommit);
+      sb.append(", semanticNidsInCommit=");
+      sb.append(this.semanticNidsInCommit);
+      sb.append(", transactionName=");
+      if (transactionName.isPresent()) {
+         sb.append(transactionName.get());
+      } else {
+         sb.append("null");
+      }
+
+      sb.append(", transactionId=");
+      sb.append(transactionId);
+      sb.append("}");
+      return sb.toString();
    }
 
    /**

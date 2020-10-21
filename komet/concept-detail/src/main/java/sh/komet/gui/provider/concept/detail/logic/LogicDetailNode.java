@@ -138,7 +138,7 @@ public class LogicDetailNode extends DetailNodeAbstract {
                 ObservableLogicGraphVersionImpl observableVersion = new ObservableLogicGraphVersionImpl(version, observableSemanticChronology);
                 ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(this.viewProperties.getManifoldCoordinate());
                 mutableVersion.setGraphData(editInFlight.getData(DataTarget.INTERNAL));
-                Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+                Transaction transaction = Get.commitService().newTransaction(Optional.of("LogicDetailNode edit"), ChangeCheckerMode.ACTIVE);
                 CommitTask commitTask = transaction.commitObservableVersions("Lambda graph edit", mutableVersion);
                 Get.executor().execute(() -> {
                     try {

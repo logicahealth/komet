@@ -102,8 +102,6 @@ public class DatastoreLocator implements SequenceStore, ExtendedStore, MasterDat
 			
 			switch (di)
 			{
-				case BDB:
-				case XODUS:
 				case MV:
 				case EXTERNAL:
 				case FILESYSTEM:
@@ -269,6 +267,7 @@ public class DatastoreLocator implements SequenceStore, ExtendedStore, MasterDat
 	@Override
 	public int[] getTaxonomyData(int assemblageNid, int conceptNid)
 	{
+
 		return dataStore.getTaxonomyData(assemblageNid, conceptNid);
 	}
 

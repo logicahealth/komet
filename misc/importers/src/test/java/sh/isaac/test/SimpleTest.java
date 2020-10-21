@@ -78,7 +78,7 @@ public class SimpleTest
          lt.setibdfFilesFolder(new File("../../metadata/target/generated-resource/"));
          lt.execute();
          new IndexTermstore().execute();
-         Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+         Transaction transaction = Get.commitService().newTransaction(Optional.of("SimpleTest.main()"), ChangeCheckerMode.INACTIVE);
          VHATDeltaImport i = new VHATDeltaImport(transaction,
             //new String(Files.readAllBytes(Paths.get("src/test/resources/VHAT XML Update files/Test File 2.xml"))),
             new String(Files.readAllBytes(Paths.get("src/test/resources/VHAT XML Update files/Test File 1.xml"))),

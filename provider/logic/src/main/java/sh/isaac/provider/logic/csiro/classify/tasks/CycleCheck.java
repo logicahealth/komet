@@ -41,10 +41,14 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
@@ -59,6 +63,8 @@ import sh.isaac.model.logic.ClassifierResultsImpl;
  * This implementation will return a null ClassifierResults if there was no cycle.  If there were one or more cycles, 
  * those cycles will be returned in the result ClassifierResults object.
  *
+ * KEC: I think this is an O(v * ln(e)) complexity rather than O(v+e) complexity... But it find orphans...
+ *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
 public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
@@ -66,6 +72,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 	private Logger log = LogManager.getLogger();
 	private ManifoldCoordinate mc;
 	private ConcurrentHashMap<Integer, Boolean> orphans = new ConcurrentHashMap<>();
+	private AtomicInteger cycleCount = new AtomicInteger();
 
 	/**
 	 * Set up a new cycle checker task
@@ -91,7 +98,7 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 			TaxonomySnapshot ts = Get.taxonomyService().getSnapshot(mc);
 			Map<Integer, Set<int[]>> results = new ConcurrentHashMap<>();
 			
-			Get.conceptService().getConceptNidStream(true).forEach(nid -> 
+			Get.conceptService().getConceptNidStream(false).forEach(nid ->
 			{
 				Set<int[]> conceptCycles = getCycles(nid, ts);
 				if (conceptCycles.size() > 0)
@@ -120,38 +127,45 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 	 * @param ts
 	 * @return
 	 */
-	private Set<int[]> getCycles(int nid, TaxonomySnapshot ts)
-	{
+	private Set<int[]> getCycles(int nid, TaxonomySnapshot ts) {
 		HashSet<int[]> result = new HashSet<>();
 		int[] parents = ts.getTaxonomyParentConceptNids(nid);
-		for (int parent : parents)
-		{
+		for (int parent : parents) {
 			//loop to self
-			if (parent == nid)
-			{
-				result.add(new int[] {parent});
-			}
-			else
-			{
+			if (parent == nid) {
+				result.add(new int[] {nid, parent});
+				LOG.debug("Error: Simple cycle[1] for " +
+						": \n" + cycleCount.incrementAndGet() + " [\n" + Get.conceptDescriptionWithNidAndUuids(nid));
+			} else {
 				MutableIntList path = IntLists.mutable.empty();
-				path.add(parent);
-				if (hasCycle(path, parent, nid, ts, 0))
-				{
-					int[] cycle = new int[path.size()];
-					for (int i = 0; i < cycle.length; i++)
-					{
-						cycle[i] = path.get(i);
+				if (hasCycle(path, parent, nid, ts, 0)) {
+					path.addAtIndex(0, nid);
+					// Trim cycle...
+					MutableIntSet minimalCycleSet = IntSets.mutable.empty();
+					MutableIntList minimalCycle = IntLists.mutable.empty();
+					for (int itemInCycleNid: path.toArray()) {
+						minimalCycle.add(itemInCycleNid);
+						if (minimalCycleSet.contains(itemInCycleNid)) {
+							break;
+						}
+						minimalCycleSet.add(itemInCycleNid);
 					}
+
+					int[] cycle = minimalCycle.toArray();
+					StringBuilder sb = new StringBuilder("Error: Complex cycle: \n" + cycleCount.incrementAndGet() +
+							" [\n");
+					for (int nidInCycle: cycle) {
+						sb.append("  ").append(Get.conceptDescriptionWithNidAndUuids(nidInCycle)).append("\n");
+					}
+					sb.append("]\n");
+					LOG.debug(sb.toString());
 					result.add(cycle);
 				}
-				
 			}
 		}
 		if (parents.length == 0 && nid != TermAux.SOLOR_ROOT.getNid()
 			//Only mark as an orphan if the concept is active, as most inactive rels aren't currently loaded.
-							&& Get.concept(nid).getLatestVersion(ts.getManifoldCoordinate().getVertexStampFilter()).isPresentAnd(v -> v.isActive()))
-
-		{
+			&& Get.concept(nid).getLatestVersion(ts.getManifoldCoordinate().getVertexStampFilter()).isPresentAnd(v -> v.isActive()))  {
 			//orphan
 			orphans.put(nid, Boolean.FALSE);
 		}
@@ -167,36 +181,29 @@ public class CycleCheck extends TimedTaskWithProgressTracker<ClassifierResults>
 	 * @param ts
 	 * @return
 	 */
-	private boolean hasCycle(MutableIntList path, int nidOnPathToRoot, int startNid, TaxonomySnapshot ts, int recursionDepth)
-	{
-		if (recursionDepth > 200) {
-			StringBuilder sb = new StringBuilder("Recursion depth = " + recursionDepth + "\n");
-			sb.append(Get.conceptDescriptionTextList(path.toArray()));
-			throw new IllegalStateException(sb.toString());
+	private boolean hasCycle(MutableIntList path, int nidOnPathToRoot, int startNid,
+							 TaxonomySnapshot ts, int recursionDepth) {
+		if (recursionDepth > 150) {
+			path.add(nidOnPathToRoot);
+			return true;
 		}
 		int[] parents = ts.getTaxonomyParentConceptNids(nidOnPathToRoot);
-		if (recursionDepth > 150) {
-			StringBuilder sb = new StringBuilder("Warn: Recursion depth = " + recursionDepth);
-			sb.append("\nnidOnPathToRoot: ").append(nidOnPathToRoot).append(" ").append(Get.conceptDescriptionText(nidOnPathToRoot));
-			sb.append("\npath: ").append(Get.conceptDescriptionTextList(path.toArray()));
-			sb.append("\nparents: ").append(Get.conceptDescriptionTextList(parents));
-			LOG.debug(sb.toString());
-		}
-		for (int parent : parents)
-		{
-			if (parent == startNid)
-			{
+		for (int parent : parents) {
+			if (parent == startNid) {
+				LOG.debug("Error: Simple cycle[2] for: " + Get.conceptDescriptionWithNidAndUuids(startNid));
 				path.add(parent);
 				return true;
-			}
-			else
-			{
-				return hasCycle(path, parent, startNid, ts, recursionDepth + 1);
+			} else {
+				if (hasCycle(path, parent, startNid, ts, recursionDepth + 1)) {
+					path.addAtIndex(0, nidOnPathToRoot);
+					return true;
+				}
+				return false;
 			}
 		}
 		return false;
 	}
-	
+
 	/**
 	 * 
 	 * @return The list of orphaned oncepts identified during the cycle check

@@ -260,7 +260,7 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract implements GuiCo
         ObservableVersion[] versionsToCommit;
         try {
             versionsToCommit = getVersionsToCommit();
-            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.of("Concept builder commit"), ChangeCheckerMode.ACTIVE);
             CommitTask commitTask = transaction.commitObservableVersions("Lambda graph edit", versionsToCommit);
             Get.executor().execute(() -> {
                 try {

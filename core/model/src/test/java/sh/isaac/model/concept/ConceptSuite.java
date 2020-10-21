@@ -221,7 +221,7 @@ public class ConceptSuite {
       final int authorNid = TermAux.USER.getNid();
       final int moduleNid = TermAux.SOLOR_MODULE.getNid();
       final int pathNid   = TermAux.DEVELOPMENT_PATH.getNid();
-      Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+      Transaction transaction = Get.commitService().newTransaction(Optional.of("ConceptSuite.createConcept"), ChangeCheckerMode.INACTIVE);
       final int stampSequence = Get.stampService()
                                    .getStampSequence(transaction, Status.ACTIVE, time, authorNid, moduleNid, pathNid);
       final List<Chronology> builtObjects = new ArrayList<>();

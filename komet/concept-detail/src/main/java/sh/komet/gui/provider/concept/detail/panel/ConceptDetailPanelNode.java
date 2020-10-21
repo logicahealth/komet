@@ -535,7 +535,7 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
     }
     
     private void handleCommit(ObservableDescriptionDialect observableDescriptionDialect, ObservableVersion[] versionsToCommit) {
-        Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+        Transaction transaction = Get.commitService().newTransaction(Optional.of("ConceptDetailPanelNode commit"), ChangeCheckerMode.ACTIVE);
         CommitTask commitTask = transaction.commitObservableVersions("", versionsToCommit);
         Get.executor().execute(() -> {
             try {

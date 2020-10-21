@@ -245,30 +245,5 @@
                 </plugins>
             </build>
         </profile>
-        <profile>
-            <id>postgres-datastore</id>
-            <activation>
-                <property>
-                    <name>explicit-datstore</name>
-                    <value>postgres</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>sh.isaac.core</groupId>
-                        <artifactId>mojo</artifactId>
-                        <version>${project.version}</version>
-                        <dependencies>
-                            <dependency>
-                                <groupId>sh.isaac.provider</groupId>
-                                <artifactId>postgress</artifactId>
-                                <version>${project.version}</version>
-                            </dependency>
-                        </dependencies>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
     </profiles>
 </project>

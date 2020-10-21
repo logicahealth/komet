@@ -1155,5 +1155,25 @@ public class Get
       }
    }
 
+   public static String conceptDescriptionWithNid(int nid) {
+      StringBuilder sb = new StringBuilder();
+      sb.append(Get.conceptDescriptionText(nid))
+              .append(" <")
+              .append(nid)
+              .append(">");
+      return sb.toString();
+   }
+
+   public static String conceptDescriptionWithNidAndUuids(int nid) {
+      StringBuilder sb = new StringBuilder();
+      sb.append(Get.conceptDescriptionText(nid))
+              .append(" <")
+              .append(nid)
+              .append("|")
+              .append(Get.identifierService().getUuidsForNid(nid))
+              .append(">");
+      return sb.toString();
+   }
+
 }
 

@@ -59,7 +59,7 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
    @Override
    protected Void call() throws Exception {
       try {
-         Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
+         Transaction transaction = Get.commitService().newTransaction(Optional.of("ImportSelectedAndTransformTask"), ChangeCheckerMode.INACTIVE, false);
          completedUnitOfWork();
          updateMessage("Importing new content...");
          DirectImporter importer = new DirectImporter(transaction, importType, entriesToImport);

@@ -27,9 +27,11 @@ public class Rf2OwlTransformer extends TimedTaskWithProgressTracker<Void> implem
     final int transformSize = 10240;
     final IdentifierService identifierService = ModelGet.identifierService();
     private final ImportType importType;
+    private final Transaction transaction;
 
-    public Rf2OwlTransformer(ImportType importType) {
+    public Rf2OwlTransformer(ImportType importType, Transaction transaction) {
         this.importType = importType;
+        this.transaction = transaction;
         updateTitle("Converting RF2 OWL to expressions " + importType);
         Get.activeTasks().add(this);
     }
@@ -42,7 +44,6 @@ public class Rf2OwlTransformer extends TimedTaskWithProgressTracker<Void> implem
             int conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
             int owlAssemblageNid = Get.nidForUuids(UUID.fromString("9a119252-b2da-3e62-8767-706558be8e4b"));
             
-            Transaction transaction = Get.commitService().newTransaction(Optional.of("owl transform"), ChangeCheckerMode.INACTIVE, false);
 
             addToTotalWork(4);
             completedUnitOfWork();

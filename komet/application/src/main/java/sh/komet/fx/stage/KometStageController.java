@@ -347,7 +347,7 @@ public class KometStageController
                 convertBeer.setOnAction((ActionEvent event) -> {
                     Get.executor().execute(() -> {
                         try {
-                            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE, false);
+                            Transaction transaction = Get.commitService().newTransaction(Optional.of("Import beer"), ChangeCheckerMode.ACTIVE, false);
                             TurtleImportHK2Direct timd = Get.service(TurtleImportHK2Direct.class);
                             timd.configure(null, beer.toPath(), "0.8", null, transaction);
                             timd.convertContent(update -> {}, (work, totalWork) -> {});

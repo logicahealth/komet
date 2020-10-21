@@ -111,7 +111,7 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
         try {
             boolean commitTransaction = this.transaction == null;
             if (commitTransaction) {
-                this.transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
+                this.transaction = Get.commitService().newTransaction(Optional.of("OwlTransformerAndWriter"), ChangeCheckerMode.INACTIVE, false);
             }
             int count = 0;
 
@@ -120,7 +120,7 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
                 try {
                     transformOwlExpressions(transaction, transformationGroup.conceptNid, transformationGroup.semanticNids, transformationGroup.getPremiseType());
                 } catch (Exception e) {
-                    LOG.error("Erro in Owl Transform: ", e);
+                    LOG.error("Error in Owl Transform: ", e);
                 }
                 if (count % 1000 == 0) {
                     updateMessage("Processing concept: " + Get.conceptDescriptionText(transformationGroup.conceptNid));

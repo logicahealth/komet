@@ -53,7 +53,7 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
         this.changeCheckerMode = changeCheckerMode;
         this.transactionName = transactionName;
         this.indexAfterCommit = indexAfterCommit;
-        LOG.info("Created transaction: " + this);
+        LOG.info("Created transaction: \n  " + this);
     }
 
     @Override
@@ -305,7 +305,7 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
 
         @Override
         public String toString() {
-            return super.toString() + " - child";
+            return "  Child txn of: " + super.toString() + " - child";
         }
     }
 
@@ -317,11 +317,12 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
+        sb.append("   ");
         if (transactionName.isPresent()) {
             sb.append(transactionName.get()).append(" ");
         } 
         sb.append(transactionId.toString());
-        sb.append(" - changeChecker: ").append(changeCheckerMode).append(" index after commit - ").append(indexAfterCommit);
+        sb.append("\n   - changeChecker: ").append(changeCheckerMode).append(" index after commit - ").append(indexAfterCommit);
         return sb.toString();
     }
 

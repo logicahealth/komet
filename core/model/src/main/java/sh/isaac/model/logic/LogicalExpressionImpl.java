@@ -1465,10 +1465,13 @@ public class LogicalExpressionImpl
                                             .toArray());
                     if (nodes.length == 0) {
                         if (getConceptBeingDefinedNid() == -1) {
-                            LOG.debug("Role termination error for unspecified isomorphic concept. ");
+                            LOG.debug("Role termination error for unspecified isomorphic concept. \n this: {}\n that: {}",
+                                    this, another);
                         } else {
-                            LOG.info("Role termination error for isomorphic concept: '{}' [{}]", Get.conceptDescriptionText(getConceptBeingDefinedNid()), 
-                                  Get.identifierService().getUuidPrimordialForNid(getConceptBeingDefinedNid()));
+                            LOG.debug("Role termination error for isomorphic concept: '{}' [{}]\n this: {}\n that: {}",
+                                    Get.conceptDescriptionText(getConceptBeingDefinedNid()),
+                                    Get.identifierService().getUuidPrimordialForNid(getConceptBeingDefinedNid()),
+                                    this, another);
                         }
                         
                         results[i] = SomeRole(((TypedNodeWithNids) oldLogicNode).getTypeConceptNid(),

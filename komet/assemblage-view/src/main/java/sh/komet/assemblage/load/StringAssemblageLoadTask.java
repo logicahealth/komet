@@ -86,7 +86,7 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
     protected Void call() throws Exception {
         ZonedDateTime zonedDateTime = DateTimeUtil.epochToZonedDateTime(System.currentTimeMillis());
         String dateTime = DateTimeUtil.format(zonedDateTime);
-        Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE, false);
+        Transaction transaction = Get.commitService().newTransaction(Optional.of("StringAssemblageLoadTask"), ChangeCheckerMode.INACTIVE, false);
         ConceptSpecification assemblageSpec = build(transaction, makeBuilder(assemblageName, "SOLOR", MetaData.ASSEMBLAGE____SOLOR), UUID.randomUUID().toString());
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);

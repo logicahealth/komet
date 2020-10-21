@@ -417,7 +417,7 @@ public class CommitProvider
 
     public CommitTask commit(Transaction transaction, String commitComment,
                       ConcurrentSkipListSet<AlertObject> alertCollection, Instant commitTime) {
-        LOG.debug("Start commit with transaction: {}, comment: {}, alert count {}, commitTime {}", transaction, commitComment, alertCollection.size(), commitTime);
+        LOG.debug("Start commit with transaction:\n{}, \n  comment: {}, alert count {}, commitTime {}", transaction, commitComment, alertCollection.size(), commitTime);
         Semaphore pendingWrites = writePermitReference.getAndSet(new Semaphore(WRITE_POOL_SIZE));
         pendingWrites.acquireUninterruptibly(WRITE_POOL_SIZE);
 
@@ -1020,7 +1020,8 @@ public class CommitProvider
                     // Warn or fail if multiple uncommitted versions in passed chronology
                     if (uncommittedVersions.size() > 1) {
                         return Optional.of(new AlertObject("Data loss warning",
-                                "Found " + uncommittedVersions.size() + " uncommitted versions in chronology " + version.getPrimordialUuid(), AlertType.WARNING,
+                                "Found " + uncommittedVersions.size() + " uncommitted versions in chronology " + version.getPrimordialUuid()
+                                + "\n" + version.getChronology(), AlertType.WARNING,
                                 AlertCategory.ADD_UNCOMMITTED));
                     }
                     return Optional.empty();

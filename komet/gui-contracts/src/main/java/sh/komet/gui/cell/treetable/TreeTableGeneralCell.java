@@ -167,7 +167,7 @@ public class TreeTableGeneralCell
 
     private void commitEdit(ActionEvent event) {
         try {
-            Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.ACTIVE);
+            Transaction transaction = Get.commitService().newTransaction(Optional.of("TreeTableGeneralCell commitEdit"), ChangeCheckerMode.ACTIVE);
             CommitTask commitTask = transaction.commitObservableVersions("No comment", this.mutableVersion);
             Get.executor().execute(() -> {
                 try {

@@ -58,7 +58,7 @@ public class TSBugDemo
 			Get.configurationService().setDataStoreFolderPath(db.toPath());
 			LookupService.startupIsaac();
 
-			Transaction transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+			Transaction transaction = Get.commitService().newTransaction(Optional.of("TSBugDemoDB bugTestOne"), ChangeCheckerMode.INACTIVE);
 			// Create a concept with two parents.
 			ConverterUUID converterUUID = new ConverterUUID(UUID.randomUUID(), true);
 			DirectWriteHelper dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid(), converterUUID, 
@@ -95,7 +95,7 @@ public class TSBugDemo
 			//TODO still broken after forced cache clear, and regen of TSS:
 	//		Assert.assertEquals(tss.getTaxonomyParentConceptNids(Get.identifierService().getNidForUuids(concept)).length, 0);
 
-			transaction = Get.commitService().newTransaction(Optional.empty(), ChangeCheckerMode.INACTIVE);
+			transaction = Get.commitService().newTransaction(Optional.of("TSBugDemoDB bugTestOne second"), ChangeCheckerMode.INACTIVE);
 			//Make a new stated parent graph with only 2 parents
 			dwh.makeParentGraph(concept, Arrays.asList(new UUID[] {
 					MetaData.ACTIVE_ONLY_DESCRIPTION_LUCENE_MATCH____QUERY_CLAUSE.getPrimordialUuid(), 

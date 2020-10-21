@@ -19,6 +19,11 @@
         <artifactId>drools-compiler</artifactId>
         <scope>test</scope>
       </dependency>
+<!--      <dependency>-->
+<!--        <groupId>org.drools</groupId>-->
+<!--        <artifactId>drools-model-compiler</artifactId>-->
+<!--        <scope>test</scope>-->
+<!--      </dependency>-->
 
     <dependency>
       <groupId>sh.isaac.provider</groupId>
