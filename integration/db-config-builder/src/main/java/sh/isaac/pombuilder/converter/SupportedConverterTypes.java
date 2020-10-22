@@ -77,18 +77,18 @@ public enum SupportedConverterTypes
 			new String[] {"shared/licenses/loinc.xml"}, 
 			new String[] {"shared/noticeAdditions/loinc-NOTICE-addition.txt"}),
 	
-	//This one is deprecated, it was still the old form of the data.
-	LOINC_TECH_PREVIEW("loinc-src-data-tech-preview", ".*$", 
-			"A typical LOINC tech preview version number is '2015.08.01'.  The version numbers should be used directly from LOINC.  There are no enforced restrictions "
-			+ "on the format.", 
-			new String[] {"loinc-src-data"}, new String[] {"rf2-ibdf-sct"}, new UploadFileInfo[] {
-			new UploadFileInfo("", "https://www.nlm.nih.gov/healthit/snomedct/international.html",
-					"SnomedCT_LOINC_AlphaPhase3_INT_20160401.zip",
-					"  The expected file is the RF2 release (NOT the Human Readable release nor the OWL release). "
-					+ "The file must be a zip file, which ends with .zip", ".*\\.zip$", true)
-	}, "loinc-ibdf-tech-preview", "convert-loinc-tech-preview-to-ibdf", "LOINC Tech Preview", 
-			new String[] {"shared/licenses/loinc.xml", "shared/licenses/sct.xml"}, 
-			new String[] {"shared/noticeAdditions/loinc-tech-preview-NOTICE-addition.txt", "shared/noticeAdditions/loinc-NOTICE-addition.txt", "shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
+//	//This one is deprecated, it was still the old form of the data.
+//	LOINC_TECH_PREVIEW("loinc-src-data-tech-preview", ".*$", 
+//			"A typical LOINC tech preview version number is '2015.08.01'.  The version numbers should be used directly from LOINC.  There are no enforced restrictions "
+//			+ "on the format.", 
+//			new String[] {"loinc-src-data"}, new String[] {"rf2-ibdf-sct"}, new UploadFileInfo[] {
+//			new UploadFileInfo("", "https://www.nlm.nih.gov/healthit/snomedct/international.html",
+//					"SnomedCT_LOINC_AlphaPhase3_INT_20160401.zip",
+//					"  The expected file is the RF2 release (NOT the Human Readable release nor the OWL release). "
+//					+ "The file must be a zip file, which ends with .zip", ".*\\.zip$", true)
+//	}, "loinc-ibdf-tech-preview", "convert-loinc-tech-preview-to-ibdf", "LOINC Tech Preview", 
+//			new String[] {"shared/licenses/loinc.xml", "shared/licenses/sct.xml"}, 
+//			new String[] {"shared/noticeAdditions/loinc-tech-preview-NOTICE-addition.txt", "shared/noticeAdditions/loinc-NOTICE-addition.txt", "shared/noticeAdditions/rf2-sct-NOTICE-addition.txt"}),
 	
 	SCT("rf2-src-data-sct", "\\d{8}.*$", 
 			"A typical Snomed version number is '20170131' or '20170131T120000'.  The value here should be the same as the version number in the name of the uploaded "
