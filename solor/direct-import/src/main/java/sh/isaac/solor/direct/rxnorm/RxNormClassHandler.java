@@ -8,10 +8,12 @@ import org.w3c.dom.NodeList;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
@@ -374,7 +376,10 @@ Another example to handle...
                 }
 
             }
-            conceptBuilder.build(this.manifoldCoordinate.getWriteCoordinate(this.transaction));
+
+            WriteCoordinate writeCoordinate = this.manifoldCoordinate.getWriteCoordinate(this.transaction);
+            ArrayList<Chronology> buildObjects = new ArrayList<>();
+            conceptBuilder.buildAndWrite(writeCoordinate, buildObjects);
         }
 
     }

@@ -140,12 +140,20 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     * @see #build(Transaction, int, List)
     * 
     * @param writeCoordinate the transaction and STAMP details governing the component builder
-    * @param builtObjects a list of subordinate objects also build as a result of building this object.  Includes top-level object being built.
     * @return the constructed component, not yet written to the database.
     * @throws IllegalStateException the illegal state exception
+    * @Deprecated: I've found this method swallows sub-component build by the builder, by not writing them to
+    * a data store. I recommend buildAndWrite, or the build method this default method calls... I've modified to
+    * throw an exception that hopefully makes the developer aware of the problem when sub-components are built.
     */
+   @Deprecated
    default T build(WriteCoordinate writeCoordinate) throws IllegalStateException {
-      return build(writeCoordinate.getTransaction().get(), writeCoordinate.getStampSequence(), new ArrayList<Chronology>());
+       ArrayList<Chronology> buildObjects = new ArrayList<>();
+       T result =  build(writeCoordinate.getTransaction().get(), writeCoordinate.getStampSequence(), buildObjects);
+       if (buildObjects.size() != 1) {
+          throw new IllegalStateException();
+       }
+       return result;
    }
    
    /**

@@ -210,16 +210,12 @@ public class IdentifierProvider
         }
         throw new NoSuchElementException("No nid found for " + Arrays.toString(uuids));
     }
-    UUID watch = UUID.fromString("d516e942-b47e-33a1-9b21-517434551e1f");
     @Override
     public int assignNid(UUID... uuids) throws IllegalArgumentException {
         int lastFoundNid = Integer.MAX_VALUE;
         ArrayList<UUID> uuidsWithoutNid = new ArrayList<>(uuids.length);
         for (final UUID uuid : uuids) {
-            if (watch.equals(uuid)) {
-                System.out.println("Found: " + watch);
-            }
-            final OptionalInt nid = this.uuidIntMapMap.get(uuid);
+             final OptionalInt nid = this.uuidIntMapMap.get(uuid);
 
             if (nid.isPresent()) {
                 if (lastFoundNid != Integer.MAX_VALUE && lastFoundNid != nid.getAsInt()) {

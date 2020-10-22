@@ -426,18 +426,11 @@ public class TaxonomyProvider
     public int[] getTaxonomyData(int assemblageNid, int conceptNid) {
        return store.getTaxonomyData(assemblageNid, conceptNid);
     }
-    private int watchNid = 0;
-    /**
+     /**
      * {@inheritDoc}
      */
     @Override
     public int[] accumulateAndGetTaxonomyData(int assemblageNid, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction) {
-        if (watchNid == 0) {
-            watchNid = Get.nidWithAssignment(UUID.fromString("075bd2cc-1a6e-3e89-9eb9-08e383c1665a"));
-        }
-        if (conceptNid == watchNid) {
-            System.out.println("Found");
-        }
        return store.accumulateAndGetTaxonomyData(assemblageNid, conceptNid, newData, accumulatorFunction);
     }
 
