@@ -978,13 +978,9 @@ public class HashTreeWithIntArraySetsIsolated
 
                     if (cycleArray.length == 0) {
                         builder.append("Depth exceeded, but  cycle not found between: \n     ");
-                        builder.append(originalChildNid)
-                                .append(" ")
-                                .append(Get.conceptDescriptionText(originalChildNid));
+                        builder.append(Get.conceptDescriptionWithNidAndUuids(originalChildNid));
                         builder.append("\n     ")
-                                .append(nidToTest)
-                                .append(" ")
-                                .append(Get.conceptDescriptionText(nidToTest));
+                                .append(Get.conceptDescriptionWithNidAndUuids(nidToTest));
                     } else {
                         builder.append(premiseTypes).append(" Cycle found: \n");
 
@@ -994,9 +990,7 @@ public class HashTreeWithIntArraySetsIsolated
 
                         for (int nid: cycleArray) {
                             builder.append("\n   ")
-                                    .append(nid)
-                                    .append(" ")
-                                    .append(Get.conceptSpecification(nid));
+                                    .append(Get.conceptDescriptionWithNidAndUuids(nid));
                         }
                     }
 

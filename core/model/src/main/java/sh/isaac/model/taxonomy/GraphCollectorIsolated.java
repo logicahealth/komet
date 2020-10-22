@@ -11,6 +11,7 @@ import sh.isaac.api.coordinate.VertexSort;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.tree.HashTreeBuilderIsolated;
 
+import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.function.BiConsumer;
 import java.util.function.IntFunction;
@@ -101,7 +102,14 @@ public class GraphCollectorIsolated
         final int[] taxonomyData = this.taxonomyDataProvider.apply(originNid);
 
         if (taxonomyData == null) {
-            LOG.error("No taxonomy data for: {} {} with NID: {}", Get.identifierService().getUuidPrimordialForNid(originNid), Get.conceptDescriptionText(originNid), originNid);
+            StringBuilder sb = new StringBuilder();
+            try {
+                sb.append(Get.conceptDescriptionText(originNid));
+            } catch (NoSuchElementException ex) {
+                sb.append("No such element in ChronologyProvider");
+            }
+
+            LOG.error("No taxonomy data for: {} {} with NID: {}", Get.identifierService().getUuidPrimordialForNid(originNid), sb.toString(), originNid);
 
         } else {
             TaxonomyRecordPrimitive isaacPrimitiveTaxonomyRecord = new TaxonomyRecordPrimitive(taxonomyData);

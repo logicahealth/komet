@@ -227,21 +227,25 @@ public class CommitProvider
 
     /**
      * Persistent stamp nid.
+     * TODO: move field to transaction for multi-user environment.
      */
     private final ConcurrentSkipListSet<Integer>  uncommittedConceptsWithChecksNidSet = new ConcurrentSkipListSet<>();
 
     /**
      * The uncommitted concepts no checks nid set.
+     * TODO: move field to transaction for multi-user environment.
      */
     private final ConcurrentSkipListSet<Integer>  uncommittedConceptsNoChecksNidSet = new ConcurrentSkipListSet<>();
 
     /**
      * The uncommitted semantics with checks nid set.
+     * TODO: move field to transaction for multi-user environment.
      */
     private final ConcurrentSkipListSet<Integer>  uncommittedSemanticsWithChecksNidSet = new ConcurrentSkipListSet<>();
 
     /**
      * The uncommitted semantics no checks nid set.
+     * TODO: move field to transaction for multi-user environment.
      */
     private final ConcurrentSkipListSet<Integer>  uncommittedSemanticsNoChecksNidSet = new ConcurrentSkipListSet<>();
 

@@ -237,9 +237,15 @@ public class StampProvider
             // for each uncommitted stamp matching the transaction, remove the uncommitted stamp
             // and replace with a stamp with a proper time indicating canceled...
             if (transaction.getTransactionId().equals(uncommittedStamp.getTransactionId())) {
+                long time = getTime();
+                if (time != Long.MIN_VALUE) { // Long.MIN_VALUE ==  canceled...
+                    if (uncommittedStamp.getTime() != Long.MAX_VALUE) {
+                        time = uncommittedStamp.getTime();
+                    }
+                }
                 final Stamp stamp = new Stamp(
                         getStatus(uncommittedStamp.getStatus()),
-                        getTime(),
+                        time,
                         uncommittedStamp.getAuthorNid(),
                         uncommittedStamp.getModuleNid(),
                         uncommittedStamp.getPathNid());

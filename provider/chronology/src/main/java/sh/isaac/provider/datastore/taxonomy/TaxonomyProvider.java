@@ -87,13 +87,7 @@ import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.Activity;
-import sh.isaac.api.coordinate.Coordinates;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
-import sh.isaac.api.coordinate.PremiseSet;
-import sh.isaac.api.coordinate.StampFilterImmutable;
-import sh.isaac.api.coordinate.StatusSet;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.navigation.NavigationRecord;
 import sh.isaac.api.navigation.NavigationService;
@@ -106,6 +100,7 @@ import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
 import sh.isaac.model.ModelGet;
 import sh.isaac.model.TaxonomyDebugService;
+import sh.isaac.model.taxonomy.TaxonomyRecord;
 import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import sh.isaac.provider.datastore.chronology.ChronologyUpdate;
 import sh.isaac.provider.datastore.navigator.NavigationAmalgam;
@@ -431,12 +426,18 @@ public class TaxonomyProvider
     public int[] getTaxonomyData(int assemblageNid, int conceptNid) {
        return store.getTaxonomyData(assemblageNid, conceptNid);
     }
-
+    private int watchNid = 0;
     /**
      * {@inheritDoc}
      */
     @Override
     public int[] accumulateAndGetTaxonomyData(int assemblageNid, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction) {
+        if (watchNid == 0) {
+            watchNid = Get.nidWithAssignment(UUID.fromString("075bd2cc-1a6e-3e89-9eb9-08e383c1665a"));
+        }
+        if (conceptNid == watchNid) {
+            System.out.println("Found");
+        }
        return store.accumulateAndGetTaxonomyData(assemblageNid, conceptNid, newData, accumulatorFunction);
     }
 
@@ -546,7 +547,12 @@ public class TaxonomyProvider
 
         for (int directParentNid : getTaxonomyRecord(childNid).getTaxonomyRecordUnpacked().getDestinationConceptNidsOfType(isANidSet).toArray()) {
             if (directParentNid == childNid) {
-                LOG.warn(Get.conceptDescriptionText(childNid) + " has a taxonomy isA record that points to itself");
+                TaxonomyRecord record = getTaxonomyRecord(childNid).getTaxonomyRecordUnpacked();
+                if (record.containsConceptNidViaType(directParentNid, NidSet.of(TermAux.IS_A),
+                        new int[]{ TaxonomyFlag.INFERRED.bits,  TaxonomyFlag.STATED.bits })) {
+                    LOG.warn(Get.conceptDescriptionText(childNid) + " has a taxonomy isA record that points to itself");
+                }
+
                 continue;
             }
             NidSet nidSet = new NidSet();

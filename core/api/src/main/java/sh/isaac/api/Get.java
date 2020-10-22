@@ -1169,7 +1169,7 @@ public class Get
       sb.append(Get.conceptDescriptionText(nid))
               .append(" <")
               .append(nid)
-              .append("|")
+              .append(" ")
               .append(Get.identifierService().getUuidsForNid(nid))
               .append(">");
       return sb.toString();

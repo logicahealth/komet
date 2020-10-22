@@ -34,6 +34,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.IndexBuilderService;
@@ -119,7 +120,7 @@ public class SolorMojo extends AbstractMojo {
             getLog().info("  Importing LOINC files.");
             loincImporter.run();
             LookupService.syncAll();
-            loadTransaction.commit("Solor mojo load");
+            Optional<CommitRecord> loadCommitResults = loadTransaction.commit("Solor mojo load").get();
             if (transform) {
                 Transaction transformTransaction = Get.commitService().newTransaction(Optional.of("SolorMojo transform: " +  DateTimeUtil.timeNowSimple()), ChangeCheckerMode.INACTIVE, false);
 
@@ -133,7 +134,7 @@ public class SolorMojo extends AbstractMojo {
                 Future<?> rf2OwlTransformTask = Get.executor().submit(rf2OwlTransformer);
                 rf2OwlTransformTask.get();
 
-                transformTransaction.commit("Solor mojo transformed");
+                Optional<CommitRecord> transformCommitResults = transformTransaction.commit("Solor mojo transformed").get();
 
                 getLog().info("Classifying new content...");
                 Task<ClassifierResults> classifierResultsTask
