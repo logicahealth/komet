@@ -470,7 +470,8 @@ public class ContentManagerController
 							boolean found = false;
 							for (IBDFFile ibdfFileNested : databaseIbdfList.getItems())
 							{
-								if (ibdfFileNested.getArtifactId().equals(requiredIbdfArtifactId))
+								if (ibdfFileNested.getArtifactId().equals(requiredIbdfArtifactId) || 
+										(requiredIbdfArtifactId.equals("rf2-ibdf-sct") && ibdfFileNested.getArtifactId().matches("rf2\\-ibdf\\-.+\\-edition")))
 								{
 									found = true;
 									break;
