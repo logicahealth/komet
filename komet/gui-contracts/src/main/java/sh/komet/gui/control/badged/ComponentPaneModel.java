@@ -1,22 +1,33 @@
 package sh.komet.gui.control.badged;
 
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
-import java.util.HashMap;
-import java.util.Optional;
+
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import javafx.scene.Node;
 import javafx.scene.layout.AnchorPane;
+import org.eclipse.collections.api.list.primitive.IntList;
+import org.eclipse.collections.api.set.primitive.IntSet;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
+import sh.isaac.MetaData;
 import sh.isaac.api.Status;
-import sh.isaac.api.chronicle.CategorizedVersion;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedListProperty;
 import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
 import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.style.StyleClasses;
@@ -29,9 +40,10 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
 
     //~--- constructors --------------------------------------------------------
     public ComponentPaneModel(ViewProperties viewProperties, ObservableCategorizedVersion categorizedVersion,
+                              List<ConceptSpecification> semanticOrderForChronology,
                               OpenIntIntHashMap stampOrderHashMap,
                               HashMap<String, AtomicBoolean> disclosureStateMap) {
-        super(viewProperties, categorizedVersion, stampOrderHashMap, disclosureStateMap);
+        super(viewProperties, categorizedVersion, semanticOrderForChronology, stampOrderHashMap, disclosureStateMap);
 
         this.categorizedVersions = categorizedVersion.getCategorizedVersions();
 
@@ -55,7 +67,7 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
             } else {
                 LOG.error("Warn: No property sheet editor for this uncommitted version...\n       " + uncommittedVersion.getPrimordialUuid()
                         + "\n       " + uncommittedVersion + "\nWill treat uncommitted as a historic version. ");
-                versionPanes.add(new VersionPaneModel(viewProperties, uncommittedVersion, stampOrderHashMap,
+                versionPanes.add(new VersionPaneModel(viewProperties, uncommittedVersion, semanticOrderForChronology, stampOrderHashMap,
                         getDisclosureStateMap()));
             }
         }
@@ -67,7 +79,7 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
                     .forEach(
                             (contradiction) -> {
                                 if (contradiction.getStampSequence() != -1) {
-                                    versionPanes.add(new VersionPaneModel(viewProperties, contradiction, stampOrderHashMap,
+                                    versionPanes.add(new VersionPaneModel(viewProperties, contradiction, semanticOrderForChronology, stampOrderHashMap,
                                             getDisclosureStateMap()));
                                 }
                             });
@@ -77,30 +89,77 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
                 .forEach(
                         (historicVersion) -> {
                             if (historicVersion.getStampSequence() != -1 && historicVersion.getStatus() != Status.CANCELED) {
-                                versionPanes.add(new VersionPaneModel(viewProperties, historicVersion, stampOrderHashMap,
+                                versionPanes.add(new VersionPaneModel(viewProperties, historicVersion, semanticOrderForChronology, stampOrderHashMap,
                                         getDisclosureStateMap()));
                             }
                         });
-        observableVersion.getChronology()
-                .getObservableSemanticList()
-                .forEach(
-                        (osc) -> {
-                            switch (osc.getVersionType()) {
-                                case DESCRIPTION:
-                                case LOGIC_GRAPH:
-                                case RF2_RELATIONSHIP:
-                                    break;  // Ignore, description and logic graph where already added as an independent panel
 
-                                default:
-                                    addChronology(osc, stampOrderHashMap);
-                            }
-                        });
+        List<ObservableSemanticChronology> filteredSemantics = observableVersion.getChronology()
+                .getObservableSemanticList().stream().filter(observableSemanticChronology -> {
+            switch (observableSemanticChronology.getVersionType()) {
+                case DESCRIPTION:
+                case LOGIC_GRAPH:
+                case RF2_RELATIONSHIP:
+                    return false;
+                default:
+                    return true;
+            }
+        }).collect(Collectors.toList());
+
+        filterAndSortByAssemblage(filteredSemantics, semanticOrderForChronology)
+                .forEach(observableSemanticChronology -> addChronology(observableSemanticChronology, stampOrderHashMap));
+
         expandControl.setVisible(!versionPanes.isEmpty() || !extensionPaneModels.isEmpty());
+    }
+
+    public static List<ObservableSemanticChronology> filterAndSortByAssemblage(List<ObservableSemanticChronology> semantics,
+                                                                               List<ConceptSpecification> assemblagePriorityList) {
+        // SimpleEqualityBasedListProperty<ConceptSpecification>
+        // Delete any versions not active in configuration
+        IntList assemblageOrderList = IntLists.immutable.ofAll(assemblagePriorityList.stream().mapToInt(value -> value.getNid()));
+        List<ObservableSemanticChronology> filteredAndSortedSemantics = new ArrayList<>(semantics.size());
+        if (!assemblageOrderList.contains(MetaData.ANY_COMPONENT____SOLOR.getNid())) {
+            // need to filter
+            IntSet allowedAssemblageSet = IntSets.immutable.ofAll(assemblageOrderList);
+            semantics.stream().forEach(observableCategorizedVersion -> {
+                if (allowedAssemblageSet.contains(observableCategorizedVersion.getAssemblageNid())) {
+                    filteredAndSortedSemantics.add(observableCategorizedVersion);
+                }
+            });
+        } else {
+            filteredAndSortedSemantics.addAll(semantics);
+        }
+        // now need to sort...
+        filteredAndSortedSemantics.sort(compareWithList(assemblagePriorityList));
+        return filteredAndSortedSemantics;
+    }
+    public static Comparator<ObservableSemanticChronology> compareWithList(List<ConceptSpecification> semanticOrderForChronology) {
+        final IntList assemblageOrderList = IntLists.immutable.ofAll(semanticOrderForChronology.stream().mapToInt(value -> value.getNid()));
+        return compareWithList(assemblageOrderList);
+    }
+
+    public static Comparator<ObservableSemanticChronology> compareWithList(IntList assemblageOrderList) {
+        return (o1, o2) -> {
+            int o1index = assemblageOrderList.indexOf(o1.getAssemblageNid());
+            int o2index = assemblageOrderList.indexOf(o2.getAssemblageNid());
+            if (o1index == o2index) {
+                // same assemblage
+                return o1.toString().compareTo(o2.toString());
+            }
+            if (o1index == -1) {
+                return 1;
+            }
+            if (o2index == -1) {
+                return -1;
+            }
+            return (o1index < o2index) ? -1 : 1;
+        };
     }
 
     public static boolean isSemanticTypeSupported(Chronology chronology) {
         return isSemanticTypeSupported(chronology.getVersionType());
     }
+
     public static boolean isSemanticTypeSupported(VersionType semanticType) {
         switch (semanticType) {
             case STRING:
@@ -157,7 +216,7 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
                 // Add most recent first, and add oldest last... Reverse of the sort.
                 for (int i = versionPanes.size() - 1; i > -1; i--) {
                     this.addVersionPane(versionPanes.get(i));
-                 }
+                }
                 if (!extensionPaneModels.isEmpty()) {
                     addAttachmentPane(extensionHeaderPanel);
                 }
@@ -178,16 +237,19 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
             if (oscCategorizedVersions.getLatestVersion()
                     .isPresent()) {
                 ComponentPaneModel newPanel = new ComponentPaneModel(getViewProperties(),
-                        oscCategorizedVersions.getLatestVersion().get(), stampOrderHashMap, getDisclosureStateMap());
+                        oscCategorizedVersions.getLatestVersion().get(), this.semanticOrderForChronology,
+                        stampOrderHashMap, getDisclosureStateMap());
 
                 extensionPaneModels.add(newPanel);
             } else if (!oscCategorizedVersions.getUncommittedVersions().isEmpty()) {
                 ComponentPaneModel newPanel = new ComponentPaneModel(getViewProperties(),
-                        oscCategorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap, getDisclosureStateMap());
+                        oscCategorizedVersions.getUncommittedVersions().get(0), this.semanticOrderForChronology,
+                        stampOrderHashMap, getDisclosureStateMap());
                 extensionPaneModels.add(newPanel);
             }
         }
     }
+
     private void addVersionPane(VersionPaneModel versionPane) {
         addVersionPane(versionPane.getBadgedPane());
     }

@@ -162,6 +162,7 @@ public abstract class BadgedVersionPaneModel {
     protected final SimpleBooleanProperty isLogicalDefinition = new SimpleBooleanProperty(false);
 
     private Optional<PropertySheetMenuItem> optionalPropertySheetMenuItem = Optional.empty();
+    protected final List<ConceptSpecification> semanticOrderForChronology;
 
 
     //~--- initializers --------------------------------------------------------
@@ -194,12 +195,14 @@ public abstract class BadgedVersionPaneModel {
 
     protected BadgedVersionPaneModel(ViewProperties viewProperties,
                                      ObservableCategorizedVersion categorizedVersion,
+                                     List<ConceptSpecification> semanticOrderForChronology,
                                      OpenIntIntHashMap stampOrderHashMap,
                                      HashMap<String, AtomicBoolean> disclosureStateMap) {
         this.viewProperties = viewProperties;
         this.disclosureStateMap = disclosureStateMap;
         this.stampOrderHashMap = stampOrderHashMap;
         this.categorizedVersion = categorizedVersion;
+        this.semanticOrderForChronology = semanticOrderForChronology;
         this.isInactive.set(categorizedVersion.getStatus() == Status.INACTIVE);
         int stampSequence = categorizedVersion.getStampSequence();
         if (stampOrderHashMap.containsKey(stampSequence)) {
@@ -779,7 +782,7 @@ public abstract class BadgedVersionPaneModel {
         observableVersion.putUserObject(PROPERTY_SHEET_ATTACHMENT, propertySheetMenuItem);
         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(viewProperties.getManifoldCoordinate().getViewStampFilter());
 
-        ComponentPaneModel componentPane = new ComponentPaneModel(getViewProperties(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap, getDisclosureStateMap());
+        ComponentPaneModel componentPane = new ComponentPaneModel(getViewProperties(), categorizedVersions.getUncommittedVersions().get(0), this.semanticOrderForChronology, stampOrderHashMap, getDisclosureStateMap());
         extensionPaneModels.add(componentPane);
         this.expandControl.setExpandAction(ExpandAction.SHOW_CHILDREN);
         propertySheetMenuItem.addCompletionListener((observable, oldValue, newValue) -> {

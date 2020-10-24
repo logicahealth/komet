@@ -37,6 +37,7 @@
 package sh.komet.gui.provider.concept.detail.panel;
 
 import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
+import static sh.komet.gui.control.badged.ComponentPaneModel.compareWithList;
 import static sh.komet.gui.style.StyleClasses.ADD_DESCRIPTION_BUTTON;
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 import java.util.ArrayList;
@@ -104,6 +105,7 @@ import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.NaturalOrder;
@@ -462,10 +464,11 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         semanticOrderForAxiomDetailsWrapper.setConstraints(FxGet.activeConceptMembers(TermAux.AXIOM_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE,viewProperties.getManifoldCoordinate()));
     }
 
-    private void addCategorizedVersions(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions, List<ConceptSpecification> semanticOrderForChronology, ParallelTransition parallelTransition) {
+    private void addCategorizedVersions(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions,
+                                        List<ConceptSpecification> semanticOrderForChronology, ParallelTransition parallelTransition) {
         categorizedVersions.getLatestVersion().ifPresent(observableCategorizedVersion -> {
             parallelTransition.getChildren()
-                    .add(addComponent(categorizedVersions));
+                    .add(addComponent(categorizedVersions, semanticOrderForChronology));
         });
     }
 
@@ -488,7 +491,8 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         return ft;
     }
 
-    private Animation addComponent(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions) {
+    private Animation addComponent(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions,
+                                   List<ConceptSpecification> semanticOrderForChronology) {
         ObservableCategorizedVersion categorizedVersion;
 
         if (categorizedVersions.getLatestVersion()
@@ -504,7 +508,7 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
                     "Categorized version has no latest version or uncommitted version: \n" + categorizedVersions);
         }
 
-        ComponentPaneModel componentPaneModel = new ComponentPaneModel(this.viewProperties, categorizedVersion,
+        ComponentPaneModel componentPaneModel = new ComponentPaneModel(this.viewProperties, categorizedVersion, semanticOrderForChronology,
                 stampOrderHashMap, disclosureStateMap);
 
         componentPaneModels.add(componentPaneModel);
@@ -685,7 +689,13 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
             filteredAndSortedSemantics.addAll(semantics);
         }
         // now need to sort...
-        filteredAndSortedSemantics.sort((o1, o2) -> {
+        filteredAndSortedSemantics.sort(compareWithList(assemblageOrderList));
+        return filteredAndSortedSemantics;
+    }
+
+
+    public static Comparator<CategorizedVersions<ObservableCategorizedVersion>> compareWithList(IntList assemblageOrderList) {
+        return (o1, o2) -> {
             int o1index = assemblageOrderList.indexOf(o1.getAssemblageNid());
             int o2index = assemblageOrderList.indexOf(o2.getAssemblageNid());
             if (o1index == o2index) {
@@ -699,11 +709,8 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
                 return -1;
             }
             return (o1index < o2index) ? -1 : 1;
-        });
-        return filteredAndSortedSemantics;
+        };
     }
-
-
 
 
     public static List<CategorizedVersions<ObservableCategorizedVersion>> filterAndSortDescriptions(List<CategorizedVersions<ObservableCategorizedVersion>> descriptionSemantics,
