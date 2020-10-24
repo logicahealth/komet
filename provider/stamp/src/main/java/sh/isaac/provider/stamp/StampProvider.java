@@ -918,7 +918,12 @@ public class StampProvider
     public ImmutableIntSet getModulesInUse() {
         MutableIntSet modulesInUse = IntSets.mutable.empty();
         for (Entry<Integer, Stamp> stamp: inverseStampMap.getEntrySet()) {
-            modulesInUse.add(stamp.getValue().getModuleNid());
+            if (!Get.conceptService().hasConcept(stamp.getValue().getModuleNid())) {
+                LOG.error("Have a stamp with a module that doesn't exist?!: {}, {}", stamp.getValue(), Get.identifierService().getUuidPrimordialStringForNid(stamp.getValue().getModuleNid()));
+            }
+            else {
+                modulesInUse.add(stamp.getValue().getModuleNid());
+            }
         }
         return modulesInUse.toImmutable();
     }
