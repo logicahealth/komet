@@ -32,7 +32,7 @@ public interface JoinSpecification {
 
     JoinProperty getSecondField();
 
-    LetItemKey getStampCoordinateKey();
+    LetItemKey getStampFilterKey();
 
     void setFirstAssemblage(ConceptSpecification firstAssemblage);
 

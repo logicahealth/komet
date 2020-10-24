@@ -36,82 +36,43 @@
  */
 package sh.komet.gui.cell.treetable;
 
-//~--- JDK imports ------------------------------------------------------------
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.concurrent.ExecutionException;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
-
-//~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.value.ObservableValue;
-import javafx.beans.value.WeakChangeListener;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
-import javafx.scene.control.*;
-
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
-import javafx.scene.layout.Priority;
+import javafx.scene.control.Button;
+import javafx.scene.control.Separator;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.TreeTableRow;
+import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PropertySheet;
-
 import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
-import sh.isaac.api.component.semantic.version.ComponentNidVersion;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
-import sh.isaac.api.component.semantic.version.LongVersion;
-import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
-
-import sh.isaac.api.observable.ObservableChronology;
+import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.cell.CellFunctions;
 import sh.komet.gui.cell.CellHelper;
 import sh.komet.gui.control.FixedSizePane;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.style.StyleClasses;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.component.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_Version;
-import sh.isaac.api.component.semantic.version.brittle.LoincVersion;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Int3_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Str3_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Nid2_Version;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Str2_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_Version;
-import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Version;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.contract.GuiSearcher;
+import sh.komet.gui.control.property.PropertyToPropertySheetItem;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.control.PropertyToPropertySheetItem;
-import sh.komet.gui.control.axiom.AxiomView;
+import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.ExecutionException;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -124,7 +85,7 @@ public class TreeTableGeneralCell
     private static final Logger LOG = LogManager.getLogger();
 
     //~--- fields --------------------------------------------------------------
-    private final Manifold manifold;
+    private final ManifoldCoordinate manifoldCoordinate;
     private final Button editButton = new Button("", Iconography.EDIT_PENCIL.getIconographic());
     private final GridPane textAndEditGrid = new GridPane();
     private final BorderPane editPanel = new BorderPane();
@@ -135,8 +96,8 @@ public class TreeTableGeneralCell
     private final CellHelper cellHelper = new CellHelper(this);
 
     //~--- constructors --------------------------------------------------------
-    public TreeTableGeneralCell(Manifold manifold) {
-        this.manifold = manifold;
+    public TreeTableGeneralCell(ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
         getStyleClass().add("komet-version-general-cell");
         getStyleClass().add("isaac-version");
         editButton.getStyleClass()
@@ -173,13 +134,19 @@ public class TreeTableGeneralCell
         return textAndEditGrid;
     }
 
-    public FixedSizePane getPaneForText() {
+    public FixedSizePane getPaneForVersionDisplay() {
         return paneForText;
     }
 
+    public VersionType getVersionType() {
+        if (this.version != null) {
+            return this.version.getSemanticType();
+        }
+        return VersionType.UNKNOWN;
+    }
     @Override
-    public Manifold getManifold() {
-        return manifold;
+    public ManifoldCoordinate getManifoldCoordinate() {
+        return manifoldCoordinate;
     }
 
     public void initializeConceptBuilder() {
@@ -199,27 +166,43 @@ public class TreeTableGeneralCell
     }
 
     private void commitEdit(ActionEvent event) {
-        CommitTask commitTask = Get.commitService().commit(
-                FxGet.editCoordinate(),
-                "No comment",
-                this.mutableVersion);
-        Get.executor().execute(() -> {
-            try {
-                Optional<CommitRecord> commitRecord = commitTask.get();
-                if (commitRecord.isPresent()) {
-                    Platform.runLater(() -> {
-                        editPanel.getChildren().clear();
-                        editButton.setVisible(true);
-                    });
-                } else {
-                    // TODO show errors. 
-                    commitTask.getAlerts();
+        try {
+            Transaction transaction = Get.commitService().newTransaction(Optional.of("TreeTableGeneralCell commitEdit"), ChangeCheckerMode.ACTIVE);
+            CommitTask commitTask = transaction.commitObservableVersions("No comment", this.mutableVersion);
+            Get.executor().execute(() -> {
+                try {
+                    Optional<CommitRecord> commitRecord = commitTask.get();
+                    if (commitRecord.isPresent()) {
+                        Platform.runLater(() -> {
+                            editPanel.getChildren().clear();
+                            editButton.setVisible(true);
+                        });
+                    } else {
+                        for (AlertObject alert : commitTask.getAlerts()) {
+                            switch (alert.getAlertType()) {
+                                case ERROR:
+                                    FxGet.dialogs().showErrorDialog(alert.getAlertTitle(), alert.getAlertCategory().toString(),
+                                            alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
+                                    break;
+                                case INFORMATION:
+                                    FxGet.dialogs().showInformationDialog(alert.getAlertTitle(),
+                                            alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
+                                    break;
+                                case WARNING:
+                                    FxGet.dialogs().showInformationDialog(alert.getAlertTitle(),
+                                            alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
+                                    break;
+                            }
+                        }
+                    }
+                } catch (InterruptedException | ExecutionException ex) {
+                    FxGet.dialogs().showErrorDialog("Error committing change.", ex);
                 }
-            } catch (InterruptedException | ExecutionException ex) {
-                LOG.error("Error committing change.", ex);
-            } finally {
-            }
-        });
+            });
+        }  catch (Throwable ex) {
+            FxGet.dialogs().showErrorDialog("Error committing change.", ex);
+        }
+
     }
 
     private void toggleEdit(ActionEvent event) {
@@ -227,16 +210,16 @@ public class TreeTableGeneralCell
         if (editPanel.getChildren().isEmpty()) {
             if (this.version != null) {
                 if (this.version instanceof ObservableVersion) {
-                    ObservableVersion currentVersion = (ObservableVersion) this.version;
-                    mutableVersion = currentVersion.makeAutonomousAnalog(FxGet.editCoordinate());
+                    ObservableVersion currentVersion = this.version;
+                    mutableVersion = currentVersion.makeAutonomousAnalog(this.manifoldCoordinate);
 
                     List<Property<?>> propertiesToEdit = mutableVersion.getEditableProperties();
                     PropertySheet propertySheet = new PropertySheet();
                     propertySheet.setMode(PropertySheet.Mode.NAME);
                     propertySheet.setSearchBoxVisible(false);
                     propertySheet.setModeSwitcherVisible(false);
-                    propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifold));
-                    propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifold));
+                    propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifoldCoordinate));
+                    propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifoldCoordinate));
 
                     editPanel.setTop(toolBar);
                     editPanel.setCenter(propertySheet);
@@ -251,6 +234,7 @@ public class TreeTableGeneralCell
 
     @Override
     protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion version) {
+        this.version = version;
         cellHelper.updateItem(version, this, this.getTableColumn());
     }
 }

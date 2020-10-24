@@ -41,7 +41,11 @@ package sh.isaac.api.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.Collection;
+import java.util.Arrays;
+import java.util.UUID;
+
+import org.eclipse.collections.api.set.ImmutableSet;
+import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- interfaces -------------------------------------------------------------
@@ -60,13 +64,44 @@ public interface StampPath
     */
    int getPathConceptNid();
 
-   ConceptSpecification getPathConcept();
+   default UUID getPathCoordinateUuid() {
+      return Get.identifierService().getUuidPrimordialForNid(getPathConceptNid());
+   }
+
+   default ConceptSpecification getPathConcept() {
+      return Get.conceptSpecification(getPathConceptNid());
+   }
+
+   @Override
+   default int compareTo(StampPath that) {
+      if (this.getPathConceptNid() != that.getPathConceptNid()) {
+         return Integer.compare(this.getPathConceptNid(), that.getPathConceptNid());
+      }
+      if (this.getPathOrigins().size() != that.getPathOrigins().size()) {
+         return Integer.compare(this.getPathOrigins().size(), that.getPathOrigins().size());
+      }
+      StampPosition[] thisOrigins = (StampPosition[]) this.getPathOrigins().toArray();
+      Arrays.sort(thisOrigins);
+      StampPosition[] thatOrigins = (StampPosition[]) that.getPathOrigins().toArray();
+      Arrays.sort(thatOrigins);
+      return Arrays.compare(thisOrigins, thatOrigins);
+   }
 
    /**
     * Gets the path origins.
     *
     * @return The origins of this path.
     */
-   Collection<? extends StampPosition> getPathOrigins();
+   ImmutableSet<StampPositionImmutable> getPathOrigins();
+
+   StampPathImmutable toStampPathImmutable();
+
+   /**
+    *
+    * @return a StampFilterImmutable representing the latest on this path, with no author constraints.
+    */
+   default StampFilterImmutable getStampFilter() {
+      return StampPathImmutable.getStampFilter(this);
+   }
 }
 

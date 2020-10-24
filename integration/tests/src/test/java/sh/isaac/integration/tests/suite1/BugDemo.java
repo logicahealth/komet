@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.testing.hk2testng.HK2;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -31,9 +32,7 @@ import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
-import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptBuilder;
@@ -43,10 +42,12 @@ import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.constants.DynamicConstants;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.logic.assertions.Assertion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.semantic.types.DynamicUUIDImpl;
 import sh.isaac.utility.Frills;
 
@@ -65,12 +66,12 @@ public class BugDemo
 		// Read descriptions on a concept:
 		// Attempt to read back the description.
 		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(MetaData.ACTION_PURPOSE____SOLOR.getNid(),
-				new HashSet<>(Arrays.asList(new Integer[] { MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() }))).forEach(descriptionChronology -> {
+				new HashSet<>(Arrays.asList(new Integer[] { MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() })), false).forEach(descriptionChronology -> {
 					// read back nested semantics on each one.
-					NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
+					ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
 
 					// Try to read each semantic...
-					for (int nestedNid : semanticNids.asArray())
+					for (int nestedNid : semanticNids.toArray())
 					{
 						// We fail here, trying to read the nested semantic that describes the extended description type.
 						Assert.assertNotNull(Get.assemblageService().getSemanticChronology(nestedNid));
@@ -90,24 +91,25 @@ public class BugDemo
 						new DynamicData[] { new DynamicUUIDImpl(Get.identifierService().getUuidPrimordialForNid(MetaData.AND____SOLOR.getAssemblageNid())) }));
 
 		// build the description and the extended type
-		try
-		{
-			descriptionSemanticBuilder.build(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), ChangeCheckerMode.ACTIVE).get();
+		Transaction transaction = Get.commitService().newTransaction(Optional.of("BugTestOne"), ChangeCheckerMode.INACTIVE);
+		try {
+			descriptionSemanticBuilder.build(new WriteCoordinateImpl(transaction, 
+					Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get().getStampSequence()));
+			transaction.commit();
 			Assert.fail("build worked when it shouldn't have");
-		}
-		catch (Exception e)
-		{
+		} catch (Exception e) {
+			transaction.cancel().getNoThrow();
 			// expected
 		}
 
 		// This will now fail, due to traces left behind by the attempted new description create.
 		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(MetaData.ACTION_PURPOSE____SOLOR.getNid(),
-				new HashSet<>(Arrays.asList(new Integer[] { MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() }))).forEach(descriptionChronology -> {
+				new HashSet<>(Arrays.asList(new Integer[] { MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() })), false).forEach(descriptionChronology -> {
 					// read back nested semantics on each one.
-					NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
+					ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
 
 					// Try to read each semantic...
-					for (int nestedNid : semanticNids.asArray())
+					for (int nestedNid : semanticNids.toArray())
 					{
 						// We fail here, trying to read the nested semantic that describes the extended description type.
 						Assert.assertNotNull(Get.assemblageService().getSemanticChronology(nestedNid));
@@ -126,9 +128,10 @@ public class BugDemo
 		LogicalExpression parentDef = defBuilder.build();
 		cb.setLogicalExpression(parentDef);
 
-		cb.build(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), ChangeCheckerMode.ACTIVE);
+		Transaction transaction1 = Get.commitService().newTransaction(Optional.of("ExerciseStuff 1"), ChangeCheckerMode.ACTIVE);
+		cb.buildAndWrite(new WriteCoordinateImpl(transaction1, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get())).get();
 
-		Optional<CommitRecord> cr = Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "created extended type concept").get();
+		Optional<CommitRecord> cr = transaction1.commit("created extended type concept").get();
 
 		if (!cr.isPresent())
 		{
@@ -147,12 +150,14 @@ public class BugDemo
 				Get.semanticBuilderService().getDynamicBuilder(descriptionSemanticBuilder, DynamicConstants.get().DYNAMIC_EXTENDED_DESCRIPTION_TYPE.getNid(),
 						new DynamicData[] { new DynamicUUIDImpl(Get.identifierService().getUuidPrimordialForNid(cb.getNid())) }));
 
+		Transaction transaction2 = Get.commitService().newTransaction(Optional.of("ExerciseStuff 2"), ChangeCheckerMode.ACTIVE);
+
 		// build the description and the extended type
-		SemanticChronology newDescription = descriptionSemanticBuilder.build(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), ChangeCheckerMode.ACTIVE)
-				.get();
+		SemanticChronology newDescription = descriptionSemanticBuilder.buildAndWrite(new WriteCoordinateImpl(transaction2, 
+				Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get())).get();
 
 		// commit them.
-		cr = Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(),
+		cr = transaction2.commit(
 				"creating new description semantic: NID=" + newDescription.getNid() + ", text=foo").get();
 
 		if (!cr.isPresent())
@@ -164,12 +169,12 @@ public class BugDemo
 
 		// Attempt to read back the description.
 		Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblages(MetaData.ACTION_PURPOSE____SOLOR.getNid(),
-				new HashSet<>(Arrays.asList(new Integer[] { MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() }))).forEach(descriptionChronology -> {
+				new HashSet<>(Arrays.asList(new Integer[] { MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() })), false).forEach(descriptionChronology -> {
 					// read back nested semantics on each one.
-					NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
+					ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblages(descriptionChronology.getNid(), null);
 
 					// Try to read each semantic...
-					for (int nestedNid : semanticNids.asArray())
+					for (int nestedNid : semanticNids.toArray())
 					{
 						// We fail here, trying to read the nested semantic that describes the extended description type.
 						Assert.assertNotNull(Get.assemblageService().getSemanticChronology(nestedNid));
@@ -182,7 +187,9 @@ public class BugDemo
 	{
 		SemanticChronology lg = Frills.getLogicGraphChronology(MetaData.ACTION_PURPOSE____SOLOR.getNid(), true).get();
 
-		MutableLogicGraphVersion mlg = lg.createMutableVersion(Status.ACTIVE, Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate());
+		Transaction transaction = Get.commitService().newTransaction(Optional.of("LogicGraphMergeBug"), ChangeCheckerMode.INACTIVE);
+		MutableLogicGraphVersion mlg = lg.createMutableVersion(new WriteCoordinateImpl(transaction, 
+				Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get()));
 
 		LogicalExpressionBuilder defBuilder = LookupService.getService(LogicalExpressionBuilderService.class).getLogicalExpressionBuilder();
 		NecessarySet(And(new Assertion[] { ConceptAssertion(MetaData.ACTION_PURPOSE____SOLOR.getNid(), defBuilder),
@@ -190,11 +197,10 @@ public class BugDemo
 		LogicalExpression parentDef = defBuilder.build();
 
 		mlg.setGraphData(parentDef.getData(DataTarget.INTERNAL));
-
-		Get.commitService().addUncommittedNoChecks(lg).get();
+		Get.commitService().addUncommitted(transaction, lg).get();
 		
-		Get.commitService().addUncommitted(lg).get();
+		Get.commitService().addUncommitted(transaction, lg).get();
 		
-		Frills.commitCheck(Get.commitService().commit(Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate(), "test"));
+		Frills.commitCheck(transaction.commit("test"));
 	}
 }

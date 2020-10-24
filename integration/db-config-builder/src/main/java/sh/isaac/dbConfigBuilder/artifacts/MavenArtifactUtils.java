@@ -244,8 +244,7 @@ public class MavenArtifactUtils
 			protected Void call() throws Exception
 			{
 				final TreeSet<String> metadataVersions = new TreeSet<>(new AlphanumComparator(true));
-				metadataVersions.add(VersionFinder.findProjectVersion(true));
-				metadataVersions.add(VersionFinder.findProjectVersion(false));
+				metadataVersions.add(VersionFinder.findProjectVersion());
 
 				File temp = new File(storedPrefs.getLocalM2FolderPath());
 				if (temp.isDirectory())
@@ -293,7 +292,7 @@ public class MavenArtifactUtils
 			protected Void call() throws Exception
 			{
 				final TreeSet<String> metadataVersions = new TreeSet<>(new AlphanumComparator(true));
-				metadataVersions.add(VersionFinder.findProjectVersion(true));
+				metadataVersions.add(VersionFinder.findProjectVersion());
 
 				File temp = new File(storedPrefs.getLocalM2FolderPath());
 				if (temp.isDirectory())

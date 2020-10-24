@@ -43,8 +43,11 @@ package sh.isaac.api.observable.coordinate;
 
 import javafx.beans.property.ListProperty;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinate;
+import sh.isaac.api.coordinate.LanguageCoordinateImmutable;
+import sh.isaac.api.coordinate.LanguageCoordinateProxy;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -54,14 +57,42 @@ import sh.isaac.api.coordinate.LanguageCoordinate;
  * @author kec
  */
 public interface ObservableLanguageCoordinate
-        extends LanguageCoordinate, ObservableCoordinate {
+        extends LanguageCoordinateProxy, ObservableCoordinate<LanguageCoordinateImmutable> {
+
+    default Property<?>[] getBaseProperties() {
+        return new Property<?>[] {
+                languageConceptProperty(),
+                descriptionTypePreferenceListProperty(),
+                dialectAssemblagePreferenceListProperty(),
+                modulePreferenceListForLanguageProperty(),
+        };
+    }
+
+    default ObservableCoordinate<?>[] getCompositeCoordinates() {
+        if (nextPriorityLanguageCoordinateProperty().get() != null) {
+            return new ObservableCoordinate<?>[]{
+                    nextPriorityLanguageCoordinateProperty().get()
+            };
+        }
+        return new ObservableCoordinate<?>[]{};
+    }
+
+
     /**
      * 
      * @return the language coordinate that this observable wraps. 
      */
      LanguageCoordinate getLanguageCoordinate();
-   
-   /**
+
+    /**
+     * Language concept nid property.
+     *
+     * @return the integer property
+     */
+    ObjectProperty<ConceptSpecification> languageConceptProperty();
+
+
+    /**
     * Description type preference list property.
     *
     * @return the object property
@@ -75,20 +106,14 @@ public interface ObservableLanguageCoordinate
     */
    ListProperty<ConceptSpecification> dialectAssemblagePreferenceListProperty();
 
+   ListProperty<ConceptSpecification> modulePreferenceListForLanguageProperty();
+
    /**
     * The next priority language coordinate property. 
     * @return the object property
     */
-   ObjectProperty<ObservableLanguageCoordinate> nextProrityLanguageCoordinateProperty();
-   
-   /**
-    * Language concept nid property.
-    *
-    * @return the integer property
-    */
-    ObjectProperty<ConceptSpecification> languageConceptProperty();
-   
-    /**
+   ObjectProperty<ObservableLanguageCoordinate> nextPriorityLanguageCoordinateProperty();
+       /**
      * 
      * @param dialectAssemblagePreferenceList
      * @deprecated for backward compatability only. 
@@ -103,8 +128,5 @@ public interface ObservableLanguageCoordinate
      */
     @Deprecated
    void setDescriptionTypePreferenceList(int[] descriptionTypePreferenceList);
-    
-   @Override
-   public ObservableLanguageCoordinate deepClone();
 }
 

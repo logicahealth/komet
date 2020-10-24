@@ -21,21 +21,14 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.TableColumn;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.util.NaturalOrder;
-import sh.isaac.api.xml.ConceptSpecificationAdaptor;
 
 /**
  * The SortSpecification provides the data necessary to convert a
@@ -48,8 +41,6 @@ import sh.isaac.api.xml.ConceptSpecificationAdaptor;
  * 
  * @author kec
  */
-@XmlRootElement(name = "SortSpecification")
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class SortSpecification implements QueryFieldSpecification {
      /**
      * The index of the property on the version of the chronology to 
@@ -113,7 +104,7 @@ public class SortSpecification implements QueryFieldSpecification {
         this.propertySpecificationProperty = new SimpleObjectProperty(another.propertySpecificationProperty.get());
         this.propertyIndexProperty = new SimpleIntegerProperty(another.propertyIndexProperty.get());
         this.sortTypeProperty = new SimpleObjectProperty<>(another.sortTypeProperty.get());
-        this.stampCoordinateKeyProperty  = new SimpleObjectProperty(another.getStampCoordinateKey());
+        this.stampCoordinateKeyProperty  = new SimpleObjectProperty(another.getStampFilterKey());
     }
     
     public SortSpecification(
@@ -129,9 +120,8 @@ public class SortSpecification implements QueryFieldSpecification {
         this.stampCoordinateKeyProperty = new SimpleObjectProperty(stampCoordinateKey);
     }
     
-    @XmlElement
     @Override
-    public LetItemKey getStampCoordinateKey() {
+    public LetItemKey getStampFilterKey() {
         return stampCoordinateKeyProperty.get();
     }
 
@@ -149,7 +139,6 @@ public class SortSpecification implements QueryFieldSpecification {
         return sortTypeProperty;
     }
 
-    @XmlElement
     public TableColumn.SortType getSortType() {
         return sortTypeProperty.get();
     }
@@ -159,8 +148,6 @@ public class SortSpecification implements QueryFieldSpecification {
     }
 
 
-    @XmlElement
-    @XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)
     @Override
     public ConceptSpecification getPropertySpecification() {
         return this.propertySpecificationProperty.get();
@@ -175,7 +162,6 @@ public class SortSpecification implements QueryFieldSpecification {
         return this.propertySpecificationProperty;
     }
 
-    @XmlAttribute
     @Override
     public Integer getPropertyIndex() {
         return this.propertyIndexProperty.get();
@@ -204,8 +190,6 @@ public class SortSpecification implements QueryFieldSpecification {
         return this.assemblageNidProperty;
     }
     
-    @XmlElement
-    @XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)
     @Override
      public ConceptSpecification getAssemblage() {
          if (this.assemblageNidProperty.get() == 0) {
@@ -224,7 +208,6 @@ public class SortSpecification implements QueryFieldSpecification {
         setAssemblageNid(assemblageConceptSpecification.getNid());
     }
 
-    @XmlElement(name = "attributeFunction")
     @Override
     public AttributeFunction getAttributeFunction() {
         return attributeFunctionProperty.get();
@@ -240,7 +223,6 @@ public class SortSpecification implements QueryFieldSpecification {
         this.attributeFunctionProperty.set(attributeFunction);
     }
 
-    @XmlAttribute(name = "columnName")
     @Override
     public String getColumnName() {
         return columnNameProperty.get();
@@ -269,20 +251,20 @@ public class SortSpecification implements QueryFieldSpecification {
                 }
             }
         }
-        StampCoordinate stampCoordinate = (StampCoordinate) q.getLetDeclarations().get(getStampCoordinateKey());
+        StampFilter stampFilter = (StampFilter) q.getLetDeclarations().get(getStampFilterKey());
         
         ObservableChronology o1Chronology = Get.observableChronology(o1[comparisonIndex]);
-        LatestVersion<? extends ObservableVersion>  o1LatestVersion = o1Chronology.getLatestVersion(stampCoordinate);
+        LatestVersion<? extends ObservableVersion>  o1LatestVersion = o1Chronology.getLatestVersion(stampFilter);
 
         ObservableChronology o2Chronology = Get.observableChronology(o2[comparisonIndex]);
-        LatestVersion<? extends ObservableVersion>  o2LatestVersion = o2Chronology.getLatestVersion(stampCoordinate);
+        LatestVersion<? extends ObservableVersion>  o2LatestVersion = o2Chronology.getLatestVersion(stampFilter);
 
         String o1String = getAttributeFunction().apply(
                 o1LatestVersion.get().getProperties().get(getPropertyIndex()).getValue().toString(), 
-                stampCoordinate, q);
+                stampFilter, q);
         String o2String = getAttributeFunction().apply(
                 o2LatestVersion.get().getProperties().get(getPropertyIndex()).getValue().toString(), 
-                stampCoordinate, q);
+                stampFilter, q);
         
         int comparison = NaturalOrder.compareStrings(o1String, o2String);
         if (getSortType() == TableColumn.SortType.ASCENDING) {

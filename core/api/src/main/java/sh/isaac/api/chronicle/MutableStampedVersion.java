@@ -39,12 +39,9 @@
 
 package sh.isaac.api.chronicle;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Status;
 import sh.isaac.api.identity.StampedVersion;
-
-//~--- interfaces -------------------------------------------------------------
+import sh.isaac.api.transaction.Transaction;
 
 /**
  * The Interface MutableStampedVersion.
@@ -57,34 +54,39 @@ public interface MutableStampedVersion
     * Sets the state.
     * 
     * @param state the new Status
+    * @param t transaction involved in this edit 
     */
-   void setStatus(Status state);
+   void setStatus(Status state, Transaction t);
    /**
     * Sets the author nid.
     *
     * @param authorNid the new author nid
+    * @param t transaction involved in this edit
     */
-   void setAuthorNid(int authorNid);
+   void setAuthorNid(int authorNid, Transaction t);
 
    /**
     * Sets the module nid.
     *
     * @param moduleNid the new module nid
+    * @param t transaction involved in this edit
     */
-   void setModuleNid(int moduleNid);
+   void setModuleNid(int moduleNid, Transaction t);
 
    /**
     * Sets the path nid.
     *
     * @param pathNid the new path nid
+    * @param t transaction involved in this edit
     */
-   void setPathNid(int pathNid);
+   void setPathNid(int pathNid, Transaction t);
 
    /**
     * Sets the time.
     *
     * @param time the new time
+    * @param t transaction involved in this edit
     */
-   void setTime(long time);
+   void setTime(long time, Transaction t);
 }
 

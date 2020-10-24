@@ -58,7 +58,7 @@ import sh.isaac.model.logic.LogicalExpressionImpl;
  * Created by kec on 12/10/14.
  */
 public class NecessarySetNode
-        extends ConnectorNode {
+        extends SingleChildConnectorNode   {
    /**
     * Instantiates a new necessary set node.
     *

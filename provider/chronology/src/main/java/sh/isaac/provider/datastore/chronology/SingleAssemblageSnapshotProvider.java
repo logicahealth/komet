@@ -16,14 +16,15 @@
  */
 package sh.isaac.provider.datastore.chronology;
 
-import java.util.List;
 import sh.isaac.api.ProgressTracker;
 import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.stream.VersionStream;
+
+import java.util.List;
 
 /**
  *
@@ -61,8 +62,8 @@ public class SingleAssemblageSnapshotProvider <V extends SemanticVersion> implem
     }
 
     @Override
-    public SingleAssemblageSnapshot<V> makeAnalog(StampCoordinate stampCoordinate) {
-        return new SingleAssemblageSnapshotProvider(assemblageConceptNid, assemblageProvider.makeAnalog(stampCoordinate));
+    public SingleAssemblageSnapshot<V> makeAnalog(StampFilter stampFilter) {
+        return new SingleAssemblageSnapshotProvider(assemblageConceptNid, assemblageProvider.makeAnalog(stampFilter));
     }
 
     

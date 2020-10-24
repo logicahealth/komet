@@ -44,11 +44,6 @@ package sh.isaac.api.query;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
-
 //~--- classes ----------------------------------------------------------------
 
 /**
@@ -56,8 +51,6 @@ import javax.xml.bind.annotation.XmlTransient;
  *
  * @author kec
  */
-@XmlRootElement(name = "clause")
-@XmlAccessorType(value = XmlAccessType.PROPERTY)
 public class WhereClause {
    /** The let keys. */
    List<LetItemKey> letKeys = new ArrayList<>();
@@ -119,7 +112,6 @@ public class WhereClause {
     *
     * @return the semantic
     */
-   @XmlTransient
    public ClauseSemantic getSemantic() {
       return this.semantic;
    }

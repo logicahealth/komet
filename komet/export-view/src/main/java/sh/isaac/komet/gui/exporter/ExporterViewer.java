@@ -40,7 +40,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.EnumSet;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
@@ -54,6 +54,8 @@ import sh.isaac.api.Get;
 import sh.isaac.misc.exporters.TableExporter;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.contract.preferences.WindowPreferences;
+import sh.komet.gui.menu.MenuItemWithText;
 
 /**
  * {@link ExporterViewer}
@@ -125,10 +127,10 @@ public class ExporterViewer implements MenuProvider {
      * {@inheritDoc}
      */
     @Override
-    public MenuItem[] getMenuItems(AppMenu appMenu, Window window) {
+    public MenuItem[] getMenuItems(AppMenu appMenu, Window window, WindowPreferences windowPreference) {
         if (appMenu == AppMenu.TOOLS) {
             this.window_ = window;
-            MenuItem mi = new MenuItem("Table Exporter");
+            MenuItem mi = new MenuItemWithText("Table Exporter");
             mi.setOnAction(event
                     -> {
                 showView();

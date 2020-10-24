@@ -45,17 +45,10 @@ import java.time.Instant;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.logic.assertions.AllRole;
-import sh.isaac.api.logic.assertions.Assertion;
-import sh.isaac.api.logic.assertions.ConceptAssertion;
-import sh.isaac.api.logic.assertions.Feature;
-import sh.isaac.api.logic.assertions.LogicalSet;
-import sh.isaac.api.logic.assertions.NecessarySet;
-import sh.isaac.api.logic.assertions.SomeRole;
-import sh.isaac.api.logic.assertions.SufficientSet;
-import sh.isaac.api.logic.assertions.Template;
+import sh.isaac.api.logic.assertions.*;
 import sh.isaac.api.logic.assertions.connectors.And;
 import sh.isaac.api.logic.assertions.connectors.Connector;
 import sh.isaac.api.logic.assertions.connectors.DisjointWith;
@@ -225,9 +218,9 @@ public interface LogicalExpressionBuilder {
     * @param literal the literal
     * @return the feature
     */
-   static Feature Feature(ConceptChronology featureTypeChronology, LiteralAssertion literal) {
+   static Feature Feature(ConceptChronology featureTypeChronology, ConceptChronology measureSemanticChronology, ConcreteDomainOperators operator, LiteralAssertion literal) {
       return literal.getBuilder()
-                    .feature(featureTypeChronology, literal);
+                    .feature(featureTypeChronology, measureSemanticChronology, operator, literal);
    }
 
    /**
@@ -237,9 +230,9 @@ public interface LogicalExpressionBuilder {
     * @param literal the literal
     * @return the feature
     */
-   static Feature Feature(ConceptSpecification featureTypeSpecification, LiteralAssertion literal) {
+   static Feature Feature(ConceptSpecification featureTypeSpecification, ConceptSpecification measureSemanticSpecification, ConcreteDomainOperators operator, LiteralAssertion literal) {
       return literal.getBuilder()
-                    .feature(featureTypeSpecification, literal);
+                    .feature(featureTypeSpecification, measureSemanticSpecification, operator, literal);
    }
 
    /**
@@ -320,6 +313,10 @@ public interface LogicalExpressionBuilder {
    static NecessarySet NecessarySet(Connector connector) {
       return connector.getBuilder()
                           .necessarySet(connector);
+   }
+   static PropertySet PropertySet(Connector connector) {
+      return connector.getBuilder()
+              .propertySet(connector);
    }
 
    /**
@@ -554,7 +551,7 @@ public interface LogicalExpressionBuilder {
     * @param literal the literal
     * @return the feature
     */
-   Feature feature(ConceptChronology featureTypeChronology, LiteralAssertion literal);
+   Feature feature(ConceptChronology featureTypeChronology, ConceptChronology measureSemanticChronology, ConcreteDomainOperators operator, LiteralAssertion literal);
 
    /**
     * Feature.
@@ -563,7 +560,7 @@ public interface LogicalExpressionBuilder {
     * @param literal the literal
     * @return the feature
     */
-   Feature feature(ConceptSpecification featureTypeSpecification, LiteralAssertion literal);
+   Feature feature(ConceptSpecification featureTypeSpecification, ConceptSpecification measureSemanticSpecification, ConcreteDomainOperators operator, LiteralAssertion literal);
 
    /**
     * Float literal.
@@ -620,6 +617,8 @@ public interface LogicalExpressionBuilder {
     * @return the necessary set
     */
    NecessarySet necessarySet(Connector connector);
+
+   PropertySet propertySet(Connector connector);
 
    /**
     * Or.
@@ -698,5 +697,21 @@ public interface LogicalExpressionBuilder {
     */
    Template template(ConceptSpecification templateSpecification,
                      ConceptSpecification assemblageToPopulateTemplateSpecification);
+
+   PropertyPatternImplication propertyPatternImplication(int[] propertyPatternNids, int implicationNid);
+
+   PropertyPatternImplication propertyPatternImplication(ConceptSpecification[] propertyPattern, ConceptSpecification implication, LogicalExpressionBuilder builder);
+
+   static PropertyPatternImplication PropertyPatternImplication(int[] propertyPatternNids, int implicationNid, LogicalExpressionBuilder builder) {
+      return builder.propertyPatternImplication(propertyPatternNids, implicationNid);
+   }
+
+   static PropertyPatternImplication PropertyPatternImplication(ConceptSpecification[] propertyPattern, ConceptSpecification implication, LogicalExpressionBuilder builder) {
+      int[] propertyPatternNids = new int[propertyPattern.length];
+      for (int i = 0; i < propertyPattern.length; i++) {
+         propertyPatternNids[i] = Get.nidForUuids(propertyPattern[i].getUuids());
+      }
+      return builder.propertyPatternImplication(propertyPatternNids, Get.nidForUuids(implication.getUuids()));
+   }
 }
 

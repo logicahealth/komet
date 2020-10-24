@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
 		<artifactId>misc</artifactId>
-		<version>5.1.1</version>
+		<version>6.0.0</version>
 	</parent>
 	<groupId>sh.isaac.misc</groupId>
 	<artifactId>importers</artifactId>
@@ -53,12 +53,18 @@
 			<artifactId>poi-ooxml</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>jakarta.xml.bind</groupId>
+			<artifactId>jakarta.xml.bind-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>org.apache.maven</groupId>
 			<artifactId>maven-plugin-api</artifactId>
+			<optional>true</optional> <!-- Don't bring in sub-dependencies -->
 		</dependency>
 		<dependency>
 			<groupId>org.apache.maven.plugin-tools</groupId>
 			<artifactId>maven-plugin-annotations</artifactId>
+			<optional>true</optional> <!-- Don't bring in sub-dependencies -->
 		</dependency>
 		<dependency>
 			<groupId>org.testng</groupId>
@@ -68,11 +74,15 @@
 		<dependency>
 			<groupId>org.apache.jena</groupId>
 			<artifactId>jena-core</artifactId>
-			<version>3.7.0</version>
+			<version>3.14.0</version>
 			<exclusions>
 				<exclusion>
 					<groupId>xml-apis</groupId>
 					<artifactId>xml-apis</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>xerces</groupId>
+					<artifactId>xercesImpl</artifactId>
 				</exclusion>
 			</exclusions>
 		</dependency>
@@ -109,82 +119,6 @@
 	</dependencies>
 	<build>
 		<plugins>
-		
-			<!-- Create the options.json file -->
-			<plugin>
-				<groupId>sh.isaac.core</groupId>
-				<artifactId>mojo</artifactId>
-				<version>${project.parent.version}</version>
-				<dependencies>
-					<dependency>
-						<groupId>sh.isaac.integration</groupId>
-						<artifactId>import-utils</artifactId>
-						<version>${project.parent.version}</version>
-					</dependency>
-					<dependency>
-						<groupId>${project.groupId}</groupId>
-						<artifactId>${project.artifactId}</artifactId>
-						<version>${project.version}</version>
-					</dependency>
-				</dependencies>
-				<executions>
-					<execution>
-						<id>create-config-artifact</id>
-						<phase>package</phase>
-						<goals>
-							<goal>quasi-mojo-executor</goal>
-						</goals>
-						<configuration>
-							<quasiMojoName>create-config-artifact</quasiMojoName>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- Attach the options.json file -->
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-result</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<descriptors>
-								<descriptor>${project.basedir}/src/assembly/assembly.xml</descriptor>
-							</descriptors>
-							<attach>false</attach>
-							<encoding>UTF-8</encoding>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
-			<!-- Attach the options.json.zip file to the build -->
-			<plugin>
-				<groupId>org.codehaus.mojo</groupId>
-				<artifactId>build-helper-maven-plugin</artifactId>
-				<executions>
-					<execution>
-						<id>attach-artifact</id>
-						<goals>
-							<goal>attach-artifact</goal>
-						</goals>
-						<configuration>
-							<artifacts>
-								<artifact>
-									<type>options.json.zip</type>
-									<file>${project.build.directory}/${project.build.finalName}-.options.json.zip</file>
-								</artifact>
-							</artifacts>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
-
 			<!-- generate code from various xsd files -->
 			<plugin>
 				<groupId>org.jvnet.jaxb2.maven2</groupId>
@@ -222,21 +156,10 @@
 						<goals>
 							<goal>generate</goal>
 						</goals>
-						<configuration>
-							<generatePackage>coreschema</generatePackage>
-							<schemaDirectory>${project.basedir}/src/main/resources/hl7v3/datatypes</schemaDirectory>
-							<schemaIncludes>
-								<include>hl7-r2_datatypes.xsd</include>
-							</schemaIncludes>
-						</configuration>
-					</execution>
-					<execution>
-						<goals>
-							<goal>generate</goal>
-						</goals>
 						<id>mif</id>
 						<configuration>
 							<generatePackage>mifschema</generatePackage>
+							<packageLevelAnnotations>false</packageLevelAnnotations>
 							<schemaDirectory>${project.basedir}/src/main/resources/hl7v3/mif</schemaDirectory>
 							<schemaIncludes>
 								<include>xhtml1-strict.xsd</include>
@@ -244,24 +167,44 @@
 							</schemaIncludes>
 						</configuration>
 					</execution>
+					<execution>
+						<goals>
+							<goal>generate</goal>
+						</goals>
+						<id>fhir</id>
+						<configuration>
+							<generatePackage>fhir</generatePackage>
+							<packageLevelAnnotations>false</packageLevelAnnotations>
+							<generateDirectory>${project.build.directory}/generated-sources/fhir</generateDirectory>
+							<bindingDirectory>${project.basedir}/src/main/resources/fhir/bindings/</bindingDirectory>
+							<schemaDirectory>${project.basedir}/src/main/resources/fhir/</schemaDirectory>
+							<schemaIncludes>
+								<include>fhir-single.xsd</include>
+							</schemaIncludes>
+						</configuration>
+					</execution>
 				</executions>
 			</plugin>
-			
-			<!-- Mark this project as a maven mojo -->
-            <plugin>
-                <artifactId>maven-plugin-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>mojo-descriptor</id>
-                        <goals>
-                            <goal>descriptor</goal>
-                        </goals>
-                        <configuration>
-                            <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
+			<plugin>
+				<!-- TODO when the above plugin finally supports jaxb3, we can get rid of this hack below. -->
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-antrun-plugin</artifactId>
+				<executions>
+					<execution>
+						<phase>process-sources</phase>
+						<configuration>
+							<target>
+								<replace token="javax.xml.bind." value="jakarta.xml.bind." dir="${project.build.directory}/generated-sources/">
+									<include name="**/*.java" />
+								</replace>
+							</target>
+						</configuration>
+						<goals>
+							<goal>run</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
 		</plugins>
 	</build>
 </project>

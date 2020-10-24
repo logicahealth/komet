@@ -9,9 +9,10 @@ public interface BrittleVersion extends SemanticVersion {
 		STRING(DynamicDataType.STRING), 
 		NID(DynamicDataType.NID), 
 		INTEGER(DynamicDataType.INTEGER), 
-		FLOAT(DynamicDataType.FLOAT), 
-		BOOLEAN(DynamicDataType.BOOLEAN);
-	
+		FLOAT(DynamicDataType.FLOAT),
+		BOOLEAN(DynamicDataType.BOOLEAN),
+		LONG(DynamicDataType.LONG);
+
 		private DynamicDataType mapTo;
 		
 		BrittleDataTypes(DynamicDataType mapTo)

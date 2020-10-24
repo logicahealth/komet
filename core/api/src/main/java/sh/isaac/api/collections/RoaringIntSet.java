@@ -49,6 +49,7 @@ import java.util.stream.StreamSupport;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.roaringbitmap.IntIterator;
 import org.roaringbitmap.RoaringBitmap;
 
@@ -189,6 +190,12 @@ public class RoaringIntSet
       return this;
    }
 
+   @Override
+   public IntSet or(ImmutableIntSet otherSet) {
+      this.rbmp.or(getRoaringSet(otherSet));
+      return this;
+   }
+
    /**
     * Parallel stream.
     *
@@ -325,6 +332,12 @@ public class RoaringIntSet
 
       set.stream()
          .forEach((member) -> roaringSet.add(member));
+      return roaringSet;
+   }
+   private RoaringBitmap getRoaringSet(ImmutableIntSet set) {
+       final RoaringBitmap roaringSet = new RoaringBitmap();
+
+      set.forEach((member) -> roaringSet.add(member));
       return roaringSet;
    }
 

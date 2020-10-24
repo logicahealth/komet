@@ -64,18 +64,21 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.util.Callback;
-import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.dbConfigBuilder.fx.fxUtil.Images;
-import sh.isaac.komet.gui.semanticViewer.SemanticViewer;
+import sh.isaac.komet.gui.semanticViewer.SemanticViewerNode;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.SimpleDisplayConcept;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.ConceptNode;
 import sh.komet.gui.util.FxGet;
 
@@ -105,7 +108,9 @@ public class AssemblageViewerController
 	@FXML private ProgressIndicator readingSemanticProgress;
 	@FXML private ProgressIndicator selectedSemanticProgressIndicator;
 	
-	private Manifold manifold_;
+	ViewProperties viewProperties;
+	ActivityFeed activityFeed;
+	private IsaacPreferences nodePreferences;
 
 	private enum PendingRead
 	{
@@ -125,14 +130,16 @@ public class AssemblageViewerController
 
 	private final Logger log = LogManager.getLogger(AssemblageViewerController.class);
 
-	protected static AssemblageViewerController construct(Manifold manifold) throws IOException
+	protected static AssemblageViewerController construct(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences nodePreferences) throws IOException
 	{
 		// Load from FXML.
 		URL resource = AssemblageViewerController.class.getResource("AssemblageViewer.fxml");
 		FXMLLoader loader = new FXMLLoader(resource);
 		loader.load();
 		AssemblageViewerController controller = loader.getController();
-		controller.manifold_ = manifold;
+		controller.viewProperties = viewProperties;
+		controller.activityFeed = activityFeed;
+		controller.nodePreferences = nodePreferences;
 		return controller;
 	}
 
@@ -156,15 +163,15 @@ public class AssemblageViewerController
 			rebuildList(false);
 		});
 
-		conceptNode = new ConceptNode(null, false, () -> manifold_, true);
+		conceptNode = new ConceptNode(null, false, () -> viewProperties.getManifoldCoordinate(), true);
 		conceptNode.getConceptProperty().addListener((invalidation) -> {
-			ConceptSnapshot cv = conceptNode.getConceptProperty().get();  //Need to do a get after each invalidation, otherwise, we won't get the next invalidation
-			if (cv != null)
+			ConceptChronology cc = conceptNode.getConceptProperty().get();  //Need to do a get after each invalidation, otherwise, we won't get the next invalidation
+			if (cc != null)
 			{
 				//see if it is a valid Dynamic Semantic Assemblage
 				try
 				{
-					LookupService.getService(DynamicUtility.class).readDynamicUsageDescription(cv.getNid());
+					LookupService.getService(DynamicUtility.class).readDynamicUsageDescription(cc.getNid());
 				}
 				catch (Exception e)
 				{
@@ -194,17 +201,15 @@ public class AssemblageViewerController
 		semanticDefinitionsContextMenu_ = new ContextMenu();
 		semanticDefinitionsContextMenu_.setAutoHide(true);
 		
-		MenuItem mi = new MenuItem("View Usage");
+		MenuItem mi = new MenuItemWithText("View Usage");
 		mi.setOnAction((action) ->
 		{
 			SimpleDisplayConcept sdc = semanticList.getSelectionModel().getSelectedItem();
 			if (sdc != null)
 			{
-				SemanticViewer driv = LookupService.get().getService(SemanticViewer.class);
-				Manifold mf = manifold_.deepClone();
-				mf.setFocusedConceptChronology(Get.concept(sdc.getNid()));
-				driv.setAssemblage(sdc.getNid(), mf, null, null, null, true);
-				driv.showView(null);
+				SemanticViewerNode svn = new SemanticViewerNode(viewProperties, activityFeed, nodePreferences);
+				svn.setAssemblage(sdc.getNid(), null, null, null, true);
+				svn.showView(null);
 			}
 		});
 		mi.setGraphic(Images.SEARCH.createImageView());
@@ -251,11 +256,9 @@ public class AssemblageViewerController
 		
 		viewUsage.setDisable(true);
 		viewUsage.setOnAction((event) -> {
-			SemanticViewer driv = LookupService.get().getService(SemanticViewer.class);
-			Manifold mf = manifold_.deepClone();
-			mf.setFocusedConceptChronology(Get.concept(semanticList.getSelectionModel().getSelectedItem().getNid()));
-			driv.setAssemblage(semanticList.getSelectionModel().getSelectedItem().getNid(), mf, null, null, null, true);
-			driv.showView(null);
+			SemanticViewerNode svn = new SemanticViewerNode(viewProperties, activityFeed, nodePreferences);
+			svn.setAssemblage(semanticList.getSelectionModel().getSelectedItem().getNid(), null, null, null, true);
+			svn.showView(null);
 		});
 		extensionFields.setCellFactory(new Callback<ListView<DynamicColumnInfo>, ListCell<DynamicColumnInfo>>()
 		{
@@ -331,7 +334,7 @@ public class AssemblageViewerController
 				SimpleDisplayConcept enteredConcept = null;
 				if (conceptNode.getConcept() != null && conceptNode.isValid().get())
 				{
-					enteredConcept = new SimpleDisplayConcept(conceptNode.getConcept());
+					enteredConcept = new SimpleDisplayConcept(conceptNode.getConcept(), null);
 				}
 
 				filteredList = new ArrayList<>();

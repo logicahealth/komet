@@ -43,7 +43,11 @@ import static sh.isaac.komet.iconography.IconSource.*;
 public enum Iconography implements Icons {
    
    
-//TODO make Iconagraphy a service/provider 
+//TODO make Iconagraphy a service/provider
+   // TODO Consider replacement with: Ikonli
+   // https://dlsc.com/2020/03/11/javafx-tip-32-need-icons-use-ikonli/
+   // https://github.com/kordamp/ikonli
+
    TAXONOMY_ICON(MATERIAL_DESIGNS_WEBFONT, "taxonomy-icon", MaterialDesignIcon.FILE_TREE),
    TAXONOMY_ROOT_ICON(MATERIAL_DESIGNS_WEBFONT, "taxonomy-root-icon", MaterialDesignIcon.HEXAGON_OUTLINE),
    TAXONOMY_DEFINED_MULTIPARENT_OPEN(MATERIAL_DESIGNS_WEBFONT, "taxonomy-defined-multiparent-open-icon", MaterialDesignIcon.ARROW_UP_BOLD_CIRCLE_OUTLINE),
@@ -126,7 +130,9 @@ public enum Iconography implements Icons {
    ICON_CLOSE(SVG, "icon-close"),
    ICON_EDIT(SVG, "icon-edit"),
    ICON_EXPAND(SVG, "icon-expand"),
+   ICON_IMPORT(MATERIAL_DESIGNS_WEBFONT, "icon-import"),
    ICON_EXPORT(MATERIAL_DESIGNS_WEBFONT, "icon-export"),
+   IMPORT_GLYPH(MATERIAL_DESIGNS_WEBFONT, "import-glyph"),
    ICON_GO_TO_LINK(SVG, "icon-goto-link"),
    CASE_SENSITIVE_NOT(SVG, "not-case-sensitive"),
    ICON_RELOAD(SVG, "icon-reload"),
@@ -177,7 +183,7 @@ public enum Iconography implements Icons {
    ALERT_WARN2(MATERIAL_DESIGNS_WEBFONT, "alert-warn-2"),
    TEMPORARY_FIX(MATERIAL_ICON, "temporary-fix"),
    CHECK(FONT_AWSOME, "check"),
-   CHECKERED_FLAG(EMOJI_ONE, "checkered-flag"),
+   CHECKERED_FLAG(FONT_AWSOME, "checkered-flag"),
    // Icons525.PLUS, MaterialDesignIconWebfont.PLUS, OctIcon.PLUS
    DASHBOARD(OCT_ICON, "dashboard"),
    
@@ -206,6 +212,9 @@ public enum Iconography implements Icons {
    ARROW_DOWN(MATERIAL_DESIGNS_WEBFONT, "arrow-down"),
    REDO(FONT_AWSOME, "redo"),
    DELETE_TRASHCAN(MATERIAL_ICON, "delete-trashcan"),
+   LIST(MATERIAL_DESIGNS_WEBFONT, "list-icon"),
+   COORDINATES(MATERIAL_DESIGNS_WEBFONT, "coordinates"),
+   SETTINGS_SLIDERS(FONT_AWSOME, "settings-sliders"),
 
    // MaterialDesignIcon.MENU_DOWN
    // MaterialDesignIcon.MENU_RIGHT
@@ -249,7 +258,22 @@ public enum Iconography implements Icons {
       AnchorPane.setBottomAnchor(icon, 0.0);
       AnchorPane.setLeftAnchor(icon, 0.0);
       AnchorPane anchorPane = new AnchorPane(icon);
-      anchorPane.getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
+      // set at the scene level.
+      //anchorPane.getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
+      return anchorPane;
+   }
+
+   @Override
+   public AnchorPane getIconographicWithStyleClasses(String... styleClasses) {
+      Node icon = getIconographic();
+      icon.getStyleClass().addAll(styleClasses);
+      AnchorPane.setTopAnchor(icon, 0.0);
+      AnchorPane.setRightAnchor(icon, 0.0);
+      AnchorPane.setBottomAnchor(icon, 0.0);
+      AnchorPane.setLeftAnchor(icon, 0.0);
+      AnchorPane anchorPane = new AnchorPane(icon);
+      // set at the scene level.
+      //anchorPane.getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
       return anchorPane;
    }
 

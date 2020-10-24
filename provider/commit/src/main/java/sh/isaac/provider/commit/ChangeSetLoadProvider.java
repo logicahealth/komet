@@ -36,7 +36,23 @@
  */
 package sh.isaac.provider.commit;
 
-//~--- JDK imports ------------------------------------------------------------
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.glassfish.hk2.runlevel.RunLevel;
+import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.*;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.commit.CommitService;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.metacontent.MetaContentService;
+import sh.isaac.api.util.metainf.MetaInfReader;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
@@ -48,31 +64,6 @@ import java.util.UUID;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
-//~--- non-JDK imports --------------------------------------------------------
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.glassfish.hk2.runlevel.RunLevel;
-import org.jvnet.hk2.annotations.Service;
-
-import sh.isaac.api.ChangeSetLoadService;
-import sh.isaac.api.ConfigurationService;
-import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.SystemStatusService;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.Version;
-import sh.isaac.api.commit.CommitService;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.metacontent.MetaContentService;
-import sh.isaac.api.util.metainf.MetaInfReader;
-import sh.isaac.model.configuration.StampCoordinates;
-
-//~--- classes ----------------------------------------------------------------
 /**
  * {@link ChangeSetLoadProvider} This will load all .ibdf files in the database
  * directory. It will rename the ChangeSet.ibdf and ChangeSet.json files so they
@@ -145,7 +136,11 @@ public class ChangeSetLoadProvider
 
         final CommitService commitService = Get.commitService();
 
-        ArrayList<String> files = new ArrayList();
+        final CancelUncommittedStamps stampProvider = (CancelUncommittedStamps) Get.stampService();
+        stampProvider.setCancelUncommittedStamps(true);
+
+        ArrayList<String> files = new ArrayList<>();
+
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(this.changesetPath, path -> path.toFile().isFile()
                 && path.toString().endsWith(".ibdf")
                 && path.toFile().length() > 0)) {
@@ -189,6 +184,8 @@ public class ChangeSetLoadProvider
             }
 
         }
+
+        stampProvider.setCancelUncommittedStamps(false);
         LOG.info(
                 "Finished Change Set Load Provider load.  Loaded {}, Skipped {} because they were previously processed",
                 loaded.get(),
@@ -297,9 +294,9 @@ public class ChangeSetLoadProvider
             //Its possible that during initial startup, there will won't be a semantic ID at this point.  The lookupservice startup sequence 
             //will resolve this later.
             StringBuilder msg = new StringBuilder();
-            msg.append("Database identities at startup:\n   ChronicleDbId: ").append(chronicleDbId);
-            msg.append("\n   SemanticDbId: ").append(semanticDbId);
-            msg.append("\n   Changsets DbId: ").append(changesetsDbId);
+            msg.append("Database identities at startup:   ChronicleDbId: ").append(chronicleDbId);
+            msg.append(", SemanticDbId: ").append(semanticDbId);
+            msg.append(", Changsets DbId: ").append(changesetsDbId);
             LOG.info(msg.toString());
         } catch (final IOException | RuntimeException e) {
             LOG.error("Error ", e);
@@ -310,10 +307,10 @@ public class ChangeSetLoadProvider
     }
 
     private UUID readSemanticDbId() {
-        Optional<SemanticChronology> sdic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid())
-                .findFirst();
+        Optional<SemanticChronology> sdic = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
+              TermAux.SOLOR_ROOT.getNid(), TermAux.DATABASE_UUID.getNid(), false).findFirst();
         if (sdic.isPresent()) {
-            LatestVersion<Version> sdi = sdic.get().getLatestVersion(StampCoordinates.getDevelopmentLatest());
+            LatestVersion<Version> sdi = sdic.get().getLatestVersion(Coordinates.Filter.DevelopmentLatest());
             if (sdi.isPresent()) {
                 try {
                     return UUID.fromString(((StringVersion) sdi.get()).getString());

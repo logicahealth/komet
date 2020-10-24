@@ -41,60 +41,51 @@ package sh.isaac.integration.tests.suite1;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-
-import java.nio.file.Paths;
-
-import java.util.Arrays;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.atomic.AtomicInteger;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import javafx.concurrent.Task;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.jvnet.testing.hk2testng.HK2;
-
 import org.testng.Assert;
 import org.testng.annotations.Ignore;
 import org.testng.annotations.Test;
-
+import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.classifier.ClassifierResults;
 import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.CommitService;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.externalizable.BinaryDataReaderService;
 import sh.isaac.api.externalizable.DataWriterService;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.logic.ConcreteDomainOperators;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.tree.Tree;
-import sh.isaac.MetaData;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.tree.TreeNodeVisitData;
+import sh.isaac.model.ModelGet;
 import sh.isaac.model.logic.LogicByteArrayConverterService;
 import sh.isaac.model.logic.definition.LogicalExpressionBuilderProvider;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.atomic.AtomicInteger;
+import sh.isaac.api.bootstrap.TermAux;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.Feature;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.DoubleLiteral;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.Feature;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.tree.TreeNodeVisitData;
-import sh.isaac.model.ModelGet;
-import sh.isaac.api.TaxonomySnapshot;
+
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 
@@ -128,14 +119,9 @@ public class ImportExportTest {
    public void testClassify() {
       LOG.info("Classifying");
 
-      final StampCoordinate stampCoordinate = Get.coordinateFactory()
-                                                 .createDevelopmentLatestStampCoordinate();
-      final LogicCoordinate logicCoordinate = Get.coordinateFactory()
-                                                 .createStandardElProfileLogicCoordinate();
-      final EditCoordinate  editCoordinate  = Get.coordinateFactory()
-                                                 .createClassifierSolorOverlayEditCoordinate();
+      final ManifoldCoordinate manifoldCoordinate = Coordinates.Manifold.DevelopmentInferredRegularNameSort();
       final ClassifierService logicService = Get.logicService()
-                                                .getClassifierService(stampCoordinate, logicCoordinate, editCoordinate);
+                                                .getClassifierService(manifoldCoordinate.toManifoldCoordinateImmutable());
       final Task<ClassifierResults> classifyTask = logicService.classify();
       
       try {
@@ -166,7 +152,7 @@ public class ImportExportTest {
       final LogicalExpressionBuilder defBuilder = this.builderProvider.getLogicalExpressionBuilder();
 
       SufficientSet(And(SomeRole(MetaData.ROLE_GROUP____SOLOR,
-                                 And(Feature(MetaData.INGREDIENT_STRENGTH____SOLOR, DoubleLiteral(1.2345F, defBuilder)),
+                                 And(Feature(MetaData.INGREDIENT_STRENGTH____SOLOR, MetaData.MILLIGRAM____SOLOR, ConcreteDomainOperators.EQUALS, DoubleLiteral(1.2345F, defBuilder)),
                                      ConceptAssertion(MetaData.MASTER_PATH____SOLOR, defBuilder)))));
 
       final LogicalExpression              logicGraphDef    = defBuilder.build();
@@ -212,7 +198,7 @@ public class ImportExportTest {
 
          if (exportStats.concepts.get() != this.importStats.concepts.get()) {
             Get.conceptService()
-               .getConceptChronologyStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid())
+               .getConceptChronologyStream(TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid(), true)
                .forEach((conceptChronology) -> LOG.info(conceptChronology));
          }
 
@@ -257,7 +243,7 @@ public class ImportExportTest {
                      });
          writer.close();
          LOG.info("exported components: " + exportStats);
-         Assert.assertEquals(exportStats, this.importStats);
+         Assert.assertEquals(this.importStats, exportStats);
 
          final BinaryDataReaderService reader = Get.binaryDataReader(Paths.get("target",
                                                                                "data",
@@ -295,9 +281,7 @@ public class ImportExportTest {
    )
    public void testInferredTaxonomy() {
       LOG.info("Testing inferred taxonomy");
-      final ManifoldCoordinate manifoldCoordinate = Get.configurationService().getGlobalDatastoreConfiguration()
-              .getDefaultManifoldCoordinate()
-              .makeCoordinateAnalog(PremiseType.INFERRED);
+      final ManifoldCoordinate manifoldCoordinate = Coordinates.Manifold.DevelopmentInferredRegularNameSort();
       TaxonomySnapshot taxonomySnapshotService = Get.taxonomyService().getSnapshot(manifoldCoordinate);
       final int[] roots = taxonomySnapshotService.getRootNids();
       final NidSet rootAssemblages = new NidSet();
@@ -335,7 +319,7 @@ public class ImportExportTest {
    )
    public void testGetAssemblageConceptNids() {
       int[] assemblageNids = ModelGet.dataStore().getAssemblageConceptNids();
-      Assert.assertEquals(assemblageNids.length, 15);
+      Assert.assertEquals(assemblageNids.length, 23);
       Assert.assertTrue(Arrays.toString(assemblageNids).contains(MetaData.ENGLISH_LANGUAGE____SOLOR.getNid() + ""));
    }
 
@@ -379,7 +363,7 @@ public class ImportExportTest {
          Get.startIndexTask().get();
          commitService.postProcessImportNoChecks();
          LOG.info("Loaded components: " + this.importStats);
-         LOG.info("Concept count: " + Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT).count());
+         LOG.info("Concept count: " + Get.identifierService().getNidStreamOfType(IsaacObjectType.CONCEPT, true).count());
       } catch (final FileNotFoundException e) {
          Assert.fail("File not found", e);
       } catch (InterruptedException ex) {
@@ -398,9 +382,8 @@ public class ImportExportTest {
    )
    public void testStatedTaxonomy() {
       LOG.info("Testing stated taxonomy");
-      final ManifoldCoordinate manifoldCoordinate = Get.configurationService().getGlobalDatastoreConfiguration()
-              .getDefaultManifoldCoordinate()
-              .makeCoordinateAnalog(PremiseType.STATED);
+
+      final ManifoldCoordinate manifoldCoordinate = Coordinates.Manifold.DevelopmentStatedRegularNameSort();
       LOG.info("Concepts in database: " + Get.conceptService().getConceptCount());
       TaxonomySnapshot taxonomySnapshotService = Get.taxonomyService().getSnapshot(manifoldCoordinate);
       final int[] roots = taxonomySnapshotService.getRootNids();
@@ -423,6 +406,7 @@ public class ImportExportTest {
     * @param taxonomyTree the taxonomy tree
     */
    private void logTree(int root, Tree taxonomyTree) {
+      StringBuilder sb = new StringBuilder("\n\n");
       taxonomyTree.depthFirstProcess(root,
                                      (TreeNodeVisitData t,
                                       int conceptSequence) -> {
@@ -430,8 +414,10 @@ public class ImportExportTest {
                                         final char[] padding     = new char[paddingSize];
 
                                         Arrays.fill(padding, ' ');
-                                        LOG.info(new String(padding) + Get.conceptDescriptionText(conceptSequence));
+                                        sb.append(padding).append(Get.conceptDescriptionText(conceptSequence)).append("\n");
                                      }, Get.taxonomyService().getTreeNodeVisitDataSupplier(taxonomyTree.getConceptAssemblageNid()));
+      sb.append("\n\n");
+      LOG.info(sb);
    }
 }
 

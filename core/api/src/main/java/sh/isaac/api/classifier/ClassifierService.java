@@ -39,7 +39,7 @@
 
 package sh.isaac.api.classifier;
 
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.task.TimedTask;
 
@@ -70,10 +70,10 @@ public interface ClassifierService {
     * does not exist, and therfore this method adds the axioms for it,
     * a classification will be performed.
     * @param expression Expression to identify the concept identifier for.
-    * @param editCoordinate edit coordinate in case the expression represents a
+    * @param manifoldCoordinate edit coordinate in case the expression represents a
     * new concept, and thus needs to be added, and classified
     * @return  A task that can be used to block, if the caller wishes to wait
     * for the results.
     */
-   TimedTask<Integer> getConceptNidForExpression(LogicalExpression expression, EditCoordinate editCoordinate);
+   TimedTask<Integer> getConceptNidForExpression(LogicalExpression expression, ManifoldCoordinate manifoldCoordinate);
 }

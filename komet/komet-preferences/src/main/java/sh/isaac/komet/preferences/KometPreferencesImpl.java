@@ -29,17 +29,17 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.TreeItem;
 import javafx.stage.Stage;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.preferences.IsaacPreferences;
-import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
+import sh.isaac.komet.preferences.window.WindowsPanel;
 import sh.komet.gui.contract.preferences.*;
-import sh.komet.gui.contract.preferences.WindowPreferenceItems;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.contract.preferences.WindowPreferences;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -56,18 +56,36 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     private final ObservableList<ConfigurationPreference> configurationPreferences = FXCollections.observableArrayList();
     private final ObservableList<LogicItem> logicItems = FXCollections.observableArrayList();
     private final ObservableList<SynchronizationItem> synchronizationItems = FXCollections.observableArrayList();
-    private final ObservableList<TaxonomyItem> taxonomyItems = FXCollections.observableArrayList();
-    private final ObservableList<UserPreferenceItems> userPreferences = FXCollections.observableArrayList();
-    private final ObservableList<WindowPreferenceItems> windowPreferences = FXCollections.observableArrayList();
+    private final ObservableList<GraphConfigurationItem> graphConfigurationItems = FXCollections.observableArrayList();
+    private final ObservableList<UserPreferenceItems> userPreferenceItems = FXCollections.observableArrayList();
+    private final ObservableList<WindowPreferences> windowPreferenceItems = FXCollections.observableArrayList();
+    private final ObservableList<PersonaItem> personaPreferences = FXCollections.observableArrayList();
+    private WindowsPanel windowsPanel;
 
     private RootPreferences rootPreferences;
 
     private KometPreferencesController kpc;
     private Stage preferencesStage;
-    private Manifold manifold;
+    private ViewProperties viewProperties;
 
     public KometPreferencesImpl() {
 
+    }
+
+    @Override
+    public void updatePreferencesTitle(UUID preference, String title) {
+        TreeItem<PreferenceGroup> root = kpc.getPreferenceTree().getRoot();
+        recursiveUpdate(root, preference, title);
+    }
+
+    private void recursiveUpdate(TreeItem<PreferenceGroup> treeItem, UUID preference, String title) {
+        if (treeItem.getValue().getTreeItem().getPreferences().name().equals(preference.toString())) {
+            treeItem.getValue().groupNameProperty().set(title);
+        } else {
+            for (TreeItem<PreferenceGroup> child: treeItem.getChildren()) {
+                recursiveUpdate(child, preference, title);
+            }
+        }
     }
 
     @Override
@@ -89,27 +107,27 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     }
 
     @Override
-    public void loadPreferences(Manifold manifold) {
-        this.manifold = manifold; 
+    public void loadPreferences() {
+        this.viewProperties = FxGet.preferenceViewProperties();
         IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
-        setupPreferencesController(manifold, preferences);
+        setupPreferencesController(viewProperties, preferences);
     }
 
-    private void setupPreferencesController(Manifold manifold, IsaacPreferences preferences) {
+    private void setupPreferencesController(ViewProperties viewProperties, IsaacPreferences preferences) {
         if (kpc == null) {
             try {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/sh/isaac/komet/preferences/KometPreferences.fxml"));
                 Parent root = loader.load();
                 this.kpc = loader.getController();
-                this.kpc.setManifold(manifold);
-                Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, manifold, kpc);
+                this.kpc.setViewProperties(viewProperties);
+                Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, viewProperties, kpc);
                 setupRoot(treeRoot);
 
                 root.setId(UUID.randomUUID()
                         .toString());
 
                 this.preferencesStage = new Stage();
-                this.preferencesStage.setTitle(FxGet.getConfigurationName() + " preferences");
+                this.preferencesStage.setTitle(FxGet.configurationName() + " preferences");
                 FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
                     this.preferencesStage.setTitle(newValue + " preferences");
                 });
@@ -132,9 +150,10 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
         configurationPreferences.clear();
         logicItems.clear();
         synchronizationItems.clear();
-        taxonomyItems.clear();
-        userPreferences.clear();
-        windowPreferences.clear();
+        graphConfigurationItems.clear();
+        userPreferenceItems.clear();
+        windowPreferenceItems.clear();
+        personaPreferences.clear();
         if (treeRoot.isPresent()) {
             PreferencesTreeItem rootTreeItem = treeRoot.get();
             this.rootPreferences = (RootPreferences) rootTreeItem.getValue();
@@ -155,8 +174,9 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     @Override
     public void reloadPreferences() {
         Get.preferencesService().reloadConfigurationPreferences();
+
         IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
-        Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, manifold, kpc);
+        Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, viewProperties, kpc);
         setupRoot(treeRoot);
     }
 
@@ -193,12 +213,16 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
             logicItems.add((LogicItem) item);
         } else if (item instanceof SynchronizationItem) {
             synchronizationItems.add((SynchronizationItem) item);
-        } else if (item instanceof TaxonomyItem) {
-            taxonomyItems.add((TaxonomyItem) item);
+        } else if (item instanceof GraphConfigurationItem) {
+            graphConfigurationItems.add((GraphConfigurationItem) item);
         } else if (item instanceof UserPreferenceItems) {
-            userPreferences.add((UserPreferenceItems) item);
-        } else if (item instanceof WindowPreferenceItems) {
-            windowPreferences.add((WindowPreferenceItems) item);
+            userPreferenceItems.add((UserPreferenceItems) item);
+        } else if (item instanceof WindowPreferences) {
+            windowPreferenceItems.add((WindowPreferences) item);
+        } else if(item instanceof PersonaItem){
+            personaPreferences.add((PersonaItem)item);
+        } else if (item instanceof WindowsPanel) {
+            windowsPanel = (WindowsPanel) item;
         }
 
     }
@@ -212,19 +236,21 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
             logicItems.remove(item);
         } else if (item instanceof SynchronizationItem) {
             synchronizationItems.remove(item);
-        } else if (item instanceof TaxonomyItem) {
-            taxonomyItems.remove(item);
+        } else if (item instanceof GraphConfigurationItem) {
+            graphConfigurationItems.remove(item);
         } else if (item instanceof UserPreferenceItems) {
-            userPreferences.remove(item);
-        } else if (item instanceof WindowPreferenceItems) {
-            windowPreferences.remove(item);
+            userPreferenceItems.remove(item);
+        } else if (item instanceof WindowPreferences) {
+            windowPreferenceItems.remove(item);
+        } else if(item instanceof PersonaItem){
+            personaPreferences.remove(item);
         }
     }
 
     @Override
-    public Stage showPreferences(Manifold manifold) {
+    public Stage showPreferences() {
         IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
-        setupPreferencesController(manifold, preferences);
+        setupPreferencesController(viewProperties, preferences);
         preferencesStage.show();
         preferencesStage.setAlwaysOnTop(true);
         return preferencesStage;
@@ -256,18 +282,27 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     }
 
     @Override
-    public ObservableList<TaxonomyItem> getTaxonomyItems() {
-        return taxonomyItems;
+    public ObservableList<GraphConfigurationItem> getGraphConfigurationItems() {
+        return graphConfigurationItems;
     }
 
     @Override
-    public ObservableList<UserPreferenceItems> getUserPreferences() {
-        return userPreferences;
+    public ObservableList<UserPreferenceItems> getUserPreferenceItems() {
+        return userPreferenceItems;
     }
 
     @Override
-    public ObservableList<WindowPreferenceItems> getWindowPreferences() {
-        return windowPreferences;
+    public ObservableList<WindowPreferences> getWindowPreferenceItems() {
+        return windowPreferenceItems;
     }
 
- }
+    @Override
+    public ObservableList<PersonaItem> getPersonaPreferences() {
+        return personaPreferences;
+    }
+
+    @Override
+    public WindowsParentPreferences getWindowParentPreferences() {
+        return this.windowsPanel;
+    }
+}

@@ -37,23 +37,8 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.io.Reader;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+
 import javafx.beans.property.ReadOnlyProperty;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlType;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import org.apache.mahout.math.map.OpenIntIntHashMap;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -61,19 +46,13 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.query.clauses.ChangedBetweenVersions;
-import sh.isaac.api.query.clauses.ConceptIs;
-import sh.isaac.api.query.clauses.ConceptIsChildOf;
-import sh.isaac.api.query.clauses.ConceptIsDescendentOf;
-import sh.isaac.api.query.clauses.ConceptIsKindOf;
-import sh.isaac.api.query.clauses.DescriptionLuceneMatch;
-import sh.isaac.api.query.clauses.DescriptionRegexMatch;
-import sh.isaac.api.query.clauses.RelRestriction;
-import sh.isaac.api.xml.ConceptSpecificationAdaptor;
-import sh.isaac.api.xml.JaxbMap;
+import sh.isaac.api.query.clauses.*;
+
+import java.io.Reader;
+import java.util.*;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -82,9 +61,6 @@ import sh.isaac.api.xml.JaxbMap;
  *
  * @author kec
  */
-@XmlRootElement(name = "Query")
-@XmlAccessorType(XmlAccessType.NONE)
-@XmlType(propOrder={"forSet", "letMap", "whereForJaxb", "sortAttributeList", "returnAttributeList"})
 public class Query {
 
     /**
@@ -190,7 +166,6 @@ public class Query {
         return this.rootClause;
     }
 
-    @XmlElement(name = "Where")
     protected Clause getWhereForJaxb() {
         return this.rootClause;
     }
@@ -254,15 +229,10 @@ public class Query {
         this.forSetSpecification = forSetSpecification;
     }
     
-    @XmlElement(name = "Concept")
-    @XmlElementWrapper(name = "For")
-    @XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)
     protected List<ConceptSpecification> getForSet() {
         return forSetSpecification.getForSet();
     }
         
-    @XmlElement(name = "AttributeSpecification")
-    @XmlElementWrapper(name = "Return")
     public List<AttributeSpecification> getReturnAttributeList() {
         return attributeReturnSpecifications;
     }
@@ -272,21 +242,14 @@ public class Query {
     }
     
      
-    @XmlElement(name = "SortSpecification")
-    @XmlElementWrapper(name = "Order")
-    public List<SortSpecification> getSortAttributeList() {
+     public List<SortSpecification> getSortAttributeList() {
         return sortReturnSpecifications;
     }
     
     public void setSortAttributeList(List<SortSpecification> sortReturnSpecifications) {
         this.sortReturnSpecifications = sortReturnSpecifications;
     }
-    
-    
-    public static Query fromXml(Reader reader) throws Exception {
-        return Get.service(QueryFromXml.class).fromXml(reader);
-    }
-    
+
     /**
      *
      * @return an array of component nids in an array...
@@ -618,16 +581,6 @@ public class Query {
     public void setLetDeclarations(Map<LetItemKey, Object> letDeclarations) {
         this.letDeclarations = letDeclarations;
     }
-    
-    @XmlElement(name = "Let")
-    protected JaxbMap getLetMap() {
-        return JaxbMap.of(this.letDeclarations);
-    }
-
-    protected void setLetMap(JaxbMap letMap) {
-        this.letDeclarations.clear();
-        this.letDeclarations.putAll(letMap.getMap());
-    }
 
     /**
      * Gets the premise type.
@@ -672,8 +625,8 @@ public class Query {
         ObservableSnapshotService[] snapshotArray = new ObservableSnapshotService[columnCount];
         for (int column = 0; column < resultColumns.size(); column++) {
             AttributeSpecification columnSpecification = resultColumns.get(column);
-            if (columnSpecification.getStampCoordinateKey() != null) {
-                StampCoordinate stamp = (StampCoordinate) getLetDeclarations().get(columnSpecification.getStampCoordinateKey());
+            if (columnSpecification.getStampFilterKey() != null) {
+                StampFilter stamp = (StampFilter) getLetDeclarations().get(columnSpecification.getStampFilterKey());
                 snapshotArray[column] = Get.observableSnapshotService(stamp);
             }
         }
@@ -697,8 +650,8 @@ public class Query {
                     List<ReadOnlyProperty<?>> propertyList = propertyListArray[resultArrayNidIndex];
                     ReadOnlyProperty<?> property = propertyList.get(columnSpecification.getPropertyIndex());
                     if (columnSpecification.getAttributeFunction() != null) {
-                        StampCoordinate sc = (StampCoordinate) getLetDeclarations().get(columnSpecification.getStampCoordinateKey());
-                        resultRow[column] = columnSpecification.getAttributeFunction().apply(property.getValue().toString(), sc, this);
+                        StampFilter stampFilter = (StampFilter) getLetDeclarations().get(columnSpecification.getStampFilterKey());
+                        resultRow[column] = columnSpecification.getAttributeFunction().apply(property.getValue().toString(), stampFilter, this);
                     } else {
                         resultRow[column] = property.getValue().toString();
                     }

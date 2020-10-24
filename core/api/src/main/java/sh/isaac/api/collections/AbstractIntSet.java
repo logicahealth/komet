@@ -45,9 +45,7 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
-import java.util.OptionalInt;
-import java.util.PrimitiveIterator;
-import java.util.Spliterator;
+import java.util.*;
 import java.util.function.IntConsumer;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
@@ -56,7 +54,8 @@ import java.util.stream.StreamSupport;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import org.apache.mahout.math.set.OpenIntHashSet;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -75,16 +74,6 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> implements Int
 
    //~--- constant enums ------------------------------------------------------
 
-   /**
-    * The Enum Concurrency.
-    */
-   protected enum Concurrency {
-      /** The thread safe. */
-      THREAD_SAFE
-   }
-
-   ;
-
    //~--- constructors --------------------------------------------------------
 
    /**
@@ -102,19 +91,6 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> implements Int
    protected AbstractIntSet(boolean readOnly) {
       this.intSet   = new RoaringIntSet();
       this.readOnly = readOnly;
-   }
-
-   /**
-    * Instantiates a new abstract int set.
-    *
-    * @param concurrency the concurrency
-    */
-   protected AbstractIntSet(Concurrency concurrency) {
-      if (concurrency == Concurrency.THREAD_SAFE) {
-         this.intSet = new ConcurrentSkipListIntegerSet();
-      } else {
-         this.intSet = new RoaringIntSet();
-      }
    }
 
    /**
@@ -140,11 +116,10 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> implements Int
     *
     * @param members the members
     */
-   protected AbstractIntSet(OpenIntHashSet members) {
+   protected AbstractIntSet(MutableIntSet members) {
       this.intSet = new RoaringIntSet();
-      members.forEachKey((int element) -> {
+      members.forEach((int element) -> {
                             this.intSet.add(element);
-                            return true;
                          });
    }
 
@@ -210,6 +185,12 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> implements Int
    }
 
    @Override
+   public IntSet or(ImmutableIntSet otherSet) {
+      this.addAll(otherSet.toArray());
+      return this;
+   }
+
+   @Override
    public IntSet xor(IntSet otherSet) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
@@ -237,18 +218,6 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> implements Int
    @Override
    public int[] asArray() {
       return stream().toArray();
-   }
-
-   /**
-    * As open int hash set.
-    *
-    * @return the open int hash set
-    */
-   public OpenIntHashSet asOpenIntHashSet() {
-      final OpenIntHashSet set = new OpenIntHashSet();
-
-      stream().forEach((value) -> set.add(value));
-      return set;
    }
 
    /**
@@ -409,6 +378,14 @@ public abstract class AbstractIntSet<T extends AbstractIntSet<T>> implements Int
       }
    }
 
+   public Set<Integer> box() {
+      HashSet<Integer> boxedSet = new HashSet<>();
+
+      for (int value: this.asArray()) {
+         boxedSet.add(value);
+      }
+      return boxedSet;
+   }
    /**
     * Removes the.
     *

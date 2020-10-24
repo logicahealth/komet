@@ -125,15 +125,20 @@ limitations under the License.
     -fx-border-color: -komet-blue-color;  
     -fx-border-insets: 0;
     -fx-border-width: 0;
-    -fx-padding:0 0 0 -12;
+    -fx-padding:3 0 -5 -8;
+}
+.concept-label-toolbar .arrow-button {
+       -fx-padding:-5 10 0 0;
 }
 
 .concept-label-toolbar .arrow {
    -fx-mark-color: white;
+/*    -fx-padding:25 -5 -5 45; */
 }
 
-.concept-label-toolbar .menu-button .glyph-icon { 
+.concept-label-toolbar .menu-button .glyph-icon {
    -icons-color: white;
+    -fx-background-color: red;
 }
 .concept-label-toolbar .menu-button .menu-item .glyph-icon { 
    -icons-color: -komet-blue-color;
@@ -189,9 +194,36 @@ limitations under the License.
    -fx-border-width: 0 0 0 5;
 }
 
-.komet-version-general-cell:inactive {
-   -fx-text-fill: -komet-inactive-color;
+.komet-version-what-cell:inactive {
+    -fx-text-fill: -komet-inactive-color;
 }
+
+.komet-version-general-cell:inactive {
+    /*-fx-border-color: white;*/
+    /*-fx-border-width: 1 0 1 0; */
+    -fx-border-width: 1 0 1 0;
+    -fx-background-color: linear-gradient(
+            from 0em 0.75em to 0.75em 0px,
+            repeat,
+            derive(-komet-inactive-color, 80%) 0%,
+            derive(-komet-inactive-color, 80%) 49%,
+            derive(-komet-inactive-color, 95%) 50%,
+            derive(-komet-inactive-color, 95%) 99%
+    );
+}
+.tree-table-row-cell:selected .komet-version-general-cell:inactive {
+    /*-fx-border-color: white;*/
+    /*-fx-border-width: 1 0 1 0; */
+    -fx-background-color: linear-gradient(
+            from 0em 0.75em to 0.75em 0px,
+            repeat,
+            -komet-blue-color 0%,
+            -komet-blue-color 49%,
+            derive(-komet-blue-color, 30%) 50%,
+            derive(-komet-blue-color, 30%) 99%
+    );
+}
+
 .komet-version-author-time-cell {
    -fx-text-alignment: center;
 }
@@ -311,6 +343,17 @@ limitations under the License.
    -fx-fill: black;
 }
 
+.version-panel:uncommitted {
+    -fx-background-color: -komet-uncommitted-fill;
+    -fx-border-color:  -komet-uncommitted-fill;
+
+}
+
+.version-panel:uncommitted * .component-text {
+    -fx-background-color: -komet-uncommitted-fill;
+    -fx-border-color:  -komet-uncommitted-fill;
+
+}
 .component-panel:concept-version {
    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-concept-color ;
    -fx-text-fill: -komet-concept-color;
@@ -470,10 +513,53 @@ limitations under the License.
    -fx-border-insets: 0 0 0 0;   
 }
 
+.header-panel .popover .button .glyph-icon {
+    -fx-fill: black;
+}
+
+.header-panel .popover .list-cell .text  {
+    -fx-fill: black;
+}
+
+.header-panel .popover .label .text {
+    -fx-fill: black;
+}
+
+
+
+.header-panel:concept-version {
+    -fx-border-color: -komet-concept-color;
+    -fx-border-width: 0 0 2 0;
+    -fx-border-insets: 0 0 0 0;
+}
+.header-panel:concept-version .text {
+    -fx-fill: -komet-concept-color;
+    -fx-text-fill: -komet-concept-color;
+    -fx-border-width: 0 0 2 0;
+    -fx-border-insets: 0 0 0 0;
+}
+.header-panel:concept-version .header-text {
+    -fx-fill: -komet-concept-color;
+    -fx-text-origin: baseline;
+}
+
+.header-panel:concept-version  .button .glyph-icon {
+    -fx-fill: -komet-concept-color;
+}
+
+.header-panel:description-version  .button .glyph-icon {
+    -fx-fill: -komet-description-color;
+}
+
+
+.header-panel:logical-definition-version  .button .glyph-icon {
+    -fx-fill: -komet-definition-color;
+}
+
 .header-panel:description-version {
-   -fx-border-color: -komet-description-color;
-   -fx-border-width: 0 0 2 0;
-   -fx-border-insets: 0 0 0 0;   
+    -fx-border-color: -komet-description-color;
+    -fx-border-width: 0 0 2 0;
+    -fx-border-insets: 0 0 0 0;
 }
 
 .header-panel:logical-definition-version {
@@ -518,7 +604,7 @@ limitations under the License.
 .stamp-indicator {
    -fx-border-width: 2;
    -fx-border-color: -komet-tab-background-color;
-   -fx-border-insets: 6;    
+   -fx-border-insets: 6;
    -fx-border-radius: 5;
    -fx-font-size:12; 
    -fx-font-weight: normal;
@@ -526,6 +612,17 @@ limitations under the License.
    -fx-alignment: center;
    -fx-text-alignment: center;
    -fx-content-display: text-only;
+}
+.stamp-indicator:uncommitted {
+    /* -fx-border-color: -komet-uncommitted-border; */
+    -fx-border-color: -komet-tab-background-color;
+    -fx-border-width: 2;
+
+}
+.stamp-indicator:inactive {
+    -fx-border-color: -komet-inactive-color;
+    -fx-text-fill: -komet-inactive-color;
+
 }
 
 .version-graph-toggle {
@@ -833,9 +930,17 @@ limitations under the License.
    -fx-font-weight: bold;
    -fx-font-size:13;
 }
-
+.alert-description .scroll-pane {
+    -fx-background-color: -komet-error-background ;
+    -fx-border-color:-komet-error-background;
+}
+.alert-description .content {
+    -fx-background-color: -komet-error-background ;
+    -fx-border-color:-komet-error-background;
+}
 .alert-description {
-   -fx-fill: white;
+     -fx-border-color:-komet-error-background;
+    -fx-text-fill: white;
    -fx-font-size:13;
 }
 
@@ -868,18 +973,16 @@ limitations under the License.
    -glyph-size: 22;
 }
 
+
 .alert-pane:alert-warn .alert-icon {
    -icons-color: black;
    -glyph-size: 24;
 }
 
-
 .alert-pane:alert-success .alert-icon {
    -icons-color: white;
    -glyph-size: 20;
 }
-
-
 
 .titled-pane > *.content {
     -fx-background-color: whitesmoke;
@@ -957,12 +1060,12 @@ limitations under the License.
     -fx-border-style:solid;
     -fx-background-insets:4 0 2 0;
  }
- 
+
 .def-feature .open-concept-button {
-    -fx-padding:-3 6 0 0;
+    -fx-padding:0 0 0 0;
  } 
 .def-role .open-concept-button {
-    -fx-padding:-3 6 0 0;
+    -fx-padding:0 0 0 0;
  } 
 .def-feature .toggle-button {
     -fx-background-color: transparent;
@@ -995,7 +1098,7 @@ limitations under the License.
  }
  
  .open-concept-button {
-    -fx-padding:-4 1 0 2;
+    -fx-padding:0 0 0 0;
  }
  
 
@@ -1086,3 +1189,38 @@ limitations under the License.
     /* -fx-skin: "sh.isaac.komet.openjdk.KometTabPaneSkin"; */
 }
 
+.search-magnify {
+    -fx-padding: 4 4 4 4;
+}
+
+.reset-search {
+    -glyph-size: 15;
+    -glyph-name: CLOSE;
+}
+
+.next-match {
+
+}
+
+.previous-match {
+
+}
+.progress-indicator .percentage {
+    -fx-fill:null;
+}
+
+.progress-indicator  {
+    -fx-padding: 5 0 -16 0;
+
+}
+
+.concept-list-editor-toolbar .button .add {
+    -glyph-size: 22;
+    -icons-color: black;
+}
+
+.concept-list-editor-toolbar {
+    -fx-background-color:null;
+    -fx-padding: 2 0 2 10;
+    -fx-spacing: 7;
+}

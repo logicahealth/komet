@@ -32,6 +32,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import javafx.application.Platform;
 import javafx.beans.Observable;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -62,8 +63,9 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.util.number.NumberUtil;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
 
 /**
  *
@@ -91,22 +93,30 @@ public class DashboardView
     private static final Color[] COLORS = new Color[]{RED, GREEN, BLUE, ORANGE, YELLOW, PINK,
         LIGHT_RED, LIGHT_GREEN, DARK_BLUE, YELLOW_ORANGE, MAGENTA};
 
-    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Information about memory use and other system aspects. ");
-    private final SimpleStringProperty titleProperty = new SimpleStringProperty("System Dashboard");
+        private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Information about memory use and other system aspects. ");
+        private final SimpleStringProperty titleProperty = new SimpleStringProperty("System Dashboard");
+        private final SimpleObjectProperty menuIconProperty = new SimpleObjectProperty(Iconography.DASHBOARD.getIconographic());
+
     private final Label titleLabel = new Label();
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     private final TableView<AssemblageDashboardRow> assemblageTableView;
     private AssemblageDashboardStats assemblageStats;
     private Future<?> statsFuture;
 
-    public DashboardView(Manifold manifold) {
-        this.manifold = manifold;
+    private Runnable nodeSelectionMethod = () -> {}; // default to an empty operation.
+    @Override
+    public void setNodeSelectionMethod(Runnable nodeSelectionMethod) {
+        this.nodeSelectionMethod = nodeSelectionMethod;
+    }
+
+    public DashboardView(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
         this.titleLabel.graphicProperty().set(Iconography.DASHBOARD.getIconographic());
 
         ObservableList<AssemblageDashboardRow> assemblageTableData = FXCollections.observableArrayList();
 
         for (int assemblageNid : Get.assemblageService().getAssemblageConceptNids()) {
-            assemblageTableData.add(new AssemblageDashboardRow(assemblageNid, manifold));
+            assemblageTableData.add(new AssemblageDashboardRow(assemblageNid, viewProperties));
         }
 
         assemblageTableData.sort((o1, o2) -> {
@@ -174,11 +184,24 @@ public class DashboardView
         assemblageTableView.getSelectionModel().selectedItemProperty().addListener(this::selectionListener);
         updateSystemTiles();
     }
+    @Override
+    public void savePreferences() {
 
+    }
 
     @Override
-    public Node getMenuIcon() {
+    public SimpleObjectProperty<ActivityFeed> activityFeedProperty() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Node getMenuIconGraphic() {
         return Iconography.DASHBOARD.getIconographic();
+    }
+
+    @Override
+    public SimpleObjectProperty getMenuIconProperty() {
+        return menuIconProperty;
     }
 
     private void setCellAlignment(Cell<Integer> cell) {
@@ -338,7 +361,7 @@ public class DashboardView
         int index = 0;
         int colorIndex = 0;
         for (Map.Entry<Integer, AtomicInteger> entry : localStats.getModules().entrySet()) {
-            String moduleName = manifold.getPreferredDescriptionText(entry.getKey());
+            String moduleName = viewProperties.getManifoldCoordinate().getPreferredDescriptionText(entry.getKey());
             double value = entry.getValue().get() * 100 / versionCount;
             barsForModules[index++] = new BarChartItem(moduleName, value, COLORS[colorIndex++]);
             if (colorIndex >= COLORS.length) {
@@ -383,8 +406,8 @@ public class DashboardView
     }
 
     @Override
-    public Manifold getManifold() {
-        return this.manifold;
+    public ViewProperties getViewProperties() {
+        return this.viewProperties;
     }
 
     @Override
@@ -406,4 +429,20 @@ public class DashboardView
     public Optional<Node> getTitleNode() {
         return Optional.of(titleLabel);
     }
+
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
+    @Override
+    public ActivityFeed getActivityFeed() {
+        throw new UnsupportedOperationException();
+    }
+
 }

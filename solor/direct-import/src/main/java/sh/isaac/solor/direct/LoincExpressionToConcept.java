@@ -37,13 +37,16 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
-import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
+import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.concept.ConceptChronologyImpl;
@@ -68,8 +71,10 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
     private final List<IndexBuilderService> indexers;
     private final TaxonomyService taxonomyService;
     private final long commitTime = System.currentTimeMillis();
+    private final Transaction transaction;
 
-    public LoincExpressionToConcept() {
+    public LoincExpressionToConcept(Transaction transaction) {
+        this.transaction = transaction;
         this.taxonomyService = Get.taxonomyService();
         this.indexers = LookupService.get().getAllServices(IndexBuilderService.class);
         Get.activeTasks().add(this);
@@ -85,12 +90,36 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
             if (!Get.identifierService().hasUuid(expressionRefset.getPrimordialUuid())) {
                 return null;
             }
-            Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid()).forEach((semanticChronology) -> {
+            Get.assemblageService().getSemanticChronologyStream(expressionRefset.getNid(), true).forEach((semanticChronology) -> {
                 for (Version version : semanticChronology.getVersionList()) {
-                    Str1_Str2_Nid3_Nid4_Nid5_Version loincVersion = (Str1_Str2_Nid3_Nid4_Nid5_Version) version;
-                    
-                    String loincCode = loincVersion.getStr1(); // "48023-6"
-                    String sctExpression = loincVersion.getStr2();
+                    String loincCode;
+                    String sctExpression;
+                    int nid3;
+                    if (version instanceof Str1_Str2_Nid3_Nid4_Nid5_Version) {
+                        Str1_Str2_Nid3_Nid4_Nid5_Version loincVersion = (Str1_Str2_Nid3_Nid4_Nid5_Version) version;
+                        loincCode = loincVersion.getStr1(); // "48023-6"
+                        if (loincCode.contains("14749-6")) {
+                            LOG.info("Found 14749-6");
+                        }
+
+                        sctExpression = loincVersion.getStr2();
+                        nid3 = loincVersion.getNid3();
+                    }
+                    else {
+                        DynamicVersion loincVersion = (DynamicVersion) version;
+                        loincCode = ((DynamicString)loincVersion.getData()[0]).getDataString();
+                        sctExpression = ((DynamicString)loincVersion.getData()[1]).getDataString();
+                        nid3 = ((DynamicNid)loincVersion.getData()[2]).getDataNid();
+                    }
+
+                    // TODO: change implementation of retired concepts to adding an additional record
+                    // rather than an opaque change it code
+                    // Replace retired "23496000" -> ConceptProxy("Fungus (organism)", UUID.fromString("2c90345f-f003-311f-b128-95981c04c65f"))
+                    // with "same as" association: "414561005" -> ConceptProxy("Kingdom Fungi (organism)", UUID.fromString("46fb6871-ed38-36c6-b796-126237b476d6"))
+                    if (sctExpression.contains("23496000")) {
+                        LOG.warn("Replacing retired 23496000:Fungus with 414561005:Kingdom Fungi");
+                        sctExpression = sctExpression.replace("23496000", "414561005");
+                    }
 
                     //  "363787002:246093002=720113009,370134009=123029007,246501002=702675006,704327008=122592007,370132008=117363000,704319004=50863008,704318007=705057003"
                     LogicalExpressionBuilder builder = Get.logicalExpressionBuilderService().getLogicalExpressionBuilder();
@@ -98,7 +127,10 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                     StringTokenizer tokenizer = new StringTokenizer(sctExpression, ":,={}()+", true);
 
                     // get necessary or sufficient from Nid2 e.g. "Sufficient concept definition (SOLOR)"
-                    if (TermAux.SUFFICIENT_CONCEPT_DEFINITION.getNid() == loincVersion.getNid3()) {
+                    // getStandardAssertions just processes the Loinc/SNOMED refset
+                    // getProcedureAssertions clones the standard assertions, and changes a few fields
+                    // to get it to classify under the procedures taxonomy as well.
+                    if (TermAux.SUFFICIENT_CONCEPT_DEFINITION.getNid() == nid3) {
                         builder.sufficientSet(builder.and(getStandardAssertions(tokenizer, builder)));
                         tokenizer = new StringTokenizer(sctExpression, ":,={}()+", true);
                         builder.sufficientSet(builder.and(getProcedureAssertions(tokenizer, builder)));
@@ -109,7 +141,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                     }
                     LogicalExpression logicalExpression = builder.build();
                     logicalExpression.getNodeCount();
-                    addLogicGraph(loincCode,
+                    addLogicGraph(transaction, loincCode,
                             logicalExpression);
                 }
                 completedUnitOfWork();
@@ -137,8 +169,9 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                 handleMissingIdentifier(token);
             }
             // substitute procedure for observation...
-            
-            assertions.add(builder.conceptAssertion(TermAux.PROCEDURE.getNid()));
+
+            assertions.add(builder.conceptAssertion(MetaData.PHENOMENON____SOLOR.getNid()));
+            assertions.add(builder.conceptAssertion(MetaData.PROCEDURE____SOLOR.getNid()));
             if (tokenizer.hasMoreTokens()) {
                 String delimiter = tokenizer.nextToken();
                 switch (delimiter) {
@@ -216,7 +249,7 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                 handleMissingIdentifier(token);
             }
             if (nid == MetaData.OBSERVATION____SOLOR.getNid()) {
-                nid = MetaData.PHENOMENON____SOLOR.getNid();
+                assertions.add(builder.conceptAssertion(MetaData.PHENOMENON____SOLOR.getNid()));
             }
             assertions.add(builder.conceptAssertion(nid));
             if (tokenizer.hasMoreTokens()) {
@@ -292,19 +325,24 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
      * @param logicalExpression the logical expression
      * @return the semantic chronology
      */
-    public SemanticChronology addLogicGraph(String loincCode,
-            LogicalExpression logicalExpression) {
+    public SemanticChronology addLogicGraph(Transaction transaction, String loincCode,
+                                            LogicalExpression logicalExpression) {
 
         int stamp = Get.stampService().getStampSequence(Status.ACTIVE,
                 commitTime, TermAux.USER.getNid(),
                 TermAux.SOLOR_OVERLAY_MODULE.getNid(),
                 TermAux.DEVELOPMENT_PATH.getNid());
-        UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincCode);
+        final UUID conceptUuid = UuidT5Generator.loincConceptUuid(loincCode);
+        final int graphAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
         Optional<? extends ConceptChronology> optionalConcept = Get.conceptService().getOptionalConcept(conceptUuid);
         if (!optionalConcept.isPresent()) {
+            int conceptStamp = Get.stampService().getStampSequence(Status.ACTIVE,
+                    commitTime, TermAux.USER.getNid(),
+                    MetaData.LOINC_MODULES____SOLOR.getNid(),
+                    TermAux.DEVELOPMENT_PATH.getNid());
             ConceptChronologyImpl conceptToWrite
                     = new ConceptChronologyImpl(conceptUuid, TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid());
-            conceptToWrite.createMutableVersion(stamp);
+            conceptToWrite.createMutableVersion(conceptStamp);
             Get.conceptService().writeConcept(conceptToWrite);
             index(conceptToWrite);
 
@@ -316,15 +354,24 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
                     MetaData.LOINC_ID_ASSEMBLAGE____SOLOR.getNid(),
                     conceptToWrite.getNid());
 
-            StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(stamp);
+            StringVersionImpl loincIdVersion = loincIdentifierToWrite.createMutableVersion(conceptStamp);
             loincIdVersion.setString(loincCode);
             index(loincIdentifierToWrite);
             Get.assemblageService().writeSemanticChronology(loincIdentifierToWrite);
         }
+        else {
+           //The concept is present - see if it already has a logic graph.  If so, don't write a logic graph, as the logic graph from the 
+           //loinc converter is likely better than this one.
+            Optional<SemanticChronology> sc = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(
+                    Get.identifierService().getNidForUuids(conceptUuid), graphAssemblageNid, false).findFirst();
+            if (sc.isPresent()) {
+                //Not even going to check its state - active or not, its likely better.
+                LOG.trace("Not creating Loinc Expression for Concept as one already exists for {}", conceptUuid);
+                return null;
+            }
+        }
 
-        int graphAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
-
-        final SemanticBuilder sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
+        final SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
               Get.identifierService().getNidForUuids(conceptUuid),
                 graphAssemblageNid);
 
@@ -336,9 +383,9 @@ public class LoincExpressionToConcept extends TimedTaskWithProgressTracker<Void>
 
         sb.setPrimordialUuid(generatedGraphPrimordialUuid);
 
-        final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
+        final ArrayList<Chronology> builtObjects = new ArrayList<>();
 
-        final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
+        final SemanticChronology sci = (SemanticChronology) sb.build(transaction, stamp,
                 builtObjects);
         // There should be no other build objects, so ignore the builtObjects list...
 

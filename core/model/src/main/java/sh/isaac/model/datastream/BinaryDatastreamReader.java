@@ -70,6 +70,7 @@ public class BinaryDatastreamReader
         this.path = path;
         this.inputStream = null;
         this.bytesToProcess = path.toFile().length();
+        // TODO Consider replacement with TaskCountManager
         permits = Runtime.getRuntime().availableProcessors() * 2;
         processingSemaphore = new Semaphore(permits);
         parsingExecutor = processInOrder ? 
@@ -90,6 +91,7 @@ public class BinaryDatastreamReader
         this.path = null;
         this.inputStream = is;
         this.bytesToProcess = -1;
+        // TODO Consider replacement with TaskCountManager
         permits = Runtime.getRuntime().availableProcessors() * 2;
         processingSemaphore = new Semaphore(permits);
         parsingExecutor = Get.executor();

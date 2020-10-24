@@ -22,8 +22,8 @@ package sh.isaac.api.alert;
  */
 public class InfoAlert extends AlertObject {
    
-   public InfoAlert(String alertTitle, String alertDescription, AlertCategory alertCategory) {
-      super(alertTitle, alertDescription, AlertType.INFORMATION, alertCategory, null);
+   public InfoAlert(String alertTitle, String alertDescription, AlertCategory alertCategory, int... nids) {
+      super(alertTitle, alertDescription, AlertType.INFORMATION, alertCategory, null, nids);
    }
    
 }

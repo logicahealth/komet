@@ -48,10 +48,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.VPos;
 
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.ToolBar;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Pane;
 import javafx.scene.layout.Priority;
@@ -61,6 +58,7 @@ import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.alert.Resolver;
 import sh.isaac.komet.iconography.Iconography;
 
+import sh.komet.gui.control.text.TextAreaReadOnly;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 
@@ -75,7 +73,7 @@ public class AlertPanel
    private final ToolBar     resolverBar       = new ToolBar();
    private boolean           showDetails       = false;
    protected final Text      alertTitle        = new Text();
-   protected final Text      alertDescription  = new Text();
+   protected final TextAreaReadOnly alertDescription  = new TextAreaReadOnly();
    protected final Button    moreDetailsButton = new Button("    More details");
    private final AlertObject alert;
    protected final Node      alertIcon;
@@ -84,6 +82,7 @@ public class AlertPanel
 
    public AlertPanel(AlertObject alert) {
       this.alert = alert;
+      alertDescription.setEditable(false);
 
       switch (alert.getAlertType()) {
       case CONFIRMATION:
@@ -130,6 +129,7 @@ public class AlertPanel
                      .setAll(StyleClasses.ALERT_TITLE.toString());
       this.alertDescription.getStyleClass()
                            .setAll(StyleClasses.ALERT_DESCRIPTION.toString());
+      //this.alertDescription.setStyle("-fx-text-fill: red ;");
       this.moreDetailsButton.getStyleClass()
                             .setAll(StyleClasses.MORE_ALERT_DETAILS.toString());
       this.moreDetailsButton.setOnAction(

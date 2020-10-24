@@ -28,8 +28,14 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
 import javafx.stage.Stage;
 import sh.isaac.api.preferences.IsaacPreferences;
-import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
-import sh.komet.gui.manifold.Manifold;
+
+import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.CHILDREN_NODES;
+import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
+
+import sh.komet.gui.contract.preferences.KometPreferencesController;
+import sh.komet.gui.contract.preferences.PreferencesTreeItem;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -41,8 +47,8 @@ public abstract class ParentPanel extends AbstractPreferences {
     Stack<PreferencesTreeItem> childrenToAdd = new Stack<>();
     
     public ParentPanel(IsaacPreferences preferencesNode, String groupName,
-                       Manifold manifold, KometPreferencesController kpc) {
-        super(preferencesNode, groupName, manifold, kpc);
+                       ViewProperties viewProperties, KometPreferencesController kpc) {
+        super(preferencesNode, groupName, viewProperties, kpc);
     }
 
     @Override
@@ -60,14 +66,17 @@ public abstract class ParentPanel extends AbstractPreferences {
 
     protected final void newChild(ActionEvent action) {
         UUID newUuid = UUID.randomUUID();
-        addChildPanel(newUuid);
+        addChildPanel(newUuid, Optional.empty());
     }
     
-    final void addChildPanel(UUID childUuid) {
+    final protected IsaacPreferences addChildPanel(UUID childUuid, Optional<String> groupName) {
         IsaacPreferences preferencesNode = getPreferencesNode().node(childUuid.toString());
+        if (groupName.isPresent()) {
+            preferencesNode.put(GROUP_NAME, groupName.get());
+        }
         addChild(childUuid.toString(), getChildClass());
         Optional<PreferencesTreeItem> optionalActionItem = PreferencesTreeItem.from(preferencesNode,
-                getManifold(), kpc);
+                getViewProperties(), kpc);
         if (optionalActionItem.isPresent()) {
             PreferencesTreeItem actionItem = optionalActionItem.get();
             if (getTreeItem() == null) {
@@ -79,18 +88,19 @@ public abstract class ParentPanel extends AbstractPreferences {
             }
         }
         save();
+        return preferencesNode;
     }
     
     abstract protected Class getChildClass();
     
     @Override
-    public final Node getTopPanel(Manifold manifold) {
+    public Node getTopPanel(ViewProperties viewProperties) {
         Button addButton = new Button("Add");
         addButton.setOnAction(this::newChild);
         ToolBar toolbar = new ToolBar(addButton);
-        MenuItem resetUserItems = new MenuItem("Clear user items");
+        MenuItem resetUserItems = new MenuItemWithText("Clear user items");
         resetUserItems.setOnAction(this::resetUserItems);
-        MenuItem resetConfigurationAndUserItems = new MenuItem("Clear user and child items");
+        MenuItem resetConfigurationAndUserItems = new MenuItemWithText("Clear user and child items");
         resetConfigurationAndUserItems.setOnAction(this::resetConfigurationAndUserItems);
         toolbar.setContextMenu(new ContextMenu(resetUserItems, resetConfigurationAndUserItems));
         return toolbar;
@@ -98,7 +108,7 @@ public abstract class ParentPanel extends AbstractPreferences {
     
     private void resetUserItems(ActionEvent actionEvent) {
         FxGet.kometPreferences().resetUserPreferences();
-        Stage stage = (Stage) this.getTreeItem().controller.getPreferenceTree().getScene().getWindow();
+        Stage stage = (Stage) this.getTreeItem().getController().getPreferenceTree().getScene().getWindow();
         stage.close();
     } 
 
@@ -119,4 +129,4 @@ public abstract class ParentPanel extends AbstractPreferences {
         return false;
     }
 
-}
+ }

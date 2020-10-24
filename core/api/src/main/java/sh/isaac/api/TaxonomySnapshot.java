@@ -39,24 +39,17 @@
 
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
-
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import java.util.Collection;
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import sh.isaac.api.navigation.Navigator;
 import sh.isaac.api.tree.Tree;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface TaxonomySnapshot.
  *
  * @author kec
  */
-public interface TaxonomySnapshot {
+public interface TaxonomySnapshot extends Navigator {
 
    /**
     * 
@@ -66,36 +59,27 @@ public interface TaxonomySnapshot {
    boolean isLeaf(int conceptNid);
    
    /**
-    * Checks if child of.
-    *
-    * @param childConceptNid the child id
-    * @param parentConceptNid the parent id
-    * @return true, if child of
-    */
-   boolean isChildOf(int childConceptNid, int parentConceptNid);
-
-   /**
-    * Checks if kind of.
+    * true if child is any level descendent of parent, or child == parent
     *
     * @param childConceptNid the child id
     * @param parentConceptNid the parent id
     * @return true, if kind of
     */
-   boolean isKindOf(int childConceptNid, int parentConceptNid);
+   default boolean isKindOf(int childConceptNid, int parentConceptNid) {
+      if (childConceptNid == parentConceptNid) {
+         return true;
+      }
+      return isDescendentOf(childConceptNid, parentConceptNid);
+   }
    
    /**
-    * Checks if descendant  of.
+    * same as {@link #isKindOf(int, int)}, except doesn't allow descendentConceptNid == parentConceptNid
     *
     * @param descendantConceptNid the descendant id
-    * @param parentConceptNid the parent id
-    * @return true, if kind of
+    * @param ancestorConceptNid the parent id
+    * @return true, if descendent of
     */
-   default boolean isDescendentOf(int descendantConceptNid, int parentConceptNid) {
-       if (descendantConceptNid == parentConceptNid) {
-           return false;
-       }
-       return isKindOf(descendantConceptNid, parentConceptNid);
-   }
+   boolean isDescendentOf(int descendantConceptNid, int ancestorConceptNid);
 
    /**
     * Gets the kind of nid set.
@@ -103,14 +87,7 @@ public interface TaxonomySnapshot {
     * @param rootConceptNid the root id
     * @return the kind of nid set
     */
-   NidSet getKindOfConceptNidSet(int rootConceptNid);
-
-   /**
-    * Gets the roots.
-    *
-    * @return the root concept nids
-    */
-   int[] getRootNids();
+   ImmutableIntSet getKindOfConcept(int rootConceptNid);
 
    /**
     * Gets the taxonomy child nids.
@@ -133,14 +110,14 @@ public interface TaxonomySnapshot {
     * @param parentConceptNid
     * @return an Iterable of all the parent taxonomy links. 
     */
-   Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid);
+   ImmutableCollection<Edge> getTaxonomyParentLinks(int parentConceptNid);
 
    /**
     * For circumstances where there is more than one type of relationship in the taxonomy. 
     * @param childConceptNid
     * @return an Iterable of all the child taxonomy links. 
     */
-   Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid);
+   ImmutableCollection<Edge> getTaxonomyChildLinks(int childConceptNid);
    
    /**
     * Gets the taxonomy tree.
@@ -148,18 +125,25 @@ public interface TaxonomySnapshot {
     * @return the taxonomy tree
     */
    Tree getTaxonomyTree();
- 
-   /**
-    * Get the ManifoldCoordinate which defines the parent/child relationships of this tree.
-    * @return ManifoldCoordinate
-    */
-   ManifoldCoordinate getManifoldCoordinate();
-   /**
-    * 
-    * @param manifoldCoordinate
-    * @return An analog snapshot that uses the provided manifold coordinate.
-    */
-   TaxonomySnapshot makeAnalog(ManifoldCoordinate manifoldCoordinate);
-   
+
+   @Override
+   default int[] getParentNids(int childNid) {
+      return getTaxonomyParentConceptNids(childNid);
+   }
+
+   @Override
+   default int[] getChildNids(int parentNid) {
+      return getTaxonomyChildConceptNids(parentNid);
+   }
+
+   @Override
+   default ImmutableCollection<Edge> getParentLinks(int childNid) {
+      return getTaxonomyParentLinks(childNid);
+   }
+
+   @Override
+   default ImmutableCollection<Edge> getChildLinks(int parentNid) {
+      return getTaxonomyChildLinks(parentNid);
+   }
 }
 

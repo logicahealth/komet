@@ -39,9 +39,7 @@
 
 package sh.isaac.api.coordinate;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import java.util.EnumSet;
+import java.util.Set;
 import sh.isaac.api.Status;
 
 //~--- interfaces -------------------------------------------------------------
@@ -56,18 +54,21 @@ public interface StateBasedAnalogMaker<T> {
    /**
     * Make analog.
     *
-    * @param status the allowed status for the resulting analog
+    * @param statuses - the allowed status for the resulting analog
     * @return a new {@code <T>} with the specified allowed states.
     */
-   T makeCoordinateAnalog(Status... status);
-   
-   default StampCoordinate getImmutableAllStateAnalog() {
-       throw new UnsupportedOperationException("Not supported by: " + this.getClass().getName());
+   default T makeCoordinateAnalog(Status... statuses) {
+      return makeCoordinateAnalog(StatusSet.of(statuses));
    }
    
-   
-   default T makeCoordinateAnalog(EnumSet<Status> statusSet) {
-      return makeCoordinateAnalog(statusSet.toArray(new Status[statusSet.size()]));
+   /**
+    * @param statusSet - the allowed status for the resulting analog
+    * @return new {@code <T>} with the specified allowed states.
+    */
+   default T makeCoordinateAnalog(Set<Status> statusSet) {
+      return makeCoordinateAnalog(StatusSet.of(statusSet));
    }
+
+   T makeCoordinateAnalog(StatusSet statusSet);
 }
 

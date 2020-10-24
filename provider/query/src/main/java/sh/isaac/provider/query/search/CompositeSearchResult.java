@@ -106,7 +106,7 @@ public class CompositeSearchResult implements CompositeQueryResult {
                 @Override
                 public LatestVersion<Version> apply(Chronology t) {
                     if (cachedValue == null) {
-                        cachedValue = t.getLatestVersion(CompositeSearchResult.this.manifoldCoord);
+                        cachedValue = t.getLatestVersion(CompositeSearchResult.this.manifoldCoord.getVertexStampFilter());
                     }
                     return cachedValue;
                 }
@@ -139,7 +139,7 @@ public class CompositeSearchResult implements CompositeQueryResult {
     @Override
     public String getContainingConceptText() {
         ConceptChronology cc = getContainingConcept();
-        return Get.conceptService().getSnapshot(manifoldCoord).conceptDescriptionText(cc.getNid());
+        return Get.conceptService().getSnapshot(manifoldCoord.toManifoldCoordinateImmutable()).conceptDescriptionText(cc.getNid());
     }
 
     /**
@@ -287,7 +287,7 @@ public class CompositeSearchResult implements CompositeQueryResult {
                     strings.add(((DescriptionVersion) version).getText());
                     break;
                 case DYNAMIC:
-                    strings.add(((DynamicVersion<?>) version).dataToString());
+                    strings.add(((DynamicVersion) version).dataToString());
                     break;
                 case LOGIC_GRAPH:
                     strings.add(((LogicGraphVersion) version).getLogicalExpression().toSimpleString());
@@ -304,8 +304,8 @@ public class CompositeSearchResult implements CompositeQueryResult {
                 case MEASURE_CONSTRAINTS:
                     strings.add("Measure Constraint with nid of " + version.getNid());
                     break;
-                case LOINC_RECORD:
                 case Nid1_Int2:
+                case Nid1_Long2:
                 case Nid1_Int2_Str3_Str4_Nid5_Nid6:
                 case Nid1_Nid2:
                 case Nid1_Nid2_Int3:

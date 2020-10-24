@@ -41,10 +41,6 @@ package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 //~--- classes ----------------------------------------------------------------
 
 /**
@@ -53,8 +49,6 @@ import javax.xml.bind.annotation.XmlRootElement;
  *
  * @author kec
  */
-@XmlRootElement(name = "where")
-@XmlAccessorType(XmlAccessType.PROPERTY)
 public class Where {
    /** The root clause. */
    private WhereClause rootClause;

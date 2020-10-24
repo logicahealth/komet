@@ -37,7 +37,7 @@
 
 package sh.isaac.api;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;

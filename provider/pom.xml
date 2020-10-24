@@ -4,23 +4,12 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>5.1.1</version>
+        <version>6.0.0</version>
     </parent>
     <artifactId>provider</artifactId>
     <packaging>pom</packaging>
     <name>ISAAC provider: (MMP)</name>
     <description>Aggregator project for provider ISAAC provider modules</description>
-    <profiles>
-        <profile>
-            <id>bdb</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <modules>
-                <module>bdb-datastore</module>
-            </modules>
-        </profile>
-    </profiles>
     <modules>
         <module>commit</module>
         <module>coordinate</module>
@@ -28,7 +17,6 @@
         <module>path</module>
         <module>progress</module>
         <module>sync-git</module>
-        <module>concept</module>
         <module>ibdf</module>
         <module>logic</module>
         <module>observable</module>
@@ -39,13 +27,11 @@
         <module>preferences</module>
         <module>filesystem-datastore</module>
         <module>chronology</module>
-        <module>xodus-datastore</module>
         <module>mv-datastore</module>
-        <module>memory-managment</module>
         <module>datastore-locator</module>
         <module>identifier</module>
-        <module>datastore-postgres</module>
-        <module>postgress</module>
-        <module>datastore-cache</module>
+        <module>qa</module>
+        <module>xslt-provider</module>
+        <!--module>classifier-elk</module-->
     </modules>
 </project>

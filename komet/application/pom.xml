@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>komet</artifactId>
-        <version>5.1.1</version>
+        <version>6.0.0</version>
     </parent>
     <groupId>sh.isaac.komet</groupId>
     <artifactId>application</artifactId>
@@ -15,7 +15,6 @@
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <mainClass>sh.komet.fx.stage.MainApp</mainClass>
-        <log4j.version>2.8.1</log4j.version>
         <solor.db.version>1.34</solor.db.version>
         <solor.snap.db.version>1.31</solor.snap.db.version>
         <custom.db.version>1.0.0</custom.db.version>
@@ -46,14 +45,11 @@
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
         </dependency>
-        <dependency>
-            <groupId>javax.xml.bind</groupId>
-            <artifactId>jaxb-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-        </dependency>
+        <!--dependency>
+            <groupId>sh.isaac.provider</groupId>
+            <artifactId>classifier-elk</artifactId>
+            <version>${project.version}</version>
+        </dependency-->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>batch</artifactId>
@@ -116,6 +112,16 @@
         </dependency>
         <dependency>
             <groupId>sh.isaac.provider</groupId>
+            <artifactId>identifier</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.provider</groupId>
+            <artifactId>xslt-provider</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.isaac.provider</groupId>
             <artifactId>commit</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
@@ -127,11 +133,6 @@
         <dependency>
             <groupId>sh.isaac.komet</groupId>
             <artifactId>changeset-view</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>sh.isaac.provider</groupId>
-            <artifactId>memory-managment</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
@@ -167,6 +168,11 @@
         <dependency>
             <groupId>sh.isaac.provider</groupId>
             <artifactId>drools</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>sh.komet</groupId>
+            <artifactId>rules</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
         <dependency>
@@ -248,15 +254,16 @@
             <type>jar</type>
         </dependency>
         <dependency>
+            <groupId>sh.isaac.komet</groupId>
+            <artifactId>classification</artifactId>
+            <version>${project.parent.version}</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
             <groupId>sh.isaac.core</groupId>
             <artifactId>metacontent</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>sh.isaac</groupId>-->
-        <!--<artifactId>scenic-view</artifactId>-->
-        <!--<version>11.0</version>-->
-        <!--</dependency>-->
     </dependencies>
     <build>
         <plugins>
@@ -305,8 +312,8 @@
                     <parallel>false</parallel>
                     <useSystemClassLoader>true</useSystemClassLoader>
                     <useManifestOnlyJar>false</useManifestOnlyJar>
-                    <argLine>-ea -Xmx12g -Dfile.encoding=UTF-8</argLine>
-                    <!--                     <argLine>-Xmx8g -Xms8g -Dfile.encoding=UTF-8 -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine> -->
+                    <argLine>-ea -Xmx12g -Dfile.encoding=UTF-8 -Djava.awt.headless=true</argLine>
+                    <!--<argLine>-Xmx8g -Xms8g -Djava.awt.headless=true -Dfile.encoding=UTF-8 -agentpath:/Applications/jprofiler8/bin/macos/libjprofilerti.jnilib=port=8849</argLine> -->
                     <!-- debugForkedProcess>true</debugForkedProcess -->
                     <includes>
                         <!-- Let JUnit annotations decide -->
@@ -325,6 +332,10 @@
                         </goals>
                         <configuration>
                             <mainClass>${mainClass}</mainClass>
+                            <arguments>
+                                <argument>-Xmx16G</argument>
+                                <argument>-Xms16G</argument>
+                            </arguments>
                             <!--<arguments>-Xdebug -Xrunjdwp:transport="dt_socket,suspend=y,server=n,address=8888" -Dglass.disableGrab=true -jar "${project.build.directory}/${project.build.finalName}.jar" </arguments>-->
                         </configuration>
                     </execution>
@@ -445,22 +456,6 @@
                     <groupId>sh.isaac.provider</groupId>
                     <artifactId>stamp</artifactId>
                     <version>${project.parent.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-        <profile>
-            <id>postgres-datastore</id>
-            <activation>
-                <property>
-                    <name>explicit-datstore</name>
-                    <value>postgres</value>
-                </property>
-            </activation>
-            <dependencies>
-                <dependency>
-                    <groupId>sh.isaac.provider</groupId>
-                    <artifactId>postgress</artifactId>
-                    <version>${project.version}</version>
                 </dependency>
             </dependencies>
         </profile>

@@ -39,35 +39,31 @@
 
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
-
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import java.util.Set;
-
-//~--- non-JDK imports --------------------------------------------------------
-
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
-
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.observable.ObservableVersion;
 
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface AssemblageService.
@@ -75,8 +71,7 @@ import sh.isaac.api.observable.ObservableVersion;
  * @author kec
  */
 @Contract
-public interface AssemblageService
-        extends DatastoreServices {
+public interface AssemblageService {
 
    /**
     * Write a SemanticChronology to the assemblage service. Will not overwrite a SemanticChronology if one already exists, rather it will
@@ -89,6 +84,13 @@ public interface AssemblageService
     * @param semanticChronicle the SemanticChronology 
     */
    void writeSemanticChronology(SemanticChronology semanticChronicle);
+
+   default void writeAndIndexSemanticChronology(SemanticChronology semanticChronicle) {
+       writeSemanticChronology(semanticChronicle);
+       for (IndexBuilderService indexBuilderService: LookupService.get().getAllServices(IndexBuilderService.class)) {
+           indexBuilderService.index(semanticChronicle);
+       }
+   }
 
    //~--- get methods ---------------------------------------------------------
 
@@ -120,16 +122,18 @@ public interface AssemblageService
    /**
     * Gets the SemanticChronology stream.
     *
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronology stream
     */
-   Stream<SemanticChronology> getSemanticChronologyStream();
+   Stream<SemanticChronology> getSemanticChronologyStream(boolean parallel);
 
    /**
     * Gets the SemanticChronology key stream.
     *
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronology key stream
     */
-   IntStream getSemanticNidStream();
+   IntStream getSemanticNidStream(boolean parallel);
 
    /**
     * 
@@ -157,9 +161,10 @@ public interface AssemblageService
     * Gets the SemanticChronology key stream.
     *
     * @param assemblageConceptNid The nid for the assemblage to select the nids from
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronology key stream
     */
-   IntStream getSemanticNidStream(int assemblageConceptNid);
+   IntStream getSemanticNidStream(int assemblageConceptNid, boolean parallel);
 
    /**
     * Gets the SemanticChronology nids for component.
@@ -167,7 +172,7 @@ public interface AssemblageService
     * @param componentNid the component nid
     * @return the SemanticChronology nids for component
     */
-   NidSet getSemanticNidsForComponent(int componentNid);
+   ImmutableIntSet getSemanticNidsForComponent(int componentNid);
 
    /**
     * Gets the SemanticChronology nids for component from assemblage.
@@ -176,7 +181,7 @@ public interface AssemblageService
     * @param assemblageConceptNids The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
     * @return the SemanticChronology nids for component from assemblage
     */
-   NidSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids);
+   ImmutableIntSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids);
    
    /**
     * Gets the SemanticChronology nids for component from assemblage.
@@ -185,7 +190,7 @@ public interface AssemblageService
     * @param assemblageConceptNid the assemblage nid
     * @return the SemanticChronology nids for component from assemblage
     */
-   NidSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageConceptNid);
+   ImmutableIntSet getSemanticNidsForComponentFromAssemblage(int componentNid, int assemblageConceptNid);
 
 
    /**
@@ -194,75 +199,98 @@ public interface AssemblageService
     * @param assemblageConceptNid the assemblage nid
     * @return the SemanticChronology nids from assemblage
     */
-   NidSet getSemanticNidsFromAssemblage(int assemblageConceptNid);
+   ImmutableIntSet getSemanticNidsFromAssemblage(int assemblageConceptNid);
 
    /**
     * Gets the SemanticChronology for component.
     *
     * @param <C>
     * @param componentNid the component nid
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronology for component
     */
-   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid);
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponent(int componentNid, boolean parallel);
 
+   default <C extends SemanticChronology> List<C> getSemanticChronologiesForComponent(int componentNid) {
+       ImmutableIntSet ids = getSemanticNidsForComponent(componentNid);
+       List<C> results = new ArrayList<>(ids.size());
+       ids.forEach(nid -> results.add((C) getSemanticChronology(nid)));
+       return results;
+   }
    /**
     * Gets the SemanticChronology for component from assemblage.
     *
     * @param <C>
     * @param componentNid the component nid
     * @param assemblageConceptNids The (optional) set of assemblage types to limit the return to.  If empty or null, no assemblage filter is applied.
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronologies for component from assemblage
     */
-   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
-         Set<Integer> assemblageConceptNids);
-   
-   /**
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids, boolean parallel);
+
+    default <C extends SemanticChronology> List<C> getSemanticChronologiesForComponentFromAssemblages(int componentNid,
+                                                                                                      Set<Integer> assemblageConceptNids) {
+        ImmutableIntSet ids = getSemanticNidsForComponentFromAssemblages(componentNid, assemblageConceptNids);
+        List<C> results = new ArrayList<>(ids.size());
+        ids.forEach(nid -> results.add((C) getSemanticChronology(nid)));
+        return results;
+    }
+    default <C extends SemanticChronology> List<C> getSemanticChronologiesForComponentFromAssemblage(int componentNid, int assemblageConceptNid) {
+        return getSemanticChronologiesForComponentFromAssemblages(componentNid,
+                Collections.singleton(assemblageConceptNid));
+    }
+    /**
     * Gets the SemanticChronology for component from assemblage.
     *
     * @param <C>
     * @param componentNid the component nid
     * @param assemblageConceptNid the assemblage concept nid
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronologies for component from assemblage
     */
    <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid,
-         int assemblageConceptNid);
+         int assemblageConceptNid, boolean parallel);
 
    /**
-    * Gets the SemanticChronologies from assemblage.
+    * Gets the SemanticChronologies from assemblage.  Note, this may return a parallel stream!
     *
     * @param <C>
     * @param assemblageConceptNid the assemblage concept nid
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronologies from assemblage
     */
-   <C extends SemanticChronology> Stream<C> getSemanticChronologyStream(int assemblageConceptNid);
+   <C extends SemanticChronology> Stream<C> getSemanticChronologyStream(int assemblageConceptNid, boolean parallel);
 
    /**
-    * Gets the SemanticChronologies from assemblage.
+    * Gets the SemanticChronologies from assemblage.  Note, this may return a parallel stream!
     *
     * @param <C>
-    * @param assemblageConceptNid the assemblage concept nic
+    * @param assemblageConceptNid the assemblage concept nid
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the SemanticChronologies from assemblage
     */
-   <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptNid);
+   <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptNid, boolean parallel);
 
    /**
     * Gets the referenced component nids from assemblage.
     *
     * @param conceptSpecification the assemblage concept specification
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the referenced component nids as an IntStream
     */
-   default IntStream getReferencedComponentNidStreamFromAssemblage(ConceptSpecification conceptSpecification) {
-      return getReferencedComponentNidStreamFromAssemblage(conceptSpecification.getNid());
+   default IntStream getReferencedComponentNidStreamFromAssemblage(ConceptSpecification conceptSpecification, boolean parallel) {
+      return getReferencedComponentNidStreamFromAssemblage(conceptSpecification.getNid(), parallel);
    }
    
    /**
     * Gets the referenced component nids from assemblage.
     *
     * @param assemblageConceptNid the assemblage concept nid
+    * @param parallel true to allow a parallel stream, false for single threaded
     * @return the referenced component nids as an IntStream
     */
-   default IntStream getReferencedComponentNidStreamFromAssemblage(int assemblageConceptNid) {
-      return getSemanticChronologyStream(assemblageConceptNid).mapToInt((semantic) -> semantic.getReferencedComponentNid());
+   default IntStream getReferencedComponentNidStreamFromAssemblage(int assemblageConceptNid, boolean parallel) {
+      return getSemanticChronologyStream(assemblageConceptNid, parallel).mapToInt((semantic) -> semantic.getReferencedComponentNid());
    }
    
    /**
@@ -275,11 +303,11 @@ public interface AssemblageService
     *
     * @param <V> the value type
     * @param versionType the version type
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the snapshot
     */
    <V extends SemanticVersion> SemanticSnapshotService<V> getSnapshot(Class<V> versionType,
-         StampCoordinate stampCoordinate);
+                                                                      StampFilter stampFilter);
 
    /**
     * Gets the snapshot.
@@ -287,20 +315,20 @@ public interface AssemblageService
     * @param <V> the value type
     * @param assemblageConceptNid
     * @param versionType the version type
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the snapshot
     */
    <V extends SemanticVersion> SingleAssemblageSnapshot<V> getSingleAssemblageSnapshot(int assemblageConceptNid,
-           Class<V> versionType,
-           StampCoordinate stampCoordinate);
+                                                                                       Class<V> versionType,
+                                                                                       StampFilter stampFilter);
 
    default <V extends SemanticVersion> SingleAssemblageSnapshot<V> getSingleAssemblageSnapshot(
            ConceptSpecification assemblageConcept,
            Class<V> versionType,
-           StampCoordinate stampCoordinate) {
+           StampFilter stampFilter) {
        return getSingleAssemblageSnapshot(assemblageConcept.getNid(),
            versionType,
-           stampCoordinate);
+               stampFilter);
    }
 
    /**
@@ -327,40 +355,41 @@ public interface AssemblageService
     /**
      * 
      * @param assemblageConcept
-     * @param stampCoordinate
-     * @return the OptionalInt for the nid of the concepts that defines the semantics of this assemblage. 
+     * @param stampFilter
+     * @return the OptionalInt for the nid of the concepts that defines the semantics of this assemblage.
      */
-    default OptionalInt getSemanticTypeConceptForAssemblage(ConceptSpecification assemblageConcept, StampCoordinate stampCoordinate) {
-        return getSemanticTypeConceptForAssemblage(assemblageConcept.getNid(), stampCoordinate);
+    default OptionalInt getSemanticTypeConceptForAssemblage(ConceptSpecification assemblageConcept, StampFilter stampFilter) {
+        return getSemanticTypeConceptForAssemblage(assemblageConcept.getNid(), stampFilter);
     }
     
     /**
      * 
      * @param assemblageConceptNid
-     * @param stampCoordiante
-    * @return the OptionalInt for the nid of the concepts that defines the semantics of this assemblage. 
+     * @param stampFilter
+    * @return the OptionalInt for the nid of the concepts that defines the semantics of this assemblage.
      */
-    default OptionalInt getSemanticTypeConceptForAssemblage(int assemblageConceptNid, StampCoordinate stampCoordiante) {
-        NidSet assemblageSemanticType = getSemanticNidsForComponentFromAssemblage(assemblageConceptNid, TermAux.SEMANTIC_TYPE.getNid());
+    default OptionalInt getSemanticTypeConceptForAssemblage(int assemblageConceptNid, StampFilter stampFilter) {
+        ImmutableIntSet assemblageSemanticType = getSemanticNidsForComponentFromAssemblage(assemblageConceptNid, TermAux.SEMANTIC_TYPE.getNid());
         if (assemblageSemanticType.isEmpty()) {
             return OptionalInt.empty();
         }
-        SemanticChronology typeSemantic = getSemanticChronology(assemblageSemanticType.asArray()[0]);
-        LatestVersion<ComponentNidVersion> latestVersion = typeSemantic.getLatestVersion(stampCoordiante);
+        SemanticChronology typeSemantic = getSemanticChronology(assemblageSemanticType.intIterator().next());
+        LatestVersion<ComponentNidVersion> latestVersion = typeSemantic.getLatestVersion(stampFilter);
         if (latestVersion.isPresent()) {
             return OptionalInt.of(latestVersion.get().getComponentNid());
         }
         return OptionalInt.empty();
     }
     
-    default OptionalInt getPropertyIndexForSemanticField(int semanticFieldConceptNid, int assemblageConceptNid, StampCoordinate stampCoordiante) {
-        NidSet propertyIndexes = getSemanticNidsForComponentFromAssemblage(assemblageConceptNid, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS.getNid());
+    default OptionalInt getPropertyIndexForSemanticField(int semanticFieldConceptNid, int assemblageConceptNid, StampFilter stampFilter) {
+        ImmutableIntSet propertyIndexes = getSemanticNidsForComponentFromAssemblage(assemblageConceptNid, TermAux.ASSEMBLAGE_SEMANTIC_FIELDS.getNid());
         if (propertyIndexes.isEmpty()) {
             return OptionalInt.empty();
         }
-        for (int semanticNid: propertyIndexes.asArray()) {
+
+        for (int semanticNid: propertyIndexes.toArray()) {
             SemanticChronology typeSemanticChronology = getSemanticChronology(semanticNid);
-            LatestVersion<Nid1_Int2_Version> latestVersion = typeSemanticChronology.getLatestVersion(stampCoordiante);
+            LatestVersion<Nid1_Int2_Version> latestVersion = typeSemanticChronology.getLatestVersion(stampFilter);
             if (latestVersion.isPresent() && latestVersion.get().getNid1() == semanticFieldConceptNid) {
                 return OptionalInt.of(latestVersion.get().getInt2() + ObservableVersion.PROPERTY_INDEX.SEMANTIC_FIELD_START.getIndex());
             }

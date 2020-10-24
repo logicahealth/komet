@@ -232,7 +232,7 @@ public class MultipleDataWriterService implements DataWriterService
                          }
                      }
                  };
-                 Get.workExecutors().getPotentiallyBlockingExecutor().execute(r);
+                 Get.workExecutors().getIOExecutor().execute(r);
             }
             //wait for all to complete
             threadedWrite.acquireUninterruptibly(writers.size());

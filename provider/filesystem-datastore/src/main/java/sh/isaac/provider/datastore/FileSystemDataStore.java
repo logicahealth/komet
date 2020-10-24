@@ -36,7 +36,6 @@
  */
 package sh.isaac.provider.datastore;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
@@ -48,6 +47,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Reader;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -55,11 +56,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import java.util.Properties;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Semaphore;
@@ -67,8 +68,9 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BinaryOperator;
+import java.util.function.Function;
 import java.util.stream.IntStream;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.Rank;
@@ -78,11 +80,17 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.datastore.ChronologySerializeable;
+import sh.isaac.api.datastore.ExtendedStore;
+import sh.isaac.api.datastore.ExtendedStoreData;
 import sh.isaac.api.datastore.SequenceStore;
+import sh.isaac.api.datastore.extendedStore.ArbitraryTypeStoreMap;
+import sh.isaac.api.datastore.extendedStore.ExtendedStoreWithSerializer;
+import sh.isaac.api.datastore.extendedStore.SimpleTypeStoreMap;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.DataWriteListener;
 import sh.isaac.api.externalizable.IsaacObjectType;
@@ -92,12 +100,16 @@ import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.ModelGet;
-import sh.isaac.model.collections.*;
+import sh.isaac.model.collections.SpineFileUtil;
+import sh.isaac.model.collections.SpinedByteArrayArrayMap;
+import sh.isaac.model.collections.SpinedIntIntArrayMap;
+import sh.isaac.model.collections.SpinedIntIntMap;
+import sh.isaac.model.collections.SpinedNidIntMap;
+import sh.isaac.model.collections.SpinedNidNidSetMap;
 import sh.isaac.model.collections.store.ByteArrayArrayStoreProvider;
 import sh.isaac.model.collections.store.IntIntArrayStoreProvider;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * TODO: evaluate how the canceling of changes will impact the array approach
  * for writing versions...
@@ -110,7 +122,7 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
 @Singleton
 @Rank(value=-8)
 public class FileSystemDataStore
-        implements DataStoreSubService, SequenceStore  {
+        implements DataStoreSubService, SequenceStore, ExtendedStore {
 
     private static final Logger LOG = LogManager.getLogger();
     private Optional<UUID> dataStoreId = Optional.empty();
@@ -149,13 +161,22 @@ public class FileSystemDataStore
     private File nidToAssemblageNidMapDirectory;
     private File nidToElementSequenceMapDirectory;
     
+    //Extended store storage
+    private File extendedLongMapFile;
+    private final ConcurrentHashMap<String, Long> extendedLongMap = new ConcurrentHashMap<>();
+    private final ConcurrentHashMap<String, ExtendedStoreWithSerializer<Object, Object>> extendedStoreMap = new ConcurrentHashMap<>(); ;
+    
     private final ArrayList<DataWriteListener> writeListeners = new ArrayList<>();
 
     private FileSystemDataStore() {
         //Private for HK2 construction only
     }
 
-    //~--- methods -------------------------------------------------------------
+    @Override
+    public DatabaseImplementation getDataStoreType()
+    {
+        return DatabaseImplementation.FILESYSTEM;
+    }
     /**
      * {@inheritDoc}
      */
@@ -211,7 +232,7 @@ public class FileSystemDataStore
     @Override
     public Future<?> sync() {
         if (pendingSync.tryAcquire()) {
-            lastSyncTask = new SyncTask();
+            lastSyncTask = new SyncTask(false);
             lastSyncFuture = Get.executor()
                     .submit(lastSyncTask);
             return lastSyncFuture;
@@ -283,6 +304,9 @@ public class FileSystemDataStore
             this.componentToSemanticNidsMap.clear();
             this.assemblageToObjectType_Map.clear();
             this.assemblageToVersionType_Map.clear();
+            
+            this.extendedLongMap.clear();
+            this.extendedStoreMap.clear();
 
             this.isaacDbDirectory = folderPath.toFile();
             this.chronologySpinesDirectory = new File(isaacDbDirectory, "chronologies");
@@ -295,6 +319,8 @@ public class FileSystemDataStore
             this.nidToAssemblageNidMapDirectory = new File(isaacDbDirectory, "componentToAssemblageMap");
             this.sequenceGeneratorMapFile = new File(isaacDbDirectory, "sequenceGeneratorMap");
             this.nidToElementSequenceMapDirectory = new File(isaacDbDirectory, "componentToAssemblageElementMap");
+            
+            this.extendedLongMapFile = new File(isaacDbDirectory, "extendedLongMap");
 
             if (isaacDbDirectory.exists() && this.propertiesFile.isFile()) {
                 try (Reader reader = new FileReader(propertiesFile)) {
@@ -335,6 +361,9 @@ public class FileSystemDataStore
             if (nidToElementSequenceMapDirectory.exists()) {
                 nidToElementSequenceMap.read(nidToElementSequenceMapDirectory);
             }
+            
+            readExtendedLongMapFile();
+            //extended storage is read on demand
 
             // assemblage_ElementToNid_Map is lazily loaded
         } catch (IOException ex) {
@@ -352,44 +381,67 @@ public class FileSystemDataStore
     public void shutdown() {
         try {
             LOG.info("Stopping FileSystemDataStore.");
-
-            // The IO non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
-            // with an unbounded queue.
-            ThreadPoolExecutor executor = new ThreadPoolExecutor(
-                    4,
-                    4,
-                    60,
-                    TimeUnit.SECONDS,
-                    new LinkedBlockingQueue<>(),
-                    new NamedThreadFactory("IODataStore-Shutdown-work-thread", true));
-
-            executor.allowCoreThreadTimeOut(true);
-
-            Task<Void> syncTask = new SyncTask();
-
-            pendingSync.acquire();
-            executor.submit(syncTask)
-                    .get();
-            this.datastoreStartState = DataStoreStartState.NOT_YET_CHECKED;
-            this.assemblageNid_SequenceGenerator_Map.clear();
-            this.properties.clear();
-            this.assemblage_ElementToNid_Map.clear();
-            this.spinedChronologyMapMap.clear();
-            this.spinedTaxonomyMapMap.clear();
-            this.componentToSemanticNidsMap.clear();
-            this.assemblageToObjectType_Map.clear();
-            this.assemblageToVersionType_Map.clear();
-            this.nidToAssemblageNidMap.clear();
-            this.nidToElementSequenceMap.clear();
-            this.lastSyncTask = null;
-            this.lastSyncFuture = null;
-            this.writeListeners.clear();
-        } catch (InterruptedException | ExecutionException ex) {
+            StopMeTask stopMeTask = new StopMeTask();
+            stopMeTask.call();
+        } catch (Exception ex) {
             LOG.error("Unexpected error in FileSystemDataStore shutdown", ex);
             throw new RuntimeException(ex);
         }
+        LOG.info("Stopped FileSystemDataStore.");
     }
+    private class StopMeTask extends TimedTaskWithProgressTracker {
 
+        public StopMeTask() {
+            updateTitle("Stopping File system datastore");
+            addToTotalWork(2);
+            Get.activeTasks().add(this);
+        }
+        @Override
+        protected Object call() throws Exception {
+            try {
+                this.updateMessage("Write to disk");
+
+                // The IO non-blocking executor - set core threads equal to max - otherwise, it will never increase the thread count
+                // with an unbounded queue.
+                ThreadPoolExecutor executor = new ThreadPoolExecutor(
+                        4,
+                        4,
+                        60,
+                        TimeUnit.SECONDS,
+                        new LinkedBlockingQueue<>(),
+                        new NamedThreadFactory("IODataStore-Shutdown-work-thread", true));
+
+                executor.allowCoreThreadTimeOut(true);
+
+                Task<Void> syncTask = new SyncTask(true);
+
+                pendingSync.acquire();
+                executor.submit(syncTask).get();
+                completedUnitOfWork();
+                this.updateMessage("Clearing caches");
+                FileSystemDataStore.this.datastoreStartState = DataStoreStartState.NOT_YET_CHECKED;
+                FileSystemDataStore.this.assemblageNid_SequenceGenerator_Map.clear();
+                FileSystemDataStore.this.properties.clear();
+                FileSystemDataStore.this.assemblage_ElementToNid_Map.clear();
+                FileSystemDataStore.this.spinedChronologyMapMap.clear();
+                FileSystemDataStore.this.spinedTaxonomyMapMap.clear();
+                FileSystemDataStore.this.componentToSemanticNidsMap.clear();
+                FileSystemDataStore.this.assemblageToObjectType_Map.clear();
+                FileSystemDataStore.this.assemblageToVersionType_Map.clear();
+                FileSystemDataStore.this.nidToAssemblageNidMap.clear();
+                FileSystemDataStore.this.nidToElementSequenceMap.clear();
+                FileSystemDataStore.this.extendedLongMap.clear();
+                FileSystemDataStore.this.extendedStoreMap.clear();
+                FileSystemDataStore.this.lastSyncTask = null;
+                FileSystemDataStore.this.lastSyncFuture = null;
+                FileSystemDataStore.this.writeListeners.clear();
+                completedUnitOfWork();
+                return null;
+            } finally {
+                Get.activeTasks().remove(this);
+            }
+        }
+    }
     private void writeAssemblageToObjectTypeFile()
             throws IOException {
         try (DataOutputStream dos = new DataOutputStream(
@@ -430,8 +482,37 @@ public class FileSystemDataStore
             }
         }
     }
+    
+    private void writeExtendedLongMapFile() throws IOException {
+        try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(extendedLongMapFile)))) {
+            dos.writeInt(extendedLongMap.size());
 
-    //~--- get methods ---------------------------------------------------------
+            for (Map.Entry<String, Long> entry : extendedLongMap.entrySet()) {
+                dos.writeUTF(entry.getKey());
+                dos.writeLong(entry.getValue());
+            }
+        }
+    }
+    
+    private void readExtendedLongMapFile() throws IOException {
+        if (extendedLongMapFile.exists()) {
+            try (DataInputStream dis = new DataInputStream(new BufferedInputStream(new FileInputStream(extendedLongMapFile)))) {
+                int mapSize = dis.readInt();
+
+                for (int i = 0; i < mapSize; i++) {
+                    extendedLongMap.put(dis.readUTF(), dis.readLong());
+                }
+            }
+        }
+    }
+    
+    private void writeExtendedStoreMapFiles() throws IOException {
+        //Write each one to a different file - that way, we can lazy load upon request (and we will then have the serializer info)
+        for (String keyName : extendedStoreMap.keySet()) {
+            writeStoreData(keyName);
+        }
+    }
+    
     @Override
     public int[] getAssemblageConceptNids() {
         int[] assemblageConceptNids = new int[assemblageToObjectType_Map.size()];
@@ -460,7 +541,7 @@ public class FileSystemDataStore
                     if (directory.exists()) {
                         int filesRead = map.read(directory);
                         if (filesRead > 0) {
-                            LOG.debug("Read  " + filesRead + " element to nid files for assemblage: "
+                            LOG.trace("Read  " + filesRead + " element to nid files for assemblage: "
                                     + " " + properties.getProperty(Integer.toString(assemblageNid))
                                     + assemblageNid + " " + Integer.toUnsignedString(assemblageNid));
                         }
@@ -614,6 +695,9 @@ public class FileSystemDataStore
    @Override
    public int[] accumulateAndGetTaxonomyData(int assemblageId, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction)
    {
+       if (conceptNid == TermAux.SOLOR_ROOT.getNid() && Get.configurationService().isVerboseDebugEnabled()) {
+           LOG.info(" root update watch");
+       }
       return getTaxonomyMap(assemblageId).accumulateAndGet(conceptNid, newData, accumulatorFunction);
    }
 
@@ -641,7 +725,13 @@ public class FileSystemDataStore
     private class SyncTask
             extends TimedTaskWithProgressTracker<Void> {
 
-        public SyncTask() {
+        boolean shutdownSync;
+        
+        /**
+         * Pass true, if syncing for a shutdown, false, if just syncing during normal ops
+         */
+        public SyncTask(boolean shutdownSync) {
+            this.shutdownSync = shutdownSync;
             updateTitle("Writing data to disk");
         }
 
@@ -662,7 +752,7 @@ public class FileSystemDataStore
                     completedUnitOfWork();
                     FileSystemDataStore.LOG.info("Skipping write secondary to BuildMode.IBDF");
                 } else {
-                    addToTotalWork(9);
+                    addToTotalWork(11);
                     updateMessage("Writing sequence generator map...");
                     writeSequenceGeneratorMapFile();
 
@@ -687,7 +777,7 @@ public class FileSystemDataStore
 
                                 if (spinedMap.write()) {
                                     String assemblageDescription = properties.getProperty(Integer.toUnsignedString(assemblageNid));
-                                    FileSystemDataStore.LOG.debug("Syncronized chronologies: " + assemblageNid
+                                    FileSystemDataStore.LOG.trace("Synchronized chronologies: " + assemblageNid
                                             + " " + assemblageDescription + " to " + directory.getAbsolutePath());
                                 }
                             });
@@ -727,10 +817,27 @@ public class FileSystemDataStore
                     completedUnitOfWork();  // 8
                     updateMessage("Writing properties...");
 
-                    try (FileWriter writer = new FileWriter(propertiesFile)) {
+                    try (FileWriter writer = new FileWriter(propertiesFile, Charset.forName(StandardCharsets.UTF_8.name()))) {
                         FileSystemDataStore.this.properties.store(writer, null);
                     }
                     completedUnitOfWork();  // 9
+                    
+                    updateMessage("Writing extended long file...");
+                    writeExtendedLongMapFile();
+                    completedUnitOfWork();  // 10
+                    
+                    if (shutdownSync) {
+                        //Can't do this serialize during shutdown, because it depends on other services for serialization that 
+                        //have already been shutdown.  Those other services will need to call {@link #closeStore} first
+                        if (extendedStoreMap.size() > 0) {
+                            LOG.fatal("At least one extended store file was not properly closed! First is: " + extendedStoreMap.keys().nextElement());
+                        }
+                    }
+                    else {
+                        updateMessage("Writing extended store map files...");
+                        writeExtendedStoreMapFiles();
+                    }
+                    completedUnitOfWork();  // 11
                     
                     writeListeners.forEach(listener -> listener.sync());
                 }
@@ -859,16 +966,17 @@ public class FileSystemDataStore
       return getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).get(sequence);
    }
 
-/** 
+   /** 
     * {@inheritDoc}
     */
    @Override
-   public IntStream getNidsForAssemblage(int assemblageNid)
+   public IntStream getNidsForAssemblage(int assemblageNid, boolean parallel)
    {
-      return getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).valueStream();
+      return parallel ? getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).parallelValueStream() :
+         getAssemblageNid_ElementSequenceToNid_Map(assemblageNid).valueStream();
    }
 
-   /** 
+    /**
     * {@inheritDoc}
     */
    @Override
@@ -889,8 +997,12 @@ public class FileSystemDataStore
    {
       OptionalInt current = getAssemblageOfNid(nid);
       if (current.isPresent() && current.getAsInt() != assemblage) {
-           throw new IllegalArgumentException("The nid " + nid + " is already assigned to assemblage " 
-                   + current + " and cannot be reassigned to " + nid);
+          StringBuilder sb = new StringBuilder();
+          sb.append("The nid ").append(nid).append(" (").append(Get.identifierService().getUuidsForNid(nid)).append(") ");
+          sb.append(" is already assigned to assemblage ").append(current).append(" (").append(Get.identifierService().getUuidsForNid(current.getAsInt())).append(") ");
+          sb.append(" and cannot be reassigned to: ").append(assemblage).append(" (").append(Get.identifierService().getUuidsForNid(assemblage)).append(") ");
+
+           throw new IllegalArgumentException(sb.toString());
       }
       else {
          nidToAssemblageNidMap.put(nid,  assemblage);
@@ -901,4 +1013,92 @@ public class FileSystemDataStore
    public boolean implementsSequenceStore() {
       return true;
    }
+
+    @Override
+    public boolean implementsExtendedStoreAPI() {
+        return true;
+    }
+
+    @Override
+    public OptionalLong getSharedStoreLong(String key) {
+        Long l = extendedLongMap.get(key);
+        return l == null ? OptionalLong.empty() : OptionalLong.of(l);
+    }
+
+    @Override
+    public OptionalLong putSharedStoreLong(String key, long value) {
+        Long l = extendedLongMap.put(key, value);
+        return l == null ? OptionalLong.empty() : OptionalLong.of(l);
+    }
+
+    @Override
+    public OptionalLong removeSharedStoreLong(String key) {
+        Long l = extendedLongMap.remove(key);
+        return l == null ? OptionalLong.empty() : OptionalLong.of(l);
+    }
+
+    @Override
+    public <K, V> ExtendedStoreData<K, V> getStore(String storeName) {
+        return getStore(storeName, null, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public <K, VI, VE> ExtendedStoreData<K, VE> getStore(String storeName, Function<VE, VI> valueSerializer, Function<VI, VE> valueDeserializer) {
+        return (ExtendedStoreData<K, VE>) extendedStoreMap.computeIfAbsent(storeName, nameAgain ->  {
+            try {
+                File extendedStoreMapFile = new File(isaacDbDirectory, "extendedStoreMap-" + storeName);
+                if (!extendedStoreMapFile.exists()) {
+                    extendedStoreMapFile.getParentFile().mkdirs();
+                    extendedStoreMapFile.createNewFile();
+                }
+                if (extendedStoreMapFile.length() > 1) {
+                    try (DataInputStream dis = new DataInputStream(new FileInputStream(extendedStoreMapFile)))
+                    {
+                        String serviceName = dis.readUTF();
+                        ExtendedStoreWithSerializer<K, VE> store = LookupService.getService(ExtendedStoreWithSerializer.class, serviceName);
+                        store.init(dis, (Function<Object, Object>)valueSerializer, (Function<Object, Object>)valueDeserializer);
+                        LOG.debug("Loaded {} entries from the mapfile {}", () -> store.size(), () -> extendedStoreMapFile.getAbsolutePath());
+                        return (ExtendedStoreWithSerializer<Object, Object>) store;
+                    }
+                }
+                else {
+                    LOG.debug("Created a new, blank mapfile for {}", () -> extendedStoreMapFile.getAbsolutePath());
+                    if (valueSerializer == null) {
+                        return new SimpleTypeStoreMap();
+                    }
+                    else {
+                        return new ArbitraryTypeStoreMap((Function<Object, Object>)valueSerializer, (Function<Object, Object>)valueDeserializer);
+                    }
+                }
+            }
+            catch (Exception e) {
+                LOG.error("Failure reading {}", storeName, e);
+                throw new RuntimeException("Problem reading extended store map file for " + storeName);
+            }
+        });
+    }
+    
+    private void writeStoreData(String storeName) throws IOException {
+        File extendedStoreMapFile = new File(isaacDbDirectory, "extendedStoreMap-" + storeName);
+        try (DataOutputStream dos = new DataOutputStream(new FileOutputStream(extendedStoreMapFile))) {
+            dos.writeUTF(extendedStoreMap.get(storeName).getServiceName());
+            extendedStoreMap.get(storeName).serialize(dos);
+        }
+        LOG.debug("Wrote {} items to {}",  () -> extendedStoreMap.get(storeName).size(), () -> extendedStoreMapFile.getAbsolutePath());
+    }
+
+    @Override
+    public void closeStore(String storeName) {
+        try
+        {
+            LOG.debug("Writing and closing extended data store {}", storeName);
+            writeStoreData(storeName);
+            extendedStoreMap.remove(storeName);
+        }
+        catch (IOException e)
+        {
+            throw new RuntimeException(e);
+        }
+    }
 }

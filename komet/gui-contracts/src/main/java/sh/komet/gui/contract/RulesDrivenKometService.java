@@ -26,11 +26,14 @@ import org.controlsfx.control.action.Action;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.BusinessRulesService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.EditCoordinateImmutable;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
-import sh.komet.gui.control.PropertySheetMenuItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -38,21 +41,23 @@ import sh.komet.gui.manifold.Manifold;
  */
 @Contract
 public interface RulesDrivenKometService extends BusinessRulesService {
-   List<Action> getEditLogicalExpressionNodeMenuItems(Manifold manifold, 
-           LogicNode nodeToEdit, 
-           LogicalExpression expressionContiningNode,
-            Consumer<LogicalExpression> expressionUpdater,
-            MouseEvent mouseEvent);
+   List<Action> getEditLogicalExpressionNodeMenuItems(ViewProperties viewProperties,
+                                                      LogicNode nodeToEdit,
+                                                      LogicalExpression expressionContiningNode,
+                                                      Consumer<LogicalExpression> expressionUpdater,
+                                                      MouseEvent mouseEvent);
    
-   List<MenuItem> getEditVersionMenuItems(Manifold manifold, 
-           ObservableCategorizedVersion categorizedVersion, 
-           Consumer<PropertySheetMenuItem> propertySheetConsumer);
+   List<MenuItem> getEditVersionMenuItems(ManifoldCoordinate manifoldCoordinate,
+                                          ObservableCategorizedVersion categorizedVersion,
+                                          Consumer<PropertySheetMenuItem> propertySheetConsumer);
    
-   List<MenuItem> getAddAttachmentMenuItems(Manifold manifold, 
-           ObservableCategorizedVersion categorizedVersion, 
-           BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer);
+   List<MenuItem> getAddAttachmentMenuItems(ManifoldCoordinate manifoldCoordinate,
+                                            ObservableCategorizedVersion categorizedVersion,
+                                            BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer);
    
    void populatePropertySheetEditors(PropertySheetMenuItem propertySheetMenuItem);
    
-   void populateWrappedProperties(List<PropertySheet.Item> items);
+   void populateWrappedProperties(List<PropertySheet.Item> items,
+                                  ManifoldCoordinateImmutable manifoldCoordinate,
+                                  EditCoordinateImmutable editCoordinate);
 }

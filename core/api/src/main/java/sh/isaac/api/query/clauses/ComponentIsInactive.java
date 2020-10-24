@@ -16,37 +16,27 @@
  */
 package sh.isaac.api.query.clauses;
 
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Optional;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.query.ClauseComputeType;
-import sh.isaac.api.query.ClauseSemantic;
-import sh.isaac.api.query.LeafClause;
-import sh.isaac.api.query.LetItemKey;
-import sh.isaac.api.query.Query;
-import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.query.*;
+
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Optional;
 
 /**
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class ComponentIsInactive extends LeafClause {
 
     /**
      * the manifold coordinate key.
      */
-    LetItemKey stampCoordinateKey;
+    LetItemKey stampFilterKey;
 
     //~--- constructors --------------------------------------------------------
     /**
@@ -59,17 +49,17 @@ public class ComponentIsInactive extends LeafClause {
      * Instantiates a new component is active clause.
      *
      * @param enclosingQuery the enclosing query
-     * @param stampCoordinateKey the manifold coordinate key
+     * @param stampFilterKey the manifold coordinate key
      */
-    public ComponentIsInactive(Query enclosingQuery, LetItemKey stampCoordinateKey) {
+    public ComponentIsInactive(Query enclosingQuery, LetItemKey stampFilterKey) {
         super(enclosingQuery);
-        this.stampCoordinateKey = stampCoordinateKey;
+        this.stampFilterKey = stampFilterKey;
     }
 
     //~--- methods -------------------------------------------------------------
     @Override
     public final Map<ConceptSpecification, NidSet> computeComponents(Map<ConceptSpecification, NidSet> incomingComponents) {
-        StampCoordinate stampCoordinate = getLetItem(stampCoordinateKey);
+        StampFilter stampFilter = getLetItem(stampFilterKey);
         
         NidSet possibleComponents = incomingComponents.get(getAssemblageForIteration());
         
@@ -79,7 +69,7 @@ public class ComponentIsInactive extends LeafClause {
                             .getChronology(nid);
             if (chronology.isPresent()) {
                 if (chronology.get()
-                        .isLatestVersionActive(stampCoordinate)) {
+                        .isLatestVersionActive(stampFilter)) {
                     possibleComponents.remove(nid);
                 }
             } else {
@@ -131,12 +121,11 @@ public class ComponentIsInactive extends LeafClause {
         return whereClause;
     }
 
-    @XmlElement
-    public LetItemKey getStampCoordinateKey() {
-        return stampCoordinateKey;
+    public LetItemKey getStampFilterKey() {
+        return stampFilterKey;
     }
 
-    public void setStampCoordinateKey(LetItemKey stampCoordinateKey) {
-        this.stampCoordinateKey = stampCoordinateKey;
+    public void setStampFilterKey(LetItemKey stampFilterKey) {
+        this.stampFilterKey = stampFilterKey;
     }
 }

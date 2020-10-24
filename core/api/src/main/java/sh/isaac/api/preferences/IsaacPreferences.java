@@ -19,22 +19,18 @@ package sh.isaac.api.preferences;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.OptionalDouble;
-import java.util.OptionalInt;
-import java.util.OptionalLong;
-import java.util.UUID;
+import java.util.*;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.NodeChangeListener;
 import java.util.prefs.PreferenceChangeListener;
+import java.util.prefs.Preferences;
+
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.util.PasswordHasher;
+import sh.isaac.api.util.UuidStringKey;
 
 /**
  *
@@ -59,6 +55,50 @@ public interface IsaacPreferences {
 
     default void put(Enum key, String value) {
         put(enumToGeneralKey(key), value);
+    }
+
+    /**
+     * Associates the specified UUID value with the specified key in this preference
+     * node.
+     *
+     * @param key key with which the specified value is to be associated.
+     * @param value UUID value to be associated with the specified key.
+     * @throws NullPointerException if key or value is <tt>null</tt>.
+     * @throws IllegalArgumentException if <tt>key.length()</tt> exceeds
+     * <tt>MAX_KEY_LENGTH</tt> or if <tt>value.length</tt> exceeds
+     * <tt>MAX_VALUE_LENGTH</tt>.
+     * @throws IllegalStateException if this node (or an ancestor) has been
+     * removed with the {@link #removeNode()} method.
+     */
+    default void putUuid(Enum key, UUID value) {
+        put(enumToGeneralKey(key), value.toString());
+    }
+
+    /**
+     * Returns the UUID value associated with the specified key in this preference
+     * node. Returns the specified default if there is no value associated with
+     * the key, or the backing store is inaccessible.
+     * @param key
+     * @param defaultValue
+     * @throws NullPointerException if key or defaultValue is <tt>null</tt>.
+     * @return the value associated with <tt>key</tt>, or <tt>defaultValue</tt>
+     *  if no value is associated with <tt>key</tt>, or the backing store is
+     *  inaccessible.
+     */
+    default UUID getUuid(Enum key, UUID defaultValue) {
+        if (defaultValue != null) {
+            String uuidStr = get(key, defaultValue.toString());
+            return UUID.fromString(uuidStr);
+        }
+        throw new NullPointerException("Default value cannot be null");
+    }
+
+    default Optional<UUID> getUuid(Enum key) {
+        Optional<String> optionalString = get(key);
+        if (optionalString.isPresent()) {
+            return Optional.of(UUID.fromString(optionalString.get()));
+        }
+        return Optional.empty();
     }
 
     /**
@@ -99,7 +139,17 @@ public interface IsaacPreferences {
 
     default String enumToGeneralKey(Enum key) {
         UUID uuidPrefix = UUID.nameUUIDFromBytes(key.getDeclaringClass().getName().getBytes());
-        return uuidPrefix.toString() + "." + key.getDeclaringClass().getSimpleName() + "." + key.name();
+        String suffix = "." + key.getDeclaringClass().getSimpleName() + "." + key.name();
+        String stringKey = uuidPrefix + suffix;
+
+        if (stringKey.length() > Preferences.MAX_KEY_LENGTH) {
+            int sizeToRemove = stringKey.length() - Preferences.MAX_KEY_LENGTH;
+            stringKey = stringKey.substring(sizeToRemove);
+            if (stringKey.length() > Preferences.MAX_KEY_LENGTH) {
+                throw new IllegalStateException("Key length = " + stringKey.length());
+            }
+        }
+        return stringKey;
     }
 
     /**
@@ -402,12 +452,55 @@ public interface IsaacPreferences {
      */
     double getDouble(String key, double defaultValue);
 
+    default double getDouble(Enum key, double defaultValue) {
+        return getDouble(enumToGeneralKey(key), defaultValue);
+    }
+
     default OptionalDouble getDouble(String key) {
         Optional<String> optionalValue = get(key);
         if (optionalValue.isPresent()) {
             return OptionalDouble.of(Double.parseDouble(optionalValue.get()));
         }
         return OptionalDouble.empty();
+    }
+
+    default void putDoubleArray(Enum key, double[] array) {
+        putDoubleArray(enumToGeneralKey(key), array);
+    }
+
+    default void putDoubleArray(String key, double[] array) {
+        List<String> doubleList = new ArrayList<>(array.length);
+        for (double value: array) {
+            doubleList.add(Double.toString(value));
+        }
+        putList(key, doubleList);
+    }
+
+    default  double[] getDoubleArray(String key, double[] defaultArray) {
+        Optional<double[]> optionalArray = getDoubleArray(key);
+        if (optionalArray.isPresent()) {
+            return optionalArray.get();
+        }
+        return defaultArray;
+    }
+
+    default  double[] getDoubleArray(Enum key, double[] defaultArray) {
+        return getDoubleArray(enumToGeneralKey(key), defaultArray);
+    }
+    default Optional<double[]> getDoubleArray(Enum key) {
+        return getDoubleArray(enumToGeneralKey(key));
+    }
+    default Optional<double[]> getDoubleArray(String key) {
+        Optional<List<String>> optionalValue = getOptionalList(key);
+        if (optionalValue.isPresent()) {
+            List<String> listValue = optionalValue.get();
+            double[] doubleArray = new double[listValue.size()];
+            for (int i = 0; i < doubleArray.length; i++) {
+                doubleArray[i] = Double.parseDouble(listValue.get(i));
+            }
+            return Optional.of(doubleArray);
+        }
+        return Optional.empty();
     }
 
     /**
@@ -476,12 +569,37 @@ public interface IsaacPreferences {
      */
     byte[] getByteArray(String key, byte[] defaultValue);
 
+    default <T extends Object> T getObject(UUID key) {
+        return getObject(key.toString());
+    }
+    default <T extends Object> T getObject(String key) {
+        Optional<byte[]> optionalBytes = getByteArray(key);
+        if (optionalBytes.isPresent()) {
+            return MarshalUtil.fromBytes(optionalBytes.get());
+        }
+        throw new IllegalStateException("No data for key");
+    }
+    default void putObject(UUID key, Object object) {
+        putObject(key.toString(), object);
+    }
+    default void putObject(String key, Object object) {
+        putByteArray(key, MarshalUtil.toBytes(object));
+    }
+
     default Optional<byte[]> getByteArray(String key) {
         Optional<String> optionalValue = get(key);
         if (optionalValue.isPresent()) {
-            return Optional.of(getByteArray(key, null));
+            return Optional.of(getByteArray(key, new byte[0]));
         }
         return Optional.empty();
+    }
+
+    default Optional<byte[]> getByteArray(Enum key) {
+        return getByteArray(enumToGeneralKey(key));
+    }
+
+    default byte[] getByteArray(Enum key, byte[] defaultValue) {
+        return getByteArray(enumToGeneralKey(key), defaultValue);
     }
 
     /**
@@ -825,7 +943,6 @@ public interface IsaacPreferences {
      * an <tt>IOException</tt>.
      * @throws BackingStoreException if preference data cannot be read from
      * backing store.
-     * @see #importPreferences(InputStream)
      * @throws IllegalStateException if this node (or an ancestor) has been
      * removed with the {@link #removeNode()} method.
      */
@@ -859,7 +976,6 @@ public interface IsaacPreferences {
      * backing store.
      * @throws IllegalStateException if this node (or an ancestor) has been
      * removed with the {@link #removeNode()} method.
-     * @see #importPreferences(InputStream)
      * @see #exportNode(OutputStream)
      */
     void exportSubtree(OutputStream os)
@@ -895,12 +1011,8 @@ public interface IsaacPreferences {
         put(key, value.name());
     }
 
-    default boolean hasKey(Class clazz) {
-        return get(clazz.getCanonicalName()).isPresent();
-    }
-
     default boolean hasKey(Enum enumDefault) {
-        return get(enumDefault.getClass().getCanonicalName()).isPresent();
+        return get(enumToGeneralKey(enumDefault)).isPresent();
     }
 
     default boolean hasKey(String key) {
@@ -910,11 +1022,41 @@ public interface IsaacPreferences {
     default void putList(Enum key, List<String> list) {
         putList(enumToGeneralKey(key), list);
     }
+    default void putArray(Enum key, String[] array) {
+        putList(key, Arrays.asList(array));
+    }
+
+    default void putArray(String key, String[] array) {
+        putList(key, Arrays.asList(array));
+    }
+
+    default String[] getArray(Enum key) {
+        return getList(enumToGeneralKey(key)).toArray(new String[2]);
+    }
+
+    default String[] getArray(String key) {
+        return getList(key).toArray(new String[2]);
+    }
 
     default void putList(String key, List<String> list) {
         StringBuilder builder = new StringBuilder();
         for (int i = 0; i < list.size(); i++) {
             builder.append(list.get(i));
+            if (i < list.size() - 1) {
+                builder.append("|!%|");
+            }
+        }
+        put(key, builder.toString());
+    }
+
+    default void putUuidStringKeyList(Enum key, List<? extends UuidStringKey> list) {
+        putUuidStringKeyList(enumToGeneralKey(key), list);
+    }
+
+    default void putUuidStringKeyList(String key, List<? extends UuidStringKey> list) {
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < list.size(); i++) {
+            builder.append(list.get(i).toExternalString());
             if (i < list.size() - 1) {
                 builder.append("|!%|");
             }
@@ -935,7 +1077,46 @@ public interface IsaacPreferences {
         }
         put(key, builder.toString());
     }
+    default void putComponentList(Enum key, Collection<? extends ComponentProxy> list) {
+        putComponentList(enumToGeneralKey(key), list);
+    }
+    default void putComponentList(String key, Collection<? extends ComponentProxy> list) {
+        StringBuilder builder = new StringBuilder();
+        Iterator<? extends ComponentProxy> itr = list.iterator();
+        while (itr.hasNext()) {
+            ComponentProxy componentProxy = itr.next();
+            builder.append(componentProxy.toExternalString());
+            if (itr.hasNext()) {
+                builder.append("|!%|");
+            }
+        }
+        put(key, builder.toString());
+    }
 
+    default List<UuidStringKey> getUuidStringKeyList(Enum key) {
+        return getUuidStringKeyList(enumToGeneralKey(key));
+    }
+
+    default List<UuidStringKey> getUuidStringKeyList(String key) {
+        List<String> list = getList(key);
+        List<UuidStringKey> uuidStringKeys = new ArrayList<>(list.size());
+        for (String externalString: list) {
+            uuidStringKeys.add(new UuidStringKey(externalString));
+        }
+        return uuidStringKeys;
+    }
+
+    default List<ComponentProxy> getComponentList(Enum key) {
+        return getComponentList(enumToGeneralKey(key));
+    }
+    default List<ComponentProxy> getComponentList(String key) {
+        List<String> list = getList(key);
+        List<ComponentProxy> proxyList = new ArrayList<>(list.size());
+        for (String proxyString: list) {
+            proxyList.add(new ComponentProxy(proxyString));
+        }
+        return proxyList;
+    }
     default List<String> getList(Enum key) {
         return getList(enumToGeneralKey(key));
     }
@@ -971,6 +1152,9 @@ public interface IsaacPreferences {
         }
         return Optional.empty();
      }
+    default List<ConceptProxy> getConceptList(Enum key, ConceptSpecification[] defaultList) {
+        return getConceptList(key, Arrays.asList(defaultList));
+    }
 
     default List<ConceptProxy> getConceptList(Enum key, List<? extends ConceptSpecification> defaultList) {
         Optional<List<ConceptProxy>> optionalList = getOptionalConceptList(enumToGeneralKey(key));

@@ -39,16 +39,23 @@ package sh.isaac.model.taxonomy;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.Optional;
+
+import org.apache.mahout.math.list.IntArrayList;
+import sh.isaac.api.Get;
 import sh.isaac.api.Status;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.collections.NidSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.coordinate.StampCoordinate;
+
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampFilterImmutable;
+import sh.isaac.api.coordinate.TaxonomyFlag;
+import sh.isaac.api.navigation.NavigationRecord;
+import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -108,18 +115,255 @@ public class TaxonomyRecordPrimitive {
    }
 
    /**
+    * The even indexes are the nids... 0, 2, 4, ...
+    * The odd indexes are the position within the array... 1, 3, 5, ...
+    * @return
+    */
+   public static int[][] getDestinationNidPositionArray(int[] data) {
+      int index = 0;
+      IntArrayList destNidList = new IntArrayList();
+      IntArrayList positionList = new IntArrayList();
+      IntArrayList lengthList = new IntArrayList();
+      while (index < data.length) {
+         // the destination nid
+         destNidList.add(data[index]);
+         // the position in the array
+         positionList.add(index);
+         index++;
+         final int length = data[index];
+         lengthList.add(length);
+         //final TypeStampTaxonomyRecords records = new TypeStampTaxonomyRecords(recordArray, index);
+         //this.conceptNidRecordMap.put(conceptNid, records);
+
+         index += length;
+         if (index < 0) {
+            throw new IllegalStateException("Index: " + index);
+         }
+      }
+      destNidList.trimToSize();
+      positionList.trimToSize();
+      lengthList.trimToSize();
+      int[][] results = new int[3][];
+      results[0] = destNidList.elements();
+      results[1] = positionList.elements();
+      results[2] = lengthList.elements();
+      return results;
+   }
+
+   public static int[] merge(int[] thisArray, int[] thatArray) {
+      int[][] thisDnpa = getDestinationNidPositionArray(thisArray);
+      int[][] thatDnpa = getDestinationNidPositionArray(thatArray);
+      IntArrayList solution = new IntArrayList(thisDnpa.length + thatDnpa.length);
+
+      // find differences
+      int thisIndex = 0;
+      int thatIndex = 0;
+      while (true) {
+         if (thisDnpa[0][thisIndex] == thatDnpa[0][thatIndex]) {
+            // Nids are the same... Is the length the same?
+            int thisStart = thisDnpa[1][thisIndex];
+            int thisEnd = thisStart +  thisDnpa[2][thisIndex] + 1;
+            int thatStart = thatDnpa[1][thatIndex];
+            int thatEnd = thatStart +  thatDnpa[2][thatIndex] + 1;
+            if (thisDnpa[2][thisIndex] == thatDnpa[2][thatIndex]) {
+               // the length is the same, is the content the same?
+
+               if (Arrays.compare(thisArray, thisStart, thisEnd, thatArray, thatStart, thatEnd) == 0) {
+                  // Copy the content to the solution.
+                  for (int i = thisStart; i < thisEnd; i++) {
+                     solution.add(thisArray[i]);
+                  }
+               } else {
+                  // content is not the same... Must merge the two arrays.
+                  // add the nid
+                  solution.add(thisArray[thisStart]);
+                  // the + 2 is to skip the nid and length ints.
+                  solution.addAllOf(lengthAndMergedArrays(thisArray, thisStart + 2, thisEnd, thatArray, thatStart + 2, thatEnd));
+               }
+            } else {
+               // length is not the same... Must merge the two arrays.
+               // add the nid
+               solution.add(thisArray[thisStart]);
+               // the + 2 is to skip the nid and length ints.
+               solution.addAllOf(lengthAndMergedArrays(thisArray, thisStart + 2, thisEnd, thatArray, thatStart + 2, thatEnd));
+            }
+            thisIndex++;
+            thatIndex++;
+         } else {
+            // nids are not the same... Copy data from one array or the other...
+            // since nids are sorted, copy the data from the array with the smaller nid
+            // and increment the counter from the array with the smaller nid.
+            if (thisDnpa[0][thisIndex] < thatDnpa[0][thatIndex]) {
+               int thisStart = thisDnpa[1][thisIndex];
+               int thisEnd = thisStart +  thisDnpa[2][thisIndex] + 1;
+               for (int i = thisStart; i < thisEnd; i++) {
+                  solution.add(thisArray[i]);
+               }
+               thisIndex++;
+            } else {
+               int thatStart = thatDnpa[1][thatIndex];
+               int thatEnd = thatStart +  thatDnpa[2][thatIndex] + 1;
+               for (int i = thatStart; i < thatEnd; i++) {
+                  solution.add(thatArray[i]);
+               }
+               thatIndex++;
+            }
+         }
+         if (thisIndex == thisDnpa[0].length) {
+            // this is done, copy remaining that if any...
+            while (thatIndex < thatDnpa[0].length) {
+               int thatStart = thatDnpa[1][thatIndex];
+               int thatEnd = thatStart +  thatDnpa[2][thatIndex] + 1;
+               for (int i = thatStart; i < thatEnd; i++) {
+                  solution.add(thatArray[i]);
+               }
+               thatIndex++;
+            }
+
+            break;
+         }
+         if (thatIndex == thatDnpa[0].length) {
+            // that is done, copy remaining this if any
+            while (thisIndex < thisDnpa[0].length) {
+               int thisStart = thisDnpa[1][thisIndex];
+               int thisEnd = thisStart +  thisDnpa[2][thisIndex] + 1;
+               for (int i = thisStart; i < thisEnd; i++) {
+                  solution.add(thisArray[i]);
+               }
+               thisIndex++;
+            }
+            break;
+         }
+      }
+      solution.trimToSize();
+      return solution.elements();
+   }
+
+   /**
+    *
+    * @param array1
+    * @param array1Start
+    * @param array1End
+    * @param array2
+    * @param array2Start
+    * @param array2End
+    * @return merged array, with int[0] being the length of the merged array.
+    */
+   private static IntArrayList lengthAndMergedArrays(int[] array1, int array1Start, int array1End, int[] array2, int array2Start, int array2End) {
+      // records fixed three integer sequence: int typeNid, int stampSequence, int taxonomyFlags
+      IntArrayList solution = new IntArrayList((array1End - array1Start) + (array2End - array2Start) + 1);
+      solution.add(-1); // reserve space for length.
+      int array1Index = array1Start;
+      int array2Index = array2Start;
+      while (true) {
+         if (array1[array1Index] == array2[array2Index]) {
+            // typeNid is the same... Is the stampSequence the same?
+            if (array1[array1Index + 1] == array2[array2Index + 1]) {
+               // stampSequences are the same... Are the taxonomyFlags the same?
+               if (array1[array1Index + 2] == array2[array2Index + 2]) {
+                  // taxonomyFlags are the same
+                  solution.add(array1[array1Index]);
+                  solution.add(array1[array1Index + 1]);
+                  solution.add(array1[array1Index + 2]);
+                  array1Index += 3;
+                  array2Index += 3;
+               } else {
+                  solution.add(array1[array1Index]);
+                  solution.add(array1[array1Index + 1]);
+                  solution.add(array1[array1Index + 2] | array2[array2Index + 2]);
+                  array1Index += 3;
+                  array2Index += 3;
+               }
+            } else {
+               // stampSequences are not the same
+               if (array1[array1Index + 1] < array2[array2Index + 1]) {
+                  solution.add(array1[array1Index]);
+                  solution.add(array1[array1Index + 1]);
+                  solution.add(array1[array1Index + 2]);
+                  array1Index += 3;
+               } else {
+                  solution.add(array2[array2Index]);
+                  solution.add(array2[array2Index + 1]);
+                  solution.add(array2[array2Index + 2]);
+                  array2Index += 3;
+               }
+            }
+         } else {
+            // typeNids are not the same...
+            if (array1[array1Index] < array2[array2Index]) {
+               solution.add(array1[array1Index]);
+               solution.add(array1[array1Index + 1]);
+               solution.add(array1[array1Index + 2]);
+               array1Index += 3;
+            } else {
+               solution.add(array2[array2Index]);
+               solution.add(array2[array2Index + 1]);
+               solution.add(array2[array2Index + 2]);
+               array2Index += 3;
+            }
+         }
+         if (array1Index == array1End) {
+            // need to finish here
+            while (array2Index < array2End) {
+               solution.add(array2[array2Index]);
+               solution.add(array2[array2Index + 1]);
+               solution.add(array2[array2Index + 2]);
+               array2Index += 3;
+            }
+            break;
+         }
+         if (array2Index == array2End) {
+            // need to finish here
+            while (array1Index < array1End) {
+               solution.add(array1[array1Index]);
+               solution.add(array1[array1Index + 1]);
+               solution.add(array1[array1Index + 2]);
+               array1Index += 3;
+            }
+            break;
+         }
+      }
+      solution.set(0, solution.size());
+      return solution;
+   }
+
+   /**
     * Concept satisfies stamp.
     *
     * @param conceptNid the concept nid
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return true, if successful
     */
-   public boolean conceptSatisfiesStamp(int conceptNid, StampCoordinate stampCoordinate) {
-      return getTaxonomyRecordUnpacked().conceptSatisfiesStamp(conceptNid, stampCoordinate);
+   public boolean conceptSatisfiesFilter(int conceptNid, StampFilterImmutable stampFilter) {
+      final RelativePositionCalculator computer = stampFilter.getRelativePositionCalculator();
+
+      return conceptSatisfiesFilter(conceptNid, computer);
    }
 
-   public EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate) {
-      return getTaxonomyRecordUnpacked().getConceptStates(conceptNid, stampCoordinate);
+   public boolean conceptSatisfiesFilter(int conceptNid, RelativePositionCalculator calculator) {
+      int index = 0;
+
+      while (index < taxonomyData.length) {
+         // the destination nid
+         final int recordConceptNid = taxonomyData[index++];
+         // followed by a variable number of type, stamp, flag records
+         final int length = taxonomyData[index];
+         if (recordConceptNid == conceptNid) {
+            // TODO see if containsConceptNidViaTypeWithAllowedStatus can be computed from TaxonomyRecordPrimitive
+            final TypeStampTaxonomyRecords records = new TypeStampTaxonomyRecords(taxonomyData, index);
+            return records.containsConceptNidViaTypeWithAllowedStatus(conceptNid, new int[] {TaxonomyFlag.CONCEPT_STATUS.bits}, calculator);
+         }
+
+         index += length;
+         if (index < 0) {
+            throw new IllegalStateException("Index: " + index);
+         }
+      }
+      return false;
+   }
+
+   public EnumSet<Status> getConceptStates(int conceptNid, StampFilterImmutable stampFilter) {
+      return getTaxonomyRecordUnpacked().getConceptStates(conceptNid, stampFilter);
    }
    /**
     * Contains nid via type.
@@ -129,7 +373,7 @@ public class TaxonomyRecordPrimitive {
     * @param flags the flags
     * @return true, if successful
     */
-   public boolean containsNidViaType(int conceptNid, NidSet typeNidSet, int flags) {
+   public boolean containsNidViaType(int conceptNid, NidSet typeNidSet, int[] flags) {
       return getTaxonomyRecordUnpacked().containsConceptNidViaType(conceptNid, typeNidSet, flags);
    }
 
@@ -171,7 +415,7 @@ public class TaxonomyRecordPrimitive {
    public boolean containsNidViaType(int conceptNid,
          NidSet typeNidSet,
          ManifoldCoordinate tc,
-         int flags) {
+         int[] flags) {
       return getTaxonomyRecordUnpacked().containsConceptNidViaType(conceptNid, typeNidSet, tc, flags);
    }
 
@@ -184,7 +428,7 @@ public class TaxonomyRecordPrimitive {
     * @param flags the flags
     * @return true, if successful
     */
-   public boolean containsNidViaType(int conceptNid, int typeNid, ManifoldCoordinate tc, int flags) {
+   public boolean containsNidViaType(int conceptNid, int typeNid, ManifoldCoordinate tc, int[] flags) {
       return getTaxonomyRecordUnpacked().containsConceptNidViaType(conceptNid, typeNid, tc, flags);
    }
 
@@ -196,8 +440,20 @@ public class TaxonomyRecordPrimitive {
     * @param flags the flags
     * @return true, if successful
     */
-   public boolean containsNidViaTypeWithFlags(int conceptNid, int typeNid, int flags) {
+   public boolean containsNidViaTypeWithFlags(int conceptNid, int typeNid, int[] flags) {
       return getTaxonomyRecordUnpacked().containsNidViaTypeWithFlags(conceptNid, typeNid, flags);
+   }
+
+   /**
+    * Contains stamp of type with flags.
+    *
+    * @param typeNid Integer.MAX_VALUE is a wildcard and will match all types.
+    * @param flags the flags
+    * @return true if found.
+    */
+
+   public boolean containsStampOfTypeWithFlags(int typeNid, int[] flags) {
+      return getTaxonomyRecordUnpacked().containsStampOfTypeWithFlags(typeNid, flags);
    }
 
    /**
@@ -264,35 +520,29 @@ public class TaxonomyRecordPrimitive {
       return this.taxonomyData;
    }
 
-   /**
-    * Checks if concept active.
-    *
-    * @param conceptNid the concept nid
-    * @param stampCoordinate the stamp coordinate
-    * @return true, if concept active
-    */
-   public boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate) {
-      return getTaxonomyRecordUnpacked().conceptSatisfiesStamp(conceptNid, stampCoordinate);
-   }
+   public boolean isConceptActive(int conceptNid, RelativePositionCalculator relativePositionCalculator) {
+      int index = 0;
 
-   /**
-    * Checks if concept active.
-    *
-    * @param conceptNid the concept nid
-    * @param taxonomyData the taxonomy map
-    * @param sc the sc
-    * @return true, if concept active
-    */
-   public static boolean isConceptActive(int conceptNid,
-         final int[] taxonomyData,
-         StampCoordinate sc) {
+      while (index < taxonomyData.length) {
+         // the destination nid
+         final int recordConceptNid = taxonomyData[index++];
+         // followed by a variable number of type, stamp, flag records
+         final int length = taxonomyData[index];
+         if (recordConceptNid == conceptNid) {
+            final TypeStampTaxonomyRecords records = new TypeStampTaxonomyRecords(taxonomyData, index);
+            int[] stampValues = records.latestStampsForConceptNidViaTypeWithAllowedStatus(conceptNid, new int[] {TaxonomyFlag.CONCEPT_STATUS.bits}, relativePositionCalculator);
+            for (int stamp: stampValues) {
+               if (Get.stampService().isStampActive(stamp)) {
+                  return true;
+               }
+            }
+         }
 
-      if (taxonomyData != null) {
-         if (new TaxonomyRecordPrimitive(taxonomyData).isConceptActive(conceptNid, sc)) {
-            return true;
+         index += length;
+         if (index < 0) {
+            throw new IllegalStateException("Index: " + index);
          }
       }
-
       return false;
    }
 
@@ -380,7 +630,7 @@ public class TaxonomyRecordPrimitive {
          int typeNid,
          final int[] taxonomyData,
          ManifoldCoordinate vp,
-         int flags) {
+         int[] flags) {
 
       if (taxonomyData != null) {
          TaxonomyRecordPrimitive record = new TaxonomyRecordPrimitive(taxonomyData);
@@ -406,22 +656,12 @@ public class TaxonomyRecordPrimitive {
 
       if (taxonomyData != null) {
          TaxonomyRecordPrimitive record = new TaxonomyRecordPrimitive(taxonomyData);
-         if (record.containsNidViaType(conceptNid, conceptNid, vp, TaxonomyFlag.CONCEPT_STATUS.bits)) {
+         if (record.containsNidViaType(conceptNid, conceptNid, vp, new int[] {TaxonomyFlag.CONCEPT_STATUS.bits})) {
             return Optional.of(record);
          }
       }
 
       return Optional.empty();
-   }
-
-   /**
-    * Gets the parent nids.
-    *
-    * @param tc the tc
-    * @return the parent nids
-    */
-   public int[] getParentNids(ManifoldCoordinate tc) {
-      return getTaxonomyRecordUnpacked().getConceptNidsForType(TermAux.IS_A.getNid(), tc);
    }
 
    //~--- set methods ---------------------------------------------------------
@@ -492,5 +732,7 @@ public class TaxonomyRecordPrimitive {
    public int[] getTypesForRelationship(int destinationId, ManifoldCoordinate tc) {
       return getTaxonomyRecordUnpacked().getTypesForRelationship(destinationId, tc);
    }
+
+
 }
 

@@ -33,6 +33,7 @@ import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicIntegerArray;
+import java.util.concurrent.atomic.AtomicReferenceArray;
 import java.util.function.IntConsumer;
 import java.util.function.IntUnaryOperator;
 import java.util.function.Supplier;
@@ -53,11 +54,10 @@ public class SpinedNidIntMap {
 
     private static final int DEFAULT_ELEMENTS_PER_SPINE = 1024;
     private final int elementsPerSpine;
-    private final ConcurrentMap<Integer, AtomicIntegerArray> spines = new ConcurrentHashMap<>();
+    private final ConcurrentSpineList<AtomicIntegerArray> spines = new ConcurrentSpineList<>(16884, this::newSpine);
     private final int INITIALIZATION_VALUE = Integer.MAX_VALUE;
 
     private final Semaphore diskSemaphore = new Semaphore(1);
-    protected final AtomicInteger spineCount = new AtomicInteger();
     protected final ConcurrentSkipListSet<Integer> changedSpineIndexes = new ConcurrentSkipListSet<>();
 
     public SpinedNidIntMap() {
@@ -69,7 +69,6 @@ public class SpinedNidIntMap {
      */
     public void clear() {
        spines.clear();
-       spineCount.set(0);
        changedSpineIndexes.clear();
     }
 
@@ -84,7 +83,6 @@ public class SpinedNidIntMap {
             File[] files = directory.listFiles((pathname) -> {
                 return pathname.getName().startsWith(SPINE_PREFIX);
             });
-            spineCount.set(SpineFileUtil.readSpineCount(directory));
             int spineFilesRead = 0;
             for (File spineFile : files) {
                 spineFilesRead++;
@@ -95,12 +93,13 @@ public class SpinedNidIntMap {
                     for (int i = 0; i < arraySize; i++) {
                         spineArray[i] = dis.readInt();
                     }
-                    spines.put(spine, new AtomicIntegerArray(spineArray));
+                    spines.setSpine(spine, new AtomicIntegerArray(spineArray));
                 } catch (IOException ex) {
                     LOG.error(ex);
                     throw new RuntimeException(ex);
                 }
             }
+            LOG.debug("Spine count read: " + getSpineCount());
             return spineFilesRead;
         } finally {
             diskSemaphore.release();
@@ -111,29 +110,35 @@ public class SpinedNidIntMap {
         AtomicBoolean wroteAny = new AtomicBoolean(false);
         try {
             directory.mkdirs();
-            SpineFileUtil.writeSpineCount(directory, spineCount.get());
-            spines.forEach((Integer key, AtomicIntegerArray spine) -> {
-                String spineKey = SPINE_PREFIX + key;
-                boolean spineChanged = changedSpineIndexes.contains(key);
+            SpineFileUtil.writeSpineCount(directory, spines.getSpineCount());
+            AtomicReferenceArray<AtomicIntegerArray> spineArray = spines.getSpines();
+            int length = spineArray.length();
+            for (int key = 0; key < length; key++) {
+                AtomicIntegerArray aSpine = spineArray.get(key);
+                if (aSpine != null) {
 
-                if (spineChanged) {
-                    wroteAny.set(true);
-                    changedSpineIndexes.remove(key);
-                    File spineFile = new File(directory, spineKey);
-                    diskSemaphore.acquireUninterruptibly();
-                    try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(spineFile)))) {
-                        dos.writeInt(spine.length());
-                        for (int i = 0; i < spine.length(); i++) {
-                            dos.writeInt(spine.get(i));
+                    String spineKey = SPINE_PREFIX + key;
+                    boolean spineChanged = changedSpineIndexes.contains(key);
+
+                    if (spineChanged) {
+                        wroteAny.set(true);
+                        changedSpineIndexes.remove(key);
+                        File spineFile = new File(directory, spineKey);
+                        diskSemaphore.acquireUninterruptibly();
+                        try (DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(spineFile)))) {
+                            dos.writeInt(aSpine.length());
+                            for (int i = 0; i < aSpine.length(); i++) {
+                                dos.writeInt(aSpine.get(i));
+                            }
+                        } catch (IOException ex) {
+                            LOG.error(ex);
+                            throw new RuntimeException(ex);
+                        } finally {
+                            diskSemaphore.release();
                         }
-                    } catch (IOException ex) {
-                        LOG.error(ex);
-                        throw new RuntimeException(ex);
-                    } finally {
-                        diskSemaphore.release();
                     }
                 }
-            });
+            }
         } catch (IOException ex) {
             LOG.error(ex);
             throw new RuntimeException(ex);
@@ -142,7 +147,7 @@ public class SpinedNidIntMap {
     }
 
     private int getSpineCount() {
-       return spineCount.get();
+       return spines.getSpineCount();
      }
 
     public long sizeInBytes() {
@@ -152,14 +157,13 @@ public class SpinedNidIntMap {
         return sizeInBytes;
     }
 
-    private AtomicIntegerArray newSpine(Integer spineKey) {
+    private AtomicIntegerArray newSpine() {
         int[] spine = new int[elementsPerSpine];
         Arrays.fill(spine, INITIALIZATION_VALUE);
-        this.spineCount.set(Math.max(this.spineCount.get(), spineKey + 1));
         return new AtomicIntegerArray(spine);
     }
 
-    public ConcurrentMap<Integer, AtomicIntegerArray> getSpines() {
+    public ConcurrentSpineList<AtomicIntegerArray> getSpines() {
         return spines;
     }
 
@@ -169,19 +173,8 @@ public class SpinedNidIntMap {
         }
         int spineIndex = index / elementsPerSpine;
         int indexInSpine = index % elementsPerSpine;
-        if (!this.spines.containsKey(spineIndex) && spineIndex > this.spines.size() + 10) {
-            //Dan still doesn't understand if this is a real problem or not... changed to a warning so it stops breaking my rxnorm load.  Seems like some sort of timing issue
-        	//with the assumption about this warning / error, as these all happened in the same ms.
-//WARN  2018-02-25 22:30:58,459  [main] collections.SpinedNidIntMap (SpinedNidIntMap.java:173) - Trying to add spineIndex: 909 for index: 930892, element: -2147482463, spines.size: 898
-//WARN  2018-02-25 22:30:58,459  [main] collections.SpinedNidIntMap (SpinedNidIntMap.java:173) - Trying to add spineIndex: 909 for index: 930893, element: -2147483174, spines.size: 898
-//WARN  2018-02-25 22:30:58,459  [main] collections.SpinedNidIntMap (SpinedNidIntMap.java:173) - Trying to add spineIndex: 909 for index: 930894, element: -2147483173, spines.size: 898
-//WARN  2018-02-25 22:30:58,459  [main] collections.SpinedNidIntMap (SpinedNidIntMap.java:173) - Trying to add spineIndex: 909 for index: 930895, element: -2147483172, spines.size: 898
-//WARN  2018-02-25 22:30:58,459  [main] collections.SpinedNidIntMap (SpinedNidIntMap.java:173) - Trying to add spineIndex: 909 for index: 930896, element: -2147483171, spines.size: 898
-//WARN  2018-02-25 22:30:58,459  [main] collections.SpinedNidIntMap (SpinedNidIntMap.java:173) - Trying to add spineIndex: 909 for index: 930897, element: -2147483204, spines.size: 898
-            LOG.warn("Trying to add spineIndex: {} for index: {}, element: {}, spines.size: {}", spineIndex, index, element, spines.size());
-        }
         this.changedSpineIndexes.add(spineIndex);
-        this.spines.computeIfAbsent(spineIndex, this::newSpine).set(indexInSpine, element);
+        this.spines.getSpine(spineIndex).set(indexInSpine, element);
     }
 
     public int get(int index) {
@@ -190,7 +183,7 @@ public class SpinedNidIntMap {
         }
         int spineIndex = index / elementsPerSpine;
         int indexInSpine = index % elementsPerSpine;
-        return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine);
+        return this.spines.getSpine(spineIndex).get(indexInSpine);
     }
 
     public int getAndUpdate(int index, IntUnaryOperator generator) {
@@ -199,7 +192,7 @@ public class SpinedNidIntMap {
         }
         int spineIndex = index / elementsPerSpine;
         int indexInSpine = index % elementsPerSpine;
-        AtomicIntegerArray spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
+        AtomicIntegerArray spine = this.spines.getSpine(spineIndex);
         int currentValue = spine.get(indexInSpine);
         if (currentValue != INITIALIZATION_VALUE) {
             return currentValue;
@@ -214,14 +207,14 @@ public class SpinedNidIntMap {
         }
         int spineIndex = index / elementsPerSpine;
         int indexInSpine = index % elementsPerSpine;
-        return this.spines.computeIfAbsent(spineIndex, this::newSpine).get(indexInSpine) != INITIALIZATION_VALUE;
+        return this.spines.getSpine(spineIndex).get(indexInSpine) != INITIALIZATION_VALUE;
     }
 
     public void forEach(Processor processor) {
         int currentSpineCount = getSpineCount();
         int key = 0;
         for (int spineIndex = 0; spineIndex < currentSpineCount; spineIndex++) {
-            AtomicIntegerArray spine = this.spines.computeIfAbsent(spineIndex, this::newSpine);
+            AtomicIntegerArray spine = this.spines.getSpine(spineIndex);
             for (int indexInSpine = 0; indexInSpine < elementsPerSpine; indexInSpine++) {
                 int value = spine.get(indexInSpine);
                 if (value != INITIALIZATION_VALUE) {
@@ -247,7 +240,7 @@ public class SpinedNidIntMap {
     }
 
     public void addSpine(int spineKey, AtomicIntegerArray spineData) {
-        spines.put(spineKey, spineData);
+        spines.setSpine(spineKey, spineData);
     }
 
     public interface Processor {

@@ -51,10 +51,10 @@ public class SofExporter extends TimedTaskWithProgressTracker<Void> {
     protected Void call() throws Exception {
         try {
             updateMessage("Counting concepts");
-            workToDo = Get.conceptService().getConceptChronologyStream().count();
+            workToDo = Get.conceptService().getConceptChronologyStream(true).count();
             LOG.info("Concept count: " + workToDo);
             updateMessage("Counting semantics");
-            long semanticCount = Get.assemblageService().getSemanticChronologyStream().count();
+            long semanticCount = Get.assemblageService().getSemanticChronologyStream(true).count();
             LOG.info("Semantic count: " + semanticCount);
             workToDo = workToDo + semanticCount;
 
@@ -63,7 +63,7 @@ public class SofExporter extends TimedTaskWithProgressTracker<Void> {
 
 
             DataWriterService writer = Get.binaryDataWriter(exportFile.toPath());
-            Get.conceptService().getConceptChronologyStream().forEach(conceptChronology -> {
+            Get.conceptService().getConceptChronologyStream(false).forEach(conceptChronology -> {
                 if (watchConcept.getNid() == conceptChronology.getNid()) {
                     LOG.info("Found watch: " + conceptChronology);
                 }
@@ -72,7 +72,7 @@ public class SofExporter extends TimedTaskWithProgressTracker<Void> {
             });
 
             updateMessage("Exporting semantics");
-            Get.assemblageService().getSemanticChronologyStream().forEach(semanticChronology -> {
+            Get.assemblageService().getSemanticChronologyStream(false).forEach(semanticChronology -> {
                 if (semanticChronology.getReferencedComponentNid() == watchConcept.getNid()) {
                     LOG.info("Found watch: " + semanticChronology);
                 }

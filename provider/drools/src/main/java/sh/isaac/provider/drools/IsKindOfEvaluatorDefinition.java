@@ -16,7 +16,6 @@
  */
 package sh.isaac.provider.drools;
 
-import java.util.concurrent.ExecutionException;
 import org.drools.core.base.BaseEvaluator;
 import org.drools.core.base.ValueType;
 import org.drools.core.base.evaluators.EvaluatorDefinition;
@@ -24,6 +23,7 @@ import org.drools.core.base.evaluators.Operator;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSnapshot;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -66,7 +66,7 @@ public class IsKindOfEvaluatorDefinition extends IsaacBaseEvaluatorDefinition im
            } else {
               throw new UnsupportedOperationException("Can't convert: " + value2);
            }
-           if (!possibleKind.getCoordinateUuid().equals(parentKind.getCoordinateUuid())) {
+           if (!possibleKind.getManifoldCoordinateUuid().equals(parentKind.getManifoldCoordinateUuid())) {
               throw new UnsupportedOperationException("Snapshots have different manifold coordinates: \n"
                       + " possibleKind: " + possibleKind
                       + " parentKind: " + parentKind
@@ -86,7 +86,7 @@ public class IsKindOfEvaluatorDefinition extends IsaacBaseEvaluatorDefinition im
 
     /**
      * @return @see
-     * gov.va.isaac.drools.evaluators.IsaacBaseEvaluatorDefinition#getId()
+     * gov.va.isaac.drools.evaluators.IsaacBaseEvaluatorDefinition#getListId()
      */
     @Override
     protected String getId() {

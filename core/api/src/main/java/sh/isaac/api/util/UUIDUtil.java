@@ -58,6 +58,11 @@ import sh.isaac.api.Get;
  * @author kec
  */
 public class UUIDUtil {
+    /**
+     * Nil UUID
+     * The "nil" UUID, a special case, is the UUID 00000000-0000-0000-0000-000000000000; that is, all bits set to zero.[2]
+     */
+    public static final UUID NIL_UUID = UUID.fromString("00000000-0000-0000-0000-000000000000");
    /**
     * Convert.
     *
@@ -129,16 +134,21 @@ public class UUIDUtil {
        return UUID.fromString(buff.toString());
    }
    
+   /**
+    * Note, this method does nothing to the sort order of the uuidList, it only ensures that the UUIDs assigned to each nid are added in 
+    * a consistent order.
+    * @param uuidList
+    * @param nids
+    * @throws NoSuchElementException
+    */
     public static void addSortedUuids(List<UUID> uuidList, int... nids) throws NoSuchElementException {
         for (int nid: nids) {
             UUID[] uuids = Get.identifierService().getUuidArrayForNid(nid);
             Arrays.sort(uuids);
-            for (UUID nidUuid: Get.identifierService().getUuidArrayForNid(nid)) {
+            for (UUID nidUuid: uuids) {
                 uuidList.add(nidUuid);
             }
         }
     }
-    
-   
 }
 

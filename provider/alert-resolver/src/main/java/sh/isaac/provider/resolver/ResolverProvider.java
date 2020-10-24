@@ -16,7 +16,7 @@
  */
 package sh.isaac.provider.resolver;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.alert.AlertObject;

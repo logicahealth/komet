@@ -17,7 +17,10 @@
 package sh.isaac.api.progress;
 
 import javafx.collections.ObservableSet;
+import javafx.collections.SetChangeListener;
 import javafx.concurrent.Task;
+
+import java.util.Set;
 
 /**
  *
@@ -41,10 +44,15 @@ public interface TaskList {
    //~--- get methods ---------------------------------------------------------
 
    /**
-    * Gets the.
+    * Gets the set of tasks.
     *
-    * @return the set
+    * @return an unmodifiable set
     */
-   ObservableSet<Task<?>> get();
+   Set<Task<?>> get();
+
+   void addListener(SetChangeListener<? super Task<?>> listener);
+
+   void removeListener(SetChangeListener<? super Task<?>> listener);
+
    
 }

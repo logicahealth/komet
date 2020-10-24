@@ -17,154 +17,217 @@
 package sh.komet.assemblage.view;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
+
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
-import javafx.scene.control.Menu;
+import javafx.scene.Parent;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TreeItem;
 import javafx.scene.layout.BorderPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.mahout.math.Arrays;
 import sh.isaac.api.Get;
-import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.commit.CommitListener;
+import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.isaac.api.observable.ObservableChronology;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.util.number.NumberUtil;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.concept.ConceptLabelToolbar;
-import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.control.concept.AddToContextMenu;
+import sh.komet.gui.control.concept.MenuSupplierForFocusConcept;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.interfaces.DetailNodeAbstract;
+import sh.komet.gui.search.SearchToolbar;
+import sh.komet.gui.util.FxGet;
+
 import static sh.komet.gui.style.StyleClasses.ASSEMBLAGE_DETAIL;
 
 /**
- *
  * @author kec
  */
-public class AssemblageViewProvider implements ExplorationNode, Supplier<List<MenuItem>>  {
+public class AssemblageViewProvider extends DetailNodeAbstract implements CommitListener {
     protected static final Logger LOG = LogManager.getLogger();
 
+    private final UUID listenerUuid = UUID.randomUUID();
 
-   private final BorderPane assemblageDetailPane = new BorderPane();
-   private final Manifold manifold;
-   private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("listing of assemblage members");
-   private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty assemblage view");
-   private final ConceptLabelToolbar conceptLabelToolbar;
+    {
+        toolTipProperty.setValue("listing of assemblage members");
+        titleProperty.setValue("empty assemblage view");
+        menuIconProperty.setValue(Iconography.PAPERCLIP.getIconographic());
+    }
+    private static AddToContextMenu[] getContextMenuProviders(ViewProperties viewProperties, ActivityFeed activityFeed) {
+        return new AddToContextMenu[] {
+                AssemblageMenuProvider.get(),
+                MenuSupplierForFocusConcept.get()
+        };
+    }
+    private final SearchToolbar searchToolbar;
+    private final AssemblageDetailController assemblageDetailController;
 
-   public AssemblageViewProvider(Manifold manifold) {
-      try {
-         this.manifold = manifold;
-         this.assemblageDetailPane.getStyleClass().setAll(ASSEMBLAGE_DETAIL.toString());
-         this.conceptLabelToolbar = ConceptLabelToolbar.make(manifold, this, Optional.empty());
-         this.assemblageDetailPane.setTop(conceptLabelToolbar.getToolbarNode());
-         manifold.setGroupName(ManifoldGroup.UNLINKED.getGroupName());
+    public AssemblageViewProvider(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+        super(viewProperties, activityFeed, preferencesNode, getContextMenuProviders(viewProperties, activityFeed));
+        Get.commitService().addCommitListener(this);
+        this.viewProperties.getManifoldCoordinate().addListener((observable, oldValue, newValue) -> {
+            getFocusedObject().ifPresent(identifiedObject -> updateFocusedObject(identifiedObject));
+        });
 
-         FXMLLoader loader = new FXMLLoader(
-                 getClass().getResource("/sh/komet/assemblage/view/AssemblageDetail.fxml"));
-         loader.load();
-         AssemblageDetailController assemblageDetailController = loader.getController();
-         assemblageDetailController.setManifold(manifold);
-         assemblageDetailController.getManifold().focusedConceptProperty().addListener(this::focusConceptChanged);
-         assemblageDetailPane.setCenter(assemblageDetailController.getAssemblageDetailRootPane());
-      } catch (IOException ex) {
-         throw new RuntimeException(ex);
-      }
+        try {
+            if (activityFeed.isLinked()) {
+                FxGet.dialogs().showErrorDialog(new IllegalStateException("Activity feed for assemblage must be unlinked... Found " +
+                        activityFeed.getFeedName()));
+            }
 
-   }
-   
-   private void focusConceptChanged(ObservableValue<? extends ConceptSpecification> observable,
-           ConceptSpecification oldValue,
-           ConceptSpecification newValue) {
-      if (newValue == null) {
-         LOG.warn("Not sure on intent.... but hey, I didn't break the GUI...");
-         return;
-      }
-      titleProperty.set(manifold.getPreferredDescriptionText(newValue));
-      toolTipProperty.set("View of all " + manifold.getPreferredDescriptionText(newValue) + " assemblage members");
-      int count = (int) Get.identifierService().getNidsForAssemblage(newValue.getNid()).count();
-      this.conceptLabelToolbar.getRightInfoLabel().setText(NumberUtil.formatWithGrouping(count) + " elements");
-   }
-   
-   @Override
-   public Node getMenuIcon() {
-      return Iconography.PAPERCLIP.getIconographic();
-   }
-   
-   @Override
-   public Manifold getManifold() {
-      return manifold;
-   }
+            this.detailPane.getStyleClass().setAll(ASSEMBLAGE_DETAIL.toString());
+            FXMLLoader loader = new FXMLLoader(
+                    getClass().getResource("/sh/komet/assemblage/view/AssemblageDetail.fxml"));
+            BorderPane rootPane = loader.load();
+            this.assemblageDetailController = loader.getController();
+            this.assemblageDetailController.setViewProperties(this.viewProperties);
+            this.detailPane.setCenter(assemblageDetailController.getAssemblageDetailRootPane());
 
-   @Override
-   public Node getNode() {
-      return assemblageDetailPane;
-   }
+            this.searchToolbar = new SearchToolbar();
+            this.searchToolbar.setSearchConsumer(this::search);
+            this.searchToolbar.selectedObjectProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    TreeItem<ObservableCategorizedVersion> newTreeSelection = (TreeItem<ObservableCategorizedVersion>) newValue;
+                    TreeItem<ObservableCategorizedVersion> parentOfSelection = newTreeSelection.getParent();
+                    while (parentOfSelection != null) {
+                        if (!parentOfSelection.isExpanded()) {
+                            parentOfSelection.setExpanded(true);
+                        }
+                        parentOfSelection = parentOfSelection.getParent();
+                    }
+                    this.assemblageDetailController.getAssemblageExtensionTreeTable()
+                            .getSelectionModel().select(newTreeSelection);
+                    int selectedIndex = this.assemblageDetailController.getAssemblageExtensionTreeTable()
+                            .getSelectionModel().getSelectedIndex();
+                    FxGet.statusMessageService().reportStatus("Scrolling to selected index: " + selectedIndex);
+                    Platform.runLater(() -> {
+                        this.assemblageDetailController.getAssemblageExtensionTreeTable().requestFocus();
+                        Platform.runLater(() -> {
+                            this.assemblageDetailController.getAssemblageExtensionTreeTable()
+                                    .scrollTo(this.assemblageDetailController.getAssemblageExtensionTreeTable()
+                                            .getSelectionModel().getSelectedIndex());
+                        });
+                    });
+                }
+            });
+            rootPane.setTop(searchToolbar.getSearchToolbar());
+            this.detailPane.parentProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue == null) {
+                    Get.commitService().removeCommitListener(this);
+                }
+            });
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
-   @Override
-   public ReadOnlyProperty<String> getToolTip() {
-      return toolTipProperty;
-   }
-
-   @Override
-   public ReadOnlyProperty<String> getTitle() {
-      return titleProperty;
-   }
-
-   @Override
-   public Optional<Node> getTitleNode() {
-      return Optional.empty();
-   }
     @Override
-    public List<MenuItem> get() {
-        List<MenuItem> assemblageMenuList = new ArrayList<>();
-        Menu assemblagesMenu = new Menu("Populated assemblages");
-        assemblageMenuList.add(assemblagesMenu);
-        Menu versionByTypeMenu = new Menu("Assemblages by version type");
-        assemblageMenuList.add(versionByTypeMenu);
-        HashMap<VersionType, Menu> versionTypeMenuMap = new HashMap();
- 
-        
-        for (VersionType versionType: VersionType.values()) {
-            Menu versionTypeMenu = new Menu(versionType.toString());
-            versionTypeMenuMap.put(versionType, versionTypeMenu);
-            versionByTypeMenu.getItems().add(versionTypeMenu);
+    public UUID getListenerUuid() {
+        return listenerUuid;
+    }
+
+    @Override
+    public void handleCommit(CommitRecord commitRecord) {
+        Platform.runLater(() -> getFocusedObject().ifPresent(identifiedObject -> updateFocusedObject(identifiedObject)));
+    }
+
+    @Override
+    public void updateFocusedObject(IdentifiedObject component) {
+        ConceptSpecification focus = TermAux.UNINITIALIZED_COMPONENT_ID;
+        if (component != null) {
+            focus = Get.concept(component.getNid());
+            int count = (int) Get.identifierService().getNidsForAssemblage(focus.getNid(), true).count();
+            toolTipProperty.set("View of all " + count + " " + viewProperties.getPreferredDescriptionText(focus) + " assemblage elements");
+            this.conceptLabelToolbar.getRightInfoLabel().setText(NumberUtil.formatWithGrouping(count) + " ");
+            this.assemblageDetailController.updateFocus(component, count);
         }
-        
-        int[] assembalgeNids = Get.assemblageService().getAssemblageConceptNids();
-        
-        LOG.debug("Assemblage nid count: " + assembalgeNids.length + "\n" + Arrays.toString(assembalgeNids));
-        
-        for (int assemblageNid : Get.assemblageService().getAssemblageConceptNids()) {
-            MenuItem menu = new MenuItem(manifold.getPreferredDescriptionText(assemblageNid));
-            menu.setOnAction((event) -> {
-                manifold.setFocusedConceptChronology(Get.concept(assemblageNid));
-            });
-            assemblagesMenu.getItems().add(menu);
-            String preferredDescText = manifold.getPreferredDescriptionText(assemblageNid);
-            LOG.debug("Assemblage name <" + assemblageNid + ">: " + preferredDescText);
-            MenuItem menu2 = new MenuItem(preferredDescText);
-            menu2.setOnAction((event) -> {
-                manifold.setFocusedConceptChronology(Get.concept(assemblageNid));
-            });
-            VersionType versionType = Get.assemblageService().getVersionTypeForAssemblage(assemblageNid);
-            versionTypeMenuMap.get(versionType).getItems().add(menu2);
+    }
+
+    @Override
+    public boolean selectInTabOnChange() {
+        return false;
+    }
+
+    @Override
+    public Node getMenuIconGraphic() {
+        return Iconography.PAPERCLIP.getIconographic();
+    }
+
+    @Override
+    public void savePreferences() {
+        // TODO save more preferences.
+    }
+
+    private void search(String searchString) {
+        Searcher searcher = new Searcher(searchString);
+        Get.executor().execute(searcher);
+    }
+
+    @Override
+    public Node getNode() {
+        return detailPane;
+    }
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
+
+    public class Searcher implements Runnable {
+        final String searchString;
+        final AtomicInteger nodeCount = new AtomicInteger();
+        final AtomicInteger testedNodes = new AtomicInteger();
+
+        public Searcher(String searchString) {
+            this.searchString = searchString;
+            countNodes(assemblageDetailController.getAssemblageExtensionTreeTable().getRoot());
         }
-        assemblagesMenu.getItems().sort((o1, o2) -> {
-                return o1.getText().compareTo(o2.getText()); 
-            });
-        for (Menu menu: versionTypeMenuMap.values()) {
-            menu.getItems().sort((o1, o2) -> {
-                return o1.getText().compareTo(o2.getText()); 
-            });
+
+        private void countNodes(TreeItem<ObservableCategorizedVersion>  treeNode) {
+            nodeCount.incrementAndGet();
+            for (TreeItem<ObservableCategorizedVersion>  child : treeNode.getChildren()) {
+                countNodes(child);
+            }
         }
-        
-        return assemblageMenuList;
+
+        @Override
+        public void run() {
+            handleTreeItem(assemblageDetailController.getAssemblageExtensionTreeTable().getRoot());
+        }
+
+        private void handleTreeItem(TreeItem<ObservableCategorizedVersion> item) {
+            if (item != null && item.getValue() != null) {
+                ObservableChronology chronology = item.getValue().getChronology();
+                if (chronology.toString().toLowerCase().contains(searchString.toLowerCase())) {
+                    searchToolbar.addResult(item);
+                }
+                Platform.runLater(() -> {
+                    for (TreeItem<ObservableCategorizedVersion> child : item.getChildren()) {
+                        Get.executor().execute(() -> handleTreeItem(child));
+                    }
+                });
+            }
+            testedNodes.incrementAndGet();
+            searchToolbar.setProgress(testedNodes.doubleValue()/nodeCount.doubleValue());
+        }
     }
 }

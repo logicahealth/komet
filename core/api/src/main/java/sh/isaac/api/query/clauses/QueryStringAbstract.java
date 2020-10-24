@@ -16,13 +16,12 @@
  */
 package sh.isaac.api.query.clauses;
 
-import java.util.UUID;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import sh.isaac.api.query.LeafClause;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 import sh.isaac.api.query.properties.QueryStringClause;
+
+import java.util.UUID;
 
 /**
  *
@@ -54,7 +53,6 @@ public abstract class QueryStringAbstract extends LeafClause implements QueryStr
         this.queryStringKey = queryStringKey;
     }
 
-    @XmlElement
     @Override
     public final LetItemKey getQueryStringKey() {
         return this.queryStringKey;
@@ -65,7 +63,6 @@ public abstract class QueryStringAbstract extends LeafClause implements QueryStr
         return getLetItem(queryStringKey);
     }
 
-    @XmlAttribute
     @Override
     public boolean isRegex() {
         return regex;

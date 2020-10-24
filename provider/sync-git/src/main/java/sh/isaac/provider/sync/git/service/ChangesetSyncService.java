@@ -46,8 +46,8 @@ import java.util.Set;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -87,7 +87,7 @@ public class ChangesetSyncService {
    private static final Logger LOG = LogManager.getLogger();
 
    /** The sync JSON files. */
-   public static boolean syncJSONFiles = false;  // TODO we can turn this off later
+   public static boolean syncJSONFiles = false;
 
    //~--- fields --------------------------------------------------------------
 

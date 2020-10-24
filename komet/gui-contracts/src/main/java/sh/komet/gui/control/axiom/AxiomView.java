@@ -16,10 +16,17 @@
  */
 package sh.komet.gui.control.axiom;
 
+import static sh.komet.gui.style.PseudoClasses.INACTIVE_PSEUDO_CLASS;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.PopOver;
+import org.controlsfx.control.action.Action;
+import org.controlsfx.control.action.ActionGroup;
+import org.controlsfx.control.action.ActionUtils;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.event.Event;
 import javafx.geometry.Bounds;
@@ -59,20 +66,24 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import org.controlsfx.control.PopOver;
-import org.controlsfx.control.action.Action;
-import org.controlsfx.control.action.ActionGroup;
-import org.controlsfx.control.action.ActionUtils;
 import sh.isaac.MetaData;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
+import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.commit.CommitTask;
+import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.docbook.DocBook;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.model.logic.node.AbstractLogicNode;
@@ -82,16 +93,18 @@ import sh.isaac.model.logic.node.LiteralNodeInstant;
 import sh.isaac.model.logic.node.LiteralNodeInteger;
 import sh.isaac.model.logic.node.LiteralNodeString;
 import sh.isaac.model.logic.node.NecessarySetNode;
+import sh.isaac.model.logic.node.PropertySetNode;
 import sh.isaac.model.logic.node.RootNode;
 import sh.isaac.model.logic.node.SufficientSetNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
+import sh.isaac.model.logic.node.internal.PropertyPatternImplicationWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
 import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
 import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.drag.drop.IsaacClipboard;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
@@ -102,7 +115,7 @@ import sh.komet.gui.util.FxGet;
  */
 public class AxiomView {
 
-    private static final int INDENT_PIXELS = 25;
+    private static final Logger LOG = LogManager.getLogger();
     private static final Border CHILD_BOX_BORDER = new Border(
             new BorderStroke(Color.LIGHTGRAY, BorderStrokeStyle.SOLID, CornerRadii.EMPTY, new BorderWidths(0, 0, 0, 0))
     );
@@ -118,14 +131,14 @@ public class AxiomView {
 
     private ObservableLogicGraphVersionImpl logicGraphVersion;
     private LogicalExpression expression;
-    private final Manifold manifold;
+    private final ManifoldCoordinate manifoldCoordinate;
     private final PremiseType premiseType;
     private final AnchorPane anchorPane = new AnchorPane();
     private BorderPane borderPane;
 
-    private AxiomView(LogicalExpression expression, PremiseType premiseType, Manifold manifold) {
+    private AxiomView(LogicalExpression expression, PremiseType premiseType, ManifoldCoordinate manifoldCoordinate) {
         this.expression = expression;
-        this.manifold = manifold;
+        this.manifoldCoordinate = manifoldCoordinate;
         this.premiseType = premiseType;
     }
 
@@ -138,7 +151,7 @@ public class AxiomView {
                 builder.append(prefix);
                 builder.append(": ");
             }
-            builder.append(manifold.getPreferredDescriptionText(expression.getConceptBeingDefinedNid()));
+            builder.append(manifoldCoordinate.getPreferredDescriptionText(expression.getConceptBeingDefinedNid()));
             return builder.toString();
         } else if (prefix != null) {
             return prefix + ": Concept being defined";
@@ -156,12 +169,14 @@ public class AxiomView {
                 node.pseudoClassStateChanged(PseudoClasses.STATED_PSEUDO_CLASS, true);
                 node.pseudoClassStateChanged(PseudoClasses.INFERRED_PSEUDO_CLASS, false);
                 break;
+            default :
+                break;
         }
 
     }
 
     private boolean isDefined(int conceptNid) {
-        Optional<LogicalExpression> conceptExpression = manifold.getLogicalExpression(conceptNid, premiseType);
+        Optional<LogicalExpression> conceptExpression = manifoldCoordinate.getLogicalExpression(conceptNid, premiseType);
         if (!conceptExpression.isPresent()) {
             return false;
         }
@@ -173,29 +188,32 @@ public class AxiomView {
                 || conceptNid == MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
             return false;
         }
-        int[] parents = Get.taxonomyService().getSnapshot(manifold).getTaxonomyParentConceptNids(conceptNid);
-        Optional<LogicalExpression> conceptExpression = manifold.getLogicalExpression(conceptNid, premiseType);
+        int[] parents = Get.taxonomyService().getSnapshot(manifoldCoordinate).getTaxonomyParentConceptNids(conceptNid);
+        Optional<LogicalExpression> conceptExpression = manifoldCoordinate.getLogicalExpression(conceptNid, premiseType);
         if (!conceptExpression.isPresent()) {
             return false;
         }
         return parents.length > 1;
     }
 
-    public static final Node computeGraphic(int conceptNid, boolean expanded, Manifold manifold, PremiseType premiseType) {
+    public static final Node computeGraphic(int conceptNid, boolean expanded, Status status, ManifoldCoordinate manifoldCoordinate, PremiseType premiseType) {
 
         if (conceptNid == -1
                 || conceptNid == MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
             return Iconography.ALERT_CONFIRM2.getIconographic();
         }
+        if (status != Status.ACTIVE) {
+            return Iconography.DELETE_TRASHCAN.getIconographic();
+        }
         int[] parents = new int[]{};
         try {
-            parents = Get.taxonomyService().getSnapshot(manifold).getTaxonomyParentConceptNids(conceptNid);
+            parents = Get.taxonomyService().getSnapshot(manifoldCoordinate).getTaxonomyParentConceptNids(conceptNid);
         } catch (RuntimeException ex) {
             ex.printStackTrace();
         }
-        Optional<LogicalExpression> conceptExpression = manifold.getLogicalExpression(conceptNid, premiseType);
+        Optional<LogicalExpression> conceptExpression = manifoldCoordinate.getLogicalExpression(conceptNid, premiseType);
         if (!conceptExpression.isPresent()) {
-            conceptExpression = manifold.getLogicalExpression(conceptNid, PremiseType.STATED);
+            conceptExpression = manifoldCoordinate.getLogicalExpression(conceptNid, PremiseType.STATED);
             if (!conceptExpression.isPresent()) {
                 return Iconography.ALERT_CONFIRM2.getIconographic();
             }
@@ -223,23 +241,23 @@ public class AxiomView {
         return Iconography.TAXONOMY_PRIMITIVE_SINGLE_PARENT.getIconographic();
     }
 
-    private void addToToolbarNoGrowTopAlign(GridPane rootToolBar, Node node, int column) {
+    private void addToGridPaneNoGrowTopAlign(GridPane rootToolBar, Node node, int column) {
         GridPane.setConstraints(node, column, 0, 1, 1, HPos.LEFT, VPos.TOP, Priority.NEVER, Priority.NEVER);
         rootToolBar.getChildren().add(node);
     }
 
-    private void addToToolbarNoGrow(GridPane rootToolBar, Node node, int column) {
+    private void addToGridPaneNoGrow(GridPane rootToolBar, Node node, int column) {
         GridPane.setConstraints(node, column, 0, 1, 1, HPos.LEFT, VPos.BASELINE, Priority.NEVER, Priority.NEVER);
         rootToolBar.getChildren().add(node);
     }
 
-    private void addToToolbarGrow(GridPane rootToolBar, Node node, int column) {
+    private void addToGridPaneGrow(GridPane rootToolBar, Node node, int column) {
         GridPane.setConstraints(node, column, 0, 1, 1, HPos.LEFT, VPos.BASELINE, Priority.ALWAYS, Priority.NEVER);
         rootToolBar.getChildren().add(node);
     }
 
-    public static Node create(ObservableLogicGraphVersionImpl logicGraphVersion, PremiseType premiseType, Manifold manifold) {
-        AxiomView axiomView = new AxiomView(logicGraphVersion.getLogicalExpression(), premiseType, manifold);
+    public static Node create(ObservableLogicGraphVersionImpl logicGraphVersion, PremiseType premiseType, ManifoldCoordinate manifoldCoordinate) {
+        AxiomView axiomView = new AxiomView(logicGraphVersion.getLogicalExpression(), premiseType, manifoldCoordinate);
         axiomView.logicGraphVersion = logicGraphVersion;
         BorderPane axiomBorderPane = axiomView.create((AbstractLogicNode) axiomView.expression.getRoot());
         AnchorPane.setBottomAnchor(axiomBorderPane, 0.0);
@@ -250,8 +268,8 @@ public class AxiomView {
         return axiomView.anchorPane;
     }
 
-    public static Node createWithCommitPanel(ObservableLogicGraphVersionImpl logicGraphVersion, PremiseType premiseType, Manifold manifold) {
-        AxiomView axiomView = new AxiomView(logicGraphVersion.getLogicalExpression(), premiseType, manifold);
+    public static Node createWithCommitPanel(ObservableLogicGraphVersionImpl logicGraphVersion, PremiseType premiseType, ManifoldCoordinate manifoldCoordinate) {
+        AxiomView axiomView = new AxiomView(logicGraphVersion.getLogicalExpression(), premiseType, manifoldCoordinate);
         axiomView.logicGraphVersion = logicGraphVersion;
         BorderPane axiomBorderPane = axiomView.create((AbstractLogicNode) axiomView.expression.getRoot());
         AnchorPane.setBottomAnchor(axiomBorderPane, 0.0);
@@ -265,12 +283,12 @@ public class AxiomView {
 
     private BorderPane create(AbstractLogicNode logicNode) {
         ClauseView clauseView = new ClauseView(logicNode);
-        return clauseView.rootPane;
+        return clauseView.rootBorderPane;
     }
 
     public static AnchorPane create(LogicalExpression expression,
-            PremiseType premiseType, Manifold manifold) {
-        AxiomView axiomView = new AxiomView(expression, premiseType, manifold);
+                                    PremiseType premiseType, ManifoldCoordinate manifoldCoordinate) {
+        AxiomView axiomView = new AxiomView(expression, premiseType, manifoldCoordinate);
         BorderPane axiomBorderPane = axiomView.create((AbstractLogicNode) expression.getRoot());
         AnchorPane.setBottomAnchor(axiomBorderPane, 0.0);
         AnchorPane.setLeftAnchor(axiomBorderPane, 0.0);
@@ -281,8 +299,8 @@ public class AxiomView {
     }
 
     public static BorderPane createWithCommitPanel(LogicalExpression expression,
-            PremiseType premiseType, Manifold manifold) {
-        AxiomView axiomView = new AxiomView(expression, premiseType, manifold);
+                                                   PremiseType premiseType, ManifoldCoordinate manifoldCoordinate) {
+        AxiomView axiomView = new AxiomView(expression, premiseType, manifoldCoordinate);
         BorderPane axiomBorderPane = axiomView.create((AbstractLogicNode) expression.getRoot());
         AnchorPane.setBottomAnchor(axiomBorderPane, 0.0);
         AnchorPane.setLeftAnchor(axiomBorderPane, 0.0);
@@ -331,7 +349,7 @@ public class AxiomView {
 
     private void updateExpression() {
         if (this.expression.getConceptBeingDefinedNid() != -1) {
-            Optional<LogicalExpression> committedExpression = manifold.getStatedLogicalExpression(this.expression.getConceptBeingDefinedNid());
+            Optional<LogicalExpression> committedExpression = manifoldCoordinate.getStatedLogicalExpression(this.expression.getConceptBeingDefinedNid());
             if (committedExpression.isPresent()) {
                 updateExpressionForAxiomView(committedExpression.get());
             }
@@ -340,24 +358,29 @@ public class AxiomView {
 
     private void commitEdit(Event event) {
 
-        LatestVersion<LogicGraphVersion> latestVersion = manifold.getStatedLogicGraphVersion(this.expression.getConceptBeingDefinedNid());
+        LatestVersion<LogicGraphVersion> latestVersion = manifoldCoordinate.getStatedLogicalDefinition(this.expression.getConceptBeingDefinedNid());
         if (latestVersion.isPresent()) {
             LogicGraphVersion version = latestVersion.get();
             ObservableSemanticChronologyImpl observableSemanticChronology = new ObservableSemanticChronologyImpl(version.getChronology());
             ObservableLogicGraphVersionImpl observableVersion = new ObservableLogicGraphVersionImpl(version, observableSemanticChronology);
-            ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(FxGet.editCoordinate());
+            ObservableLogicGraphVersionImpl mutableVersion = observableVersion.makeAutonomousAnalog(this.manifoldCoordinate);
             mutableVersion.setGraphData(this.expression.getData(DataTarget.INTERNAL));
-            Get.commitService().commit(FxGet.editCoordinate(), "Axiom view edit", mutableVersion);
+            Transaction transaction = Get.commitService().newTransaction(Optional.of("AxiomView commitEdit"), ChangeCheckerMode.ACTIVE);
+            CommitTask commitTask = transaction.commitObservableVersions("Axiom view edit", mutableVersion);
         }
         updateExpression();
     }
 
+    /**
+     * Each clause in an axiom is presented with the ClauseView.
+     *
+     */
     protected class ClauseView {
 
         protected final AbstractLogicNode logicNode;
         protected final Label titleLabel = new Label();
-        protected final BorderPane rootPane = new BorderPane();
-        protected final GridPane rootToolBar = new GridPane();
+        protected final BorderPane rootBorderPane = new BorderPane();
+        protected final GridPane rootGridPane = new GridPane();
         protected final Button editButton = new Button("", Iconography.EDIT_PENCIL.getIconographic());
         protected final ToggleButton expandButton = new ToggleButton("", Iconography.OPEN.getIconographic());
         protected final List<ClauseView> childClauses = new ArrayList<>();
@@ -368,14 +391,15 @@ public class AxiomView {
         TransferMode[] transferMode = null;
         Background originalBackground;
         boolean editable = false;
+        boolean addChildren = true;
 
         public ClauseView(AbstractLogicNode logicNode) {
             this.logicNode = logicNode;
-            setPseudoClasses(rootPane);
-            rootToolBar.setBorder(TOOL_BAR_BORDER);
-            rootToolBar.setPadding(new Insets(2));
-            rootPane.setBorder(INNER_ROOT_BORDER);
-            rootPane.setPadding(new Insets(3));
+            setPseudoClasses(rootBorderPane);
+            rootGridPane.setBorder(TOOL_BAR_BORDER);
+            rootGridPane.setPadding(new Insets(2));
+            rootBorderPane.setBorder(INNER_ROOT_BORDER);
+            rootBorderPane.setPadding(new Insets(3));
             editButton.setPadding(Insets.EMPTY);
             expandButton.setPadding(Insets.EMPTY);
             expandButton.selectedProperty().bindBidirectional(expanded);
@@ -384,11 +408,13 @@ public class AxiomView {
             });
             editButton.setOnMousePressed(this::handleEditClick);
 
+            titleLabel.getStyleClass().add("komet-version-general-cell");
             titleLabel.setOnDragOver(this::handleDragOver);
             titleLabel.setOnDragEntered(this::handleDragEntered);
             titleLabel.setOnDragDetected(this::handleDragDetected);
             titleLabel.setOnDragExited(this::handleDragExited);
             titleLabel.setOnDragDone(this::handleDragDone);
+            //titleLabel.setMaxWidth(425);
 
             switch (logicNode.getNodeSemantic()) {
                 case CONCEPT: {
@@ -396,18 +422,32 @@ public class AxiomView {
                         editable = true;
                     }
                     ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) logicNode;
-                    rootPane.getStyleClass()
+                    rootBorderPane.getStyleClass()
                             .add(StyleClasses.DEF_CONCEPT.toString());
-                    titleLabel.setText(manifold.getPreferredDescriptionText(conceptNode.getConceptNid()));
-                    titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false, manifold, premiseType));
+                    titleLabel.setText(manifoldCoordinate.getPreferredDescriptionText(conceptNode.getConceptNid()));
+
+
+                    LatestVersion<Version> latest = manifoldCoordinate.getVertexStampFilter().latestConceptVersion(conceptNode.getConceptNid());
+                    if (latest.isPresent()) {
+                        Status latestStatus = latest.get().getStatus();
+                        titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false,
+                                latestStatus, manifoldCoordinate, premiseType));
+                        if (latestStatus != Status.ACTIVE) {
+                            titleLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, true);
+                        }
+                    } else {
+                        titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false,
+                                Status.PRIMORDIAL, manifoldCoordinate, premiseType));
+                    }
+
                     openConceptButton.getStyleClass().setAll(StyleClasses.OPEN_CONCEPT_BUTTON.toString());
                     openConceptButton.setOnMouseClicked(this::handleShowConceptNodeClick);
 
                     int column = 0;
-                    addToToolbarNoGrowTopAlign(rootToolBar, openConceptButton, column++);
-                    addToToolbarGrow(rootToolBar, titleLabel, column++);
+                    addToGridPaneNoGrowTopAlign(rootGridPane, openConceptButton, column++);
+                    addToGridPaneGrow(rootGridPane, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                        addToGridPaneNoGrow(rootGridPane, editButton, column++);
                     }
                     break;
                 }
@@ -415,17 +455,17 @@ public class AxiomView {
                     if (premiseType == PremiseType.STATED) {
                         editable = true;
                     }
-                    rootPane.getStyleClass()
+                    rootBorderPane.getStyleClass()
                             .add(StyleClasses.DEF_FEATURE.toString());
                     int column = 0;
-                    addToToolbarNoGrow(rootToolBar, expandButton, column++);
+                    addToGridPaneNoGrow(rootGridPane, expandButton, column++);
                     openConceptButton.getStyleClass().setAll(StyleClasses.OPEN_CONCEPT_BUTTON.toString());
-                    addToToolbarNoGrowTopAlign(rootToolBar, openConceptButton, column++);
+                    addToGridPaneNoGrowTopAlign(rootGridPane, openConceptButton, column++);
                     openConceptButton.setOnMouseClicked(this::handleShowFeatureNodeClick);
                     FeatureNodeWithNids featureNode = (FeatureNodeWithNids) logicNode;
                     StringBuilder builder = new StringBuilder();
                     builder.append("⒡ ");
-                    builder.append(manifold.getPreferredDescriptionText(featureNode.getTypeConceptNid()));
+                    builder.append(manifoldCoordinate.getPreferredDescriptionText(featureNode.getTypeConceptNid()));
                     switch (featureNode.getOperator()) {
                         case EQUALS:
                             builder.append(" = ");
@@ -477,11 +517,11 @@ public class AxiomView {
                         }
                     }
                     builder.append(" ");
-                    builder.append(manifold.getPreferredDescriptionText(featureNode.getMeasureSemanticNid()));
+                    builder.append(manifoldCoordinate.getPreferredDescriptionText(featureNode.getMeasureSemanticNid()));
                     titleLabel.setText(builder.toString());
-                    addToToolbarGrow(rootToolBar, titleLabel, column++);
+                    addToGridPaneGrow(rootGridPane, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                        addToGridPaneNoGrow(rootGridPane, editButton, column++);
                     }
                     break;
                 }
@@ -489,69 +529,243 @@ public class AxiomView {
                     int column = 0;
                     RoleNodeSomeWithNids roleNode = (RoleNodeSomeWithNids) logicNode;
                     if (roleNode.getTypeConceptNid() == MetaData.ROLE_GROUP____SOLOR.getNid()) {
-                        rootPane.getStyleClass()
+                        rootBorderPane.getStyleClass()
                                 .add(StyleClasses.DEF_ROLE_GROUP.toString());
                         titleLabel.setGraphic(Iconography.ROLE_GROUP.getIconographic());
-                        StringBuilder builder = new StringBuilder();
 
-                        for (LogicNode descendentNode : roleNode.getDescendents()) {
+                        AbstractLogicNode[] descendents = roleNode.getDescendents();
+                        // apply sort here for particular cases...
+
+                        List<String> descendentConceptDescriptions = new ArrayList<>(descendents.length);
+                        for (LogicNode descendentNode : descendents) {
                             if (descendentNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
                                 ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) descendentNode;
-                                builder.append("[");
-                                builder.append(manifold.getPreferredDescriptionText(conceptNode.getConceptNid()));
-                                builder.append("] ");
+                                descendentConceptDescriptions.add("[" + manifoldCoordinate.getPreferredDescriptionText(conceptNode.getConceptNid()) +
+                                        "] ");
                             }
                         }
-                        titleLabel.setText(builder.toString());
-                        addToToolbarNoGrow(rootToolBar, expandButton, column++);
+                        descendentConceptDescriptions.sort(new NaturalOrder());
+                        StringBuilder builder = new StringBuilder();
+                        for (String conceptDescription: descendentConceptDescriptions) {
+                            builder.append(conceptDescription);
+                        }
+                        final String roleGroupLabel = builder.toString();
+                        titleLabel.setText(roleGroupLabel);
+                        expanded.addListener((observable, wasExpanded, isExpanded) -> {
+                            if (isExpanded) {
+                                titleLabel.setText("");
+                            } else {
+                                titleLabel.setText(roleGroupLabel);
+                            }
+                        });
+                        addToGridPaneNoGrow(rootGridPane, expandButton, column++);
+                        addToGridPaneGrow(rootGridPane, titleLabel, column++);
                     } else {
+//                        openConceptButton.getStyleClass().setAll(StyleClasses.OPEN_CONCEPT_BUTTON.toString());
+//                        openConceptButton.setOnMouseClicked(this::handleShowRoleNodeClick);
+//                        addToGridPaneNoGrow(rootGridPane, expandButton, column++);
+//                        addToGridPaneNoGrowTopAlign(rootGridPane, openConceptButton, column++);
                         if (premiseType == PremiseType.STATED) {
                             editable = true;
                         }
-                        rootPane.getStyleClass()
+                        rootBorderPane.getStyleClass()
                                 .add(StyleClasses.DEF_ROLE.toString());
-                        StringBuilder builder = new StringBuilder();
-                        builder.append("∃ (");
-                        builder.append(manifold.getPreferredDescriptionText(roleNode.getTypeConceptNid()));
-                        builder.append(")➞[");
-                        for (LogicNode descendentNode : roleNode.getDescendents()) {
-                            if (descendentNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
-                                ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) descendentNode;
-                                builder.append(manifold.getPreferredDescriptionText(conceptNode.getConceptNid()));
-                            }
+
+                        HBox roleBox = new HBox();
+                        roleBox.getChildren().add(new Label("∃ ("));
+                        ConceptNode typeNode = new ConceptNode(((RoleNodeSomeWithNids) logicNode).getTypeConceptNid(), AxiomView.this.manifoldCoordinate);
+                        //typeNode.setBorder(ROLE_BORDER);
+                        typeNode.setPadding(new Insets(1, 3, 1, 3));
+                        roleBox.getChildren().add(typeNode);
+                        roleBox.getChildren().add(new Label(")➞["));
+                        for (AbstractLogicNode restrictionChild: logicNode.getChildren()) {
+                            ConceptNode restrictionNode = new ConceptNode(((ConceptNodeWithNids) restrictionChild).getConceptNid(), AxiomView.this.manifoldCoordinate);
+                            restrictionNode.setPadding(new Insets(1, 3, 1, 3));
+                            roleBox.getChildren().add(restrictionNode);
                         }
-                        builder.append("]");
-                        titleLabel.setText(builder.toString());
-                        openConceptButton.getStyleClass().setAll(StyleClasses.OPEN_CONCEPT_BUTTON.toString());
-                        openConceptButton.setOnMouseClicked(this::handleShowRoleNodeClick);
-                        addToToolbarNoGrow(rootToolBar, expandButton, column++);
-                        addToToolbarNoGrowTopAlign(rootToolBar, openConceptButton, column++);
+                        roleBox.getChildren().add(new Label("]"));
+//                        StringBuilder builder = new StringBuilder();
+//                        builder.append("∃ (");
+//                        builder.append(manifold.getPreferredDescriptionText(roleNode.getTypeConceptNid()));
+//                        builder.append(")➞[");
+//                        for (LogicNode descendentNode : roleNode.getDescendents()) {
+//                            if (descendentNode.getNodeSemantic() == NodeSemantic.CONCEPT) {
+//                                ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) descendentNode;
+//                                builder.append(manifold.getPreferredDescriptionText(conceptNode.getConceptNid()));
+//                            }
+//                        }
+//                        builder.append("]");
+//                        titleLabel.setText(builder.toString());
+
+                        addToGridPaneGrow(rootGridPane, roleBox, column++);
+                        addChildren = false;
                     }
 
-                    addToToolbarGrow(rootToolBar, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                        addToGridPaneNoGrow(rootGridPane, editButton, column++);
                     }
                     break;
                 }
                 case NECESSARY_SET: {
                     NecessarySetNode necessarySet = (NecessarySetNode) logicNode;
-                    rootPane.getStyleClass()
+                    rootBorderPane.getStyleClass()
                             .add(StyleClasses.DEF_NECESSARY_SET.toString());
                     titleLabel.setText(getConceptBeingDefinedText(
-                            manifold.getPreferredDescriptionText(necessarySet.getNodeSemantic().getConceptNid())
+                            manifoldCoordinate.getPreferredDescriptionText(necessarySet.getNodeSemantic().getConceptNid())
                     ));
                     titleLabel.setGraphic(Iconography.TAXONOMY_ROOT_ICON.getIconographic());
                     int column = 0;
-                    addToToolbarNoGrow(rootToolBar, expandButton, column++);
-                    addToToolbarGrow(rootToolBar, titleLabel, column++);
+                    addToGridPaneNoGrow(rootGridPane, expandButton, column++);
+                    addToGridPaneGrow(rootGridPane, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                        addToToolbarNoGrow(rootToolBar, editButton, column++);
+                        addToGridPaneNoGrow(rootGridPane, editButton, column++);
                     }
                     break;
                 }
                 case SUFFICIENT_SET: {
                     SufficientSetNode sufficientSet = (SufficientSetNode) logicNode;
+                    rootBorderPane.getStyleClass()
+                            .add(StyleClasses.DEF_SUFFICIENT_SET.toString());
+                    titleLabel.setText(getConceptBeingDefinedText(
+                            manifoldCoordinate.getPreferredDescriptionText(sufficientSet.getNodeSemantic().getConceptNid())));
+                    titleLabel.setGraphic(Iconography.TAXONOMY_DEFINED_SINGLE_PARENT.getIconographic());
+                    int column = 0;
+                    addToGridPaneNoGrow(rootGridPane, expandButton, column++);
+                    addToGridPaneGrow(rootGridPane, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        addToGridPaneNoGrow(rootGridPane, editButton, column++);
+                    }
+                    break;
+                }
+
+                case DEFINITION_ROOT: {
+                    RootNode root = (RootNode) logicNode;
+                    rootBorderPane.getStyleClass()
+                            .add(StyleClasses.DEF_ROOT.toString());
+                    rootBorderPane.setBorder(ROOT_BORDER);
+                    titleLabel.setText(getConceptBeingDefinedText(null));
+
+                    ConceptChronology cc = Get.concept(expression.getConceptBeingDefinedNid());
+
+                    LatestVersion<Version> latest = cc.getLatestVersion(manifoldCoordinate.getVertexStampFilter());
+                    if (latest.isPresent()) {
+                        titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
+                                latest.get().getStatus(), manifoldCoordinate, premiseType));
+                    } else {
+                        titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
+                                Status.PRIMORDIAL, manifoldCoordinate, premiseType));
+                    }
+
+                    titleLabel.setContextMenu(getContextMenu());
+                    int column = 0;
+                    addToGridPaneNoGrow(rootGridPane, expandButton, column++);
+                    addToGridPaneGrow(rootGridPane, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                        formLabel.setTooltip(new Tooltip("Stated form"));
+                        addToGridPaneNoGrow(rootGridPane, formLabel, column++);
+                        addToGridPaneNoGrow(rootGridPane, editButton, column++);
+                    } else {
+                        Label formLabel = new Label("", Iconography.INFERRED.getIconographic());
+                        formLabel.setTooltip(new Tooltip("Inferred form"));
+                        addToGridPaneNoGrow(rootGridPane, formLabel, column++);
+                    }
+                    break;
+                }
+                case LITERAL_DOUBLE: {
+                    LiteralNodeDouble literalNodeFloat = (LiteralNodeDouble) logicNode;
+                    rootBorderPane.getStyleClass()
+                            .add(StyleClasses.DEF_LITERAL.toString());
+                    titleLabel.setText(Double.toString(literalNodeFloat.getLiteralValue()));
+                    titleLabel.setGraphic(Iconography.LITERAL_NUMERIC.getIconographic());
+                    int column = 0;
+                    addToGridPaneGrow(rootGridPane, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                        formLabel.setTooltip(new Tooltip("Stated form"));
+                        addToGridPaneNoGrow(rootGridPane, formLabel, column++);
+                    }
+                    break;
+                }
+
+                case LITERAL_BOOLEAN: {
+                    LiteralNodeBoolean literalNode = (LiteralNodeBoolean) logicNode;
+                    rootBorderPane.getStyleClass()
+                            .add(StyleClasses.DEF_LITERAL.toString());
+                    titleLabel.setText(Boolean.toString(literalNode.getLiteralValue()));
+                    titleLabel.setGraphic(Iconography.LITERAL_NUMERIC.getIconographic());
+                    int column = 0;
+                    addToGridPaneGrow(rootGridPane, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                        formLabel.setTooltip(new Tooltip("Stated form"));
+                        addToGridPaneNoGrow(rootGridPane, formLabel, column++);
+                    }
+                    break;
+                }
+                case LITERAL_INSTANT: {
+                    LiteralNodeInstant literalNode = (LiteralNodeInstant) logicNode;
+                    rootBorderPane.getStyleClass()
+                            .add(StyleClasses.DEF_LITERAL.toString());
+                    titleLabel.setText(DateTimeUtil.format(literalNode.getLiteralValue()));
+                    titleLabel.setGraphic(Iconography.LITERAL_NUMERIC.getIconographic());
+                    int column = 0;
+                    addToGridPaneGrow(rootGridPane, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                        formLabel.setTooltip(new Tooltip("Stated form"));
+                        addToGridPaneNoGrow(rootGridPane, formLabel, column++);
+                    }
+                    break;
+                }
+                case LITERAL_INTEGER: {
+                    LiteralNodeInteger literalNode = (LiteralNodeInteger) logicNode;
+                    rootBorderPane.getStyleClass()
+                            .add(StyleClasses.DEF_LITERAL.toString());
+                    titleLabel.setText(Integer.toString(literalNode.getLiteralValue()));
+                    titleLabel.setGraphic(Iconography.LITERAL_NUMERIC.getIconographic());
+                    int column = 0;
+                    addToGridPaneGrow(rootGridPane, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                        formLabel.setTooltip(new Tooltip("Stated form"));
+                        addToGridPaneNoGrow(rootGridPane, formLabel, column++);
+                    }
+                    break;
+                }
+                case LITERAL_STRING: {
+                    LiteralNodeString literalNode = (LiteralNodeString) logicNode;
+                    rootBorderPane.getStyleClass()
+                            .add(StyleClasses.DEF_LITERAL.toString());
+                    titleLabel.setText(literalNode.getLiteralValue());
+                    titleLabel.setGraphic(Iconography.LITERAL_STRING.getIconographic());
+                    int column = 0;
+                    addToGridPaneGrow(rootGridPane, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
+                        formLabel.setTooltip(new Tooltip("Stated form"));
+                        addToGridPaneNoGrow(rootGridPane, formLabel, column++);
+                    }
+                    break;
+                }
+
+                case PROPERTY_SET: {
+                    // TODO get CSS and related gui setup.
+                    PropertySetNode propertySetNode = (PropertySetNode) logicNode;
+                    // TODO get style class for property set
+                    rootBorderPane.getStyleClass()
+                            .add(StyleClasses.DEF_SUFFICIENT_SET.toString());
+                    titleLabel.setText("Property axioms");
+                    titleLabel.setGraphic(Iconography.ALERT_WARN2.getIconographic());
+                    int column = 0;
+                    addToGridPaneNoGrow(rootGridPane, expandButton, column++);
+                    addToGridPaneGrow(rootGridPane, titleLabel, column++);
+                    if (premiseType == PremiseType.STATED) {
+                        addToGridPaneNoGrow(rootGridPane, editButton, column++);
+                    }
+                    break;
+                    /*
+                         SufficientSetNode sufficientSet = (SufficientSetNode) logicNode;
                     rootPane.getStyleClass()
                             .add(StyleClasses.DEF_SUFFICIENT_SET.toString());
                     titleLabel.setText(getConceptBeingDefinedText(
@@ -563,126 +777,47 @@ public class AxiomView {
                     if (premiseType == PremiseType.STATED) {
                         addToToolbarNoGrow(rootToolBar, editButton, column++);
                     }
-                    break;
+
+                     */
                 }
 
-                case DEFINITION_ROOT: {
-                    RootNode root = (RootNode) logicNode;
-                    rootPane.getStyleClass()
-                            .add(StyleClasses.DEF_ROOT.toString());
-                    rootPane.setBorder(ROOT_BORDER);
-                    titleLabel.setText(getConceptBeingDefinedText(null));
-                    titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false, manifold, premiseType));
-                    titleLabel.setContextMenu(getContextMenu());
-                    int column = 0;
-                    addToToolbarNoGrow(rootToolBar, expandButton, column++);
-                    addToToolbarGrow(rootToolBar, titleLabel, column++);
-                    if (premiseType == PremiseType.STATED) {
-                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
-                        formLabel.setTooltip(new Tooltip("Stated form"));
-                        addToToolbarNoGrow(rootToolBar, formLabel, column++);
-                        addToToolbarNoGrow(rootToolBar, editButton, column++);
-                    } else {
-                        Label formLabel = new Label("", Iconography.INFERRED.getIconographic());
-                        formLabel.setTooltip(new Tooltip("Inferred form"));
-                        addToToolbarNoGrow(rootToolBar, formLabel, column++);
-                    }
-                    break;
-                }
-                case LITERAL_DOUBLE: {
-                    LiteralNodeDouble literalNodeFloat = (LiteralNodeDouble) logicNode;
-                    rootPane.getStyleClass()
-                            .add(StyleClasses.DEF_LITERAL.toString());
-                    titleLabel.setText(Double.toString(literalNodeFloat.getLiteralValue()));
-                    titleLabel.setGraphic(Iconography.LITERAL_NUMERIC.getIconographic());
-                    int column = 0;
-                    addToToolbarGrow(rootToolBar, titleLabel, column++);
-                    if (premiseType == PremiseType.STATED) {
-                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
-                        formLabel.setTooltip(new Tooltip("Stated form"));
-                        addToToolbarNoGrow(rootToolBar, formLabel, column++);
-                    }
-                    break;
-                }
+                case PROPERTY_PATTERN_IMPLICATION: {
+                    // TODO get CSS and related gui setup.
+                    PropertyPatternImplicationWithNids propertyPatternImplication = (PropertyPatternImplicationWithNids) logicNode;
+                    // TODO get style class for property set
+                    //rootPane.getStyleClass().add(StyleClasses.DEF_SUFFICIENT_SET.toString());
 
-                case LITERAL_BOOLEAN: {
-                    LiteralNodeBoolean literalNode = (LiteralNodeBoolean) logicNode;
-                    rootPane.getStyleClass()
-                            .add(StyleClasses.DEF_LITERAL.toString());
-                    titleLabel.setText(Boolean.toString(literalNode.getLiteralValue()));
-                    titleLabel.setGraphic(Iconography.LITERAL_NUMERIC.getIconographic());
+                    titleLabel.setText(propertyPatternImplication.toSimpleString());
+                    titleLabel.setGraphic(Iconography.LAMBDA.getIconographic());
                     int column = 0;
-                    addToToolbarGrow(rootToolBar, titleLabel, column++);
+                    addToGridPaneGrow(rootGridPane, titleLabel, column++);
                     if (premiseType == PremiseType.STATED) {
-                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
-                        formLabel.setTooltip(new Tooltip("Stated form"));
-                        addToToolbarNoGrow(rootToolBar, formLabel, column++);
+                        addToGridPaneNoGrow(rootGridPane, editButton, column++);
                     }
                     break;
-                }
-                case LITERAL_INSTANT: {
-                    LiteralNodeInstant literalNode = (LiteralNodeInstant) logicNode;
-                    rootPane.getStyleClass()
-                            .add(StyleClasses.DEF_LITERAL.toString());
-                    titleLabel.setText(DateTimeUtil.format(literalNode.getLiteralValue()));
-                    titleLabel.setGraphic(Iconography.LITERAL_NUMERIC.getIconographic());
-                    int column = 0;
-                    addToToolbarGrow(rootToolBar, titleLabel, column++);
-                    if (premiseType == PremiseType.STATED) {
-                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
-                        formLabel.setTooltip(new Tooltip("Stated form"));
-                        addToToolbarNoGrow(rootToolBar, formLabel, column++);
-                    }
-                    break;
-                }
-                case LITERAL_INTEGER: {
-                    LiteralNodeInteger literalNode = (LiteralNodeInteger) logicNode;
-                    rootPane.getStyleClass()
-                            .add(StyleClasses.DEF_LITERAL.toString());
-                    titleLabel.setText(Integer.toString(literalNode.getLiteralValue()));
-                    titleLabel.setGraphic(Iconography.LITERAL_NUMERIC.getIconographic());
-                    int column = 0;
-                    addToToolbarGrow(rootToolBar, titleLabel, column++);
-                    if (premiseType == PremiseType.STATED) {
-                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
-                        formLabel.setTooltip(new Tooltip("Stated form"));
-                        addToToolbarNoGrow(rootToolBar, formLabel, column++);
-                    }
-                    break;
-                }
-                case LITERAL_STRING: {
-                    LiteralNodeString literalNode = (LiteralNodeString) logicNode;
-                    rootPane.getStyleClass()
-                            .add(StyleClasses.DEF_LITERAL.toString());
-                    titleLabel.setText(literalNode.getLiteralValue());
-                    titleLabel.setGraphic(Iconography.LITERAL_STRING.getIconographic());
-                    int column = 0;
-                    addToToolbarGrow(rootToolBar, titleLabel, column++);
-                    if (premiseType == PremiseType.STATED) {
-                        Label formLabel = new Label("", Iconography.STATED.getIconographic());
-                        formLabel.setTooltip(new Tooltip("Stated form"));
-                        addToToolbarNoGrow(rootToolBar, formLabel, column++);
-                    }
-                    break;
+
                 }
                 default:
-                    throw new UnsupportedOperationException("Can't handle: " + logicNode);
+                    throw new UnsupportedOperationException("Can't handle: " + logicNode +
+                            " within: " + logicNode.getLogicalExpression());
             }
 
-            rootPane.setPadding(new Insets(2, 0, 0, 0));
-            rootPane.setTop(rootToolBar);
+            rootBorderPane.setPadding(new Insets(2, 0, 0, 0));
+            rootBorderPane.setTop(rootGridPane);
             setPseudoClasses(childBox);
             childBox.setBorder(CHILD_BOX_BORDER);
-            childBox.setPadding(new Insets(0, 0, 0, INDENT_PIXELS));
-            for (AbstractLogicNode childNode : logicNode.getChildren()) {
-                if (childNode.getNodeSemantic() == NodeSemantic.AND) {
-                    for (AbstractLogicNode andChildNode : childNode.getChildren()) {
-                        ClauseView andChildClause = new ClauseView(andChildNode);
-                        childClauses.add(andChildClause);
+            childBox.setPadding(new Insets(0, 10, 0, 10));
+            if (addChildren) {
+                for (AbstractLogicNode childNode : logicNode.getChildren()) {
+                    if (childNode.getNodeSemantic() == NodeSemantic.AND) {
+                        for (AbstractLogicNode andChildNode : childNode.getChildren()) {
+                            ClauseView andChildClause = new ClauseView(andChildNode);
+                            childClauses.add(andChildClause);
+                        }
+                    } else {
+                        ClauseView childClause = new ClauseView(childNode);
+                        childClauses.add(childClause);
                     }
-                } else {
-                    ClauseView childClause = new ClauseView(childNode);
-                    childClauses.add(childClause);
                 }
             }
 
@@ -692,15 +827,15 @@ public class AxiomView {
                 expanded.set(false);
             } else {
                 for (ClauseView childClause : childClauses) {
-                    childBox.getChildren().add(childClause.rootPane);
+                    childBox.getChildren().add(childClause.rootBorderPane);
                 }
             }
-            rootPane.setCenter(childBox);
-            rootPane.setUserData(logicNode);
+            rootBorderPane.setCenter(childBox);
+            rootBorderPane.setUserData(logicNode);
         }
 
         private void handleDragDetected(MouseEvent event) {
-            System.out.println("Drag detected: " + event);
+            LOG.debug("Drag detected: " + event);
 
             DragImageMaker dragImageMaker = new DragImageMaker(titleLabel);
             Dragboard db = titleLabel.startDragAndDrop(TransferMode.COPY);
@@ -732,20 +867,24 @@ public class AxiomView {
                     conceptNid = logicNode.getNidForConceptBeingDefined();
             }
 
-            IsaacClipboard content = new IsaacClipboard(Get.concept(conceptNid));
-            db.setContent(content);
+            try {
+                IsaacClipboard content = new IsaacClipboard(Get.concept(conceptNid));
+                db.setContent(content);
+            } catch (Exception e) {
+                FxGet.dialogs().showErrorDialog("Error dragging object...", e.getClass().getSimpleName() + " during drag.", e.getLocalizedMessage());
+            }
             event.consume();
         }
 
         private void handleDragDone(DragEvent event) {
-            System.out.println("Dragging done: " + event);
+            LOG.debug("Dragging done: " + event);
             titleLabel.setBackground(originalBackground);
             this.transferMode = null;
         }
 
         private void handleDragEntered(DragEvent event) {
             if (editable) {
-                System.out.println("Dragging entered: " + event);
+                LOG.debug("Dragging entered: " + event);
                 this.originalBackground = titleLabel.getBackground();
 
                 Color backgroundColor;
@@ -770,13 +909,13 @@ public class AxiomView {
         }
 
         private void handleDragExited(DragEvent event) {
-            System.out.println("Dragging exited: " + event);
+            LOG.debug("Dragging exited: " + event);
             titleLabel.setBackground(originalBackground);
             this.transferMode = null;
         }
 
         private void handleDragOver(DragEvent event) {
-            // System.out.println("Dragging over: " + event );
+            // LOG.debug("Dragging over: " + event );
             if (this.transferMode != null) {
                 event.acceptTransferModes(TransferMode.COPY_OR_MOVE);
                 event.consume();
@@ -787,7 +926,7 @@ public class AxiomView {
             if (expanded.get()) {
                 expandButton.setGraphic(Iconography.OPEN.getIconographic());
                 for (ClauseView childClause : childClauses) {
-                    childBox.getChildren().add(childClause.rootPane);
+                    childBox.getChildren().add(childClause.rootBorderPane);
                 }
             } else {
                 expandButton.setGraphic(Iconography.CLOSE.getIconographic());
@@ -797,12 +936,12 @@ public class AxiomView {
 
         protected final void handleEditClick(MouseEvent mouseEvent) {
             ContextMenu contextMenu = new ContextMenu();
-            MenuItem doNothing = new MenuItem("");
+            MenuItem doNothing = new MenuItemWithText("");
             contextMenu.getItems().addAll(doNothing);
 
             List<Action> actionItems
                     = FxGet.rulesDrivenKometService().getEditLogicalExpressionNodeMenuItems(
-                            manifold,
+                    FxGet.windowPreferences(childBox).getViewPropertiesForWindow(),
                             logicNode,
                             AxiomView.this.expression, this::updateExpressionForClauseView,
                             mouseEvent);
@@ -856,12 +995,12 @@ public class AxiomView {
         }
 
         private void showPopup(int conceptNid, MouseEvent mouseEvent) {
-            Optional<LogicalExpression> expression = manifold.getLogicalExpression(conceptNid, premiseType);
+            Optional<LogicalExpression> expression = manifoldCoordinate.getLogicalExpression(conceptNid, premiseType);
             if (expression.isPresent()) {
                 popover = new PopOver();
                 popover.setContentNode(AxiomView.createWithCommitPanel(expression.get(),
                         premiseType,
-                        manifold));
+                        manifoldCoordinate));
                 popover.setCloseButtonEnabled(true);
                 popover.setHeaderAlwaysVisible(false);
                 popover.setTitle("");
@@ -879,7 +1018,7 @@ public class AxiomView {
 
         private void addSvg(StringBuilder builder, int depth, double xOffset, double yOffset) {
 
-            Bounds rootBounds = rootPane.localToScreen(rootPane.getBoundsInLocal());
+            Bounds rootBounds = rootBorderPane.localToScreen(rootBorderPane.getBoundsInLocal());
             String leftStroke = "stroke: #c3cdd3;";
             int textOffset = 5;
             int preTextIconWidth = 0;
@@ -1017,7 +1156,7 @@ public class AxiomView {
                                 }
                             }
 
-                            roleStrBuilder.append(manifold.getPreferredDescriptionText(roleNode.getTypeConceptNid()));
+                            roleStrBuilder.append(manifoldCoordinate.getPreferredDescriptionText(roleNode.getTypeConceptNid()));
                             roleStrBuilder.append(")➞[");
 
                             for (LogicNode descendentNode : roleNode.getDescendents()) {
@@ -1039,7 +1178,7 @@ public class AxiomView {
                                         }
                                     }
 
-                                    roleStrBuilder.append(manifold.getPreferredDescriptionText(roleRestrictionNode.getConceptNid()));
+                                    roleStrBuilder.append(manifoldCoordinate.getPreferredDescriptionText(roleRestrictionNode.getConceptNid()));
                                 }
                             }
                             roleStrBuilder.append("]");
@@ -1133,15 +1272,15 @@ public class AxiomView {
         }
 
         private ContextMenu getContextMenu() {
-            MenuItem svgItem = new MenuItem("Make concept svg");
+            MenuItem svgItem = new MenuItemWithText("Make concept svg");
             svgItem.setOnAction(this::makeSvg);
-            MenuItem inlineSvgItem = new MenuItem("Make inline svg");
+            MenuItem inlineSvgItem = new MenuItemWithText("Make inline svg");
             inlineSvgItem.setOnAction(this::makeInlineSvg);
-            MenuItem mediaObjectSvgItem = new MenuItem("Make media object svg");
+            MenuItem mediaObjectSvgItem = new MenuItemWithText("Make media object svg");
             mediaObjectSvgItem.setOnAction(this::makeMediaObjectSvg);
-            MenuItem glossaryEntryItem = new MenuItem("Make glossary entry");
+            MenuItem glossaryEntryItem = new MenuItemWithText("Make glossary entry");
             glossaryEntryItem.setOnAction(this::makeGlossaryEntry);
-            MenuItem javaExpressionItem = new MenuItem("Make java expression");
+            MenuItem javaExpressionItem = new MenuItemWithText("Make java expression");
             javaExpressionItem.setOnAction(this::makeJavaExpression);
             return new ContextMenu(svgItem, inlineSvgItem, mediaObjectSvgItem,
                     glossaryEntryItem, javaExpressionItem);
@@ -1149,7 +1288,6 @@ public class AxiomView {
 
         private void makeJavaExpression(Event event) {
             putOnClipboard(AxiomView.this.expression.toBuilder());
-
         }
 
         private void makeMediaObjectSvg(Event event) {
@@ -1175,7 +1313,7 @@ public class AxiomView {
             builder.append("\n                </imageobject>");
             builder.append("\n</inlinemediaobject>");
 
-            putOnClipboard(DocBook.getGlossentry(expression.getConceptBeingDefinedNid(), manifold, builder.toString()));
+            putOnClipboard(DocBook.getGlossentry(expression.getConceptBeingDefinedNid(), manifoldCoordinate, builder.toString()));
         }
 
         private void makeInlineSvg(Event event) {
@@ -1207,7 +1345,7 @@ public class AxiomView {
         }
 
         private StringBuilder makeSvg(StringBuilder builder) {
-            Bounds rootBoundsInScreen = rootPane.localToScreen(borderPane.getBoundsInLocal());
+            Bounds rootBoundsInScreen = rootBorderPane.localToScreen(borderPane.getBoundsInLocal());
             builder.append("<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"");
             builder.append(rootBoundsInScreen.getWidth() + 5);
             builder.append("px\" height=\"");

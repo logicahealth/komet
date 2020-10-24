@@ -21,10 +21,6 @@ import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -35,7 +31,7 @@ import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.util.UUIDUtil;
 import sh.isaac.api.util.time.DateTimeUtil;
 
@@ -43,8 +39,6 @@ import sh.isaac.api.util.time.DateTimeUtil;
  *
  * @author kec
  */
-@XmlRootElement(name = "AttributeFunction")
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class AttributeFunction {
 
     public static final String KIND_OF_PREFIX = "Kind of ";
@@ -67,11 +61,11 @@ public class AttributeFunction {
     public static final String IDENTITY = "Identity";
     public static final String EMPTY = "";
     public static final String SCT_ID = "SCT id";
-    public static final String COORDINATE_UUID = " Coordinate UUID";
+    public static final String COORDINATE_UUID = " ImmutableCoordinate UUID";
 
 
     String functionName;
-    AttributeQuadFunction<String, Long, StampCoordinate, Query, String> function;
+    AttributeQuadFunction<String, Long, StampFilter, Query, String> function;
 
     /**
      * No arg constructor for Jaxb
@@ -84,14 +78,14 @@ public class AttributeFunction {
         setFunctionName(functionName);
     }
 
-    public String apply(String dataIn, StampCoordinate stampCoordinate, Query query) {
+    public String apply(String dataIn, StampFilter stampFilter, Query query) {
         if (UUIDUtil.isUUID(dataIn)) {
-            return function.apply(functionName, new Long(Get.nidForUuids(UUID.fromString(dataIn))), stampCoordinate, query);
+            return function.apply(functionName, new Long(Get.nidForUuids(UUID.fromString(dataIn))), stampFilter, query);
         }
         if (functionName.equals(IDENTITY) || functionName.equals(EMPTY)) {
             return dataIn;
         }
-        return function.apply(functionName, Long.parseLong(dataIn), stampCoordinate, query);
+        return function.apply(functionName, Long.parseLong(dataIn), stampFilter, query);
     }
 
     @Override
@@ -99,12 +93,11 @@ public class AttributeFunction {
         return functionName;
     }
 
-    @XmlAttribute
     public String getFunctionName() {
         return functionName;
     }
 
-    public static AttributeQuadFunction<String, Long, StampCoordinate, Query, String> getFunctionFromName(String functionName) {
+    public static AttributeQuadFunction<String, Long, StampFilter, Query, String> getFunctionFromName(String functionName) {
         switch (functionName) {
             case EMPTY:
                 return (funcName, nid, stampCoordinate, query) -> {
@@ -130,7 +123,7 @@ public class AttributeFunction {
             case SCT_ID:
                 return (funcName, nid, stampCoordinate, query) -> {
                     Optional<SemanticChronology> optionalSctidChronology = 
-                    Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(nid.intValue(), TermAux.SNOMED_IDENTIFIER.getNid()).findFirst();
+                    Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(nid.intValue(), TermAux.SNOMED_IDENTIFIER.getNid(), false).findFirst();
                     if (optionalSctidChronology.isPresent()) {
                         LatestVersion<StringVersion> optionalSctidVersion = optionalSctidChronology.get().getLatestVersion(stampCoordinate);
                         if (optionalSctidVersion.isPresent()) {
@@ -152,8 +145,8 @@ public class AttributeFunction {
                         if (coordinate != null) {
                             if (coordinate instanceof ManifoldCoordinate) {
                                 return ((ManifoldCoordinate)coordinate).getManifoldCoordinateUuid().toString();
-                            } else if (coordinate instanceof StampCoordinate) {
-                                return ((StampCoordinate)coordinate).getStampCoordinateUuid().toString();
+                            } else if (coordinate instanceof StampFilter) {
+                                return ((StampFilter)coordinate).getStampFilterUuid().toString();
                             } else if (coordinate instanceof LanguageCoordinate) {
                                 return ((LanguageCoordinate)coordinate).getLanguageCoordinateUuid().toString();
                             } else if (coordinate instanceof LogicCoordinate) {
@@ -169,7 +162,7 @@ public class AttributeFunction {
                         Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
                             SemanticChronology descChronolgy = Get.assemblageService().getSemanticChronology(nid.intValue());
-                            LatestVersion<DescriptionVersion> description = lc.get().getPreferredDescription(descChronolgy.getReferencedComponentNid(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getRegularDescription(descChronolgy.getReferencedComponentNid(), stampCoordinate);
                             if (description.isPresent() && description.get().getNid() == nid.intValue()) {
                                 return Boolean.TRUE.toString();
                             }
@@ -206,7 +199,7 @@ public class AttributeFunction {
                     return (funcName, nid, stampCoordinate, query) -> {
                         Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
-                            LatestVersion<DescriptionVersion> description = lc.get().getPreferredDescription(nid.intValue(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getRegularDescription(nid.intValue(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getText();
                             }
@@ -218,7 +211,7 @@ public class AttributeFunction {
                     return (funcName, nid, stampCoordinate, query) -> {
                         Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
-                            LatestVersion<DescriptionVersion> description = lc.get().getPreferredDescription(nid.intValue(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getRegularDescription(nid.intValue(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getPrimordialUuid().toString();
                             }
@@ -230,7 +223,7 @@ public class AttributeFunction {
                     return (funcName, nid, stampCoordinate, query) -> {
                         Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
-                            LatestVersion<DescriptionVersion> description = lc.get().getFullySpecifiedDescription(nid.intValue(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getFullyQualifiedDescription(nid.intValue(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getText();
                             }
@@ -242,7 +235,7 @@ public class AttributeFunction {
                     return (funcName, nid, stampCoordinate, query) -> {
                         Optional<LanguageCoordinate> lc = getLanguageCoordinate(query, functionName);
                         if (lc != null) {
-                            LatestVersion<DescriptionVersion> description = lc.get().getFullySpecifiedDescription(nid.intValue(), stampCoordinate);
+                            LatestVersion<DescriptionVersion> description = lc.get().getFullyQualifiedDescription(nid.intValue(), stampCoordinate);
                             if (description.isPresent()) {
                                 return description.get().getPrimordialUuid().toString();
                             }
@@ -302,10 +295,10 @@ public class AttributeFunction {
     protected static String doTaxonomyQuery(String functionName1, String prefix, Query query, int nid) throws NoSuchElementException {
         String conceptKeyName = functionName1.substring(prefix.length(), functionName1.indexOf(MANIFOLD_PREFIX));
         String manifoldKeyName = functionName1.substring(functionName1.indexOf(MANIFOLD_PREFIX) + MANIFOLD_PREFIX.length());
-        ManifoldCoordinateForQuery manifold = null;
+        ManifoldCoordinate manifold = null;
         for (LetItemKey key : query.getLetDeclarations().keySet()) {
             if (key.getItemName().equals(manifoldKeyName)) {
-                manifold = (ManifoldCoordinateForQuery) query.getLetDeclarations().get(key);
+                manifold = (ManifoldCoordinate) query.getLetDeclarations().get(key);
             }
         }
         ConceptSpecification kindOfSpec = null;

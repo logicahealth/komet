@@ -39,14 +39,10 @@
 
 package sh.isaac.provider.sync.git;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.File;
 import java.io.IOException;
-
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -59,13 +55,13 @@ import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
-
-//~--- non-JDK imports --------------------------------------------------------
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.jgit.api.AddCommand;
 import org.eclipse.jgit.api.CheckoutCommand.Stage;
 import org.eclipse.jgit.api.CommitCommand;
 import org.eclipse.jgit.api.Git;
+import org.eclipse.jgit.api.InitCommand;
 import org.eclipse.jgit.api.MergeResult;
 import org.eclipse.jgit.api.ResetCommand.ResetType;
 import org.eclipse.jgit.api.RmCommand;
@@ -101,22 +97,13 @@ import org.eclipse.jgit.transport.TagOpt;
 import org.eclipse.jgit.transport.UsernamePasswordCredentialsProvider;
 import org.eclipse.jgit.util.StringUtils;
 import org.eclipse.jgit.util.io.DisabledOutputStream;
-
 import org.glassfish.hk2.api.PerLookup;
-
 import org.jvnet.hk2.annotations.Service;
-
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.eclipse.jgit.api.InitCommand;
-
 import sh.isaac.api.sync.MergeFailOption;
 import sh.isaac.api.sync.MergeFailure;
 import sh.isaac.api.sync.SyncFiles;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * {@link SyncServiceGIT}
@@ -129,35 +116,16 @@ import sh.isaac.api.sync.SyncFiles;
 @PerLookup
 public class SyncServiceGIT
          implements SyncFiles {
-   /**
-    * The Constant LOG.
-    */
+
    private static final Logger LOG = LogManager.getLogger();
 
-   /** The jsch configured. */
    private static volatile CountDownLatch jschConfigured = new CountDownLatch(1);
-
-   //~--- fields --------------------------------------------------------------
-
-   /** The note failed merge happened on remote. */
    private final String NOTE_FAILED_MERGE_HAPPENED_ON_REMOTE = "Conflicted merge happened during remote merge";
-
-   /** The note failed merge happened on stash. */
    private final String NOTE_FAILED_MERGE_HAPPENED_ON_STASH = "Conflicted merge happened during stash merge";
-
-   /** The stash marker. */
    private final String STASH_MARKER = ":STASH-";
-
-   /** The local folder. */
    private File localFolder = null;
-
-   /** The read me file content. */
    private String readMeFileContent = DEFAULT_README_CONTENT;
-
-   /** The git ignore text. */
    private String gitIgnoreText = "lastUser.txt\r\n";
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * If you are in an HK2 environment, you would be better served getting this from HK2 (by asking for it by interface and name)
@@ -209,15 +177,8 @@ public class SyncServiceGIT
       }
    }
 
-   //~--- methods -------------------------------------------------------------
-
    /**
-    * Adds the files.
-    *
-    * @param files the files
-    * @throws IllegalArgumentException the illegal argument exception
-    * @throws IOException Signals that an I/O exception has occurred.
-    * @see sh.isaac.api.sync.SyncFiles#addFiles(java.io.File, java.util.Set)
+    * {@inheritDoc}
     */
    @Override
    public void addFiles(String... files)
@@ -245,11 +206,7 @@ public class SyncServiceGIT
    }
 
    /**
-    * Adds the untracked files.
-    *
-    * @throws IllegalArgumentException the illegal argument exception
-    * @throws IOException Signals that an I/O exception has occurred.
-    * @see sh.isaac.api.sync.SyncFiles#addUntrackedFiles(java.io.File)
+    * {@inheritDoc}
     */
    @Override
    public void addUntrackedFiles()
@@ -270,6 +227,8 @@ public class SyncServiceGIT
 
    /**
     * Create a new branch, and switch to it locally.  The new branch will contain no files.
+    * 
+    * Note, this is a GIT only extension, and isn't in the shared API.
     *
     * @param branchName the branch name
     * @throws IOException Signals that an I/O exception has occurred.
@@ -290,6 +249,8 @@ public class SyncServiceGIT
 
    /**
     * Create a new tag at the current point.
+    * 
+    * Note, this is a GIT only extension, and isn't in the shared API.
     *
     * @param commitMessage the commit message
     * @param tagName the tag name
@@ -313,14 +274,7 @@ public class SyncServiceGIT
    }
 
    /**
-    * Link and fetch from remote.
-    *
-    * @param remoteAddress the remote address
-    * @param username the username
-    * @param password the password
-    * @throws IllegalArgumentException the illegal argument exception
-    * @throws IOException Signals that an I/O exception or auth error has occurred.
-    * @see sh.isaac.api.sync.SyncFiles#linkAndFetchFromRemote(java.io.File, java.lang.String, java.lang.String, java.lang.String)
+    * {@inheritDoc}
     */
    @Override
    public void linkAndFetchFromRemote(String remoteAddress,
@@ -467,6 +421,8 @@ public class SyncServiceGIT
 
    /**
     * Push tag.
+    * 
+    * This is a GIT only extension, and isn't part of the shared API.
     *
     * @param tagName the tag name
     * @param username the username
@@ -516,6 +472,8 @@ public class SyncServiceGIT
 
    /**
     * Read tags.
+    * 
+    * This is a GIT only extension, and isn't part of the shared API.
     *
     * @param username the username
     * @param password the password
@@ -557,14 +515,7 @@ public class SyncServiceGIT
    }
 
    /**
-    * Relink remote.
-    *
-    * @param remoteAddress the remote address
-    * @param username the username
-    * @param password the password
-    * @throws IllegalArgumentException the illegal argument exception
-    * @throws IOException Signals that an I/O exception has occurred.
-    * @see sh.isaac.api.sync.SyncFiles#relinkRemote(java.lang.String, java.lang.String, java.lang.String)
+    * {@inheritDoc}
     */
    @Override
    public void relinkRemote(String remoteAddress,
@@ -585,12 +536,7 @@ public class SyncServiceGIT
    }
 
    /**
-    * Removes the files.
-    *
-    * @param files the files
-    * @throws IllegalArgumentException the illegal argument exception
-    * @throws IOException Signals that an I/O exception has occurred.
-    * @see sh.isaac.api.sync.SyncFiles#removeFiles(java.io.File, java.util.Set)
+    * {@inheritDoc}
     */
    @Override
    public void removeFiles(String... files)
@@ -618,15 +564,7 @@ public class SyncServiceGIT
    }
 
    /**
-    * Resolve merge failures.
-    *
-    * @param resolutions the resolutions
-    * @return the set
-    * @throws IllegalArgumentException the illegal argument exception
-    * @throws IOException Signals that an I/O exception has occurred.
-    * @throws NoWorkTreeException the no work tree exception
-    * @throws MergeFailure the merge failure
-    * @see sh.isaac.api.sync.SyncFiles#resolveMergeFailures(java.io.File, java.util.Map)
+    * {@inheritDoc}
     */
    @Override
    public Set<String> resolveMergeFailures(Map<String, MergeFailOption> resolutions)
@@ -690,18 +628,15 @@ public class SyncServiceGIT
    }
 
    /**
-    * Substitute URL.
-    *
-    * @param url the url
-    * @param username the username
-    * @return the string
-    * @see sh.isaac.api.sync.SyncFiles#substituteURL(java.lang.String, java.lang.String)
+    * This implementation makes ehse modifications:
     *
     * Turns
     *  ssh://someuser@csfe.aceworkspace.net:29418/... into
-    *  ssh://username.toString()@csfe.aceworkspace.net:29418/...
+    *  ssh://username@csfe.aceworkspace.net:29418/...
     *
-    *  Otherwise, returns URL.
+    *  Otherwise, returns URL, if the input doesn't match the pattern 'ssh://<variableUserName>@'....
+    *  
+    *  @see sh.isaac.api.sync.SyncFiles#substituteURL(java.lang.String, java.lang.String)
     */
    @Override
    public String substituteURL(String url, String username) {
@@ -715,20 +650,7 @@ public class SyncServiceGIT
    }
 
    /**
-    * Update commit and push.
-    *
-    * @param commitMessage the commit message
-    * @param username the username
-    * @param password the password
-    * @param mergeFailOption the merge fail option
-    * @param files the files
-    * @return the set
-    * @throws IllegalArgumentException the illegal argument exception
-    * @throws IOException Signals that an I/O exception or auth error has occurred.
-    * @throws MergeFailure the merge failure
-    * @throws AuthenticationException the authentication exception
-    * @see sh.isaac.api.sync.SyncFiles#updateCommitAndPush(java.io.File, java.lang.String, java.lang.String, java.lang.String,
-    * java.lang.String[])
+    * {@inheritDoc}
     */
    @Override
    public Set<String> updateCommitAndPush(String commitMessage,
@@ -808,17 +730,7 @@ public class SyncServiceGIT
    }
 
    /**
-    * Update from remote.
-    *
-    * @param username the username
-    * @param password the password
-    * @param mergeFailOption the merge fail option
-    * @return the set
-    * @throws IllegalArgumentException the illegal argument exception
-    * @throws IOException Signals that an I/O exception or auth error has occurred.
-    * @throws MergeFailure the merge failure
-    * @see sh.isaac.api.sync.SyncFiles#updateFromRemote(java.io.File, java.lang.String, java.lang.String,
-    * sh.isaac.api.sync.MergeFailOption)
+    * {@inheritDoc}
     */
    @Override
    public Set<String> updateFromRemote(String username,
@@ -1251,14 +1163,8 @@ public class SyncServiceGIT
       return sb.toString();
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the files in merge conflict.
-    *
-    * @return the files in merge conflict
-    * @throws IOException Signals that an I/O exception has occurred.
-    * @see sh.isaac.api.sync.SyncFiles#getFilesInMergeConflict()
+    * {@inheritDoc}
     */
    @Override
    public Set<String> getFilesInMergeConflict()
@@ -1301,10 +1207,10 @@ public class SyncServiceGIT
       return Git.open(gitFolder);
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Set the contents of the gitIgnore file.
+    * 
+    * This is a GIT only extension, not part of the shared API.
     *
     * @param gitIgnoreContent the new git ignore content
     */
@@ -1312,14 +1218,8 @@ public class SyncServiceGIT
       this.gitIgnoreText = gitIgnoreContent;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the locally modified file count.
-    *
-    * @return the locally modified file count
-    * @throws IOException Signals that an I/O exception has occurred.
-    * @see sh.isaac.api.sync.SyncFiles#getLocallyModifiedFileCount()
+    * {@inheritDoc}
     */
    @Override
    public int getLocallyModifiedFileCount()
@@ -1334,41 +1234,24 @@ public class SyncServiceGIT
          throw new IOException("Internal error", e);
       }
    }
-
-   //~--- set methods ---------------------------------------------------------
-
+   
    /**
-    * Sets the readme file content.
-    *
-    * @param readmeFileContent the new readme file content
-    * @see sh.isaac.api.sync.SyncFiles#setReadmeFileContent(java.lang.String)
-    */
-   @Override
+    * {@inheritDoc}
+    */   @Override
    public void setReadmeFileContent(String readmeFileContent) {
       this.readMeFileContent = readmeFileContent;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the root location.
-    *
-    * @return the root location
-    * @see sh.isaac.api.sync.SyncFiles#getRootLocation()
+    * {@inheritDoc}
     */
    @Override
    public File getRootLocation() {
       return this.localFolder;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
-    * Sets the root location.
-    *
-    * @param localFolder the new root location
-    * @throws IllegalArgumentException the illegal argument exception
-    * @see sh.isaac.api.sync.SyncFiles#setRootLocation(java.io.File)
+    * {@inheritDoc}
     */
    @Override
    public void setRootLocation(File localFolder)
@@ -1385,28 +1268,52 @@ public class SyncServiceGIT
       this.localFolder = localFolder;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Checks if root location configured for SCM.
-    *
-    * @return true, if root location configured for SCM
-    * @see sh.isaac.api.sync.SyncFiles#isRootLocationConfiguredForSCM()
+    * {@inheritDoc}
     */
    @Override
    public boolean isRootLocationConfiguredForSCM() {
       return new File(this.localFolder, ".git").isDirectory();
    }
    
-   public Git initialize() throws IOException {
-       try {
-           InitCommand initCommand = Git.init();
-           initCommand.setDirectory(localFolder);
-           makeInitialFilesAsNecessary(localFolder);
-           return initCommand.call();
-       } catch (GitAPIException ex) {
-            throw new IOException("Internal error", ex);
-       }
+   
+   /**
+    * Initialize a local only GIT repository in the location specified by {@link #setRootLocation(File)}.  
+    * 
+    * This is a GIT specific extension, and is not part of the shared API.
+    * 
+    * This operation may make files, such as a REAME.MD or a .gitignore file, but it does not 
+    * add any newly created files to the newly created repository.
+    * 
+    * @return The list of files that were created by this operation.
+    * @throws IOException if the create fails for some reason
+    * @throws IllegalArgumentException if the local folder isn't configured properly
+    */
+   public List<String> initializeLocalRepository() throws IOException, IllegalArgumentException
+   {
+      if (this.localFolder == null)
+      {
+         throw new IllegalArgumentException("localFolder has not yet been set - please call setRootLocation(...)");
+      }
+
+      if (!this.localFolder.isDirectory())
+      {
+         LOG.error("The passed in local folder '{}' didn't exist", this.localFolder);
+         throw new IllegalArgumentException("The localFolder must be a folder, and must exist");
+      }
+
+      try
+      {
+         InitCommand initCommand = Git.init();
+         initCommand.setDirectory(localFolder);
+         List<String> newFiles = makeInitialFilesAsNecessary(localFolder);
+         initCommand.call();
+         return newFiles;
+      }
+      catch (GitAPIException ex)
+      {
+         throw new IOException("Internal error", ex);
+      }
    }
 }
 

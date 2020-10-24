@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+
+<AnchorPane fx:id="batchAnchor" prefHeight="400.0" prefWidth="600.0" stylesheets="@ListViewNode.css" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.isaac.komet.batch.fxml.ListViewNodeController">
+   <children>
+      <BorderPane fx:id="batchBorderPane" layoutX="170.0" layoutY="93.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+         <top>
+            <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+              <items>
+                  <MenuButton contentDisplay="GRAPHIC_ONLY" graphicTextGap="0.0" mnemonicParsing="false">
+                    <items>
+                        <Menu fx:id="navigationMenu" mnemonicParsing="false" text="Navigation coordinates" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem fx:id="listCount" mnemonicParsing="false" text="Count: 0" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#copyItems" text="Copy selected items" />
+                        <MenuItem mnemonicParsing="false" onAction="#pasteItems" text="Paste items" />
+                        <MenuItem mnemonicParsing="false" onAction="#deleteSelectedItems" text="Delete selected items" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <Menu fx:id="addConceptsInModuleMenu" mnemonicParsing="false" text="Add concepts in module" />
+                        <Menu fx:id="addConceptsOnPathMenu" mnemonicParsing="false" text="Add concepts on path" />
+                        <Menu fx:id="addConceptsByAuthorMenu" mnemonicParsing="false" text="Add concepts by author" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                        <MenuItem mnemonicParsing="false" onAction="#deDupe" text="Remove duplicates" />
+                        <SeparatorMenuItem mnemonicParsing="false" />
+                      <MenuItem mnemonicParsing="false" onAction="#clearList" text="New" />
+                      <MenuItem mnemonicParsing="false" onAction="#importList" text="Open" />
+                        <MenuItem mnemonicParsing="false" onAction="#exportList" text="Save" />
+                    </items>
+                     <opaqueInsets>
+                        <Insets />
+                     </opaqueInsets>
+                     <padding>
+                        <Insets left="-8.0" />
+                     </padding>
+                  </MenuButton>
+                  <Label text="   List name: " />
+                  <TextField fx:id="listName" maxWidth="1.7976931348623157E308" prefWidth="250.0" promptText="enter list name..." />
+              </items>
+            </ToolBar>
+         </top>
+      </BorderPane>
+   </children>
+</AnchorPane>

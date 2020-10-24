@@ -19,29 +19,33 @@ package sh.komet.scripting.groovy;
 import java.io.IOException;
 import java.util.Optional;
 import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.property.StringPropertyBase;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.scripting.ScriptingController;
 
 /**
  *
  * @author kec
  */
-public class GroovyViewProvider implements ExplorationNode {
-   private Manifold manifold;
-   private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("Groovy runner");
-   private final SimpleStringProperty titleProperty = new SimpleStringProperty("Groovy");
+public class GroovyViewProvider extends ExplorationNodeAbstract {
+    {
+        toolTipProperty.setValue("Groovy runner");
+        super.getTitle().setValue("Groovy");
+        menuIconProperty.setValue(Iconography.JAVASCRIPT.getIconographic());
+    }
    private final ScriptingController scriptingController;
    private final Node titleNode = Iconography.JAVASCRIPT.getIconographic();
-   
-    public GroovyViewProvider(Manifold manifold) {
+
+
+    public GroovyViewProvider(ViewProperties viewProperties) {
+        super(viewProperties);
        try {
-           this.manifold = manifold;
-           
            FXMLLoader loader = new FXMLLoader(
                  getClass().getResource("/sh/komet/scripting/scriptrunner.fxml"));
            loader.load();
@@ -53,17 +57,17 @@ public class GroovyViewProvider implements ExplorationNode {
            throw new RuntimeException(ex);
        }
     }
-    
 
     @Override
-    public Node getMenuIcon() {
+    public Node getMenuIconGraphic() {
         return Iconography.JAVASCRIPT.getIconographic();
     }
 
     @Override
-    public Manifold getManifold() {
-        return this.manifold;
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
     }
+
 
     @Override
     public Node getNode() {
@@ -71,18 +75,22 @@ public class GroovyViewProvider implements ExplorationNode {
     }
 
     @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return toolTipProperty;
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return titleProperty;
-    }
-
-    @Override
     public Optional<Node> getTitleNode() {
         return Optional.of(titleNode);
     }
-    
+
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+    @Override
+    public ActivityFeed getActivityFeed() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
 }

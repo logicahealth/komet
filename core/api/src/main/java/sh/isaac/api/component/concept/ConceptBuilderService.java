@@ -39,14 +39,9 @@
 
 package sh.isaac.api.component.concept;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.jvnet.hk2.annotations.Contract;
-
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface ConceptBuilderService.
@@ -98,8 +93,6 @@ public interface ConceptBuilderService {
     */
    ConceptBuilder getDefaultConceptBuilder(String conceptName, String semanticTag, LogicalExpression logicalExpression, int assemblageId);
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Set default dialect assemblage for descriptions.
     *
@@ -107,8 +100,6 @@ public interface ConceptBuilderService {
     * @return the concept builder service
     */
    ConceptBuilderService setDefaultDialectAssemblageForDescriptions(ConceptSpecification dialectForDescriptions);
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the default dialect for descriptions.
@@ -124,8 +115,6 @@ public interface ConceptBuilderService {
     */
    ConceptSpecification getDefaultLanguageForDescriptions();
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Set default language for descriptions.
     *
@@ -133,8 +122,6 @@ public interface ConceptBuilderService {
     * @return the concept builder service
     */
    ConceptBuilderService setDefaultLanguageForDescriptions(ConceptSpecification languageForDescriptions);
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the default logic coordinate.

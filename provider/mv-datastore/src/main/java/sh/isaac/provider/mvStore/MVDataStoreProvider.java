@@ -31,18 +31,19 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import java.util.Spliterator;
 import java.util.Spliterator.OfInt;
+import java.util.Spliterators;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BinaryOperator;
 import java.util.function.Function;
 import java.util.function.IntConsumer;
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
 import java.util.stream.StreamSupport;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.Rank;
@@ -112,6 +113,12 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 	
 	ConcurrentHashMap<String, MVExtendedStore<?, ?, ?>> extendedStores = new ConcurrentHashMap<>(5);
 	MVMap<String, Long> sharedStore;
+	
+    @Override
+    public DatabaseImplementation getDataStoreType()
+    {
+        return DatabaseImplementation.MV;
+    }
 
 	/**
 	 * {@inheritDoc}
@@ -211,7 +218,7 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 					{
 						try
 						{
-							if (store.getCurrentFillRate() < 90)
+							if (store.getChunksFillRate() < 90)
 							{
 								updateMessage("Compacting Data Store");
 								
@@ -231,17 +238,9 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 								{
 									LOG.error("Unexpected:", e);
 								}
-								LOG.debug("Fill rate prior to rewrite: {}", store.getCurrentFillRate());
-								store.compactRewriteFully();
-								LOG.debug("Fill rate after to rewrite: {}", store.getCurrentFillRate());
-								int iterationLimit = 3;
-								while (store.getCurrentFillRate() < 90 && iterationLimit >= 0)
-								{
-									iterationLimit--;
-									store.compactMoveChunks();
-									LOG.debug("Fill rate after compact: {}", store.getCurrentFillRate());
-								}
-								LOG.debug("compact move chunks complete");
+								LOG.debug("Fill rate prior to rewrite: {}", store.getChunksFillRate());
+								store.compactFile(1 * 60 * 1000);  //max of one minute, since this is in the shutdown sequence.
+								LOG.debug("Fill rate after to rewrite: {}", store.getChunksFillRate());
 								store.setAutoCommitDelay(1000);
 								LOG.info("compact complete");
 							}
@@ -279,6 +278,7 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 		{
 			LOG.error("Unexpected error shutting down mvStore", e);
 		}
+		LOG.info("Stopped MV Data Store.");
 	}
 	
 	private MVMap<Integer, int[]> getTaxonomyMap(int assemblageNid)
@@ -291,6 +291,11 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 	{
 		return chronicleMaps.computeIfAbsent((CHRONICLE + Integer.toString(assemblageNid)),
 				mapNameKey -> store.<Integer, byte[]>openMap(mapNameKey));
+	}
+	
+	private boolean hasChronicleMap(int assemblageNid)
+	{
+		return chronicleMaps.containsKey(CHRONICLE + Integer.toString(assemblageNid));
 	}
 	
 	private MVMap<Integer, byte[][]> getVersionMap(int assemblageNid)
@@ -607,13 +612,19 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 	 * {@inheritDoc}
 	 */
 	@Override
-	public IntStream getNidsForAssemblage(final int assemblageNid)
+	public IntStream getNidsForAssemblage(final int assemblageNid, boolean parallel)
 	{
-		MVMap<Integer, byte[]> data = getChronicleMap(assemblageNid);
-		
-		AtomicReference<Iterator<Integer>> it = new AtomicReference<>(data.keyIterator(data.firstKey()));
+		if (!hasChronicleMap(assemblageNid)) {
+			//Our normal get behavior adds if missing, don't want to do that, if it isn't actually in use as an assemblage.
+			return IntStream.empty();
+		}
 		final Supplier<? extends Spliterator.OfInt> streamSupplier = new Supplier<OfInt>()
 		{
+			MVMap<Integer, byte[]> data = getChronicleMap(assemblageNid);
+			final long size = data.sizeAsLong();
+			Iterator<Integer> it = data.keyIterator(data.firstKey());
+			AtomicLong traversed = new AtomicLong(0);
+			
 			@Override
 			public OfInt get()
 			{
@@ -622,27 +633,51 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 					@Override
 					public long estimateSize()
 					{
-						return data.sizeAsLong();
+						return size - traversed.get();
 					}
 
 					@Override
 					public int characteristics()
 					{
-						return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.SIZED;
+						return Spliterator.DISTINCT | Spliterator.CONCURRENT | Spliterator.NONNULL | Spliterator.ORDERED;
 					}
 
 					@Override
 					public OfInt trySplit()
 					{
-						return null;
+						if ((size - traversed.get()) > 1024)
+						{
+							int[] split = new int[1024];
+							int lastEntry = 0;
+							for (int i = 0; i < 1024; i++)
+							{
+								if (it.hasNext()) 
+								{
+									split[i] = it.next();
+									traversed.getAndIncrement();
+									lastEntry = i++;
+								}
+								else
+								{
+									break;
+								}
+							}
+							return Spliterators.spliterator(split, 0, lastEntry, 
+									Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED | Spliterator.SUBSIZED);
+						}
+						else
+						{
+							return null;
+						}
 					}
 
 					@Override
 					public boolean tryAdvance(IntConsumer action)
 					{
-						if (it.get().hasNext())
+						if (it.hasNext())
 						{
-							action.accept(it.get().next());
+							action.accept(it.next());
+							traversed.getAndIncrement();
 							return true;
 						}
 						else
@@ -654,8 +689,7 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 			}
 		};
 		
-		IntStream results = StreamSupport.intStream(streamSupplier, Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.SIZED, false);
-		return results;
+		return StreamSupport.intStream(streamSupplier, Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.SIZED, parallel);
 	}
 
 	/** 
@@ -846,5 +880,13 @@ public class MVDataStoreProvider implements DataStoreSubService, ExtendedStore
 	{
 		 return (ExtendedStoreData<K, VT>) extendedStores.computeIfAbsent(storeName, mapNameKey -> 
 		 	new MVExtendedStore<K, V, VT>(this.store.<K, V>openMap(mapNameKey), valueSerializer, valueDeserializer));
+	}
+
+	@Override
+	public void closeStore(String storeName)
+	{
+		//In MV Store, we just need to make sure we are done serializing.  We don't need to do anything else.
+		store.commit();
+		extendedStores.remove(storeName);
 	}
 }

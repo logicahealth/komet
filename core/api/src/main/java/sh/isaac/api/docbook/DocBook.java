@@ -42,7 +42,7 @@ import sh.isaac.api.util.DescriptionToToken;
 public class DocBook {
 
     public static String getInlineEntry(ConceptSpecification concept,
-            ManifoldCoordinate manifold) {
+                                        ManifoldCoordinate manifold) {
         boolean defined = isDefined(concept.getNid(), manifold);
         boolean multiParent = isMultiparent(concept.getNid(), manifold);
         String conceptChar;
@@ -99,7 +99,7 @@ public class DocBook {
     }
     
     private static String makeGlossentry(ConceptSpecification concept,
-            ManifoldCoordinate manifold, String definitionSvg) {
+                                         ManifoldCoordinate manifold, String definitionSvg) {
         StringBuilder builder = new StringBuilder();
         builder.append("<glossentry xml:id=\"ge_solor_");
         builder.append(DescriptionToToken.get(manifold.getPreferredDescriptionText(concept)));
@@ -136,11 +136,11 @@ public class DocBook {
     }
 
     public static String getGlossentry(int conceptNid,
-            ManifoldCoordinate manifold, String svgString) {
+                                       ManifoldCoordinate manifold, String svgString) {
         return getGlossentry(Get.concept(conceptNid), manifold, svgString);
     }
     public static String getGlossentry(ConceptSpecification concept,
-            ManifoldCoordinate manifold, String svgString) {
+                                       ManifoldCoordinate manifold, String svgString) {
         StringBuilder builder = new StringBuilder();
             builder.append("\n          <row><entry/><entry>");
             builder.append(svgString);
@@ -150,7 +150,7 @@ public class DocBook {
     }
 
     public static String getGlossentry(ConceptSpecification concept,
-            ManifoldCoordinate manifold) {
+                                       ManifoldCoordinate manifold) {
         StringBuilder builder = new StringBuilder();
         addInferredDefinition(builder, Get.concept(concept), manifold);
         return makeGlossentry(concept, manifold, builder.toString());
@@ -161,7 +161,7 @@ public class DocBook {
         List<SemanticChronology> descriptions = Get.concept(concept).getConceptDescriptionList();
         HashMap<Integer, DescriptionVersion> nidDescriptionVersionMap = new HashMap<>();
         for (SemanticChronology descriptionChronology: descriptions) {
-            LatestVersion<DescriptionVersion> latestDescriptionVersion = descriptionChronology.getLatestVersion(manifold);
+            LatestVersion<DescriptionVersion> latestDescriptionVersion = descriptionChronology.getLatestVersion(manifold.getViewStampFilter());
             if (latestDescriptionVersion.isPresent()) {
                 DescriptionVersion descriptionVersion = latestDescriptionVersion.get();
                 if (descriptionVersion.getDescriptionTypeConceptNid() == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid() 
@@ -171,7 +171,7 @@ public class DocBook {
             }
         }
         
-        LatestVersion<DescriptionVersion> latestFQN = manifold.getFullySpecifiedDescription(concept);
+        LatestVersion<DescriptionVersion> latestFQN = manifold.getFullyQualifiedDescription(concept);
         if (latestFQN.isPresent()) {
             DescriptionVersion fqn = latestFQN.get();
             addDescriptionText(builder, fqn.getText());
@@ -201,9 +201,9 @@ public class DocBook {
             builder.append("</entry></row>");
         }
 
-        Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(concept.getNid(), TermAux.SNOMED_IDENTIFIER.getNid())
+        Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(concept.getNid(), TermAux.SNOMED_IDENTIFIER.getNid(), false)
                 .forEach(((semanticChronology) -> {
-                    LatestVersion<StringVersion> latest = semanticChronology.getLatestVersion(manifold);
+                    LatestVersion<StringVersion> latest = semanticChronology.getLatestVersion(manifold.getViewStampFilter());
                     if (latest.isPresent()) {
                         builder.append("          ").append("<row><entry/><entry>SCTID: ");
                         builder.append(latest.get().getString());
@@ -213,7 +213,7 @@ public class DocBook {
     }
 
     private static void addTextDefinition(StringBuilder builder, ConceptSpecification concept, ManifoldCoordinate manifold) {
-        LatestVersion<DescriptionVersion> definition = manifold.getDefinitionDescription(Get.concept(concept).getConceptDescriptionList(), manifold);
+        LatestVersion<DescriptionVersion> definition = manifold.getLanguageCoordinate().getDefinitionDescription(Get.concept(concept).getConceptDescriptionList(), manifold.getViewStampFilter());
         if (definition.isPresent() && definition.get().getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
             addDescriptionText(builder, definition.get().getText());
         } else {
@@ -223,7 +223,7 @@ public class DocBook {
     }
 
     private static void addStatedDefinition(StringBuilder builder, ConceptChronology concept, ManifoldCoordinate manifold) {
-        LatestVersion<LogicGraphVersion> definition = concept.getLogicalDefinition(manifold, PremiseType.STATED, manifold);
+        LatestVersion<LogicGraphVersion> definition = concept.getLogicalDefinition(manifold.getViewStampFilter(), PremiseType.STATED, manifold.getLogicCoordinate());
         if (definition.isPresent()) {
             LogicGraphVersion logicGraph = definition.get();
             builder.append("          ").append("<row><entry/><entry><literallayout><emphasis>");
@@ -233,7 +233,7 @@ public class DocBook {
     }
 
     private static void addInferredDefinition(StringBuilder builder, ConceptChronology concept, ManifoldCoordinate manifold) {
-        LatestVersion<LogicGraphVersion> definition = concept.getLogicalDefinition(manifold, PremiseType.INFERRED, manifold);
+        LatestVersion<LogicGraphVersion> definition = manifold.getLogicalDefinition(concept, PremiseType.INFERRED);
         if (definition.isPresent()) {
             LogicGraphVersion logicGraph = definition.get();
             builder.append("          ").append("<row><entry/><entry><literallayout><emphasis>");

@@ -207,6 +207,10 @@ public class LiteralNodeDouble
       return this.literalValue;
    }
 
+   public void setLiteralValue(double literalValue) {
+      this.literalValue = literalValue;
+   }
+
    /**
     * Gets the node semantic.
     *

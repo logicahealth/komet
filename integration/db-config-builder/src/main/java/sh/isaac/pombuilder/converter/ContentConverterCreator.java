@@ -305,6 +305,9 @@ public class ContentConverterCreator
 					case SCT_EXTENSION:
 						classifiers = new String[] { "Snapshot", "Delta", "Full" };
 						break;
+					case LOINC:
+						classifiers = new String[] { "native", "solor" };
+						break;
 
 					default :
 						classifiers = new String[] { "" };

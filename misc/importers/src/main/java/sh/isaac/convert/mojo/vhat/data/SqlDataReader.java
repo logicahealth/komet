@@ -56,6 +56,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Properties;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.maven.plugin.MojoExecutionException;
 import sh.isaac.convert.mojo.vhat.data.dto.CodeSystem;
 import sh.isaac.convert.mojo.vhat.data.dto.ConceptImportDTO;
@@ -68,11 +70,11 @@ import sh.isaac.convert.mojo.vhat.data.dto.SubsetImportDTO;
 import sh.isaac.convert.mojo.vhat.data.dto.SubsetMembershipImportDTO;
 import sh.isaac.convert.mojo.vhat.data.dto.TypeImportDTO;
 import sh.isaac.convert.mojo.vhat.data.dto.Version;
-import sh.isaac.converters.sharedUtils.ConsoleUtil;
 
 @Deprecated //code was only for the VA project, was never completed, and that project is dead
 public class SqlDataReader {
 	
+	protected Logger log = LogManager.getLogger();
 	private Map<Long, ArrayList<PropertyImportDTO>>	_properties = new HashMap<>();
 	private Map<Long, ArrayList<PropertyImportDTO>>	_propertiesByVuid = new HashMap<>();
 	private Map<Long, ArrayList<RelationshipImportDTO>> _relationships = new HashMap<>();
@@ -343,7 +345,7 @@ public class SqlDataReader {
 
 			PreparedStatement s = _connection.prepareStatement(query);
 			s.setString(1, code);
-			s.setLong(2, codeSystemId);  //TODO with our (bad) h2 copy, this needs to be setSTring, instead of setLong
+			s.setLong(2, codeSystemId);  //with our (bad) h2 copy, this needs to be setSTring, instead of setLong
 			
 			ResultSet rs = s.executeQuery();
 			try
@@ -376,7 +378,7 @@ public class SqlDataReader {
 					+ " WHERE c.entity_id=?";
 		
 		PreparedStatement s = _connection.prepareStatement(query);
-		s.setLong(1, conceptEntityId);  //TODO with our (bad) h2 copy, this needs to be setSTring, instead of setLong
+		s.setLong(1, conceptEntityId);  //with our (bad) h2 copy, this needs to be setSTring, instead of setLong
 		
 		ResultSet rs = s.executeQuery();
 		ArrayList<ConceptImportDTO> results = new ArrayList<>();
@@ -980,7 +982,7 @@ public class SqlDataReader {
 						+ " AND r.source_entity_id=?";
 
 				PreparedStatement ps = _connection.prepareStatement(query);
-				ps.setLong(1, conceptEntityId.get());  //TODO with our (bad) h2 copy, this needs to be setSTring, instead of setLong
+				ps.setLong(1, conceptEntityId.get());  //with our (bad) h2 copy, this needs to be setSTring, instead of setLong
 				s = ps;
 				rs = ps.executeQuery();
 			}
@@ -1272,15 +1274,15 @@ public class SqlDataReader {
 	{
 		if (count == 0)
 		{
-			ConsoleUtil.println(message + " : Starting.");
+			log.info(message + " : Starting.");
 		} 
 		else if ((count % interval) == 0)
 		{
-			ConsoleUtil.println(message + " : Fetched " + count + " rows.");
+			log.info(message + " : Fetched " + count + " rows.");
 		} 
 		else if (finalCount)
 		{
-			ConsoleUtil.println(message + " : Finished with " + count + " rows.");
+			log.info(message + " : Finished with " + count + " rows.");
 		}
 	}
 	

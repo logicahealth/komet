@@ -18,8 +18,16 @@ package sh.isaac.api.tree;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
-import sh.isaac.api.TaxonomyLink;
+import java.util.UUID;
+
+import org.eclipse.collections.api.collection.ImmutableCollection;
+import org.eclipse.collections.api.collection.MutableCollection;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
+import sh.isaac.api.Get;
+import sh.isaac.api.RefreshListener;
+import sh.isaac.api.Edge;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
@@ -30,9 +38,24 @@ import sh.isaac.api.coordinate.ManifoldCoordinate;
  * @author kec
  */
 public class TaxonomyAmalgam implements TaxonomySnapshot {
-    ArrayList<TaxonomySnapshot> taxonomies = new ArrayList<>();
-    ArrayList<TaxonomySnapshot> inverseTaxonomies = new ArrayList<>();
-    ArrayList<ConceptSpecification> taxonomyRoots = new ArrayList<>();
+    final DefiningTaxonomy definingTaxonomy;
+    final ArrayList<TaxonomySnapshot> taxonomies = new ArrayList<>();
+    final ArrayList<TaxonomySnapshot> inverseTaxonomies = new ArrayList<>();
+    final ArrayList<ConceptSpecification> taxonomyRoots = new ArrayList<>();
+    final ManifoldCoordinate manifoldCoordinate;
+    final boolean includeDefiningTaxonomy;
+
+    public TaxonomyAmalgam(ManifoldCoordinate manifoldCoordinate, boolean includeDefiningTaxonomy) {
+        if (manifoldCoordinate == null) {
+            throw new NullPointerException("manifoldCoordinate cannot be null. ");
+        }
+        this.manifoldCoordinate = manifoldCoordinate;
+        this.includeDefiningTaxonomy = includeDefiningTaxonomy;
+        this.definingTaxonomy = new DefiningTaxonomy();
+        if (includeDefiningTaxonomy) {
+            taxonomies.add(this.definingTaxonomy);
+        }
+    }
 
     public ArrayList<ConceptSpecification> getTaxonomyRoots() {
         return taxonomyRoots;
@@ -116,65 +139,143 @@ public class TaxonomyAmalgam implements TaxonomySnapshot {
 
     @Override
     public boolean isKindOf(int childConceptNid, int parentConceptNid) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        if (includeDefiningTaxonomy) {
+            return definingTaxonomy.isKindOf(childConceptNid, parentConceptNid);
+        }
+        return false;
     }
 
     @Override
-    public NidSet getKindOfConceptNidSet(int rootConceptNid) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public ImmutableIntSet getKindOfConcept(int rootConceptNid) {
+        if (includeDefiningTaxonomy) {
+            return getKindOfConcept(rootConceptNid);
+        }
+        return IntSets.immutable.empty();
+    }
+
+    @Override
+    public boolean isDescendentOf(int descendantConceptNid, int ancestorConceptNid) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public Tree getTaxonomyTree() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
     public ManifoldCoordinate getManifoldCoordinate() {
-        for (TaxonomySnapshot tree: taxonomies) {
-            return tree.getManifoldCoordinate();
-        }
-        for (TaxonomySnapshot tree: inverseTaxonomies) {
-            return tree.getManifoldCoordinate();
-        }
-        throw new IllegalStateException("No taxonomies in amalgam");
+        return this.manifoldCoordinate;
     }
 
     @Override
-    public TaxonomySnapshot makeAnalog(ManifoldCoordinate manifoldCoordinate) {
-        TaxonomyAmalgam analog = new TaxonomyAmalgam();
+    public ImmutableCollection<Edge> getTaxonomyParentLinks(int parentConceptNid) {
+        MutableCollection<Edge> links = Lists.mutable.empty();
         for (TaxonomySnapshot tree: taxonomies) {
-            analog.taxonomies.add(tree.makeAnalog(manifoldCoordinate));
+            links.addAll((Collection<? extends Edge>) tree.getTaxonomyParentLinks(parentConceptNid));
         }
         for (TaxonomySnapshot tree: inverseTaxonomies) {
-            analog.inverseTaxonomies.add(tree.makeAnalog(manifoldCoordinate));
+            links.addAll((Collection<? extends Edge>) tree.getTaxonomyParentLinks(parentConceptNid));
         }
-        return analog;
+        return links.toImmutable();
     }
 
     @Override
-    public Collection<TaxonomyLink> getTaxonomyParentLinks(int parentConceptNid) {
-        List<TaxonomyLink> links = new ArrayList<>();
+    public ImmutableCollection<Edge> getTaxonomyChildLinks(int childConceptNid) {
+        MutableCollection<Edge> links = Lists.mutable.empty();
         for (TaxonomySnapshot tree: taxonomies) {
-            links.addAll((Collection<? extends TaxonomyLink>) tree.getTaxonomyParentLinks(parentConceptNid));
+            links.addAll((Collection<? extends Edge>) tree.getTaxonomyChildLinks(childConceptNid));
         }
         for (TaxonomySnapshot tree: inverseTaxonomies) {
-            links.addAll((Collection<? extends TaxonomyLink>) tree.getTaxonomyParentLinks(parentConceptNid));
+            links.addAll((Collection<? extends Edge>) tree.getTaxonomyChildLinks(childConceptNid));
         }
-        return links;
+        return links.toImmutable();
     }
 
-    @Override
-    public Collection<TaxonomyLink> getTaxonomyChildLinks(int childConceptNid) {
-        List<TaxonomyLink> links = new ArrayList<>();
-        for (TaxonomySnapshot tree: taxonomies) {
-            links.addAll((Collection<? extends TaxonomyLink>) tree.getTaxonomyChildLinks(childConceptNid));
+    public void reset() {
+        this.taxonomies.clear();
+        this.inverseTaxonomies.clear();
+        this.taxonomyRoots.clear();
+        if (includeDefiningTaxonomy) {
+            taxonomies.add(this.definingTaxonomy);
         }
-        for (TaxonomySnapshot tree: inverseTaxonomies) {
-            links.addAll((Collection<? extends TaxonomyLink>) tree.getTaxonomyChildLinks(childConceptNid));
-        }
-        return links;
     }
-    
+
+    private class DefiningTaxonomy implements TaxonomySnapshot, RefreshListener {
+
+        UUID listenerUuid = UUID.randomUUID();
+
+        TaxonomySnapshot definingTaxonomySnapshot;
+
+        public DefiningTaxonomy() {
+            this.definingTaxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldCoordinate);
+            Get.taxonomyService().addTaxonomyRefreshListener(this);
+        }
+
+        @Override
+        public boolean isLeaf(int conceptNid) {
+            return definingTaxonomySnapshot.isLeaf(conceptNid);
+        }
+
+        @Override
+        public boolean isChildOf(int childConceptNid, int parentConceptNid) {
+            return definingTaxonomySnapshot.isChildOf(childConceptNid, parentConceptNid);
+        }
+
+        @Override
+        public boolean isDescendentOf(int descendantConceptNid, int ancestorConceptNid) {
+            return definingTaxonomySnapshot.isDescendentOf(descendantConceptNid, ancestorConceptNid);
+        }
+
+        @Override
+        public ImmutableIntSet getKindOfConcept(int rootConceptNid) {
+            return definingTaxonomySnapshot.getKindOfConcept(rootConceptNid);
+        }
+
+        @Override
+        public int[] getRootNids() {
+            return definingTaxonomySnapshot.getRootNids();
+        }
+
+        @Override
+        public int[] getTaxonomyChildConceptNids(int parentConceptNid) {
+            return definingTaxonomySnapshot.getTaxonomyChildConceptNids(parentConceptNid);
+        }
+
+        @Override
+        public int[] getTaxonomyParentConceptNids(int childConceptNid) {
+            return definingTaxonomySnapshot.getTaxonomyParentConceptNids(childConceptNid);
+        }
+
+        @Override
+        public ImmutableCollection<Edge> getTaxonomyParentLinks(int parentConceptNid) {
+            return definingTaxonomySnapshot.getTaxonomyParentLinks(parentConceptNid);
+        }
+
+        @Override
+        public ImmutableCollection<Edge> getTaxonomyChildLinks(int childConceptNid) {
+            return  definingTaxonomySnapshot.getTaxonomyChildLinks(childConceptNid);
+        }
+
+        @Override
+        public Tree getTaxonomyTree() {
+            return definingTaxonomySnapshot.getTaxonomyTree();
+        }
+
+        @Override
+        public ManifoldCoordinate getManifoldCoordinate() {
+            return TaxonomyAmalgam.this.manifoldCoordinate;
+        }
+
+        @Override
+        public UUID getListenerUuid() {
+            return listenerUuid;
+        }
+
+        @Override
+        public void refresh() {
+            this.definingTaxonomySnapshot = Get.taxonomyService().getSnapshot(manifoldCoordinate);
+        }
+    }
     
 }

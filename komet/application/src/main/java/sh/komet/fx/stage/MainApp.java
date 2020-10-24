@@ -62,8 +62,8 @@ import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.SystemUtils;
-import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.isaac.komet.preferences.RootPreferences;
 import sh.isaac.komet.statement.StatementView;
@@ -71,20 +71,22 @@ import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
-import sh.komet.gui.control.property.WindowProperties;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.contract.preferences.PersonaChangeListener;
+import sh.komet.gui.contract.preferences.PersonaItem;
+import sh.komet.gui.contract.preferences.WindowPreferences;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
+import sh.komet.gui.util.PersonaChangeListeners;
 
 
-import java.io.IOException;
 import java.lang.management.ManagementFactory;
-import java.util.UUID;
+import java.util.*;
 import java.util.prefs.BackingStoreException;
 
 //~--- classes ----------------------------------------------------------------
 public class MainApp
-        extends Application {
+        extends Application implements PersonaChangeListener {
 // TODO add TaskProgressView
 // http://dlsc.com/2014/10/13/new-custom-control-taskprogressview/
 // http://fxexperience.com/controlsfx/features/   
@@ -93,6 +95,8 @@ public class MainApp
     private static Stage primaryStage;
     public IsaacPreferences configurationPreferences;
     public boolean firstRun = true;
+    private boolean setupWindowMenu = true;
+    private boolean setupWindowToolkit = true;
 
     //~--- methods -------------------------------------------------------------
 
@@ -121,7 +125,10 @@ public class MainApp
         LOG.info("Startup memory info: "
                 + ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().toString());
 
+        printMemoryInfo();
+
         SvgImageLoaderFactory.install();
+
 
         FXMLLoader sourceLoader = new FXMLLoader(getClass().getResource("/fxml/SelectDataSource.fxml"));
         BorderPane sourceRoot = sourceLoader.load();
@@ -135,6 +142,16 @@ public class MainApp
                 .getStylesheets()
                 .add(MainApp.class.getResource("/user.css").toString());
         stage.show();
+        PersonaChangeListeners.addPersonaChangeListener(this);
+    }
+
+    protected void printMemoryInfo() {
+        int mb = 1024*1024;
+        Runtime runtime = Runtime.getRuntime();
+        LOG.info("** Used Memory:  " + ((runtime.totalMemory() - runtime.freeMemory()) / mb) + " mb");
+        LOG.info("** Free Memory:  " + (runtime.freeMemory() / mb) + " mb");
+        LOG.info("** Total Memory: " + (runtime.totalMemory() / mb) + " mb");
+        LOG.info("** Max Memory:   " + (runtime.maxMemory() / mb) + " mb");
     }
 
     public void replacePrimaryStage(Stage primaryStage) {
@@ -147,103 +164,98 @@ public class MainApp
     }
 
 
-    protected Parent setupStageMenus(Stage stage, BorderPane root) throws MultiException {
+    protected Parent setupStageMenus(Stage stage, BorderPane root, WindowPreferences windowPreference) throws MultiException {
         BorderPane stageRoot = root;
         // Get the toolkit
         MenuToolkit tk = MenuToolkit.toolkit();  //Note, this only works on Mac....
         MenuBar mb = new MenuBar();
-        for (AppMenu ap : AppMenu.values()) {
-            if (ap == AppMenu.NEW_WINDOW) {
-                continue;
-            }
-            if (!FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-                if (ap == AppMenu.EDIT) {
+        if (setupWindowMenu) {
+            setupWindowMenu = false;
+            for (AppMenu ap : AppMenu.values()) {
+                if (ap == AppMenu.NEW_WINDOW) {
                     continue;
                 }
-                if (ap == AppMenu.FILE) {
-                    continue;
+                if (!FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+                    if (ap == AppMenu.EDIT) {
+                        continue;
+                    }
+                    if (ap == AppMenu.FILE) {
+                        continue;
+                    }
+                    if (ap == AppMenu.TOOLS) {
+                        continue;
+                    }
                 }
-                if (ap == AppMenu.TOOLS) {
-                    continue;
-                }
-            }
-            mb.getMenus().add(ap.getMenu());
+                mb.getMenus().add(ap.getMenu());
 
-            for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
-                if (mp.getParentMenus().contains(ap)) {
-                    for (MenuItem mi : mp.getMenuItems(ap, primaryStage.getOwner())) {
-                        ap.getMenu().getItems().add(mi);
-                    }
-                }
-            }
-            ap.getMenu().getItems().sort((MenuItem o1, MenuItem o2) -> {
-                // Separator menu items have null text. 
-                String o1Text = o1.getText();
-                if (o1Text == null) {
-                    o1Text = "";
-                }
-                String o2Text = o2.getText();
-                if (o2Text == null) {
-                    o2Text = "";
-                }
-                return o1Text.compareTo(o2Text);
-            });
-
-            switch (ap) {
-                case APP:
-                    if (tk != null) {
-                        MenuItem aboutItem = new MenuItem("About KOMET...");
-                        aboutItem.setOnAction(this::handleAbout);
-                        ap.getMenu().getItems().add(aboutItem);
-                        ap.getMenu().getItems().add(new SeparatorMenuItem());
-                    }
-                    if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-                        MenuItem prefsItem = new MenuItem("KOMET Preferences...");
-                        //TODO TEMP to do  something. Need to make it do something better. 
-                        prefsItem.setOnAction(this::handlePrefs);
-                        ap.getMenu().getItems().add(prefsItem);
-                        ap.getMenu().getItems().add(new SeparatorMenuItem());
-                    }
-                    if (tk == null) {
-                        MenuItem quitItem = new MenuItem("Quit");
-                        quitItem.setOnAction(this::close);
-                        ap.getMenu().getItems().add(quitItem);
-                    }
-                    break;
-                case WINDOW:
-                    Menu newWindowMenu = AppMenu.NEW_WINDOW.getMenu();
-                    if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-                        MenuItem newStatementWindowItem = new MenuItem("Statement window");
-                        newStatementWindowItem.setOnAction(this::newStatement);
-                        newWindowMenu.getItems().addAll(newStatementWindowItem);
-                        for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
-                            if (mp.getParentMenus().contains(AppMenu.NEW_WINDOW)) {
-                                for (MenuItem menuItem : mp.getMenuItems(AppMenu.NEW_WINDOW, primaryStage.getOwner())) {
-                                    menuItem.getProperties().put(MenuProvider.PARENT_PREFERENCES, FxGet.configurationNode(RootPreferences.class));
-                                    newWindowMenu.getItems().add(menuItem);
-                                }
-                            }
+                for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
+                    if (mp.getParentMenus().contains(ap)) {
+                        for (MenuItem mi : mp.getMenuItems(ap, primaryStage.getOwner(), windowPreference)) {
+                            ap.getMenu().getItems().add(mi);
                         }
                     }
-                    MenuItem newKometWindowItem = new MenuItem("Viewer window");
-                    newKometWindowItem.setOnAction(this::newViewer);
-                    newWindowMenu.getItems().addAll(newKometWindowItem);
-                    AppMenu.WINDOW.getMenu().getItems().add(newWindowMenu);
-                    AppMenu.NEW_WINDOW.getMenu().getItems().sort((o1, o2) -> {
-                        return o1.getText().compareTo(o2.getText());
-                    });
-                    break;
-                case HELP:
-                    if (tk == null) {
-                        MenuItem aboutItem = new MenuItem("About...");
-                        aboutItem.setOnAction(this::handleAbout);
-                        ap.getMenu().getItems().add(aboutItem);
+                }
+                ap.getMenu().getItems().sort((MenuItem o1, MenuItem o2) -> {
+                    // Separator menu items have null text.
+                    String o1Text = o1.getText();
+                    if (o1Text == null) {
+                        o1Text = "";
                     }
+                    String o2Text = o2.getText();
+                    if (o2Text == null) {
+                        o2Text = "";
+                    }
+                    return o1Text.compareTo(o2Text);
+                });
 
-                    break;
-                default:
-                    break;
+                switch (ap) {
+                    case APP:
+                        if (tk != null) {
+                            MenuItem aboutItem = new MenuItemWithText("About KOMET...");
+                            aboutItem.setOnAction(this::handleAbout);
+                            ap.getMenu().getItems().add(aboutItem);
+                            ap.getMenu().getItems().add(new SeparatorMenuItem());
+
+                            MenuItem prefsItem = new MenuItemWithText("KOMET Preferences...");
+                            prefsItem.setOnAction(this::handlePrefs);
+                            ap.getMenu().getItems().add(prefsItem);
+                            ap.getMenu().getItems().add(new SeparatorMenuItem());
+                        } else {
+                            MenuItem quitItem = new MenuItemWithText("Quit");
+                            quitItem.setOnAction(this::close);
+                            ap.getMenu().getItems().add(quitItem);
+                        }
+                        break;
+                    case WINDOW:
+                        Menu newWindowMenu = AppMenu.NEW_WINDOW.getMenu();
+                        AppMenu.WINDOW.getMenu().getItems().add(newWindowMenu);
+                        updateNewWindowMenu(windowPreference);
+
+                        break;
+                    case HELP:
+                        if (tk == null) {
+                            MenuItem aboutItem = new MenuItemWithText("About...");
+                            aboutItem.setOnAction(this::handleAbout);
+                            ap.getMenu().getItems().add(aboutItem);
+                        }
+
+                        break;
+                    default:
+                        break;
+                }
             }
+            com.sun.glass.ui.Application.GetApplication().setEventHandler(
+                    new com.sun.glass.ui.Application.EventHandler() {
+                        @Override
+                        public void handleQuitAction(com.sun.glass.ui.Application app, long time) {
+                            shutdown();
+                        }
+
+                        @Override
+                        public boolean handleThemeChanged(String themeName) {
+                            return PlatformImpl.setAccessibilityTheme(themeName);
+                        }
+                    });
         }
 
         if (tk != null) {
@@ -251,19 +263,25 @@ public class MainApp
             // Dan notes, code is rather confusing, and I can't test... it was making both an appMenu and a defaultApplicationMenu
             //but not being consistent about things, no idea which was actually being used on mac.
             // TBD: services menu
-            tk.setForceQuitOnCmdQ(false);
-            tk.setApplicationMenu(AppMenu.APP.getMenu());
 
-            AppMenu.APP.getMenu().getItems().addAll(tk.createHideMenuItem(AppMenu.APP.getMenu().getText()), tk.createHideOthersMenuItem(),
-                    tk.createUnhideAllMenuItem(), new SeparatorMenuItem(), tk.createQuitMenuItem(AppMenu.APP.getMenu().getText()));
 
-            AppMenu.WINDOW.getMenu().getItems().addAll(new SeparatorMenuItem(),
-                    tk.createMinimizeMenuItem(),
-                    tk.createZoomMenuItem(), tk.createCycleWindowsItem(),
-                    new SeparatorMenuItem(), tk.createBringAllToFrontItem());
+            if (setupWindowToolkit) {
+                setupWindowToolkit = false;
+                tk.setForceQuitOnCmdQ(false);
+                tk.setApplicationMenu(AppMenu.APP.getMenu());
 
-            tk.autoAddWindowMenuItems(AppMenu.WINDOW.getMenu());
-            tk.setGlobalMenuBar(mb);
+                AppMenu.APP.getMenu().getItems().addAll(tk.createHideMenuItem(AppMenu.APP.getMenu().getText()), tk.createHideOthersMenuItem(),
+                        tk.createUnhideAllMenuItem(), new SeparatorMenuItem(), tk.createQuitMenuItem(AppMenu.APP.getMenu().getText()));
+
+                AppMenu.WINDOW.getMenu().getItems().addAll(new SeparatorMenuItem(),
+                        tk.createMinimizeMenuItem(),
+                        tk.createZoomMenuItem(), tk.createCycleWindowsItem(),
+                        new SeparatorMenuItem(), tk.createBringAllToFrontItem());
+                tk.autoAddWindowMenuItems(AppMenu.WINDOW.getMenu());
+                tk.setGlobalMenuBar(mb);
+            }
+
+
         } else {
             //And for everyone else....
             stageRoot = new BorderPane(stageRoot);
@@ -271,19 +289,92 @@ public class MainApp
             stage.setHeight(stage.getHeight() + 20);
         }
 
-        com.sun.glass.ui.Application.GetApplication().setEventHandler(
-                new com.sun.glass.ui.Application.EventHandler() {
-                    @Override
-                    public void handleQuitAction(com.sun.glass.ui.Application app, long time) {
-                        shutdown();
-                    }
+         return stageRoot;
+    }
 
-                    @Override
-                    public boolean handleThemeChanged(String themeName) {
-                        return PlatformImpl.setAccessibilityTheme(themeName);
-                    }
+    Set<UUID> personaUuids = new HashSet<>();
+
+
+    @Override
+    public void personaChanged(PersonaItem item, boolean active) {
+        List<MenuItem> menuItems = new ArrayList<>(AppMenu.NEW_WINDOW.getMenu().getItems());
+        AppMenu.NEW_WINDOW.getMenu().getItems().clear();
+        String personaUuidStr = item.getPersonaUuid().toString();
+
+        if (active) {
+            if (!personaUuids.contains(item.getPersonaUuid())) {
+                personaUuids.add(item.getPersonaUuid());
+                MenuItem newKometWindowItem = new MenuItemWithText(item.nameProperty().get());
+                newKometWindowItem.setId(personaUuidStr);
+                menuItems.add(newKometWindowItem);
+                newKometWindowItem.setOnAction(event -> {
+                    //FxGet.dialogs().showInformationDialog("Opening new window. ", item.nameProperty().get());
+                    this.newViewer(item);
                 });
-        return stageRoot;
+            } else {
+                for (MenuItem menuItem: menuItems) {
+                    if (menuItem.getId() != null && menuItem.getId().equals(personaUuidStr)) {
+                        menuItem.setText(item.nameProperty().get());
+                        break;
+                    }
+                }
+            }
+        } else {
+            int indexToDelete = -1;
+            for (int i = 0; i < menuItems.size(); i++) {
+                MenuItem menuItem = menuItems.get(i);
+                if (menuItem.getId() != null && menuItem.getId().equals(personaUuidStr)) {
+                    indexToDelete = i;
+                    break;
+                }
+            }
+            menuItems.remove(indexToDelete);
+        }
+
+        menuItems.sort((o1, o2) -> {
+            return o1.getText().compareTo(o2.getText());
+        });
+        AppMenu.NEW_WINDOW.getMenu().getItems().addAll(menuItems);
+    }
+
+    private void updateNewWindowMenu(WindowPreferences windowPreference) {
+        Menu newWindowMenu = AppMenu.NEW_WINDOW.getMenu();
+        newWindowMenu.getItems().clear();
+        List<MenuItem> itemsToAdd = new ArrayList<>();
+        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
+            // TODO: Go away after personas completely implemented.
+            MenuItem newStatementWindowItem = new MenuItemWithText("Statement Window");
+            newStatementWindowItem.setOnAction(this::newStatement);
+            itemsToAdd.add(newStatementWindowItem);
+            for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
+                if (mp.getParentMenus().contains(AppMenu.NEW_WINDOW)) {
+                    for (MenuItem menuItem : mp.getMenuItems(AppMenu.NEW_WINDOW, primaryStage.getOwner(), windowPreference)) {
+                        menuItem.getProperties().put(MenuProvider.PARENT_PREFERENCES, FxGet.configurationNode(RootPreferences.class));
+                        newWindowMenu.getItems().add(menuItem);
+                    }
+                }
+            }
+        }
+        // Add personas here...
+        for (PersonaItem personaItem: FxGet.kometPreferences().getPersonaPreferences()) {
+            MenuItem newKometWindowItem = new MenuItemWithText(personaItem.nameProperty().get());
+            newKometWindowItem.setOnAction(event -> {
+                this.newViewer(personaItem);
+            });
+            itemsToAdd.add(newKometWindowItem);
+        }
+
+        // TODO: Go away after personas completely implemented.
+        MenuItem newKometWindowItem = new MenuItemWithText("Viewer Window");
+
+        itemsToAdd.add(newKometWindowItem);
+
+
+        itemsToAdd.sort((o1, o2) -> {
+                    return o1.getText().compareTo(o2.getText());
+                });
+        newWindowMenu.getItems().addAll(itemsToAdd);
+
     }
 
     private void close(ActionEvent event) {
@@ -292,54 +383,39 @@ public class MainApp
     }
 
     private void newStatement(ActionEvent event) {
-        Manifold statementManifold = FxGet.getManifold(ManifoldGroup.CLINICAL_STATEMENT);
+        ViewProperties statementManifold = FxGet.newDefaultViewProperties();
         StatementViewController statementController = StatementView.show(statementManifold,
                 MenuProvider::handleCloseRequest);
 
-        statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold));
-        statementController.getClinicalStatement().setManifold(statementManifold);
+        statementController.setClinicalStatement(new ClinicalStatementImpl(statementManifold.getManifoldCoordinate()));
+        statementController.getClinicalStatement().setManifold(statementManifold.getManifoldCoordinate());
         MenuProvider.WINDOW_COUNT.incrementAndGet();
     }
 
-    private void newViewer(ActionEvent event) {
+    private void newViewer(PersonaItem personaItem) {
 
         try {
             Stage stage = new Stage();
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/KometStageScene.fxml"));
             BorderPane root = loader.load();
             KometStageController controller = loader.getController();
+            WindowPreferences personaWindowPreferences = personaItem.createNewWindowPreferences();
 
-            root.setId(UUID.randomUUID()
-                    .toString());
+            root.setId(UUID.randomUUID().toString());
 
-            if (MenuProvider.WINDOW_SEQUENCE.get() >= 1) {
-                stage.getProperties().put(WindowProperties.NAME_PREFIX, "");
-                stage.getProperties().put(WindowProperties.NAME_SUFFIX, " " + Integer.toString(MenuProvider.WINDOW_SEQUENCE.incrementAndGet()));
-                stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
-                        FxGet.getConfigurationName() +
-                        stage.getProperties().get(WindowProperties.NAME_SUFFIX)
-                );
-            } else {
-                stage.getProperties().put(WindowProperties.NAME_PREFIX, "");
-                stage.getProperties().put(WindowProperties.NAME_SUFFIX, "");
-                stage.setTitle(FxGet.getConfigurationName());
-                MenuProvider.WINDOW_SEQUENCE.incrementAndGet();
-            }
-            FxGet.configurationNameProperty().addListener((observable, oldValue, newValue) -> {
-                stage.setTitle(stage.getProperties().get(WindowProperties.NAME_PREFIX) +
-                        newValue +
-                        stage.getProperties().get(WindowProperties.NAME_SUFFIX));
-            });
+            stage.setTitle(personaWindowPreferences.getWindowName().getValue());
 
             //Menu hackery
             Scene scene;
             if (SystemUtils.isMacOS()) {
                 scene = new Scene(root);
             } else {
-                scene = new Scene(setupStageMenus(stage, root));
+                scene = new Scene(setupStageMenus(stage, root, personaWindowPreferences));
             }
 
             stage.setScene(scene);
+            stage.getProperties().put(FxGet.PROPERTY_KEYS.WINDOW_PREFERENCES, personaWindowPreferences);
+            controller.setWindowPreferenceItem(personaWindowPreferences, stage);
             stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.ico")));
             stage.getIcons().add(new Image(MainApp.class.getResourceAsStream("/icons/KOMET.png")));
 
@@ -354,19 +430,20 @@ public class MainApp
             stage.show();
             MenuProvider.WINDOW_COUNT.incrementAndGet();
 
-        } catch (IOException ex) {
+        } catch (Exception ex) {
             FxGet.dialogs().showErrorDialog("Error opening new KOMET window.", ex);
         }
     }
 
     private void handlePrefs(ActionEvent event) {
-        Stage prefStage = FxGet.kometPreferences().showPreferences(FxGet.getManifold(ManifoldGroup.TAXONOMY));
-        //ScenicView.show(prefStage.getScene());
+        Stage prefStage = FxGet.kometPreferences().showPreferences();
     }
 
     private void handleAbout(ActionEvent event) {
         event.consume();
-        System.out.println("Handle about...");
+        LOG.debug("Handle about...");
+        printMemoryInfo();
+
         //create stage which has set stage style transparent
         final Stage stage = new Stage(StageStyle.TRANSPARENT);
 
@@ -400,6 +477,10 @@ public class MainApp
     }
 
     protected void shutdown() {
+        FxGet.sync();
+        for (Transaction transaction: Get.commitService().getPendingTransactionList()) {
+            transaction.cancel().getNoThrow();
+        }
         Get.applicationStates().remove(ApplicationStates.RUNNING);
         Get.applicationStates().add(ApplicationStates.STOPPING);
         try {
@@ -407,7 +488,7 @@ public class MainApp
         } catch (BackingStoreException ex) {
             LOG.error(ex.getLocalizedMessage(), ex);
         }
-        Thread shutdownThread = new Thread(() -> {  //Can't use the thread poool for this, because shutdown 
+        Thread shutdownThread = new Thread(() -> {  //Can't use the thread pool for this, because shutdown 
             //system stops the thread pool, which messes up the shutdown sequence.
             LookupService.shutdownSystem();
             Platform.runLater(() -> {

@@ -42,9 +42,10 @@ package sh.isaac.api.observable.coordinate;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
-import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.*;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -54,13 +55,24 @@ import sh.isaac.api.coordinate.LogicCoordinate;
  * @author kec
  */
 public interface ObservableLogicCoordinate
-        extends LogicCoordinate, ObservableCoordinate {
-    
-    /**
-     * 
-     * @return the logic coordinate that this observable wraps. 
-     */
-   LogicCoordinate getLogicCoordinate();
+        extends LogicCoordinateProxy, ObservableCoordinate<LogicCoordinateImmutable> {
+
+   @Override
+   default ObservableCoordinate<?>[] getCompositeCoordinates() {
+      return new ObservableCoordinate[0];
+   }
+
+   default Property<?>[] getBaseProperties() {
+      return new Property<?>[] {
+              classifierProperty(),
+              conceptAssemblageProperty(),
+              descriptionLogicProfileProperty(),
+              inferredAssemblageProperty(),
+              statedAssemblageProperty(),
+              digraphIdentityProperty(),
+              rootConceptProperty()
+      };
+   }
 
    /**
     * Classifier property.
@@ -96,10 +108,14 @@ public interface ObservableLogicCoordinate
     * @return the stated assemblage concept property. 
     */
    ObjectProperty<ConceptSpecification> statedAssemblageProperty();
-   
-   @Override
-   public ObservableLogicCoordinate deepClone();
-   
 
+   /**
+    * digraph identity property.
+    *
+    * @return the digraph identity property.
+    */
+   ObjectProperty<ConceptSpecification> digraphIdentityProperty();
+
+   ObjectProperty<ConceptSpecification> rootConceptProperty();
 }
 

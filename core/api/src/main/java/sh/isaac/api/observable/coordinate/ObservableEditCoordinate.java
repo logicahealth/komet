@@ -41,9 +41,11 @@ package sh.isaac.api.observable.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import javafx.beans.property.IntegerProperty;
-
-import sh.isaac.api.coordinate.EditCoordinate;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.Property;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.EditCoordinateImmutable;
+import sh.isaac.api.coordinate.EditCoordinateProxy;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -53,29 +55,53 @@ import sh.isaac.api.coordinate.EditCoordinate;
  * @author kec
  */
 public interface ObservableEditCoordinate
-        extends EditCoordinate, ObservableCoordinate {
+        extends EditCoordinateProxy, ObservableCoordinate<EditCoordinateImmutable> {
    /**
     * Author Nid property.
     *
     * @return the integer property
     */
-   IntegerProperty authorNidProperty();
+   ObjectProperty<ConceptSpecification> authorForChangesProperty();
 
    /**
     * Module nid property.
     *
     * @return the integer property
     */
-   IntegerProperty moduleNidProperty();
+   ObjectProperty<ConceptSpecification> defaultModuleProperty();
+
+   /**
+    * Module nid property.
+    *
+    * @return the integer property
+    */
+   ObjectProperty<ConceptSpecification> destinationModuleProperty();
 
    /**
     * Path nid property.
     *
     * @return the integer property
     */
-   IntegerProperty pathNidProperty();
+   ObjectProperty<ConceptSpecification> promotionPathProperty();
 
    @Override
-   public ObservableEditCoordinate deepClone();
+   default EditCoordinateImmutable toEditCoordinateImmutable() {
+      return this.getValue();
+   }
+
+
+   default Property<?>[] getBaseProperties() {
+      return new Property<?>[] {
+              authorForChangesProperty(),
+              defaultModuleProperty(),
+              destinationModuleProperty(),
+              promotionPathProperty()
+      };
+   }
+
+   default ObservableCoordinate<?>[] getCompositeCoordinates() {
+      return new ObservableCoordinate<?>[]{};
+   }
+
 }
 

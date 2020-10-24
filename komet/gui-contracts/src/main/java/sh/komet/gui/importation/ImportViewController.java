@@ -63,6 +63,8 @@ import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import javafx.stage.Stage;
 import sh.isaac.api.Get;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.dbConfigBuilder.artifacts.MavenArtifactUtils;
 import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
@@ -70,7 +72,7 @@ import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.direct.ImportType;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.util.FxUtils;
 import sh.komet.gui.util.UpdateableBooleanBinding;
@@ -113,7 +115,7 @@ public class ImportViewController {
     Stage importStage;
 
     Map<TreeItem<ImportItem>, ConcurrentHashMap<String, TreeItem<ImportItem>>> fileItemsMap = new ConcurrentHashMap<>();
-    private Manifold manifold;
+    private ViewProperties manifold;
 
     private final StoredPrefs storedPrefs = new StoredPrefs("".toCharArray());
 
@@ -275,7 +277,7 @@ public class ImportViewController {
                     ImportItemZipEntry treeItemValue = (ImportItemZipEntry) treeItem.getValue();
 
                     if (treeItemValue.importType == null || treeItemValue.importType == type
-                            || (type == SelectedImportType.ACTIVE_ONLY && treeItemValue.importType == SelectedImportType.SNAPSHOT)) {
+                            || (type == SelectedImportType.SNAPSHOT_ACTIVE_ONLY && treeItemValue.importType == SelectedImportType.SNAPSHOT)) {
                         if (treeItemValue.getParentKey().equals(FILE_PARENT_KEY)) {
                             if (!fileTreeTable.getRoot().getChildren().contains(fileItem)) {
                                 fileTreeTable.getRoot().getChildren().add(fileItem);
@@ -337,8 +339,8 @@ public class ImportViewController {
 
         ImportType directImportType = null;
         switch (importType.getValue()) {
-            case ACTIVE_ONLY:
-                directImportType = ImportType.ACTIVE_ONLY;
+            case SNAPSHOT_ACTIVE_ONLY:
+                directImportType = ImportType.SNAPSHOT_ACTIVE_ONLY;
                 break;
             case FULL:
                 directImportType = ImportType.FULL;
@@ -354,8 +356,10 @@ public class ImportViewController {
 
         }
         if (directImportType != null) {
+            Transaction transaction = Get.commitService().newTransaction(Optional.of("From ImportViewController"), ChangeCheckerMode.INACTIVE, false);
             ImportSelectedAndTransformTask importer
-                    = new ImportSelectedAndTransformTask(manifold, directImportType, entriesToImport);
+                    = new ImportSelectedAndTransformTask(transaction, manifold, directImportType, entriesToImport);
+            transaction.commit();
             Get.executor().execute(importer);
         }
         importStage.close();
@@ -400,13 +404,13 @@ public class ImportViewController {
         this.fileTreeTable.treeColumnProperty().set(treeColumn);
 
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-            this.importType.getItems().addAll(SelectedImportType.ACTIVE_ONLY, SelectedImportType.SNAPSHOT, SelectedImportType.FULL);
+            this.importType.getItems().addAll(SelectedImportType.SNAPSHOT_ACTIVE_ONLY, SelectedImportType.SNAPSHOT, SelectedImportType.FULL);
         } else {
-            this.importType.getItems().addAll(SelectedImportType.ACTIVE_ONLY);
+            this.importType.getItems().addAll(SelectedImportType.SNAPSHOT_ACTIVE_ONLY);
             this.addArtifactButton.setVisible(false);
         }
 
-        this.importType.getSelectionModel().select(SelectedImportType.ACTIVE_ONLY);
+        this.importType.getSelectionModel().select(SelectedImportType.SNAPSHOT_ACTIVE_ONLY);
         this.importType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             this.importTypeChanged(newValue);
         });
@@ -594,7 +598,7 @@ public class ImportViewController {
         this.importStage = importStage;
     }
 
-    void setManifold(Manifold manifold) {
+    void setManifold(ViewProperties manifold) {
         this.manifold = manifold;
     }
 }

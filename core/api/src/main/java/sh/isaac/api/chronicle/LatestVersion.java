@@ -55,6 +55,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
+import sh.isaac.api.Status;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.identity.StampedVersion;
 
@@ -165,7 +166,21 @@ public final class LatestVersion<V> {
    public boolean isPresent() {
       return value != null;
    }
-   
+
+   /**
+    * Return false if there is no value present, otherwise, passes the value into the supplied customCheck, and returns that response.
+    * @param customCheck The test to run, if the value is present.
+    * @return true if present and customCheck returns true, otherwise, false.
+    */
+   public boolean isPresentAnd(Predicate<V> customCheck) {
+      if (value == null) {
+         return false;
+      }
+      else {
+         return customCheck.test(value);
+      }
+   }
+
    /**
     * Return true if there is a value absent, otherwise false.
     * @return true if the value absent, otherwise false.
@@ -230,7 +245,7 @@ public final class LatestVersion<V> {
     */
    public Set<V> contradictions() {
       if (this.contradictions == null) {
-         return Collections.EMPTY_SET;
+         return Collections.emptySet();
       }
       return this.contradictions;
    }
@@ -243,6 +258,10 @@ public final class LatestVersion<V> {
    @Override
    public String toString() {
       return "LatestVersion{" + this.value + ", contradictions=" + contradictions() + '}';
+   }
+   
+   public String toStringOr(Function<V, String> toStringFunction, String ifMissing) {
+      return isPresent() ? toStringFunction.apply(value) : ifMissing;
    }
 
    /**
@@ -308,17 +327,21 @@ public final class LatestVersion<V> {
    
    public List<V> versionList() {
       if (this.value == null) {
-         return Collections.EMPTY_LIST;
+         return Collections.emptyList();
       }
       if (this.contradictions == null) {
          return Arrays.asList(this.value);
       }
-      ArrayList<V> versions = new ArrayList(this.contradictions.size() + 1);
+      ArrayList<V> versions = new ArrayList<>(this.contradictions.size() + 1);
       versions.add(value);
       versions.addAll(this.contradictions);
       return versions;
    }
    
+   /**
+    * Note, this method assumes that the type extends {@link StampedVersion} - it returns an empty set, if they dont.
+    * @return
+    */
    public StampSequenceSet getStamps() {
       StampSequenceSet stampSequences = new StampSequenceSet();
       versionStream().forEach((v) -> {
@@ -327,6 +350,23 @@ public final class LatestVersion<V> {
          }
       });
       return stampSequences;
+   }
+   
+   /**
+    * Note, this method assumes that the type extends {@link StampedVersion} - Its a noop if it doesn't.
+    */
+   public void sortByState() {
+      if (value != null && value instanceof StampedVersion && ((StampedVersion)value).getStatus() != Status.ACTIVE && contradictions != null) {
+         //See if we have an active one to swap it with.
+         for (V c : contradictions) {
+            if (((StampedVersion)c).getStatus() == Status.ACTIVE) {
+               contradictions.remove(c);
+               contradictions.add(value);
+               value = c;
+               break;
+            }
+         }
+      }
    }
 
    public boolean isContradicted() {

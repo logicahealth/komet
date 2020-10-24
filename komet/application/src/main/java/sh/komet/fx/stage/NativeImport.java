@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 import java.util.zip.ZipEntry;
@@ -48,7 +49,7 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
 //    private final ConcurrentHashMap<IsaacObjectType, Integer> cacheObjectTypeToNidMap = new ConcurrentHashMap<>();
 //    private final ConcurrentHashMap<VersionType, Integer> cacheVersionTypeToNidMap = new ConcurrentHashMap<>();
 //
-//    private final ConcurrentHashMap<Integer, Stamp> cacheStampSequenceToStampObjectMap = new ConcurrentHashMap<>();
+//    private final ConcurrentHashMap<Integer, Filter> cacheStampSequenceToStampObjectMap = new ConcurrentHashMap<>();
     public NativeImport(File importFile) {
         this.importFile = importFile;
         updateTitle("Native import from " + importFile.getName());
@@ -107,11 +108,11 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
 
             //uuidPrimordialArray = new PsqlIdentifierRow[uuidPrimordialCount];
             BufferedWriter uuidPrimordialWriter = new BufferedWriter(
-                new FileWriter(new File(csvDir, "uuid_primordial_table.csv"))
+                new FileWriter(new File(csvDir, "uuid_primordial_table.csv"), Charset.forName(StandardCharsets.UTF_8.name()))
             );
 
             BufferedWriter uuidAdditionalWriter = new BufferedWriter(
-                new FileWriter(new File(csvDir, "uuid_additional_table.csv"))
+                new FileWriter(new File(csvDir, "uuid_additional_table.csv"), Charset.forName(StandardCharsets.UTF_8.name()))
             );
 
             uuidPrimordialWriter.write("u_nid,ouid\n");
@@ -159,7 +160,7 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
         ZipEntry typeEntry = zipFile.getEntry("types");
         DataInputStream dis = new DataInputStream(zipFile.getInputStream(typeEntry));
         BufferedWriter writer = new BufferedWriter(
-            new FileWriter(new File(csvDir, "type_for_assemblage_table.csv"))
+            new FileWriter(new File(csvDir, "type_for_assemblage_table.csv"), Charset.forName(StandardCharsets.UTF_8.name()))
         );
         writer.write("assemblage_nid,assemblage_type_token,version_type_token\n");
         int typeCount = dis.readInt();
@@ -184,7 +185,7 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
         ZipEntry zipEntryStamp = zipFile.getEntry("stamp");
         try (DataInputStream stampDis = new DataInputStream(zipFile.getInputStream(zipEntryStamp));
             BufferedWriter writer = new BufferedWriter(
-                new FileWriter(new File(csvDir, "stamp_committed_table.csv"))
+                new FileWriter(new File(csvDir, "stamp_committed_table.csv"), Charset.forName(StandardCharsets.UTF_8.name()))
             )) {
             writer.write("stamp_committed_sequence,stamp_committed_data\n");
             int stampCount = stampDis.readInt();
@@ -216,7 +217,7 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
         ZipEntry zipEntryTaxonomy = zipFile.getEntry("taxonomy");
         try (DataInputStream dis = new DataInputStream(zipFile.getInputStream(zipEntryTaxonomy));
             BufferedWriter writer = new BufferedWriter(
-                new FileWriter(new File(csvDir, "taxonomy_data_table.csv"))
+                new FileWriter(new File(csvDir, "taxonomy_data_table.csv"), Charset.forName(StandardCharsets.UTF_8.name()))
             )) {
             writer.write("t_nid,assemblage_nid,taxonomy_data\n");
 
@@ -251,12 +252,12 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
         int objectCount = 0;
 
         BufferedWriter conceptWriter = new BufferedWriter(
-            new FileWriter(new File(csvDir, "concepts_table.csv"))
+            new FileWriter(new File(csvDir, "concepts_table.csv"), Charset.forName(StandardCharsets.UTF_8.name()))
         );
         conceptWriter.write("o_nid,assemblage_nid,version_stamp,version_data\n");
 
         BufferedWriter semanticWriter = new BufferedWriter(
-            new FileWriter(new File(csvDir, "semantics_table.csv"))
+            new FileWriter(new File(csvDir, "semantics_table.csv"), Charset.forName(StandardCharsets.UTF_8.name()))
         );
         semanticWriter.write("o_nid,assemblage_nid,referenced_component_nid,version_stamp,version_data\n");
 
@@ -323,7 +324,7 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
 
     private void writeSqlLoadScript(File csvDir, int nidSequenceCurrent, int stampNextSequenceCurrent) throws IOException {
         try (BufferedWriter sqlWriter = new BufferedWriter(
-            new FileWriter(new File(csvDir, "initial_data_load.sql"))
+            new FileWriter(new File(csvDir, "initial_data_load.sql"), Charset.forName(StandardCharsets.UTF_8.name()))
         )) {
             sqlWriter.write("-- --------------------------------- \n");
             sqlWriter.write("-- ----- initial_data_load.sql ----- \n");
@@ -403,7 +404,7 @@ public class NativeImport extends TimedTaskWithProgressTracker<Integer> {
         return encodeHexString(buffer.array());
     }
 
-    // Note: Import copy of PostgresStampProvider convertStampToBytes(Stamp stamp)
+    // Note: Import copy of PostgresStampProvider convertStampToBytes(Filter stamp)
     public byte[] convertStampToBytes(Stamp stamp) {
         ByteArrayDataBuffer srcData = new ByteArrayDataBuffer();
 

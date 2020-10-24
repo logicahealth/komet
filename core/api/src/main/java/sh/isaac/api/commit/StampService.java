@@ -39,35 +39,27 @@
 
 package sh.isaac.api.commit;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.time.Instant;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.UUID;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.concurrent.Task;
-
+import org.eclipse.collections.api.factory.Sets;
+import org.eclipse.collections.api.list.primitive.ImmutableLongList;
+import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.api.set.MutableSet;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.hk2.annotations.Contract;
-
 import sh.isaac.api.DatastoreServices;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.VersionManagmentPathService;
-import sh.isaac.api.collections.IntSet;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampPositionImmutable;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
-
-//~--- interfaces -------------------------------------------------------------
+import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.transaction.Transaction;
 
 /**
  * Created by kec on 1/2/16.
@@ -75,13 +67,12 @@ import sh.isaac.api.snapshot.calculator.RelativePosition;
 @Contract
 public interface StampService
         extends DatastoreServices {
+   static final UUID UNKNOWN_TRANSACTION_ID = new UUID(0,0);
    /**
     * STAMP sequences start at 1, in part to ensure that uninitialized values
     * (a zero by default) are not treated as valid stamp sequences.
     */
    int FIRST_STAMP_SEQUENCE = 1;
-
-   //~--- methods -------------------------------------------------------------
 
    /**
     * Used by the commit manger when committing a pending stamp.
@@ -95,13 +86,24 @@ public interface StampService
 
    /**
     * Used by the commit manger to cancel pending stamps for a particular
-    * author. Should only be used by developers creating their own commit
+    * transaction. Should only be used by developers creating their own commit
     * service.
     *
-    * @param authorNid the author nid
+    * @param transaction the author nid
     * @return the task
     */
-   Task<Void> cancel(int authorNid);
+   TimedTask<Void> cancel(Transaction transaction);
+
+   /**
+    * Used by the commit manger to commit a
+    * transaction. Should only be used by developers creating their own commit
+    * service.
+    *
+    * @param transaction the author nid
+    * @param commitTime the commit time to associate with this transaction.
+    * @return the task
+    */
+   TimedTask<Void> commit(Transaction transaction, long commitTime);
 
    /**
     * Describe stamp sequence.
@@ -132,17 +134,6 @@ public interface StampService
     * and time.
     */
    boolean stampSequencesEqualExceptAuthorAndTime(int stampSequence1, int stampSequence2);
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the activated stamp sequence.
-    *
-    * @param stampSequence a stamp sequence to create an analog of
-    * @return a stampSequence with a Status of {@link Status#ACTIVE}, but the
-    * same time, author, module, and path as the provided stamp sequence.
-    */
-   int getActivatedStampSequence(int stampSequence);
 
    /**
     * Gets the author nid for stamp.
@@ -187,43 +178,13 @@ public interface StampService
    int getPathNidForStamp(int stampSequence);
 
    /**
-    * Used by the commit manager to get the pending stamps, so that there is a
-    * definitive list if items in the commit. Should only be used by developers
-    * creating their own commit service.
-    *
-    * @return the pending stamps for commit
-    */
-   ConcurrentHashMap<UncommittedStamp, Integer> getPendingStampsForCommit();
-
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Used to revert a commit in progress, i.e. a commit that failed because of
-    * a data check error, or some other intervening circumstance. Not for use
-    * (will not work) to undo a successful commit. Should only be used by
-    * developers creating their own commit service.
-    *
-    * @param pendingStamps the pending stamps
-    */
-   void addPendingStampsForCommit(Map<UncommittedStamp, Integer> pendingStamps);
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the retired stamp sequence.
-    *
-    * @param stampSequence a stamp sequence to create an analog of
-    * @return a stampSequence with a Status of {@link Status#INACTIVE}, but the
-    * same time, author, module, and path as the provided stamp sequence.
-    */
-   int getRetiredStampSequence(int stampSequence);
-
-   /**
     * An idempotent operation to return a sequence that uniquely identified by
     * this combination of status, time, author, module, and path (STAMP). If an
     * existing sequence has this combination, that existing sequence will be
     * returned. If no sequence has this combination, a new sequence will be
     * created and returned.
+    *
+    *
     *
     * @param status the status
     * @param time the time
@@ -231,40 +192,56 @@ public interface StampService
     * @param moduleNid the module nid
     * @param pathNid the path nid
     * @return the stampSequence
+    * @throws IllegalStateException if the time is either Long.MAX_VALUE or Long.MIN_VALUE. Uncommitted versions
+    * must use transactions.
     */
    int getStampSequence(Status status, long time, int authorNid, int moduleNid, int pathNid);
 
    /**
-    * Gets the stamp sequences.
+    * An idempotent operation to return a sequence that uniquely identified by
+    * this combination of status, time, author, module, and path (STAMP) for a
+    * particular transaction. If an existing sequence associated with the
+    * transaction has this combination, that existing sequence will be
+    * returned. If no sequence for a particular transaction has this combination,
+    * a new sequence will be created and returned.
     *
-    * @return an IntStream of all stamp sequences known to the commit service.
+    *
+    * @param transaction the transaction
+    * @param status the status
+    * @param time the time
+    * @param authorNid the author nid
+    * @param moduleNid the module nid
+    * @param pathNid the path nid
+    * @return the stampSequence
     */
+    int getStampSequence(Transaction transaction, Status status, long time, int authorNid, int moduleNid, int pathNid);
+
+  /**
+   * Gets the stamp sequences.
+   *
+   * @return an IntStream of all stamp sequences known to the stamp service.
+   */
    IntStream getStampSequences();
+
    /**
     * Return the set of stamps that are between the two stamp coordinates, where
     * the returned values are exclusive of the start coordinate, and inclusive of the
     * end coordinate. IF authors are specified on the endCoordinate, only stamps from those
     * authors are included in the results.
     *
-    * @param startCoordinate
-    * @param endCoordinate
+    * @param startFilter
+    * @param endFilter
     * @return all stamps between the provided coordinates.
     */
-   default StampSequenceSet getStampsBetweenCoordinates(StampCoordinate startCoordinate, StampCoordinate endCoordinate) {
+   default StampSequenceSet getStampsBetweenCoordinates(StampFilter startFilter, StampFilter endFilter) {
       StampSequenceSet matchingStamps = new StampSequenceSet();
 
-      VersionManagmentPathService positionCalc = Get.versionManagmentPathService();
-      NidSet authorNids = endCoordinate.getAuthorNids();
-      StampService stampService = Get.stampService();
+      VersionManagmentPathService pathService = Get.versionManagmentPathService();
       getStampSequences().forEach(stamp -> {
-         if (positionCalc.getRelativePosition(stamp, startCoordinate) == RelativePosition.AFTER) {
-            RelativePosition relativeToEnd = positionCalc.getRelativePosition(stamp, endCoordinate);
+         if (pathService.getRelativePosition(stamp, startFilter.getStampPosition()) == RelativePosition.AFTER) {
+            RelativePosition relativeToEnd = pathService.getRelativePosition(stamp, endFilter.getStampPosition());
             if (relativeToEnd == RelativePosition.EQUAL || relativeToEnd == RelativePosition.BEFORE) {
-               if (authorNids.isEmpty()) {
                   matchingStamps.add(stamp);
-               } else if (authorNids.contains(stampService.getAuthorNidForStamp(stamp))) {
-                   matchingStamps.add(stamp);
-               }
             }
          }
       });
@@ -279,6 +256,10 @@ public interface StampService
     * @return the status for stamp
     */
    Status getStatusForStamp(int stampSequence);
+
+   default boolean isStampActive(int stampSequence) {
+      return getStatusForStamp(stampSequence) == Status.ACTIVE;
+   }
 
    /**
     * Gets the time for stamp.
@@ -299,9 +280,53 @@ public interface StampService
    /**
     * Get the stamp object from an int stamp
     * If the provided stamp is invalid / less than 0, this returns a default stamp, with most fields set to unspecified.
-    * @param stamp
+    * @param stampSequence
     * @return
     */
-   Stamp getStamp(int stamp);
+   Stamp getStamp(int stampSequence);
+
+   /**
+    *
+    * @param stampSequence
+    * @return the transaction id for an uncommitted stamp, or UNKNOWN_TRANSACTION_ID if the stamp is committed,
+    * or is not associated with a transaction.
+    */
+   UUID getTransactionIdForStamp(int stampSequence);
+
+   default StampPositionImmutable getStampPosition(int stampSequence) {
+      return StampPositionImmutable.make(getTimeForStamp(stampSequence), getPathNidForStamp(stampSequence));
+   }
+
+   ImmutableIntSet getPathsInUse();
+
+   default ImmutableSet<ConceptSpecification> getPathConceptsInUse() {
+      MutableSet<ConceptSpecification> paths = Sets.mutable.empty();
+      for (int pathNid: Get.stampService().getPathsInUse().toArray()) {
+         paths.add(Get.concept(pathNid));
+      }
+      return paths.toImmutable();
+   }
+
+   ImmutableIntSet getModulesInUse();
+
+   default ImmutableSet<ConceptSpecification> getModuleConceptsInUse() {
+      MutableSet<ConceptSpecification> modules = Sets.mutable.empty();
+      for (int moduleNid: Get.stampService().getModulesInUse().toArray()) {
+         modules.add(Get.concept(moduleNid));
+      }
+      return modules.toImmutable();
+   }
+
+   ImmutableIntSet getAuthorsInUse();
+
+   default ImmutableSet<ConceptSpecification> getAuthorConceptsInUse() {
+      MutableSet<ConceptSpecification> authors = Sets.mutable.empty();
+      for (int authorNid: Get.stampService().getAuthorsInUse().toArray()) {
+         authors.add(Get.concept(authorNid));
+      }
+      return authors.toImmutable();
+   }
+
+   ImmutableLongList getTimesInUse();
 }
 

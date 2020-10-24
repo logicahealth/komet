@@ -27,9 +27,10 @@ import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.model.observable.ObservableFields;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -43,13 +44,13 @@ public class PropertySheetItemConceptConstraintWrapper implements PropertySheet.
 
     SimpleObjectProperty<PropertySheetItemConceptWrapper> constraint 
             = new SimpleObjectProperty<>(this, ObservableFields.CONCEPT_CONSTRAINTS.toExternalString());
-    Manifold manifold;
+    ManifoldCoordinate manifoldCoordinate;
     String name;
     private final BooleanProperty changedProperty = new SimpleBooleanProperty(this, "changed", false);
 
 
-    public PropertySheetItemConceptConstraintWrapper(PropertySheetItemConceptWrapper conceptWrapper, Manifold manifold, String name) {
-        this.manifold = manifold;
+    public PropertySheetItemConceptConstraintWrapper(PropertySheetItemConceptWrapper conceptWrapper, ManifoldCoordinate manifoldCoordinate, String name) {
+        this.manifoldCoordinate = manifoldCoordinate;
         this.constraint.addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 bindPropertySheetItemConceptWrapper(newValue);

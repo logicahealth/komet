@@ -5,7 +5,6 @@ import javafx.beans.value.ObservableValue;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.komet.gui.manifold.Manifold;
 
 import java.util.Optional;
 
@@ -21,13 +20,6 @@ public class PropertySheetImageWrapper implements PropertySheet.Item {
         }
         this.name = name;
         this.imageDataProperty = imageDataProperty;
-    }
-
-    public PropertySheetImageWrapper(Manifold manifold,
-                                     ObjectProperty<byte[]> imageDataProperty) {
-        this(manifold.getPreferredDescriptionText(new ConceptProxy(imageDataProperty.getName()),
-                ConceptSpecification.getNameFromExternalString(imageDataProperty.getName())),
-                imageDataProperty);
     }
     public ConceptSpecification getSpecification() {
         if (this.propertySpecification != null) {

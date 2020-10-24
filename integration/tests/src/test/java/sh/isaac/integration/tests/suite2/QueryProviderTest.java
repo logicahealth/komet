@@ -23,6 +23,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.logging.log4j.LogManager;
@@ -35,16 +36,15 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
-import sh.isaac.api.constants.SystemPropertyConstants;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.SearchResult;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.RecursiveDelete;
 import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
-import sh.isaac.model.configuration.LanguageCoordinates;
-import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
 
@@ -68,13 +68,15 @@ public class QueryProviderTest {
 		File db = new File("target/suite2");
 		RecursiveDelete.delete(db);
 		db.mkdirs();
-		System.setProperty(SystemPropertyConstants.DATA_STORE_ROOT_LOCATION_PROPERTY, db.getCanonicalPath());
+		Get.configurationService().setDataStoreFolderPath(db.toPath());
 		Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 		LookupService.startupIsaac();
 
 		TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
-		timd.configure(null, Paths.get(QueryProviderTest.class.getResource("/turtle/bevontology-0.8.ttl").toURI()), "0.8", null);
+		Transaction transaction = Get.commitService().newTransaction(Optional.of("QueryProviderTest"), ChangeCheckerMode.ACTIVE, false);
+		timd.configure(null, Paths.get(QueryProviderTest.class.getResource("/turtle/bevontology-0.8.ttl").toURI()), "0.8", null, transaction);
 		timd.convertContent(update -> {}, (work, total) ->{});
+		transaction.commit().get();
 		
 		di = LookupService.get().getService(DescriptionIndexer.class);
 		di.forceMerge();  //Just a way to force the query exporters to refresh more quickly than they would
@@ -175,10 +177,9 @@ public class QueryProviderTest {
 		Assert.assertEquals(di.query("distilled AND soju", null, null, null, null, null).size(), expectedMaxHits);
 		
 		final List<SearchResult> allResults = di.query("distilled AND soju", null, null, null, null, null);
+//		printResults(allResults);
 		
 		List<SearchResult> paged = new ArrayList<>(expectedMaxHits);
-		
-//		printResults(allResults);
 		
 		//One page at a time...
 		paged = new ArrayList<>(expectedMaxHits);
@@ -187,6 +188,9 @@ public class QueryProviderTest {
 		paged.addAll(di.query("distilled AND soju", null, null, 3, 1, null));
 		paged.addAll(di.query("distilled AND soju", null, null, 2, 1, null));
 		paged.addAll(di.query("distilled AND soju", null, null, 1, 1, null));
+		
+		
+//		printResults(paged);
 				
 		Assert.assertTrue(CollectionUtils.containsAll(allResults, paged));
 		Assert.assertTrue(CollectionUtils.containsAll(paged, allResults));
@@ -205,6 +209,12 @@ public class QueryProviderTest {
 		Assert.assertEquals(di.query("mash", null).size(), 4);
 
 		Assert.assertEquals(di.query("mash AND cereal", null).size(), 1);
+		Assert.assertEquals(di.query("mash AND cereal [some junk in brackets]", null).size(), 1);
+		Assert.assertEquals(di.query("mash AND cereal \\[more junk in brackets\\]", null).size(), 1);
+		Assert.assertEquals(di.query("mash AND cereal rogue \\ backslash", null).size(), 1);
+		Assert.assertEquals(di.query("mash AND cereal rogue \\ backslash \\ another", null).size(), 1);
+		Assert.assertEquals(di.query("mash AND cereal rogue \\ backslash \\ another yet \\ another", null).size(), 1);
+		Assert.assertEquals(di.query("mash AND cereal rogue / foreslash", null).size(), 1);
 		Assert.assertEquals(di.query("dynamic AND assemblages AND (SOLOR)", null).size(), 1);
 		Assert.assertEquals(di.query("dynamic AND assemblages AND \\(SOLOR\\)", null).size(), 1);
 		Assert.assertEquals(di.query("\"Beverage Ontology\"", null).size(), 5);
@@ -228,7 +238,7 @@ public class QueryProviderTest {
 		
 		Assert.assertEquals(di.query("bevon", new int[] {MetaData.ENGLISH_LANGUAGE____SOLOR.getNid()}, null, 1, 125, null).size(), 125);
 		Assert.assertEquals(di.query("bevon", new int[] {MetaData.SPANISH_LANGUAGE____SOLOR.getNid()}, null, 1, 375, null).size(), 0);
-		Assert.assertEquals(di.query("fu*", new int[] {}, null, 1, 375, null).size(), 6);
+		Assert.assertEquals(di.query("fu*", new int[] {}, null, 1, 375, null).size(), 9);
 		Assert.assertEquals(di.query("fu*", new int[] {MetaData.IRISH_LANGUAGE____SOLOR.getNid()}, null, 1, 375, null).size(), 1);
 		Assert.assertEquals(di.query("fuisce", new int[] {MetaData.IRISH_LANGUAGE____SOLOR.getNid()}, null, 1, 375, null).size(), 1);
 		
@@ -247,8 +257,8 @@ public class QueryProviderTest {
 		
 		Assert.assertEquals(di.query("whiskey", null, AuthorModulePathRestriction.restrictAuthor(NidSet.of(new Integer[] {userNid})), 
 				null, 13, null).size(), 13);
-		Assert.assertEquals(di.query("bevon", null, AuthorModulePathRestriction.restrictAuthor(NidSet.of(new Integer[] {MetaData.KEITH_EUGENE_CAMPBELL____SOLOR.getNid()})), 
-				null, 13, null).size(), 0);
+		Assert.assertEquals(di.query("bevon", null, AuthorModulePathRestriction.restrictAuthor(NidSet.of(new Integer[] {MetaData.USER____SOLOR.getNid()})), 
+				null, 13, null).size(), 2);
 	}
 	
 	@Test
@@ -265,7 +275,7 @@ public class QueryProviderTest {
 		
 		//predicate that only returns grain terms
 		Assert.assertEquals(di.query("whiskey", false, null, nid -> {
-				if (((DescriptionVersion)Get.assemblageService().getSemanticChronology(nid).getLatestVersion(StampCoordinates.getDevelopmentLatest()).get())
+				if (((DescriptionVersion)Get.assemblageService().getSemanticChronology(nid).getLatestVersion(Coordinates.Filter.DevelopmentLatest()).get())
 						.getText().contains("grain")) {
 					return true;
 				}
@@ -274,14 +284,14 @@ public class QueryProviderTest {
 		
 		ArrayList<String> temp = new ArrayList<>();
 		for (SearchResult x : di.query("whiskey", false, null, nid -> {
-			if (((DescriptionVersion)Get.assemblageService().getSemanticChronology(nid).getLatestVersion(StampCoordinates.getDevelopmentLatest()).get())
+			if (((DescriptionVersion)Get.assemblageService().getSemanticChronology(nid).getLatestVersion(Coordinates.Filter.DevelopmentLatest()).get())
 					.getText().contains("grain")) {
 				return true;
 			}
 			return false;
 		}, null, 1, 20, null))
 		{
-			temp.add(((DescriptionVersion)Get.assemblageService().getSemanticChronology(x.getNid()).getLatestVersion(StampCoordinates.getDevelopmentLatest()).get())
+			temp.add(((DescriptionVersion)Get.assemblageService().getSemanticChronology(x.getNid()).getLatestVersion(Coordinates.Filter.DevelopmentLatest()).get())
 						.getText());
 //			printResults(Arrays.asList(new SearchResult[] {x}));
 		}
@@ -320,28 +330,28 @@ public class QueryProviderTest {
 	@Test
 	public void testExternalDescriptionExpand() {
 		
-		ConceptSpecification[] expandedList = LanguageCoordinates.expandDescriptionTypePreferenceList(new ConceptSpecification[] {MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR}, null);
+		int[] expandedList = Coordinates.Language.expandDescriptionTypePreferenceList(null, MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid());
 		
 		Assert.assertEquals(expandedList.length, 4);
-		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR, expandedList[0]);
+		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid(), expandedList[0]);
 		HashSet<UUID> expected = new HashSet<>();
 		expected.add(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getPrimordialUuid());
 		expected.add(UUID.fromString("f98669ec-27fb-526d-97f1-5162e11e24e1"));
 		expected.add(UUID.fromString("e00ac5df-d8e4-562e-ba52-105812bdde52"));
 		expected.add(UUID.fromString("26a7bba3-7807-5a9c-a9c1-ebf0934cb5f4"));
 
-		for (ConceptSpecification spec : expandedList)
+		for (int spec : expandedList)
 		{
-			Assert.assertTrue(expected.contains(spec.getPrimordialUuid()));
+			Assert.assertTrue(expected.contains(Get.identifierService().getUuidPrimordialForNid(spec)));
 		}
 		
-		ConceptSpecification[] reexpandedList = LanguageCoordinates.expandDescriptionTypePreferenceList(expandedList, null);
+		int[] reexpandedList = Coordinates.Language.expandDescriptionTypePreferenceList(null, expandedList);
 		
 		Assert.assertEquals(reexpandedList.length, 4);
-		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR, reexpandedList[0]);
-		for (ConceptSpecification spec : reexpandedList)
+		Assert.assertEquals(MetaData.DEFINITION_DESCRIPTION_TYPE____SOLOR.getNid(), reexpandedList[0]);
+		for (int spec : reexpandedList)
 		{
-			Assert.assertTrue(expected.contains(spec.getPrimordialUuid()));
+			Assert.assertTrue(expected.contains(Get.identifierService().getUuidPrimordialForNid(spec)));
 		}
 	}
 	
@@ -349,7 +359,7 @@ public class QueryProviderTest {
 	{
 		for (SearchResult sr : result)
 		{
-			System.out.println(Get.assemblageService().getSemanticChronology(sr.getNid()).getLatestVersion(StampCoordinates.getDevelopmentLatest()).get().toString());
+			System.out.println(Get.assemblageService().getSemanticChronology(sr.getNid()).getLatestVersion(Coordinates.Filter.DevelopmentLatest()).get().toString());
 		}
 	}
 	

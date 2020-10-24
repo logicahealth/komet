@@ -21,7 +21,8 @@ import java.util.Optional;
 import java.util.UUID;
 import javafx.scene.control.MenuItem;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -29,22 +30,15 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class ConceptMenuItem extends MenuItem implements ConceptSpecification {
 
-    private final Manifold manifold;
+    private final ManifoldCoordinate manifoldCoordinate;
     private final ConceptSpecification spec;
 
     //~--- constructors --------------------------------------------------------
-    public ConceptMenuItem(ConceptSpecification spec, Manifold manifold) {
-        super(manifold.getPreferredDescriptionText(spec));
-        this.manifold = manifold;
+    public ConceptMenuItem(ConceptSpecification spec, ManifoldCoordinate manifoldCoordinate) {
+        super(manifoldCoordinate.getPreferredDescriptionText(spec));
+        this.manifoldCoordinate = manifoldCoordinate;
         this.spec = spec;
     }
-
-    public ConceptMenuItem(ConceptSpecificationForControlWrapper spec) {
-        super(spec.getManifold().getPreferredDescriptionText(spec));
-        this.manifold = spec.getManifold();
-        this.spec = spec;
-    }
-
     //~--- methods -------------------------------------------------------------
     @Override
     public String toString() {
@@ -65,12 +59,12 @@ public class ConceptMenuItem extends MenuItem implements ConceptSpecification {
 
     @Override
     public String getFullyQualifiedName() {
-        return this.manifold.getFullySpecifiedDescriptionText(this.spec);
+        return this.manifoldCoordinate.getFullyQualifiedDescriptionText(this.spec);
     }
 
     @Override
     public Optional<String> getRegularName() {
-        return Optional.of(this.manifold.getPreferredDescriptionText(this.spec));
+        return Optional.of(this.manifoldCoordinate.getPreferredDescriptionText(this.spec));
     }
 
     @Override
@@ -91,13 +85,5 @@ public class ConceptMenuItem extends MenuItem implements ConceptSpecification {
         return this.spec.hashCode();
     }
 
-    public ConceptSpecification getSpec() {
-        return spec;
-    }
-
-    public Manifold getManifold() {
-        return manifold;
-    }
-    
     
 }

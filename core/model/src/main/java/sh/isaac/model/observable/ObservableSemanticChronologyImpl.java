@@ -36,35 +36,49 @@
  */
 package sh.isaac.model.observable;
 
-//~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.property.IntegerProperty;
-
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+import javafx.beans.property.IntegerProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.version.*;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.ImageVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.MutableSemanticVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
+import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.model.observable.version.*;
-import sh.isaac.model.semantic.version.DescriptionVersionImpl;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
-import sh.isaac.model.observable.version.brittle.ObservableLoincVersionImpl;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
+import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
+import sh.isaac.model.observable.version.ObservableDynamicVersionImpl;
+import sh.isaac.model.observable.version.ObservableImageVersionImpl;
+import sh.isaac.model.observable.version.ObservableLogicGraphVersionImpl;
+import sh.isaac.model.observable.version.ObservableLongVersionImpl;
+import sh.isaac.model.observable.version.ObservableSemanticVersionImpl;
+import sh.isaac.model.observable.version.ObservableStringVersionImpl;
 import sh.isaac.model.observable.version.brittle.ObservableRf2RelationshipImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Nid1_Int2_VersionImpl;
+import sh.isaac.model.observable.version.brittle.Observable_Nid1_Long2_VersionImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Nid1_Nid2_Int3_VersionImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Nid1_Nid2_Str3_VersionImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Nid1_Nid2_VersionImpl;
@@ -74,10 +88,11 @@ import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_Nid3_Nid4_
 import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_Nid3_Nid4_VersionImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
 import sh.isaac.model.observable.version.brittle.Observable_Str1_Str2_VersionImpl;
+import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.model.semantic.version.brittle.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl;
-import sh.isaac.model.semantic.version.brittle.LoincVersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Int2_VersionImpl;
+import sh.isaac.model.semantic.version.brittle.Nid1_Long2_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Int3_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_Str3_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Nid1_Nid2_VersionImpl;
@@ -88,7 +103,6 @@ import sh.isaac.model.semantic.version.brittle.Str1_Str2_Nid3_Nid4_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Str2_VersionImpl;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class ObservableSemanticChronologyImpl.
  *
@@ -99,16 +113,9 @@ public class ObservableSemanticChronologyImpl
         implements ObservableSemanticChronology {
 
    private static final Logger LOG = LogManager.getLogger();
-    /**
-     * The assemblage nid property.
-     */
 
-   /**
-    * The referenced component nid property.
-    */
    private IntegerProperty referencedComponentNidProperty;
 
-   //~--- constructors --------------------------------------------------------
    /**
     * Instantiates a new observable semantic chronology impl.
     *
@@ -121,40 +128,18 @@ public class ObservableSemanticChronologyImpl
    protected SemanticChronology getSemanticChronology() {
       return (SemanticChronology) this.chronicledObjectLocal;
    }
-    /**
-     * Assemblage sequence property.
-     *
-     * @return the integer property
-     */   //~--- methods -------------------------------------------------------------
 
-   /**
-    * Creates the mutable version.
-    *
-    * @param stampSequence the stamp sequence
-    * @return the m
-    */
    @Override
    public <V extends Version> V createMutableVersion(int stampSequence) {
       return (V) wrapInObservable(getSemanticChronology().createMutableVersion(stampSequence));
    }
-
-   /**
-    * Creates the mutable version.
-    *
-    * @param status the status
-    * @param ec the ec
-    * @return the m
-    */
+   
    @Override
-   public <V extends Version> V createMutableVersion(Status status, EditCoordinate ec) {
-      return (V) wrapInObservable(getSemanticChronology().createMutableVersion(status, ec));
+   public <V extends Version> V createMutableVersion(Transaction transaction, int stampSequence) {
+      return (V) wrapInObservable(getSemanticChronology().createMutableVersion(transaction, stampSequence));
    }
 
-   /**
-    * Referenced component nid property.
-    *
-    * @return the integer property
-    */
+
    @Override
    public IntegerProperty referencedComponentNidProperty() {
       if (this.referencedComponentNidProperty == null) {
@@ -192,15 +177,13 @@ public class ObservableSemanticChronologyImpl
             return (OV) new ObservableImageVersionImpl((ImageVersion) semanticVersion, this);
          
          case DYNAMIC:
-            LOG.warn("Incomplete implementation of dynamic semantic: " + 
-                    semanticVersion.getClass().getSimpleName() + " " + semanticVersion);
-            return (OV) new ObservableSemanticVersionImpl(semanticVersion, this);
-            
-            
+            return (OV) new ObservableDynamicVersionImpl((DynamicVersion)semanticVersion, this);
          case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
             return (OV) new Observable_Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl((Int1_Int2_Str3_Str4_Str5_Nid6_Nid7_VersionImpl) semanticVersion, this);
          case Nid1_Int2:
             return (OV) new Observable_Nid1_Int2_VersionImpl((Nid1_Int2_VersionImpl) semanticVersion, this);
+         case Nid1_Long2:
+            return (OV) new Observable_Nid1_Long2_VersionImpl((Nid1_Long2_VersionImpl) semanticVersion, this);
          case Nid1_Int2_Str3_Str4_Nid5_Nid6:
             return (OV) new Observable_Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl((Nid1_Int2_Str3_Str4_Nid5_Nid6_VersionImpl) semanticVersion, this);
          case Nid1_Nid2:
@@ -215,8 +198,6 @@ public class ObservableSemanticChronologyImpl
             return (OV) new Observable_Str1_Str2_VersionImpl((Str1_Str2_VersionImpl) semanticVersion, this);
          case Str1_Str2_Nid3_Nid4:
             return (OV) new Observable_Str1_Str2_Nid3_Nid4_VersionImpl((Str1_Str2_Nid3_Nid4_VersionImpl) semanticVersion, this);
-         case LOINC_RECORD:
-            return (OV) new ObservableLoincVersionImpl((LoincVersionImpl) semanticVersion, this);
          case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
             return (OV) new Observable_Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl((Str1_Str2_Str3_Str4_Str5_Str6_Str7_VersionImpl) semanticVersion, this);
          case Str1_Nid2_Nid3_Nid4:
@@ -233,18 +214,7 @@ public class ObservableSemanticChronologyImpl
       }
 
    }
-    //~--- get methods ---------------------------------------------------------
-    /**
-     * Gets the assemblage nid.
-     *
-     * @return the assemblage nid
-     */
 
-   /**
-    * Gets the observable version list.
-    *
-    * @return the observable version list
-    */
    @Override
    protected ObservableList<ObservableVersion> getObservableVersionList() {
       if (this.versionListProperty != null && this.versionListProperty.get() != null) {
@@ -258,11 +228,6 @@ public class ObservableSemanticChronologyImpl
       return observableList;
    }
 
-   /**
-    * Gets the referenced component nid.
-    *
-    * @return the referenced component nid
-    */
    @Override
    public int getReferencedComponentNid() {
       if (this.referencedComponentNidProperty != null) {
@@ -272,11 +237,6 @@ public class ObservableSemanticChronologyImpl
       return getSemanticChronology().getReferencedComponentNid();
    }
 
-   /**
-    * Gets the semantic type.
-    *
-    * @return the semantic type
-    */
    @Override
    public VersionType getVersionType() {
       return getSemanticChronology().getVersionType();
@@ -300,13 +260,13 @@ public class ObservableSemanticChronologyImpl
    }
 
    @Override
-   public <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
-      return getSemanticChronology().getLatestVersion(coordinate);
+   public <V extends Version> LatestVersion<V> getLatestVersion(StampFilter stampFilter) {
+      return getSemanticChronology().getLatestVersion(stampFilter);
    }
 
    @Override
-   public boolean isLatestVersionActive(StampCoordinate coordinate) {
-      return getSemanticChronology().isLatestVersionActive(coordinate);
+   public boolean isLatestVersionActive(StampFilter stampFilter) {
+      return getSemanticChronology().isLatestVersionActive(stampFilter);
    }
 
    @Override
@@ -324,8 +284,8 @@ public class ObservableSemanticChronologyImpl
       return "ObservableSemanticChronologyImpl{" + getSemanticChronology().toUserString() + '}';
    }
 
-    @Override
-    public <T extends ObservableVersion> T createAutonomousMutableVersion(EditCoordinate ec) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+   @Override
+   public <T extends ObservableVersion> T createAutonomousMutableVersion(EditCoordinate ec) {
+       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+   }
 }

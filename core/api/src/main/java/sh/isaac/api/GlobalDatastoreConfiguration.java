@@ -17,14 +17,15 @@ package sh.isaac.api;
 
 import java.util.Optional;
 import org.jvnet.hk2.annotations.Contract;
-import sh.isaac.api.constants.SystemPropertyConstants;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import sh.isaac.api.constants.MemoryConfiguration;
+import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampPath;
 
 /**
  * This interface defines all attributes of the system that can be get or set on a global basis, and are persisted as part of the 
@@ -49,9 +50,9 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	/**
 	 * Gets the default edit coordinate.
 	 *
-	 * @return an {@code ObservableEditCoordinate} based on the configuration defaults.
+	 * @return a write coordinate based on the configuration defaults.
 	 */
-	public ObservableEditCoordinate getDefaultEditCoordinate();
+	public ReadOnlyObjectProperty<WriteCoordinate> getDefaultWriteCoordinate();
 
 	/**
 	 * Gets the default language coordinate.
@@ -77,9 +78,9 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	/**
 	 * Gets the default stamp coordinate.
 	 *
-	 * @return an {@code ObservableStampCoordinate} based on the configuration defaults.
+	 * @return an {@code ObservableStampPath} based on the configuration defaults.
 	 */
-	public ObservableStampCoordinate getDefaultStampCoordinate();
+	public ObservableStampPath getDefaultStampCoordinate();
 
 	/**
 	 * Return the known (if any) details to utilize to make a GIT server connection.
@@ -190,7 +191,7 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	 *
 	 * @param conceptId the nid of a concept
 	 */
-	public default void setDefaultModule(int conceptId)
+	public default void setDefaultEditModule(int conceptId)
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -202,7 +203,7 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	 *
 	 * @param pathConceptId
 	 */
-	public default void setDefaultPath(int pathConceptId)
+	public default void setDefaultEditPath(int pathConceptId)
 	{
 		throw new UnsupportedOperationException();
 	}
@@ -262,6 +263,28 @@ public interface GlobalDatastoreConfiguration extends UserConfigurationInternalI
 	 * @param rsi the new git configuration
 	 */
 	public default void setGitConfiguration(RemoteServiceInfo rsi)
+	{
+		throw new UnsupportedOperationException();
+	}
+	
+	/**
+	 * A global switch that can be used to disable the index services all at once.
+	 *
+	 * @return true, if lucene indexes should be enabled in this config.
+	 */
+	public default boolean enableLuceneIndexes()
+	{
+		return true;
+	}
+	
+	/**
+	 * @param enable change the state of the lucene enable flag
+	 * 
+	 * Note that this value can be overridden by specifying a system property of 
+	 * {@link SystemPropertyConstants#ENABLE_LUCENE} 
+	 * with 'true' or 'false'
+	 */
+	public default void setEnableLuceneIndexs(boolean enable)
 	{
 		throw new UnsupportedOperationException();
 	}

@@ -45,7 +45,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.UUID;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
 

@@ -39,25 +39,14 @@
 
 package sh.isaac.api.observable.concept;
 
-//~--- JDK imports ------------------------------------------------------------
-
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.beans.property.IntegerProperty;
-
-
-import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
-
-//~--- interfaces -------------------------------------------------------------
+import sh.isaac.api.transaction.Transaction;
 
 /**
  * The Interface ObservableConceptChronology.
@@ -71,81 +60,37 @@ public interface ObservableConceptChronology
     * A test for validating that a concept contains an active description. Used
     * to validate concept proxies or concept specs at runtime.
     * @param descriptionText text to match against.
-    * @param stampCoordinate coordinate to determine if description is active.
+    * @param stampFilter coordinate to determine if description is active.
     * @return true if any version of a description matches this text.
     */
-   boolean containsActiveDescription(String descriptionText, StampCoordinate stampCoordinate);
+   boolean containsActiveDescription(String descriptionText, StampFilter stampFilter);
 
-
-   /**
-    * Create a mutable version the specified stampSequence. It is the responsibility of the caller to
-    * add persist the chronicle when changes to the mutable version are complete .
-    * @param stampSequence stampSequence that specifies the status, time, author, module, and path of this version.
-    * @return the mutable version
-    */
    @Override
    ObservableConceptVersion createMutableVersion(int stampSequence);
-
-   /**
-    * Create a mutable version with Long.MAX_VALUE as the time, indicating
-    * the version is uncommitted. It is the responsibility of the caller to
-    * add the mutable version to the commit manager when changes are complete
-    * prior to committing the component.
-    * @param state state of the created mutable version
-    * @param ec edit coordinate to provide the author, module, and path for the mutable version
-    * @return the mutable version
-    */
+   
    @Override
-   ObservableConceptVersion createMutableVersion(Status state, EditCoordinate ec);
+   ObservableConceptVersion createMutableVersion(Transaction transaction, int stampSequence);
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the fully specified description.
-    *
-    * @param languageCoordinate the language coordinate
-    * @param stampCoordinate the stamp coordinate
-    * @return the fully specified description
-    */
    @Override
    LatestVersion<ObservableDescriptionVersion> getFullyQualifiedNameDescription(
            LanguageCoordinate languageCoordinate,
-           StampCoordinate stampCoordinate);
+           StampFilter stampFilter);
 
-   /**
-    * Gets the fully specified description.
-    *
-    * @param manifoldCoordinate the language coordinate and the stamp coordinate
-    * @return the fully specified description
-    */
    @Override
    default LatestVersion<ObservableDescriptionVersion> getFullySpecifiedDescription(
            ManifoldCoordinate manifoldCoordinate) {
-      return getFullyQualifiedNameDescription(manifoldCoordinate, manifoldCoordinate);
+      return getFullyQualifiedNameDescription(manifoldCoordinate.getLanguageCoordinate(), manifoldCoordinate.getViewStampFilter());
       
    }
 
-   /**
-    * Gets the preferred description.
-    *
-    * @param languageCoordinate the language coordinate
-    * @param stampCoordinate the stamp coordinate
-    * @return the preferred description
-    */
    @Override
    LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            LanguageCoordinate languageCoordinate,
-           StampCoordinate stampCoordinate);
-   /**
-    * Gets the preferred description.
-    *
-    * @param manifoldCoordinate the language coordinate and the stamp coordinate
-    * @return the preferred description
-    */
+           StampFilter stampFilter);
+
    @Override
    default LatestVersion<ObservableDescriptionVersion> getPreferredDescription(
            ManifoldCoordinate manifoldCoordinate) {
-      return getPreferredDescription(manifoldCoordinate, manifoldCoordinate);
+      return getPreferredDescription(manifoldCoordinate.getLanguageCoordinate(), manifoldCoordinate.getViewStampFilter());
    }
 }
-//~--- JDK imports ------------------------------------------------------------

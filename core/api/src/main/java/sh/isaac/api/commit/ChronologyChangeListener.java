@@ -48,6 +48,7 @@ import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 
@@ -79,9 +80,17 @@ import sh.isaac.api.component.semantic.SemanticChronology;
  *
  * @author kec
  */
-public interface ChronologyChangeListener {
+public interface ChronologyChangeListener extends CommitListener {
 
    final static Logger log = LogManager.getLogger(ChronologyChangeListener.class);
+
+   default void handleChange(Chronology chronology) {
+      if (chronology instanceof ConceptChronology) {
+         handleChange((ConceptChronology) chronology);
+      } else {
+         handleChange((SemanticChronology) chronology);
+      }
+   }
    /**
     * Don't do work on or block the calling thread.
     * @param cc a ConceptChronology that has changed, but has not been committed.
@@ -93,34 +102,18 @@ public interface ChronologyChangeListener {
     * @param sc a SemanticChronology that has changed, but has not been committed.
     */
    void handleChange(SemanticChronology sc);
-
-   /**
-    * Don't do work on or block the calling thread.
-    * @param commitRecord a record of a successful commit.
-    */
-   void handleCommit(CommitRecord commitRecord);
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the listener uuid.
-    *
-    * @return a unique UUID for this listener.
-    */
-   UUID getListenerUuid();
-   
    /**
     * Disable the listener
     */
    default void disable() {
-       log.warn("disable() method not implemented by {}", this.getClass().getSimpleName());
+      log.warn("disable() method not implemented by {}", this.getClass().getSimpleName());
    }
 
    /**
     * Enable the listener
     */
    default void enable() {
-       log.warn("enable() method not implemented by {}", this.getClass().getSimpleName());
+      log.warn("enable() method not implemented by {}", this.getClass().getSimpleName());
    }
 }
 

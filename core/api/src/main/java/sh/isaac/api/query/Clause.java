@@ -37,28 +37,19 @@
 package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
-import sh.isaac.api.query.properties.AssemblageForIterationClause;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
-
-//~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.query.clauses.*;
-import sh.isaac.api.xml.ConceptSpecificationAdaptor;
+import sh.isaac.api.query.properties.AssemblageForIterationClause;
+
+import java.util.*;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -69,8 +60,6 @@ import sh.isaac.api.xml.ConceptSpecificationAdaptor;
  *
  * @author kec
  */
-@XmlRootElement(name = "Clause")
-@XmlAccessorType(XmlAccessType.NONE)
 public abstract class Clause implements ConceptSpecification, AssemblageForIterationClause {
     public static final Logger LOG = LogManager.getLogger();
 
@@ -146,8 +135,6 @@ public abstract class Clause implements ConceptSpecification, AssemblageForItera
     
     public abstract void resetResults();
 
-    @XmlElement
-    @XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)    
     @Override
     public ConceptSpecification getAssemblageForIteration() {
         return assemblageForIteration;
@@ -305,6 +292,7 @@ public abstract class Clause implements ConceptSpecification, AssemblageForItera
             new ReferencedComponentIsMemberOf(),
             new ReferencedComponentIsNotMemberOf(),
             new SemanticContainsString(),
+            new TaxonomyRelatedConcepts(),
             new DescriptionLuceneMatch(),
             new DescriptionRegexMatch()
             

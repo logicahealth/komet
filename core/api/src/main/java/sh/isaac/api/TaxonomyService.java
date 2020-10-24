@@ -39,27 +39,19 @@
 
 package sh.isaac.api;
 
-import java.util.EnumSet;
 import java.util.Set;
 import java.util.function.BinaryOperator;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.function.Supplier;
 import java.util.stream.IntStream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.navigation.NavigationRecord;
 import sh.isaac.api.tree.Tree;
 import sh.isaac.api.tree.TreeNodeVisitData;
-
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface TaxonomyService.
@@ -81,6 +73,8 @@ public interface TaxonomyService
     * @return The taxonomy data
     */
    int[] getTaxonomyData(int assemblageNid, int conceptNid);
+
+   NavigationRecord getNavigationRecord(int conceptNid);
    /**
     * Update the taxonomy by extracting relationships from the logical
     * definitions in the {@code logicGraphChronology}. This method will be
@@ -91,18 +85,6 @@ public interface TaxonomyService
     * @param logicGraphChronology Chronology of the logical definitions
     */
    void updateTaxonomy(SemanticChronology logicGraphChronology);
-
-//   /**
-//    * Method to determine if a concept was ever a kind of another, without
-// knowing a ManifoldCoordinate.
-//    *
-//    * @param childNid a concept  nid for the child concept
-//    * @param parentNid a concept nid for the parent concept
-//    * @return true if child was ever a kind of the parent.
-//    */
-//   boolean wasEverKindOf(int childNid, int parentNidd);
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the all relationship origin concept nids of type.
@@ -115,17 +97,17 @@ public interface TaxonomyService
 
    /**
     * Gets the snapshot.  This method is for returning a Snapshot that builds an entire tree in a background thread.
-    * The returned {@link TaxonomySnapshotService} can be used immediately, while it computes in the background - until
+    * The returned {@link TaxonomySnapshot} can be used immediately, while it computes in the background - until
     * the entire tree is computed, it will answer queries via direct lookups.  After the tree is computed, it will use
-    * the case to answer queries.  This approach is best for a use case where the TaxonomySnapshotService will be used 
+    * the cache to answer queries.  This approach is best for a use case where the TaxonomySnapshotService will be used
     * for many queries for a period of time.
     *
-    * @param tc the tc
+    * @param mc the manifold coordinate
     * @return the snapshot which is backed by a {@link Tree}, although that tree may not be complete for some time after
     * this call returns.
     */
-   TaxonomySnapshot getSnapshot(ManifoldCoordinate tc);
-   
+   TaxonomySnapshot getSnapshot(ManifoldCoordinate mc);
+
    /**
     * Gets the snapshot.  This method is for returning a Snapshot that does NOT build a tree in the background.
     * Every query will be answered by direct computation on the call.  Implementations may do some caching of answers
@@ -140,7 +122,7 @@ public interface TaxonomyService
    TaxonomySnapshot getSnapshotNoTree(ManifoldCoordinate mc);
 
     /**
-     * Calls {@link #getSnapshot(ManifoldCoordinate)} with a manifold constructed from the provided path, 
+     * Calls {@link #getSnapshot(ManifoldCoordinate)} with a manifold constructed from the provided path,
      * modules, and states.  Uses {@link PremiseType#STATED} and a time of MAX_VALUE.  Language is set to the 
      * system default.
      * @param pathNid
@@ -150,8 +132,8 @@ public interface TaxonomyService
      * {@link #getSnapshotNoTree(ManifoldCoordinate)}
      * @return the Snapshot service
      */
-   TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, EnumSet<Status> allowedStates, boolean computeTree);
-   
+   TaxonomySnapshot getStatedLatestSnapshot(int pathNid, Set<ConceptSpecification> modules, Set<Status> allowedStates, boolean computeTree);
+
    /**
     * 
     * @param conceptAssemblageNid The assemblage Nid which specifies the assemblage where the concepts in this tree
@@ -193,5 +175,28 @@ public interface TaxonomyService
     * @return The new, merged value.
     */
    int[] accumulateAndGetTaxonomyData(int assemblageNid, int conceptNid, int[] newData, BinaryOperator<int[]> accumulatorFunction);
+   
+   /**
+    * Checks if kindOf, ignoring all coordinates (active, inactive, any path, any module, etc) 
+    * @param childNid
+    * @param parentNid
+    * @return
+    */
+   public boolean wasEverKindOf(int childNid, int parentNid);
+   
+   /**
+    * Checks if childOf, ignoring all coordinates (active, inactive, any path, any module, etc)
+    * @param childNid
+    * @param parentNid
+    * @return
+    */
+   public boolean wasEverChildOf(int childNid, int parentNid);
+   
+   /**
+    * Gets isA children of the specified concept, ignoring all coordinates (active, inactive, any path, any module)
+    * @param parentNid
+    * @return
+    */
+   public int[] getAllTaxonomyChildren(int parentNid);
 }
 

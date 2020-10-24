@@ -37,29 +37,30 @@
 package sh.isaac.provider.datastore.chronology;
 
 //~--- JDK imports ------------------------------------------------------------
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import sh.isaac.api.AssemblageService;
+import sh.isaac.api.ProgressTracker;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.SemanticSnapshotService;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
+import sh.isaac.api.stream.VersionStream;
+import sh.isaac.api.stream.VersionStreamWrapper;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
-import sh.isaac.api.AssemblageService;
-import sh.isaac.api.ProgressTracker;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.LatestVersion;
-import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
-import sh.isaac.api.stream.VersionStream;
-import sh.isaac.api.stream.VersionStreamWrapper;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.api.component.semantic.SemanticSnapshotService;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -80,7 +81,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    /**
     * The stamp coordinate.
     */
-   StampCoordinate stampCoordinate;
+   StampFilter stampFilter;
 
    /**
     * The semantic provider.
@@ -95,24 +96,23 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    //~--- constructors --------------------------------------------------------
    /**
     * Instantiates a new semantic snapshot provider.
-    *
-    * @param versionType the version type
-    * @param stampCoordinate the stamp coordinate
+    *  @param versionType the version type
+    * @param stampFilter the stamp coordinate
     * @param semanticProvider the semantic provider
     */
    public AssemblageSnapshotProvider(Class<V> versionType,
-           StampCoordinate stampCoordinate,
-           AssemblageService semanticProvider) {
+                                     StampFilter stampFilter,
+                                     AssemblageService semanticProvider) {
       this.versionType = versionType;
-      this.stampCoordinate = stampCoordinate;
+      this.stampFilter = stampFilter;
       this.semanticProvider = semanticProvider;
-      this.calculator = RelativePositionCalculator.getCalculator(stampCoordinate);
+      this.calculator = stampFilter.getRelativePositionCalculator();
    }
 
     @Override
-    public SemanticSnapshotService<V> makeAnalog(StampCoordinate stampCoordinate) {
+    public SemanticSnapshotService<V> makeAnalog(StampFilter stampFilter) {
         return new AssemblageSnapshotProvider(versionType,
-           stampCoordinate,
+                stampFilter,
            semanticProvider);
     }
 
@@ -127,7 +127,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    @Override
    public List<LatestVersion<V>> getLatestDescriptionVersionsForComponent(int componentNid) {
       List<LatestVersion<V>> results = new ArrayList<>();
-      for (int semanticNid : this.semanticProvider.getSemanticNidsForComponent(componentNid).asArray()) {
+      for (int semanticNid : this.semanticProvider.getSemanticNidsForComponent(componentNid).toArray()) {
          SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(semanticNid);
          if (semanticChronology.getVersionType() == VersionType.DESCRIPTION) {
             results.add(this.getLatestSemanticVersion(semanticChronology));
@@ -177,11 +177,11 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
       return new VersionStreamWrapper<>(getLatestSemanticVersionStreamUnwrapped(semanticSequenceStream, progressTrackers));
    }
 
-   private List<LatestVersion<V>> getLatestSemanticVersionList(NidSet semanticNidSet,
-           ProgressTracker... progressTrackers) {
+   private List<LatestVersion<V>> getLatestSemanticVersionList(ImmutableIntSet semanticNidSet,
+                                                               ProgressTracker... progressTrackers) {
 
       List<LatestVersion<V>> results = new ArrayList<>(semanticNidSet.size());
-      for (int semanticNid : semanticNidSet.asArray()) {
+      for (int semanticNid : semanticNidSet.toArray()) {
          final SemanticChronologyImpl sc = (SemanticChronologyImpl) this.semanticProvider.getSemanticChronology(semanticNid);
          results.add(getLatestSemanticVersion(sc));
          for (ProgressTracker tracker: progressTrackers) {
@@ -198,8 +198,8 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
     * @param progressTrackers the progress trackers
     * @return the latest semantic versions
     */
-   private List<LatestVersion<V>> getLatestSemanticVersions(NidSet semanticNidSet,
-           ProgressTracker... progressTrackers) {
+   private List<LatestVersion<V>> getLatestSemanticVersions(ImmutableIntSet semanticNidSet,
+                                                            ProgressTracker... progressTrackers) {
       Arrays.stream(progressTrackers)
               .forEach((tracker) -> {
                  tracker.addToTotalWork(semanticNidSet.size());
@@ -241,7 +241,7 @@ public class AssemblageSnapshotProvider<V extends SemanticVersion>
    @Override
    public VersionStream<V> getLatestSemanticVersionsFromAssemblage(int assemblageConceptNid,
            ProgressTracker... progressTrackers) {
-      return getLatestSemanticVersionStream(this.semanticProvider.getSemanticNidsFromAssemblage(assemblageConceptNid).stream(),
+      return getLatestSemanticVersionStream(Arrays.stream(this.semanticProvider.getSemanticNidsFromAssemblage(assemblageConceptNid).toArray()),
               progressTrackers);
    }
 

@@ -26,12 +26,13 @@ import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.preferences.IsaacPreferences;
 import static sh.isaac.komet.preferences.ConfigurationPreferencePanel.Keys.ENABLE_EDITING;
-import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
+import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import sh.isaac.model.observable.ObservableFields;
 import sh.komet.gui.contract.preferences.ConfigurationPreference;
-import sh.komet.gui.control.PropertySheetBooleanWrapper;
-import sh.komet.gui.control.PropertySheetTextWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.contract.preferences.KometPreferencesController;
+import sh.komet.gui.control.property.wrapper.PropertySheetBooleanWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetTextWrapper;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -52,28 +53,28 @@ public class ConfigurationPreferencePanel extends AbstractPreferences implements
     private final SimpleStringProperty datastoreLocationProperty
             = new SimpleStringProperty(this, MetaData.DATASTORE_LOCATION____SOLOR.toExternalString());
 
-    public ConfigurationPreferencePanel(IsaacPreferences preferencesNode, Manifold manifold,
+    public ConfigurationPreferencePanel(IsaacPreferences preferencesNode, ViewProperties viewProperties,
                                         KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "KOMET"), manifold, 
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "KOMET"), viewProperties,
                 kpc);
-        nameProperty.set(groupNameProperty().get());
-        this.enableEdit.setValue(preferencesNode.getBoolean(enableEdit.getName(), true));
+        this.nameProperty.set(groupNameProperty().get());
+        this.enableEdit.setValue(preferencesNode.getBoolean(this.enableEdit.getName(), true));
         revertFields();
         save();
         FxGet.setConfigurationName(nameProperty.get());
         nameProperty.addListener((observable, oldValue, newValue) -> {
             FxGet.setConfigurationName(newValue);
         });
-        getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
-        getItemList().add(new PropertySheetBooleanWrapper(manifold, enableEdit));
-        getItemList().add(new PropertySheetTextWrapper(manifold, datastoreLocationProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), this.nameProperty));
+        getItemList().add(new PropertySheetBooleanWrapper(viewProperties.getManifoldCoordinate(), this.enableEdit));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), this.datastoreLocationProperty));
     }
 
     @Override
     protected void saveFields() throws BackingStoreException {
-        getPreferencesNode().put(Keys.DATASTORE_LOCATION, datastoreLocationProperty.get());
-        getPreferencesNode().put(Keys.CONFIGURATION_NAME, nameProperty.get());
-        getPreferencesNode().putBoolean(ENABLE_EDITING, enableEdit.get());
+        getPreferencesNode().put(Keys.DATASTORE_LOCATION, this.datastoreLocationProperty.get());
+        getPreferencesNode().put(Keys.CONFIGURATION_NAME, this.nameProperty.get());
+        getPreferencesNode().putBoolean(ENABLE_EDITING, this.enableEdit.get());
     }
 
     @Override
@@ -82,7 +83,7 @@ public class ConfigurationPreferencePanel extends AbstractPreferences implements
         Path folderPath = configurationService.getDataStoreFolderPath();
         this.datastoreLocationProperty.set(getPreferencesNode().get(Keys.DATASTORE_LOCATION, folderPath.toString()));
         this.nameProperty.set(getPreferencesNode().get(Keys.CONFIGURATION_NAME, getGroupName()));
-        enableEdit.set(getPreferencesNode().getBoolean(ENABLE_EDITING, true));
+        this.enableEdit.set(getPreferencesNode().getBoolean(ENABLE_EDITING, true));
     }
 
 

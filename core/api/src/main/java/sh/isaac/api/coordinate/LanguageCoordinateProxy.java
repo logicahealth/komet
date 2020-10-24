@@ -19,6 +19,7 @@ package sh.isaac.api.coordinate;
 import java.util.List;
 import java.util.Optional;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
 
@@ -36,48 +37,72 @@ public interface LanguageCoordinateProxy extends LanguageCoordinate {
    LanguageCoordinate getLanguageCoordinate();
 
    @Override
-   public default LatestVersion<DescriptionVersion> getDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
-      return getLanguageCoordinate().getDescription(descriptionList, stampCoordinate);
+   default LanguageCoordinateImmutable toLanguageCoordinateImmutable() {
+      return getLanguageCoordinate().toLanguageCoordinateImmutable();
    }
 
    @Override
-   public default int[] getDescriptionTypePreferenceList() {
+   default ConceptSpecification[] getDescriptionTypeSpecPreferenceList() {
+      return getLanguageCoordinate().getDescriptionTypeSpecPreferenceList();
+   }
+
+   @Override
+   default ConceptSpecification[] getDialectAssemblageSpecPreferenceList() {
+      return getLanguageCoordinate().getDialectAssemblageSpecPreferenceList();
+   }
+
+   @Override
+   default int[] getModulePreferenceListForLanguage() {
+      return getLanguageCoordinate().getModulePreferenceListForLanguage();
+   }
+
+   @Override
+   default ConceptSpecification[] getModuleSpecPreferenceListForLanguage() {
+      return getLanguageCoordinate().getModuleSpecPreferenceListForLanguage();
+   }
+
+   @Override
+   default ConceptSpecification getLanguageConcept() {
+      return getLanguageCoordinate().getLanguageConcept();
+   }
+
+   @Override
+   default LatestVersion<DescriptionVersion> getDefinitionDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
+      return getLanguageCoordinate().getDefinitionDescription(descriptionList, stampFilter);
+   }
+
+   @Override
+   default LatestVersion<DescriptionVersion> getDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
+      return getLanguageCoordinate().getDescription(descriptionList, stampFilter);
+   }
+
+   @Override
+   default int[] getDescriptionTypePreferenceList() {
       return getLanguageCoordinate().getDescriptionTypePreferenceList();
    }
 
    @Override
-   public default int[] getDialectAssemblagePreferenceList() {
+   default int[] getDialectAssemblagePreferenceList() {
       return getLanguageCoordinate().getDialectAssemblagePreferenceList();
    }
 
    @Override
-   public default LatestVersion<DescriptionVersion> getFullySpecifiedDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
-      return getLanguageCoordinate().getFullySpecifiedDescription(descriptionList, stampCoordinate);
+   default LatestVersion<DescriptionVersion> getFullyQualifiedDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
+      return getLanguageCoordinate().getFullyQualifiedDescription(descriptionList, stampFilter);
    }
 
    @Override
-   public default int getLanguageConceptNid() {
+   default int getLanguageConceptNid() {
       return getLanguageCoordinate().getLanguageConceptNid();
    }
 
    @Override
-   public default LatestVersion<DescriptionVersion> getPreferredDescription(List<SemanticChronology> descriptionList, StampCoordinate stampCoordinate) {
-      return getLanguageCoordinate().getPreferredDescription(descriptionList, stampCoordinate);
+   default LatestVersion<DescriptionVersion> getRegularDescription(List<SemanticChronology> descriptionList, StampFilter stampFilter) {
+      return getLanguageCoordinate().getRegularDescription(descriptionList, stampFilter);
    }
 
    @Override
-   public default Optional<LanguageCoordinate> getNextProrityLanguageCoordinate() {
-      return getLanguageCoordinate().getNextProrityLanguageCoordinate();
-   }
-
-   @Override
-   default LatestVersion<DescriptionVersion> getDescription(List<SemanticChronology> descriptionList, int[] descriptionTypePreference,
-         StampCoordinate stampCoordinate) {
-      return getLanguageCoordinate().getDescription(descriptionList, descriptionTypePreference, stampCoordinate);
-   }
-
-   @Override
-   default LatestVersion<DescriptionVersion> getDescription(int conceptNid, int[] descriptionTypePreference, StampCoordinate stampCoordinate) {
-      return getLanguageCoordinate().getDescription(conceptNid, descriptionTypePreference, stampCoordinate);
+   default Optional<? extends LanguageCoordinate> getNextPriorityLanguageCoordinate() {
+      return getLanguageCoordinate().getNextPriorityLanguageCoordinate();
    }
 }

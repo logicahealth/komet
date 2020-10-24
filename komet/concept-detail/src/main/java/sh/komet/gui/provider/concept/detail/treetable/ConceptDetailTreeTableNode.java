@@ -43,114 +43,105 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 //~--- non-JDK imports --------------------------------------------------------
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.value.ObservableValue;
+import javafx.application.Platform;
+import javafx.collections.ListChangeListener;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Node;
 import javafx.scene.control.MenuItem;
-import javafx.scene.layout.BorderPane;
-import sh.isaac.api.Status;
-import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.concept.ConceptLabelToolbar;
-import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
-import sh.komet.gui.interfaces.DetailNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
+import sh.komet.gui.control.concept.MenuSupplierForFocusConcept;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.interfaces.DetailNodeAbstract;
 import sh.komet.gui.style.StyleClasses;
+import sh.komet.gui.util.FxGet;
 
 //~--- classes ----------------------------------------------------------------
 /**
  *
  * @author kec
  */
-public class ConceptDetailTreeTableNode
-        implements DetailNode, Supplier<List<MenuItem>> {
+public class ConceptDetailTreeTableNode extends DetailNodeAbstract implements Supplier<List<MenuItem>> {
 
-    private final BorderPane conceptDetailPane = new BorderPane();
-    private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
-    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
-    private final Manifold conceptDetailManifold;
-    private ManifoldLinkedConceptLabel titleLabel = null;
-    private final ConceptLabelToolbar conceptLabelToolbar;
+    {
+        titleProperty.setValue("empty");
+        toolTipProperty.setValue("empty");
+        menuIconProperty.setValue(Iconography.CONCEPT_TABLE.getIconographic());
+    }
+
+    ConceptDetailTreeTableController conceptDetailController;
 
     //~--- constructors --------------------------------------------------------
-    public ConceptDetailTreeTableNode(Manifold conceptDetailManifold) {
+    public ConceptDetailTreeTableNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferences) {
+        super(viewProperties, activityFeed, preferences, MenuSupplierForFocusConcept.getArray());
         try {
-            this.conceptDetailManifold = conceptDetailManifold;
-            this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
-            conceptDetailManifold.focusedConceptProperty()
-                    .addListener(this::updateTitle);
-            this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this, Optional.of(true));
-            conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
-            conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
+
+            detailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
 
             FXMLLoader loader = new FXMLLoader(
                     getClass().getResource("/sh/komet/gui/provider/concept/detail/ConceptDetail.fxml"));
 
             loader.load();
 
-            ConceptDetailTreeTableController conceptDetailController = loader.getController();
+            this.conceptDetailController = loader.getController();
 
-            conceptDetailController.setManifold(conceptDetailManifold);
-            if (conceptDetailManifold.getFocusedConcept().isPresent()) {
-                updateTitle(conceptDetailManifold.focusedConceptProperty(), null,
-                        conceptDetailManifold.getFocusedConcept().get());
-            }
-            conceptDetailPane.setCenter(conceptDetailController.getConceptDetailRootPane());
+            conceptDetailController.setViewProperties(this.viewProperties);
+            updateTitle();
+            detailPane.setCenter(conceptDetailController.getConceptDetailRootPane());
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
     }
 
-    private void updateTitle(ObservableValue<? extends ConceptSpecification> observable,
-            ConceptSpecification oldValue,
-            ConceptSpecification newValue) {
-        if (titleLabel == null) {
-            if (newValue == null) {
-                titleProperty.set("empty");
-                toolTipProperty.set(
-                        "concept details for: empty");
-            } else {
-                titleProperty.set(this.conceptDetailManifold.getPreferredDescriptionText(newValue));
-                toolTipProperty.set(
-                        "concept details for: "
-                        + this.conceptDetailManifold.getFullySpecifiedDescriptionText(
-                                newValue));
-            }
-        }
+    @Override
+    public void updateFocusedObject(IdentifiedObject component) {
+        updateTitle();
+        this.conceptDetailController.updateFocusedObject(component);
+    }
 
+    @Override
+    public Node getMenuIconGraphic() {
+        return Iconography.CONCEPT_TABLE.getIconographic();
+    }
+
+    private Optional<ConceptChronology> getOptionalFocusedConcept() {
+        Optional<IdentifiedObject> optionalComponent = this.getFocusedObject();
+        if (optionalComponent.isPresent()) {
+            return Optional.of(Get.concept(optionalComponent.get().getNid()));
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public void savePreferences() {
+        Platform.runLater(() -> FxGet.dialogs().showInformationDialog("Not implemented",
+                "Save preferences not yet implemented for ConceptDetailTreeTableNode"));
+    }
+
+    private void updateTitle() {
+        Optional<ConceptChronology> optionalConcept = getOptionalFocusedConcept();
+        if (optionalConcept.isEmpty()) {
+            titleProperty.set("empty");
+            toolTipProperty.set(
+                    "concept details for: empty");
+        } else {
+            titleProperty.set(this.viewProperties.getPreferredDescriptionText(optionalConcept.get()));
+            toolTipProperty.set(
+                    "concept details for: "
+                            + this.viewProperties.getFullyQualifiedDescriptionText(
+                            optionalConcept.get()));
+        }
     }
     //~--- get methods ---------------------------------------------------------
 
     @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return this.titleProperty;
-    }
-
-    @Override
-    public Node getMenuIcon() {
-        return Iconography.CONCEPT_TABLE.getIconographic();
-    }
-
-    @Override
     public Node getNode() {
-        return conceptDetailPane;
-    }
-
-    @Override
-    public Optional<Node> getTitleNode() {
-        if (titleLabel == null) {
-            this.titleLabel = new ManifoldLinkedConceptLabel(conceptDetailManifold, ManifoldLinkedConceptLabel::setPreferredText, this);
-            this.titleLabel.setGraphic(Iconography.CONCEPT_TABLE.getIconographic());
-            this.titleProperty.set("");
-        }
-        return Optional.of(titleLabel);
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return this.toolTipProperty;
+        return detailPane;
     }
 
     @Override
@@ -161,12 +152,17 @@ public class ConceptDetailTreeTableNode
     }
 
     @Override
-    public Manifold getManifold() {
-        return this.conceptDetailManifold;
+    public boolean selectInTabOnChange() {
+        return this.conceptLabelToolbar.getFocusTabOnConceptChange().get();
     }
 
     @Override
-    public boolean selectInTabOnChange() {
-        return this.conceptLabelToolbar.getFocusTabOnConceptChange().get();
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
     }
 }

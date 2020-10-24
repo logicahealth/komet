@@ -54,7 +54,6 @@ import java.util.Collection;
 import org.apache.mahout.math.set.AbstractIntSet;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
-import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.util.Hashcode;
 
 //~--- classes ----------------------------------------------------------------
@@ -205,15 +204,16 @@ public class Stamp
    @Override
    public int hashCode() {
       if (this.hashCode == Integer.MAX_VALUE) {
-         this.hashCode = Hashcode.compute(new int[] { this.authorNid, this.status.ordinal(), this.pathNid,
-               (int) this.time });
+         this.hashCode = Hashcode.compute(new int[] {
+                 this.status.ordinal(), (int) this.time, this.authorNid, this.moduleNid, this.pathNid
+                });
       }
 
       return this.hashCode;
    }
 
    /**
-    * Stamp array to string.
+    * Filter array to string.
     *
     * @param stampSet the stamp set
     * @return the string
@@ -231,7 +231,7 @@ public class Stamp
    }
 
    /**
-    * Stamp array to string.
+    * Filter array to string.
     *
     * @param stampCollection the stamp collection
     * @return the string
@@ -252,7 +252,7 @@ public class Stamp
    }
 
    /**
-    * Stamp array to string.
+    * Filter array to string.
     *
     * @param stampArray the stamp array
     * @return the string
@@ -270,7 +270,7 @@ public class Stamp
    }
 
    /**
-    * Stamp from int stamp.
+    * Filter from int stamp.
     *
     * @param stamp the stamp
     * @return the stamp

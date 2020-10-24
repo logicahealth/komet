@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>misc</artifactId>
-        <version>5.1.1</version>
+        <version>6.0.0</version>
     </parent>
     <groupId>sh.isaac.misc</groupId>
     <artifactId>associations</artifactId>

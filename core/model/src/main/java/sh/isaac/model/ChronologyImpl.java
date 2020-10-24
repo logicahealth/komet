@@ -45,41 +45,39 @@ import java.util.stream.LongStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.mahout.math.set.OpenIntHashSet;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.IntSet;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampPath;
-import sh.isaac.api.dag.Graph;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.datastore.ChronologySerializeable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import static sh.isaac.api.externalizable.ByteArrayDataBuffer.getInt;
 import sh.isaac.api.externalizable.IsaacObjectType;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class ChronologyImpl.
  *
  * @author kec
  */
 public abstract class ChronologyImpl
-        implements Chronology, ChronologySerializeable {
+        implements Chronology, ChronologySerializeable, Comparable<ChronologyImpl> {
 
     protected static final Logger LOG = LogManager.getLogger();
 
-    //~--- fields --------------------------------------------------------------
     /**
      * Position in the data where chronicle data ends, and version data starts.
      */
@@ -116,14 +114,13 @@ public abstract class ChronologyImpl
      * Data that has not yet been persisted. This data will need to be merged
      * with the written data when the chronicle is next serialized.
      */
-    private final CopyOnWriteArrayList<Version> uncommittedVersions = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Version> unwrittenVersions = new CopyOnWriteArrayList<>();
 
     /**
      * Data that has already been persisted.
      */
-    private final CopyOnWriteArrayList<Version> committedVersions = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Version> writtenVersions = new CopyOnWriteArrayList<>();
 
-    //~--- constructors --------------------------------------------------------
     /**
      * No argument constructor for reconstituting an object previously
      * serialized together with the readData(ByteArrayDataBuffer data) method.
@@ -131,30 +128,32 @@ public abstract class ChronologyImpl
      */
     protected ChronologyImpl() {
     }
+
+
     /**
-     * 
+     * Removes uncommitted written and unwritten versions.
      * @return true if uncommitted versions where removed. 
      */
     public boolean removeUncommittedVersions() {
         boolean anyRemoved = false;
-        if (this.uncommittedVersions != null) {
+        if (this.unwrittenVersions != null) {
             List<Version> toRemove = new ArrayList<>();
-            for (Version v: this.uncommittedVersions) {
-                if (v.getTime() == Long.MAX_VALUE) {
+            for (Version v: this.unwrittenVersions) {
+                if (v.getTime() == Long.MAX_VALUE || Get.stampService().isUncommitted(v.getStampSequence())) {
                     toRemove.add(v);
                     anyRemoved = true;
                 }
             };
-            this.uncommittedVersions.removeAll(toRemove);
+            this.unwrittenVersions.removeAll(toRemove);
         }
         List<Version> toRemove = new ArrayList<>();
-            for (Version v: this.committedVersions) {
-                if (v.getTime() == Long.MAX_VALUE) {
+            for (Version v: this.writtenVersions) {
+                if (v.getTime() == Long.MAX_VALUE || Get.stampService().isUncommitted(v.getStampSequence())) {
                     toRemove.add(v);
                     anyRemoved = true;
                 }
             };
-        this.committedVersions.removeAll(toRemove);
+        this.writtenVersions.removeAll(toRemove);
         return anyRemoved;
     }
 
@@ -179,7 +178,7 @@ public abstract class ChronologyImpl
         this.versionType = versionType;
         ModelGet.identifierService().setupNid(this.nid, this.assemblageNid, this.getIsaacObjectType(), versionType);
     }
-    //~--- methods -------------------------------------------------------------
+
     /**
      * Adds the additional uuids.
      *
@@ -219,24 +218,28 @@ public abstract class ChronologyImpl
             return true;
         }
 
-        if ((o == null) || (!Objects.equals(getClass(), o.getClass()))) {
+        if ((o == null) || (! (o instanceof IdentifiedObject))) {
             return false;
         }
 
-        final ChronologyImpl that = (ChronologyImpl) o;
+        final IdentifiedObject that = (IdentifiedObject) o;
 
-        if (this.nid != that.nid) {
+        if (this.nid != that.getNid()) {
             return false;
         }
 
-        final List<Version> versionList = (List<Version>) getVersionList();
+        if (o instanceof ChronologyImpl) {
+            final ChronologyImpl thatChronology = (ChronologyImpl) o;
+            final List<Version> versionList = (List<Version>) getVersionList();
 
-        if (versionList.size() != that.getVersionList().size()) {
-            return false;
+            if (versionList.size() != thatChronology.getVersionList().size()) {
+                return false;
+            }
+
+            return StampSequenceSet.of(getVersionStampSequences())
+                    .equals(StampSequenceSet.of(thatChronology.getVersionStampSequences()));
         }
-
-        return StampSequenceSet.of(getVersionStampSequences())
-                .equals(StampSequenceSet.of(that.getVersionStampSequences()));
+        return true;
     }
 
     /**
@@ -311,7 +314,7 @@ public abstract class ChronologyImpl
         if (addAttachments) {
             builder.append("\n[[\n");
             AtomicInteger attachmentCount = new AtomicInteger(0);
-            Get.assemblageService().getSemanticChronologyStreamForComponent(this.getNid()).forEach((semantic) -> {
+            Get.assemblageService().getSemanticChronologyStreamForComponent(this.getNid(), false).forEach((semantic) -> {
                 builder.append("ATTACHMENT ").append(attachmentCount.incrementAndGet())
                         .append(":\n  ");
                 ((SemanticChronologyImpl) semantic).toString(builder, false);
@@ -339,9 +342,17 @@ public abstract class ChronologyImpl
      */
     public <V extends Version> void addVersion(V version) {
         if (version.isUncommitted()) {
-            this.uncommittedVersions.add(version);
+            this.unwrittenVersions.add(version);
         } else {
-            this.committedVersions.add(version);
+            if (version.getStatus() == Status.CANCELED)  {
+                // Don't add canceled versions...
+                // LOG.warn("Skipping canceled status version: " + version);
+            } else if (version.getTime() == Version.CANCELED_TIME) {
+                // Don't add versions with a canceled time
+                // LOG.warn("Skipping canceled time version: " + version);
+            } else {
+                this.writtenVersions.add(version);
+            }
         }
     }
 
@@ -419,13 +430,9 @@ public abstract class ChronologyImpl
             constructorEnd(data);
         }
         readVersionList(data);
-        if (this.committedVersions.isEmpty() && this.uncommittedVersions.isEmpty()) {
-           throw new IllegalStateException();
-        }
         if (data.isExternalData()) {
             ModelGet.identifierService().setupNid(this.nid, this.assemblageNid, this.getIsaacObjectType(), this.getVersionType());
         }
-
     }
     
     @Override
@@ -535,7 +542,7 @@ public abstract class ChronologyImpl
         db.setPosition(db.getLimit());
     }
 
-    //~--- set methods ---------------------------------------------------------
+
     /**
      * Gets the additional chronicle fields.
      *
@@ -560,7 +567,7 @@ public abstract class ChronologyImpl
         Get.identifierService().assignNid(getUuids());
     }
 
-    //~--- get methods ---------------------------------------------------------
+
     /**
      * Gets the additional uuids.
      *
@@ -768,16 +775,9 @@ public abstract class ChronologyImpl
         return versionStartPosition;
     }
 
-    /**
-     * Gets the latest version.
-     *
-     * @param <V>
-     * @param coordinate the coordinate
-     * @return the latest version
-     */
     @Override
-    public <V extends Version> LatestVersion<V> getLatestVersion(StampCoordinate coordinate) {
-        final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+    public <V extends Version> LatestVersion<V> getLatestVersion(StampFilter filter) {
+        final RelativePositionCalculator calc = filter.getRelativePositionCalculator();
 
         final int[] latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
@@ -789,8 +789,8 @@ public abstract class ChronologyImpl
     }
 
     @Override
-    public <V extends Version> LatestVersion<V> getLatestCommittedVersion(StampCoordinate coordinate) {
-        final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate);
+    public <V extends Version> LatestVersion<V> getLatestCommittedVersion(StampFilter filter) {
+        final RelativePositionCalculator calc = filter.getRelativePositionCalculator();
 
         final int[] latestStampSequences = calc.getLatestCommittedStampSequencesAsSet(this.getVersionStampSequences());
 
@@ -804,12 +804,12 @@ public abstract class ChronologyImpl
     /**
      * Checks if latest version active.
      *
-     * @param coordinate the coordinate
+     * @param filter the coordinate
      * @return true, if latest version active
      */
     @Override
-    public boolean isLatestVersionActive(StampCoordinate coordinate) {
-        final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(coordinate.getImmutableAllStateAnalog());
+    public boolean isLatestVersionActive(StampFilter filter) {
+        final RelativePositionCalculator calc = filter.getRelativePositionCalculator();
         final int[] latestStampSequences = calc.getLatestStampSequencesAsSet(this.getVersionStampSequences());
 
         for (int stampSequence : latestStampSequences) {
@@ -848,7 +848,7 @@ public abstract class ChronologyImpl
     @Override
     public <V extends SemanticChronology> List<V> getSemanticChronologyList() {
         return Get.assemblageService()
-                .<V>getSemanticChronologyStreamForComponent(this.nid)
+                .<V>getSemanticChronologyStreamForComponent(this.nid, true)
                 .collect(Collectors.toList());
     }
 
@@ -861,7 +861,7 @@ public abstract class ChronologyImpl
     @Override
     public <V extends SemanticChronology> List<V> getSemanticChronologyListFromAssemblage(int assemblageSequence) {
         return Get.assemblageService()
-                .<V>getSemanticChronologyStreamForComponentFromAssemblage(this.nid, assemblageSequence)
+                .<V>getSemanticChronologyStreamForComponentFromAssemblage(this.nid, assemblageSequence, true)
                 .collect(Collectors.toList());
     }
 
@@ -874,8 +874,8 @@ public abstract class ChronologyImpl
     public <V extends Version> List<V> getUnwrittenVersionList() {
         final ArrayList<V> results = new ArrayList<>();
 
-        if (this.uncommittedVersions != null) {
-            results.addAll((Collection<V>) this.uncommittedVersions);
+        if (this.unwrittenVersions != null) {
+            results.addAll((Collection<V>) this.unwrittenVersions);
         }
 
         return results;
@@ -911,19 +911,19 @@ public abstract class ChronologyImpl
     public <V extends StampedVersion> Optional<V> getVersionForStamp(int stampSequence) {
 
         if (Get.stampService().isUncommitted(stampSequence)) {
-            for (Version version : this.uncommittedVersions) {
+            for (Version version : this.unwrittenVersions) {
                 if (version.getStampSequence() == stampSequence) {
                     return Optional.of((V) version);
                 }
             }
             return Optional.empty();
         }
-        for (Version version : this.committedVersions) {
+        for (Version version : this.writtenVersions) {
             if (version.getStampSequence() == stampSequence) {
                 return Optional.of((V) version);
             }
         }
-        for (Version version : this.uncommittedVersions) {
+        for (Version version : this.unwrittenVersions) {
             if (version.getStampSequence() == stampSequence) {
                 LOG.warn("Returning committed from uncommitted: " + stampSequence + " in: \n" + this);
                 return Optional.of((V) version);
@@ -934,66 +934,6 @@ public abstract class ChronologyImpl
     }
 
     /**
-     * Gets the version graph list.
-     *
-     * @return the version graph list
-     */
-    @Override
-    public <V extends Version> List<Graph<V>> getVersionGraphList() {
-        final HashMap<StampPath, TreeSet<V>> versionMap = new HashMap<>();
-
-        getVersionList().<V>forEach(
-                (version) -> {
-                    final StampPath path = Get.versionManagmentPathService()
-                            .getStampPath(version.getPathNid());
-                    TreeSet<V> versionSet = versionMap.get(path);
-
-                    if (versionSet == null) {
-                        versionSet = new TreeSet<>(
-                                (V v1,
-                                        V v2) -> {
-                                    final int comparison = Long.compare(v1.getTime(), v2.getTime());
-
-                                    if (comparison != 0) {
-                                        return comparison;
-                                    }
-
-                                    return Integer.compare(v1.getStampSequence(), v2.getStampSequence());
-                                });
-                        versionMap.put(path, versionSet);
-                    }
-
-                    versionSet.add((V) version);
-                });
-
-        if (versionMap.size() == 1) {
-            // easy case...
-            final List<Graph<V>> results = new ArrayList<>();
-            final Graph<V> graph = new Graph<>();
-
-            results.add(graph);
-            versionMap.entrySet()
-                    .forEach(
-                            (entry) -> {
-                                entry.getValue()
-                                        .forEach(
-                                                (version) -> {
-                                                    if (graph.getRoot() == null) {
-                                                        graph.createRoot(version);
-                                                    } else {
-                                                        graph.getLastAddedNode()
-                                                                .addChild(version);
-                                                    }
-                                                });
-                            });
-            return results;
-        }
-
-        // TODO support for more than one path...
-        throw new UnsupportedOperationException("TODO: Implement version graph for more than one path...");
-    }
-
-    /**
      * Gets the version list.
      *
      * @return a list of all versions contained in this chronicle.
@@ -1001,15 +941,15 @@ public abstract class ChronologyImpl
     @Override
     public <V extends Version> List<V> getVersionList() {
 
-        ArrayList<Version> versionList = new ArrayList<>(this.uncommittedVersions.size()
-                + this.committedVersions.size());
-        versionList.addAll(this.uncommittedVersions);
-        versionList.addAll(this.committedVersions);
+        ArrayList<Version> versionList = new ArrayList<>(this.unwrittenVersions.size()
+                + this.writtenVersions.size());
+        versionList.addAll(this.unwrittenVersions);
+        versionList.addAll(this.writtenVersions);
         return (List<V>) versionList;
     }
 
     public CopyOnWriteArrayList<Version> getCommittedVersionList() {
-        return this.committedVersions;
+        return this.writtenVersions;
     }
 
     public Map<Integer, Version> getStampVersionMap() {
@@ -1028,16 +968,15 @@ public abstract class ChronologyImpl
     public int[] getVersionStampSequences() {
         final OpenIntHashSet builder = new OpenIntHashSet();
 
-        for (Version v : this.uncommittedVersions) {
+        for (Version v : this.unwrittenVersions) {
             builder.add(v.getStampSequence());
         }
-        for (Version v : this.committedVersions) {
+        for (Version v : this.writtenVersions) {
             builder.add(v.getStampSequence());
         }
         return builder.keys().elements();
     }
 
-    //~--- set methods ---------------------------------------------------------
     /**
      * Overwrites existing versions. Use to remove duplicates, etc. Deliberately
      * not advertised in standard API, as this call may lose audit data.
@@ -1046,12 +985,11 @@ public abstract class ChronologyImpl
      * @param versions the new versions
      */
     public <V extends Version> void setVersions(Collection<V> versions) {
-        this.uncommittedVersions.clear();
-        this.committedVersions.clear();
+        this.unwrittenVersions.clear();
+        this.writtenVersions.clear();
         versions.forEach((V version) -> addVersion(version));
     }
 
-    //~--- get methods ---------------------------------------------------------
     /**
      * Gets the versions for stamps.
      *
@@ -1074,19 +1012,18 @@ public abstract class ChronologyImpl
     /**
      * Gets the visible ordered version list.
      *
-     * @param stampCoordinate the stamp coordinate
+     * @param stampFilter the stamp coordinate
      * @return the visible ordered version list
      */
     @Override
-    public <V extends StampedVersion> List<V> getVisibleOrderedVersionList(StampCoordinate stampCoordinate) {
-        final RelativePositionCalculator calc = RelativePositionCalculator.getCalculator(stampCoordinate);
+    public <V extends StampedVersion> List<V> getVisibleOrderedVersionList(StampFilter stampFilter) {
+        final RelativePositionCalculator calc = stampFilter.getRelativePositionCalculator();
         final SortedSet<V> sortedLogicGraphs = new TreeSet<>(
                 (V graph1,
                         V graph2) -> {
                     final RelativePosition relativePosition = calc.fastRelativePosition(
                             graph1,
-                            graph2,
-                            stampCoordinate.getStampPrecedence());
+                            graph2);
 
                     switch (relativePosition) {
                         case BEFORE:
@@ -1111,18 +1048,20 @@ public abstract class ChronologyImpl
     }
 
     @Override
-    public NidSet getRecursiveSemanticNids() {
-        NidSet sequenceSet = Get.assemblageService().getSemanticNidsForComponent(this.getNid());
-        sequenceSet.stream().forEach((semanticSequence) -> addRecursiveSequences(sequenceSet, semanticSequence));
+    public ImmutableIntSet getRecursiveSemanticNids() {
+        ImmutableIntSet semanticNidsForComponent = Get.assemblageService().getSemanticNidsForComponent(this.getNid());
 
-        return sequenceSet;
+        MutableIntSet recursiveSemanticNids = IntSets.mutable.ofAll(semanticNidsForComponent);
+        semanticNidsForComponent.forEach(semanticNid -> addRecursiveSequences(recursiveSemanticNids, semanticNid));
+
+        return recursiveSemanticNids.toImmutable();
     }
 
-    private void addRecursiveSequences(IntSet semanticSequenceSet, int semanticNid) {
-        IntSet sequenceSet = Get.assemblageService().getSemanticNidsForComponent(semanticNid);
-        sequenceSet.stream().forEach((sequence) -> {
-            semanticSequenceSet.add(sequence);
-            addRecursiveSequences(semanticSequenceSet, sequence);
+    private void addRecursiveSequences(MutableIntSet recursiveSemanticNids, int semanticNid) {
+        ImmutableIntSet semanticNidsForComponent = Get.assemblageService().getSemanticNidsForComponent(semanticNid);
+        recursiveSemanticNids.addAll(semanticNidsForComponent);
+        semanticNidsForComponent.forEach((sequence) -> {
+            addRecursiveSequences(recursiveSemanticNids, sequence);
         });
 
     }
@@ -1184,5 +1123,13 @@ public abstract class ChronologyImpl
 
         return dataArray;
     }
-    
+
+    /**
+     * Simple sorting to enforce consistent ordering of chronologies, when streaming chronologies from providers, and wanting to sort them for a 
+     * consistent iteration order for paging.
+     */
+    @Override
+    public int compareTo(ChronologyImpl o) {
+        return Integer.compare(this.nid, o.nid);
+    }
 }

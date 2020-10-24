@@ -37,26 +37,20 @@
 package sh.isaac.api.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
+
+import sh.isaac.api.LookupService;
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.index.IndexDescriptionQueryService;
+import sh.isaac.api.index.SearchResult;
+import sh.isaac.api.query.*;
 import sh.isaac.api.query.properties.QueryStringClause;
+
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
-
 //~--- non-JDK imports --------------------------------------------------------
-import sh.isaac.api.LookupService;
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.index.SearchResult;
-import sh.isaac.api.query.ClauseComputeType;
-import sh.isaac.api.query.ClauseSemantic;
-import sh.isaac.api.query.Query;
-import sh.isaac.api.query.WhereClause;
-import sh.isaac.api.index.IndexDescriptionQueryService;
-import sh.isaac.api.query.LetItemKey;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -64,8 +58,6 @@ import sh.isaac.api.query.LetItemKey;
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionLuceneMatch
         extends QueryStringAbstract implements QueryStringClause {
 

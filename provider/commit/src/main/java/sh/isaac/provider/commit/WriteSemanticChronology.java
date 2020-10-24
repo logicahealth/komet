@@ -118,6 +118,7 @@ public class WriteSemanticChronology
     public Void call()
             throws Exception {
         try {
+            Get.activeTasks().add(this);
             Get.assemblageService()
                     .writeSemanticChronology(this.sc);
 //            this.sc = Get.assemblageService().getSemanticChronology(this.sc.getNid());

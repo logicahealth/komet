@@ -19,15 +19,9 @@ package sh.isaac.api.query;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.adapters.XmlJavaTypeAdapter;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.xml.ConceptSpecificationAdaptor;
+
 
 /**
  * The AttributeSpecification provides the data necessary to convert a
@@ -40,8 +34,6 @@ import sh.isaac.api.xml.ConceptSpecificationAdaptor;
  * 
  * @author kec
  */
-@XmlRootElement(name = "AttributeSpecification")
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class AttributeSpecification implements QueryFieldSpecification {
      /**
      * The index of the property on the version of the chronology to 
@@ -101,7 +93,7 @@ public class AttributeSpecification implements QueryFieldSpecification {
         this.assemblageNidProperty = new SimpleIntegerProperty(another.assemblageNidProperty.get());
         this.propertySpecificationProperty = new SimpleObjectProperty(another.propertySpecificationProperty.get());
         this.propertyIndexProperty = new SimpleIntegerProperty(another.propertyIndexProperty.get());
-        this.stampCoordinateKeyProperty  = new SimpleObjectProperty(another.getStampCoordinateKey());
+        this.stampCoordinateKeyProperty  = new SimpleObjectProperty(another.getStampFilterKey());
     }
     
     public AttributeSpecification(
@@ -116,9 +108,8 @@ public class AttributeSpecification implements QueryFieldSpecification {
         this.stampCoordinateKeyProperty = new SimpleObjectProperty(stampCoordinateKey);
     }
     
-    @XmlElement
     @Override
-    public LetItemKey getStampCoordinateKey() {
+    public LetItemKey getStampFilterKey() {
         return stampCoordinateKeyProperty.get();
     }
 
@@ -132,8 +123,6 @@ public class AttributeSpecification implements QueryFieldSpecification {
         return stampCoordinateKeyProperty;
     }
 
-    @XmlElement
-    @XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)
     @Override
     public ConceptSpecification getPropertySpecification() {
         return this.propertySpecificationProperty.get();
@@ -148,7 +137,6 @@ public class AttributeSpecification implements QueryFieldSpecification {
         return this.propertySpecificationProperty;
     }
 
-    @XmlAttribute
     @Override
     public Integer getPropertyIndex() {
         return this.propertyIndexProperty.get();
@@ -177,9 +165,7 @@ public class AttributeSpecification implements QueryFieldSpecification {
         return this.assemblageNidProperty;
     }
     
-    @XmlElement
-    @XmlJavaTypeAdapter(ConceptSpecificationAdaptor.class)
-    @Override
+     @Override
      public ConceptSpecification getAssemblage() {
          if (this.assemblageNidProperty.get() == 0) {
              return null;
@@ -197,7 +183,6 @@ public class AttributeSpecification implements QueryFieldSpecification {
         setAssemblageNid(assemblageConceptSpecification.getNid());
     }
 
-    @XmlElement(name = "attributeFunction")
     @Override
     public AttributeFunction getAttributeFunction() {
         return attributeFunctionProperty.get();
@@ -213,7 +198,6 @@ public class AttributeSpecification implements QueryFieldSpecification {
         this.attributeFunctionProperty.set(attributeFunction);
     }
 
-    @XmlAttribute(name = "columnName")
     @Override
     public String getColumnName() {
         return columnNameProperty.get();

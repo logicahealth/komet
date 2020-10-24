@@ -20,7 +20,9 @@ import javafx.scene.control.SelectionMode;
 import javafx.stage.Window;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.convert.directUtils.DirectConverter;
 import sh.isaac.dbConfigBuilder.artifacts.MavenArtifactUtils;
@@ -117,6 +119,7 @@ public class ArtifactImporter
 				protected Void call() throws Exception
 				{
 					Get.activeTasks().add(this);
+					Transaction transaction = Get.commitService().newTransaction(Optional.of("importing " + local),ChangeCheckerMode.INACTIVE, false);
 					try
 					{
 						this.updateTitle("Importing " + sdo.toString());
@@ -133,7 +136,7 @@ public class ArtifactImporter
 							root = p;
 						}
 
-						dc.configure(null, root, sdo.getVersion(), Get.defaultCoordinate());
+						dc.configure(null, root, sdo.getVersion(), Get.defaultCoordinate().getViewStampFilter(), transaction);
 
 						//TODO in the future, add the GUI widgets that let the users specify the options.
 						//Use the defaults for now, just to get things working...
@@ -149,6 +152,7 @@ public class ArtifactImporter
 						}
 
 						dc.convertContent(string -> updateTitle(string), (work, total) -> updateProgress(work, total));
+						transaction.commit();
 						fs.close();
 						Get.indexDescriptionService().refreshQueryEngine();
 
@@ -163,6 +167,7 @@ public class ArtifactImporter
 					}
 					catch (Exception e)
 					{
+						transaction.cancel();
 						LOG.error("Import failure", e);
 					}
 					Get.activeTasks().remove(this);

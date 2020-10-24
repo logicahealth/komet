@@ -4,14 +4,13 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>5.1.1</version>
+        <version>6.0.0</version>
     </parent>
     <artifactId>solor</artifactId>
     <name>ISAAC SOLOR: (MMP)</name>
     <description>Aggregator project for ISAAC's SOLOR modules</description>
     <packaging>pom</packaging>
     <modules>
-        <module>rxnorm-mojo</module>
         <module>solor-parent</module>
         <module>solor-mojo</module>
         <module>direct-import</module>

@@ -157,7 +157,7 @@ public class WriteCompletionService
         LOG.info("Stopped WriteCompletionService workerPool");
         this.workerPool = null;
         this.conversionService = null;
-        LOG.info("WriteCompletionService closed");
+        LOG.info("Stopped WriteCompletionService");
     }
 
     /**

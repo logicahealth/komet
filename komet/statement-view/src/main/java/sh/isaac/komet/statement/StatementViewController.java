@@ -19,17 +19,21 @@ package sh.isaac.komet.statement;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import sh.isaac.model.statement.ClinicalStatementImpl;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 public class StatementViewController {
 
+    private static final Logger LOG = LogManager.getLogger();
+    
     @FXML // ResourceBundle that was given to the FXMLLoader
     private ResourceBundle resources;
 
@@ -42,7 +46,7 @@ public class StatementViewController {
     @FXML // fx:id="rootPane"
     private AnchorPane rootPane; // Value injected by FXMLLoader
     
-    private Manifold manifold;
+    private ViewProperties viewProperties;
     
     SimpleObjectProperty<ClinicalStatementImpl> clinicalStatement = new SimpleObjectProperty<>();
     
@@ -57,9 +61,9 @@ public class StatementViewController {
         });
     }
 
-    public void setManifold(Manifold manifold) {
-        this.manifold = manifold;
-        statementPropertySheet = new StatementPropertySheet(this.manifold);
+    public void setViewProperties(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
+        statementPropertySheet = new StatementPropertySheet(this.viewProperties);
         borderPane.setCenter(statementPropertySheet.getPropertySheet());
     }
 
@@ -82,6 +86,6 @@ public class StatementViewController {
         rootPane.getScene()
                 .getStylesheets()
                 .add(FxGet.fxConfiguration().getUserCSSURL().toString());
-        System.out.println("Updated css for statement: " + FxGet.fxConfiguration().getUserCSSURL().toString());
+        LOG.debug("Updated css for statement: " + FxGet.fxConfiguration().getUserCSSURL().toString());
     }
 }

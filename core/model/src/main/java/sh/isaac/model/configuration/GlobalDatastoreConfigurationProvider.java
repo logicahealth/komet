@@ -39,7 +39,6 @@ package sh.isaac.model.configuration;
 
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -47,6 +46,7 @@ import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.Rank;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.GlobalDatastoreConfiguration;
@@ -55,12 +55,12 @@ import sh.isaac.api.RemoteServiceInfo;
 import sh.isaac.api.constants.MemoryConfiguration;
 import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.WriteCoordinate;
 import sh.isaac.api.metacontent.MetaContentService;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampPath;
 import sh.isaac.api.util.PasswordHasher;
 
 /**
@@ -89,7 +89,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 		if (service != null) {
 			dataStore = Get.service(MetaContentService.class).<String,Object>openStore("GlobalDatastoreConfig");
 		} else {
-			dataStore = new ConcurrentHashMap<>();
+			throw new RuntimeException("Classpath configuration error!  No MetaContentService available!");
 		}
 		//need to delay the init of the defaultCoordianteProvider till the identifier service is up (level 2) but
 		//want this service to be available for other config options before starting the DB....
@@ -111,10 +111,10 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ObservableEditCoordinate getDefaultEditCoordinate()
+	public ReadOnlyObjectProperty<WriteCoordinate> getDefaultWriteCoordinate()
 	{
 		initCheckCoords();
-		return this.defaultCoordinateProvider.getDefaultEditCoordinate();
+		return this.defaultCoordinateProvider.getDefaultWriteCoordinate();
 	}
 
 	/**
@@ -151,7 +151,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	 * {@inheritDoc}
 	 */
 	@Override
-	public ObservableStampCoordinate getDefaultStampCoordinate()
+	public ObservableStampPath getDefaultStampCoordinate()
 	{
 		initCheckCoords();
 		return this.defaultCoordinateProvider.getDefaultStampCoordinate();
@@ -268,13 +268,13 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	}
 
 	@Override
-	public void setDefaultModule(int conceptId)
+	public void setDefaultEditModule(int conceptId)
 	{
 		write(ConfigurationOption.EDIT_MODULE, conceptId);
 	}
 
 	@Override
-	public void setDefaultPath(int pathConceptId)
+	public void setDefaultEditPath(int pathConceptId)
 	{
 		write(ConfigurationOption.EDIT_PATH, pathConceptId);
 	}
@@ -336,22 +336,22 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 					defaultCoordinateProvider.setDefaultLanguage(dcp.getDefaultLanguageCoordinate().getLanguageConceptNid());
 					break;
 				case EDIT_MODULE:
-					defaultCoordinateProvider.setDefaultModule(dcp.getDefaultEditCoordinate().getModuleNid());
+					defaultCoordinateProvider.setDefaultModule(dcp.getDefaultWriteCoordinate().get().getModuleNid());
 					break;
 				case EDIT_PATH:
-					defaultCoordinateProvider.setDefaultPath(dcp.getDefaultEditCoordinate().getPath());
+					defaultCoordinateProvider.setDefaultPath(new ConceptProxy(dcp.getDefaultWriteCoordinate().get().getPathNid()));
 					break;
 				case STATED_ASSEMBLAGE:
 					defaultCoordinateProvider.setDefaultStatedAssemblage(dcp.getDefaultLogicCoordinate().getStatedAssemblageNid());
 					break;
 				case TIME:
-					defaultCoordinateProvider.setDefaultTime(dcp.getDefaultStampCoordinate().getStampPosition().getTime());
+					defaultCoordinateProvider.setDefaultTime(dcp.getDefaultStampCoordinate().getStampFilter().getStampPosition().getTime());
 					break;
 				case PREMISE_TYPE:
-					defaultCoordinateProvider.setDefaultPremiseType(dcp.getDefaultManifoldCoordinate().getTaxonomyPremiseType());
+					defaultCoordinateProvider.setDefaultPremiseType(dcp.getDefaultManifoldCoordinate().getPremiseTypes().toArray()[0]);
 					break;
 				case USER:
-					defaultCoordinateProvider.setDefaultUser(dcp.getDefaultEditCoordinate().getAuthorNid());
+					defaultCoordinateProvider.setDefaultUser(dcp.getDefaultWriteCoordinate().get().getAuthorNid());
 					break;
 				default :
 					throw new RuntimeException("Oops");
@@ -500,7 +500,7 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 		initCheckCoords();
 		switch(option) {
 			case EDIT_COORDINATE:
-				return (T)defaultCoordinateProvider.getDefaultEditCoordinate();
+				return (T)defaultCoordinateProvider.getDefaultWriteCoordinate();
 			case LANGUAGE_COORDINATE:
 				return (T)defaultCoordinateProvider.getDefaultLanguageCoordinate();
 			case LOGIC_COORDINATE:
@@ -510,29 +510,29 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 			case STAMP_COORDINATE:
 				return (T)defaultCoordinateProvider.getDefaultStampCoordinate();
 			case CLASSIFIER:
-				return (T)new Integer(defaultCoordinateProvider.getDefaultLogicCoordinate().getClassifierNid());
+				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultLogicCoordinate().getClassifierNid());
 			case DESCRIPTION_LOGIC_PROFILE:
-				return (T)new Integer(defaultCoordinateProvider.getDefaultLogicCoordinate().getDescriptionLogicProfileNid());
+				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultLogicCoordinate().getDescriptionLogicProfileNid());
 			case DESCRIPTION_TYPE_PREFERENCE_LIST:
 				return (T)defaultCoordinateProvider.getDefaultLanguageCoordinate().getDescriptionTypePreferenceList();
 			case DIALECT_ASSEMBLAGE_PREFERENCE_LIST:
 				return (T)defaultCoordinateProvider.getDefaultLanguageCoordinate().getDialectAssemblagePreferenceList();
 			case INFERRED_ASSEMBLAGE:
-				return (T)new Integer(defaultCoordinateProvider.getDefaultLogicCoordinate().getInferredAssemblageNid());
+				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultLogicCoordinate().getInferredAssemblageNid());
 			case LANGUAGE:
-				return (T)new Integer(defaultCoordinateProvider.getDefaultLanguageCoordinate().getLanguageConceptNid());
+				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultLanguageCoordinate().getLanguageConceptNid());
 			case EDIT_MODULE:
-				return(T)new Integer(defaultCoordinateProvider.getDefaultEditCoordinate().getModuleNid());
+				return(T) Integer.valueOf(defaultCoordinateProvider.getDefaultWriteCoordinate().get().getModuleNid());
 			case EDIT_PATH:
-				return (T)new Integer(defaultCoordinateProvider.getDefaultEditCoordinate().getPathNid());
+				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultWriteCoordinate().get().getPathNid());
 			case STATED_ASSEMBLAGE:
-				return (T)new Integer(defaultCoordinateProvider.getDefaultLogicCoordinate().getStatedAssemblageNid());
+				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultLogicCoordinate().getStatedAssemblageNid());
 			case TIME:
-				return (T)new Long(defaultCoordinateProvider.getDefaultStampCoordinate().getStampPosition().getTime());
+				return (T) Long.valueOf(defaultCoordinateProvider.getDefaultStampCoordinate().getStampFilter().getStampPosition().getTime());
 			case PREMISE_TYPE:
-				return (T)defaultCoordinateProvider.getDefaultManifoldCoordinate().getTaxonomyPremiseType();
+				return (T)defaultCoordinateProvider.getDefaultManifoldCoordinate().getPremiseTypes();
 			case USER:
-				return (T)new Integer(defaultCoordinateProvider.getDefaultEditCoordinate().getAuthorNid());
+				return (T) Integer.valueOf(defaultCoordinateProvider.getDefaultWriteCoordinate().get().getAuthorNid());
 			default :
 				throw new RuntimeException("Oops");
 		}
@@ -658,5 +658,33 @@ public class GlobalDatastoreConfigurationProvider implements GlobalDatastoreConf
 	{
 		dataStore.clear();
 		defaultCoordinateProvider = new DefaultCoordinateProvider();
+	}
+
+	@Override
+	public boolean enableLuceneIndexes()
+	{
+		String temp = System.getProperty(SystemPropertyConstants.ENABLE_LUCENE);
+		
+		if (StringUtils.isNotBlank(temp))
+		{
+			boolean enableFromSystem = Boolean.parseBoolean(temp);
+			LOG.info("Overriding datastore configuration for 'enableLuceneIndexes' with System Property " + SystemPropertyConstants.ENABLE_LUCENE + ": " + enableFromSystem);
+			return enableFromSystem;
+		}
+		
+		if (hasOption("enableLucene"))
+		{
+			return getOption("enableLucene");
+		}
+		else
+		{
+			return GlobalDatastoreConfiguration.super.enableLuceneIndexes();
+		}
+	}
+
+	@Override
+	public void setEnableLuceneIndexs(boolean enable)
+	{
+		putOption("enableLucene", Boolean.valueOf(enable));
 	}
 }

@@ -28,15 +28,14 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
-import sh.isaac.model.observable.ObservableChronologyImpl;
-import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.api.observable.semantic.version.ObservableComponentNidVersion;
+import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 
 /**
  *
@@ -45,10 +44,8 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
 public class ObservableComponentNidVersionImpl 
         extends ObservableAbstractSemanticVersionImpl 
         implements ObservableComponentNidVersion {
-   /** The component nid property. */
-   IntegerProperty componentNidProperty;
 
-   //~--- constructors --------------------------------------------------------
+   IntegerProperty componentNidProperty;
 
    /**
     * Instantiates a new observable component nid version impl.
@@ -58,8 +55,7 @@ public class ObservableComponentNidVersionImpl
     */
    public ObservableComponentNidVersionImpl(ComponentNidVersion version,
                                     ObservableSemanticChronology chronology) {
-      super(version, 
-              chronology);
+      super(version, chronology);
    }
    
 
@@ -73,28 +69,24 @@ public class ObservableComponentNidVersionImpl
         super(VersionType.COMPONENT_NID, primordialUuid, referencedComponentUuid, 
                 assemblageNid);
     }
-   
-   
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableComponentNidVersionImpl analog = new ObservableComponentNidVersionImpl(this, getChronology());
         copyLocalFields(analog);
-        analog.setPathNid(ec.getPathNid());
+        analog.setPathNid(mc.getPathNidForAnalog());
         return (V) analog;
     }
 
-
+   @SuppressWarnings("unchecked")
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      ComponentNidVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      ObservableComponentNidVersionImpl newObservableVersion = 
-              new ObservableComponentNidVersionImpl(newVersion, (ObservableSemanticChronology) chronology);
-      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+   public <V extends Version> V makeAnalog(int stampSequence) {
+      ComponentNidVersion newVersion = getOptionalStampedVersion().get().makeAnalog(stampSequence);
+      ObservableComponentNidVersionImpl newObservableVersion = new ObservableComponentNidVersionImpl(newVersion, getChronology());
+      getChronology().getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
    }
-
-   //~--- methods -------------------------------------------------------------
 
    /**
     * Case significance concept nid property.
@@ -120,14 +112,6 @@ public class ObservableComponentNidVersionImpl
       return this.componentNidProperty;
    }
 
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the component nid.
-    *
-    * @return the case significance concept nid
-    */
    @Override
    public int getComponentNid() {
       if (this.componentNidProperty != null) {
@@ -144,13 +128,6 @@ public class ObservableComponentNidVersionImpl
       }
    }
 
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the case significance concept nid.
-    *
-    * @param componentNid the new case significance concept nid
-    */
    @Override
    public final void setComponentNid(int componentNid) {
        if (this.stampedVersionProperty == null) {
@@ -163,8 +140,6 @@ public class ObservableComponentNidVersionImpl
         ((ComponentNidVersionImpl) this.stampedVersionProperty.get()).setComponentNid(componentNid);
       }
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public String toString() {
@@ -213,4 +188,3 @@ public class ObservableComponentNidVersionImpl
         return sc;
     }
 }
-   

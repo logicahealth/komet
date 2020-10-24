@@ -36,34 +36,25 @@
  */
 package sh.isaac.provider.datastore.chronology;
 
-//~--- JDK imports ------------------------------------------------------------
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.OptionalInt;
 import java.util.TreeSet;
-import java.util.UUID;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-
-import javax.inject.Singleton;
-
-//~--- non-JDK imports --------------------------------------------------------
+import jakarta.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.apache.mahout.math.list.IntArrayList;
-import org.apache.mahout.math.map.OpenIntIntHashMap;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.ConceptProxy;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.StaticIsaacCache;
+import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.CommitStates;
+import sh.isaac.api.commit.Stamp;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.coordinate.TaxonomyFlag;
 import sh.isaac.api.dag.Graph;
 import sh.isaac.api.dag.Node;
 import sh.isaac.api.logic.IsomorphicResults;
@@ -74,19 +65,13 @@ import sh.isaac.model.logic.IsomorphicResultsFromPathHash;
 import sh.isaac.model.logic.node.AndNode;
 import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
 import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
-import sh.isaac.model.taxonomy.TaxonomyFlag;
 import sh.isaac.model.taxonomy.TaxonomyRecord;
-import sh.isaac.model.taxonomy.TypeStampTaxonomyRecords;
+import sh.isaac.model.taxonomy.TaxonomyRecordPrimitive;
 import sh.isaac.provider.datastore.taxonomy.TaxonomyProvider;
-
-//~--- classes ----------------------------------------------------------------
 /**
  *
  * @author kec
  *
- * TODO why is all of the important stuff in this class static? Why aren't we
- * just handling this as a Singleton with HK2? Seems to be just creating
- * unnecessary logic and potential problems.
  */
 @Service
 @Singleton
@@ -143,7 +128,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
     public static void handleTaxonomyUpdate(SemanticChronology logicGraphChronology) {
         initCheck();
         int referencedComponentNid = logicGraphChronology.getReferencedComponentNid();
-        
+
         OptionalInt optionalConceptAssemblageNid = IDENTIFIER_SERVICE.getAssemblageNid(referencedComponentNid);
         int conceptAssemblageNid;
         if (optionalConceptAssemblageNid.isPresent()) {
@@ -152,10 +137,8 @@ public class ChronologyUpdate implements StaticIsaacCache {
             // TODO, remove this hack and figure out why some components are missing their assemblage. 
             conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
         }
+        final List<Graph<LogicGraphVersion>> versionGraphList = logicGraphChronology.getVersionGraphList();
 
-//   System.out.println("Taxonomy update " + taxonomyUpdateCount.getAndIncrement() + " for: " + 
-//         referencedComponentNid + " index: " + 
-//         ModelGet.identifierService().getElementSequenceForNid(referencedComponentNid));
         TaxonomyFlag taxonomyFlags;
 
         if (logicGraphChronology.getAssemblageNid() == INFERRED_ASSEMBLAGE_NID) {
@@ -164,12 +147,12 @@ public class ChronologyUpdate implements StaticIsaacCache {
             taxonomyFlags = TaxonomyFlag.STATED;
         }
 
-        final List<Graph<LogicGraphVersion>> versionGraphList = logicGraphChronology.getVersionGraphList();
+
         TaxonomyRecord taxonomyRecordForConcept = new TaxonomyRecord();
 
         for (Graph<LogicGraphVersion> versionGraph : versionGraphList) {
             // this is the CPU hog...
-            // TODO: this unnecessaryily processes old versions. Should check for old version with 
+            // TODO: this unnecessarily processes old versions. Should check for old version with
             // inferred/stated and stamp, and skip if it already exists. 
             processVersionNode(referencedComponentNid, versionGraph.getRoot(), taxonomyRecordForConcept, taxonomyFlags);
         }
@@ -202,16 +185,15 @@ public class ChronologyUpdate implements StaticIsaacCache {
     }
 
     private static int[] merge(int[] existing, int[] update) {
+        if (existing == null || existing.length == 0) {
+            return update;
+        }
         if (update == null || update.length == 0) {
             return existing;
         }
-        if (existing == null) {
-            existing = new int[0];
-        }
-        TaxonomyRecord existingRec = new TaxonomyRecord(existing);
-        TaxonomyRecord updateRec = new TaxonomyRecord(update);
-        existingRec.merge(updateRec);
-        return existingRec.pack();
+        int[] newMethod = TaxonomyRecordPrimitive.merge(existing, update);
+
+        return newMethod;
     }
 
     /**
@@ -224,7 +206,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
     private static void processNewLogicGraph(LogicGraphVersion firstVersion,
             TaxonomyRecord parentTaxonomyRecord,
             TaxonomyFlag taxonomyFlags) {
-        if (firstVersion.getCommitState() == CommitStates.COMMITTED) {
+        if (firstVersion.getCommitState() == CommitStates.COMMITTED || firstVersion.getCommitState() == CommitStates.UNCOMMITTED) {
             final LogicalExpression expression = firstVersion.getLogicalExpression();
             LogicNode[] children = expression.getRoot().getChildren();
             boolean necessaryOnly = false;
@@ -285,6 +267,10 @@ public class ChronologyUpdate implements StaticIsaacCache {
             case FEATURE:
 
                 // Features do not have taxonomy implications...
+                break;
+
+            case PROPERTY_PATTERN_IMPLICATION:
+                // PROPERTY_PATTERN_IMPLICATION do not have direct taxonomy implications...
                 break;
 
             default:
@@ -373,14 +359,23 @@ public class ChronologyUpdate implements StaticIsaacCache {
                     logicalExpression);
         }
 
+        TreeSet<LogicNode> retainedRoots = new TreeSet<>();
+        for (LogicNode relationshipRoot :isomorphicResults.getSharedRelationshipRoots()) {
+            retainedRoots.add(relationshipRoot);
+        }
+
         for (LogicNode relationshipRoot : isomorphicResults.getDeletedRelationshipRoots()) {
-            if (addedRoots.contains(relationshipRoot)) {
+            if (addedRoots.contains(relationshipRoot) || retainedRoots.contains(relationshipRoot)) {
                 continue;
             }
-            final int activeStampSequence = node.getData()
-                    .getStampSequence();
-            final int stampSequence = Get.stampService()
-                    .getRetiredStampSequence(activeStampSequence);
+
+            final Stamp activeStamp = Get.stampService().getStamp(node.getData().getStampSequence());
+
+            final int stampSequence = Get.stampService().getStampSequence(Status.INACTIVE,
+                    activeStamp.getTime(),
+                    activeStamp.getAuthorNid(),
+                    activeStamp.getModuleNid(),
+                    activeStamp.getPathNid());
 
             processRelationshipRoot(conceptNid,
                     relationshipRoot,
@@ -391,6 +386,7 @@ public class ChronologyUpdate implements StaticIsaacCache {
         }
 
     }
+
 
     /**
      * Update isa rel.

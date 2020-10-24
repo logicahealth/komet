@@ -30,7 +30,7 @@ import sh.isaac.api.query.AttributeFunction;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.QueryFieldSpecification;
 import sh.isaac.api.query.SortSpecification;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -41,14 +41,14 @@ public class ControllerForSortSpecification extends ControllerForSpecification {
             = FXCollections.observableArrayList();
     
     public ControllerForSortSpecification(SimpleListProperty<ConceptSpecification> forAssemblagesProperty,
-            ObservableList<LetItemKey> letItemKeys,
-            ObservableMap<LetItemKey, Object> letItemObjectMap,
-            ObservableList<AttributeFunction> cellFunctions,
-            ObservableList<JoinProperty> joinProperties,
-            ObservableList<MenuItem> addFieldItems,
-            TableView<List<String>> resultTable,
-            Manifold manifold) {
-        super(forAssemblagesProperty, manifold, letItemKeys, addFieldItems, joinProperties, letItemObjectMap, cellFunctions, resultTable);
+                                          ObservableList<LetItemKey> letItemKeys,
+                                          ObservableMap<LetItemKey, Object> letItemObjectMap,
+                                          ObservableList<AttributeFunction> cellFunctions,
+                                          ObservableList<JoinProperty> joinProperties,
+                                          ObservableList<MenuItem> addFieldItems,
+                                          TableView<List<String>> resultTable,
+                                          ViewProperties viewProperties) {
+        super(forAssemblagesProperty, viewProperties, letItemKeys, addFieldItems, joinProperties, letItemObjectMap, cellFunctions, resultTable);
         this.setupAttributeFunctions();
     }
 

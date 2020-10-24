@@ -46,7 +46,7 @@ package sh.isaac.provider.progress;
 
 import javafx.application.Platform;
 import javafx.concurrent.Task;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -66,5 +66,8 @@ import sh.isaac.api.progress.PersistTaskResult;
 public class ActiveTasksProvider extends TaskListProvider
          implements ActiveTasks {
 
+    public ActiveTasksProvider() {
+        Platform.runLater(() -> Get.completedTasks());
+    }
 }
 

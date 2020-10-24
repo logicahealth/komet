@@ -39,26 +39,22 @@
 
 package sh.isaac.provider.datastore.taxonomy;
 
-//~--- JDK imports ------------------------------------------------------------
-
-import sh.isaac.model.taxonomy.GraphCollector;
+import java.util.concurrent.CancellationException;
 import java.util.function.IntFunction;
 import java.util.stream.IntStream;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
+import sh.isaac.api.coordinate.VertexSort;
 import sh.isaac.api.progress.Stoppable;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.tree.Tree;
-import sh.isaac.model.tree.HashTreeBuilder;
+import sh.isaac.model.taxonomy.GraphCollectorIsolated;
+import sh.isaac.model.tree.HashTreeBuilderIsolated;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  *
@@ -66,33 +62,41 @@ import sh.isaac.model.tree.HashTreeBuilder;
  */
 public class TreeBuilderTask
         extends TimedTaskWithProgressTracker<Tree> implements Stoppable {
+   private static final String             stopMessage = "Stop requested during compute";
+
    private String                          message           = "setting up taxonomy collection";
    private final int                       conceptCount;
    private final IntFunction<int[]>        taxonomyDataProvider;
-   private final ManifoldCoordinate        manifoldCoordinate;
    private final int                       conceptAssemblageNid;
    private boolean                         stopRequested = false;
-   private static final String             stopMessage = "Stop requested during compute";
+
+   private final ManifoldCoordinateImmutable manifoldCoordinate;
+   private final VertexSort vertexSort;
 
    private static final Logger LOG = LogManager.getLogger();
-   
-   //~--- constructors --------------------------------------------------------
 
    public TreeBuilderTask(IntFunction<int[]> taxonomyDataProvider,
                           ManifoldCoordinate manifoldCoordinate) {
+      this(taxonomyDataProvider, manifoldCoordinate.toManifoldCoordinateImmutable(), manifoldCoordinate.getVertexSort());
+   }
+
+   //TODO - not sure if this comment is relevant any longer: this tree builder doesn't properly pay attention to the DestinationStampCoordiante
+   public TreeBuilderTask(IntFunction<int[]> taxonomyDataProvider,
+                          ManifoldCoordinateImmutable manifoldCoordinate, VertexSort vertexSort) {
       if (taxonomyDataProvider == null) {
          throw new IllegalStateException("taxonomyDataProvider cannot be null");
       }
+      this.manifoldCoordinate = manifoldCoordinate;
+      this.vertexSort = vertexSort;
       this.taxonomyDataProvider               = taxonomyDataProvider;
-      this.manifoldCoordinate                 = manifoldCoordinate;
-      this.conceptAssemblageNid               = manifoldCoordinate.getLogicCoordinate()
-            .getConceptAssemblageNid();
+      this.conceptAssemblageNid               = manifoldCoordinate.getLogicCoordinate().getConceptAssemblageNid();
       LookupService.registerStoppable(this, LookupService.SL_L5_ISAAC_STARTED_RUNLEVEL);
       this.conceptCount = (int) Get.identifierService()
-                                   .getNidsForAssemblage(conceptAssemblageNid)
+                                   .getNidsForAssemblage(conceptAssemblageNid, true)
                                    .count();
       this.addToTotalWork(conceptCount * 2); // once to construct tree, ones to traverse tree
-      this.updateTitle("Generating " + manifoldCoordinate.getTaxonomyPremiseType() + " snapshot");
+      this.updateTitle("Generating " + manifoldCoordinate.getPremiseTypes().toUserString() + " Navigator for: " +
+              manifoldCoordinate.getViewStampFilter().getStampPosition().toUserString());
       this.setProgressMessageGenerator(
           (task) -> {
              updateMessage(message);
@@ -104,8 +108,6 @@ public class TreeBuilderTask
       Get.activeTasks()
          .add(this);
    }
-
-   //~--- methods -------------------------------------------------------------
 
    @Override
    protected Tree call()
@@ -129,38 +131,33 @@ public class TreeBuilderTask
    }
 
    private Tree compute() {
-      GraphCollector  collector = new GraphCollector(this.taxonomyDataProvider, this.manifoldCoordinate);
-      IntStream       conceptNidStream = Get.identifierService()
-                                            .getNidsForAssemblage(conceptAssemblageNid);
-      
-      long count = conceptNidStream.count();
+
+      GraphCollectorIsolated  collector = new GraphCollectorIsolated(this.taxonomyDataProvider,this.manifoldCoordinate, this.vertexSort);
+      long count =  Get.identifierService().getNidsForAssemblage(conceptAssemblageNid, true).count();
       if (count == 0) {
          LOG.info("Empty concept stream in TreeBuilderTask");
       } 
       
       if (stopRequested) {
-         throw new RuntimeException("Stop requested during compute");
+         throw new CancellationException("Stop requested during compute");
       }
-      conceptNidStream = Get.identifierService()
-                                            .getNidsForAssemblage(conceptAssemblageNid);
-      HashTreeBuilder graphBuilder     = conceptNidStream.filter(
-                                             (conceptNid) -> {
+      IntStream conceptNidStream = Get.identifierService().getNidsForAssemblage(conceptAssemblageNid, false);
+
+      HashTreeBuilderIsolated graphBuilder = conceptNidStream.filter((conceptNid) -> {
                completedUnitOfWork();
                return true;
-            })
-                                                         .collect(
-                                                               () -> new HashTreeBuilder(
-                                                                     this.manifoldCoordinate,
-                                                                           this.conceptAssemblageNid),
-                                                                     collector,
-                                                                     collector);
+            }).collect(() -> new HashTreeBuilderIsolated(this.manifoldCoordinate.getVertexStampFilter().toStampFilterImmutable(),
+                                                         this.manifoldCoordinate.toUserString(),
+                                                         this.manifoldCoordinate.getPremiseTypes(),
+                                                         this.conceptAssemblageNid),
+                                                         collector, collector);
 
       message = "searching for redundancies and cycles";
 
       Tree tree = graphBuilder.getSimpleDirectedGraph(this);
 
       message = "complete";
-      LOG.debug("Tree build completed for {}", this.manifoldCoordinate);
+      //LOG.info("Tree build completed for {}", this.digraph.toUserString());
       return tree;
    }
 
@@ -176,7 +173,7 @@ public class TreeBuilderTask
    public void completedUnitOfWork()
    {
       if (stopRequested) {
-         throw new RuntimeException(stopMessage);
+         throw new CancellationException(stopMessage);
       }
       super.completedUnitOfWork();
    }
@@ -185,7 +182,7 @@ public class TreeBuilderTask
    public void completedUnitsOfWork(long unitsCompleted)
    {
       if (stopRequested) {
-         throw new RuntimeException(stopMessage);
+         throw new CancellationException(stopMessage);
       }
       super.completedUnitsOfWork(unitsCompleted);
    }

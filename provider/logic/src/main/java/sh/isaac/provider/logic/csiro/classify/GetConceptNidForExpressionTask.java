@@ -40,14 +40,8 @@
 package sh.isaac.provider.logic.csiro.classify;
 
 import java.util.Optional;
-
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.MetaData;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.Get;
@@ -58,17 +52,13 @@ import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinate;
 import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.task.TimedTask;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class GetConceptNidForExpressionTask.
@@ -83,54 +73,42 @@ public class GetConceptNidForExpressionTask
    /** The classifier provider. */
    ClassifierProvider classifierProvider;
 
-   /** The stamp coordinate. */
-   StampCoordinate stampCoordinate;
-
-   /** The logic coordinate. */
-   LogicCoordinate logicCoordinate;
-
    /** The stated edit coordinate. */
-   EditCoordinate statedEditCoordinate;
+   ManifoldCoordinate manifoldCoordinate;
 
-   //~--- constructors --------------------------------------------------------
 
    //TODO should this take in an assemblageID?
    /**
     * Instantiates a new gets the concept nid for expression task.
-    *
-    * @param expression the expression
+    *  @param expression the expression
     * @param classifierProvider the classifier provider
-    * @param statedEditCoordinate the stated edit coordinate
+    * @param manifoldCoordinate the stated edit coordinate
     */
    private GetConceptNidForExpressionTask(LogicalExpression expression,
-         ClassifierProvider classifierProvider,
-         EditCoordinate statedEditCoordinate) {
+                                          ClassifierProvider classifierProvider,
+                                          ManifoldCoordinate manifoldCoordinate) {
       this.expression           = expression;
       this.classifierProvider   = classifierProvider;
-      this.stampCoordinate      = classifierProvider.stampCoordinate;
-      this.logicCoordinate      = classifierProvider.logicCoordinate;
-      this.statedEditCoordinate = statedEditCoordinate;
+      this.manifoldCoordinate = manifoldCoordinate;
       updateTitle("Get ID for Expression");
       updateProgress(-1, Integer.MAX_VALUE);
    }
-
-   //~--- methods -------------------------------------------------------------
 
    /**
     * Creates the.
     *
     * @param expression the expression
     * @param classifierProvider the classifier provider
-    * @param statedEditCoordinate the stated edit coordinate
+    * @param manifoldCoordinate the stated edit coordinate
     * @return the gets the concept nid for expression task
     */
    public static GetConceptNidForExpressionTask create(LogicalExpression expression,
-         ClassifierProvider classifierProvider,
-         EditCoordinate statedEditCoordinate) {
+                                                       ClassifierProvider classifierProvider,
+                                                       ManifoldCoordinate manifoldCoordinate) {
       final GetConceptNidForExpressionTask task = new GetConceptNidForExpressionTask(
                                                            expression,
                                                                  classifierProvider,
-                                                                 statedEditCoordinate);
+              manifoldCoordinate);
 
       Get.activeTasks().add(task);
       LookupService.getService(WorkExecutors.class)
@@ -151,12 +129,12 @@ public class GetConceptNidForExpressionTask
       try {
          final SemanticSnapshotService<LogicGraphVersionImpl> semanticSnapshot = Get.assemblageService()
                                                                                .getSnapshot(LogicGraphVersionImpl.class,
-                                                                                           this.stampCoordinate);
+                                                                                           this.manifoldCoordinate.getViewStampFilter());
 
          updateMessage("Searching existing definitions...");
 
          final LatestVersion<LogicGraphVersionImpl> match = semanticSnapshot.getLatestSemanticVersionsFromAssemblage(
-                                                               this.logicCoordinate.getStatedAssemblageNid())
+                                                               this.manifoldCoordinate.getLogicCoordinate().getStatedAssemblageNid())
                                                                          .filterVersion((LatestVersion<LogicGraphVersionImpl> t) -> {
                   final LogicGraphVersionImpl lgs = t.get();
                   final LogicalExpressionImpl existingGraph = new LogicalExpressionImpl(
@@ -179,21 +157,20 @@ public class GetConceptNidForExpressionTask
 
          conceptBuilderService.setDefaultLanguageForDescriptions(MetaData.ENGLISH_LANGUAGE____SOLOR);
          conceptBuilderService.setDefaultDialectAssemblageForDescriptions(MetaData.US_ENGLISH_DIALECT____SOLOR);
-         conceptBuilderService.setDefaultLogicCoordinate(this.logicCoordinate);
+         conceptBuilderService.setDefaultLogicCoordinate(this.manifoldCoordinate.getLogicCoordinate());
 
          final ConceptBuilder builder = conceptBuilderService.getDefaultConceptBuilder(
                                             uuidForNewConcept.toString(),
                                             "expression",
                                             this.expression,
                                             MetaData.SOLOR_CONCEPT_ASSEMBLAGE____SOLOR.getNid());
-         final ConceptChronology concept = builder.build(this.statedEditCoordinate, ChangeCheckerMode.INACTIVE)
-                                                  .get();
+         WriteCoordinate wc = this.manifoldCoordinate.getWriteCoordinate(Get.commitService().newTransaction(Optional.of("GetConceptNidForExpressionTask"), ChangeCheckerMode.INACTIVE));
+         final ConceptChronology concept = builder.buildAndWrite(wc).get();
 
          updateMessage("Commiting new expression...");
 
          try {
-            Get.commitService()
-               .commit(Get.configurationService().getUserConfiguration(Optional.empty()).getEditCoordinate(), "Expression commit.")
+            wc.getTransaction().get().commit("Expression commit.")
                .get();
             updateMessage("Classifying new concept...");
             this.classifierProvider.classify()

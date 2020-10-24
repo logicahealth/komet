@@ -43,8 +43,7 @@ package sh.isaac.api.component.semantic.version.dynamic;
 
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicArray;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 

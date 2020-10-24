@@ -44,6 +44,8 @@ package sh.isaac.api.component.concept;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.api.Get;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -52,6 +54,7 @@ import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.IdentifiedStampedVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
@@ -75,7 +78,6 @@ public interface ConceptSnapshot
     */
    boolean containsActiveDescription(String descriptionText);
 
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the chronology.
@@ -92,23 +94,13 @@ public interface ConceptSnapshot
    Set<? extends StampedVersion> getContradictions();
 
    /**
-    * This method will try first to return a description that matches the manifold 
-    * language coordinate preferences.  If that fails, it will attempt to return a 
-    * fully specified description, next the preferred description, finally any description 
-    * if there is no preferred or fully specified description that satisfies the {@code StampCoordinate} and the
-    * {@code LanguageCoordinate} of this snapshot.
-    * @return a description for this concept.
-    */
-   DescriptionVersion getDescription();
-
-   /**
     * Gets the fully specified description.
     *
     * @return The fully specified description for this concept. Optional in case
     * there is no description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   LatestVersion<DescriptionVersion> getFullySpecifiedDescription();
+   LatestVersion<DescriptionVersion> getFullyQualifiedDescription();
    
    /**
     * Gets the fully specified description text.
@@ -118,7 +110,7 @@ public interface ConceptSnapshot
     * {@code LanguageCoordinate} of this snapshot.
     */
    default LatestVersion<String> getFullySpecifiedDescriptionText() {
-       LatestVersion<DescriptionVersion> latest = getFullySpecifiedDescription();
+       LatestVersion<DescriptionVersion> latest = getFullyQualifiedDescription();
        if (latest.isPresent()) {
            return LatestVersion.of(latest.get().getText());
        }
@@ -128,21 +120,21 @@ public interface ConceptSnapshot
    /**
     * Gets the preferred description.
     *
-    * @return The preferred description for this concept. Optional in case
+    * @return {@link LanguageCoordinate#getRegularDescription(int, sh.isaac.api.coordinate.StampFilter)} Optional in case
     * there is no description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   LatestVersion<DescriptionVersion> getPreferredDescription();
+   LatestVersion<DescriptionVersion> getRegularDescription();
    
    /**
     * Gets the preferred description text.
     *
-    * @return The preferred description text for this concept. Optional in case
+    * @return The text extracted from {@link #getRegularDescription()}  Optional in case
     * there is no preferred description that satisfies the {@code StampCoordinate} and the
     * {@code LanguageCoordinate} of this snapshot.
     */
-   default LatestVersion<String> getPreferredDescriptionText() {
-       LatestVersion<DescriptionVersion> latest = getPreferredDescription();
+   default LatestVersion<String> getRegularDescriptionText() {
+       LatestVersion<DescriptionVersion> latest = getRegularDescription();
        if (latest.isPresent()) {
            return LatestVersion.of(latest.get().getText());
        }
@@ -199,11 +191,11 @@ public interface ConceptSnapshot
     * TODO: consider creation and return of a SemanticSnapshot, rather than a version. 
     */
    default <V extends SemanticVersion> List<LatestVersion<V>> getLatestSemanticVersionsFromAssemblage(int assemblageConceptNid) {
-       NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(getNid(), assemblageConceptNid);
+       ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(getNid(), assemblageConceptNid);
        List<LatestVersion<V>> semanticList = new ArrayList<>(semanticNids.size());
-       for (int semanticNid: semanticNids.asArray()) {
+       for (int semanticNid: semanticNids.toArray()) {
            SemanticChronology chronology = Get.assemblageService().getSemanticChronology(semanticNid);
-           LatestVersion<V> latestVersion = chronology.getLatestVersion(this);
+           LatestVersion<V> latestVersion = chronology.getLatestVersion(this.getViewStampFilter());
            if (latestVersion.isPresent()) {
                semanticList.add(latestVersion);
            }
@@ -220,16 +212,19 @@ public interface ConceptSnapshot
     * TODO: consider creation and return of a SemanticSnapshot, rather than a version. 
     */
    default <V extends SemanticVersion> LatestVersion<V> getFirstSemanticVersionFromAssemblage(int assemblageConceptNid) {
-       NidSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(getNid(), assemblageConceptNid);
-       for (int semanticNid: semanticNids.asArray()) {
+       ImmutableIntSet semanticNids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(getNid(), assemblageConceptNid);
+       for (int semanticNid: semanticNids.toArray()) {
            SemanticChronology chronology = Get.assemblageService().getSemanticChronology(semanticNid);
-           LatestVersion<V> latestVersion = chronology.getLatestVersion(this);
+           LatestVersion<V> latestVersion = chronology.getLatestVersion(this.getViewStampFilter());
            if (latestVersion.isPresent()) {
                return latestVersion;
            }
        }
        return LatestVersion.empty();
    }
-   
-}
 
+    @Override
+    default String toUserString() {
+        throw new UnsupportedOperationException();
+    }
+}

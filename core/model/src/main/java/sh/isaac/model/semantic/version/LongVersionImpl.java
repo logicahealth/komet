@@ -39,17 +39,12 @@
 
 package sh.isaac.model.semantic.version;
 
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.semantic.version.MutableLongVersion;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.api.component.semantic.version.MutableLongVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * Used for path origins by path manager.
@@ -58,10 +53,17 @@ import sh.isaac.api.coordinate.EditCoordinate;
 public class LongVersionImpl
         extends AbstractVersionImpl
          implements MutableLongVersion {
-   /** The long value. */
-   long longValue = Long.MAX_VALUE;
 
-   //~--- constructors --------------------------------------------------------
+   long longValue = Long.MAX_VALUE;
+   
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{longValue: ").append(longValue).append(" ")
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
 
    /**
     * Instantiates a new long semantic impl.
@@ -92,29 +94,14 @@ public class LongVersionImpl
       this.longValue = other.longValue;
    }
 
+   @SuppressWarnings("unchecked")
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-                                   .getStampSequence(
-                                       this.getStatus(),
-                                       Long.MAX_VALUE,
-                                       ec.getAuthorNid(),
-                                       this.getModuleNid(),
-                                       ec.getPathNid());
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
+   public <V extends Version> V makeAnalog(int stampSequence) {
       final LongVersionImpl newVersion = new LongVersionImpl(this, stampSequence);
-
-      chronologyImpl.addVersion(newVersion);
-      return (V) newVersion;   
+      getChronology().addVersion(newVersion);
+      return (V) newVersion;
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * To string.
-    *
-    * @return the string
-    */
    @Override
    public String toString() {
       final StringBuilder sb = new StringBuilder();
@@ -127,9 +114,7 @@ public class LongVersionImpl
    }
 
    /**
-    * Write version data.
-    *
-    * @param data the data
+    * {@inheritDoc}
     */
    @Override
    public void writeVersionData(ByteArrayDataBuffer data) {
@@ -137,24 +122,16 @@ public class LongVersionImpl
       data.putLong(this.longValue);
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the long value.
-    *
-    * @return the long value
+    * {@inheritDoc}
     */
    @Override
    public long getLongValue() {
       return this.longValue;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
-    * Sets the long value.
-    *
-    * @param time the new long value
+    * {@inheritDoc}
     */
    @Override
    public void setLongValue(long time) {
@@ -165,18 +142,17 @@ public class LongVersionImpl
       this.longValue = time;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
-    * Gets the semantic type.
-    *
-    * @return the semantic type
+    * {@inheritDoc}
     */
    @Override
    public final VersionType getSemanticType() {
       return VersionType.LONG;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected int editDistance3(AbstractVersionImpl other, int editDistance) {
       LongVersionImpl otherImpl = (LongVersionImpl) other;
@@ -185,7 +161,10 @@ public class LongVersionImpl
       }
       return editDistance;
    }
-
+   
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected boolean deepEquals3(AbstractVersionImpl other) {
       if (!(other instanceof LongVersionImpl)) {
@@ -195,4 +174,3 @@ public class LongVersionImpl
       return this.longValue == otherImpl.longValue;
    }
 }
-

@@ -1,52 +1,110 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import org.controlsfx.control.textfield.CustomTextField?>
 <?import java.net.URL?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuButton?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import org.controlsfx.control.textfield.CustomTextField?>
 
-<AnchorPane id="AnchorPane" fx:id="mainAnchorPane" prefHeight="723.0" prefWidth="341.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.simple.SimpleSearchController">
+<AnchorPane id="AnchorPane" fx:id="mainAnchorPane" prefHeight="723.0" prefWidth="341.0" styleClass="mainFxmlClass" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sh.komet.gui.search.simple.SimpleSearchController">
     <stylesheets>
         <URL value="@/styles/search.css" />
     </stylesheets>
     <children>
         <BorderPane layoutX="68.0" layoutY="41.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-            <center>
-                <SplitPane orientation="VERTICAL" BorderPane.alignment="CENTER">
+         <top>
+            <VBox prefHeight="91.0" prefWidth="341.0" BorderPane.alignment="CENTER">
+               <children>
+                  <ToolBar prefHeight="40.0" prefWidth="200.0">
                     <items>
-                  <VBox prefHeight="262.0" prefWidth="339.0">
-                     <children>
-                        <ToolBar prefHeight="40.0" prefWidth="200.0">
+                        <MenuButton fx:id="searchPanelMenuButton" maxHeight="28.0" maxWidth="50.0" minHeight="28.0" minWidth="50.0" mnemonicParsing="false" prefHeight="28.0" prefWidth="50.0">
                           <items>
-                              <CustomTextField fx:id="searchTextField" onAction="#executeSearch" prefHeight="27.0" prefWidth="325.0" styleClass="searchTextField">
-                                  <left>
-                                      <Label fx:id="searchTextFieldLabel" styleClass="searchTextFieldLabel">
-                                          <graphic>
-                                              <FontAwesomeIconView styleClass="searchTextFieldLabelIcon" />
-                                          </graphic>
-                                      </Label>
-                                  </left>
-                              </CustomTextField>
+                              <Menu fx:id="coordinatesMenu" mnemonicParsing="false" text="Coordinates" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                            <MenuItem mnemonicParsing="false" onAction="#copySelectedDescriptionsToClipboard" text="Copy selected descriptions" />
+                            <MenuItem mnemonicParsing="false" onAction="#copySelectedConceptsToClipboard" text="Copy selected descriptions as concepts" />
+                              <SeparatorMenuItem mnemonicParsing="false" />
+                              <MenuItem mnemonicParsing="false" onAction="#copyAllDescriptionsToClipboard" text="Copy all descriptions" />
+                              <MenuItem mnemonicParsing="false" onAction="#copyAllConceptsToClipboard" text="Copy all descriptions as concepts" />
                           </items>
-                        </ToolBar>
-                        <FlowPane fx:id="searchTagFlowPane" prefHeight="184.0" prefWidth="339.0" >
-                        </FlowPane>
-                                <ScrollPane fitToHeight="true" fitToWidth="true" VBox.vgrow="ALWAYS">
-                                    <content>
-                                        <TableView fx:id="resultTable" maxHeight="700.0" prefHeight="425.0" prefWidth="337.0">
-                                            <columns>
-                                                <TableColumn fx:id="resultColumn" editable="false" prefWidth="336.0" text="Result" />
-                                            </columns>
-                                        </TableView>
-                                    </content>
-                                </ScrollPane>
-                         <ProgressBar fx:id="searchProgressBar" prefHeight="20.0" prefWidth="345.0" progress="0.0" />
-                     </children>
-                  </VBox>
+                        </MenuButton>
+                        <CustomTextField fx:id="searchTextField" onAction="#executeSearch" prefHeight="27.0" prefWidth="293.0" promptText="Enter search terms..." styleClass="searchTextField">
+                            <left>
+                                <Label fx:id="searchTextFieldLabel" styleClass="searchTextFieldLabel">
+                                    <graphic>
+                                        <FontAwesomeIconView styleClass="searchTextFieldLabelIcon" />
+                                    </graphic>
+                                </Label>
+                            </left>
+                        </CustomTextField>
                     </items>
-                </SplitPane>
-            </center>
+                  </ToolBar>
+                  <FlowPane fx:id="searchTagFlowPane" prefHeight="40.0" prefWidth="341.0">
+                        </FlowPane>
+                  <GridPane>
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="105.0" />
+                      <ColumnConstraints hgrow="NEVER" maxWidth="60.0" minWidth="60.0" prefWidth="56.0" />
+                        <ColumnConstraints hgrow="NEVER" maxWidth="60.0" minWidth="60.0" prefWidth="60.0" />
+                        <ColumnConstraints hgrow="NEVER" maxWidth="60.0" minWidth="60.0" prefWidth="60.0" />
+                        <ColumnConstraints hgrow="NEVER" maxWidth="60.0" minWidth="60.0" prefWidth="60.0" />
+                        <ColumnConstraints hgrow="ALWAYS" maxWidth="500.0" minWidth="0.0" prefWidth="0.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label minWidth="112.0" text="  Description types:">
+                           <padding>
+                              <Insets right="5.0" />
+                           </padding>
+                        </Label>
+                        <CheckBox fx:id="anyCheckBox" maxWidth="60.0" minWidth="50.0" mnemonicParsing="false" prefWidth="60.0" selected="true" text="ANY" GridPane.columnIndex="1" />
+                        <CheckBox fx:id="fqnCheckBox" maxWidth="60.0" minWidth="50.0" mnemonicParsing="false" prefWidth="60.0" selected="true" text="FQN" GridPane.columnIndex="2" />
+                        <CheckBox fx:id="namCheckBox" maxWidth="60.0" minWidth="50.0" mnemonicParsing="false" prefWidth="60.0" selected="true" text="NĀM" GridPane.columnIndex="3" />
+                        <CheckBox fx:id="defCheckBox" maxWidth="60.0" minWidth="55.0" mnemonicParsing="false" prefWidth="60.0" selected="true" text="DEF" GridPane.columnIndex="4" />
+                     </children>
+                     <VBox.margin>
+                        <Insets bottom="2.0" />
+                     </VBox.margin>
+                  </GridPane>
+               </children>
+            </VBox>
+         </top>
+         <center>
+            <BorderPane prefHeight="200.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <bottom>
+                  <AnchorPane>
+                     <children>
+                         <ProgressBar fx:id="searchProgressBar" prefHeight="20.0" prefWidth="345.0" progress="0.0" AnchorPane.bottomAnchor="1.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="1.0" />
+                     </children>
+                  </AnchorPane>
+               </bottom>
+               <center>
+                            <TableView fx:id="resultTable" prefHeight="1000.0" prefWidth="1000.0" BorderPane.alignment="CENTER">
+                                <columns>
+                                    <TableColumn fx:id="resultColumn" editable="false" prefWidth="-1.0" text="Result" />
+                                </columns>
+                            </TableView>
+               </center>
+            </BorderPane>
+         </center>
         </BorderPane>
     </children>
 </AnchorPane>

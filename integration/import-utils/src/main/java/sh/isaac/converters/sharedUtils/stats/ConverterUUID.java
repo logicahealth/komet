@@ -41,12 +41,14 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
@@ -166,7 +168,35 @@ public class ConverterUUID
 	{
 		if (namespace != null)
 		{
-			LOG.info("Reconfiguring Namespace from {} to {}!", this.namespace, namespace);
+			LOG.info("Reconfiguring Namespace from {} to {}", 
+					() -> {
+						StringBuilder sb = new StringBuilder();
+						if (!disableUUIDMap)
+						{
+							String s = getUUIDCreationString(this.namespace);
+							if (s != null)
+							{
+								sb.append(s);
+								sb.append(" - ");
+							}
+						}
+						sb.append(this.namespace);
+						return sb.toString();
+					},
+					() -> {
+						StringBuilder sb = new StringBuilder();
+						if (!disableUUIDMap)
+						{
+							String s = getUUIDCreationString(namespace);
+							if (s != null)
+							{
+								sb.append(s);
+								sb.append(" - ");
+							}
+						}
+						sb.append(namespace.toString());
+						return sb.toString();
+					});
 		}
 		this.namespace = namespace;
 	}
@@ -294,7 +324,8 @@ public class ConverterUUID
 		if (outputDirectory != null)
 		{
 			outputDirectory.mkdirs();
-			try (BufferedWriter br = new BufferedWriter(new FileWriter(new File(outputDirectory, prefix + "DebugMap.txt")));)
+			try (BufferedWriter br = new BufferedWriter(new FileWriter(new File(outputDirectory, prefix + "DebugMap.txt"),
+					Charset.forName(StandardCharsets.UTF_8.name())));)
 			{
 				if (disableUUIDMap)
 				{

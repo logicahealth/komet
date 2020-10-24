@@ -29,7 +29,7 @@ import sh.isaac.api.chronicle.CategorizedVersion;
 import sh.isaac.api.chronicle.CategorizedVersions;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 /**
  *
@@ -37,7 +37,7 @@ import sh.isaac.api.coordinate.EditCoordinate;
  */
 public class ObservableCategorizedVersion extends CategorizedVersion implements ObservableVersion {
 
-   public ObservableCategorizedVersion(ObservableVersion delegate, CategorizedVersions categorizedVersions) {
+   public ObservableCategorizedVersion(ObservableVersion delegate, CategorizedVersions<CategorizedVersion> categorizedVersions) {
       super(delegate, categorizedVersions);
    }
       
@@ -111,15 +111,15 @@ public class ObservableCategorizedVersion extends CategorizedVersion implements 
     }
 
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
-        return getObservableVersion().makeAutonomousAnalog(ec);
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
+        return getObservableVersion().makeAutonomousAnalog(mc);
     }
 
     @Override
     public Chronology createIndependentChronicle() {
         return getObservableVersion().createIndependentChronicle();
     }
-
+    
     @Override
     public Chronology createChronologyForCommit(int stampSequence) {
         return getObservableVersion().createIndependentChronicle();

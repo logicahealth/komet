@@ -41,7 +41,7 @@ public class JoinSpecificationObservable implements JoinSpecification {
             = new SimpleObjectProperty<>(this, MetaData.FIELD_2_TO_JOIN____SOLOR.toExternalString());
 
     SimpleObjectProperty<LetItemKey> stampCoordinateKeyProperty 
-            = new SimpleObjectProperty<>(this, MetaData.STAMP_COORDINATE_KEY_FOR_MANIFOLD____SOLOR.toExternalString());
+            = new SimpleObjectProperty<>(this, MetaData.FILTER_FOR_VIEW____SOLOR.toExternalString());
 
     public JoinSpecificationObservable() {
     }
@@ -76,7 +76,7 @@ public class JoinSpecificationObservable implements JoinSpecification {
             joinSpec.setSecondField(newValue);
         });
         
-        stampCoordinateKeyProperty.set(joinSpec.getStampCoordinateKey());
+        stampCoordinateKeyProperty.set(joinSpec.getStampFilterKey());
         stampCoordinateKeyProperty.addListener((observable, oldValue, newValue) -> {
             joinSpec.setStampCoordinateKey(newValue);
         });
@@ -144,7 +144,7 @@ public class JoinSpecificationObservable implements JoinSpecification {
     }
    
     @Override
-    public LetItemKey getStampCoordinateKey() {
+    public LetItemKey getStampFilterKey() {
         return stampCoordinateKeyProperty.get();
     }
 

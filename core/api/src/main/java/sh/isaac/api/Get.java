@@ -39,59 +39,81 @@
 
 package sh.isaac.api;
 
-import com.lmax.disruptor.dsl.Disruptor;
-import javafx.concurrent.Task;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+import jakarta.inject.Singleton;
+import javax.xml.transform.Source;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerConfigurationException;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
+import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.jvnet.hk2.annotations.Service;
+import com.lmax.disruptor.dsl.Disruptor;
+import javafx.concurrent.Task;
 import sh.isaac.api.alert.AlertEvent;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.IntObjectHashMap;
 import sh.isaac.api.collections.IntSet;
 import sh.isaac.api.commit.ChangeSetWriterService;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.PostCommitService;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.component.concept.*;
+import sh.isaac.api.component.concept.ConceptBuilderService;
+import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptService;
+import sh.isaac.api.component.concept.ConceptSnapshot;
+import sh.isaac.api.component.concept.ConceptSnapshotService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.coordinate.CoordinateFactory;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.datastore.DataStore;
-import sh.isaac.api.externalizable.*;
+import sh.isaac.api.datastore.MasterDataStore;
+import sh.isaac.api.externalizable.BinaryDataReaderService;
+import sh.isaac.api.externalizable.BinaryDataServiceFactory;
+import sh.isaac.api.externalizable.DataWriterService;
+import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.externalizable.IsaacExternalizableSpliterator;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.index.GenerateIndexes;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.index.IndexDescriptionQueryService;
 import sh.isaac.api.index.IndexSemanticQueryService;
 import sh.isaac.api.logic.LogicService;
+import sh.isaac.api.logic.LogicServiceSnoRocket;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.metacontent.MetaContentService;
+import sh.isaac.api.navigation.NavigationService;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
 import sh.isaac.api.observable.ObservableSnapshotService;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferencesService;
 import sh.isaac.api.progress.ActiveTasks;
 import sh.isaac.api.progress.CompletedTasks;
 import sh.isaac.api.query.QueryHandler;
+import sh.isaac.api.task.TaskCountManager;
 import sh.isaac.api.util.NamedThreadFactory;
 import sh.isaac.api.util.WorkExecutors;
-
-import javax.inject.Singleton;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.stream.Stream;
-import java.util.stream.StreamSupport;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -152,7 +174,7 @@ public class Get
    private static LogicalExpressionBuilderService logicalExpressionBuilderService;
 
    /** The logic service. */
-   private static LogicService logicService;
+   private static LogicServiceSnoRocket logicService;
 
    /** The path service. */
    private static VersionManagmentPathService versionManagementPathService;
@@ -168,6 +190,8 @@ public class Get
 
    /** The taxonomy service. */
    private static TaxonomyService taxonomyService;
+
+   private static NavigationService navigationService;
 
    /** The work executors. */
    private static WorkExecutors workExecutors;
@@ -189,24 +213,21 @@ public class Get
    private static IndexDescriptionQueryService descriptionIndexer;
    private static IndexSemanticQueryService semanticIndexer;
    
-   private static DataStore dataStore;
+   private static MasterDataStore dataStore;
    
    private static PreferencesService preferencesService;
-
    private static boolean useLuceneIndexes = true;
-   
-   private static final IntObjectHashMap<ConceptSpecification> TERM_AUX_CACHE = new IntObjectHashMap<>();
-    private static CountDownLatch termAuxCacheLatch = new CountDownLatch(1);
 
-   
-   //~--- constructors --------------------------------------------------------
+   private static MutableIntObjectMap<ConceptSpecification> TERM_AUX_CACHE = null;
 
    /**
     * Instantiates a new Get.
     */
    public Get() {}
 
-   //~--- methods -------------------------------------------------------------
+   public static Transformer xsltTransformer(Source xsltSource, ManifoldCoordinateImmutable manifoldCoordinate) throws TransformerConfigurationException {
+      return Get.service(XsltTransformer.class).getTransformer(xsltSource, manifoldCoordinate);
+   }
 
    /**
     * Active tasks.
@@ -249,6 +270,15 @@ public class Get
        return getService(QueryHandler.class);
    }
    
+   /**
+    * @return The {@link PreferencesService} provider, which is pref store based on the java preferences API, which provides access 
+    * to the {@link IsaacPreferences} which allows storage of arbitrary data.  
+    * 
+    * This is primarily used by the Komet FX gui, and unless you know you specifically want this service, you will likely be much better
+    * served by using the {@link #configurationService()} API to get access to the {@link UserConfiguration} for storage of non-terminology 
+    * data, as it provides typed access to API specific parameters, and automatically handles passthru of different store types  - 
+    * userConfigPerDB -> user Config per OS -> Global config per DB
+    */
    public static PreferencesService preferencesService() {
       if (preferencesService == null) {
          preferencesService = getService(PreferencesService.class);
@@ -371,40 +401,34 @@ public class Get
 
    /**
     * Simple method for getting text of the description of a concept. This
-    * method will try first to return the fully specified description, or the
-    * preferred description, as specified in the default
-    * {@code StampCoordinate} and the default {@code LanguageCoordinate}.
+    * method will use the rules of the default {@code StampCoordinate} and the default {@code LanguageCoordinate}.
     * 
     * Note that this implementation does rely on the configuration of the 
-    * {@link #defaultConceptSnapshotService()} - if that configuration is changed, 
-    * the behavor of this method will follow.
+    * {@link #defaultConceptSnapshotService()} - if that configuration is changed, the behavior of this method will follow.
     *
     * @param conceptNid nid of the concept to get the description for
-    * @return a description for this concept. If no description can be found,
-    * {@code "No desc for: " + conceptNid;} will be returned.
+    * @return a description for this concept. If no description can be found, {@code "No desc for: " + UUID;} will be returned.
+    * @see ConceptSnapshotService#conceptDescriptionText(int)
     */
    public static String conceptDescriptionText(int conceptNid) {
-     if (conceptNid >= 0) {
+      if (conceptNid == 0) {
+         return "Uninitialized Component, nid == 0";
+      }
+      if (conceptNid > 0) {
          throw new IndexOutOfBoundsException("Component identifiers must be negative. Found: " + conceptNid);
       }
-     if (Get.identifierService().getObjectTypeForComponent(conceptNid) == IsaacObjectType.SEMANTIC) {
+
+
+      if (Get.identifierService().getObjectTypeForComponent(conceptNid) == IsaacObjectType.SEMANTIC) {
          SemanticChronology sc = Get.assemblageService().getSemanticChronology(conceptNid);
          if (sc.getVersionType() == VersionType.DESCRIPTION) {
-             LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate());
-             if (latestDescription.isPresent()) {
-                 return "Desc: " + latestDescription.get().getText();
-             }
+            LatestVersion<DescriptionVersion> latestDescription = sc.getLatestVersion(defaultCoordinate().getViewStampFilter());
+            if (latestDescription.isPresent()) {
+               return "Desc: " + latestDescription.get().getText();
+            }
          }
-     }
-      final LatestVersion<DescriptionVersion> descriptionOptional =
-         defaultConceptSnapshotService().getDescriptionOptional(conceptNid);
-
-      if (descriptionOptional.isPresent()) {
-         return descriptionOptional.get()
-                                   .getText();
       }
-
-      return "No desc for: " + conceptNid + " " + Get.identifierService.getUuidPrimordialStringForNid(conceptNid);
+      return defaultConceptSnapshotService().conceptDescriptionText(conceptNid);
    }
    
    public static String conceptDescriptionText(ConceptSpecification conceptSpec) {
@@ -505,27 +529,23 @@ public class Get
     * @return A concept specification for the corresponding identifier
     */
    public static ConceptSpecification conceptSpecification(int nid) {
-       try {
-           if (nid >= 0) {
-               throw new IllegalStateException("Nids must be < 0: " + nid);
-           }
-           if (TERM_AUX_CACHE.isEmpty()) {
-               for (ConceptSpecification conceptSpecification: TermAux.getAllSpecs()) {
-                   TERM_AUX_CACHE.put(conceptSpecification.getNid(), conceptSpecification);
-               }
-               termAuxCacheLatch.countDown();
-           }
-           termAuxCacheLatch.await();
-           if (TERM_AUX_CACHE.containsKey(nid)) {
-               return TERM_AUX_CACHE.get(nid);
-           }
-           return new ConceptProxy(nid);
-       } catch (InterruptedException ex) {
-           throw new RuntimeException();
+       if (nid >= 0) {
+           throw new IllegalStateException("Nids must be < 0: " + nid);
        }
-   }
-   
-   
+
+      MutableIntObjectMap<ConceptSpecification> localRef = TERM_AUX_CACHE;
+       if (localRef == null) {
+          localRef = IntObjectMaps.mutable.empty();
+          for (ConceptSpecification conceptSpecification: TermAux.getAllSpecs()) {
+             localRef.put(conceptSpecification.getNid(), conceptSpecification);
+          }
+          TERM_AUX_CACHE = localRef;
+       }
+       if (localRef.containsKey(nid)) {
+           return localRef.get(nid);
+       }
+       return new ConceptProxy(nid);
+   } 
 
    /**
     * Note, this method may fail during bootstrap, if concept being requested is not already loaded
@@ -544,7 +564,10 @@ public class Get
 
    
    /**
-    * Configuration service.
+    * Get a reference to the {@link ConfigurationService} which also provides access to the {@link UserConfiguration}
+    * 
+    * These interfaces provide access to the global system configuration, and allow the reading and persisting of user and 
+    * database specific options.
     *
     * @return the configuration service
     */
@@ -557,7 +580,7 @@ public class Get
    }
 
    /**
-    * Coordinate factory.
+    * ImmutableCoordinate factory.
     *
     * @return the coordinate factory
     */
@@ -580,7 +603,7 @@ public class Get
       if (conceptSnapshot == null) {
          conceptSnapshot = getService(
              ConceptService.class).getSnapshot(Get.configurationService()
-                   .getGlobalDatastoreConfiguration().getDefaultManifoldCoordinate());
+                   .getGlobalDatastoreConfiguration().getDefaultManifoldCoordinate().getValue());
       }
 
       return conceptSnapshot;
@@ -670,7 +693,7 @@ public class Get
           nid,
           configurationService().getGlobalDatastoreConfiguration()
                                 .getDefaultLogicCoordinate()
-                                .getInferredAssemblageNid())
+                                .getInferredAssemblageNid(), false)
                                 .findAny();
    }
 
@@ -694,7 +717,7 @@ public class Get
     */
    public static LogicService logicService() {
       if (logicService == null) {
-         logicService = getService(LogicService.class);
+         logicService = getService(LogicServiceSnoRocket.class);
       }
 
       return logicService;
@@ -714,9 +737,8 @@ public class Get
    }
 
    /**
-    * Meta content service.
-    *
-    * @return the meta content service
+    * @return the implementation of the {@link MetaContentService} (if available) which allows for the storing of arbitrary data 
+    * that resides along-side the terminology data.
     */
    public static MetaContentService metaContentService() {
       if (metaContentService == null) {
@@ -734,8 +756,8 @@ public class Get
       return observableChronologyService;
    }
 
-   public static ObservableSnapshotService observableSnapshotService(StampCoordinate stampCoordinate) {
-      return observableChronologyService().getObservableSnapshotService(stampCoordinate);
+   public static ObservableSnapshotService observableSnapshotService(StampFilter stampFilter) {
+      return observableChronologyService().getObservableSnapshotService(stampFilter);
    }
    
 
@@ -757,7 +779,7 @@ public class Get
    
    public static DataStore dataStore() {
       if (dataStore == null) {
-         dataStore = getService(DataStore.class);
+         dataStore = getService(MasterDataStore.class);
       }
       return dataStore;
    }
@@ -801,7 +823,23 @@ public class Get
       return postCommitService;
    }
 
-   /**
+   public static ConceptSnapshot conceptSnapshot(ConceptProxy concept, ManifoldCoordinate manifoldCoordinate) {
+      return Get.conceptService().getConceptSnapshot(concept, manifoldCoordinate);
+   }
+
+   public static ConceptSnapshot conceptSnapshot(int conceptNid, ManifoldCoordinate manifoldCoordinate) {
+      return Get.conceptService().getConceptSnapshot(conceptNid, manifoldCoordinate);
+   }
+
+    public static ConceptChronology[] conceptList(int[] conceptNidList) {
+       ConceptChronology[] results = new ConceptChronology[conceptNidList.length];
+       for (int i = 0; i < results.length; i++) {
+          results[i] = concept(conceptNidList[i]);
+       }
+       return results;
+    }
+
+    /**
     * Reset.
     */
    @Override
@@ -825,6 +863,7 @@ public class Get
       semanticBuilderService          = null;
       assemblageService               = null;
       taxonomyService                 = null;
+      navigationService               = null;
       workExecutors                   = null;
       stampService                    = null;
       postCommitService               = null;
@@ -835,8 +874,7 @@ public class Get
       semanticIndexer                 = null;
       dataStore                       = null;
       preferencesService              = null;
-      TERM_AUX_CACHE.clear();
-      termAuxCacheLatch = new CountDownLatch(1);
+      TERM_AUX_CACHE                  = null;
    }
 
    public static ScheduledExecutorService scheduledExecutor() {
@@ -872,12 +910,15 @@ public class Get
       return getServices(clazz);
    }
    
+   /**
+    * @return The service that manages the importation of terminology metadata content into the database
+    */
    public static MetadataService metadataService() {
       return service(MetadataService.class);
    }
 
    /**
-    * Stamp service.
+    * Filter service.
     *
     * @return the stamp service
     */
@@ -905,7 +946,7 @@ public class Get
     */
    public static Task<Void> startIndexTask(
          @SuppressWarnings("unchecked") Class<? extends IndexBuilderService>... indexersToReindex) {
-      if (!Get.useLuceneIndexes()) {
+      if (!Get.configurationService().getGlobalDatastoreConfiguration().enableLuceneIndexes()) {
          throw new UnsupportedOperationException();
       }
       final GenerateIndexes indexingTask = new GenerateIndexes(indexersToReindex);
@@ -931,7 +972,7 @@ public class Get
           nid,
           configurationService().getGlobalDatastoreConfiguration()
                                 .getDefaultLogicCoordinate()
-                                .getStatedAssemblageNid())
+                                .getStatedAssemblageNid(), false)
                                 .findAny();
    }
 
@@ -947,6 +988,13 @@ public class Get
 
       return taxonomyService;
    }
+   public static NavigationService navigationService() {
+      if (navigationService == null) {
+         navigationService = getService(NavigationService.class);
+      }
+
+      return navigationService;
+   }
    /**
     * Work executors.
     *
@@ -959,8 +1007,6 @@ public class Get
 
       return workExecutors;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    public static Disruptor<AlertEvent> alertDisruptor() {
       return ALERT_DISRUPTOR;
@@ -996,17 +1042,10 @@ public class Get
 
       return services;
    }
+   
    private static final ConcurrentSkipListSet<ApplicationStates> APPLICATION_STATES = new ConcurrentSkipListSet<>();
    public static ConcurrentSkipListSet<ApplicationStates> applicationStates() {
        return APPLICATION_STATES;
-   }
-
-   public static boolean useLuceneIndexes() {
-      return useLuceneIndexes;
-   }
-
-   public static void setUseLuceneIndexes(boolean useLuceneIndexes) {
-      Get.useLuceneIndexes = useLuceneIndexes;
    }
 
    public static ObservableChronology observableChronology(UUID... uuids) {
@@ -1018,5 +1057,123 @@ public class Get
    public static ObservableChronology observableChronology(ConceptSpecification spec) {
       return Get.observableChronologyService().getObservableChronology(spec);
    }
+
+   public static boolean useLuceneIndexes() {
+      return useLuceneIndexes;
+   }
+
+   public static void setUseLuceneIndexes(boolean useLuceneIndexes) {
+      Get.useLuceneIndexes = useLuceneIndexes;
+   }
+
+   public static String conceptDescriptionText(UUID conceptUuid) {
+      return conceptDescriptionText(Get.nidForUuids(conceptUuid));
+   }
+
+   /**
+    * Provides a standard size for concurrent additions to queues for multi-threaded tasks. The size prevents
+    * the queues from being overwhelmed, but also is large enough to keep the CPU occupied.
+    * @return Runtime.getRuntime().availableProcessors() * 2
+    */
+   public static int permitCount() {
+      return Runtime.getRuntime().availableProcessors() * 2;
+   }
+
+   /**
+    * Use when multi threading a task, to ensure that queue resources don't get overwhelmed.
+    * Search for usages for examples. Semaphore count is from the permitCount() method on this class.
+    * @return a Semaphore for governing task execution.
+    */
+   public static TaskCountManager taskCountManager() {
+      return new TaskCountManager(permitCount());
+   }
+
+   public static String getTextForComponent(int componentNid) {
+      return Get.getTextForComponent(componentNid, Get.defaultCoordinate());
+   }
+
+   public static String getTextForComponent(Chronology component) {
+      return Get.getTextForComponent(component, Get.defaultCoordinate().getViewStampFilter(),
+              Get.defaultCoordinate().getLanguageCoordinate());
+   }
+
+
+   public static String getTextForComponent(Chronology component, ManifoldCoordinate manifoldCoordinate) {
+      return Get.getTextForComponent(component, manifoldCoordinate.getViewStampFilter(),
+              manifoldCoordinate.getLanguageCoordinate());
+   }
+
+   public static String getTextForComponent(int componentNid, ManifoldCoordinate manifoldCoordinate) {
+      Optional<? extends Chronology> optionalComponent = Get.identifiedObjectService().getChronology(componentNid);
+      if (optionalComponent.isPresent()) {
+         return Get.getTextForComponent(optionalComponent.get(), manifoldCoordinate.getViewStampFilter(),
+                 manifoldCoordinate.getLanguageCoordinate());
+      }
+      return "No component for: " + componentNid + " uuids: " + Get.identifierService().getUuidsForNid(componentNid);
+   }
+
+   public static String getTextForComponent(int componentNid, StampFilter stampFilter,
+                                            LanguageCoordinate languageCoordinate) {
+      Optional<? extends Chronology> optionalComponent = Get.identifiedObjectService().getChronology(componentNid);
+      if (optionalComponent.isPresent()) {
+         return Get.getTextForComponent(optionalComponent.get(), stampFilter, languageCoordinate);
+      }
+      return "No component for: " + componentNid + " uuids: " + Get.identifierService().getUuidsForNid(componentNid);
+   }
+
+
+   public static String getTextForComponent(Chronology component, StampFilter stampFilter,
+                                            LanguageCoordinate languageCoordinate) {
+      switch (component.getVersionType()) {
+         case CONCEPT: {
+            Optional<String> latestDescriptionText = languageCoordinate.getRegularDescriptionText(component.getNid(), stampFilter);
+            if (latestDescriptionText.isPresent()) {
+               return latestDescriptionText.get();
+            }
+            return "No description for concept: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(component.getNid()));
+         }
+         case DESCRIPTION: {
+            LatestVersion<DescriptionVersion> latest = component.getLatestVersion(stampFilter);
+            if (latest.isPresent()) {
+               return latest.get().getText();
+            } else if (!latest.versionList().isEmpty()) {
+               return latest.versionList().get(0).getText();
+            }
+            return "No versions for: " + component.getVersionType() + " " + component.getNid() + " "
+                    + Get.identifierService().getUuidsForNid(component.getNid());
+         }
+
+         default:
+            LatestVersion<Version>  latest = component.getLatestVersion(stampFilter);
+            if (latest.isPresent()) {
+               return latest.get().toUserString();
+            } else if (!latest.versionList().isEmpty()) {
+               return latest.versionList().get(0).toUserString();
+            }
+            return "No versions for: " + component;
+
+      }
+   }
+
+   public static String conceptDescriptionWithNid(int nid) {
+      StringBuilder sb = new StringBuilder();
+      sb.append(Get.conceptDescriptionText(nid))
+              .append(" <")
+              .append(nid)
+              .append(">");
+      return sb.toString();
+   }
+
+   public static String conceptDescriptionWithNidAndUuids(int nid) {
+      StringBuilder sb = new StringBuilder();
+      sb.append(Get.conceptDescriptionText(nid))
+              .append(" <")
+              .append(nid)
+              .append(" ")
+              .append(Get.identifierService().getUuidsForNid(nid))
+              .append(">");
+      return sb.toString();
+   }
+
 }
 

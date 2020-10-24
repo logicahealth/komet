@@ -16,21 +16,9 @@
  */
 package sh.isaac.solor.direct;
 
-import java.time.format.DateTimeFormatter;
-import static java.time.temporal.ChronoField.INSTANT_SECONDS;
-import java.time.temporal.TemporalAccessor;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.Semaphore;
 import org.apache.logging.log4j.LogManager;
 import sh.isaac.MetaData;
-import sh.isaac.api.AssemblageService;
-import sh.isaac.api.Get;
-import sh.isaac.api.IdentifierService;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.Status;
+import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
@@ -44,6 +32,16 @@ import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
+
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.Semaphore;
+
+import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 
 /**
  * The concept data populates a concept as well as a legacy definition state assemblage, and sct identifier assemblage.
@@ -198,11 +196,27 @@ id	effectiveTime	active	moduleId	definitionStatusId
             defStatusAssemblageNid = TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getNid();
          }
 
+         /*
+         Even though there may be a new record (when a concept changes from primitive to defined),
+         we still need to filter out when the concept status has not changed, so we don't
+         redundantly write equivalent concept STAMP records.
+
+          Records may not be in concept order, and if not, then extra values may be written, which
+          should not impact the semantics of what is written (technically correct, but redundant.
+
+          A check of the SNOMED files on a few concepts indicates that the records ARE in concept order...
+          */
+         String[] previousConceptRecord = null;
+          Status previousState = null;
          for (String[] conceptRecord : conceptRecords) {
+             if (previousConceptRecord != null && !previousConceptRecord[SRF_ID_INDEX].equals(conceptRecord[SRF_ID_INDEX])) {
+                 previousConceptRecord = null;
+                 previousState = null;
+             }
             final Status state = this.solorReleaseFormat
                     ? Status.fromZeroOneToken(conceptRecord[SRF_STATUS_INDEX])
                     : Status.fromZeroOneToken(conceptRecord[RF2_ACTIVE_INDEX]);
-            if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
+            if (state == Status.INACTIVE && importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                 if (!CONCEPT_STRING_WHITELIST.contains(conceptRecord[RF2_CONCEPT_SCT_ID_INDEX])) {
                     continue;
                 }
@@ -220,11 +234,11 @@ id	effectiveTime	active	moduleId	definitionStatusId
                accessor = DateTimeFormatter.ISO_INSTANT.parse(
                        DirectImporter.getIsoInstant(conceptRecord[SRF_TIME_INDEX]));
             }else{
-               conceptUuid = UuidT3Generator.fromSNOMED(conceptRecord[RF2_CONCEPT_SCT_ID_INDEX]);
-               moduleUuid = UuidT3Generator.fromSNOMED(conceptRecord[RF2_MODULE_SCTID_INDEX]);
-               legacyDefStatus = UuidT3Generator.fromSNOMED(conceptRecord[RF2_DEF_STATUS_INDEX]);
-               accessor = DateTimeFormatter.ISO_INSTANT.parse(
-                       DirectImporter.getIsoInstant(conceptRecord[RF2_EFFECTIVE_TIME_INDEX]));
+            conceptUuid = UuidT3Generator.fromSNOMED(conceptRecord[RF2_CONCEPT_SCT_ID_INDEX]);
+            moduleUuid = UuidT3Generator.fromSNOMED(conceptRecord[RF2_MODULE_SCTID_INDEX]);
+            legacyDefStatus = UuidT3Generator.fromSNOMED(conceptRecord[RF2_DEF_STATUS_INDEX]);
+            accessor = DateTimeFormatter.ISO_INSTANT.parse(
+            DirectImporter.getIsoInstant(conceptRecord[RF2_EFFECTIVE_TIME_INDEX]));
             }
 
             long time = accessor.getLong(INSTANT_SECONDS) * 1000;
@@ -233,11 +247,15 @@ id	effectiveTime	active	moduleId	definitionStatusId
             int moduleNid = identifierService.assignNid(moduleUuid);
             int legacyDefStatusNid = identifierService.assignNid(legacyDefStatus);
 
-            ConceptChronologyImpl conceptToWrite = new ConceptChronologyImpl(conceptUuid, conceptAssemblageNid);
-            index(conceptToWrite);
-            int conceptStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
-            conceptToWrite.createMutableVersion(conceptStamp);
-            conceptService.writeConcept(conceptToWrite);
+             int conceptStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
+             ConceptChronologyImpl conceptToWrite = new ConceptChronologyImpl(conceptUuid, conceptAssemblageNid);
+            if (previousState == null ||  previousState != state) {
+                // Don't write a new concept version if the state has not changed...
+                index(conceptToWrite);
+                conceptToWrite.createMutableVersion(conceptStamp);
+                conceptService.writeConcept(conceptToWrite);
+            }
+
 
             // add to legacy def status assemblage
             UUID defStatusPrimordialUuid;
@@ -246,7 +264,7 @@ id	effectiveTime	active	moduleId	definitionStatusId
                defStatusPrimordialUuid = UuidT5Generator.get(TermAux.SRF_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getPrimordialUuid(),
                        conceptRecord[SRF_ID_INDEX]);
             }else{
-               defStatusPrimordialUuid = UuidT5Generator.get(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getPrimordialUuid(),
+            defStatusPrimordialUuid = UuidT5Generator.get(TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getPrimordialUuid(),
                        conceptRecord[RF2_CONCEPT_SCT_ID_INDEX]);
             }
 
@@ -267,8 +285,8 @@ id	effectiveTime	active	moduleId	definitionStatusId
                identifierUuid = UuidT5Generator.get(MetaData.UUID____SOLOR.getPrimordialUuid(),
                        conceptRecord[SRF_ID_INDEX]);
             }else{
-               identifierUuid = UuidT5Generator.get(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(),
-                       conceptRecord[RF2_CONCEPT_SCT_ID_INDEX]);
+            identifierUuid = UuidT5Generator.get(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(),
+                   conceptRecord[RF2_CONCEPT_SCT_ID_INDEX]);
             }
 
             SemanticChronologyImpl identifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
@@ -281,6 +299,8 @@ id	effectiveTime	active	moduleId	definitionStatusId
             index(identifierToWrite);
             assemblageService.writeSemanticChronology(identifierToWrite);
             completedUnitOfWork();
+            previousConceptRecord = conceptRecord;
+            previousState = state;
          }
 
          return null;

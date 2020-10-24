@@ -18,6 +18,7 @@ package sh.isaac.test;
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import org.apache.commons.io.FileUtils;
@@ -27,17 +28,16 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
+import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.constants.DatabaseInitialization;
+import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.convert.directUtils.DirectWriteHelper;
 import sh.isaac.converters.sharedUtils.stats.ConverterUUID;
-import sh.isaac.model.configuration.EditCoordinates;
-import sh.isaac.model.configuration.LanguageCoordinates;
-import sh.isaac.model.configuration.ManifoldCoordinates;
-import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.api.TaxonomySnapshot;
 
 /**
  * @author a href="mailto:daniel.armbrust.list@sagebits.net">Dan Armbrust</a>
@@ -57,10 +57,11 @@ public class TSBugDemo
 			Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 			Get.configurationService().setDataStoreFolderPath(db.toPath());
 			LookupService.startupIsaac();
-	
+
+			Transaction transaction = Get.commitService().newTransaction(Optional.of("TSBugDemoDB bugTestOne"), ChangeCheckerMode.INACTIVE);
 			// Create a concept with two parents.
 			ConverterUUID converterUUID = new ConverterUUID(UUID.randomUUID(), true);
-			DirectWriteHelper dwh = new DirectWriteHelper(TermAux.USER.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid(), converterUUID, 
+			DirectWriteHelper dwh = new DirectWriteHelper(transaction, TermAux.USER.getNid(), TermAux.SOLOR_OVERLAY_MODULE.getNid(), TermAux.DEVELOPMENT_PATH.getNid(), converterUUID, 
 					"hi", false);
 	
 			UUID concept = dwh.makeConcept(converterUUID.createNamespaceUUIDFromString("hi"), Status.ACTIVE, System.currentTimeMillis());
@@ -73,31 +74,28 @@ public class TSBugDemo
 			
 			dwh.processTaxonomyUpdates();
 			
-			TaxonomySnapshot tss = Get.taxonomyService().getSnapshot(ManifoldCoordinates.getStatedManifoldCoordinate(StampCoordinates.getDevelopmentLatest(), 
-					LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate()));
+			TaxonomySnapshot tss = Get.taxonomyService().getSnapshot(Coordinates.Manifold.DevelopmentStatedRegularNameSort());
 			Assert.assertEquals(tss.getTaxonomyParentConceptNids(Get.identifierService().getNidForUuids(concept)).length, 3);
 			
 			byte[][] data = ((LogicGraphVersion)Get.assemblageService().getSemanticChronology(Get.identifierService().getNidForUuids(parentGraph))
 					.getVersionList().get(0)).getGraphData();
 			
 			//retire the 3-parent graph
-			MutableLogicGraphVersion v = Get.assemblageService().getSemanticChronology(Get.identifierService().getNidForUuids(parentGraph)).createMutableVersion(Status.INACTIVE, 
-					EditCoordinates.getDefaultUserSolorOverlay());
+			MutableLogicGraphVersion v = Get.assemblageService().getSemanticChronology(Get.identifierService().getNidForUuids(parentGraph))
+					.createMutableVersion(Coordinates.Manifold.DevelopmentStatedRegularNameSort().getWriteCoordinate(transaction, null, Status.INACTIVE));
 			v.setGraphData(data);
-			
-			Get.commitService().commit(EditCoordinates.getDefaultUserSolorOverlay(), "test commit").get();
-			
+			transaction.commit("test commit").get();
+
 			//TODO broken:
 	//		Assert.assertEquals(tss.getTaxonomyParentConceptNids(Get.identifierService().getNidForUuids(concept)).length, 0);
 			
 			Get.taxonomyService().notifyTaxonomyListenersToRefresh();
-			tss = Get.taxonomyService().getSnapshot(ManifoldCoordinates.getStatedManifoldCoordinate(StampCoordinates.getDevelopmentLatest(), 
-					LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate()));
+			tss = Get.taxonomyService().getSnapshot(Coordinates.Manifold.DevelopmentStatedRegularNameSort());
 			
 			//TODO still broken after forced cache clear, and regen of TSS:
 	//		Assert.assertEquals(tss.getTaxonomyParentConceptNids(Get.identifierService().getNidForUuids(concept)).length, 0);
-			
-			
+
+			transaction = Get.commitService().newTransaction(Optional.of("TSBugDemoDB bugTestOne second"), ChangeCheckerMode.INACTIVE);
 			//Make a new stated parent graph with only 2 parents
 			dwh.makeParentGraph(concept, Arrays.asList(new UUID[] {
 					MetaData.ACTIVE_ONLY_DESCRIPTION_LUCENE_MATCH____QUERY_CLAUSE.getPrimordialUuid(), 

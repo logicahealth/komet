@@ -53,13 +53,10 @@ import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.LookupService;
 import sh.isaac.api.classifier.ClassifierResults;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.logic.LogicService;
+import sh.isaac.api.logic.LogicServiceSnoRocket;
 import sh.isaac.model.configuration.EditCoordinates;
-import sh.isaac.model.configuration.LogicCoordinates;
-import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.model.coordinate.EditCoordinateImpl;
 import sh.isaac.mojo.external.QuasiMojo;
 
 //~--- classes ----------------------------------------------------------------
@@ -81,18 +78,17 @@ public class FullClassification
    public void execute()
             throws MojoExecutionException {
       try {
-         final LogicService    logicService    = LookupService.getService(LogicService.class);
+         final LogicService    logicService    = LookupService.getService(LogicServiceSnoRocket.class);
          EditCoordinate        editCoordinate  = EditCoordinates.getDefaultUserSolorOverlay();
-         final LogicCoordinate logicCoordinate = LogicCoordinates.getStandardElProfile();
+         final LogicCoordinate logicCoordinate = Coordinates.Logic.ElPlusPlus();
 
-         editCoordinate = new EditCoordinateImpl(logicCoordinate.getClassifierNid(),
-               editCoordinate.getModuleNid(),
-               editCoordinate.getModuleNid());
+         editCoordinate = EditCoordinateImmutable.make(logicCoordinate.getClassifierNid(),
+               editCoordinate.getDefaultModuleNid(),
+               editCoordinate.getPromotionPathNid(),
+               editCoordinate.getDestinationModuleNid());
 
          final Task<ClassifierResults> classifyTask =
-            logicService.getClassifierService(StampCoordinates.getDevelopmentLatest(),
-                                              LogicCoordinates.getStandardElProfile(),
-                                              editCoordinate)
+            logicService.getClassifierService(Coordinates.Manifold.DevelopmentStatedRegularNameSort())
                         .classify();
 
          classifyTask.get();

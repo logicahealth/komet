@@ -68,6 +68,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicInteger;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicLong;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.util.AlphanumComparator;
 import sh.isaac.model.semantic.types.DynamicBooleanImpl;
 import sh.isaac.model.semantic.types.DynamicFloatImpl;
@@ -77,7 +78,6 @@ import sh.isaac.model.semantic.types.DynamicNidImpl;
 import sh.isaac.model.semantic.types.DynamicStringImpl;
 import sh.isaac.utility.Frills;
 import sh.isaac.utility.NumericUtilsDynamic;
-import sh.komet.gui.manifold.Manifold;
 
 /**
  * {@link SemanticGUI}
@@ -103,22 +103,22 @@ public class SemanticGUI
 	//These variables are used when we are creating a new refex which doesn't yet exist.
 	private Integer buildFromReferenceNid_;
 	private boolean referenceIsAssemblyNid_;
-	private Manifold manifold_;
+	private StampFilter stampFilter_;
 	
-	protected SemanticGUI(SemanticVersion refex, boolean isCurrent, Manifold manifold)
+	protected SemanticGUI(SemanticVersion refex, boolean isCurrent, StampFilter stampFilter)
 	{
 		refex_ = refex;
 		isCurrent_ = isCurrent;
-		manifold_ = manifold;
+		stampFilter_ = stampFilter;
 	}
 	
-	protected SemanticGUI(int buildFromReferenceNid, boolean referenceIsAssemblyNid, Manifold manifold)
+	protected SemanticGUI(int buildFromReferenceNid, boolean referenceIsAssemblyNid, StampFilter stampFilter)
 	{
 		refex_ = null;
 		isCurrent_ = false;
 		buildFromReferenceNid_ = buildFromReferenceNid;
 		referenceIsAssemblyNid_ = referenceIsAssemblyNid;
-		manifold_ = manifold;
+		stampFilter_ = stampFilter;
 	}
 
 	/**
@@ -172,11 +172,11 @@ public class SemanticGUI
 			case STATUS_CONDENSED:
 			{
 				//sort by uncommitted first, then current / historical, then active / inactive
-				if (this.getSemantic().getTime() == Long.MAX_VALUE)
+				if (this.getSemantic().getTime() == Long.MAX_VALUE || Get.stampService().isUncommitted(this.getSemantic().getStampSequence()))
 				{
 					return -1;
 				}
-				else if (other.getSemantic().getTime() == Long.MAX_VALUE)
+				else if (other.getSemantic().getTime() == Long.MAX_VALUE || Get.stampService().isUncommitted(other.getSemantic().getStampSequence()))
 				{
 					return 1;
 				}
@@ -434,7 +434,7 @@ public class SemanticGUI
 			}
 			else if (oc.get() instanceof ConceptChronology)
 			{
-				Optional<String> conDesc = Frills.getDescription(oc.get().getNid(), manifold_.getStampCoordinate(), null);
+				Optional<String> conDesc = Frills.getDescription(oc.get().getNid(), stampFilter_, null);
 				text = (conDesc.isPresent() ? conDesc.get() : "off path [NID]:" + oc.get().getNid());
 			}
 			else if (oc.get() instanceof SemanticChronology)
@@ -445,7 +445,7 @@ public class SemanticGUI
 						text = "Component NID Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null).orElse(sc.getAssemblageNid() + "");
 						break;
 					case DESCRIPTION:
-						LatestVersion<DescriptionVersion> ds = sc.getLatestVersion(manifold_.getStampCoordinate());
+						LatestVersion<DescriptionVersion> ds = sc.getLatestVersion(stampFilter_);
 						text = "Description Semantic: " + (ds.isPresent() ? ds.get().getText() : "off path [NID]: " + sc.getNid());
 						break;
 					case DYNAMIC:
@@ -455,19 +455,18 @@ public class SemanticGUI
 						text = "Logic Graph Semantic [NID]: " + oc.get().getNid();
 						break;
 					case LONG:
-						LatestVersion<LongVersion> sl = sc.getLatestVersion(manifold_.getStampCoordinate());
+						LatestVersion<LongVersion> sl = sc.getLatestVersion(stampFilter_);
 						text = "String Semantic: " + (sl.isPresent() ? sl.get().getLongValue() : "off path [NID]: " + sc.getNid());
 						break;
 					case MEMBER:
 						text = "Member Semantic using assemblage: " + Frills.getDescription(sc.getAssemblageNid(), null).orElse(sc.getAssemblageNid() + "");
 						break;
 					case STRING:
-						LatestVersion<StringVersion> ss = sc.getLatestVersion(manifold_.getStampCoordinate());
+						LatestVersion<StringVersion> ss = sc.getLatestVersion(stampFilter_);
 						text = "String Semantic: " + (ss.isPresent() ? ss.get().getString() : "off path [NID]: " + sc.getNid());
 						break;
 
 					case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
-					case LOINC_RECORD:
 					case MEASURE_CONSTRAINTS:
 					case Nid1_Int2:
 					case Nid1_Int2_Str3_Str4_Nid5_Nid6:
@@ -481,7 +480,7 @@ public class SemanticGUI
 					case Str1_Str2_Nid3_Nid4:
 					case Str1_Str2_Nid3_Nid4_Nid5:
 					case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
-						LatestVersion<BrittleVersion> bv = sc.getLatestVersion(manifold_.getStampCoordinate());
+						LatestVersion<BrittleVersion> bv = sc.getLatestVersion(stampFilter_);
 						text = "Brittle Semantic: " + (bv.isPresent() ? Arrays.toString(bv.get().getDataFields()) : "off path [NID]: " + sc.getNid());
 						break;
 					case UNKNOWN:
@@ -493,10 +492,10 @@ public class SemanticGUI
 						break;
 				}
 			}
-			else if (oc.get() instanceof DynamicVersion<?>)
+			else if (oc.get() instanceof DynamicVersion)
 			{
 				//TODO I don't think this is necessary / in use?
-				DynamicVersion<?> nds = (DynamicVersion<?>) oc.get();
+				DynamicVersion nds = (DynamicVersion) oc.get();
 				text = "Nested Semantic Dynamic: using assemblage " + Frills.getDescription(nds.getAssemblageNid(), null);
 			}
 			else
@@ -632,11 +631,11 @@ public class SemanticGUI
 				return new DynamicData[] {new DynamicNidImpl(((ComponentNidVersion)semantic).getComponentNid())};
 			case DESCRIPTION:
 				return new DynamicData[] {new DynamicStringImpl(((DescriptionVersion)semantic).getText()), 
-						new DynamicNidImpl(((DescriptionVersion)semantic).getDescriptionTypeConceptNid()),
 						new DynamicNidImpl(((DescriptionVersion)semantic).getLanguageConceptNid()),
+						new DynamicNidImpl(((DescriptionVersion)semantic).getDescriptionTypeConceptNid()),
 						new DynamicNidImpl(((DescriptionVersion)semantic).getCaseSignificanceConceptNid())};
 			case DYNAMIC:
-				return ((DynamicVersion<?>)semantic).getData();
+				return ((DynamicVersion)semantic).getData();
 			case LONG:
 				return new DynamicData[] {new DynamicLongImpl(((LongVersion)semantic).getLongValue())};
 			case MEMBER:
@@ -658,7 +657,6 @@ public class SemanticGUI
 			case Str1_Str2_Nid3_Nid4_Nid5:
 			case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
 			case RF2_RELATIONSHIP:
-			case LOINC_RECORD:
 			case MEASURE_CONSTRAINTS:
 				//Handle all brittle types
 				if (semantic instanceof BrittleVersion)

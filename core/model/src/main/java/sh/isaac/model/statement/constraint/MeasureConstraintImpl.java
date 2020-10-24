@@ -16,12 +16,10 @@
  */
 package sh.isaac.model.statement.constraint;
 
-import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.BrittleVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.statement.constraints.MeasureConstraints;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -95,17 +93,10 @@ public class MeasureConstraintImpl
       data.putBoolean(this.showIncludeBounds);
       data.putNid(this.measureSemanticConstraintAssemblageNid);
    }
-   //~--- methods -------------------------------------------------------------
 
+   @SuppressWarnings("unchecked")
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-                                   .getStampSequence(
-                                       this.getStatus(),
-                                       Long.MAX_VALUE,
-                                       ec.getAuthorNid(),
-                                       this.getModuleNid(),
-                                       ec.getPathNid());
+   public <V extends Version> V makeAnalog(int stampSequence) {
       SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
       final MeasureConstraintImpl newVersion = new MeasureConstraintImpl((SemanticChronology) this, stampSequence);
       newVersion.setConstraintDescription(constraintDescription);
@@ -124,10 +115,10 @@ public class MeasureConstraintImpl
       newVersion.setMeasureSemanticConstraintAssemblageNid(measureSemanticConstraintAssemblageNid);
       
       chronologyImpl.addVersion(newVersion);
-      return (V) newVersion;   
+      return (V) newVersion;
    }
 
-   @Override
+    @Override
    protected boolean deepEquals3(AbstractVersionImpl other) {
       return editDistance3(other, 0) == 0;
    }

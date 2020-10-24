@@ -37,33 +37,20 @@
 package sh.isaac.api;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Optional;
-import java.util.UUID;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlRootElement;
 
-import javax.xml.bind.annotation.XmlTransient;
-import javax.xml.bind.annotation.XmlType;
-
-//~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.util.SemanticTags;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.api.util.UUIDUtil;
 
+import java.util.*;
+
+//~--- non-JDK imports --------------------------------------------------------
+
 //~--- classes ----------------------------------------------------------------
 /**
  * Created by kec on 2/16/15.
  */
-@XmlRootElement(name = "Concept")
-@XmlAccessorType(XmlAccessType.FIELD)
-@XmlType(propOrder={"fullyQualfiedName", "uuids"})
 public class ConceptProxy
         implements ConceptSpecification { 
 
@@ -76,22 +63,18 @@ public class ConceptProxy
    /**
     * Universal identifiers for the concept proxied by the is object.
     */
-   @XmlAttribute(name = "uuids", required = true)
    private UUID[] uuids;
 
    /**
     * The fully qualified name for this object.
     */
-   @XmlAttribute(name = "fqn", required = true)
    private String fullyQualfiedName;
 
    /**
     * The regular name for this object.
     */
-    @XmlTransient
    private Optional<String> regularName = null;  //leave null, so we know if we have done a lookup or not
    
-     @XmlTransient
    private int cachedNid = 0;
 
    //~--- constructors --------------------------------------------------------
@@ -133,9 +116,6 @@ public class ConceptProxy
       final List<UUID> uuidList = new ArrayList<>(parts.length - partIndex);
 
       for (int i = partIndex; i < parts.length; i++) {
-//         if (parts[i].equals("601fc2f5-ae70-42ed-a47c-d7264cb3404a")) {
-//             parts[i] = "33737357-0218-4b19-8fd4-cbfca60c9a5e";
-//         }
          uuidList.add(UUID.fromString(parts[i]));
       }
 
@@ -196,9 +176,15 @@ public class ConceptProxy
          final ConceptSpecification other = (ConceptSpecification) obj;
 
          if (obj instanceof ConceptProxy) {
-            //A hack to make ConceptProxy 'lazier' in certain bootstrap scenarios
-            if (cachedNid != 0 && ((ConceptProxy)obj).cachedNid != 0) {
-               return cachedNid == ((ConceptProxy)obj).cachedNid;
+            //A hack to make ConceptProxy 'lazier' in certain bootstrap scenarios, and also certain tests 
+            //that purposefully don't use valid nids
+            if (cachedNid != 0) {
+                if (((ConceptProxy)obj).cachedNid != 0) {
+                   return cachedNid == ((ConceptProxy)obj).cachedNid;
+                }
+                else {
+                    return cachedNid == ((ConceptProxy)obj).getNid();
+                }
             }
             ConceptProxy proxy = (ConceptProxy) obj;
             return Arrays.stream(this.getUuids()).anyMatch((UUID objUuid) -> {
@@ -236,7 +222,7 @@ public class ConceptProxy
    @Override
    public String toString() {
       if (this.cachedNid != 0 && LookupService.isIsaacStarted()) {
-         return getFullyQualifiedName() + Arrays.toString(getUuids());
+         return getFullyQualifiedName() + " " + Arrays.toString(getUuids());
       }
       if (this.getUuids() != null) {
           StringBuilder builder = new StringBuilder();
@@ -269,7 +255,7 @@ public class ConceptProxy
    @Override
    public String getFullyQualifiedName() {
       if (this.fullyQualfiedName == null) {
-         this.fullyQualfiedName = Get.defaultCoordinate().getFullyQualifiedName(this.getNid(), Get.defaultCoordinate()).orElse(null);
+         this.fullyQualfiedName = Get.defaultCoordinate().getFullyQualifiedName(this.getNid(), Get.defaultCoordinate().getViewStampFilter()).orElse(null);
       }
       return this.fullyQualfiedName;
    }
@@ -309,8 +295,7 @@ public class ConceptProxy
     *
     * @return the first UUID in the UUID list, or null, if not present
     */
-   @XmlTransient
-   @Override
+    @Override
    public UUID getPrimordialUuid() {
       if ((this.getUuids() == null) || (this.uuids.length < 1)) {
          return null;
@@ -335,7 +320,6 @@ public class ConceptProxy
     * @return the universal identifiers for the concept proxied by the is object
     */
    @Override
-   @XmlTransient
    public UUID[] getUuids() {
        if (this.uuids == null) {
            this.uuids = Get.identifierService().getUuidArrayForNid(cachedNid);
@@ -412,7 +396,7 @@ public class ConceptProxy
    @Override
    public Optional<String> getRegularName() {
       if (this.regularName == null) {
-         this.regularName = Get.defaultCoordinate().getRegularName(this);
+         this.regularName = Optional.ofNullable(Get.defaultCoordinate().getPreferredDescriptionText(this));
       }
       return this.regularName;
    }

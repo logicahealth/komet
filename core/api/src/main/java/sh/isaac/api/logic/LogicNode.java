@@ -46,21 +46,22 @@ import java.util.LinkedList;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Stream;
-import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 
 //~--- interfaces -------------------------------------------------------------
 
 /**
  * Created by kec on 12/9/14.
+ * TODO change to LogicVertex to not clash with JavaFx Node...
  */
 public interface LogicNode
         extends Comparable<LogicNode> {
@@ -78,7 +79,7 @@ public interface LogicNode
     * concepts associated with the node itself (node semantic concept + type concept, etc).
     * @param conceptNidSet The set to add the concept nids to.
     */
-   void addConceptsReferencedByNode(OpenIntHashSet conceptNidSet);
+   void addConceptsReferencedByNode(RoaringBitmap conceptNidSet);
 
    /**
     * Fragment to string.
@@ -201,12 +202,12 @@ public interface LogicNode
    
    /**
     * Gets the preferred description for this node.
-    * @param stampCoordinate to determine the current description.
+    * @param stampFilter to determine the current description.
     * @param languageCoordinate to determine the language and dialect.
-    * @return the preferred description. 
+    * @return the preferred description.
     */
-   LatestVersion<DescriptionVersion> getPreferredDescription(StampCoordinate stampCoordinate, 
-           LanguageCoordinate languageCoordinate);
+   LatestVersion<DescriptionVersion> getPreferredDescription(StampFilter stampFilter,
+                                                             LanguageCoordinate languageCoordinate);
    
    /**
     * Gets the preferred description for this node.
@@ -214,7 +215,7 @@ public interface LogicNode
     * @return the preferred description. 
     */
    default LatestVersion<DescriptionVersion> getPreferredDescription(ManifoldCoordinate manifoldCoordinate) {
-      return getPreferredDescription(manifoldCoordinate, manifoldCoordinate);
+      return getPreferredDescription(manifoldCoordinate.getViewStampFilter(), manifoldCoordinate.getLanguageCoordinate());
    }
    
    /**

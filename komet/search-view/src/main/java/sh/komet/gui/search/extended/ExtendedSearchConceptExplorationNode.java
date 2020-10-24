@@ -17,45 +17,48 @@
 package sh.komet.gui.search.extended;
 
 import java.util.Optional;
-import javafx.beans.property.ReadOnlyObjectProperty;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+
+import javafx.beans.property.*;
 import javafx.beans.value.ObservableValue;
 import javafx.scene.Node;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.query.CompositeQueryResult;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.interfaces.ExplorationNodeAbstract;
+import sh.komet.gui.search.simple.SimpleSearchViewFactory;
 
 /**
  *
  * @author kec
  */
-public class ExtendedSearchConceptExplorationNode implements ConceptExplorationNode {
+public class ExtendedSearchConceptExplorationNode extends ExplorationNodeAbstract implements ConceptExplorationNode {
+
+    {
+        titleProperty.setValue("Extended search");
+        toolTipProperty.setValue("Extended search panel. ");
+        menuIconProperty.setValue(Iconography.TARGET.getIconographic());
+    }
 
     private final ExtendedSearchViewController controller;
-    private final Manifold manifold;
     private final SimpleObjectProperty<ConceptSpecification> conceptSpecification = new SimpleObjectProperty<>();
 
-    public ExtendedSearchConceptExplorationNode(ExtendedSearchViewController controller, Manifold manifold) {
+    public ExtendedSearchConceptExplorationNode(ExtendedSearchViewController controller, ViewProperties viewProperties) {
+        super(viewProperties);
         this.controller = controller;
-        this.manifold = manifold;
         controller.getSearchResults().getSelectionModel().selectedItemProperty().addListener(this::selectedSearchResultChanged);
     }
 
-    /**
-     * {@inheritDoc}
-     */
     @Override
-    public Node getMenuIcon() {
+    public Node getMenuIconGraphic() {
         return Iconography.TARGET.getIconographic();
     }
 
     @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return new SimpleStringProperty("Shows all of the Dynamic Semantics in the system");
+    public void savePreferences() {
+
     }
 
     @Override
@@ -64,20 +67,10 @@ public class ExtendedSearchConceptExplorationNode implements ConceptExplorationN
     }
 
     @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return new SimpleStringProperty("Extended Search");
-    }
-
-    @Override
     public Node getNode() {
         return controller.getRoot();
     }
 
-    @Override
-    public Manifold getManifold() {
-        return manifold;
-    }
-    
     private void selectedSearchResultChanged(ObservableValue<? extends CompositeQueryResult> observable, CompositeQueryResult oldValue, CompositeQueryResult newValue) {
         if (newValue != null) {
             conceptSpecification.setValue(newValue.getContainingConcept());
@@ -102,7 +95,23 @@ public class ExtendedSearchConceptExplorationNode implements ConceptExplorationN
         controller.getSearchResults().requestFocus();
         controller.getSearchResults().getSelectionModel().selectFirst();
     }
-    
-    
+
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
+
+    @Override
+    public ActivityFeed getActivityFeed() {
+        throw new UnsupportedOperationException();
+    }
+
+
 }
 

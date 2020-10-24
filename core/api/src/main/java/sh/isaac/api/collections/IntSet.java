@@ -38,6 +38,8 @@ package sh.isaac.api.collections;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+
 import java.util.OptionalInt;
 import java.util.PrimitiveIterator;
 import java.util.stream.IntStream;
@@ -63,6 +65,12 @@ public interface IntSet {
     * @param intStream the int stream
     */
    void addAll(IntStream intStream);
+
+   default void addAll(int[] values) {
+      for (int item: values) {
+         add(item);
+      }
+   }
 
    /**
     * And.
@@ -114,6 +122,8 @@ public interface IntSet {
     * @return the int set
     */
    IntSet or(IntSet otherSet);
+
+   IntSet or(ImmutableIntSet otherSet);
 
    /**
     * Parallel stream.

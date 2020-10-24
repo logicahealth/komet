@@ -53,7 +53,6 @@ public class NaturalOrderTest {
     */
    @Test
    public void testCompare() {
-      System.out.println("compare");
       String s1 = "i";
       String s2 = "I";
       int expResult = 0;
@@ -74,7 +73,16 @@ public class NaturalOrderTest {
       s2 = "10";
       result = NaturalOrder.compareStrings(s1, s2);      
       assertTrue(result < 0);
-      
+
+      s1 = "Change feature type...";
+      s2 = "Change feature type using";
+      result = NaturalOrder.compareStrings(s1, s2);
+      assertTrue(result < 0);
+
+      s1 = "Change feature";
+      s2 = "change feature";
+      result = NaturalOrder.compareStrings(s1, s2);
+      assertTrue(result == 0);
    }
    
 }

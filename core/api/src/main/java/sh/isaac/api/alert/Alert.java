@@ -62,12 +62,12 @@ import sh.isaac.api.Get;
  * @author kec
  */
 public class Alert {
-   private static final Logger LOG = LogManager.getLogger();
    private static final ConcurrentSkipListSet<WeakEventHandler<AlertEvent>> RESOLVER_FACTORIES =
       new ConcurrentSkipListSet<>();
    private static final ConcurrentSkipListSet<WeakEventHandler<AlertEvent>> ALERT_LISTENERS =
       new ConcurrentSkipListSet<>();
    private static final RingBuffer<AlertEvent> RING_BUFFER;
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- static initializers -------------------------------------------------
 
@@ -75,7 +75,7 @@ public class Alert {
       Disruptor<AlertEvent> disruptor = Get.alertDisruptor();
 
       disruptor.handleEventsWith((event, sequence, endOfBatch) -> {
-             System.out.println("adding resolvers for: " + sequence + " " + event);
+             LOG.debug("adding resolvers for: " + sequence + " " + event);
              RESOLVER_FACTORIES.forEach((handler) -> {
                     try {
 
@@ -91,7 +91,7 @@ public class Alert {
                  });
           })
                .then((event, sequence, endOfBatch) -> {
-                      System.out.println("alerting listeners for: " + sequence + " " + event);
+                      LOG.debug("alerting listeners for: " + sequence + " " + event);
                       ALERT_LISTENERS.forEach((handler) -> {
                              try {
                                 if (handler.wasGarbageCollected()) {

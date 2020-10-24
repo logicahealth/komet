@@ -16,18 +16,24 @@
  */
 package sh.isaac.solor.direct;
 
-import java.sql.SQLException;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
+import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.OptionalInt;
+import java.util.Optional;
 import java.util.TreeSet;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.DataTarget;
@@ -39,6 +45,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -46,24 +53,20 @@ import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
 import sh.isaac.api.component.semantic.version.brittle.Rf2Relationship;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.coordinate.StampPosition;
-import sh.isaac.api.coordinate.StampPrecedence;
-import sh.isaac.api.externalizable.IsaacExternalizable;
+import sh.isaac.api.coordinate.StampPositionImmutable;
+import sh.isaac.api.coordinate.StatusSet;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.IsomorphicResults;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.SomeRole;
-import static sh.isaac.api.logic.LogicalExpressionBuilder.SufficientSet;
 import sh.isaac.api.logic.assertions.Assertion;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.model.coordinate.StampCoordinateImpl;
-import sh.isaac.model.coordinate.StampPositionImpl;
+import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 
 /**
@@ -108,9 +111,18 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
     private final List<IndexBuilderService> indexers;
     private final ImportType importType;
     private final Instant commitTime;
+    private Transaction transaction;
 
-    public LogicGraphTransformerAndWriter(List<TransformationGroup> transformationRecords,
+    /**
+     * @param transaction - optional, does NOT commit if transaction if provided, if not provided, creates its own transaction and commits.
+     * @param transformationRecords
+     * @param writeSemaphore
+     * @param importType
+     * @param commitTime
+     */
+    public LogicGraphTransformerAndWriter(Transaction transaction, List<TransformationGroup> transformationRecords,
             Semaphore writeSemaphore, ImportType importType, Instant commitTime) {
+        this.transaction = transaction;
         this.transformationRecords = transformationRecords;
         this.writeSemaphore = writeSemaphore;
         this.importType = importType;
@@ -136,19 +148,31 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
     @Override
     protected Void call() throws Exception {
         try {
-
+            boolean commitTransaction = this.transaction == null;
+            if (commitTransaction) {
+                transaction = Get.commitService().newTransaction(Optional.of("LogicGraphTransformer"), ChangeCheckerMode.INACTIVE, false);
+            }
             int count = 0;
             for (TransformationGroup transformationGroup : transformationRecords) {
-                transformRelationships(transformationGroup.conceptNid, transformationGroup.relationshipNids, transformationGroup.getPremiseType());
+                transformRelationships(transformationGroup.conceptNid, transformationGroup.semanticNids, transformationGroup.getPremiseType());
                 if (count % 1000 == 0) {
                     updateMessage("Processing concept: " + Get.conceptDescriptionText(transformationGroup.conceptNid));
                 }
                 count++;
                 completedUnitOfWork();
             }
+
+            if (commitTransaction) {
+                transaction.commit("Logic graph transformer").get();
+            }
             return null;
+        } catch (Throwable t) {
+            LOG.error(t.getLocalizedMessage(), t);
+            throw t;
         } finally {
+            //LOG.info("Releasing semaphore. Permits available: " + this.writeSemaphore.availablePermits());
             this.writeSemaphore.release();
+            //LOG.info("Released semaphore. Permits available: " + this.writeSemaphore.availablePermits());
             Get.activeTasks().remove(this);
         }
     }
@@ -159,108 +183,113 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
                 .getLogicalExpressionBuilder();
         final ArrayList<Assertion> assertions = new ArrayList<>();
         final HashMap<Integer, ArrayList<Assertion>> groupedAssertions = new HashMap<>();
-
-        StampCoordinate stampCoordinate = new StampCoordinateImpl(StampPrecedence.PATH,
-                stampPosition,
-                new HashSet(), new ArrayList(),
-                Status.makeActiveOnlySet());
-
+/*
+StatusSet allowedStates,
+                         StampPosition stampPosition,
+                         ImmutableIntSet authorNids,
+                         StampPath stampPath
+ */
+        StampFilterImmutable stampFilter = StampFilterImmutable.make(StatusSet.ACTIVE_ONLY, stampPosition,
+                IntSets.immutable.empty(), IntLists.immutable.empty());
+        
         // only process active concepts... TODO... Process all
-        if (Get.conceptActiveService().isConceptActive(conceptNid, stampCoordinate)) {
+        if (Get.conceptActiveService().isConceptActive(conceptNid, stampFilter)) {
 
-        // for each relationship, add to assertion or grouped assertions. 
-        for (final SemanticChronology rb : relationships) {
-            LatestVersion<Rf2Relationship> latestRel = rb.getLatestVersion(stampCoordinate);
-            if (latestRel.isPresent()) {
-                Rf2Relationship relationship = latestRel.get();
-
-                if (definingCharacteristicSet.contains(relationship.getCharacteristicNid())) {
-
-                    if (relationship.getRelationshipGroup() == 0) {
-
-                        if (isaNid == relationship.getTypeNid()) {
-                            assertions.add(ConceptAssertion(relationship.getDestinationNid(),
-                                    logicalExpressionBuilder));
-                        } else {
-                            if (this.neverRoleGroupSet.contains(relationship.getTypeNid())) {
-                                assertions.add(SomeRole(relationship.getTypeNid(),
-                                        ConceptAssertion(relationship.getDestinationNid(),
-                                                logicalExpressionBuilder)));
+            // for each relationship, add to assertion or grouped assertions. 
+            for (final SemanticChronology rb : relationships) {
+                LatestVersion<Rf2Relationship> latestRel = rb.getLatestVersion(stampFilter);
+                if (latestRel.isPresent()) {
+                    Rf2Relationship relationship = latestRel.get();
+    
+                    if (definingCharacteristicSet.contains(relationship.getCharacteristicNid())) {
+    
+                        if (relationship.getRelationshipGroup() == 0) {
+    
+                            if (isaNid == relationship.getTypeNid()) {
+                                assertions.add(ConceptAssertion(relationship.getDestinationNid(),
+                                        logicalExpressionBuilder));
                             } else {
-                                assertions.add(SomeRole(MetaData.ROLE_GROUP____SOLOR.getNid(),
-                                        And(SomeRole(relationship.getTypeNid(),
-                                                ConceptAssertion(relationship.getDestinationNid(),
-                                                        logicalExpressionBuilder)))));
+                                if (this.neverRoleGroupSet.contains(relationship.getTypeNid())) {
+                                    assertions.add(SomeRole(relationship.getTypeNid(),
+                                            ConceptAssertion(relationship.getDestinationNid(),
+                                                    logicalExpressionBuilder)));
+                                } else {
+                                    assertions.add(SomeRole(MetaData.ROLE_GROUP____SOLOR.getNid(),
+                                            And(SomeRole(relationship.getTypeNid(),
+                                                    ConceptAssertion(relationship.getDestinationNid(),
+                                                            logicalExpressionBuilder)))));
+                                }
                             }
+                        } else {
+                            ArrayList<Assertion> groupAssertions = groupedAssertions.get(relationship.getRelationshipGroup());
+    
+                            if (groupAssertions == null) {
+                                groupAssertions = new ArrayList<>();
+                                groupedAssertions.put(relationship.getRelationshipGroup(), groupAssertions);
+                            }
+                            groupAssertions.add(SomeRole(relationship.getTypeNid(),
+                                    ConceptAssertion(relationship.getDestinationNid(),
+                                            logicalExpressionBuilder)));
                         }
-                    } else {
-                        ArrayList<Assertion> groupAssertions = groupedAssertions.get(relationship.getRelationshipGroup());
-
-                        if (groupAssertions == null) {
-                            groupAssertions = new ArrayList<>();
-                            groupedAssertions.put(relationship.getRelationshipGroup(), groupAssertions);
-                        }
-                        groupAssertions.add(SomeRole(relationship.getTypeNid(),
-                                ConceptAssertion(relationship.getDestinationNid(),
-                                        logicalExpressionBuilder)));
                     }
                 }
             }
-        }
-
-        // handle relationship groups
-        for (final ArrayList<Assertion> groupAssertions : groupedAssertions.values()) {
-            assertions.add(SomeRole(MetaData.ROLE_GROUP____SOLOR.getNid(),
-                    And(groupAssertions.toArray(new Assertion[groupAssertions.size()]))));
-        }
-
-        if (assertions.size() > 0) {
-            boolean defined = false; // Change to use list instead of stream...
-            Stream<SemanticChronology> implicationChronologyStream = Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(conceptNid, legacyImplicationAssemblageNid);
-            List<SemanticChronology> implicationList = implicationChronologyStream.collect(Collectors.toList());
-            if (implicationList.size() == 1) {
-                SemanticChronology implicationChronology = implicationList.get(0);
-                LatestVersion<ComponentNidVersion> latestImplication = implicationChronology.getLatestVersion(stampCoordinate);
-                if (latestImplication.isPresent()) {
-                    ComponentNidVersion definitionStatus = latestImplication.get();
-                    if (definitionStatus.getComponentNid() == sufficientDefinition) {
-                        defined = true;
-                    } else if (definitionStatus.getComponentNid() == primitiveDefinition) {
-                        defined = false;
+    
+            // handle relationship groups
+            for (final ArrayList<Assertion> groupAssertions : groupedAssertions.values()) {
+                assertions.add(SomeRole(MetaData.ROLE_GROUP____SOLOR.getNid(),
+                        And(groupAssertions.toArray(new Assertion[groupAssertions.size()]))));
+            }
+    
+            if (assertions.size() > 0) {
+                boolean defined = false; // Change to use list instead of stream...
+                Stream<SemanticChronology> implicationChronologyStream = Get.assemblageService()
+                        .getSemanticChronologyStreamForComponentFromAssemblage(conceptNid, legacyImplicationAssemblageNid, true);
+                List<SemanticChronology> implicationList = implicationChronologyStream.collect(Collectors.toList());
+                if (implicationList.size() == 1) {
+                    SemanticChronology implicationChronology = implicationList.get(0);
+                    LatestVersion<ComponentNidVersion> latestImplication = implicationChronology.getLatestVersion(stampFilter);
+                    if (latestImplication.isPresent()) {
+                        ComponentNidVersion definitionStatus = latestImplication.get();
+                        if (definitionStatus.getComponentNid() == sufficientDefinition) {
+                            defined = true;
+                        } else if (definitionStatus.getComponentNid() == primitiveDefinition) {
+                            defined = false;
+                        } else {
+                            throw new RuntimeException("Unexpected concept definition status: " + definitionStatus);
+                        }
                     } else {
-                        throw new RuntimeException("Unexpected concept definition status: " + definitionStatus);
+                        StringBuilder builder = new StringBuilder();
+                        builder.append("No implication to: ");
+                        builder.append(Get.conceptDescriptionText(conceptNid));
+                        builder.append("\n");
+                        builder.append(Get.concept(conceptNid).toString());
+                        LOG.error(builder.toString());
+    
                     }
-                } else {
-                    StringBuilder builder = new StringBuilder();
-                    builder.append("No implication to: ");
-                    builder.append(Get.conceptDescriptionText(conceptNid));
-                    builder.append("\n");
-                    builder.append(Get.concept(conceptNid).toString());
-                    LOG.error(builder.toString());
+                    if (defined) {
+                        SufficientSet(And(assertions.toArray(new Assertion[assertions.size()])));
+                    } else {
+                        NecessarySet(And(assertions.toArray(new Assertion[assertions.size()])));
+                    }
+    
+                    final LogicalExpression le = logicalExpressionBuilder.build();
+                    le.setConceptBeingDefinedNid(conceptNid);
+                    if (le.isMeaningful()) {
 
-                }
-                if (defined) {
-                    SufficientSet(And(assertions.toArray(new Assertion[assertions.size()])));
-                } else {
-                    NecessarySet(And(assertions.toArray(new Assertion[assertions.size()])));
-                }
-
-                final LogicalExpression le = logicalExpressionBuilder.build();
-                le.setConceptBeingDefinedNid(conceptNid);
-                if (le.isMeaningful()) {
 
                     // TODO [graph] what if the modules are different across the graph rels?
                     addLogicGraph(conceptNid,
                             le,
                             premiseType,
                             stampPosition.getTime(),
-                            solorOverlayModuleNid, stampCoordinate);
+                            solorOverlayModuleNid, stampFilter);
                 } else {
                     LOG.error("expression not meaningful?");
                 }
             }
 
-        }
+            }
         }
 
     }
@@ -270,8 +299,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
     /**
      * Transform relationships.
      *
-     * @param stated the stated
-     * @throws SQLException the SQL exception
+     * @param premiseType  stated or inferred
      */
     private void transformRelationships(int conceptNid, int[] relNids, PremiseType premiseType) {
         updateMessage("Converting " + premiseType + " relationships into logic graphs");
@@ -282,37 +310,35 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             SemanticChronology relationshipChronology = Get.assemblageService().getSemanticChronology(relNid);
             for (int stamp : relationshipChronology.getVersionStampSequences()) {
                 StampService stampService = Get.stampService();
-                if (this.importType == ImportType.ACTIVE_ONLY) {
-                    stampPositionsToProcess.add(new StampPositionImpl(Long.MAX_VALUE, stampService.getPathNidForStamp(stamp)));
-                } else {
-                    stampPositionsToProcess.add(new StampPositionImpl(stampService.getTimeForStamp(stamp), stampService.getPathNidForStamp(stamp)));
-                }
-
+                stampPositionsToProcess.add(StampPositionImmutable.make(stampService.getTimeForStamp(stamp), stampService.getPathNidForStamp(stamp)));
             }
             relationshipChronologiesForConcept.add(relationshipChronology);
         }
         for (StampPosition stampPosition : stampPositionsToProcess) {
-            transformAtTimePath(stampPosition, conceptNid, relationshipChronologiesForConcept, premiseType);
-        }
+            // SNOMED released OWL format on "2019-07-31T00:00:00Z", and retired all but is-a relationships
+            // in stated and inferred tables... So only use stated and inferred relationships prior to that date. Use the
+            // OWL definitions after that date.
 
+            if (stampPosition.getTime() < DateTimeUtil.parseWithZone("2019-07-31T00:00:00Z")) {
+                transformAtTimePath(stampPosition, conceptNid, relationshipChronologiesForConcept, premiseType);
+            }
+        }
     }
 
     /**
      * Adds the relationship graph.
-     *
-     * @param conceptNid the conceptNid
+     *  @param conceptNid the conceptNid
      * @param logicalExpression the logical expression
      * @param premiseType the premise type
-     * @param time the time
+     * @param time the time for the commit.
      * @param moduleNid the module
-     * @param stampCoordinate for determining current version if a graph already
-     * exists.
+     * @param stampFilter for determining current version if a graph already
      */
     public void addLogicGraph(int conceptNid,
-            LogicalExpression logicalExpression,
-            PremiseType premiseType,
-            long time,
-            int moduleNid, StampCoordinate stampCoordinate) {
+                              LogicalExpression logicalExpression,
+                              PremiseType premiseType,
+                              long time,
+                              int moduleNid, StampFilter stampFilter) {
         if (time == Long.MAX_VALUE) {
             time = commitTime.toEpochMilli();
         }
@@ -321,7 +347,7 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
             graphAssemblageNid = inferredAssemblageNid;
         }
 
-        final SemanticBuilder sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
+        final SemanticBuilder<? extends SemanticChronology> sb = Get.semanticBuilderService().getLogicalExpressionBuilder(logicalExpression,
                 conceptNid,
                 graphAssemblageNid);
 
@@ -331,23 +357,22 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
         }
 
         // See if a semantic already exists in this assemblage referencing this concept... 
-        NidSet graphNidsForComponent = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, graphAssemblageNid);
+        ImmutableIntSet graphNidsForComponent = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(conceptNid, graphAssemblageNid);
         if (!graphNidsForComponent.isEmpty()) {
 //            LOG.info("Existing graph found for: " + Get.conceptDescriptionText(conceptNid));
             if (graphNidsForComponent.size() != 1) {
                 throw new IllegalStateException("To many graphs for component: " + Get.conceptDescriptionText(conceptNid));
             }
-            OptionalInt optionalGraphNid = graphNidsForComponent.findFirst();
-            SemanticChronology existingGraph = Get.assemblageService().getSemanticChronology(optionalGraphNid.getAsInt());
-            LatestVersion<LogicGraphVersionImpl> latest = existingGraph.getLatestVersion(stampCoordinate);
+            SemanticChronology existingGraph = Get.assemblageService().getSemanticChronology(graphNidsForComponent.intIterator().next());
+            LatestVersion<LogicGraphVersionImpl> latest = existingGraph.getLatestVersion(stampFilter);
             if (latest.isPresent()) {
                 LogicGraphVersionImpl logicGraphLatest = latest.get();
                 LogicalExpression latestExpression = logicGraphLatest.getLogicalExpression();
                 IsomorphicResults isomorphicResults = logicalExpression.findIsomorphisms(latestExpression);
                 if (!isomorphicResults.equivalent()) {
-                    int stamp = Get.stampService().getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, developmentPathNid);
+                    int stamp = Get.stampService().getStampSequence(transaction, Status.ACTIVE, time, authorNid, moduleNid, developmentPathNid);
                     final MutableLogicGraphVersion newVersion
-                            = existingGraph.createMutableVersion(stamp);
+                            = existingGraph.createMutableVersion(transaction, stamp);
 
                     newVersion.setGraphData(logicalExpression.getData(DataTarget.INTERNAL));
                     index(existingGraph);
@@ -362,9 +387,9 @@ public class LogicGraphTransformerAndWriter extends TimedTaskWithProgressTracker
 
             sb.setPrimordialUuid(generatedGraphPrimordialUuid);
 
-            final ArrayList<IsaacExternalizable> builtObjects = new ArrayList<>();
+            final ArrayList<Chronology> builtObjects = new ArrayList<>();
             int stamp = Get.stampService().getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, developmentPathNid);
-            final SemanticChronology sci = (SemanticChronology) sb.build(stamp,
+            final SemanticChronology sci = (SemanticChronology) sb.build(transaction, stamp,
                     builtObjects);
             // There should be no other build objects, so ignore the builtObjects list...
 

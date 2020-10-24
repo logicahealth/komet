@@ -29,22 +29,38 @@ public interface LogicCoordinateProxy extends LogicCoordinate {
    LogicCoordinate getLogicCoordinate();
 
    @Override
-   public default int getClassifierNid() {
+   default int getClassifierNid() {
       return getLogicCoordinate().getClassifierNid();
    }
 
    @Override
-   public default int getDescriptionLogicProfileNid() {
+   default int getDescriptionLogicProfileNid() {
       return getLogicCoordinate().getDescriptionLogicProfileNid();
    }
 
    @Override
-   public default int getInferredAssemblageNid() {
+   default int getInferredAssemblageNid() {
       return getLogicCoordinate().getInferredAssemblageNid();
    }
 
    @Override
-   public default int getStatedAssemblageNid() {
+   default int getStatedAssemblageNid() {
       return getLogicCoordinate().getStatedAssemblageNid();
    }
+
+   @Override
+   default int getConceptAssemblageNid() {
+      return getLogicCoordinate().getConceptAssemblageNid();
+   }
+
+   @Override
+   default int getDigraphIdentityNid() {
+      return getLogicCoordinate().getDigraphIdentityNid();
+   }
+
+   @Override
+   default LogicCoordinateImmutable toLogicCoordinateImmutable() {
+      return getLogicCoordinate().toLogicCoordinateImmutable();
+   }
+
 }

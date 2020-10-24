@@ -36,18 +36,14 @@
  */
 package sh.isaac.model.semantic.version;
 
-//~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.externalizable.ByteArrayDataBuffer;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.MutableStringVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class StringVersionImpl.
  *
@@ -57,12 +53,16 @@ public class StringVersionImpl
         extends AbstractVersionImpl
         implements StringVersion, MutableStringVersion {
 
-   /**
-    * The string.
-    */
    private String string = null;
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{string: ").append(string).append(" ")
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
 
-   //~--- constructors --------------------------------------------------------
    /**
     * Instantiates a new string semantic impl.
     *
@@ -92,27 +92,20 @@ public class StringVersionImpl
       this.string = other.getString();
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-              .getStampSequence(
-                      this.getStatus(),
-                      Long.MAX_VALUE,
-                      ec.getAuthorNid(),
-                      this.getModuleNid(),
-                      ec.getPathNid());
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
+   @SuppressWarnings("unchecked")
+   public <V extends Version> V makeAnalog(int stampSequence) {
       final StringVersionImpl newVersion = new StringVersionImpl(this, stampSequence);
 
-      chronologyImpl.addVersion(newVersion);
+      getChronology().addVersion(newVersion);
       return (V) newVersion;
    }
 
-   //~--- methods -------------------------------------------------------------
    /**
-    * To string.
-    *
-    * @return the string
+    * {@inheritDoc}
     */
    @Override
    public String toString() {
@@ -131,9 +124,7 @@ public class StringVersionImpl
    }
 
    /**
-    * Write version data.
-    *
-    * @param data the data
+    * {@inheritDoc}
     */
    @Override
    public void writeVersionData(ByteArrayDataBuffer data) {
@@ -141,11 +132,8 @@ public class StringVersionImpl
       data.putUTF(this.string);
    }
 
-   //~--- get methods ---------------------------------------------------------
    /**
-    * Gets the semantic type.
-    *
-    * @return the semantic type
+    * {@inheritDoc}
     */
    @Override
    public VersionType getSemanticType() {
@@ -153,20 +141,15 @@ public class StringVersionImpl
    }
 
    /**
-    * Gets the string.
-    *
-    * @return the string
+    * {@inheritDoc}
     */
    @Override
    public String getString() {
       return this.string;
    }
 
-   //~--- set methods ---------------------------------------------------------
    /**
-    * Sets the string.
-    *
-    * @param string the new string
+    * {@inheritDoc}
     */
    @Override
    public void setString(String string) {
@@ -177,6 +160,9 @@ public class StringVersionImpl
       this.string = string;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected int editDistance3(AbstractVersionImpl other, int editDistance) {
       StringVersionImpl otherString = (StringVersionImpl) other;
@@ -186,6 +172,9 @@ public class StringVersionImpl
       return editDistance;
    }
 
+   /**
+    * {@inheritDoc}
+    */
    @Override
    protected boolean deepEquals3(AbstractVersionImpl other) {
       if (!(other instanceof StringVersionImpl)) {
@@ -194,5 +183,4 @@ public class StringVersionImpl
       StringVersionImpl otherString = (StringVersionImpl) other;
       return this.string.equals(otherString.string);
    }
-
 }

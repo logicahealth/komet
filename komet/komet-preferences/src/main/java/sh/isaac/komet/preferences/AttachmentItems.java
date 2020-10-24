@@ -18,9 +18,10 @@ package sh.isaac.komet.preferences;
 
 import java.util.prefs.BackingStoreException;
 import sh.isaac.api.preferences.IsaacPreferences;
-import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
+import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.contract.preferences.KometPreferencesController;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  * Attachment actions are provided by rules
@@ -45,10 +46,10 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class AttachmentItems extends ParentPanel {
 
-    public AttachmentItems(IsaacPreferences preferencesNode, Manifold manifold,
+    public AttachmentItems(IsaacPreferences preferencesNode, ViewProperties viewProperties,
                            KometPreferencesController kpc) {
         super(preferencesNode, preferencesNode.get(GROUP_NAME, "Attachment actions"),
-                manifold, kpc);
+                viewProperties, kpc);
         revertFields();
         save();
     }

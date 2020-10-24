@@ -93,6 +93,7 @@ import sh.isaac.pombuilder.converter.UploadFileInfo;
 import sh.isaac.pombuilder.dbbuilder.DBConfigurationCreator;
 import sh.isaac.pombuilder.diff.DiffExecutionCreator;
 import sh.isaac.pombuilder.upload.SrcUploadCreator;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.ErrorMarkerUtils;
 import sh.komet.gui.util.FxUtils;
 import sh.komet.gui.util.UpdateableBooleanBinding;
@@ -315,6 +316,8 @@ public class ContentManagerController
 			File f = fc.showDialog(cm_.getPrimaryStage().getScene().getWindow());
 			if (f != null)
 			{
+				f = new File(f, "contentManager");
+				f.mkdirs();
 				workingFolder.setText(f.getAbsolutePath());
 			}
 		});
@@ -695,7 +698,7 @@ public class ContentManagerController
 				else
 				{
 					setText(item.getArtifactId() + (item.hasClassifier() ? " : " + item.getClassifier() : "") + " : " + item.getVersion());
-					MenuItem mi = new MenuItem("Remove");
+					MenuItem mi = new MenuItemWithText("Remove");
 					mi.setOnAction(action -> 
 					{
 						sourceConversionContent.getItems().remove(item);
@@ -861,7 +864,7 @@ public class ContentManagerController
 				else
 				{
 					setText(item.getArtifactId() + (item.hasClassifier() ? " : " + item.getClassifier() : "") + " : " + item.getVersion());
-					MenuItem mi = new MenuItem("Remove");
+					MenuItem mi = new MenuItemWithText("Remove");
 					mi.setOnAction(action -> 
 					{
 						sourceConversionIBDF.getItems().remove(item);
@@ -1364,7 +1367,7 @@ public class ContentManagerController
 					}
 					if (!found)
 					{
-						sourceConverterContentIBDFInvalidReason.append("The conversion of " + convert.getArtifactId() + " requires an  ibdf dependency of " + s + "\n");
+						sourceConverterContentIBDFInvalidReason.append("The conversion of " + convert.getArtifactId() + " requires an ibdf dependency of " + s + "\n");
 					}
 				}
 			}
@@ -1417,7 +1420,7 @@ public class ContentManagerController
 			{
 				try
 				{
-					if (converter != null)
+					if (converter != null && sourceConversionConverterVersion.getSelectionModel().getSelectedItem() != null)
 					{
 						ConverterOptionParam[] options = ConverterOptionParam.fromArtifact(new File(sp_.getLocalM2FolderPath()), converter,
 							sourceConversionConverterVersion.getSelectionModel().getSelectedItem(), sp_.getArtifactReadURL(), sp_.getArtifactUsername(),
@@ -1905,6 +1908,7 @@ public class ContentManagerController
 					options.add("-s");
 					options.add(sp_.getMavenSettingsFile());
 					options.add("-e");
+					options.add("-llr");  //Don't validate files with the path where they came from (legacy mode)
 					options.add("clean");
 					if (opInstall.isSelected() && !opDeploy.isSelected())
 					{
@@ -1988,6 +1992,7 @@ public class ContentManagerController
 		pd.setTitle("Building Configuration");
 		pd.setHeaderText(null);
 		pd.setContentText("Building Configuration");
+		pd.setResizable(true);
 		pd.showAndWait();
 
 		try

@@ -45,7 +45,7 @@ import java.util.Enumeration;
 import java.util.Optional;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
@@ -68,6 +68,8 @@ import sh.isaac.dbConfigBuilder.prefs.StoredPrefs;
 import sh.isaac.mojo.LoadTermstore;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.contract.preferences.WindowPreferences;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxUtils;
 
 /**
@@ -244,17 +246,17 @@ public class IbdfArtifactImportMenuOption implements MenuProvider
 	 * {@inheritDoc}
 	 */
 	@Override
-	public MenuItem[] getMenuItems(AppMenu appMenu, Window window)
+	public MenuItem[] getMenuItems(AppMenu appMenu, Window window, WindowPreferences windowPreference)
 	{
 		if (appMenu == AppMenu.TOOLS)
 		{
 			this.window_ = window;
-			MenuItem miImport = new MenuItem("IBDF Artifact Import");
+			MenuItem miImport = new MenuItemWithText("IBDF Artifact Import");
 			miImport.setOnAction(event -> {
 				ibdfImport(false);
 			});
 			
-			MenuItem miDeltaImport = new MenuItem("IBDF Delta Artifact Import");
+			MenuItem miDeltaImport = new MenuItemWithText("IBDF Delta Artifact Import");
 			miDeltaImport.setOnAction(event -> {
 				ibdfImport(true);
 			});

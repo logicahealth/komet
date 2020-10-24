@@ -27,7 +27,7 @@ import javafx.collections.ObservableList;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -38,14 +38,19 @@ public class PropertySheetConceptSetWrapper implements PropertySheet.Item {
     private final SetProperty<ConceptSpecification> conceptSetProperty;
     private final ListProperty<ConceptSpecification> conceptListProperty;
     private final String name;
+    private final ListChangeListener<ConceptSpecification> listChangedListener = c -> this.handleListChange(c);
 
-    public PropertySheetConceptSetWrapper(Manifold manifold, SetProperty<ConceptSpecification> conceptSetProperty) {
+    public PropertySheetConceptSetWrapper(ViewProperties viewProperties, SetProperty<ConceptSpecification> conceptSetProperty) {
+        this(viewProperties.getPreferredDescriptionText(new ConceptProxy(conceptSetProperty.getName())), conceptSetProperty);
+    }
+
+    public PropertySheetConceptSetWrapper(String name, SetProperty<ConceptSpecification> conceptSetProperty) {
         this.conceptSetProperty = conceptSetProperty;
-        this.name = manifold.getPreferredDescriptionText(new ConceptProxy(conceptSetProperty.getName()));
+        this.name = name;
         ObservableList<ConceptSpecification> list = FXCollections.observableArrayList();
         list.addAll(conceptSetProperty.getValue());
-        list.addListener(this::handleListChange);
-        this.conceptListProperty = new SimpleListProperty<>(conceptSetProperty.getBean(), 
+        list.addListener(this.listChangedListener);
+        this.conceptListProperty = new SimpleListProperty<>(conceptSetProperty.getBean(),
                 conceptSetProperty.getName(), list);
     }
 
@@ -102,9 +107,9 @@ public class PropertySheetConceptSetWrapper implements PropertySheet.Item {
             conceptSetProperty.get().clear();
         } else {
             conceptSetProperty.get().clear();
-            conceptListProperty.get().removeListener(this::handleListChange);
+            conceptListProperty.get().removeListener(this.listChangedListener);
             ObservableList list = (ObservableList) value;
-            list.addListener(this::handleListChange);
+            list.addListener(this.listChangedListener);
             conceptListProperty.set(list);
             conceptSetProperty.get().addAll(list);
         }

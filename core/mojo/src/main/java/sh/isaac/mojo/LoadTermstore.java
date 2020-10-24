@@ -37,6 +37,7 @@
 
 package sh.isaac.mojo;
 
+
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
@@ -59,12 +60,15 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import com.cedarsoftware.util.io.JsonWriter;
 import sh.isaac.api.ConfigurationService.BuildMode;
 import sh.isaac.api.DataTarget;
@@ -77,22 +81,22 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.LogicGraphVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
+import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.Assertion;
-import sh.isaac.model.configuration.StampCoordinates;
 import sh.isaac.model.datastream.BinaryDatastreamReader;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.AndNode;
@@ -251,6 +255,7 @@ public class LoadTermstore extends AbstractMojo
 	@Override
 	public void execute() throws MojoExecutionException
 	{
+		long start = System.currentTimeMillis();
 		//Quiet down some noisy xodus loggers
 		SLF4jUtils.quietDownXodus();
 
@@ -376,6 +381,9 @@ public class LoadTermstore extends AbstractMojo
 			Get.service(VersionManagmentPathService.class).rebuildPathMap();
 
 			getLog().info("Completing processing on " + deferredActionNids.size() + " defered items");
+			
+			ThreadPoolExecutor tpe = Get.workExecutors().getPotentiallyBlockingExecutor();
+			ArrayList<Future<?>> futures = new ArrayList<>();
 
 			for (final int nid : deferredActionNids)
 			{
@@ -385,22 +393,25 @@ public class LoadTermstore extends AbstractMojo
 
 					if (sc.getVersionType() == VersionType.LOGIC_GRAPH)
 					{
-						try
+						futures.add(tpe.submit(() -> 
 						{
-							Get.taxonomyService().updateTaxonomy(sc);
-						}
-						catch (Exception e)
-						{
-							Map<String, Object> args = new HashMap<>();
-							args.put(JsonWriter.PRETTY_PRINT, true);
-							ByteArrayOutputStream baos = new ByteArrayOutputStream();
-							JsonWriter json = new JsonWriter(baos, args);
-
-							UUID primordial = sc.getPrimordialUuid();
-							json.write(sc);
-							getLog().error("Failed on taxonomy update for object with primordial UUID " + primordial.toString() + ": " + baos.toString(), e);
-							json.close();
-						}
+							try
+							{
+								Get.taxonomyService().updateTaxonomy(sc);
+							}
+							catch (Exception e)
+							{
+								Map<String, Object> args = new HashMap<>();
+								args.put(JsonWriter.PRETTY_PRINT, true);
+								ByteArrayOutputStream baos = new ByteArrayOutputStream();
+								JsonWriter json = new JsonWriter(baos, args);
+	
+								UUID primordial = sc.getPrimordialUuid();
+								json.write(sc);
+								getLog().error("Failed on taxonomy update for object with primordial UUID " + primordial.toString() + ": " + baos.toString(), e);
+								json.close();
+							}
+						}));
 					}
 					else
 					{
@@ -412,13 +423,18 @@ public class LoadTermstore extends AbstractMojo
 					throw new UnsupportedOperationException("2 Unexpected nid in deferred set: " + nid);
 				}
 			}
+			//make sure they are all done
+			for (Future<?> f : futures)
+			{
+				f.get();
+			}
 
 			if (this.skippedAny)
 			{
 				// Loading with activeOnly set to true causes a number of gaps in the concept /
 				getLog().warn("Skipped components during import.");
 			}
-			getLog().info("Final item count: " + this.itemCount);
+			getLog().info("Final item count: " + this.itemCount + " in " + (System.currentTimeMillis() - start) + " ms");
 			LookupService.syncAll();
 			Get.startIndexTask().get();
 
@@ -479,8 +495,8 @@ public class LoadTermstore extends AbstractMojo
 								SemanticChronology sc = (SemanticChronology) object;
 								if (mergeLogicGraphs && sc.getAssemblageNid() == statedNid)
 								{
-									final NidSet nids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(sc.getReferencedComponentNid(), statedNid);
-									if (nids.size() > 0)
+									final ImmutableIntSet nids = Get.assemblageService().getSemanticNidsForComponentFromAssemblage(sc.getReferencedComponentNid(), statedNid);
+									if (!nids.isEmpty())
 									{
 										// We already loaded a stated logic graph for this concept.  Now the incoming content has another stated
 										// graph for this tree.  If this is for something that involves metadata, merge them.  Otherwise, log a warning.
@@ -489,7 +505,7 @@ public class LoadTermstore extends AbstractMojo
 										boolean foundMetadataModule = false;
 										
 										SemanticChronology existingChronology = null;
-										for (int nid : nids.asArray())
+										for (int nid : nids.toArray())
 										{
 											Optional<? extends SemanticChronology> eco = Get.assemblageService().getOptionalSemanticChronology(nid);
 											int i = 0;
@@ -520,14 +536,14 @@ public class LoadTermstore extends AbstractMojo
 											
 											for (Version v : eco.get().getVersionList())
 											{
-												if (v.getModuleNid()== TermAux.CORE_METADATA_MODULE.getNid())
+												if (v.getModuleNid()== TermAux.PRIMORDIAL_MODULE.getNid())
 												{
 													foundMetadataModule = true;
 												}
 											}
 											
 											existingChronology = eco.get();
-											LatestVersion<Version> lgvo = existingChronology.getLatestVersion(StampCoordinates.getDevelopmentLatestActiveOnly());
+											LatestVersion<Version> lgvo = existingChronology.getLatestVersion(Coordinates.Filter.DevelopmentLatestActiveOnly());
 											if (lgvo.isPresent())
 											{
 												LogicGraphVersion lgv = ((LogicGraphVersion) lgvo.get());
@@ -540,7 +556,7 @@ public class LoadTermstore extends AbstractMojo
 
 										for (Version v : sc.getVersionList())
 										{
-											if (v.getModuleNid()== TermAux.CORE_METADATA_MODULE.getNid())
+											if (v.getModuleNid()== TermAux.PRIMORDIAL_MODULE.getNid())
 											{
 												foundMetadataModule = true;
 											}
@@ -618,7 +634,9 @@ public class LoadTermstore extends AbstractMojo
 									}
 									catch (Exception e)
 									{
-										getLog().error("Write Error - ", e);
+										getLog().error("Write Error - while processing new object: " + sc.toUserString() + " existing object: " 
+												+ Get.assemblageService().getOptionalSemanticChronology(Get.identifierService().getNidForUuids(sc.getUuids())), e);
+										
 										throw e;
 									}
 								}

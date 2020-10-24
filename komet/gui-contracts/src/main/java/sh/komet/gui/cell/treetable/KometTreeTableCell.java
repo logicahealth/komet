@@ -16,7 +16,6 @@
  */
 package sh.komet.gui.cell.treetable;
 
-import javafx.scene.control.IndexedCell;
 import javafx.scene.control.TreeTableCell;
 import javafx.scene.control.TreeTableRow;
 import sh.isaac.api.chronicle.Version;
@@ -84,7 +83,7 @@ public abstract class KometTreeTableCell<C> extends TreeTableCell<ObservableCate
                   pseudoClassStateChanged(LOGICAL_DEFINITION_PSEUDO_CLASS, false);
                   pseudoClassStateChanged(DESCRIPTION_PSEUDO_CLASS, false);
             SemanticVersion semanticVersion = observableVersion.unwrap();
-            switch (semanticVersion.getChronology().getVersionType()) {
+            switch (semanticVersion.getSemanticType()) {
                case DESCRIPTION:
                   pseudoClassStateChanged(DESCRIPTION_PSEUDO_CLASS, true);
                   break;

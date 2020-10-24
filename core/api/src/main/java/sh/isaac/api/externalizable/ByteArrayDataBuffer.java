@@ -41,23 +41,23 @@ package sh.isaac.api.externalizable;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
 import java.io.UTFDataFormatException;
 
 import java.nio.ReadOnlyBufferException;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.locks.StampedLock;
-
-import javax.xml.bind.DatatypeConverter;
 
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
+import sh.isaac.api.Status;
 import sh.isaac.api.commit.StampService;
+import sh.isaac.api.component.concept.ConceptSpecification;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -694,7 +694,54 @@ public class ByteArrayDataBuffer {
       return "ByteArrayDataBuffer{" + "position=" + this.position + ", positionStart=" + this.positionStart +
              ", readOnly=" + this.readOnly + ", objectDataFormatVersion=" + this.objectDataFormatVersion +
              ", externalData=" + this.externalData + ", used=" + this.used + ", data=" +
-             DatatypeConverter.printHexBinary(this.data) + '}';
+             printHexBinary(this.data) + '}';
+   }
+
+   private static int hexToBin(char ch) {
+      if ('0' <= ch && ch <= '9') {
+         return ch - '0';
+      }
+      if ('A' <= ch && ch <= 'F') {
+         return ch - 'A' + 10;
+      }
+      if ('a' <= ch && ch <= 'f') {
+         return ch - 'a' + 10;
+      }
+      return -1;
+   }
+
+   public static byte[] parseHexBinary(String s) {
+      final int len = s.length();
+
+      // "111" is not a valid hex encoding.
+      if (len % 2 != 0) {
+         throw new IllegalArgumentException("hexBinary needs to be even-length: " + s);
+      }
+
+      byte[] out = new byte[len / 2];
+
+      for (int i = 0; i < len; i += 2) {
+         int h = hexToBin(s.charAt(i));
+         int l = hexToBin(s.charAt(i + 1));
+         if (h == -1 || l == -1) {
+            throw new IllegalArgumentException("contains illegal character for hexBinary: " + s);
+         }
+
+         out[i / 2] = (byte) (h * 16 + l);
+      }
+
+      return out;
+   }
+
+   private static final char[] hexCode = "0123456789ABCDEF".toCharArray();
+
+   public static String printHexBinary(byte[] data) {
+      StringBuilder r = new StringBuilder(data.length * 2);
+      for (byte b : data) {
+         r.append(hexCode[(b >> 4) & 0xF]);
+         r.append(hexCode[(b & 0xF)]);
+      }
+      return r.toString();
    }
 
    /**
@@ -1082,6 +1129,42 @@ public class ByteArrayDataBuffer {
       return array;
    }
 
+   public void putUuidArray(UUID[] array) {
+      putInt(array.length);
+      for (UUID uuid: array) {
+         putUuid(uuid);
+      }
+   }
+
+   public UUID[] getUuidArray() {
+      int length = getInt();
+      if (length < 0) {
+         throw new IllegalStateException("Negative array size: " + length);
+      }
+      final UUID[] array            = new UUID[length];
+      final int   startingPosition = this.position;
+      long        lockStamp        = this.sl.tryOptimisticRead();
+
+      for (int i = 0; i < array.length; i++) {
+         array[i] = getUuid();
+      }
+
+      if (!this.sl.validate(lockStamp)) {
+         lockStamp     = this.sl.readLock();
+         this.position = startingPosition;
+
+         try {
+            for (int i = 0; i < array.length; i++) {
+               array[i] = getUuid();
+            }
+         } finally {
+            this.sl.unlockRead(lockStamp);
+         }
+      }
+
+      return array;
+   }
+
    /**
     * The limit is the index of the first element that should not be read or written, relative to the position start.
     * It represents the end of valid data, and is never negative and is never greater than its capacity.
@@ -1163,6 +1246,52 @@ public class ByteArrayDataBuffer {
       }
 
       return getInt();
+   }
+
+   public int[] getNidArray() {
+      if (this.externalData) {
+         int length = this.getInt();
+         int[] nids = new int[length];
+         for (int i = 0; i < length; i++) {
+            UUID uuid = new UUID(getLong(), getLong());
+            if (this.identifierService.hasUuid(uuid)) {
+               nids[i] = this.identifierService.getNidForUuids(uuid);
+            } else {
+               nids[i] = this.identifierService.assignNid(uuid);
+            }
+         }
+         return nids;
+      }
+      return getIntArray();
+   }
+
+   public void putNidArray(int[] nids) {
+
+      if (this.externalData) {
+         putInt(nids.length);
+         for (int i = 0; i < nids.length; i++) {
+            putUuid(Get.identifierService().getUuidPrimordialForNid(nids[i]));
+         }
+      } else {
+         putIntArray(nids);
+      }
+   }
+
+   public void putNidArray(Collection<Integer> nidCollection) {
+
+      int[] nids  = new int[nidCollection.size()];
+      int index = 0;
+      for (Integer nid: nidCollection) {
+         nids[index++] = nid;
+      }
+      if (this.externalData) {
+         putInt(nids.length);
+         for (int i = 0; i < nids.length; i++) {
+            putUuid(Get.identifierService().getUuidPrimordialForNid(nids[i]));
+         }
+      } else {
+         putIntArray(nids);
+      }
    }
 
    /**
@@ -1252,6 +1381,79 @@ public class ByteArrayDataBuffer {
       }
 
       return result;
+   }
+
+   public void putConceptSpecification(ConceptSpecification specification) {
+      putNid(specification.getNid());
+   }
+
+   public ConceptSpecification getConceptSpecification() {
+      return Get.conceptSpecification(getNid());
+   }
+
+   public void putConceptSpecificationSet(Set<ConceptSpecification> conceptSpecificationSet) {
+      putInt(conceptSpecificationSet.size());
+      for (ConceptSpecification conceptSpecification: conceptSpecificationSet) {
+         putConceptSpecification(conceptSpecification);
+      }
+   }
+
+   public Set<ConceptSpecification> getConceptSpecificationSet() {
+      int setSize = getInt();
+      Set<ConceptSpecification> conceptSpecificationSet = new HashSet<>(setSize);
+      for (int i = 0; i < setSize; i++) {
+         conceptSpecificationSet.add(getConceptSpecification());
+      }
+      return conceptSpecificationSet;
+   }
+
+    public void putConceptSpecificationList(List<ConceptSpecification> conceptSpecificationList) {
+        putInt(conceptSpecificationList.size());
+        for (ConceptSpecification conceptSpecification: conceptSpecificationList) {
+            putConceptSpecification(conceptSpecification);
+        }
+    }
+
+    public List<ConceptSpecification> getConceptSpecificationList() {
+        int listSize = getInt();
+        List<ConceptSpecification> conceptSpecificationList = new ArrayList<>(listSize);
+        for (int i = 0; i < listSize; i++) {
+            conceptSpecificationList.add(getConceptSpecification());
+        }
+        return conceptSpecificationList;
+    }
+
+    public void putConceptSpecificationArray(ConceptSpecification[] conceptSpecificationArray) {
+        putInt(conceptSpecificationArray.length);
+        for (ConceptSpecification conceptSpecification: conceptSpecificationArray) {
+            putConceptSpecification(conceptSpecification);
+        }
+    }
+
+    public ConceptSpecification[] getConceptSpecificationArray() {
+        int listSize = getInt();
+        ConceptSpecification[] conceptSpecificationArray = new ConceptSpecification[listSize];
+        for (int i = 0; i < listSize; i++) {
+            conceptSpecificationArray[i] = getConceptSpecification();
+        }
+        return conceptSpecificationArray;
+    }
+
+    public void putStatusSet(EnumSet<Status> statusSet) {
+      putInt(statusSet.size());
+      for (Status status: statusSet) {
+         putUTF(status.name());
+      }
+   }
+
+   public EnumSet<Status> getStatusSet() {
+      int setSize = getInt();
+      List<Status> statusSet = new ArrayList(setSize);
+      for (int i = 0; i < setSize; i++) {
+         statusSet.add(Status.valueOf(getUTF()));
+      }
+      return EnumSet.copyOf(statusSet);
+
    }
 
    /**
@@ -1445,6 +1647,18 @@ public class ByteArrayDataBuffer {
          throw new IllegalStateException("Size = " + size + " used = " + byteBuffer.getUsed());
       }
       return byteBuffer;
+   }
+
+   public void write(DataOutputStream output) throws IOException {
+      output.writeInt(position);
+      output.write(data, 0, position);
+   }
+
+   public static ByteArrayDataBuffer make(DataInputStream input) throws IOException {
+      int size = input.readInt();
+      byte[] data = new byte[size];
+      input.read(data, 0, size);
+      return new ByteArrayDataBuffer(data);
    }
 }
 

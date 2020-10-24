@@ -16,8 +16,12 @@
 package sh.komet.gui.contract;
 
 import java.util.EnumSet;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.prefs.BackingStoreException;
+
 import javafx.application.Platform;
+import javafx.stage.Stage;
 import org.jvnet.hk2.annotations.Contract;
 import javafx.scene.control.MenuItem;
 import javafx.stage.Window;
@@ -25,6 +29,10 @@ import javafx.stage.WindowEvent;
 import sh.isaac.api.ApplicationStates;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
+import sh.isaac.api.preferences.IsaacPreferences;
+import sh.komet.gui.contract.preferences.PreferenceGroup;
+import sh.komet.gui.contract.preferences.WindowPreferences;
+import sh.komet.gui.util.FxGet;
 
 /**
  * An interface various modules can implement to provide menus that will be
@@ -34,9 +42,11 @@ import sh.isaac.api.LookupService;
  */
 @Contract
 public interface MenuProvider {
+    enum Keys {
+        WINDOW_PREFERENCE_ABSOLUTE_PATH
+    }
     public static final String PARENT_PREFERENCES = MenuProvider.class.getName() + ".PARENT_PREFERENCES";
-    AtomicInteger WINDOW_COUNT = new AtomicInteger(1);
-    AtomicInteger WINDOW_SEQUENCE = new AtomicInteger(1);
+    AtomicInteger WINDOW_COUNT = new AtomicInteger(0);
 
     /**
      * @return the parent menus this provider creates items for
@@ -48,9 +58,13 @@ public interface MenuProvider {
      * @param window the window this menu will be part of
      * @return the menu item to add to the app level menu
      */
-    MenuItem[] getMenuItems(AppMenu parentMenu, Window window);
+    MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferences windowPreference);
 
     static void handleCloseRequest(WindowEvent e) {
+        Optional<String> absolutePath = Optional.ofNullable((String) ((Stage) e.getTarget()).getScene()
+                .getProperties()
+                .get(Keys.WINDOW_PREFERENCE_ABSOLUTE_PATH));
+
         if (MenuProvider.WINDOW_COUNT.get() == 1) {
             e.consume();
             Get.applicationStates().remove(ApplicationStates.RUNNING);
@@ -70,6 +84,26 @@ public interface MenuProvider {
             }, "shutdown-thread");
             shutdownThread.setDaemon(true);
             shutdownThread.start();
+        }
+
+        if(absolutePath.isPresent()){
+            IsaacPreferences windowPreferencesNode = Get.preferencesService().getConfigurationPreferences().node(absolutePath.get());
+            IsaacPreferences windowParentNode = windowPreferencesNode.parent();
+
+            try{
+                if(MenuProvider.WINDOW_COUNT.get() != 1){
+                    windowPreferencesNode.clear();
+                    windowPreferencesNode.flush();
+                    windowPreferencesNode.removeNode();
+                    windowPreferencesNode.flush();
+                    PreferenceGroup.removeChild(windowParentNode, windowPreferencesNode.name());
+                    windowParentNode.flush();
+                } else{
+                    windowPreferencesNode.flush();
+                }
+            }catch (BackingStoreException ex) {
+                FxGet.dialogs().showErrorDialog(ex);
+            }
         }
 
         MenuProvider.WINDOW_COUNT.decrementAndGet();

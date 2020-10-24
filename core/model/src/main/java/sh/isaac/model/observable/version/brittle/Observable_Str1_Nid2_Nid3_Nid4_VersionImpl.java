@@ -25,14 +25,13 @@ import javafx.beans.property.StringProperty;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.observable.semantic.version.brittle.Observable_Str1_Nid2_Nid3_Nid4_Version;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
-import sh.isaac.model.observable.CommitAwareStringProperty;
-import sh.isaac.model.observable.ObservableChronologyImpl;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareStringProperty;
 import sh.isaac.model.observable.version.ObservableAbstractSemanticVersionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.brittle.Str1_Nid2_Nid3_Nid4_VersionImpl;
@@ -49,12 +48,11 @@ public class Observable_Str1_Nid2_Nid3_Nid4_VersionImpl
    IntegerProperty nid3Property;
    IntegerProperty nid4Property;
 
-   //~--- constructors --------------------------------------------------------
-
    public Observable_Str1_Nid2_Nid3_Nid4_VersionImpl(SemanticVersion stampedVersion,
          ObservableSemanticChronology chronology) {
       super(stampedVersion, chronology);
    }
+
    private Observable_Str1_Nid2_Nid3_Nid4_VersionImpl(Observable_Str1_Nid2_Nid3_Nid4_VersionImpl versionToClone, ObservableSemanticChronology chronology) {
       super(versionToClone, chronology);
       setStr1(versionToClone.getStr1());
@@ -63,17 +61,16 @@ public class Observable_Str1_Nid2_Nid3_Nid4_VersionImpl
       setNid4(versionToClone.getNid4());
    }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         Observable_Str1_Nid2_Nid3_Nid4_VersionImpl analog = new Observable_Str1_Nid2_Nid3_Nid4_VersionImpl(this, getChronology());
         copyLocalFields(analog);
-        analog.setModuleNid(ec.getModuleNid());
-        analog.setAuthorNid(ec.getAuthorNid());
-        analog.setPathNid(ec.getPathNid());
+        analog.setModuleNid(mc.getModuleNidForAnalog(this));
+        analog.setAuthorNid(mc.getAuthorNidForChanges());
+        analog.setPathNid(mc.getPathNidForAnalog());
         return (V) analog;
     }
-
-   //~--- methods -------------------------------------------------------------
 
    @Override
    public IntegerProperty nid3Property() {
@@ -143,8 +140,6 @@ public class Observable_Str1_Nid2_Nid3_Nid4_VersionImpl
       return this.nid2Property;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid3() {
       if (this.nid3Property != null) {
@@ -153,8 +148,6 @@ public class Observable_Str1_Nid2_Nid3_Nid4_VersionImpl
 
       return getStr1_Nid2_Nid3_Nid4_Version().getNid3();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setNid3(int nid) {
@@ -170,8 +163,6 @@ public class Observable_Str1_Nid2_Nid3_Nid4_VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid4() {
       if (this.nid4Property != null) {
@@ -180,8 +171,6 @@ public class Observable_Str1_Nid2_Nid3_Nid4_VersionImpl
 
       return getStr1_Nid2_Nid3_Nid4_Version().getNid4();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setNid4(int nid) {
@@ -197,8 +186,6 @@ public class Observable_Str1_Nid2_Nid3_Nid4_VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public String getStr1() {
       if (this.str1Property != null) {
@@ -207,8 +194,6 @@ public class Observable_Str1_Nid2_Nid3_Nid4_VersionImpl
 
       return getStr1_Nid2_Nid3_Nid4_Version().getStr1();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setStr1(String value) {
@@ -224,8 +209,6 @@ public class Observable_Str1_Nid2_Nid3_Nid4_VersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    private Str1_Nid2_Nid3_Nid4_VersionImpl getStr1_Nid2_Nid3_Nid4_Version() {
       return (Str1_Nid2_Nid3_Nid4_VersionImpl) this.stampedVersionProperty.get();
    }
@@ -238,8 +221,6 @@ public class Observable_Str1_Nid2_Nid3_Nid4_VersionImpl
 
       return getStr1_Nid2_Nid3_Nid4_Version().getNid2();
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public final void setNid2(int nid) {
@@ -325,12 +306,12 @@ public class Observable_Str1_Nid2_Nid3_Nid4_VersionImpl
       }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      Str1_Nid2_Nid3_Nid4_VersionImpl newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      Observable_Str1_Nid2_Nid3_Nid4_VersionImpl newObservableVersion = 
-              new Observable_Str1_Nid2_Nid3_Nid4_VersionImpl(newVersion, (ObservableSemanticChronology) chronology);
-      ((ObservableChronologyImpl) chronology).getVersionList().add(newObservableVersion);
+    public <V extends Version> V makeAnalog(int stampSequence) {
+      Str1_Nid2_Nid3_Nid4_VersionImpl newVersion = getOptionalStampedVersion().get().makeAnalog(stampSequence);
+      Observable_Str1_Nid2_Nid3_Nid4_VersionImpl newObservableVersion = new Observable_Str1_Nid2_Nid3_Nid4_VersionImpl(newVersion, getChronology());
+      getChronology().getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
     }
 }

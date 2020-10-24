@@ -29,27 +29,24 @@ import sh.isaac.api.tree.TreeNodeVisitData;
  * @author kec
  */
 public class TreeCycleError extends AlertObject {
-   final int[] cycle;
-   
+
    final TreeNodeVisitData visitData;
    final Tree tree;
 
    public TreeCycleError(int[] cycle, TreeNodeVisitData visitData, Tree tree, String alertText, String alertDescription, AlertType alertType) {
-      super(alertText, alertDescription, alertType, AlertCategory.TAXONOMY, null);
-      this.cycle = cycle;
-      this.visitData = visitData;
+      super(alertText, alertDescription, alertType, AlertCategory.TAXONOMY, null, cycle);
+       this.visitData = visitData;
       this.tree = tree;
    }
    public TreeCycleError(int[] cycle, TreeNodeVisitData visitData, Tree tree, String alertText, String alertDescription, AlertType alertType, Callable<Boolean> resolutionTester) {
-      super(alertText, alertDescription, alertType, AlertCategory.TAXONOMY, resolutionTester);
-      this.cycle = cycle;
+      super(alertText, alertDescription, alertType, AlertCategory.TAXONOMY, resolutionTester, cycle);
       this.visitData = visitData;
       this.tree = tree;
    }
 
    @Override
    public String toString() {
-      return super.toString()  + " cycle=" + Arrays.asList(cycle);
+      return super.toString()  + " cycle=" + Arrays.asList(getAffectedComponents());
    }
 
 }

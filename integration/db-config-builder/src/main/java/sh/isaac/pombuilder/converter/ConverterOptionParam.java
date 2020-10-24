@@ -47,7 +47,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import net.lingala.zip4j.core.ZipFile;
+import net.lingala.zip4j.ZipFile;
 import net.lingala.zip4j.exception.ZipException;
 import sh.isaac.api.util.DownloadUnzipTask;
 import sh.isaac.api.util.WorkExecutors;
@@ -232,12 +232,13 @@ public class ConverterOptionParam
 
 			if (localMavenPath != null && localMavenPath.isDirectory())
 			{
-				File browseFolder = new File(localMavenPath, "sh/isaac/uts-core/misc/importers");
+				String temp = converter.converterGroupId.replaceAll("\\.", "/");
+				File browseFolder = new File(localMavenPath, temp + "/" + converter.converterArtifactId);
 				for (File versionFolder : browseFolder.listFiles())
 				{
 					if (versionFolder.isDirectory() && versionFolder.getName().equals(converterVersion))
 					{
-						File zippedJsonFile = new File(versionFolder, "importers-" + converterVersion + ".options.json.zip");
+						File zippedJsonFile = new File(versionFolder, converter.converterArtifactId + "-" + converterVersion + "." + MAVEN_FILE_TYPE + ".zip");
 						if (zippedJsonFile.exists())
 						{
 							try

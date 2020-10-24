@@ -19,6 +19,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
@@ -52,7 +54,8 @@ public class DataTypeWriter
 		{
 			if (tsvExportFolder != null)
 			{
-				tsvWriter = new CSVWriter(new BufferedWriter(new FileWriter(new File(tsvExportFolder, "IsaacExport-" + dataTypeLabel + ".tsv"))), '\t', 
+				tsvWriter = new CSVWriter(new BufferedWriter(new FileWriter(new File(tsvExportFolder, "IsaacExport-" + dataTypeLabel + ".tsv"), 
+						Charset.forName(StandardCharsets.UTF_8.name()))), '\t', 
 						CSVWriter.DEFAULT_QUOTE_CHARACTER, CSVWriter.DEFAULT_ESCAPE_CHARACTER, CSVWriter.RFC4180_LINE_END);
 				tsvWriter.writeNext(columnHeaders);
 			}

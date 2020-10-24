@@ -29,9 +29,10 @@ import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
-import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 
 /**
  *
@@ -53,7 +54,7 @@ public class PropertySheetItem implements PropertySheet.Item {
     
     private final Property theProperty;
     
-    private final Manifold manifold;
+    private final ManifoldCoordinate manifoldCoordinate;
     
     private final String name;
     
@@ -63,21 +64,21 @@ public class PropertySheetItem implements PropertySheet.Item {
     
     private PropertySheetPurpose propertySheetPurpose = PropertySheetPurpose.UNSPECIFIED;
     
-    public PropertySheetItem(Property theProperty, Manifold manifold) {
-        this(null, theProperty, manifold);
+    public PropertySheetItem(Property theProperty, ManifoldCoordinate manifoldCoordinate) {
+        this(null, theProperty, manifoldCoordinate);
     }
 
-    public PropertySheetItem(Object defaultValue, Property theProperty, Manifold manifold, PropertySheetPurpose propertySheetPurpose) {
-        this(defaultValue, theProperty, manifold);
+    public PropertySheetItem(Object defaultValue, Property theProperty, ManifoldCoordinate manifoldCoordinate, PropertySheetPurpose propertySheetPurpose) {
+        this(defaultValue, theProperty, manifoldCoordinate);
         this.propertySheetPurpose = propertySheetPurpose;
     }
     
-    public PropertySheetItem(Object defaultValue, Property theProperty, Manifold manifold) {
+    public PropertySheetItem(Object defaultValue, Property theProperty, ManifoldCoordinate manifoldCoordinate) {
         this.defaultValue = defaultValue;
         this.theProperty = theProperty;
-        this.manifold = manifold;
+        this.manifoldCoordinate = manifoldCoordinate;
         this.specificationForProperty = new ConceptProxy(theProperty.getName());
-        this.name = manifold.getPreferredDescriptionText(this.specificationForProperty);
+        this.name = manifoldCoordinate.getPreferredDescriptionText(this.specificationForProperty);
         if (defaultValue instanceof Boolean) {
             this.editorType = EditorType.BOOLEAN;
         } else if (theProperty instanceof StringProperty) {
@@ -125,8 +126,27 @@ public class PropertySheetItem implements PropertySheet.Item {
 
     public void setDefaultValue(Object defaultValue) {
         this.defaultValue = defaultValue;
+        this.setValue(defaultValue);
     }
 
+    /**
+     * Sets the default value if the current default is null, or an integer that == 0,
+     * or == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()
+     * @param defaultValue
+     */
+    public void setDefaultValueIfUnknown(Object defaultValue) {
+        if (this.defaultValue ==  null) {
+            this.defaultValue = defaultValue;
+            this.setValue(defaultValue);
+        } else if (this.defaultValue instanceof Integer) {
+            int defaultInt = (Integer) this.defaultValue;
+            if (defaultInt == 0 ||
+                defaultInt == TermAux.UNINITIALIZED_COMPONENT_ID.getNid()) {
+                this.defaultValue = defaultValue;
+                this.setValue(defaultValue);
+            }
+        }
+    }
     
     @Override
    public Class<?> getType() {

@@ -16,9 +16,6 @@
  */
 package sh.isaac.api.query.clauses;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.TaxonomySnapshot;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LetItemKey;
@@ -28,8 +25,6 @@ import sh.isaac.api.query.Query;
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class ReferencedComponentIsNotKindOf
      extends ReferencedComponentIsKindOf {
 

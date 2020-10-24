@@ -22,7 +22,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.EnumSet;
+import java.util.Set;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.scene.control.CheckBox;
@@ -38,9 +38,9 @@ import javafx.util.Callback;
 import sh.isaac.MetaData;
 import sh.isaac.api.Status;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.utility.Frills;
+import sh.komet.gui.control.property.ViewProperties;
 import tornadofx.control.DateTimePicker;
 
 /**
@@ -77,7 +77,7 @@ public class StampSelectionController
 	@FXML
 	private GridPane gridPane;
 	
-	private ManifoldCoordinate readManifoldCoordinate;
+	private ViewProperties readViewProperties;
 	
 	private TreeItem<Integer> rootModule;
 	
@@ -157,9 +157,9 @@ public class StampSelectionController
 		gridPane.getChildren().add(timeEnd);
 	}
 	
-	protected void finishSetup(ManifoldCoordinate readManifoldCoordinate, AuthorModulePathRestriction amp, TimeStatusRestriction tsr)
+	protected void finishSetup(ViewProperties readManifoldCoordinate, AuthorModulePathRestriction amp, TimeStatusRestriction tsr)
 	{
-		this.readManifoldCoordinate = readManifoldCoordinate;
+		this.readViewProperties = readManifoldCoordinate;
 		
 		authors.setCellFactory(new Callback<ListView<Integer>, ListCell<Integer>>()
 		{
@@ -179,21 +179,21 @@ public class StampSelectionController
 						}
 						else
 						{
-							setText(item == Integer.MAX_VALUE ? " - Any Author - " : readManifoldCoordinate.getDescription(item).orElse(""));
+							setText(item == Integer.MAX_VALUE ? " - Any Author - " : readManifoldCoordinate.getDescriptionText(item).orElse(""));
 						}
 					}
 				};
 			}
 		});
 		
-		authors.getItems().addAll(Frills.getAllChildrenOfConcept(MetaData.USER____SOLOR.getNid(), true, true, readManifoldCoordinate));
+		authors.getItems().addAll(Frills.getAllChildrenOfConcept(MetaData.USER____SOLOR.getNid(), true, true, readManifoldCoordinate.getViewStampFilter()));
 		authors.getItems().add(MetaData.USER____SOLOR.getNid());
 		Collections.sort(authors.getItems(), new Comparator<Integer>()
 		{
 			@Override
 			public int compare(Integer o1, Integer o2)
 			{
-				return readManifoldCoordinate.getDescription(o1).orElse("").compareTo(readManifoldCoordinate.getDescription(o2).orElse(""));
+				return readManifoldCoordinate.getDescriptionText(o1).orElse("").compareTo(readManifoldCoordinate.getDescriptionText(o2).orElse(""));
 			}
 		});
 		
@@ -227,20 +227,20 @@ public class StampSelectionController
 						}
 						else
 						{
-							setText(item == Integer.MAX_VALUE ? " - Any Path - " : readManifoldCoordinate.getDescription(item).orElse(""));
+							setText(item == Integer.MAX_VALUE ? " - Any Path - " : readManifoldCoordinate.getDescriptionText(item).orElse(""));
 						}
 					}
 				};
 			}
 		});
 		
-		paths.getItems().addAll(Frills.getAllChildrenOfConcept(MetaData.PATH____SOLOR.getNid(), true, true, readManifoldCoordinate));
+		paths.getItems().addAll(Frills.getAllChildrenOfConcept(MetaData.PATH____SOLOR.getNid(), true, true, readManifoldCoordinate.getViewStampFilter()));
 		Collections.sort(paths.getItems(), new Comparator<Integer>()
 		{
 			@Override
 			public int compare(Integer o1, Integer o2)
 			{
-				return readManifoldCoordinate.getDescription(o1).orElse("").compareTo(readManifoldCoordinate.getDescription(o2).orElse(""));
+				return readManifoldCoordinate.getDescriptionText(o1).orElse("").compareTo(readManifoldCoordinate.getDescriptionText(o2).orElse(""));
 			}
 		});
 		paths.getItems().add(0, Integer.MAX_VALUE);
@@ -339,9 +339,9 @@ public class StampSelectionController
 		modules.getChildren().add(treeItem.getGraphic());
 		VBox.setMargin(treeItem.getGraphic(), new Insets(0, 0, 0, (10 * depth)));
 		for (int nid : Frills.getAllChildrenOfConcept((treeItem.getValue() == Integer.MAX_VALUE ? MetaData.MODULE____SOLOR.getNid() : treeItem.getValue()), 
-				false, false, readManifoldCoordinate))
+				false, false, readViewProperties.getViewStampFilter()))
 		{
-			TreeItem<Integer> child = new TreeItem<Integer>(nid, new CheckBox(readManifoldCoordinate.getDescription(nid).orElse("")));
+			TreeItem<Integer> child = new TreeItem<Integer>(nid, new CheckBox(readViewProperties.getDescriptionText(nid).orElse("")));
 			((CheckBox)child.getGraphic()).selectedProperty().addListener((change, oldV, newV) -> {
 				if (change.getValue().booleanValue())
 				{
@@ -361,7 +361,7 @@ public class StampSelectionController
 			@Override
 			public int compare(TreeItem<Integer> o1, TreeItem<Integer> o2)
 			{
-				return readManifoldCoordinate.getDescription(o1.getValue()).orElse("").compareTo(readManifoldCoordinate.getDescription(o2.getValue()).orElse(""));
+				return readViewProperties.getDescriptionText(o1.getValue()).orElse("").compareTo(readViewProperties.getDescriptionText(o2.getValue()).orElse(""));
 			}
 		});
 	}
@@ -447,26 +447,27 @@ public class StampSelectionController
 
 	public TimeStatusRestriction getTimeStatusRestriction()
 	{
-            EnumSet<Status> allowedStatuses;
-            switch(status.getSelectionModel().getSelectedItem()) {
-                case ACTIVE:
-                    allowedStatuses = Status.makeActiveOnlySet();
-                    break;
-                case ACTIVE_AND_INACTIVE:
-                    allowedStatuses = Status.makeAnyStateSet();
-                    break;
-                case INACTIVE:
-                    allowedStatuses = Status.INACTIVE_STATUS_SET;
-                    break;
-                default: 
-                    throw new UnsupportedOperationException(status.getSelectionModel().getSelectedItem());
-                
-            }
+		Set<Status> allowedStatuses;
+		switch (status.getSelectionModel().getSelectedItem())
+		{
+			case ACTIVE:
+				allowedStatuses = Status.makeActiveOnlySet();
+				break;
+			case ACTIVE_AND_INACTIVE:
+				allowedStatuses = Status.makeAnyStateSet();
+				break;
+			case INACTIVE:
+				allowedStatuses = Status.INACTIVE_STATUS_SET;
+				break;
+			default :
+				throw new UnsupportedOperationException(status.getSelectionModel().getSelectedItem());
+
+		}
 		return new TimeStatusRestriction(timeSelectStart.getSelectionModel().getSelectedIndex() == 0 ? null 
 				: timeStart.getDateTimeValue().atZone(ZoneOffset.systemDefault()).toInstant().toEpochMilli(), 
 				timeSelectEnd.getSelectionModel().getSelectedIndex() == 0 ? null 
 						: timeEnd.getDateTimeValue().atZone(ZoneOffset.systemDefault()).toInstant().toEpochMilli(), 
-						allowedStatuses, readManifoldCoordinate
+						allowedStatuses, readViewProperties.getManifoldCoordinate()
 							);
 	}
 

@@ -60,7 +60,7 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -76,9 +76,9 @@ public interface ObservableVersion
         NID(1, new ConceptProxy("Primordial UUID for chronicle", UUID.fromString("e0fcafbc-7191-5cdc-b14a-19d4d97f71bd"))),
         STATUS(2, TermAux.STATUS_FOR_VERSION),
         TIME(3, TermAux.TIME_FOR_VERSION),
-        AUTHOR(4, TermAux.AUTHOR_NID_FOR_VERSION),
-        MODULE(5, TermAux.MODULE_NID_FOR_VERSION),
-        PATH(6, TermAux.PATH_NID_FOR_VERSION),
+        AUTHOR(4, TermAux.AUTHOR_FOR_VERSION),
+        MODULE(5, TermAux.MODULE_FOR_VERSION),
+        PATH(6, TermAux.PATH_FOR_VERSION),
         COMMITTED_STATE(7, TermAux.COMMITTED_STATE_FOR_VERSION),
         ASSEMBLAGE(8, TermAux.ASSEMBLAGE_NID_FOR_COMPONENT),
         REFERENCED_COMPONENT(9, TermAux.REFERENCED_COMPONENT_NID_FOR_SEMANTIC),
@@ -129,7 +129,7 @@ public interface ObservableVersion
    IntegerProperty pathNidProperty();
 
    /**
-    * Stamp sequence property.
+    * Filter sequence property.
     *
     * @return the integer property
     */
@@ -198,7 +198,7 @@ public interface ObservableVersion
     */
    <T extends Object> Optional<T> removeUserObject(String objectKey);
    
-   <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec);
+   <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc);
    
    /**
     * 

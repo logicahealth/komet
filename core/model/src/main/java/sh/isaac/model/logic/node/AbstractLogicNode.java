@@ -48,15 +48,17 @@ import java.util.Optional;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.UUID;
-import org.apache.mahout.math.set.OpenIntHashSet;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.tree.TreeNodeVisitData;
@@ -70,6 +72,8 @@ import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
  */
 public abstract class AbstractLogicNode
          implements LogicNode {
+
+    private static final Logger LOG = LogManager.getLogger();
    /** The Constant NAMESPACE_UUID. */
    protected static final UUID NAMESPACE_UUID = UUID.fromString("d64c6d91-a37d-11e4-bcd8-0800200c9a66");
 
@@ -118,7 +122,7 @@ public abstract class AbstractLogicNode
     */
    public AbstractLogicNode(LogicalExpressionImpl logicGraphVersion, ByteArrayDataBuffer dataInputStream) {
       if (dataInputStream.getObjectDataFormatVersion() != 1) {
-         System.out.println("Format version error: " + dataInputStream.getObjectDataFormatVersion());
+         LOG.error("Format version error: " + dataInputStream.getObjectDataFormatVersion());
       }
       this.nodeIndex         = dataInputStream.getShort();
       this.logicalExpression = logicGraphVersion;
@@ -159,7 +163,7 @@ public abstract class AbstractLogicNode
      * @param conceptSequenceSet the concept nid set
      */
     @Override
-    public void addConceptsReferencedByNode(OpenIntHashSet conceptSequenceSet) {
+    public void addConceptsReferencedByNode(RoaringBitmap conceptSequenceSet) {
         conceptSequenceSet.add(getNodeSemantic().getConceptNid());
     }
 
@@ -427,8 +431,8 @@ public abstract class AbstractLogicNode
    }
 
    @Override
-   public LatestVersion<DescriptionVersion> getPreferredDescription(StampCoordinate stampCoordinate,
-         LanguageCoordinate languageCoordinate) {
+   public LatestVersion<DescriptionVersion> getPreferredDescription(StampFilter stampFilter,
+                                                                    LanguageCoordinate languageCoordinate) {
       int sequenceForDescription = -1;
 
       switch (getNodeSemantic()) {
@@ -446,9 +450,9 @@ public abstract class AbstractLogicNode
          sequenceForDescription = getNodeSemantic().getConceptNid();
       }
 
-      LatestVersion<DescriptionVersion> latestDescription = languageCoordinate.getPreferredDescription(
+      LatestVersion<DescriptionVersion> latestDescription = languageCoordinate.getRegularDescription(
                                                                 sequenceForDescription,
-                                                                      stampCoordinate);
+              stampFilter);
 
       return latestDescription;
    }

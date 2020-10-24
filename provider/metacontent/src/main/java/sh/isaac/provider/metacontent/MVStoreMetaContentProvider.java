@@ -42,8 +42,8 @@ package sh.isaac.provider.metacontent;
 import java.io.File;
 import java.nio.file.Path;
 import java.util.concurrent.ConcurrentMap;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -69,7 +69,8 @@ import sh.isaac.api.metacontent.MetaContentService;
 public class MVStoreMetaContentProvider
          implements MetaContentService {
 
-   //~--- fields --------------------------------------------------------------
+   //TODO [DAN 2] extend this API to provide an option to persist things stored here into the git folders, so they are 
+   //persisted and rebuilt upon re-opening.
 
    private final Logger LOG = LogManager.getLogger();
    
@@ -123,6 +124,7 @@ public class MVStoreMetaContentProvider
          this.store.close();
          this.store = null;
       }
+      this.LOG.info("Stopped a MVStoreMetaContent service");
    }
 
    /**
@@ -166,7 +168,7 @@ public class MVStoreMetaContentProvider
       return this.store.<String, Boolean>openMap(PROCESSED_CHANGESETS_STORE);
    }
 
-/**
+   /**
     * Initialize.
     *
     * @param storageFolder the storage folder

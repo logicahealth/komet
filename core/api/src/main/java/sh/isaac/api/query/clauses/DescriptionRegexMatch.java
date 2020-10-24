@@ -37,16 +37,8 @@
 package sh.isaac.api.query.clauses;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Optional;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
-
-//~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
@@ -54,12 +46,14 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.query.ClauseComputeType;
-import sh.isaac.api.query.ClauseSemantic;
-import sh.isaac.api.query.LetItemKey;
-import sh.isaac.api.query.Query;
-import sh.isaac.api.query.WhereClause;
+import sh.isaac.api.query.*;
 import sh.isaac.api.query.properties.QueryStringClause;
+
+import java.util.EnumSet;
+import java.util.Map;
+import java.util.Optional;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -68,8 +62,6 @@ import sh.isaac.api.query.properties.QueryStringClause;
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class DescriptionRegexMatch
         extends QueryStringAbstract implements QueryStringClause {
 

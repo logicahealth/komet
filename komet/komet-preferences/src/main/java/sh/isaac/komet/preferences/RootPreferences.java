@@ -19,12 +19,17 @@ package sh.isaac.komet.preferences;
 import java.util.List;
 import java.util.prefs.BackingStoreException;
 import sh.isaac.api.preferences.IsaacPreferences;
-import static sh.isaac.komet.preferences.PreferenceGroup.Keys.GROUP_NAME;
-import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
+
+import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.CHILDREN_NODES;
+import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import static sh.isaac.komet.preferences.SynchronizationItems.SYNCHRONIZATION_ITEMS_GROUP_NAME;
 
-import sh.isaac.komet.preferences.window.WindowPreferences;
-import sh.komet.gui.manifold.Manifold;
+import sh.isaac.komet.preferences.coordinate.CoordinateGroupPanel;
+import sh.isaac.komet.preferences.paths.PathGroupPanel;
+import sh.isaac.komet.preferences.personas.PersonasPanel;
+import sh.isaac.komet.preferences.window.WindowsPanel;
+import sh.komet.gui.contract.preferences.KometPreferencesController;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -32,9 +37,9 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class RootPreferences extends AbstractPreferences {
 
-    public RootPreferences(IsaacPreferences preferencesNode, Manifold manifold, 
-            KometPreferencesController kpc) {
-        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Root"), manifold, 
+    public RootPreferences(IsaacPreferences preferencesNode, ViewProperties viewProperties,
+                           KometPreferencesController kpc) {
+        super(preferencesNode, preferencesNode.get(GROUP_NAME, "Root"), viewProperties,
                 kpc);
         if (!initialized()) {
             // Add children nodes and reflection classes for children
@@ -43,8 +48,12 @@ public class RootPreferences extends AbstractPreferences {
             addChild(SYNCHRONIZATION_ITEMS_GROUP_NAME, SynchronizationItems.class);
             addChild("Attachment actions", AttachmentItems.class);
             addChild("Logic actions", LogicItemPanels.class);
-            addChild("Taxonomy configurations", TaxonomyItems.class);
-            addChild("Window configurations", WindowPreferences.class);
+            addChild("Logic actions", PathGroupPanel.class);
+
+            addChild("Coordinates", CoordinateGroupPanel.class);
+            addChild("Taxonomy configurations", GraphConfigurationItems.class);
+            addChild("Personas", PersonasPanel.class);
+            addChild("Window configurations", WindowsPanel.class);
         }
         List<String> childPreferences = this.preferencesNode.getList(CHILDREN_NODES);
         if (childPreferences.contains("Change sets")) {

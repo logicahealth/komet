@@ -50,10 +50,8 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.converters.sharedUtils.ConsoleUtil;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -63,6 +61,7 @@ import sh.isaac.converters.sharedUtils.ConsoleUtil;
 public class Relationship {
    /** The preferred name map. */
    private static HashMap<String, String> preferredNameMap = new HashMap<>();
+   protected Logger log = LogManager.getLogger();
 
    //~--- static initializers -------------------------------------------------
 
@@ -463,7 +462,7 @@ public class Relationship {
       }
 
       if (this.swap == null) {
-         ConsoleUtil.println("No rel direction preference specified for " + this.name1 + "/" + this.name2 +
+         log.info("No rel direction preference specified for " + this.name1 + "/" + this.name2 +
                              " - using " + this.name1 + " as primary");
          this.swap = false;
       }

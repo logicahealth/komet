@@ -51,6 +51,7 @@ import sh.isaac.api.StaticIsaacCache;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.util.UuidT5Generator;
 
@@ -64,100 +65,109 @@ import sh.isaac.api.util.UuidT5Generator;
 public enum ObservableFields
          implements ConceptSpecification {
    /** The author nid for edit coordinate. */
-   AUTHOR_NID_FOR_EDIT_COORDINATE("Author nid for edit coordinate", "Author nid for edit coordinate"),
+   AUTHOR_NID_FOR_EDIT_COORDINATE("Author for edit coordinate", "Author"),
 
    /** The module nid for edit coordinate. */
-   MODULE_NID_FOR_EDIT_COORDINATE("Module nid for edit coordinate", "Module nid for edit coordinate"),
+   MODULE_NID_FOR_EDIT_COORDINATE("Default module for edit coordinate", "Default module"),
 
+   DESTINATION_MODULE_NID_FOR_EDIT_COORDINATE("Destination module for edit coordinate", "Destination module"),
    /** The module nid for edit coordinate. */
-   MODULE_OPTIONS_FOR_EDIT_COORDINATE("Module options for edit coordinate", "Module options for edit coordinate"),
+   MODULE_OPTIONS_FOR_EDIT_COORDINATE("Module options for edit coordinate", "Module options"),
 
    MODULE_FOR_USER("Module for user", "Module for user"),
 
    /** The path nid for edit coordinate. */
-   PATH_NID_FOR_EDIT_CORDINATE("Path nid for edit cordinate", "Path nid for edit cordinate"),
+   PATH_NID_FOR_EDIT_CORDINATE("Promotion path for edit cordinate", "Promotion path"),
 
-   PATH_OPTIONS_FOR_EDIT_COORDINATE("Path options for edit cordinate", "Path options for edit cordinate"),
+   PATH_OPTIONS_FOR_EDIT_COORDINATE("Path options for edit cordinate", "Path options"),
    
    PATH_FOR_USER("Path for user", "Path for user"),
 
    /** The language nid for language coordinate. */
-   LANGUAGE_NID_FOR_LANGUAGE_COORDINATE("Language nid for language coordinate", "Language nid for language coordinate"),
+   LANGUAGE_NID_FOR_LANGUAGE_COORDINATE("Language nid for language coordinate", "Language nid"),
 
    /** The language nid for language coordinate. */
    LANGUAGE_FOR_LANGUAGE_COORDINATE("Language specification for language coordinate", "Language"),
 
-   /** The dialect assemblage nid preference list for language coordinate. */
-   DIALECT_ASSEMBLAGE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
-      "Dialect assemblage nid preference list for language coordinate", "Dialect preferences"),
-   
    DIALECT_ASSEMBLAGE_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
       "Dialect assemblage preference list for language coordinate", "Dialect order"),
-   
+
+   MODULE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
+           "Module preference list for language coordinate", "Module nids"),
+
    MODULE_NID_PREFERENCE_LIST_FOR_STAMP_COORDINATE(
-      "Module nid preference list for stamp coordinate", "Module nids for version preferences"),
-   
+      "Module preference list for stamp coordinate", "Module preference list"),
+
    MODULE_SPECIFICATION_PREFERENCE_LIST_FOR_STAMP_COORDINATE(
-      "Module preference order for stamp coordinate", "Module order"),
-   
-   
+           "Module preference order for stamp coordinate", "Module order"),
+
+
    NEXT_PRIORITY_LANGUAGE_COORDINATE(
       "Next priority language coordinate", "Next coordinate"),
 
    /** The description type nid preference list for language coordinate. */
    DESCRIPTION_TYPE_NID_PREFERENCE_LIST_FOR_LANGUAGE_COORDINATE(
-      "Description type nid preference list for language coordinate", "Type order"),
+      "Description type preference list for language coordinate", "Type order"),
 
    /** The stated assemblage nid for logic coordinate. */
-   STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("Stated assemblage nid for logic coordinate", "Stated assemblage"),
+   STATED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("Stated assemblage for logic coordinate", "Stated assemblage"),
+
+   DIGRAPH_FOR_LOGIC_COORDINATE("Digraph for logic coordinate", "Digraph"),
+
+   ROOT_FOR_LOGIC_COORDINATE("Root for logic coordinate", "root"),
 
    /** The inferred assemblage nid for logic coordinate. */
-   INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("Inferred assemblage nid for logic coordinate", "Inferred assemblage"),
+   INFERRED_ASSEMBLAGE_NID_FOR_LOGIC_COORDINATE("Inferred assemblage for logic coordinate", "Inferred assemblage"),
 
    /** The description logic profile nid for logic coordinate. */
-   DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE("Description logic profile nid for logic coordinate", "Logic profile"),
+   DESCRIPTION_LOGIC_PROFILE_NID_FOR_LOGIC_COORDINATE("Description logic profile for logic coordinate", "Logic profile"),
 
    /** The classifier nid for logic coordinate. */
-   CLASSIFIER_NID_FOR_LOGIC_COORDINATE("Classifier nid for logic coordinate", "Classifier"),
+   CLASSIFIER_NID_FOR_LOGIC_COORDINATE("Classifier for logic coordinate", "Classifier"),
 
    CONCEPT_ASSEMBLAGE_FOR_LOGIC_COORDINATE("Concept assemblage for logic coordinate", "Concepts to classify"),
 
    /** The stamp precedence for stamp coordinate. */
-   STAMP_PRECEDENCE_FOR_STAMP_COORDINATE("Stamp precedence for stamp coordinate", "Precedence"),
+   STAMP_PRECEDENCE_FOR_STAMP_COORDINATE("Filter precedence for stamp coordinate", "Precedence"),
 
    /** The stamp position for stamp coordinate. */
-   STAMP_POSITION_FOR_STAMP_COORDINATE("Stamp position for stamp coordinate", "Stamp position"),
+   STAMP_POSITION_FOR_STAMP_COORDINATE("Filter position for stamp coordinate", "Filter position"),
 
-   /** The module nid array for stamp coordinate. */
-   MODULE_NID_ARRAY_FOR_STAMP_COORDINATE("Module nid array for stamp coordinate", "Modules for stamp coordinates"),
+   MODULE_EXCLUSION_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Module exclusion set for stamp coordinate", "Module exclusions"),
 
-   MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Module specification set for stamp coordinate", "Module set"),
+   MODULE_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Modules for stamp coordinate", "Modules"),
 
-   AUTHOR_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Author specification set for stamp coordinate", "Author set"),
+   AUTHOR_SPECIFICATION_SET_FOR_STAMP_COORDINATE("Authors for stamp coordinate", "Authors"),
 
+   DIGRAPH_SPECIFICATION_SET("Navigation concept set", "Navigation set"),
    /** The allowed states for stamp coordinate. */
    ALLOWED_STATES_FOR_STAMP_COORDINATE("Allowed states for stamp coordinate", "Allowed states"),
 
    /** The path nid for stamp path. */
-   PATH_NID_FOR_STAMP_PATH("Path nid for stamp path", "Path nid for stamp path"),
+   PATH_FOR_PATH_COORDINATE("Path for path coordinate", "Path"),
 
    /** The path origin list for stamp path. */
-   PATH_ORIGIN_LIST_FOR_STAMP_PATH("Path origin list for stamp path", "Path origin"),
+   PATH_ORIGIN_LIST_FOR_STAMP_PATH("Path origins for stamp path", "Path origins"),
 
    /** The time for stamp position. */
-   TIME_FOR_STAMP_POSITION("Time for stamp position", "Time for stamp"),
+   TIME_FOR_STAMP_POSITION("Position on path", "Path position"),
 
    /** The path nid for stamp position. */
-   PATH_NID_FOR_STAMP_POSITION("Path nid for stamp position", "Path for stamp position"),
+   PATH_NID_FOR_STAMP_POSITION("Path for stamp position", "Path"),
 
    /** The premise type for taxonomy coordinate. */
    PREMISE_TYPE_FOR_TAXONOMY_COORDINATE("Premise type for taxonomy coordinate", "Premise"),
 
+   STAMP_FILTER_FOR_VERTEX("Filter for vertex", "Vertex filter"),
+   STAMP_FILTER_FOR_EDGE("Filter for view", "View filter"),
+   STAMP_FILTER_FOR_LANGUAGE("Filter for language", "Language filter"),
+
+
    /** The stamp coordinate for taxonomy coordinate. */
-   STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE("Stamp coordinate for taxonomy coordinate", "Stamp coordinate for taxonomy"),
+   STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE("Filter coordinate for taxonomy coordinate", "Filter coordinate for taxonomy"),
    
    /** The stamp coordinate for taxonomy coordinate. */
-   STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE_DESTINATION("Stamp coordinate for taxonomy coordinate destination", "Stamp coordinate for taxonomy destination"),
+   STAMP_COORDINATE_FOR_TAXONOMY_COORDINATE_DESTINATION("Filter coordinate for taxonomy coordinate destination", "Filter coordinate for taxonomy destination"),
 
    /** The language coordinate for taxonomy coordinate. */
    LANGUAGE_COORDINATE_FOR_TAXONOMY_COORDINATE("Language coordinate for taxonomy coordinate", "Language coordinate"),
@@ -165,8 +175,16 @@ public enum ObservableFields
    /** The logic coordinate for taxonomy coordinate. */
    LOGIC_COORDINATE_FOR_TAXONOMY_COORDINATE("Logic coordinate for taxonomy coordinate", "Logic coordinate"),
 
+   CURRENT_ACTIVITY_PROPERTY("Current activity", "Activity"),
+   VERTEX_STATUS_SET_PROPERTY("Vertex state set", "Vertex states"),
+   VERTEX_SORT_PROPERTY("Vertex sort", "Sort"),
+   DIGRAPH_PROPERTY("Digraph for manifold", "Digraph"),
+   VIEW_FILTER_FOR_NAVIGATION("View STAMP filter for manifold", "View filter"),
+   VERTEX_FILTER_FOR_NAVIGATION("Vertex STAMP filter for manifold", "Vertex filter"),
+   STAMP_FILTER_FOR_PATH("Stamp filter for path", "Stamp filter"),
+
    /** The uuid for taxonomy coordinate. */
-   UUID_FOR_TAXONOMY_COORDINATE("UUID for taxonomy coordinate", "Coordinate UUID"),
+   UUID_FOR_TAXONOMY_COORDINATE("UUID for taxonomy coordinate", "ImmutableCoordinate UUID"),
 
    /** The case significance concept nid for description. */
    CASE_SIGNIFICANCE_CONCEPT_NID_FOR_DESCRIPTION("Case significance concept nid for description", "Case significance"),
@@ -175,15 +193,15 @@ public enum ObservableFields
    LANGUAGE_CONCEPT_NID_FOR_DESCRIPTION("Language concept nid for description", "Language for description"),
 
    /** The text for description. */
-   TEXT_FOR_DESCRIPTION("Text for description", "Text for description"),
+   TEXT_FOR_DESCRIPTION("Text for description", "Text"),
 
    /** The description type for description. */
-   DESCRIPTION_TYPE_FOR_DESCRIPTION("Description type for description", "Description type for description"),
+   DESCRIPTION_TYPE_FOR_DESCRIPTION("Description type for description", "Description type"),
 
    /** The version list for chronicle. */
    VERSION_LIST_FOR_CHRONICLE("Version list for chronicle", "Versions"),
 
-   CONCEPT_VERSION("Concept version", "Concept version"),
+   CONCEPT_VERSION("Concept version", "Version"),
 
    /** The native id for chronicle. */
    NATIVE_ID_FOR_COMPONENT("Native id for component", "Nid for component"),
@@ -216,9 +234,9 @@ public enum ObservableFields
    /** The description list for concept. */
    DESCRIPTION_LIST_FOR_CONCEPT("description list for concept"),
    
-   STRING_VALUE_FOR_SEMANTIC("String value for semantic", "String value for semantic"),
+   STRING_VALUE_FOR_SEMANTIC("String for semantic", "String for semantic"),
    
-   COMPONENT_NID_FOR_SEMANTIC("Component nid for semantic", "Component"),
+   COMPONENT_NID_FOR_SEMANTIC("Component for semantic", "Component"),
    
    LOGIC_GRAPH_FOR_SEMANTIC("logic graph for semantic", "Logic graph"),
    
@@ -255,6 +273,7 @@ public enum ObservableFields
    INT5("Integer 5"),
    INT6("Integer 6"),
    INT7("Integer 7"),
+   LONG2("Long 2"),
    
    CIRCUMSTANCE_PURPOSE_LIST("Action purpose"),
    CIRCUMSTANCE_TIMING("Timing"),
@@ -306,7 +325,7 @@ public enum ObservableFields
    
    UNSTRUCTURED_CIRCUMSTANCE_TEXT("Unstructured circumstance text", "Text"),
    
-   STATEMENT_STAMP_COORDINATE("Stamp coordinate"),
+   STATEMENT_STAMP_COORDINATE("Filter coordinate"),
    
    STATEMENT_MODE("Statement mode", "Statement mode"),
    
@@ -349,10 +368,24 @@ public enum ObservableFields
    MANIFOLD_COORDINATE_REFERENCE("Manifold coordinate reference", "manifold"),
 
    IMAGE_DATA_FOR_SEMANTIC("Image data for semantic", "Image data"),
-;
+
+   AXIOM_ORDER_FOR_DETAILS_PANE("Detail pane axiom order", "Axiom order"),
+
+   DESCRIPTION_TYPE_ORDER_FOR_DETAILS_PANE("Detail pane description type order", "Description type order"),
+
+   DETAIL_ORDER_FOR_DETAILS_PANE("Detail pane order", "Detail order"),
+
+   SEMANTIC_ORDER_FOR_CONCEPT_DETAILS("Order for concept attachments", "Concept attachment order"),
+
+   SEMANTIC_ORDER_FOR_DESCRIPTION_DETAILS("Order for description attachments", "Description attachment order"),
+
+   SEMANTIC_ORDER_FOR_AXIOM_DETAILS("Order for axiom attachments", "Axiom attachment order"),
+
+   WILDCARD_FOR_ORDER("Any component", "Any component"),
+   ;
    // this, ObservableFields..toExternalString()
 
-    /** The Constant namespace. */
+   /** The Constant namespace. */
    private static final UUID namespace = UUID.fromString("cbbd1e22-0cac-11e5-a6c0-1697f925ec7b");
 
    //~--- fields --------------------------------------------------------------

@@ -53,10 +53,9 @@ import java.security.MessageDigest;
 //~--- non-JDK imports --------------------------------------------------------
 
 import javafx.concurrent.Task;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 
 //~--- JDK imports ------------------------------------------------------------
-
-import javax.xml.bind.annotation.adapters.HexBinaryAdapter;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -140,8 +139,7 @@ public class ChecksumGenerator {
    private static String getStringValue(MessageDigest md) {
       final byte[] digest = md.digest();
 
-      return new HexBinaryAdapter().marshal(digest)
-                                   .toLowerCase();
+      return ByteArrayDataBuffer.printHexBinary(digest).toLowerCase();
    }
 }
 

@@ -16,7 +16,7 @@
  */
 package sh.isaac.model;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jvnet.hk2.annotations.Service;
@@ -41,11 +41,18 @@ public class ModelGet implements StaticIsaacCache {
    static TaxonomyDebugService taxonomyDebugService;
    static DataStore dataStore;
    static SequenceStore sequenceStore;
+   static ChronologyService chronologyService;
    
    private ModelGet() {
       //For HK2
    }
-   
+   public static ChronologyService chronologyService() {
+      if (chronologyService == null) {
+         chronologyService = Get.service(ChronologyService.class);
+      }
+      return chronologyService;
+   }
+
    public static IdentifierService identifierService() {
       if (identifierService == null) {
          identifierService = Get.service(IdentifierService.class);
@@ -83,6 +90,7 @@ public class ModelGet implements StaticIsaacCache {
    @Override
    public void reset() {
       LOG.debug("ModelGet Cache clear");
+      chronologyService = null;
       identifierService = null;
       taxonomyDebugService = null;
       dataStore = null;

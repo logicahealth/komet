@@ -36,7 +36,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptSpecificationWithLabel;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -44,7 +44,7 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecification, PropertySheet.Item, PreferenceChanged {
     
-    private final Manifold manifoldForDisplay;
+    private final ViewProperties viewProperties;
     private final String name;
     private final SimpleObjectProperty<ConceptSpecification> conceptProperty;
     private final ObservableList<ConceptSpecification> allowedValues;
@@ -53,15 +53,10 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
     private final BooleanProperty changedProperty = new SimpleBooleanProperty(this, "changed", false);
     
     private ConceptSpecification propertySpecification = null;
-    
-    public PropertySheetItemConceptWrapperNoSearch(Manifold manifoldForDisplay,
-            ObjectProperty<? extends ConceptSpecification> conceptProperty, ObservableList<ConceptSpecification> allowedValues) {
-        this(manifoldForDisplay, manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(conceptProperty.getName())), conceptProperty, allowedValues);
-    }
-    
-    public PropertySheetItemConceptWrapperNoSearch(Manifold manifoldForDisplay, String name,
-            ObjectProperty<? extends ConceptSpecification> conceptProperty, ObservableList<ConceptSpecification> allowedValues) {
-        this.manifoldForDisplay = manifoldForDisplay;
+
+    public PropertySheetItemConceptWrapperNoSearch(ViewProperties viewProperties, String name,
+                                                   ObjectProperty<? extends ConceptSpecification> conceptProperty, ObservableList<ConceptSpecification> allowedValues) {
+        this.viewProperties = viewProperties;
         this.name = name;
         this.allowedValues = allowedValues;
         this.conceptProperty = (SimpleObjectProperty<ConceptSpecification>) conceptProperty;
@@ -85,7 +80,7 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
                     if (item instanceof ConceptSpecificationWithLabel) {
                         this.setText(((ConceptSpecificationWithLabel) item).toString());
                     } else {
-                        this.setText(manifoldForDisplay.getPreferredDescriptionText(item));
+                        this.setText(viewProperties.getPreferredDescriptionText(item));
                     }
                 } else {
                     this.setText("");
@@ -101,7 +96,7 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
                     if (item instanceof ConceptSpecificationWithLabel) {
                         this.setText(((ConceptSpecificationWithLabel) item).toString());
                     } else {
-                        this.setText(manifoldForDisplay.getPreferredDescriptionText(item));
+                        this.setText(viewProperties.getPreferredDescriptionText(item));
                     }
                 } else {
                     this.setText("");
@@ -172,12 +167,12 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
     
     @Override
     public String getFullyQualifiedName() {
-        return this.manifoldForDisplay.getFullySpecifiedDescriptionText(conceptProperty.get());
+        return this.viewProperties.getFullyQualifiedDescriptionText(conceptProperty.get());
     }
     
     @Override
     public Optional<String> getRegularName() {
-        return Optional.of(manifoldForDisplay.getPreferredDescriptionText(conceptProperty.get()));
+        return Optional.of(viewProperties.getPreferredDescriptionText(conceptProperty.get()));
     }
     
     @Override
@@ -242,6 +237,6 @@ public class PropertySheetItemConceptWrapperNoSearch implements ConceptSpecifica
     @Override
     public String toString() {
         return "Property sheet item for "
-                + manifoldForDisplay.getPreferredDescriptionText(new ConceptProxy(getSpecification().toExternalString()));
+                + viewProperties.getPreferredDescriptionText(new ConceptProxy(getSpecification().toExternalString()));
     }
 }

@@ -67,6 +67,9 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
 
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
@@ -74,13 +77,12 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
@@ -90,6 +92,8 @@ import sh.isaac.model.ChronologyImpl;
 import sh.isaac.model.DeepEqualsVersionWrapper;
 import sh.isaac.model.VersionImpl;
 import sh.isaac.model.VersionWithScoreWrapper;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareObjectProperty;
 import sh.isaac.model.observable.version.ObservableVersionImpl;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
@@ -292,9 +296,7 @@ public abstract class ObservableChronologyImpl
          final ObservableList<ObservableSemanticChronology> semanticList = FXCollections.observableArrayList();
 
          Get.assemblageService()
-            .getSemanticNidsForComponent(getNid())
-            .stream()
-            .forEach((semanticSequence) -> semanticList.add(ocs.getObservableSemanticChronology(semanticSequence)));
+            .getSemanticNidsForComponent(getNid()).forEach((semanticNid) -> semanticList.add(ocs.getObservableSemanticChronology(semanticNid)));
          this.semanticListProperty = new SimpleListProperty(
              this,
              ObservableFields.SEMANTIC_LIST_FOR_CHRONICLE.toExternalString(),
@@ -376,8 +378,9 @@ public abstract class ObservableChronologyImpl
                  
 
          this.getVersionList().forEach((observableVersion) -> {
-            StampedVersion oldVersion = ((ObservableVersionImpl) observableVersion).getStampedVersion();
-            oldSet.add(new DeepEqualsVersionWrapper((VersionImpl) oldVersion));
+            ((ObservableVersionImpl) observableVersion).getOptionalStampedVersion().ifPresent(oldVersion -> {
+               oldSet.add(new DeepEqualsVersionWrapper((VersionImpl) oldVersion));
+            });
          });
          
          Set<DeepEqualsVersionWrapper> newSet = new HashSet<>();
@@ -447,8 +450,10 @@ public abstract class ObservableChronologyImpl
                   finalAlignmentMap.putAll(alignmentMap);
                   Iterator<ScoredNewOldVersion> alignmentIterator = sortedAlignments.descendingIterator();
                   for (int i = 0; i < toFind.get(); i++) {
-                     ScoredNewOldVersion scoredNewOldVersion = alignmentIterator.next();
-                     cancelSet.add(scoredNewOldVersion.oldVersion);
+                     if (alignmentIterator.hasNext()) {
+                        ScoredNewOldVersion scoredNewOldVersion = alignmentIterator.next();
+                        cancelSet.add(scoredNewOldVersion.oldVersion);
+                     }
                   }
                } else {
                   // additions
@@ -478,25 +483,26 @@ public abstract class ObservableChronologyImpl
             // Handle delete or merge... 
             while (observableVersions.hasNext()) {
                ObservableVersionImpl observableVersion = observableVersions.next();
-               VersionImpl version = observableVersion.getStampedVersion();
-               // see if equals
-               if (equalsStampVersionMap.containsKey(version.getStampSequence())) {
-                  observableVersion.updateVersion(equalsStampVersionMap.get(version.getStampSequence()));
-               } else if (cancelSet.contains(version)) {
-                  observableVersions.remove();
-               } else if (finalAlignmentMap.containsKey(version)) {
-                  VersionImpl updateVersion = finalAlignmentMap.get(version).iterator().next().getVersion();
-                  observableVersion.updateVersion(updateVersion);
-               } else if (oldVersionNewVersionMap.containsKey(version)) {
-                   VersionImpl updateVersion = oldVersionNewVersionMap.get(version);
-                   observableVersion.updateVersion(updateVersion);
-               } else {
-                   if (observableVersion.getCommitState() == CommitStates.CANCELED) {
-                       // OK, canceled content 
-                   } else {
-                       throw new IllegalStateException("No match for: " + observableVersion);
-                   }
-               }
+               observableVersion.getOptionalStampedVersion().ifPresent(version -> {
+                  // see if equals
+                  if (equalsStampVersionMap.containsKey(version.getStampSequence())) {
+                     observableVersion.updateVersion(equalsStampVersionMap.get(version.getStampSequence()));
+                  } else if (cancelSet.contains(version)) {
+                     observableVersions.remove();
+                  } else if (finalAlignmentMap.containsKey(version)) {
+                     VersionImpl updateVersion = finalAlignmentMap.get(version).iterator().next().getVersion();
+                     observableVersion.updateVersion(updateVersion);
+                  } else if (oldVersionNewVersionMap.containsKey(version)) {
+                     VersionImpl updateVersion = oldVersionNewVersionMap.get(version);
+                     observableVersion.updateVersion(updateVersion);
+                  } else {
+                     if (observableVersion.getCommitState() == CommitStates.CANCELED) {
+                        // OK, canceled content
+                     } else {
+                        throw new IllegalStateException("No match for: " + observableVersion);
+                     }
+                  }
+               });
             }
             // then add... 
             additionSet.forEach((version) -> {
@@ -508,8 +514,7 @@ public abstract class ObservableChronologyImpl
             Map<Integer, Version> stampVersionMap = ((ChronologyImpl) chronology).getStampVersionMap();
             this.getVersionList().forEach((observableVersion) -> {
                ObservableVersionImpl observableVersionImpl = (ObservableVersionImpl) observableVersion;
-               StampedVersion version = observableVersionImpl.getStampedVersion();
-               observableVersionImpl.updateVersion(stampVersionMap.get(version.getStampSequence()));
+               observableVersionImpl.getOptionalStampedVersion().ifPresent(version -> observableVersionImpl.updateVersion(stampVersionMap.get(version.getStampSequence())));
             });
          }
       }
@@ -517,14 +522,13 @@ public abstract class ObservableChronologyImpl
       this.chronicledObjectLocal = chronology;
 
       if (this.semanticListProperty != null) {
-         NidSet updatedSemanticNidSet = Get.assemblageService()
-                                                         .getSemanticNidsForComponent(chronology.getNid());
+         MutableIntSet updatedSemanticNidSet = IntSets.mutable.ofAll(Get.assemblageService()
+                                                         .getSemanticNidsForComponent(chronology.getNid()));
 
          this.semanticListProperty.forEach((semantic) -> {
                 updatedSemanticNidSet.remove(semantic.getNid());
              });
-         updatedSemanticNidSet.stream()
-                                 .forEach(
+         updatedSemanticNidSet.forEach(
                                      (semanticNid) -> {
                                         this.semanticListProperty.add(Get.observableChronologyService()
                                                .getObservableSemanticChronology(semanticNid));
@@ -577,27 +581,27 @@ public abstract class ObservableChronologyImpl
     * Gets the latest version.
     *
     * @param type the type
-    * @param coordinate the coordinate
+    * @param stampFilter the stamp filter
     * @return the latest version
     */
    @Override
    public LatestVersion<ObservableVersion> getLatestVersion(Class<? extends StampedVersion> type,
-         StampCoordinate coordinate) {
-      final RelativePositionCalculator calculator = RelativePositionCalculator.getCalculator(coordinate);
+         StampFilter stampFilter) {
+      final RelativePositionCalculator calculator = stampFilter.getRelativePositionCalculator();
 
       return calculator.getLatestVersion(this);
    }
 
    @Override
-   public <V extends ObservableVersion> LatestVersion<V> getLatestObservableVersion(StampCoordinate coordinate) {
-      final RelativePositionCalculator calculator = RelativePositionCalculator.getCalculator(coordinate);
+   public <V extends ObservableVersion> LatestVersion<V> getLatestObservableVersion(StampFilter stampFilter) {
+      final RelativePositionCalculator calculator = stampFilter.getRelativePositionCalculator();
 
       return calculator.getLatestVersion(this);
    }
 
    @Override
-   public LatestVersion<ObservableVersion> getLatestCommittedVersion(StampCoordinate coordinate) {
-      final RelativePositionCalculator calculator = RelativePositionCalculator.getCalculator(coordinate);
+   public LatestVersion<ObservableVersion> getLatestCommittedVersion(StampFilter stampFilter) {
+      final RelativePositionCalculator calculator = stampFilter.getRelativePositionCalculator();
       return calculator.getLatestCommittedVersion(this);
    }
 
@@ -805,7 +809,7 @@ public abstract class ObservableChronologyImpl
    }
    
       @Override
-   public NidSet getRecursiveSemanticNids() {
+   public ImmutableIntSet getRecursiveSemanticNids() {
       return chronicledObjectLocal.getRecursiveSemanticNids();
    }
 

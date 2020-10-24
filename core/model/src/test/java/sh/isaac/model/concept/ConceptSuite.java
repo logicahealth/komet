@@ -46,6 +46,7 @@ import java.io.File;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -63,15 +64,17 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinateImmutable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.memory.HeapUseTicker;
 import sh.isaac.api.progress.ActiveTasksTicker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.builder.ConceptBuilderImpl;
-import sh.isaac.model.coordinate.LogicCoordinateImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -198,11 +201,13 @@ public class ConceptSuite {
       final int descriptionLogicProfileNid = TermAux.EL_PLUS_PLUS_LOGIC_PROFILE.getNid();
       final int                  classifierNid = TermAux.SNOROCKET_CLASSIFIER.getNid();
       final int                  conceptAssemblageNid = TermAux.SOLOR_CONCEPT_ASSEMBLAGE.getNid();
-      final LogicCoordinate defaultLogicCoordinate = new LogicCoordinateImpl(statedAssemblageNid,
-                                                                             inferredAssemblageNid,
-                                                                             descriptionLogicProfileNid,
-                                                                             classifierNid, 
-                                                                             conceptAssemblageNid);
+      final int digraphIdentityNid = TermAux.EL_PLUS_PLUS_DIGRAPH.getNid();
+      final int rootConceptNid = TermAux.SOLOR_ROOT.getNid();
+
+      final LogicCoordinate defaultLogicCoordinate = LogicCoordinateImmutable.make(classifierNid,
+              descriptionLogicProfileNid, inferredAssemblageNid,
+              statedAssemblageNid, conceptAssemblageNid,digraphIdentityNid, rootConceptNid);
+
       final ConceptBuilderImpl testConceptBuilder = new ConceptBuilderImpl(conceptName,
                                                                                      semanticTag,
                                                                                      null,
@@ -216,10 +221,11 @@ public class ConceptSuite {
       final int authorNid = TermAux.USER.getNid();
       final int moduleNid = TermAux.SOLOR_MODULE.getNid();
       final int pathNid   = TermAux.DEVELOPMENT_PATH.getNid();
+      Transaction transaction = Get.commitService().newTransaction(Optional.of("ConceptSuite.createConcept"), ChangeCheckerMode.INACTIVE);
       final int stampSequence = Get.stampService()
-                                   .getStampSequence(Status.ACTIVE, time, authorNid, moduleNid, pathNid);
+                                   .getStampSequence(transaction, Status.ACTIVE, time, authorNid, moduleNid, pathNid);
       final List<Chronology> builtObjects = new ArrayList<>();
-      final ConceptChronology concept = testConceptBuilder.build(stampSequence, builtObjects);
+      final ConceptChronology concept = testConceptBuilder.build(transaction, stampSequence, builtObjects);
 
       for (final Object obj: builtObjects) {
          if (obj instanceof ConceptChronologyImpl) {
@@ -232,7 +238,7 @@ public class ConceptSuite {
             throw new UnsupportedOperationException("ag Can't handle: " + obj);
          }
       }
-
+      transaction.commit();
       return concept;
    }
 

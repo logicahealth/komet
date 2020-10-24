@@ -67,7 +67,7 @@ import sh.isaac.api.component.semantic.version.dynamic.types.DynamicPolymorphic;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicString;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
 import sh.isaac.api.constants.DynamicConstants;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.util.UuidT3Generator;
 
 //~--- enums ------------------------------------------------------------------
@@ -405,7 +405,12 @@ public enum DynamicDataType {
             || sctid == 900000000000460005l) {  //Component type (foundation metadata concept) a3d732bb-030d-3fba-b914-aeaaebc628c9
          return NID;
       }
-      else if (sctid == 900000000000465000l) {  //String (SOLOR) a46aaf11-b37a-32d6-abdc-707f084ec8f5
+      else if (sctid == 900000000000465000l   //String (SOLOR) a46aaf11-b37a-32d6-abdc-707f084ec8f5
+            || sctid == 900000000000469006l  // Uniform resource locator (foundation metadata concept)
+            || sctid == 762678002l  // OWL 2 language syntax (foundation metadata concept)
+            || sctid == 707000009l  // SNOMED CT parsable string (foundation metadata concept)
+            || sctid == 900000000000475002l  //Time (foundation metadata concept)  TODO should look and see what this actually is, if parseable, we could put in a long...
+            || sctid == 900000000000466004l) {  //Text (foundation metadata concept)
          return STRING;
       }
       else if (sctid == 900000000000476001l   //Integer (foundation metadata concept) 42d9f81e-27e9-3b73-9c19-9de4e2346b44
@@ -440,12 +445,14 @@ public enum DynamicDataType {
     */
    private static boolean isChildOf(int childConceptNid, int parentConceptNid)
    {
-      StampCoordinate stamp = Get.defaultCoordinate().getStampCoordinate();
+      StampFilter stamp = Get.defaultCoordinate().getViewStampFilter();
       
       ArrayList<SemanticChronology> chronologies = new ArrayList<>();
       
       Get.assemblageService().getSemanticChronologyStreamForComponentFromAssemblage(childConceptNid, 
-            TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid()).forEach(chronology -> chronologies.add(chronology));
+            TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid(), false).forEach(chronology -> {
+              chronologies.add(chronology);
+            });
       
       ArrayList<Integer> destiniationNids = new ArrayList<>(chronologies.size());
       

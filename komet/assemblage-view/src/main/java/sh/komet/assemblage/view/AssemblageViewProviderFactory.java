@@ -16,7 +16,7 @@
  */
 package sh.komet.assemblage.view;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
 import sh.isaac.MetaData;
@@ -24,8 +24,8 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -37,8 +37,8 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 public class AssemblageViewProviderFactory  implements ExplorationNodeFactory {
 
    @Override
-   public AssemblageViewProvider createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      AssemblageViewProvider assemblageViewProvider = new AssemblageViewProvider(manifold.deepClone());
+   public AssemblageViewProvider createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+      AssemblageViewProvider assemblageViewProvider = new AssemblageViewProvider(viewProperties.makeOverride(), activityFeed, preferencesNode);
       return assemblageViewProvider;
    }
 
@@ -52,25 +52,13 @@ public class AssemblageViewProviderFactory  implements ExplorationNodeFactory {
       return Iconography.PAPERCLIP.getIconographic();
    }
 
-   @Override
-   public boolean isEnabled() {
-      return true;
-   }
-
    /**
     * {@inheritDoc}
+    * @return
     */
    @Override
-   public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
-   }
-
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public PanelPlacement getPanelPlacement() {
-      return null;
+   public String[] getDefaultActivityFeed() {
+      return new String[] {ViewProperties.UNLINKED};
    }
 
    @Override

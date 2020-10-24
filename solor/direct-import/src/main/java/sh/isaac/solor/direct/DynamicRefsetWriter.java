@@ -15,43 +15,28 @@
  */
 package sh.isaac.solor.direct;
 
-import static java.time.temporal.ChronoField.INSTANT_SECONDS;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAccessor;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Semaphore;
-import sh.isaac.api.AssemblageService;
-import sh.isaac.api.Get;
-import sh.isaac.api.IdentifierService;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.Status;
+import sh.isaac.api.*;
 import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicUtility;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.StringUtils;
 import sh.isaac.api.util.UuidT3Generator;
+import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-import sh.isaac.model.semantic.types.DynamicBooleanImpl;
-import sh.isaac.model.semantic.types.DynamicDoubleImpl;
-import sh.isaac.model.semantic.types.DynamicFloatImpl;
-import sh.isaac.model.semantic.types.DynamicIntegerImpl;
-import sh.isaac.model.semantic.types.DynamicLongImpl;
-import sh.isaac.model.semantic.types.DynamicNidImpl;
-import sh.isaac.model.semantic.types.DynamicStringImpl;
-import sh.isaac.model.semantic.types.DynamicUUIDImpl;
+import sh.isaac.model.semantic.types.*;
 import sh.isaac.model.semantic.version.DynamicImpl;
+
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
+import java.util.*;
+import java.util.concurrent.Semaphore;
+
+import static java.time.temporal.ChronoField.INSTANT_SECONDS;
 
 /**
  * An importer component that processes RF2 refsets into dynamic semantic refsets.
@@ -79,19 +64,15 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 	private final IdentifierService identifierService = Get.identifierService();
 	private final StampService stampService = Get.stampService();
 	private final HashSet<String> refsetsToIgnore = new HashSet<>();
-	private final ConcurrentHashMap<Integer,Boolean> configuredDynamicSemantics;
-	private final HashMap<String, ArrayList<DynamicColumnInfo>> dynamicColumnInfo;
 
 	public DynamicRefsetWriter(List<String[]> semanticRecords, Semaphore writeSemaphore, String message, ImportSpecification importSpecification,
-			ImportType importType, HashMap<String, ArrayList<DynamicColumnInfo>> refsetColumnInfo, ConcurrentHashMap<Integer,Boolean> configuredDynamicSemantics)
+			ImportType importType)
 	{
 		this.refsetRecords = semanticRecords;
 		this.writeSemaphore = writeSemaphore;
 		this.importSpecification = importSpecification;
 		this.importType = importType;
 		this.writeSemaphore.acquireUninterruptibly();
-		this.dynamicColumnInfo = refsetColumnInfo;
-		this.configuredDynamicSemantics = configuredDynamicSemantics;
 		indexers = LookupService.get().getAllServices(IndexBuilderService.class);
 		updateTitle("Importing semantic batch of size: " + semanticRecords.size());
 		updateMessage(message);
@@ -99,7 +80,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 		Get.activeTasks().add(this);
 
 		// TODO move these to an import preference...
-		refsetsToIgnore.add("6011000124106"); // 6011000124106 | ICD-10-CM complex map reference set (foundation metadata concept)
+//		refsetsToIgnore.add("6011000124106"); // 6011000124106 | ICD-10-CM complex map reference set (foundation metadata concept)
 		refsetsToIgnore.add("447563008"); // 447563008 | ICD-9-CM equivalence complex map reference set (foundation metadata concept)
 		refsetsToIgnore.add("447569007"); // 447569007 | International Classification of Diseases, Ninth Revision, Clinical Modification reimbursement
 											 // complex map reference set (foundation metadata concept)
@@ -111,10 +92,10 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 		refsetsToIgnore.add("711112009"); // 711112009 | ICNP diagnoses simple map reference set (foundation metadata concept)
 		refsetsToIgnore.add("712505008"); // 712505008 | ICNP interventions simple map reference set (foundation metadata concept)
 		refsetsToIgnore.add("900000000000498005"); // 900000000000498005 | SNOMED RT identifier simple map (foundation metadata concept)
-		refsetsToIgnore.add("733900009"); // 733900009 | UCUM simple map reference set (foundation metadata concept)
+//		refsetsToIgnore.add("733900009"); // 733900009 | UCUM simple map reference set (foundation metadata concept)
 		refsetsToIgnore.add("900000000000490003");  // 900000000000490003 | Description inactivation indicator attribute value reference set (foundation metadata concept) |
 		refsetsToIgnore.add("900000000000489007");  // 900000000000489007 | Concept inactivation indicator attribute value reference set (foundation metadata concept)
-		refsetsToIgnore.add("900000000000527005");  // 900000000000527005 | SAME AS association reference set (foundation metadata concept)
+//		refsetsToIgnore.add("900000000000527005");  // 900000000000527005 | SAME AS association reference set (foundation metadata concept)
 	}
 
 	private void index(Chronology chronicle)
@@ -143,10 +124,12 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 	{
 		try
 		{
-			int authorNid = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate().getAuthorNid();
-			int pathNid = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultEditCoordinate().getPathNid();
+			int authorNid = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get().getAuthorNid();
+			int pathNid = Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get().getPathNid();
 			List<String[]> noSuchElementList = new ArrayList<>();
+			HashSet<Integer> checkedDynamicTypes = new HashSet<>();
 
+			Transaction transaction = Get.commitService().newTransaction(Optional.of("DynamicRefsetWriter"), ChangeCheckerMode.INACTIVE, false);
 			boolean skippedAny = false;
 			int skipped = 0;
 			for (String[] refsetRecord : refsetRecords)
@@ -155,7 +138,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 				{
 					UUID referencedComponentUuid = UuidT3Generator.fromSNOMED(refsetRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
 					final Status state = Status.fromZeroOneToken(refsetRecord[ACTIVE_INDEX]);
-					if (importType == ImportType.ACTIVE_ONLY)
+					if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY)
 					{
 						if (state == Status.INACTIVE)
 						{
@@ -192,60 +175,38 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 					int referencedComponentNid = nidFromSctid(refsetRecord[REFERENCED_CONCEPT_SCT_ID_INDEX]);
 					TemporalAccessor accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(refsetRecord[EFFECTIVE_TIME_INDEX]));
 					long time = accessor.getLong(INSTANT_SECONDS) * 1000;
-					int versionStamp = stampService.getStampSequence(state, time, authorNid, moduleNid, pathNid);
+					int versionStamp = stampService.getStampSequence(transaction, state, time, authorNid, moduleNid, pathNid);
 					
-					if (configuredDynamicSemantics.get(assemblageNid) == null)
+					//Sanity checks to make sure we are correctly configured for the dynamic refex....
+					if (!checkedDynamicTypes.contains(assemblageNid))
 					{
-						//Need to stop the world, and configure it - this is the first time we have seen this assemblage.
-						synchronized (configuredDynamicSemantics) {
-							if (configuredDynamicSemantics.get(assemblageNid) == null)
+						//See if we already know the SCTID / refset config due to a dependency preload (we should), or the initial process
+						//of the refset descriptors.  
+						int nid = nidFromSctid(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
+						if (DynamicUsageDescriptionImpl.isDynamicSemanticFullRead(nid))
+						{
+							//Should be all configured in the preload / dependencies - all happy - but sanity check the types alignment...
+							DynamicColumnInfo[] dci = DynamicUsageDescriptionImpl.read(nid).getColumnInfo();
+							// check if the spec from the file matches the file name...
+							for (int i = 0; i < dci.length; i++)
 							{
-								// set up the dynamic semantic definition for this assemblage we haven't seen before
-								// TODO would like to add a second parent to this concept into the metadata tree, but I don't think it knows how to
-								// merge logic graphs well yet....
-								//TODO this should be done with an edit coordinate the same as the refset concept, I suppose... I don't know how to find 
-								//the coords of the refset concept that was specified during _this_ import, however...
-								
-								ArrayList<DynamicColumnInfo> dci = dynamicColumnInfo.get(refsetRecord[ASSEMBLAGE_SCT_ID_INDEX]);
-								if (dci == null)
+								if (importSpecification.refsetBrittleTypes[i].getDynamicColumnType() != dci[i].getColumnDataType())
 								{
-									LOG.warn("Refset may be misconfigured, no construction information available from the der2_ccirefset_refsetdescriptor file." 
-											+ "  This may be ok, if this is an extension that appends to an existing refset");
-									//We can't do any futher config here.  If it wasn't configured, it should fail when the data validator checks the columns
-									//against the spec.
-								}
-								else
-								{
-									// check if the spec from the file matches the file name...
-									for (int i = 0; i < dci.size(); i++)
-									{
-										if (importSpecification.refsetBrittleTypes[i].getDynamicColumnType() != dci.get(i).getColumnDataType())
-										{
 											throw new RuntimeException("The name of the refset file " + importSpecification.contentProvider.getStreamSourceName()
 													+ " does not match the column type information in the 'attributeType' column of the der2_ccirefset_refsetdescriptor file "
 													+ " for 'attributeOrder' " + i);
 										}
 									}
-									
-									int[] assemblageStamps = Get.concept(assemblageNid).getVersionStampSequences();
-									Arrays.sort(assemblageStamps);
-									int stampSequence = assemblageStamps[assemblageStamps.length - 1];  //use the largest (newest) stamp on the concept, 
-									//since we probably just loaded the concept....
-									
-									List<Chronology> items = LookupService.getService(DynamicUtility.class).configureConceptAsDynamicSemantic(assemblageNid,
-											"DynamicDefinition for refset " + DirectImporter.trimZipName(importSpecification.contentProvider.getStreamSourceName()),
-											dci.toArray(new DynamicColumnInfo[dci.size()]),
-											null, null, stampSequence);
-	
-									for (Chronology c : items)
-									{
-										index(c);
-										assemblageService.writeSemanticChronology((SemanticChronology)c);
-									}
-								}
-								configuredDynamicSemantics.put(assemblageNid, true);
-							}
 						}
+						else
+						{
+							LOG.error("Refset is misconfigured, no construction information available from the der2_ccirefset_refsetdescriptor file for"
+									+ " sctid " + refsetRecord[ASSEMBLAGE_SCT_ID_INDEX] + "." 
+									+ "  This will probably lead to a failure later in the transform / load.");
+							//We can't do any futher config here.  If it wasn't configured, it should fail when the data validator checks the columns
+							//against the spec.
+						}
+						checkedDynamicTypes.add(assemblageNid);
 					}
 
 					SemanticChronologyImpl refsetMemberToWrite = new SemanticChronologyImpl(this.importSpecification.streamType.getSemanticVersionType(),
@@ -310,7 +271,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 						}
 					}
 					
-					DynamicImpl dv = refsetMemberToWrite.createMutableVersion(versionStamp);
+					DynamicImpl dv = refsetMemberToWrite.createMutableVersion(transaction, versionStamp);
 					dv.setData(data);
 					index(refsetMemberToWrite);
 					assemblageService.writeSemanticChronology(refsetMemberToWrite);
@@ -325,6 +286,7 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 			{
 				LOG.error("Continuing after import failed with no such element exception for these records: \n" + noSuchElementList.toString());
 			}
+			transaction.commit("Dynamic refset writer");
 			return skipped;
 		}
 		finally

@@ -41,19 +41,12 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- non-JDK imports --------------------------------------------------------
 
-import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
-import java.util.List;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.beans.value.ObservableValue;
 import sh.isaac.api.component.concept.ConceptSpecification;
-
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
-import sh.isaac.model.coordinate.EditCoordinateImpl;
+import sh.isaac.api.coordinate.EditCoordinateImmutable;
 import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedObjectProperty;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -63,25 +56,7 @@ import sh.isaac.model.observable.ObservableFields;
  * @author kec
  */
 public class ObservableEditCoordinateImpl
-        extends ObservableCoordinateImpl
-         implements ObservableEditCoordinate {
-   /** The author nid property. */
-   private IntegerProperty authorNidProperty = null;
-
-   /** The module nid property. */
-   private IntegerProperty moduleNidProperty = null;
-
-   /** The path nid property. */
-   private IntegerProperty pathNidProperty = null;
-
-   /** The edit coordinate. */
-   private final EditCoordinateImpl editCoordinate;
-   
-   private final SimpleListProperty<ConceptSpecification> moduleOptionsList = new SimpleListProperty<>(this, 
-           ObservableFields.MODULE_OPTIONS_FOR_EDIT_COORDINATE.toExternalString(), FXCollections.observableArrayList());
-
-   private final SimpleListProperty<ConceptSpecification> pathOptionsList = new SimpleListProperty<>(this, 
-           ObservableFields.PATH_OPTIONS_FOR_EDIT_COORDINATE.toExternalString(), FXCollections.observableArrayList());
+        extends ObservableEditCoordinateBase {
 
    //~--- constructors --------------------------------------------------------
 
@@ -90,148 +65,59 @@ public class ObservableEditCoordinateImpl
     *
     * @param editCoordinate the edit coordinate
     */
-   public ObservableEditCoordinateImpl(EditCoordinate editCoordinate) {
-      this.editCoordinate = (EditCoordinateImpl) editCoordinate;
-      this.moduleOptionsList.addAll(editCoordinate.getModuleOptions());
-      this.editCoordinate.setModuleOptions(this.moduleOptionsList);
-      this.pathOptionsList.addAll(editCoordinate.getPathOptions());
-      this.editCoordinate.setPathOptions(pathOptionsList);
-   }
-
-   @Override
-   public ObservableList<ConceptSpecification> getModuleOptions() {
-        return this.moduleOptionsList;
+   public ObservableEditCoordinateImpl(EditCoordinate editCoordinate, String coordinateName) {
+       super(editCoordinate.toEditCoordinateImmutable(), coordinateName);
    }
 
     @Override
-    public void setModuleOptions(List<ConceptSpecification> options) {
-        this.moduleOptionsList.setAll(options);
+    protected EditCoordinateImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends EditCoordinateImmutable> observable, EditCoordinateImmutable oldValue, EditCoordinateImmutable newValue) {
+        this.authorForChangesProperty().setValue(newValue.getAuthorForChanges());
+        this.defaultModuleProperty().setValue(newValue.getDefaultModule());
+        this.destinationModuleProperty().setValue(newValue.getDestinationModule());
+        this.promotionPathProperty().setValue(newValue.getPromotionPath());
+        return newValue;
     }
 
     @Override
-    public ObservableList<ConceptSpecification> getPathOptions() {
-        return this.pathOptionsList;
+    public void setExceptOverrides(EditCoordinateImmutable updatedCoordinate) {
+        setValue(updatedCoordinate);
     }
 
-    //~--- methods -------------------------------------------------------------
+    public ObservableEditCoordinateImpl(EditCoordinate editCoordinate) {
+        super(editCoordinate.toEditCoordinateImmutable(), "Edit coordinate");
+    }
+
     @Override
-    public void setPathOptions(List<ConceptSpecification> options) {
-        this.pathOptionsList.setAll(options);
+    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makePromotionPathProperty(EditCoordinate editCoordinate) {
+        return new SimpleEqualityBasedObjectProperty(this,
+                ObservableFields.PATH_NID_FOR_EDIT_CORDINATE.toExternalString(),
+                editCoordinate.getPromotionPath());
     }
 
-    /**
-     * author nid property.
-     *
-     * @return the integer property
-     */
     @Override
-    public IntegerProperty authorNidProperty() {
-        if (this.authorNidProperty == null) {
-            this.authorNidProperty = new SimpleIntegerProperty(this,
-                    ObservableFields.AUTHOR_NID_FOR_EDIT_COORDINATE.toExternalString(),
-                    getAuthorNid());
-            addListenerReference(this.editCoordinate.setAuthorNidProperty(this.authorNidProperty));
-            this.authorNidProperty.addListener((invalidation) -> fireValueChangedEvent());
-        }
-        
-        return this.authorNidProperty;
+    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makeDefaultModuleProperty(EditCoordinate editCoordinate) {
+        return new SimpleEqualityBasedObjectProperty(this,
+                ObservableFields.MODULE_NID_FOR_EDIT_COORDINATE.toExternalString(),
+                editCoordinate.getDefaultModule());
     }
 
-   /**
-    * module nid property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public IntegerProperty moduleNidProperty() {
-      if (this.moduleNidProperty == null) {
-         this.moduleNidProperty = new SimpleIntegerProperty(this,
-               ObservableFields.MODULE_NID_FOR_EDIT_COORDINATE.toExternalString(),
-               getModuleNid());
-         addListenerReference(this.editCoordinate.setModuleNidProperty(this.moduleNidProperty));
-         this.moduleNidProperty.addListener((invalidation) -> fireValueChangedEvent());
-      }
+    @Override
+    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makeAuthorForChangesProperty(EditCoordinate editCoordinate) {
+        return new SimpleEqualityBasedObjectProperty<>(this,
+                ObservableFields.AUTHOR_NID_FOR_EDIT_COORDINATE.toExternalString(),
+                editCoordinate.getAuthorForChanges());
+    }
 
-      return this.moduleNidProperty;
-   }
+    @Override
+    protected SimpleEqualityBasedObjectProperty<ConceptSpecification> makeDestinationModuleProperty(EditCoordinate editCoordinate) {
+        return new SimpleEqualityBasedObjectProperty<>(this,
+                ObservableFields.DESTINATION_MODULE_NID_FOR_EDIT_COORDINATE.toExternalString(),
+                editCoordinate.getDestinationModule());
+    }
 
-   /**
-    * path nid property.
-    *
-    * @return the integer property
-    */
-   @Override
-   public IntegerProperty pathNidProperty() {
-      if (this.pathNidProperty == null) {
-         this.pathNidProperty = new SimpleIntegerProperty(this,
-               ObservableFields.PATH_NID_FOR_EDIT_CORDINATE.toExternalString(),
-               getPathNid());
-         addListenerReference(this.editCoordinate.setPathNidProperty(pathNidProperty()));
-         this.pathNidProperty.addListener((invalidation) -> fireValueChangedEvent());
-      }
-
-      return this.pathNidProperty;
-   }
-
-   /**
-    * To string.
-    *
-    * @return the string
-    */
-   @Override
-   public String toString() {
-      return "ObservableEditCoordinateImpl{" + this.editCoordinate + '}';
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the author nid.
-    *
-    * @return the author nid
-    */
-   @Override
-   public int getAuthorNid() {
-      if (this.authorNidProperty != null) {
-         return this.authorNidProperty.get();
-      }
-
-      return this.editCoordinate.getAuthorNid();
-   }
-
-   /**
-    * Gets the module nid.
-    *
-    * @return the module nid
-    */
-   @Override
-   public int getModuleNid() {
-      if (this.moduleNidProperty != null) {
-         return this.moduleNidProperty.get();
-      }
-
-      return this.editCoordinate.getModuleNid();
-   }
-
-   /**
-    * Gets the path nid.
-    *
-    * @return the path nid
-    */
-   @Override
-   public int getPathNid() {
-      if (this.pathNidProperty != null) {
-         return this.pathNidProperty.get();
-      }
-
-      return this.editCoordinate.getPathNid();
-   }
-
-   @Override
-   public ObservableEditCoordinate deepClone() {
-      return new ObservableEditCoordinateImpl(editCoordinate.deepClone());
-   }
-   
-   
+    @Override
+    public EditCoordinateImmutable getOriginalValue() {
+        return getValue();
+    }
 }
 

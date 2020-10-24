@@ -39,20 +39,19 @@
 
 package sh.komet.progress.view;
 
-import javax.inject.Singleton;
-import org.jvnet.hk2.annotations.Service;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import javafx.scene.Node;
+import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
-import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+
+import jakarta.inject.Singleton;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 
@@ -68,8 +67,8 @@ public class TaskProgressNodeFactory
    public static final String TITLE_BASE = "Activities";
    public static final String TITLE_BASE_SINGULAR = "Activity";
    @Override
-   public TaskProgressNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      TaskProgressNode taskProgressNode = new TaskProgressNode(manifold);
+   public TaskProgressNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+      TaskProgressNode taskProgressNode = new ActiveTasksProgressNode(viewProperties);
       return taskProgressNode;
    }
 
@@ -84,26 +83,14 @@ public class TaskProgressNodeFactory
    public String getMenuText() {
       return TITLE_BASE;
    }
-   
-   @Override
-   public boolean isEnabled() {
-      return true;
-   }
-   
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public PanelPlacement getPanelPlacement() {
-      return PanelPlacement.RIGHT;
-   }
 
   /** 
    * {@inheritDoc}
+   * @return
    */
   @Override
-  public ManifoldGroup[] getDefaultManifoldGroups() {
-     return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
+  public String[] getDefaultActivityFeed() {
+     return new String[] {ViewProperties.UNLINKED};
   }
 
    @Override

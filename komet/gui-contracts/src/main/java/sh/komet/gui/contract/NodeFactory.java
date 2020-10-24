@@ -20,10 +20,9 @@ import org.jvnet.hk2.annotations.Contract;
 import javafx.scene.Node;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
-import sh.komet.gui.util.FxGet;
 
 /**
  * Common methods for node factories
@@ -33,15 +32,15 @@ import sh.komet.gui.util.FxGet;
 @Contract
 public interface NodeFactory<T extends ExplorationNode> {
    
-   public enum PanelPlacement{LEFT, CENTER, RIGHT};
-   
    /**
     * Create the node
-    * @param manifold the manifold that determines the current coordinates and focus. 
-    * @return the created node, not yet added to the scenegraph.  Call {@link ExplorationNode#getNode()} 
+    * @param viewProperties the manifold that determines the current coordinates and focus.
+    * @param activityFeed
+    * @param nodePreferences preferences node where the new node can store its preferences
+    * @return the created node, not yet added to the scenegraph.  Call {@link ExplorationNode#getNode()}
     * to get the appropriate node, when ready to add it to the scenegraph.
     */
-   T createNode(Manifold manifold, IsaacPreferences nodePreferences);
+   T createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences nodePreferences);
    
    /**
     * 
@@ -56,13 +55,6 @@ public interface NodeFactory<T extends ExplorationNode> {
    Node getMenuIcon();
 
    /**
-    * @return true if this view should be shown, false otherwise.  Default ties it to the betaFeatures.
-    */
-   default boolean isEnabled() {
-      return FxGet.fxConfiguration().isShowBetaFeaturesEnabled();
-   }
-   
-   /**
     * The initial manifold group(s) this view should be linked to.
     * returning more than one manifold group will be seen as a request
     * to create multiple copies of this node on system startup.
@@ -71,13 +63,7 @@ public interface NodeFactory<T extends ExplorationNode> {
     * 
     * @return the desired manifold group
     */
-   ManifoldGroup[] getDefaultManifoldGroups();
-   
-   /**
-    * On system start, place this node in the specified place, or, return null, to not have this node created / setup on system start.
-    * @return the desired placement
-    */
-   PanelPlacement getPanelPlacement();
+   String[] getDefaultActivityFeed();
 
    /**
     *

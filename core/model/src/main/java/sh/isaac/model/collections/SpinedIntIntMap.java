@@ -229,18 +229,26 @@ public class SpinedIntIntMap {
         return spineCount.get();
     }
 
-    public IntStream keyStream() {
-        final Supplier<? extends Spliterator.OfInt> streamSupplier = this.getKeySpliterator();
+//  Dan notes KeyStream is not implemented correctly, and should not be used without being fixed....
+//    public IntStream keyStream() {
+//        final Supplier<? extends Spliterator.OfInt> streamSupplier = this.getKeySpliterator();
+//
+//        return StreamSupport.intStream(streamSupplier, streamSupplier.get()
+//                .characteristics(), false);
+//    }
+
+    public IntStream parallelValueStream() {
+        final Supplier<? extends Spliterator.OfInt> streamSupplier = this.getValueSpliterator();
 
         return StreamSupport.intStream(streamSupplier, streamSupplier.get()
-                .characteristics(), false);
+                .characteristics(), true).filter(value -> value != Integer.MAX_VALUE);
     }
 
     public IntStream valueStream() {
         final Supplier<? extends Spliterator.OfInt> streamSupplier = this.getValueSpliterator();
 
         return StreamSupport.intStream(streamSupplier, streamSupplier.get()
-                .characteristics(), false);
+                .characteristics(), false).filter(value -> value != Integer.MAX_VALUE);
     }
 
     public interface Processor {
@@ -257,31 +265,31 @@ public class SpinedIntIntMap {
         return new ValueSpliteratorSupplier();
     }
 
-    /**
-     * Gets the value spliterator.
-     *
-     * @return the supplier<? extends spliterator. of int>
-     */
-    protected Supplier<? extends Spliterator.OfInt> getKeySpliterator() {
-        return new KeySpliteratorSupplier();
-    }
+//    /**
+//     * Gets the value spliterator.
+//     *
+//     * @return the supplier<? extends spliterator. of int>
+//     */
+//    protected Supplier<? extends Spliterator.OfInt> getKeySpliterator() {
+//        return new KeySpliteratorSupplier();
+//    }
 
-    /**
-     * The Class KeySpliteratorSupplier.
-     */
-    private class KeySpliteratorSupplier
-            implements Supplier<Spliterator.OfInt> {
-
-        /**
-         * Gets the.
-         *
-         * @return the spliterator of int
-         */
-        @Override
-        public Spliterator.OfInt get() {
-            return new SpinedKeySpliterator();
-        }
-    }
+//    /**
+//     * The Class KeySpliteratorSupplier.
+//     */
+//    private class KeySpliteratorSupplier
+//            implements Supplier<Spliterator.OfInt> {
+//
+//        /**
+//         * Gets the.
+//         *
+//         * @return the spliterator of int
+//         */
+//        @Override
+//        public Spliterator.OfInt get() {
+//            return new SpinedKeySpliterator();
+//        }
+//    }
 
     /**
      * The Class ValueSpliteratorSupplier.
@@ -304,24 +312,32 @@ public class SpinedIntIntMap {
 
         int end;
         int currentPosition;
+        boolean split = false;
 
         public SpinedValueSpliterator() {
             this.end = DEFAULT_SPINE_SIZE * getSpineCount();
             this.currentPosition = 0;
         }
 
-        public SpinedValueSpliterator(int start, int end) {
+        private SpinedValueSpliterator(int start, int end) {
             this.currentPosition = start;
             this.end = end;
+            this.split = true;
         }
 
         @Override
         public OfInt trySplit() {
+            if (estimateSize() < 10) {
+                return null;
+            }
             int splitEnd = end;
             int split = end - currentPosition;
             int half = split / 2;
+            if ((currentPosition + half) == splitEnd) {
+                return null;
+            }
             this.end = currentPosition + half;
-            return new SpinedValueSpliterator(currentPosition + half + 1, splitEnd);
+            return new SpinedValueSpliterator(this.end, splitEnd);
         }
 
         @Override
@@ -343,57 +359,58 @@ public class SpinedIntIntMap {
 
         @Override
         public int characteristics() {
-            return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED
-                    | Spliterator.SIZED;
+            return split ? Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED | Spliterator.SIZED  | Spliterator.SUBSIZED : 
+                Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED | Spliterator.SIZED;
         }
 
     }
 
-    private class SpinedKeySpliterator implements Spliterator.OfInt {
-
-        int end = DEFAULT_SPINE_SIZE * getSpineCount();
-        int currentPosition = 0;
-
-        public SpinedKeySpliterator() {
-        }
-
-        public SpinedKeySpliterator(int start, int end) {
-            this.currentPosition = start;
-            this.end = end;
-        }
-
-        @Override
-        public Spliterator.OfInt trySplit() {
-            int splitEnd = end;
-            int split = end - currentPosition;
-            int half = split / 2;
-            this.end = currentPosition + half;
-            return new SpinedValueSpliterator(currentPosition + half + 1, splitEnd);
-        }
-
-        @Override
-        public boolean tryAdvance(IntConsumer action) {
-            while (currentPosition < end) {
-                int key = currentPosition++;
-                int value = get(key);
-                if (value != INITIALIZATION_VALUE) {
-                    action.accept(key);
-                    return true;
-                }
-            }
-            return false;
-        }
-
-        @Override
-        public long estimateSize() {
-            return end - currentPosition;
-        }
-
-        @Override
-        public int characteristics() {
-            return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED
-                    | Spliterator.SIZED | Spliterator.SORTED;
-        }
-
-    }
+//    private class SpinedKeySpliterator implements Spliterator.OfInt {
+//
+//        int end = DEFAULT_SPINE_SIZE * getSpineCount();
+//        int currentPosition = 0;
+//
+//        public SpinedKeySpliterator() {
+//        }
+//
+//        public SpinedKeySpliterator(int start, int end) {
+//            this.currentPosition = start;
+//            this.end = end;
+//        }
+//
+//        @Override
+    //Dan Notes - this split function has off-by-one errors due to the handling of half
+//        public Spliterator.OfInt trySplit() {
+//            int splitEnd = end;
+//            int split = end - currentPosition;
+//            int half = split / 2;
+//            this.end = currentPosition + half;
+//            return new SpinedKeySpliterator(currentPosition + half + 1, splitEnd);
+//        }
+//
+//        @Override
+//        public boolean tryAdvance(IntConsumer action) {
+//            while (currentPosition < end) {
+//                int key = currentPosition++;
+//                int value = get(key);
+//                if (value != INITIALIZATION_VALUE) {
+//                    action.accept(key);
+//                    return true;
+//                }
+//            }
+//            return false;
+//        }
+//
+//        @Override
+//        public long estimateSize() {
+//            return end - currentPosition;
+//        }
+//
+//        @Override
+//        public int characteristics() {
+//            return Spliterator.DISTINCT | Spliterator.IMMUTABLE | Spliterator.NONNULL | Spliterator.ORDERED
+//                    | Spliterator.SIZED | Spliterator.SORTED;
+//        }
+//
+//    }
 }

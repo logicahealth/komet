@@ -47,7 +47,9 @@ import java.util.function.BiConsumer;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.DataTarget;
+import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.commit.CommittableObject;
+import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.tree.TreeNodeVisitData;
 
 //~--- interfaces -------------------------------------------------------------
@@ -66,6 +68,12 @@ public interface LogicalExpression extends CommittableObject {
     * the semantic
     */
    boolean contains(NodeSemantic semantic);
+
+   boolean containsConcept(ConceptSpecification conceptSpecification);
+
+   boolean containsConcept(int nid);
+
+   LogicalExpression replaceAllConceptOccurences(ConceptSpecification conceptToFind, ConceptSpecification replacementConcept);
 
    /**
     * Find isomorphic aspects of this {@code LogicalExpression} (the reference expression) with respect
@@ -200,5 +208,10 @@ public interface LogicalExpression extends CommittableObject {
     * @param conceptNid 
     */
    void setConceptBeingDefinedNid(int conceptNid);
+
+   /**
+    * Set the commit state to uncommitted, when changing existing values for example.
+    */
+   void setUncommitted();
 }
 

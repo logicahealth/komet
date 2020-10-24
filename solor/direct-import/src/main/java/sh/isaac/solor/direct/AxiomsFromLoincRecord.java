@@ -17,10 +17,12 @@
 package sh.isaac.solor.direct;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentSkipListSet;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.logic.LogicalExpressionBuilder;
@@ -32,7 +34,11 @@ import sh.isaac.api.logic.assertions.Assertion;
  */
 public class AxiomsFromLoincRecord {
 
-    private final Set<String> methods = new HashSet<>();
+    private static final Logger LOG = LogManager.getLogger();
+    
+    private final Set<String> methods = new ConcurrentSkipListSet<>();
+    private final Set<String> unknownMethods = new ConcurrentSkipListSet<>();
+
     private final ConceptProxy methodProxy = new ConceptProxy("Method (attribute)",
             UUID.fromString("d0f9e3b1-29e4-399f-b129-36693ba4acbc"));
     private final ConceptProxy ultrasoundProxy = new ConceptProxy("Ultrasound imaging - action (qualifier value)",
@@ -80,7 +86,7 @@ public class AxiomsFromLoincRecord {
     private final ConceptProxy bioassayProxy = new ConceptProxy("Bioassay (procedure)",UUID.fromString("355bddcb-8518-33d5-81e2-48f36dd982e1"));
     private final ConceptProxy bleachProxy = new ConceptProxy("Mallory's bleach stain",UUID.fromString("c51326d7-2f37-3aa7-87d8-bf465a97f1ee"));
     private final ConceptProxy bodianProxy = new ConceptProxy("Bodian stain method (procedure)",UUID.fromString("bea92c40-83fb-3c1e-97b4-46183a5c8126"));
-    private final ConceptProxy brainProxy = new ConceptProxy("Acquired brain injury (disorder)",UUID.fromString("b587cb55-69e1-322b-8989-5736b87cfd93"));
+    private final ConceptProxy brainProxy = new ConceptProxy("Traumatic AND/OR non-traumatic brain injury (disorder)", UUID.fromString("10016f21-8dee-3d46-93e2-5f9f68dcd83d"));
     private final ConceptProxy brilliantProxy = new ConceptProxy("Cresyl blue BBS",UUID.fromString("9734f183-78f0-38e4-8027-86321f3547c6"));
     private final ConceptProxy bronchoscopyProxy = new ConceptProxy("Tracheobronchial endoscopy",UUID.fromString("a7e01789-b882-3563-8521-dfe073a53798"));
     private final ConceptProxy brownProxy = new ConceptProxy("Brown-Brenn stain method (procedure)",UUID.fromString("4e333536-5077-3a5f-889c-1230bbc48b12"));
@@ -95,7 +101,7 @@ public class AxiomsFromLoincRecord {
     private final ConceptProxy calculatedOxygenProxy = new ConceptProxy("Calculation from oxygen partial pressure (qualifier value)",UUID.fromString("c70e7ec7-62f8-3696-b339-810e46ba370e"));
     private final ConceptProxy capillaryProxy = new ConceptProxy("Capillary electrophoresis (procedure)",UUID.fromString("bc3b7254-de8e-3dc1-bc45-2233f35020e3"));
     private final ConceptProxy carbolFuchsinProxy = new ConceptProxy("Product containing carbol-fuchsin (medicinal product)",UUID.fromString("94732756-cdb3-3cc7-8b31-05d12b986c6b"));
-    private final ConceptProxy carbonProxy = new ConceptProxy("PCO>2<, blood",UUID.fromString("cfc0d49a-0fa2-3c68-ae50-468436073fed"));
+    private final ConceptProxy carbonProxy = new ConceptProxy("Carbon dioxide content measurement (procedure)", UUID.fromString("2d77462c-9434-316c-b7d2-de496156ef76"));
     private final ConceptProxy cardiacCathProxy = new ConceptProxy("Insertion of catheter into heart chamber",UUID.fromString("21a5e5c5-7d51-3ce6-90d2-df08b6450d05"));
     private final ConceptProxy cardiacSurgeryProxy = new ConceptProxy("Operative procedure on heart",UUID.fromString("3300a761-a95d-3565-a0f6-19a73ee6962a"));
     private final ConceptProxy cardiovascularProxy = new ConceptProxy("Disorder of cardiovascular system (disorder)",UUID.fromString("98e3486c-c855-32ff-9052-dfe3790ac8d6"));
@@ -437,7 +443,9 @@ public class AxiomsFromLoincRecord {
             addLoincMethod(builder, loincRecord[LoincWriter.METHOD_TYP], assertions);
         }
 
-        if (!assertions.isEmpty()) {
+        if (assertions.isEmpty()) {
+            assertions.add(builder.conceptAssertion(MetaData.UNCATEGORIZED_PHENOMENON____SOLOR));
+        } else {
             assertions.add(builder.conceptAssertion(MetaData.PHENOMENON____SOLOR));
         }
         return assertions.toArray(new Assertion[assertions.size()]);
@@ -4869,10 +4877,11 @@ public class AxiomsFromLoincRecord {
                         builder.and(builder.someRole(methodProxy.getNid(), builder.conceptAssertion(ultrasoundProxy)))));
                 break;            
             default:
-                System.out.println("Unknown loinc method: " + loincField);
+                unknownMethods.add(loincField);
         }
     }
     public void listMethods() {
-        System.out.println("Methods: " + methods);
+        LOG.info("\nUnknown Methods: " + unknownMethods);
+        LOG.info("\n\nMethods: " + methods + "\n");
     }
 }

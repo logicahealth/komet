@@ -17,17 +17,13 @@
 package sh.isaac.provider.drools;
 
 import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.MouseEvent;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PropertySheet;
@@ -35,21 +31,30 @@ import org.controlsfx.control.action.Action;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import org.kie.api.KieServices;
-import org.kie.api.builder.KieBuilder;
-import org.kie.api.builder.KieFileSystem;
-import org.kie.api.builder.KieRepository;
-import org.kie.api.builder.Message.Level;
+import org.kie.api.builder.*;
+import org.kie.api.builder.model.KieBaseModel;
+import org.kie.api.builder.model.KieModuleModel;
+import org.kie.api.builder.model.KieSessionModel;
+import org.kie.api.conf.EqualityBehaviorOption;
+import org.kie.api.conf.EventProcessingOption;
 import org.kie.api.runtime.KieContainer;
 import org.kie.api.runtime.StatelessKieSession;
-import sh.isaac.api.*;
+import org.kie.api.runtime.conf.ClockTypeOption;
+import sh.isaac.api.BusinessRulesResource;
+import sh.isaac.api.BusinessRulesService;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.EditCoordinateImmutable;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
 import sh.komet.gui.contract.RulesDrivenKometService;
-import sh.komet.gui.control.PropertySheetMenuItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -63,12 +68,17 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
      * The Constant LOG.
      */
     private static final Logger LOG = LogManager.getLogger();
-    private KieServices kieServices;
-    private KieContainer kContainer;
-    private StatelessKieSession kSession;
-    private KieRepository kRepo;
-    private KieFileSystem kfs;
-    private Path droolsPath;
+    public static final String KOMET_SESSION = "komet-session";
+    public static final String MANIFOLD_COORDINATE = "manifoldCoordinate";
+    public static final String EDIT_COORDINATE = "editCoordinate";
+
+    private final KieServices kieServices = KieServices.Factory.get();;
+    private KieContainer classPathContainer;
+    private StatelessKieSession staticSession;
+    private StatelessKieSession dynamicSession;
+    private final ReleaseId dynamicReleaseId = this.kieServices.newReleaseId("sh.komet.rules", "dynamic", "latest");
+    private final KieFileSystem kieFileSystem = kieServices.newKieFileSystem();
+    private final KieModuleModel kieModuleModel = kieServices.newKieModuleModel();
     /**
      * Start me.
      */
@@ -79,73 +89,47 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
         try {
             LOG.info("Starting Drools Rules Provider post-construct");
 
-            ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
-            Path folderPath = configurationService.getDataStoreFolderPath();
-            this.droolsPath = folderPath.resolve("drools");
-            Files.createDirectories(droolsPath);
-            Files.copy(getClass().getResourceAsStream("/rules/sh/isaac/provider/drools/AddAttachmentRules.drl"),
-                    droolsPath.resolve("AddAttachmentRules.drl"), StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(getClass().getResourceAsStream("/rules/sh/isaac/provider/drools/EditLogicalExpressionRules.drl"),
-                    droolsPath.resolve("EditLogicalExpressionRules.drl"), StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(getClass().getResourceAsStream("/rules/sh/isaac/provider/drools/EditVersionRules.drl"),
-                    droolsPath.resolve("EditVersionRules.drl"), StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(getClass().getResourceAsStream("/rules/sh/isaac/provider/drools/PopulateProperties.drl"),
-                    droolsPath.resolve("PopulateProperties.drl"), StandardCopyOption.REPLACE_EXISTING);
-            Files.copy(getClass().getResourceAsStream("/META-INF/kmodule.xml"),
-                    droolsPath.resolve("kmodule.xml"), StandardCopyOption.REPLACE_EXISTING);
-            
-            this.kieServices = KieServices.Factory.get();
-            this.kRepo = this.kieServices.getRepository();
-            this.kfs = this.kieServices.newKieFileSystem();
-            
-            this.kfs.writeKModuleXML(Files.readAllBytes(droolsPath.resolve("kmodule.xml")));
+            this.classPathContainer = kieServices.getKieClasspathContainer();
+            this.staticSession = this.classPathContainer.newStatelessKieSession("komet-static-session");
+            KieBaseModel kieBaseModelUser = kieModuleModel.newKieBaseModel( "dynamic-komet-rules")
+                    .setDefault( true )
+                    .setEqualsBehavior( EqualityBehaviorOption.EQUALITY )
+                    .setEventProcessingMode( EventProcessingOption.STREAM );
 
-            this.kfs.write("src/main/resources/rules/sh/isaac/provider/drools/AddAttachmentRules.drl", 
-                    Files.readAllBytes(droolsPath.resolve("AddAttachmentRules.drl")));
-            this.kfs.write("src/main/resources/rules/sh/isaac/provider/drools/EditLogicalExpressionRules.drl", 
-                    Files.readAllBytes(droolsPath.resolve("EditLogicalExpressionRules.drl")));
-            this.kfs.write("src/main/resources/rules/sh/isaac/provider/drools/EditVersionRules.drl", 
-                    Files.readAllBytes(droolsPath.resolve("EditVersionRules.drl")));
-            this.kfs.write("src/main/resources/rules/sh/isaac/provider/drools/PopulateProperties.drl", 
-                    Files.readAllBytes(droolsPath.resolve("PopulateProperties.drl")));
-            
-            updateRules();
-            
-        } catch (IOException ex) {
-            throw new RuntimeException(ex);
+            kieBaseModelUser.newKieSessionModel(KOMET_SESSION)
+                    .setDefault( true )
+                    .setType( KieSessionModel.KieSessionType.STATELESS )
+                    .setClockType( ClockTypeOption.get("realtime") );
+
+            this.kieFileSystem.writeKModuleXML(kieModuleModel.toXML());
+
+            this.kieFileSystem.generateAndWritePomXML(dynamicReleaseId);
+
+
         } finally {
             progressTask.finished();
         }
-        
     }
 
-    protected void updateRules() throws RuntimeException {
-        KieBuilder kb = this.kieServices.newKieBuilder(kfs);
-        
-        kb.buildAll(); // kieModule is automatically deployed to KieRepository if successfully built.
-        if (kb.getResults().hasMessages(Level.ERROR)) {
-            throw new RuntimeException("Build Errors:\n" + kb.getResults().toString());
-        }
-        
-        this.kContainer = this.kieServices.newKieContainer(kRepo.getDefaultReleaseId());
-        this.kSession = this.kContainer.newStatelessKieSession();
-    }
 
     @Override
     public void addResourcesAndUpdate(BusinessRulesResource... ruleResources) {
-        for (BusinessRulesResource resource: ruleResources) {
-            try {
-                int index = resource.getResourceLocation().lastIndexOf("/");
-                Files.copy(new ByteArrayInputStream(resource.getResourceBytes()),
-                        droolsPath.resolve(resource.getResourceLocation().substring(index + 1)), StandardCopyOption.REPLACE_EXISTING);
-                
-                this.kfs.write(resource.getResourceLocation(),
-                        resource.getResourceBytes());
-            } catch (IOException ex) {
-                throw new RuntimeException(ex);
-            }
+        // TODO return messages from build, and surface to user as appropriate.
+        // For dynamic rules...
+
+        for (BusinessRulesResource ruleResource: ruleResources) {
+            kieFileSystem.write( "src/main/resources/dynamic-komet-rules/" + ruleResource.getResourceLocation(), kieServices.getResources().newInputStreamResource(
+                    new ByteArrayInputStream(ruleResource.getResourceBytes())) );
         }
-        updateRules();
+        KieBuilder builder = kieServices.newKieBuilder(kieFileSystem);
+        builder.buildAll();
+
+        for (Message message: builder.getResults().getMessages()) {
+            LOG.info(message.getText());
+        }
+        KieContainer dynamicContainer = this.kieServices.newKieContainer(this.dynamicReleaseId);
+        this.dynamicSession = dynamicContainer.newStatelessKieSession(KOMET_SESSION);
+
     }
 
     /**
@@ -154,50 +138,64 @@ public class DroolsRulesProvider implements BusinessRulesService, RulesDrivenKom
     @PreDestroy
     protected void stopMe() {
         LOG.info("Stopping Drools Rules Provider.");
-        this.kieServices = null;
-        this.kContainer = null;
-        this.kSession = null;
+        this.classPathContainer = null;
+        this.staticSession = null;
+        LOG.info("Stopped Drools Rules Provider.");
     }
     
     @Override
-    public List<Action> getEditLogicalExpressionNodeMenuItems(Manifold manifold,
-            LogicNode nodeToEdit,
-            LogicalExpression expressionContiningNode,
-            Consumer<LogicalExpression> expressionUpdater, 
-            MouseEvent mouseEvent) {
+    public List<Action> getEditLogicalExpressionNodeMenuItems(ViewProperties viewProperties,
+                                                              LogicNode nodeToEdit,
+                                                              LogicalExpression expressionContiningNode,
+                                                              Consumer<LogicalExpression> expressionUpdater,
+                                                              MouseEvent mouseEvent) {
         AddEditLogicalExpressionNodeMenuItems executionItem
-                = new AddEditLogicalExpressionNodeMenuItems(manifold, nodeToEdit,
+                = new AddEditLogicalExpressionNodeMenuItems(viewProperties, nodeToEdit,
                         expressionContiningNode, expressionUpdater, mouseEvent);
-        this.kSession.execute(executionItem);
+        this.staticSession.execute(executionItem);
         executionItem.sortActionItems();
         return executionItem.getActionItems();        
     }
     
     @Override
-    public List<MenuItem> getEditVersionMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
-            Consumer<PropertySheetMenuItem> propertySheetConsumer) {
-        AddEditVersionMenuItems executionItem = new AddEditVersionMenuItems(manifold, categorizedVersion, propertySheetConsumer);
-        this.kSession.execute(executionItem);
+    public List<MenuItem> getEditVersionMenuItems(ManifoldCoordinate manifoldCoordinate, ObservableCategorizedVersion categorizedVersion,
+                                                  Consumer<PropertySheetMenuItem> propertySheetConsumer) {
+        AddEditVersionMenuItems executionItem = new AddEditVersionMenuItems(manifoldCoordinate, categorizedVersion, propertySheetConsumer);
+        this.staticSession.execute(executionItem);
+        if (this.dynamicSession != null) {
+            this.dynamicSession.execute(executionItem);
+        }
         return executionItem.menuItems;
     }
     
     @Override
-    public List<MenuItem> getAddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
-            BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
-        AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifold, categorizedVersion, newAttachmentConsumer);
-        this.kSession.execute(executionItem);
+    public List<MenuItem> getAddAttachmentMenuItems(ManifoldCoordinate manifoldCoordinate, ObservableCategorizedVersion categorizedVersion,
+                                                    BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
+        AddAttachmentMenuItems executionItem = new AddAttachmentMenuItems(manifoldCoordinate, categorizedVersion, newAttachmentConsumer);
+        this.staticSession.execute(executionItem);
+        if (this.dynamicSession != null) {
+            this.dynamicSession.execute(executionItem);
+        }
         executionItem.sortMenuItems();
         return executionItem.getMenuItems();
     }
     
     @Override
     public void populatePropertySheetEditors(PropertySheetMenuItem propertySheetMenuItem) {
-        this.kSession.execute(propertySheetMenuItem);
+        this.staticSession.execute(propertySheetMenuItem);
+        if (this.dynamicSession != null) {
+            this.dynamicSession.execute(propertySheetMenuItem);
+        }
     }
     
     @Override
-    public void populateWrappedProperties(List<PropertySheet.Item> items) {
-        this.kSession.execute(items);
+    public void populateWrappedProperties(List<PropertySheet.Item> items,
+                                          ManifoldCoordinateImmutable manifoldCoordinate,
+                                          EditCoordinateImmutable editCoordinate) {
+
+        this.staticSession.setGlobal(MANIFOLD_COORDINATE, manifoldCoordinate);
+        this.staticSession.setGlobal(EDIT_COORDINATE, editCoordinate);
+        this.staticSession.execute(items);
     }
 
 

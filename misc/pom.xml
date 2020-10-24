@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>5.1.1</version>
+        <version>6.0.0</version>
     </parent>
     <artifactId>misc</artifactId>
     <packaging>pom</packaging>
@@ -13,10 +13,10 @@
     <modules>
        <module>exporters</module>
        <module>importers</module>
+       <module>importers-mojos</module>
        <module>associations</module>
        <module>util</module>
        <module>vhat-constants</module>
        <module>vhat-util</module>
-       <module>security</module>
     </modules>
 </project>

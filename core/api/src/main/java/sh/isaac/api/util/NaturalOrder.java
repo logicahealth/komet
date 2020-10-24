@@ -39,7 +39,10 @@
 
 package sh.isaac.api.util;
 
+import java.io.Serializable;
 import java.util.Comparator;
+import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Looking for more efficient implementation than AplphanumComparator which allocates memory,
@@ -49,8 +52,7 @@ import java.util.Comparator;
  * @author kec
  */
 public class NaturalOrder implements Comparator<String> {
-   
-   
+
    /**
     * From stack overflow...
     * The implementation I propose here is simple and efficient. 
@@ -76,6 +78,14 @@ public class NaturalOrder implements Comparator<String> {
       char c1, c2;
 
       for (i = 0, c1 = 0, c2 = 0; (i < len1) && (i < len2) && ((c1 = s1.charAt(i)) == (c2 = s2.charAt(i)) || Character.toLowerCase(s1.charAt(i)) == Character.toLowerCase(s2.charAt(i))); i++) {}
+
+      if (c1 == '.' && c2 == ' ') {
+         return -1;
+      }
+      if (c1 == ' ' && c2 == '.') {
+         return 1;
+      }
+
 
       // Check end of string
       if (Character.toLowerCase(c1) == Character.toLowerCase(c2)) {
@@ -109,7 +119,6 @@ public class NaturalOrder implements Comparator<String> {
       // No digits
       return (Character.toLowerCase(c1) - Character.toLowerCase(c2));
    }
-
    @Override
    public int compare(String o1, String o2) {
       return compareStrings(o1, o2);

@@ -16,12 +16,6 @@
  */
 package sh.isaac.api.query.clauses;
 
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.Get;
 import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.chronicle.LatestVersion;
@@ -29,19 +23,21 @@ import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.query.ClauseComputeType;
 import sh.isaac.api.query.ClauseSemantic;
 import sh.isaac.api.query.LetItemKey;
 import sh.isaac.api.query.Query;
 
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+
 /**
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
-public class ReferencedComponentIsMemberOf 
+public class ReferencedComponentIsMemberOf
         extends ReferencedComponentWithManifoldAbstract {
 
 
@@ -76,11 +72,11 @@ public class ReferencedComponentIsMemberOf
     @Override
     public Map<ConceptSpecification, NidSet> computePossibleComponents(Map<ConceptSpecification, NidSet> incomingPossibleComponents) {
 
-        StampCoordinate stampCoordinate = (StampCoordinate) this.enclosingQuery.getLetDeclarations().get(getManifoldCoordinateKey());
+        StampFilter stampFilter = (StampFilter) this.enclosingQuery.getLetDeclarations().get(getManifoldCoordinateKey());
         ConceptSpecification assemblageSpec = (ConceptSpecification) this.enclosingQuery.getLetDeclarations().get(getReferencedComponentSpecKey());
 
         SingleAssemblageSnapshot<SemanticVersion> snapshot = Get.assemblageService()
-                .getSingleAssemblageSnapshot(assemblageSpec, SemanticVersion.class, stampCoordinate);
+                .getSingleAssemblageSnapshot(assemblageSpec, SemanticVersion.class, stampFilter);
         
         NidSet possibleComponents = incomingPossibleComponents.get(getAssemblageForIteration());
         

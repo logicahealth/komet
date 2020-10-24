@@ -20,21 +20,20 @@ import javafx.scene.control.TableRow;
 import sh.isaac.MetaData;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
  * @author kec
  */
 public class TableWhatCell extends KometTableCell {
-   private final Manifold manifold;
+   private final ManifoldCoordinate manifoldCoordinate;
 
-   public TableWhatCell(Manifold manifold) {
-      this.manifold = manifold;
+   public TableWhatCell(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
       getStyleClass().add("komet-version-what-cell");
       getStyleClass().add("isaac-version");
    }
@@ -49,11 +48,12 @@ public class TableWhatCell extends KometTableCell {
               if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
                  setText("FQN");
               } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
-                 setText("NĀM");
+                 //setText("NĀM");
+                 setText("NAME");
               } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
                  setText("DEF");
               } else {
-                 setText(manifold.getPreferredDescriptionText(descriptionType));
+                 setText(manifoldCoordinate.getPreferredDescriptionText(descriptionType));
               } 
               
               break;

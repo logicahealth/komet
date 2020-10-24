@@ -1,5 +1,15 @@
 package sh.komet.gui.control.badged;
 
+import java.io.ByteArrayInputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.OptionalInt;
+import java.util.concurrent.atomic.AtomicBoolean;
+import org.apache.mahout.math.map.OpenIntIntHashMap;
+import org.controlsfx.control.PropertySheet;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
@@ -9,13 +19,24 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.control.*;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuButton;
+import javafx.scene.control.MenuItem;
+import javafx.scene.control.ToolBar;
+import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.*;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.TilePane;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
-import org.apache.mahout.math.map.OpenIntIntHashMap;
-import org.controlsfx.control.PropertySheet;
 import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
@@ -26,29 +47,39 @@ import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.version.*;
-import sh.isaac.api.component.semantic.version.brittle.LoincVersion;
+import sh.isaac.api.component.semantic.version.ComponentNidVersion;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
+import sh.isaac.api.component.semantic.version.ImageVersion;
+import sh.isaac.api.component.semantic.version.LogicGraphVersion;
+import sh.isaac.api.component.semantic.version.LongVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
+import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicUsageDescription;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.coordinate.PremiseType;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.komet.flags.CountryFlagImages;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.control.*;
+import sh.isaac.model.semantic.DynamicUsageDescriptionImpl;
+import sh.komet.gui.control.ExpandControl;
+import sh.komet.gui.control.StampControl;
 import sh.komet.gui.control.axiom.AxiomView;
 import sh.komet.gui.control.axiom.ConceptNode;
-import sh.komet.gui.control.text.StackLabelText;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
+import sh.komet.gui.control.text.TextAreaReadOnly;
 import sh.komet.gui.state.ExpandAction;
 import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
-
-import java.io.ByteArrayInputStream;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public abstract class BadgedVersionPaneModel {
     public static final int FIRST_COLUMN_WIDTH = 32;
@@ -58,19 +89,19 @@ public abstract class BadgedVersionPaneModel {
     protected final TilePane editControlTiles = new TilePane();
     protected final TilePane badgeTiles = new TilePane();
     protected final FlowPane badgeFlow = new FlowPane();
-    protected final StackLabelText componentText = new StackLabelText();
+    protected final VBox componentVBox = new VBox();
+    protected final ArrayList<TextAreaReadOnly> textToWrap = new ArrayList<>();
     private final BorderPane primaryPane = new BorderPane();
     private boolean primaryPaneWrappedForAttachment = false;
-    {
 
-        componentText.setWrapText(true);
-        BorderPane.setAlignment(componentText, Pos.TOP_LEFT);
+    {
+        BorderPane.setAlignment(componentVBox, Pos.TOP_LEFT);
         editControlTiles.setPrefTileHeight(BADGE_WIDTH);
         editControlTiles.setPrefTileWidth(BADGE_WIDTH);
         editControlTiles.setPrefColumns(1);
         editControlTiles.setPrefRows(2);
         primaryPane.setLeft(badgeFlow);
-        primaryPane.setCenter(componentText);
+        primaryPane.setCenter(componentVBox);
         primaryPane.setRight(this.editControlTiles);
         VBox.setVgrow(primaryPane, Priority.NEVER);
 
@@ -83,23 +114,19 @@ public abstract class BadgedVersionPaneModel {
         this.badgeTiles.setHgap(0);
         this.badgeTiles.setPrefTileHeight(BADGE_WIDTH);
         this.badgeTiles.setPrefTileWidth(BADGE_WIDTH);
-
     }
+
     private final VBox outerPane = new VBox(primaryPane);
     protected final Text componentType = new Text();
     protected final MenuButton editControl = new MenuButton("", Iconography.EDIT_PENCIL.getIconographic());
-    protected final Menu editMenu = new Menu("Edit");
-    protected final Menu attachMenu = new Menu("Attach");
-
-    {
-        editControl.getItems().add(editMenu);
-        editControl.getItems().add(attachMenu);
-    }
+    protected final Menu editMenu = new Menu("Edit", Iconography.REDO.getIconographic());
+    protected final Menu attachMenu = new Menu("Attach", Iconography.PAPERCLIP.getIconographic());
     protected final ExpandControl expandControl = new ExpandControl();
     protected final ArrayList<Node> badges = new ArrayList<>();
     protected final ObservableList<ComponentPaneModel> extensionPaneModels = FXCollections.observableArrayList();
     protected final ObservableList<VersionPaneModel> versionPanes = FXCollections.observableArrayList();
     protected final Button redoButton = new Button("", Iconography.REDO.getIconographic());
+
     {
         redoButton.setOnAction(this::redo);
     }
@@ -107,19 +134,22 @@ public abstract class BadgedVersionPaneModel {
     private final Button cancelButton = new Button("Cancel");
     private final Button commitButton = new Button("Commit");
     private final Region spacer = new Region();
+
     {
         HBox.setHgrow(spacer, Priority.ALWAYS);
         spacer.setMinWidth(Region.USE_PREF_SIZE);
     }
+
     private final ToolBar editToolBar = new ToolBar(spacer, cancelButton, commitButton);
     private final BorderPane editBorderPane = new BorderPane();
+
     {
         editBorderPane.setTop(editToolBar);
     }
 
 
     private final ObservableCategorizedVersion categorizedVersion;
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     private final HashMap<String, AtomicBoolean> disclosureStateMap;
     private final AtomicBoolean disclosureBoolean;
     private final OpenIntIntHashMap stampOrderHashMap;
@@ -145,7 +175,7 @@ public abstract class BadgedVersionPaneModel {
                 .addListener(this::expand);
         componentType.getStyleClass()
                 .add(StyleClasses.COMPONENT_VERSION_WHAT_CELL.toString());
-        componentText.getStyleClass()
+        componentVBox.getStyleClass()
                 .setAll(StyleClasses.COMPONENT_TEXT.toString());
         //componentText.setWrapText(true);
         editControl.getStyleClass().setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
@@ -162,34 +192,44 @@ public abstract class BadgedVersionPaneModel {
 
     }
 
-    protected BadgedVersionPaneModel(Manifold manifold,
+    protected BadgedVersionPaneModel(ViewProperties viewProperties,
                                      ObservableCategorizedVersion categorizedVersion,
                                      OpenIntIntHashMap stampOrderHashMap,
                                      HashMap<String, AtomicBoolean> disclosureStateMap) {
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
         this.disclosureStateMap = disclosureStateMap;
         this.stampOrderHashMap = stampOrderHashMap;
         this.categorizedVersion = categorizedVersion;
         this.isInactive.set(categorizedVersion.getStatus() == Status.INACTIVE);
-        int stampSequence = -1;
-        if (!categorizedVersion.isUncommitted()) {
-            stampSequence = categorizedVersion.getStampSequence();
-        }
+        int stampSequence = categorizedVersion.getStampSequence();
         if (stampOrderHashMap.containsKey(stampSequence)) {
             this.stampControl.setStampedVersion(
                     stampSequence,
-                    manifold,
+                    viewProperties,
                     stampOrderHashMap.get(stampSequence));
         } else {
             this.stampControl.setStampedVersion(
                     stampSequence,
-                    manifold,
+                    viewProperties,
                     -1);
         }
+        if (this.isInactive.get()) {
+            this.stampControl.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, true);
+        }
         this.badges.add(this.stampControl);
+        this.editControl.getItems().clear();
         this.attachMenu.getItems().addAll(getAttachmentMenuItems());
         this.editMenu.getItems().addAll(getEditMenuItems());
-        this.editControl.setVisible(!(editMenu.getItems().isEmpty() && attachMenu.getItems().isEmpty()));
+
+        if (!this.attachMenu.getItems().isEmpty()) {
+            this.editControl.getItems().add(this.attachMenu);
+        }
+        if (!this.editMenu.getItems().isEmpty()) {
+            this.editControl.getItems().add(this.editMenu);
+        }
+        if (this.editControl.getItems().isEmpty()) {
+            this.editControl.setVisible(false);
+        }
 
 
         ObservableVersion observableVersion = categorizedVersion.getObservableVersion();
@@ -212,7 +252,7 @@ public abstract class BadgedVersionPaneModel {
             Platform.runLater(() -> {
                 this.expandControl.setExpandAction(ExpandAction.SHOW_CHILDREN);
             });
-         }
+        }
         this.expandControl.expandActionProperty().addListener((observable, oldValue, newValue) -> {
             switch (newValue) {
                 case HIDE_CHILDREN:
@@ -223,9 +263,19 @@ public abstract class BadgedVersionPaneModel {
                     break;
             }
         });
-
-
+//
+//        this.textToWrap.forEach(text -> {
+//            text.setMaxWidth(500);
+//            text.setPrefWidth(500);
+//        });
         redoLayout();
+    }
+
+    private TextAreaReadOnly addText(String theText) {
+        TextAreaReadOnly textArea = new TextAreaReadOnly();
+        textArea.setText(theText);
+        textToWrap.add(textArea);
+        return textArea;
     }
 
     public HashMap<String, AtomicBoolean> getDisclosureStateMap() {
@@ -244,7 +294,7 @@ public abstract class BadgedVersionPaneModel {
             TilePane clipPane = new TilePane();
             clipPane.setPrefTileWidth(BADGE_WIDTH);
             clipPane.setPrefTileWidth(BADGE_WIDTH);
-            TilePane.setMargin(paperClip, new Insets(7,10,0,5));
+            TilePane.setMargin(paperClip, new Insets(7, 10, 0, 5));
             clipPane.getChildren().add(paperClip);
 
 
@@ -253,21 +303,23 @@ public abstract class BadgedVersionPaneModel {
         }
 
     }
+
     protected abstract boolean isLatestPanel();
 
     protected final void setupConcept(ConceptVersion conceptVersion) {
         if (isLatestPanel()) {
             componentType.setText("CON");
-            componentText.setText(
-                    "\n" + conceptVersion.getStatus() + " in " + getManifold().getPreferredDescriptionText(
-                            conceptVersion.getModuleNid()) + " on " + getManifold().getPreferredDescriptionText(
-                            conceptVersion.getPathNid()));
+            componentVBox.getChildren().setAll(
+                    addText("\n" + conceptVersion.getStatus() + " in " + getManifoldCoordinate().getPreferredDescriptionText(
+                            conceptVersion.getModuleNid()) + " on " + getManifoldCoordinate().getPreferredDescriptionText(
+                            conceptVersion.getPathNid()))
+            );
         } else {
             componentType.setText("");
-            componentText.setText(
-                    conceptVersion.getStatus() + " in " + getManifold().getPreferredDescriptionText(
-                            conceptVersion.getModuleNid()) + " on " + getManifold().getPreferredDescriptionText(
-                            conceptVersion.getPathNid()));
+            componentVBox.getChildren().setAll( addText(
+                    conceptVersion.getStatus() + " in " + getManifoldCoordinate().getPreferredDescriptionText(
+                            conceptVersion.getModuleNid()) + " on " + getManifoldCoordinate().getPreferredDescriptionText(
+                            conceptVersion.getPathNid())));
         }
     }
 
@@ -277,13 +329,13 @@ public abstract class BadgedVersionPaneModel {
         if (isLatestPanel()) {
             componentType.setText("EL++");
 
-            if (getManifold().getLogicCoordinate()
+            if (getManifoldCoordinate().getLogicCoordinate()
                     .getInferredAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
                 premiseType = PremiseType.INFERRED;
                 Label formLabel = new Label("", Iconography.INFERRED.getIconographic());
                 formLabel.setTooltip(new Tooltip("Inferred form"));
                 badges.add(formLabel);
-            } else if (getManifold().getLogicCoordinate()
+            } else if (getManifoldCoordinate().getLogicCoordinate()
                     .getStatedAssemblageNid() == logicGraphVersion.getAssemblageNid()) {
                 premiseType = PremiseType.STATED;
                 Label formLabel = new Label("", Iconography.STATED.getIconographic());
@@ -295,11 +347,10 @@ public abstract class BadgedVersionPaneModel {
         }
 
         LogicalExpression expression = logicGraphVersion.getLogicalExpression();
-        Pane logicDetailPanel = AxiomView.createWithCommitPanel(expression, premiseType, manifold);
+        Pane logicDetailPanel = AxiomView.createWithCommitPanel(expression, premiseType, viewProperties.getManifoldCoordinate());
         BorderPane.setAlignment(logicDetailPanel, Pos.TOP_LEFT);
         primaryPane.setCenter(logicDetailPanel);
     }
-
     protected final void setupOther(Version version) {
 
         if (version instanceof SemanticVersion) {
@@ -316,8 +367,8 @@ public abstract class BadgedVersionPaneModel {
                     } else {
                         componentType.setText("");
                     }
-
-                    componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\n" + ((StringVersion) semanticVersion).getString());
+                    componentVBox.getChildren().setAll(addText(getManifoldCoordinate()
+                            .getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\n" + ((StringVersion) semanticVersion).getString()));
                     break;
 
                 case COMPONENT_NID: {
@@ -331,29 +382,28 @@ public abstract class BadgedVersionPaneModel {
 
                     switch (Get.identifierService().getObjectTypeForComponent(nid)) {
                         case CONCEPT:
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
-                            componentText.setImage(new ConceptNode(nid, manifold));
-                            componentText.setImageLocation(ContentDisplay.BOTTOM);
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())));
+                            componentVBox.getChildren().add(new ConceptNode(nid, viewProperties.getManifoldCoordinate()));
                             break;
 
                         case SEMANTIC:
                             SemanticChronology sc = Get.assemblageService()
                                     .getSemanticChronology(nid);
 
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences: " + sc.getVersionType().toString());
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences: " + sc.getVersionType().toString()));
                             break;
 
                         case UNKNOWN:
                         default:
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences:"
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nReferences:"
                                     + Get.identifierService().getObjectTypeForComponent(
-                                    nid).toString());
+                                    nid).toString()));
                     }
 
                     break;
                 }
 
-                case Nid1_Int2:
+                case Nid1_Int2: {
                     if (isLatestPanel()) {
                         componentType.setText("INT-REF");
                     } else {
@@ -365,27 +415,72 @@ public abstract class BadgedVersionPaneModel {
 
                     switch (Get.identifierService().getObjectTypeForComponent(nid)) {
                         case CONCEPT:
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
-                            componentText.setImage(new ConceptNode(nid, manifold));
-                            componentText.setImageLocation(ContentDisplay.BOTTOM);
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                                    + "\n" + intValue));
+                            componentVBox.getChildren().add(new ConceptNode(nid, viewProperties.getManifoldCoordinate()));
                             break;
 
                         case SEMANTIC:
                             SemanticChronology sc = Get.assemblageService()
                                     .getSemanticChronology(nid);
 
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
-                                    + "\n" + intValue + ": References: " + sc.getVersionType().toString());
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                                    + "\n" + intValue + ": References: " + sc.getVersionType().toString()));
                             break;
 
                         case UNKNOWN:
                         default:
-                            componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
                                     + "\n" + intValue + ": References:"
                                     + Get.identifierService().getObjectTypeForComponent(
-                                    nid).toString());
+                                    nid).toString()));
+                    }
+                }
+                    break;
+
+                case Nid1_Long2: {
+                    if (isLatestPanel()) {
+                        componentType.setText("REF-LONG");
+                    } else {
+                        componentType.setText("");
                     }
 
+                    int nid = ((Nid1_Long2_Version) semanticVersion).getNid1();
+                    long longValue = ((Nid1_Long2_Version) semanticVersion).getLong2();
+
+                    switch (Get.identifierService().getObjectTypeForComponent(nid)) {
+                        case CONCEPT:
+                            String longText;
+                            if (semanticVersion.getAssemblageNid() == MetaData.PATH_ORIGINS_ASSEMBLAGE____SOLOR.getNid() ||
+                                    semanticVersion.getAssemblageNid() == MetaData.DEPENDENCY_MANAGEMENT_ASSEMBLAGE____SOLOR.getNid()) {
+                                longText = DateTimeUtil.format(longValue);
+                            } else {
+                                longText = Long.toString(longValue);
+                            }
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                                    + "\n" + getManifoldCoordinate().getPreferredDescriptionText(nid)
+                                    + "\n" + longText));
+                            componentVBox.getChildren().add(new ConceptNode(nid, viewProperties.getManifoldCoordinate()));
+                            break;
+
+                        case SEMANTIC:
+                            SemanticChronology sc = Get.assemblageService()
+                                    .getSemanticChronology(nid);
+
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                                    + "\n" + getManifoldCoordinate().getPreferredDescriptionText(nid)
+                                    + "\n" + longValue + ": References: " + sc.getVersionType().toString()));
+                            break;
+
+                        case UNKNOWN:
+                        default:
+                            componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid())
+                                    + "\n" + getManifoldCoordinate().getPreferredDescriptionText(nid)
+                                    + "\n" + longValue + ": References:"
+                                    + Get.identifierService().getObjectTypeForComponent(
+                                    nid).toString()));
+                    }
+                }
                     break;
 
                 case LOGIC_GRAPH:
@@ -395,8 +490,8 @@ public abstract class BadgedVersionPaneModel {
                         componentType.setText("");
                     }
 
-                    componentText.setText(((LogicGraphVersion) semanticVersion).getLogicalExpression()
-                            .toString());
+                    componentVBox.getChildren().setAll(addText(((LogicGraphVersion) semanticVersion).getLogicalExpression()
+                            .toString()));
                     break;
 
                 case LONG:
@@ -406,7 +501,7 @@ public abstract class BadgedVersionPaneModel {
                         componentType.setText("");
                     }
 
-                    componentText.setText(Long.toString(((LongVersion) semanticVersion).getLongValue()));
+                    componentVBox.getChildren().setAll(addText(Long.toString(((LongVersion) semanticVersion).getLongValue())));
                     break;
 
                 case MEMBER:
@@ -415,51 +510,44 @@ public abstract class BadgedVersionPaneModel {
                     } else {
                         componentType.setText("");
                     }
-                    componentText.setText(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember");
+                    componentVBox.getChildren().setAll(addText(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()) + "\nMember"));
                     break;
-                case LOINC_RECORD:
+
+                case DYNAMIC:
                     if (isLatestPanel()) {
-                        componentType.setText("LR");
+                        componentType.setText("DYN");
                     } else {
                         componentType.setText("");
                     }
                     StringBuilder sb = new StringBuilder();
-                    sb.append(getManifold().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
-                    LoincVersion lv = (LoincVersion) semanticVersion;
-                    sb.append("\ncomponent: ");
-                    sb.append(lv.getComponent());
-                    sb.append("\nmethod: ");
-                    sb.append(lv.getMethodType());
-                    sb.append("\nproperty: ");
-                    sb.append(lv.getProperty());
-                    sb.append("\nscale: ");
-                    sb.append(lv.getScaleType());
-                    sb.append("\nsystem: ");
-                    sb.append(lv.getSystem());
-                    sb.append("\ntiming: ");
-                    sb.append(lv.getTimeAspect());
-
-
-                    componentText.setText(sb.toString());
+                    sb.append(getManifoldCoordinate().getPreferredDescriptionText(semanticVersion.getAssemblageNid()));
+                    DynamicVersion dv = (DynamicVersion) semanticVersion;
+                    DynamicUsageDescription dud = DynamicUsageDescriptionImpl.read(version.getAssemblageNid());
+                    for (DynamicColumnInfo dci : dud.getColumnInfo()) {
+                        sb.append("\n");
+                        sb.append(dci.getColumnName());
+                        sb.append(": ");
+                        sb.append(dv.getData()[dci.getColumnOrder()] == null ? "" : dv.getData()[dci.getColumnOrder()].dataToString());
+                    }
+                    componentVBox.getChildren().setAll(addText(sb.toString()));
                     break;
 
                 case IMAGE:
                     ImageVersion iv = (ImageVersion) semanticVersion;
                     ByteArrayInputStream imageStream = new ByteArrayInputStream(iv.getImageData());
                     ImageView view = new ImageView(new Image(imageStream));
-                    componentText.setImage(view);
+                    componentVBox.getChildren().setAll(view);
                     break;
 
                 case RF2_RELATIONSHIP:
-                case DYNAMIC:
                 case UNKNOWN:
                 case DESCRIPTION:
                 default:
                     throw new UnsupportedOperationException("al Can't handle: " + semanticType);
             }
         } else {
-            componentText.setText(version.getClass()
-                    .getSimpleName());
+            componentVBox.getChildren().setAll(addText(version.getClass()
+                    .getSimpleName()));
         }
     }
 
@@ -478,14 +566,14 @@ public abstract class BadgedVersionPaneModel {
     }
 
     protected final void setupDescription(DescriptionVersion description) {
-        componentText.setText(description.getText());
+        componentVBox.getChildren().setAll(addText(description.getText()));
 
         if (isLatestPanel()) {
             int descriptionType = description.getDescriptionTypeConceptNid();
 
             setComponentDescriptionType(descriptionType);
             if (description instanceof ObservableDescriptionVersion) {
-                ((ObservableDescriptionVersion)description).descriptionTypeConceptNidProperty().addListener((observable, oldValue, newValue) -> {
+                ((ObservableDescriptionVersion) description).descriptionTypeConceptNidProperty().addListener((observable, oldValue, newValue) -> {
                     setComponentDescriptionType(newValue.intValue());
                 });
             }
@@ -493,7 +581,7 @@ public abstract class BadgedVersionPaneModel {
             componentType.setText("");
         }
 
-        Tooltip tooltip = new Tooltip(manifold.getPreferredDescriptionText(description.getCaseSignificanceConceptNid()));
+        Tooltip tooltip = new Tooltip(viewProperties.getPreferredDescriptionText(description.getCaseSignificanceConceptNid()));
 
         if (description.getCaseSignificanceConceptNid() == TermAux.DESCRIPTION_CASE_SENSITIVE.getNid()) {
             Node icon = Iconography.CASE_SENSITIVE.getIconographic();
@@ -520,29 +608,31 @@ public abstract class BadgedVersionPaneModel {
         if (descriptionType == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
             componentType.setText(" FQN");
         } else if (descriptionType == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
-            componentType.setText(" NĀM");
+            //componentType.setText(" NĀM");
+            componentType.setText(" NAME");
         } else if (descriptionType == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
             componentType.setText(" DEF");
         } else {
-            componentType.setText(getManifold().getPreferredDescriptionText(descriptionType));
+            componentType.setText(getManifoldCoordinate().getPreferredDescriptionText(descriptionType));
         }
     }
 
     private void addAcceptabilityBadge(DescriptionVersion description, int dialogAssembblageNid, ImageView countryBadge) throws NoSuchElementException {
-        OptionalInt optAcceptabilityNid = manifold.getAcceptabilityNid(description.getNid(), dialogAssembblageNid, manifold);
+        OptionalInt optAcceptabilityNid = viewProperties.getManifoldCoordinate().getAcceptabilityNid(description.getNid(), dialogAssembblageNid);
         if (optAcceptabilityNid.isPresent()) {
             int acceptabilityNid = optAcceptabilityNid.getAsInt();
             if (acceptabilityNid == MetaData.PREFERRED____SOLOR.getNid()) {
                 StringBuilder toolTipText = new StringBuilder();
-                toolTipText.append(manifold.getPreferredDescriptionText(acceptabilityNid));
+                toolTipText.append(viewProperties.getPreferredDescriptionText(acceptabilityNid));
                 toolTipText.append(" in ");
-                toolTipText.append(manifold.getPreferredDescriptionText(dialogAssembblageNid));
+                toolTipText.append(viewProperties.getPreferredDescriptionText(dialogAssembblageNid));
                 Tooltip acceptabilityTooltip = new Tooltip(toolTipText.toString());
                 Tooltip.install(countryBadge, acceptabilityTooltip);
                 badges.add(countryBadge);
             }
         }
     }
+
     public void doExpandAllAction(ExpandAction action) {
         expandControl.setExpandAction(action);
         extensionPaneModels.forEach((panel) -> panel.doExpandAllAction(action));
@@ -559,6 +649,7 @@ public abstract class BadgedVersionPaneModel {
                                 ExpandAction newValue) {
         redoLayout();
     }
+
     private void redoLayout() {
         setupBadges();
         setupEditControls();
@@ -568,11 +659,11 @@ public abstract class BadgedVersionPaneModel {
 
     private void setupEditControls() {
         this.editControlTiles.getChildren().clear();
-
-        if (!(editMenu.getItems().isEmpty() && attachMenu.getItems().isEmpty())) {
+        if (!this.editControl.getItems().isEmpty()) {
             this.editControlTiles.getChildren().add(this.editControl);
         }
     }
+
     private void setupBadges() {
         this.badgeFlow.getChildren().clear();
         this.badgeTiles.getChildren().clear();
@@ -581,9 +672,9 @@ public abstract class BadgedVersionPaneModel {
         this.badgeFlow.getChildren().add(this.componentType);
         this.badgeFlow.getChildren().add(this.badgeTiles);
         badgeTiles.setPrefColumns(3);
-        badgeTiles.setPrefRows(badges.size()/3 + 1);
+        badgeTiles.setPrefRows(badges.size() / 3 + 1);
 
-        for (Node badge: badges) {
+        for (Node badge : badges) {
             badgeTiles.getChildren().add(badge);
         }
     }
@@ -595,6 +686,7 @@ public abstract class BadgedVersionPaneModel {
             itemToExecute.getOnAction().handle(event);
         }
     }
+
     private void cancel(ActionEvent event) {
         primaryPane.setTop(null);
         if (optionalPropertySheetMenuItem.isPresent()) {
@@ -608,7 +700,11 @@ public abstract class BadgedVersionPaneModel {
         primaryPane.setTop(null);
         if (this.optionalPropertySheetMenuItem.isPresent()) {
             PropertySheetMenuItem item = this.optionalPropertySheetMenuItem.get();
-            item.commit();
+            try {
+                item.commit();
+            } catch (Exception e) {
+                FxGet.dialogs().showErrorDialog(e);
+            }
             cleanupAfterCommitOrCancel(item);
         }
     }
@@ -619,17 +715,27 @@ public abstract class BadgedVersionPaneModel {
             this.optionalPropertySheetMenuItem = Optional.empty();
             this.editBorderPane.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
             this.editToolBar.pseudoClassStateChanged(PseudoClasses.UNCOMMITTED_PSEUDO_CLASS, false);
-            this.editControl.setVisible(false);
+
+            this.editControl.getItems().clear();
+            this.attachMenu.getItems().setAll(getAttachmentMenuItems());
+            if (!this.attachMenu.getItems().isEmpty()) {
+                this.editControl.getItems().add(this.attachMenu);
+            }
             this.editMenu.getItems().setAll(getEditMenuItems());
-            this.editControl.setVisible(!(editMenu.getItems().isEmpty() && attachMenu.getItems().isEmpty()));
+            if (!this.editMenu.getItems().isEmpty()) {
+                this.editControl.getItems().add(this.editMenu);
+            }
+            this.editControl.setVisible(!this.editControl.getItems().isEmpty());
             if (this instanceof VersionPaneModel) {
                 this.redoButton.setVisible(true);
             }
             redoLayout();
         });
     }
+
     public final List<MenuItem> getEditMenuItems() {
-        return FxGet.rulesDrivenKometService().getEditVersionMenuItems(manifold, this.categorizedVersion, (propertySheetMenuItem) -> {
+        return FxGet.rulesDrivenKometService().getEditVersionMenuItems(viewProperties.getManifoldCoordinate(),
+                this.categorizedVersion, (propertySheetMenuItem) -> {
             addEditingPropertySheet(propertySheetMenuItem);
         });
     }
@@ -652,10 +758,15 @@ public abstract class BadgedVersionPaneModel {
             observableVersion.removeUserObject(PROPERTY_SHEET_ATTACHMENT);
         });
         redoLayout();
+        Platform.runLater(() ->
+                Platform.runLater(() ->
+                        propertySheetMenuItem.getItemEditorList().stream().findFirst().ifPresent(node -> node.requestFocus())
+                )
+        );
     }
 
     public final List<MenuItem> getAttachmentMenuItems() {
-        return FxGet.rulesDrivenKometService().getAddAttachmentMenuItems(manifold, this.categorizedVersion,
+        return FxGet.rulesDrivenKometService().getAddAttachmentMenuItems(viewProperties.getManifoldCoordinate(), this.categorizedVersion,
                 (propertySheetMenuItem, assemblageSpecification) -> {
                     addNewAttachmentPropertySheet(propertySheetMenuItem, assemblageSpecification);
                 });
@@ -666,9 +777,9 @@ public abstract class BadgedVersionPaneModel {
 
         ObservableVersion observableVersion = propertySheetMenuItem.getVersionInFlight();
         observableVersion.putUserObject(PROPERTY_SHEET_ATTACHMENT, propertySheetMenuItem);
-        CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(manifold);
+        CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(viewProperties.getManifoldCoordinate().getViewStampFilter());
 
-        ComponentPaneModel componentPane = new ComponentPaneModel(getManifold(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap, getDisclosureStateMap());
+        ComponentPaneModel componentPane = new ComponentPaneModel(getViewProperties(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap, getDisclosureStateMap());
         extensionPaneModels.add(componentPane);
         this.expandControl.setExpandAction(ExpandAction.SHOW_CHILDREN);
         propertySheetMenuItem.addCompletionListener((observable, oldValue, newValue) -> {
@@ -676,11 +787,16 @@ public abstract class BadgedVersionPaneModel {
         });
         redoLayout();
     }
+
     /**
      * @return the manifold
      */
-    public Manifold getManifold() {
-        return manifold;
+    public ManifoldCoordinate getManifoldCoordinate() {
+        return viewProperties.getManifoldCoordinate();
+    }
+
+    public ViewProperties getViewProperties() {
+        return viewProperties;
     }
 
     public ObservableCategorizedVersion getCategorizedVersion() {

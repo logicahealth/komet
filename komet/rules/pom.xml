@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>sh.isaac</groupId>
+    <artifactId>komet</artifactId>
+    <version>6.0.0</version>
+  </parent>
+  <groupId>sh.komet</groupId>
+  <artifactId>rules</artifactId>
+  <packaging>kjar</packaging>
+
+  <name>ISAAC’s KOMET: Rules</name>
+
+    <dependencies>
+      <dependency>
+        <groupId>org.drools</groupId>
+        <artifactId>drools-compiler</artifactId>
+        <scope>test</scope>
+      </dependency>
+<!--      <dependency>-->
+<!--        <groupId>org.drools</groupId>-->
+<!--        <artifactId>drools-model-compiler</artifactId>-->
+<!--        <scope>test</scope>-->
+<!--      </dependency>-->
+
+    <dependency>
+      <groupId>sh.isaac.provider</groupId>
+      <artifactId>drools</artifactId>
+      <version>${project.parent.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+        <groupId>sh.isaac.core</groupId>
+        <artifactId>log-config</artifactId>
+        <version>${project.parent.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.kie</groupId>
+        <artifactId>kie-maven-plugin</artifactId>
+        <version>${drools.version}</version>
+        <extensions>true</extensions>
+      </plugin>
+    </plugins>
+
+  </build>
+</project>

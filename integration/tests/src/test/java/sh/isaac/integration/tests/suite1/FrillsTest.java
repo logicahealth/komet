@@ -26,10 +26,10 @@ public class FrillsTest {
 	public void testChildren() {
 		LOG.info("Testing Child methods");
 		
-		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.CONTENT_METADATA____SOLOR.getNid(), true, true, null).size(), 6);
-		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.CONTENT_METADATA____SOLOR.getNid(), false, true, null).size(), 6);
-		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.CONTENT_METADATA____SOLOR.getNid(), true, false, null).size(), 6);
-		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.CONTENT_METADATA____SOLOR.getNid(), false, false, null).size(), 6);
+		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.CONTENT_METADATA____SOLOR.getNid(), true, true, null).size(), 7);
+		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.CONTENT_METADATA____SOLOR.getNid(), false, true, null).size(), 7);
+		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.CONTENT_METADATA____SOLOR.getNid(), true, false, null).size(), 7);
+		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.CONTENT_METADATA____SOLOR.getNid(), false, false, null).size(), 7);
 		
 		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.FEATURE____SOLOR.getNid(), false, false, null).size(), 1);
 		Assert.assertEquals(Frills.getAllChildrenOfConcept(MetaData.FEATURE____SOLOR.getNid(), true, false, null).size(), 1);

@@ -36,13 +36,15 @@
  */
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
-import java.util.EnumSet;
-import java.util.NoSuchElementException;
-import javax.xml.bind.annotation.XmlEnum;
-import javax.xml.bind.annotation.XmlType;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
+
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.NoSuchElementException;
+import java.util.Set;
+
+//~--- JDK imports ------------------------------------------------------------
 
 
 //~--- enums ------------------------------------------------------------------
@@ -51,8 +53,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
  *
  * @author kec
  */
-@XmlType(name = "Status")
-@XmlEnum
+
 public enum Status {
    /**
     * Currently inactive.
@@ -223,7 +224,7 @@ public enum Status {
         return specifyingConcept;
     }
    
-   public static EnumSet<Status> ACTIVE_ONLY_SET = EnumSet.of(Status.ACTIVE);
-   public static EnumSet<Status> ANY_STATUS_SET = EnumSet.allOf(Status.class);
-   public static EnumSet<Status> INACTIVE_STATUS_SET = EnumSet.of(Status.INACTIVE, Status.CANCELED, Status.WITHDRAWN);
+   public static final Set<Status> ACTIVE_ONLY_SET = Collections.unmodifiableSet(EnumSet.of(Status.ACTIVE));
+   public static final Set<Status> ANY_STATUS_SET = Collections.unmodifiableSet(EnumSet.allOf(Status.class));
+   public static final Set<Status> INACTIVE_STATUS_SET = Collections.unmodifiableSet(EnumSet.of(Status.INACTIVE, Status.CANCELED, Status.WITHDRAWN));
 }

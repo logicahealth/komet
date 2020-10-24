@@ -16,7 +16,7 @@
  */
 package sh.komet.gui.control.concept;
 
-import java.util.Collection;
+import com.sun.javafx.scene.control.ControlAcceleratorSupport;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ObservableValue;
@@ -32,17 +32,21 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.BorderPane;
 import javafx.util.Duration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.property.editor.PropertyEditor;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.komet.gui.contract.ConceptSearchNodeFactory;
+import sh.komet.gui.contract.preferences.WindowPreferences;
+import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
-import sh.komet.gui.manifold.HistoryRecord;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -51,21 +55,24 @@ import sh.komet.gui.util.FxGet;
  */
 public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecification> {
 
+    private final Logger LOG = LogManager.getLogger();
+
+
     private final SimpleObjectProperty<ConceptSpecification> conceptSpecificationValue;
     private final MenuButton menuButton = new MenuButton();
-    private final Manifold manifold;
+    private final ManifoldCoordinate manifoldCoordinate;
     private ReadOnlyObjectProperty<ConceptSpecification> findSelectedConceptSpecification;
     private PopOver popOver;
-    private final MenuItem findItem = new MenuItem("Find");
-    FixedWidthMenuSeperator fixedWidthFindSeperator = new FixedWidthMenuSeperator();
-    FixedWidthMenuSeperator fixedWidthManifoldSeperator = new FixedWidthMenuSeperator();
+    private final MenuItem findItem = new MenuItemWithText("Find");
+    FixedWidthFindSeparator fixedWidthFindSeparator = new FixedWidthFindSeparator();
+    FixedWidthFindSeparator fixedWidthManifoldSeparator = new FixedWidthFindSeparator();
 
-    public ConceptSpecificationEditor(PropertySheetItemConceptWrapper wrapper, Manifold manifold) {
-        this.manifold = manifold;
+    public ConceptSpecificationEditor(PropertySheetItemConceptWrapper wrapper, ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
         this.conceptSpecificationValue = (SimpleObjectProperty<ConceptSpecification>) wrapper.getObservableValue().get();
         this.conceptSpecificationValue.addListener(this::setButtonText);
         if (wrapper.getValue() != null) {
-            this.menuButton.setText(manifold.getPreferredDescriptionText(wrapper.getValue()));
+            this.menuButton.setText(manifoldCoordinate.getPreferredDescriptionText(wrapper.getValue()));
         } else {
             this.menuButton.setText("Empty");
         }
@@ -73,52 +80,64 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         
         this.menuButton.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue) {
-                System.out.println("Adding meta f to " + menuButton.getText());
+                LOG.debug("Adding meta f to " + menuButton.getText());
                 findItem.setAccelerator(new KeyCodeCombination(KeyCode.F, KeyCombination.META_DOWN));
+                ControlAcceleratorSupport.addAcceleratorsIntoScene(menuButton.getItems(), menuButton);
+
+
                 menuButton.getScene().getAccelerators().put(new KeyCodeCombination(KeyCode.F, KeyCombination.META_DOWN), () -> {
                     showFindPopup(null);
                 });
             } else {
+                ControlAcceleratorSupport.removeAcceleratorsFromScene(menuButton.getItems(), menuButton);
                 findItem.setAccelerator(null);
             }
         });
         this.menuButton.widthProperty().addListener((observable, oldValue, newValue) -> {
-            fixedWidthFindSeperator.setWidth(newValue.doubleValue() - 16);
-            fixedWidthManifoldSeperator.setWidth(newValue.doubleValue() - 16);
+            fixedWidthFindSeparator.setWidth(newValue.doubleValue() - 16);
+            fixedWidthManifoldSeparator.setWidth(newValue.doubleValue() - 16);
         });
-        this.menuButton.armedProperty().addListener((observable, oldValue, armed) -> {
-            if (armed) {
-                addMenuItems(wrapper, manifold);
+        this.menuButton.sceneProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                addMenuItems(wrapper, manifoldCoordinate);
             }
         });
     }
 
-    protected final void addMenuItems(PropertySheetItemConceptWrapper wrapper, Manifold manifold1) {
+    protected final void addMenuItems(PropertySheetItemConceptWrapper wrapper, ManifoldCoordinate manifoldCoordinate) {
         this.menuButton.getItems().clear();
         for (ConceptSpecification allowedValue : wrapper.getAllowedValues()) {
-            ConceptMenuItem menuItem = new ConceptMenuItem(allowedValue, manifold1);
+            ConceptMenuItem menuItem = new ConceptMenuItem(allowedValue, manifoldCoordinate);
             menuItem.setOnAction(this::handleAction);
             this.menuButton.getItems().add(menuItem);
         }
-        this.menuButton.getItems().add(fixedWidthFindSeperator);
+        this.menuButton.getItems().add(fixedWidthFindSeparator);
         if (wrapper.allowSearch()) {
             findItem.setOnAction(this::showFindPopup);
             this.menuButton.getItems().add(findItem);
         }
         if (wrapper.allowHistory()) {
-            this.menuButton.getItems().add(fixedWidthManifoldSeperator);
-            for (String manifoldGroup : Manifold.getGroupNames()) {
-                Collection<HistoryRecord> groupHistory = Manifold.getGroupHistory(manifoldGroup);
-                if (!groupHistory.isEmpty()) {
-                    Menu manifoldHistory = new Menu(manifoldGroup);
-                    this.menuButton.getItems().add(manifoldHistory);
-                    for (HistoryRecord record : groupHistory) {
-                        ConceptMenuItem conceptItem = new ConceptMenuItem(Get.conceptSpecification(record.getComponentId()),
-                                this.manifold);
-                        conceptItem.setOnAction(this::handleAction);
-                        manifoldHistory.getItems().add(conceptItem);
+            this.menuButton.getItems().add(fixedWidthManifoldSeparator);
+            WindowPreferences windowPreferences = FxGet.windowPreferences(this.menuButton);
+
+            if (windowPreferences.getViewPropertiesForWindow() != null &&
+                    windowPreferences.getViewPropertiesForWindow().getActivityFeeds() != null) {
+                for (ActivityFeed activityFeed: windowPreferences.getViewPropertiesForWindow().getActivityFeeds()) {
+                    if (!activityFeed.feedHistoryProperty().isEmpty()) {
+                        Menu activityFeedHistory = new Menu(activityFeed.getFeedName());
+                        this.menuButton.getItems().add(activityFeedHistory);
+                        for (ComponentProxy record : activityFeed.feedHistoryProperty()) {
+
+                            MenuItem historyMenuItem = new MenuItem(record.getComponentString());
+                            historyMenuItem.setUserData(record);
+                            historyMenuItem.setOnAction(this::handleAction);
+                            activityFeedHistory.getItems().add(historyMenuItem);
+                        }
                     }
                 }
+            } else {
+                FxGet.dialogs().showErrorDialog("Null pointer error", "windowPreferences has null view properties or activity feed", windowPreferences.toString());
+                LOG.error("windowPreferences has null view properties or activity feed: " + windowPreferences);
             }
         }
     }
@@ -139,15 +158,17 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
     }
 
     private void handleAction(ActionEvent event) {
-        if (event.getSource() instanceof ConceptMenuItem) {
-            ConceptMenuItem menuItem = (ConceptMenuItem) event.getSource();
-            this.conceptSpecificationValue.set(menuItem.getSpec());
-            this.menuButton.setText(manifold.getPreferredDescriptionText(menuItem));
+        if (event.getSource() instanceof MenuItem) {
+            MenuItem menuItem = (MenuItem) event.getSource();
+            ComponentProxy record = (ComponentProxy) menuItem.getUserData();
+            ConceptSpecification spec = Get.conceptSpecification(record.getNid());
+            this.conceptSpecificationValue.set(spec);
+            this.menuButton.setText(manifoldCoordinate.getPreferredDescriptionText(spec));
         }
     }
     
     private void setButtonText(ObservableValue<? extends ConceptSpecification> observable, ConceptSpecification oldValue, ConceptSpecification newValue) {
-        menuButton.setText(manifold.getPreferredDescriptionText(conceptSpecificationValue.get()));
+        menuButton.setText(manifoldCoordinate.getPreferredDescriptionText(conceptSpecificationValue.get()));
     }
     private void showFindPopup(ActionEvent event) {
         this.popOver = new PopOver();
@@ -158,9 +179,10 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         this.popOver.setTitle("");
         this.popOver.setArrowLocation(PopOver.ArrowLocation.LEFT_TOP);
         ConceptSearchNodeFactory searchNodeFactory = Get.service(ConceptSearchNodeFactory.class);
-        Manifold manifoldClone = manifold.deepClone();
-        manifoldClone.setGroupName(Manifold.ManifoldGroup.UNLINKED.getGroupName());
-        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifoldClone, null);
+        WindowPreferences windowPreferences = FxGet.windowPreferences(this.menuButton);
+
+        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(windowPreferences.getViewPropertiesForWindow(),
+                windowPreferences.getViewPropertiesForWindow().getUnlinkedActivityFeed() , null);
         Node searchNode = searchExplorationNode.getNode();
         this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();
         BorderPane searchBorder = new BorderPane(searchNode);
@@ -182,7 +204,7 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
         if (this.findSelectedConceptSpecification.get() != null) {
             ConceptSpecification selectedConcept = this.findSelectedConceptSpecification.get();
             selectedConcept = new ConceptProxy(selectedConcept);
-            ConceptSpecificationForControlWrapper newConceptSpec = new ConceptSpecificationForControlWrapper(selectedConcept, manifold);
+            ConceptSpecificationForControlWrapper newConceptSpec = new ConceptSpecificationForControlWrapper(selectedConcept, manifoldCoordinate);
             this.conceptSpecificationValue.set(newConceptSpec);
         }
     }

@@ -10,9 +10,11 @@ import sh.isaac.api.Get;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.contract.preferences.WindowPreferences;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.EnumSet;
@@ -36,9 +38,9 @@ public class ExtensionFilterMenuOption implements MenuProvider {
      * {@inheritDoc}
      */
     @Override
-    public MenuItem[] getMenuItems(AppMenu appMenu, Window window) {
+    public MenuItem[] getMenuItems(AppMenu appMenu, Window window, WindowPreferences windowPreference) {
         if (appMenu == AppMenu.TOOLS) {
-            MenuItem filter = new MenuItem("Filter existing content from extension");
+            MenuItem filter = new MenuItemWithText("Filter existing content from extension");
             filter.setOnAction(event -> {
                 filterExtension(window);
             });

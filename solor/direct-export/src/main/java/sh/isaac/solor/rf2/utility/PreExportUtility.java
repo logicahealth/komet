@@ -23,12 +23,12 @@ public class PreExportUtility {
     }
 
     public HashMap<Integer, Integer[]> generateRefsetDescriptorHeaders(){
-        Get.assemblageService().getSemanticNidStream(Get.concept(UuidT3Generator.fromSNOMED("900000000000456007")).getNid())
+        Get.assemblageService().getSemanticNidStream(Get.concept(UuidT3Generator.fromSNOMED("900000000000456007")).getNid(), false)
                 .forEach(semanticNid -> {
 
                     Observable_Nid1_Nid2_Int3_Version refDesc =
                             ((LatestVersion<Observable_Nid1_Nid2_Int3_Version>)
-                                    Get.observableSnapshotService(this.manifold).getObservableSemanticVersion(semanticNid))
+                                    Get.observableSnapshotService(this.manifold.getVertexStampFilter()).getObservableSemanticVersion(semanticNid))
                                     .get();
 
                     if(!refsetDescriptorHeaders.containsKey(refDesc.getReferencedComponentNid())){

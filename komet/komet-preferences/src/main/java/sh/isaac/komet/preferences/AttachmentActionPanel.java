@@ -36,14 +36,15 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.model.observable.ObservableFields;
 import sh.komet.gui.contract.preferences.AttachmentItem;
-import sh.komet.gui.control.PropertyEditorType;
-import sh.komet.gui.control.PropertySheetBooleanWrapper;
-import sh.komet.gui.control.PropertySheetTextWrapper;
+import sh.komet.gui.contract.preferences.KometPreferencesController;
+import sh.komet.gui.control.property.PropertyEditorType;
+import sh.komet.gui.control.property.wrapper.PropertySheetBooleanWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetTextWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptConstraintWrapper;
 import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
 import sh.komet.gui.control.property.PropertySheetItem;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.control.versiontype.PropertySheetItemVersionTypeWrapper;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -89,18 +90,18 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
 
     private final SimpleBooleanProperty showHistoryProperty = new SimpleBooleanProperty(this, "allow history", true);
 
-    public AttachmentActionPanel(IsaacPreferences preferencesNode, Manifold manifold,
-            KometPreferencesController kpc) {
+    public AttachmentActionPanel(IsaacPreferences preferencesNode, ViewProperties viewProperties,
+                                 KometPreferencesController kpc) {
         super(preferencesNode,
-                getGroupName(preferencesNode),
-                manifold, kpc);
+                getGroupNameForAction(preferencesNode),
+                viewProperties, kpc);
         nameProperty.set(groupNameProperty().get());
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
         });
         revertFields();
         save();
-        getItemList().add(new PropertySheetTextWrapper(manifold, nameProperty));
+        getItemList().add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), nameProperty));
         getItemList().add(new PropertySheetBooleanWrapper("edit status", showStatusProperty));
         getItemList().add(new PropertySheetBooleanWrapper("edit module", showModuleProperty));
         getItemList().add(new PropertySheetBooleanWrapper("edit path", showPathProperty));
@@ -108,14 +109,14 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
         getItemList().add(new PropertySheetBooleanWrapper("allow history", showHistoryProperty));
 
         getItemList().add(new PropertySheetItemVersionTypeWrapper("Version type", versionTypeForActionProperty));
-        PropertySheetItemConceptWrapper conceptWrapper = new PropertySheetItemConceptWrapper(manifold, assemblageForActionProperty);
+        PropertySheetItemConceptWrapper conceptWrapper = new PropertySheetItemConceptWrapper(viewProperties.getManifoldCoordinate(), assemblageForActionProperty);
         getItemList().add(conceptWrapper);
 
         handleAssemblageChange(null, null, assemblageForActionProperty.get());
         assemblageForActionProperty.addListener(this::handleAssemblageChange);
     }
 
-    private static String getGroupName(IsaacPreferences preferencesNode) {
+    private static String getGroupNameForAction(IsaacPreferences preferencesNode) {
         if (preferencesNode.hasKey("8c6a76da-206e-314c-b1e2-eda9037d431e.Keys.ACTION_NAME")) {
             String actionName = preferencesNode.get("8c6a76da-206e-314c-b1e2-eda9037d431e.Keys.ACTION_NAME", "");
             preferencesNode.remove("8c6a76da-206e-314c-b1e2-eda9037d431e.Keys.ACTION_NAME");
@@ -128,7 +129,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
         if (this.itemListProperty.get() != null) {
             getItemList().removeAll(itemListProperty.get());
         }
-        this.itemListProperty.set(FxGet.constraintPropertyItemsForAssemblageSemantic(newValue, getManifold()));
+        this.itemListProperty.set(FxGet.constraintPropertyItemsForAssemblageSemantic(newValue, getViewProperties().getManifoldCoordinate()));
         getItemList().addAll(itemListProperty.get());
         for (PropertySheet.Item item : itemListProperty.get()) {
             if (item instanceof PropertySheetItemConceptConstraintWrapper) {
@@ -193,7 +194,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
             this.fieldConcepts.add(new ConceptProxy(externalString));
         }
         this.propertySheetItemMap.clear();
-        this.itemListProperty.set(FxGet.constraintPropertyItemsForAssemblageSemantic(assemblageForActionProperty.get(), getManifold()));
+        this.itemListProperty.set(FxGet.constraintPropertyItemsForAssemblageSemantic(assemblageForActionProperty.get(), getViewProperties().getManifoldCoordinate()));
 
         for (PropertySheet.Item item : itemListProperty.get()) {
             if (item instanceof PropertySheetItemConceptConstraintWrapper) {
@@ -240,7 +241,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
         List<BusinessRulesResource> resources = new ArrayList<>();
 
         resources.add(new BusinessRulesResource(
-                "src/main/resources/rules/sh/isaac/provider/drools/" + preferencesNode.name() + ".drl",
+                "sh/komet/rules/user" + preferencesNode.name() + ".drl",
                 getRuleBytes()));
 
         return resources.toArray(new BusinessRulesResource[resources.size()]);
@@ -248,7 +249,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
 
     private byte[] getRuleBytes() {
         StringBuilder b = new StringBuilder();
-        b.append("package sh.isaac.provider.drools;\n");
+        b.append("package sh.komet.rules.user;\n");
         b.append("import java.util.ArrayList;\n");
         b.append("import java.util.List;\n");
         b.append("import java.util.Map;\n");
@@ -264,14 +265,14 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
         b.append("import sh.isaac.api.component.concept.ConceptSpecification;\n");
         b.append("import sh.isaac.api.Status;\n");
         b.append("import sh.isaac.provider.drools.AddEditLogicalExpressionNodeMenuItems;\n");
-        b.append("import sh.komet.gui.control.PropertySheetMenuItem;\n");
+        b.append("import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;\n");
         b.append("import sh.komet.gui.manifold.Manifold;\n");
         b.append("import sh.isaac.MetaData;\n");
         b.append("import sh.isaac.api.bootstrap.TermAux;\n");
         b.append("import sh.isaac.api.chronicle.VersionCategory;\n");
         b.append("import sh.isaac.api.chronicle.VersionType;\n");
         b.append("import sh.isaac.provider.drools.AddAttachmentMenuItems;\n");
-        b.append("import sh.komet.gui.control.PropertyEditorType;\n");
+        b.append("import sh.komet.gui.control.property.PropertyEditorType;\n");
         b.append("import sh.komet.gui.control.PropertySheetTextWrapper;\n");
         b.append("import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;\n");
         b.append("import sh.komet.gui.control.property.PropertySheetItem;\n");
@@ -296,7 +297,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
             } else {
                 PropertyEditorType type = getPropertyEditorType(item);
                 b.append("   propertySheetMenuItem.addPropertyToEdit(\"")
-                        .append(getManifold().getPreferredDescriptionText(fieldConcept)).append("\", new ")
+                        .append(getManifoldCoordinate().getPreferredDescriptionText(fieldConcept)).append("\", new ")
                         .append(new ConceptProxy(fieldConcept.toExternalString()).toString()).append(", PropertyEditorType.")
                         .append(type.name())
                         .append(");\n");
@@ -304,13 +305,13 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
         }
 
         if (showModuleProperty.get()) {
-            b.append("   propertySheetMenuItem.addPropertyToEdit(\"module\", MetaData.MODULE_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);\n");
+            b.append("   propertySheetMenuItem.addPropertyToEdit(\"module\", MetaData.MODULE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);\n");
         }
         if (showStatusProperty.get()) {
             b.append("   propertySheetMenuItem.addPropertyToEdit(\"status\", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);\n");
         }
         if (showPathProperty.get()) {
-            b.append("   propertySheetMenuItem.addPropertyToEdit(\"path\", MetaData.PATH_NID_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);\n");
+            b.append("   propertySheetMenuItem.addPropertyToEdit(\"path\", MetaData.PATH_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);\n");
         }
         b.append("end\n\n");
 
@@ -324,7 +325,7 @@ public class AttachmentActionPanel extends AbstractPreferences implements Attach
                     case CONCEPT: {
                         PropertySheetItemConceptConstraintWrapper constraintsItem = (PropertySheetItemConceptConstraintWrapper) item;
                         PropertySheetItemConceptWrapper conceptItem = constraintsItem.getValue();
-                        b.append("rule \"Setup constraints for ").append(getManifold().getFullySpecifiedDescriptionText(fieldConcept))
+                        b.append("rule \"Setup constraints for ").append(getManifoldCoordinate().getFullyQualifiedDescriptionText(fieldConcept))
                                 .append(" ").append(getPreferencesNode().name()).append("\"\n");
                         b.append("when\n");
                         b.append("   $propertySheetItem : PropertySheetItemConceptWrapper(getSpecification() == new ")

@@ -21,20 +21,19 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.ToolBar;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import org.controlsfx.control.PopOver;
 import org.controlsfx.property.editor.PropertyEditor;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
-import sh.komet.gui.manifold.Manifold;
+import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedListProperty;
+import sh.komet.gui.contract.preferences.WindowPreferences;
+import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.contract.ConceptSearchNodeFactory;
 import sh.komet.gui.interfaces.ConceptExplorationNode;
@@ -44,14 +43,17 @@ import sh.komet.gui.interfaces.ConceptExplorationNode;
  * @author kec
  */
 public class ConceptListEditor implements PropertyEditor<ObservableList<ConceptSpecification>> {
-    
+    // TODO add ability to optionally prevent duplicates in the list.
     private PopOver popOver;
-    private ObservableList<ConceptSpecification> value;
+    private ObservableList<ConceptSpecification> listOfValues;
     private ReadOnlyObjectProperty<ConceptSpecification> findSelectedConceptSpecification;
-   
+    private SimpleEqualityBasedListProperty<ConceptSpecification> allowedValuesListProperty;
+    private boolean allowDuplicates = false;
+
+
     BorderPane editorPane = new BorderPane();
     AnchorPane anchorPane = new AnchorPane();
-    Manifold manifold;
+    ManifoldCoordinate manifoldCoordinate;
     ListView<ConceptSpecification> conceptListView = new ListView<>();
     {
         conceptListView.setPrefHeight(152);
@@ -62,7 +64,7 @@ public class ConceptListEditor implements PropertyEditor<ObservableList<ConceptS
             protected void updateItem(ConceptSpecification item, boolean empty) {
                 super.updateItem(item, empty); 
                 if (!empty) {
-                    this.setText(manifold.getPreferredDescriptionText(item));
+                    this.setText(manifoldCoordinate.getPreferredDescriptionText(item));
                 } else {
                     this.setText("");
                 }
@@ -73,27 +75,33 @@ public class ConceptListEditor implements PropertyEditor<ObservableList<ConceptS
         editorPane.setTop(anchorPane);
         editorPane.setCenter(conceptListView);
     }
-    
-    Button findButton = new Button("", Iconography.SIMPLE_SEARCH.getIconographic());
-    Button upButton = new Button("", Iconography.ARROW_UP.getIconographic());
-    Button downButton = new Button("", Iconography.ARROW_DOWN.getIconographic());
+
+    private Button findButton = new Button("", Iconography.SIMPLE_SEARCH.getIconographic());
+    private Button upButton = new Button("", Iconography.ARROW_UP.getIconographic());
+    private Button downButton = new Button("", Iconography.ARROW_DOWN.getIconographic());
+    private Button allowedValuesChoice = new Button("", Iconography.ADD.getIconographic());
+    private Button deleteButton = new Button("", Iconography.DELETE_TRASHCAN.getIconographic());
+    private ContextMenu contextMenu = new ContextMenu();
     {
         findButton.setOnAction(this::showFindPopup);
         upButton.setContentDisplay(ContentDisplay.RIGHT);
         downButton.setContentDisplay(ContentDisplay.RIGHT);
+        allowedValuesChoice.setContentDisplay(ContentDisplay.RIGHT);
         upButton.setOnAction(this::moveUpSelection);
         downButton.setOnAction(this::moveDownSelection);
+        allowedValuesChoice.setOnAction(this::showAllowedValues);
+
     }
-    Button deleteButton = new Button("", Iconography.DELETE_TRASHCAN.getIconographic());
     private final ToolBar listToolbar = new ToolBar(findButton, upButton, downButton, deleteButton);
     {
+        listToolbar.getStyleClass().add(StyleClasses.CONCEPT_LIST_EDITOR_TOOLBAR.toString());
         listToolbar.setOrientation(Orientation.VERTICAL);
         editorPane.setRight(listToolbar);
         deleteButton.setOnAction(this::deleteSelection);
     }
 
-    public ConceptListEditor(Manifold manifold) {
-        this.manifold = manifold;
+    public ConceptListEditor(ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
     }
 
     @Override
@@ -103,36 +111,54 @@ public class ConceptListEditor implements PropertyEditor<ObservableList<ConceptS
 
     @Override
     public ObservableList<ConceptSpecification> getValue() {
-        return value;
+        return listOfValues;
     }
 
     @Override
     public void setValue(ObservableList<ConceptSpecification> value) {
-        this.value = value;
+        this.listOfValues = value;
         conceptListView.setItems(value);
     }
+
+    private void showAllowedValues(ActionEvent event) {
+        contextMenu.getItems().forEach(menuItem -> {
+            ConceptSpecification possibleValue = (ConceptSpecification) menuItem.getUserData();
+            if (allowDuplicates) {
+                menuItem.setDisable(false);
+            } else {
+                menuItem.setDisable(this.listOfValues.contains(possibleValue));
+            }
+        });
+        contextMenu.show(this.allowedValuesChoice, FxGet.getMouseLocation().getX(), FxGet.getMouseLocation().getY());
+        event.consume();
+    }
     private void showFindPopup(ActionEvent event) {
-        this.popOver = new PopOver();
-        this.popOver.getRoot().getStylesheets().add(FxGet.fxConfiguration().getUserCSSURL().toString());
-        this.popOver.getRoot().getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
-        this.popOver.setCloseButtonEnabled(true);
-        this.popOver.setHeaderAlwaysVisible(false);
-        this.popOver.setTitle("");
-        this.popOver.setArrowLocation(PopOver.ArrowLocation.LEFT_TOP);
-        ConceptSearchNodeFactory searchNodeFactory = Get.service(ConceptSearchNodeFactory.class);
-        ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(manifold, null);
-        Node searchNode = searchExplorationNode.getNode();
-        this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();
-        BorderPane searchBorder = new BorderPane(searchNode);
-        Button addSelection = new Button("add");
-        addSelection.setOnAction(this::setToFindSelection);
-        ToolBar popOverToolbar = new ToolBar(addSelection);
-        searchBorder.setTop(popOverToolbar);
-        searchBorder.setPrefSize(500, 400);
-        searchBorder.setMinSize(500, 400);
-        this.popOver.setContentNode(searchBorder);
-        this.popOver.show(findButton);
-        searchExplorationNode.focusOnInput();
+            this.popOver = new PopOver();
+            this.popOver.getRoot().getStylesheets().add(FxGet.fxConfiguration().getUserCSSURL().toString());
+            this.popOver.getRoot().getStylesheets().add(IconographyHelper.getStyleSheetStringUrl());
+            this.popOver.setCloseButtonEnabled(true);
+            this.popOver.setHeaderAlwaysVisible(false);
+            this.popOver.setTitle("");
+            this.popOver.setArrowLocation(PopOver.ArrowLocation.LEFT_TOP);
+            ConceptSearchNodeFactory searchNodeFactory = Get.service(ConceptSearchNodeFactory.class);
+            WindowPreferences windowPreferences = FxGet.windowPreferences(this.editorPane);
+
+
+            ConceptExplorationNode searchExplorationNode = searchNodeFactory.createNode(windowPreferences.getViewPropertiesForWindow(),
+                    windowPreferences.getViewPropertiesForWindow().getUnlinkedActivityFeed(), null);
+            Node searchNode = searchExplorationNode.getNode();
+            this.findSelectedConceptSpecification = searchExplorationNode.selectedConceptSpecification();
+            BorderPane searchBorder = new BorderPane(searchNode);
+            Button addSelection = new Button("add");
+            addSelection.setOnAction(this::setToFindSelection);
+            ToolBar popOverToolbar = new ToolBar(addSelection);
+            searchBorder.setTop(popOverToolbar);
+            searchBorder.setPrefSize(500, 400);
+            searchBorder.setMinSize(500, 400);
+            this.popOver.setContentNode(searchBorder);
+            this.popOver.show(findButton);
+            searchExplorationNode.focusOnInput();
+            event.consume();
     }
     
     private void setToFindSelection(ActionEvent event) {
@@ -161,5 +187,29 @@ public class ConceptListEditor implements PropertyEditor<ObservableList<ConceptS
             this.conceptListView.getItems().add(selectedIndex+1, specToMove);
             this.conceptListView.getSelectionModel().select(selectedIndex+1);
         }
+    }
+
+    public void setAllowedValues(SimpleEqualityBasedListProperty<ConceptSpecification> allowedValuesListProperty) {
+        this.allowedValuesListProperty = allowedValuesListProperty;
+        for (ConceptSpecification value: allowedValuesListProperty) {
+            MenuItem menuItem = new MenuItem(this.manifoldCoordinate.getPreferredDescriptionText(value));
+            menuItem.setUserData(value);
+            menuItem.setOnAction(event -> {
+                this.listOfValues.add(value);
+            });
+            this.contextMenu.getItems().add(menuItem);
+        }
+        allowedValuesChoice.setContextMenu(this.contextMenu);
+        allowedValuesChoice.setOnAction(this::showAllowedValues);
+        listToolbar.getItems().clear();
+        listToolbar.getItems().setAll(allowedValuesChoice, upButton, downButton, deleteButton);
+    }
+
+    public boolean allowDuplicates() {
+        return allowDuplicates;
+    }
+
+    public void setAllowDuplicates(boolean allowDuplicates) {
+        this.allowDuplicates = allowDuplicates;
     }
 }

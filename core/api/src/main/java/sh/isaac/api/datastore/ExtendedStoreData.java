@@ -47,6 +47,17 @@ public interface ExtendedStoreData<K, V>
 	public V get(K key);
 	
 	/**
+	 * @param key
+	 * @return true, if the store contains the specified key
+	 */
+	public boolean containsKey(K key);
+	
+	/**
+	 * @return All the keys
+	 */
+	public Set<K> keySet();
+	
+	/**
 	 * Atomically compute a value for a given key, only if the key is absent.
 	 * Otherwise, return the existing value for the key.
 	 * @param key
@@ -102,12 +113,14 @@ public interface ExtendedStoreData<K, V>
 	public long sizeAsLong();
 	
 	/**
+	 * @param parallel true to allow parallel, false for single threaded
 	 * @return the values as a stream
 	 */
-	public Stream<V> getValueStream();
+	public Stream<V> getValueStream(boolean parallel);
 	
 	/**
+	 * @param parallel true to allow parallel, false for single threaded
 	 * @return the key value pairs as a stream
 	 */
-	public Stream<Entry<K, V>> getStream();
+	public Stream<Entry<K, V>> getStream(boolean parallel);
 }

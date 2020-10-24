@@ -42,8 +42,7 @@ package sh.isaac.model.configuration;
 //~--- non-JDK imports --------------------------------------------------------
 
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.model.coordinate.EditCoordinateImpl;
+import sh.isaac.api.coordinate.EditCoordinateImmutable;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -56,12 +55,11 @@ public class EditCoordinates {
     *
     * @return the classifier solor overlay
     */
-   public static EditCoordinate getClassifierSolorOverlay() {
-      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.IHTSDO_CLASSIFIER,
-                                                                   TermAux.SOLOR_OVERLAY_MODULE,
-                                                                   TermAux.DEVELOPMENT_PATH);
-
-      return editCoordinate;
+   public static EditCoordinateImmutable getClassifierSolorOverlay() {
+      return  EditCoordinateImmutable.make(TermAux.IHTSDO_CLASSIFIER.getNid(),
+                                           TermAux.SOLOR_OVERLAY_MODULE.getNid(),
+                                           TermAux.DEVELOPMENT_PATH.getNid(),
+                                           TermAux.SOLOR_OVERLAY_MODULE.getNid());
    }
 
    /**
@@ -69,12 +67,12 @@ public class EditCoordinates {
     *
     * @return the default user metadata
     */
-   public static EditCoordinate getDefaultUserMetadata() {
-      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.USER,
-                                                                   TermAux.SOLOR_MODULE,
-                                                                   TermAux.DEVELOPMENT_PATH);
+   public static EditCoordinateImmutable getDefaultUserMetadata() {
+      return  EditCoordinateImmutable.make(TermAux.USER,
+              TermAux.SOLOR_MODULE,
+              TermAux.DEVELOPMENT_PATH,
+              TermAux.SOLOR_OVERLAY_MODULE);
 
-      return editCoordinate;
    }
 
    /**
@@ -82,11 +80,11 @@ public class EditCoordinates {
     *
     * @return the default user solor overlay
     */
-   public static EditCoordinate getDefaultUserSolorOverlay() {
-      final EditCoordinate editCoordinate = new EditCoordinateImpl(TermAux.USER,
-                                                                   TermAux.SOLOR_OVERLAY_MODULE,
-                                                                   TermAux.DEVELOPMENT_PATH);
+   public static EditCoordinateImmutable getDefaultUserSolorOverlay() {
+      return  EditCoordinateImmutable.make(TermAux.USER,
+              TermAux.SOLOR_OVERLAY_MODULE,
+              TermAux.DEVELOPMENT_PATH,
+              TermAux.SOLOR_OVERLAY_MODULE);
 
-      return editCoordinate;
    }
 }

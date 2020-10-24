@@ -1,0 +1,111 @@
+/*
+ * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
+         US Veterans Health Administration, OSHERA, and the Health Services Platform Consortium..
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package sh.komet.rules;
+
+import java.util.ArrayList;
+import java.util.function.Consumer;
+import java.util.List;
+import java.util.Map;
+import javafx.beans.property.Property;
+import javafx.scene.control.MenuItem;
+import org.controlsfx.control.PropertySheet;
+import org.controlsfx.control.PropertySheet.Item;
+import sh.isaac.api.chronicle.VersionCategory;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.ConceptProxy;
+import sh.isaac.api.Get;
+import sh.isaac.api.observable.ObservableCategorizedVersion;
+import sh.isaac.MetaData;
+import sh.isaac.provider.drools.AddAttachmentMenuItems;
+import sh.komet.gui.control.property.PropertyEditorType;
+import sh.komet.gui.control.concept.PropertySheetItemConceptWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
+
+
+/**
+ *
+ * @author kec
+ */
+rule "Add comment attachment"
+when
+   $addAttachmentToVersion : AddAttachmentMenuItems()
+then
+   PropertySheetMenuItem contentIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add content issue", MetaData.CONTENT_ISSUE_ASSEMBLAGE____SOLOR);
+   contentIssuePropertySheetMenuItem.addPropertyToEdit("content issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   contentIssuePropertySheetMenuItem.addPropertyToEdit("status", MetaData.STATUS_FOR_VERSION____SOLOR, PropertyEditorType.STATUS);
+   contentIssuePropertySheetMenuItem.addPropertyToEdit("path", MetaData.PATH_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   contentIssuePropertySheetMenuItem.addPropertyToEdit("module", MetaData.MODULE_FOR_VERSION____SOLOR, PropertyEditorType.CONCEPT);
+   /* */
+   PropertySheetMenuItem kometIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add KOMET issue", MetaData.KOMET_ISSUE_ASSEMBLAGE____SOLOR);
+   kometIssuePropertySheetMenuItem.addPropertyToEdit("KOMET issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   /* */
+   PropertySheetMenuItem clinicalStatementIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add clinical statement issue", MetaData.CLINICAL_STATEMENT_ISSUE_ASSEMBLAGE____SOLOR);
+   clinicalStatementIssuePropertySheetMenuItem.addPropertyToEdit("clinical statement issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   /* */
+end
+
+
+rule "add image attachment"
+when
+   $addAttachmentToVersion : AddAttachmentMenuItems(getVersionType() == VersionType.CONCEPT)
+then
+   /* */
+   PropertySheetMenuItem imagePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add Image", MetaData.CONCEPT_IMAGE____SOLOR);
+   imagePropertySheetMenuItem.addPropertyToEdit("Image", MetaData.IMAGE_DATA_FOR_SEMANTIC____SOLOR, PropertyEditorType.IMAGE);
+
+end
+
+
+rule "add concept comment attachment" 
+when
+   $addAttachmentToVersion : AddAttachmentMenuItems(getVersionType() == VersionType.CONCEPT)
+then
+   /* */
+   PropertySheetMenuItem snomedIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add SNOMED issue", MetaData.SNOMED_ISSUE_ASSEMBLAGE____SOLOR);
+   snomedIssuePropertySheetMenuItem.addPropertyToEdit("SNOMED issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   /* */
+   PropertySheetMenuItem loincIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add LOINC issue", MetaData.LOINC_ISSUE_ASSEMBLAGE____SOLOR);
+   loincIssuePropertySheetMenuItem.addPropertyToEdit("LOINC issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   /* */
+   PropertySheetMenuItem rxNormIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add RxNorm issue", MetaData.RXNORM_ISSUE_ASSEMBLAGE____SOLOR);
+   rxNormIssuePropertySheetMenuItem.addPropertyToEdit("RxNorm issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+   /* */
+   PropertySheetMenuItem solorIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add SOLOR issue", MetaData.SOLOR_ISSUE_ASSEMBLAGE____SOLOR);
+   solorIssuePropertySheetMenuItem.addPropertyToEdit("SOLOR issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+
+end
+
+rule "add description comment attachment" 
+when
+   $addAttachmentToVersion : AddAttachmentMenuItems(getVersionType() == VersionType.DESCRIPTION)
+then
+   /* */
+   PropertySheetMenuItem automationPropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add automation issue", MetaData.AUTOMATION_ISSUE_ASSEMBLAGE____SOLOR);
+   automationPropertySheetMenuItem.addPropertyToEdit("automation issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+
+end
+
+rule "add EL++ comment attachment" 
+when
+   $addAttachmentToVersion : AddAttachmentMenuItems(getVersionType() == VersionType.LOGIC_GRAPH)
+then
+   /* */
+   PropertySheetMenuItem qaRuleIssuePropertySheetMenuItem = $addAttachmentToVersion.makePropertySheetMenuItem("Add QA rule issue", MetaData.QUALITY_ASSURANCE_RULE_ISSUE_ASSEMBLAGE____SOLOR);
+   qaRuleIssuePropertySheetMenuItem.addPropertyToEdit("QA rule issue", MetaData.STRING_FOR_SEMANTIC____SOLOR, PropertyEditorType.TEXT);
+
+end

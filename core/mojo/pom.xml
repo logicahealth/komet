@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>core</artifactId>
-        <version>5.1.1</version>
+        <version>6.0.0</version>
     </parent>
     
     <groupId>sh.isaac.core</groupId>
@@ -41,6 +41,14 @@
              <artifactId>maven-slf4j-provider</artifactId>
              <version>3.5.0</version>  <!-- Would like to specify provided scope, but can't, because the maven classloader prevents access at runtime -->
              <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.collections</groupId>
+            <artifactId>eclipse-collections-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.collections</groupId>
+            <artifactId>eclipse-collections</artifactId>
         </dependency>
     </dependencies>
 

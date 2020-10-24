@@ -38,18 +38,16 @@ package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import javax.xml.bind.annotation.XmlRootElement;
-import sh.isaac.api.bootstrap.TermAux;
-
-//~--- non-JDK imports --------------------------------------------------------
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+
 import static sh.isaac.api.query.ForSet.deepClone;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -58,7 +56,6 @@ import static sh.isaac.api.query.ForSet.deepClone;
  *
  * @author dylangrald
  */
-@XmlRootElement()
 public class Or
         extends ParentClause {
 

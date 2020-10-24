@@ -24,13 +24,15 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextInputDialog;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.contract.preferences.WindowPreferences;
+import sh.komet.gui.menu.MenuItemWithText;
 
 /**
  *
@@ -53,9 +55,9 @@ public class StringAssemblageLoadMenuProvider implements MenuProvider {
     }
 
     @Override
-    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window) {
+    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferences windowPreference) {
         if (parentMenu == AppMenu.FILE) {
-            MenuItem importStringAssembalge = new MenuItem("Import String Assemblage...");
+            MenuItem importStringAssembalge = new MenuItemWithText("Import String Assemblage...");
             importStringAssembalge.setOnAction((ActionEvent event) -> {
                 FileChooser fileChooser = new FileChooser();
                 fileChooser.setTitle("Open Tab Delimited File");

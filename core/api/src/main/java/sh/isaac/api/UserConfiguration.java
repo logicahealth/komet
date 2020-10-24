@@ -18,13 +18,14 @@ package sh.isaac.api;
 import java.util.Optional;
 import java.util.UUID;
 import org.jvnet.hk2.annotations.Contract;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import sh.isaac.api.UserConfigurationInternalImpl.ConfigurationOption;
 import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampPath;
 
 /**
  * This class provides the ability for the users to customize and persist changes to various default values.
@@ -34,6 +35,7 @@ import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
  * and apply to any other database that is opened.  {@link ConfigurationStore#PROFILE}
  * 
  * On reads, the implementation will return the value from the most-specific services that is applicable.
+ * userConfigPerDB {@link ConfigurationStore#DATABASE} -> user Config per OS {@link ConfigurationStore#PROFILE} -> Global config per DB
  * 
  * An option set in the database store has the highest priority, followed by an option set on the profile store, 
  * followed by the system default value.  Default values come from an implementation of the {@link GlobalDatastoreConfiguration}
@@ -63,9 +65,8 @@ public interface UserConfiguration
 
 	/**
 	 * @return The edit coordinate as configured by the current user
-	 * Any changes made within the returned value will not be automatically persisted.
 	 */
-	public ObservableEditCoordinate getEditCoordinate();
+	public ReadOnlyObjectProperty<WriteCoordinate> getWriteCoordinate();
 
 	/**
 	 * @return the language coordinate as configured by the current user
@@ -82,7 +83,7 @@ public interface UserConfiguration
 	/**
 	 * @return The manifold coordinate as configured by the current user, which is 
 	 * mostly made up of the {@link #getEditCoordinate()}, {@link #getLanguageCoordinate()}, and 
-	 * {@link #getStampCoordinate()}
+	 * {@link #getPathCoordinate()}
 	 * Any changed made within the returned value will not be automatically persisted.
 	 */
 	public ObservableManifoldCoordinate getManifoldCoordinate();
@@ -91,7 +92,7 @@ public interface UserConfiguration
 	 * @return the stamp coordinate as configured by the current user
 	 * Any changes made within the returned value will not be automatically persisted.
 	 */
-	public ObservableStampCoordinate getStampCoordinate();
+	public ObservableStampPath getPathCoordinate();
 
 	/**
 	 * Enable a key/value store mechanism to store arbitrary objects.  This enables add-on modules

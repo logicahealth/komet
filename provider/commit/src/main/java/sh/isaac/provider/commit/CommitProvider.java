@@ -1,4 +1,4 @@
-/* 
+/*
  * Licensed under the Apache License, Version 2.0 (the "License");
  *
  * You may not use this file except in compliance with the License.
@@ -14,30 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Contributions from 2013-2017 where performed either by US government 
- * employees, or under US Veterans Health Administration contracts. 
+ * Contributions from 2013-2017 where performed either by US government
+ * employees, or under US Veterans Health Administration contracts.
  *
  * US Veterans Health Administration contributions by government employees
  * are work of the U.S. Government and are not subject to copyright
- * protection in the United States. Portions contributed by government 
- * employees are USGovWork (17USC §105). Not subject to copyright. 
- * 
+ * protection in the United States. Portions contributed by government
+ * employees are USGovWork (17USC §105). Not subject to copyright.
+ *
  * Contribution by contractors to the US Veterans Health Administration
  * during this period are contractually contributed under the
  * Apache License, Version 2.0.
  *
  * See: https://www.usa.gov/government-works
- * 
+ *
  * Contributions prior to 2013:
  *
  * Copyright (C) International Health Terminology Standards Development Organisation.
  * Licensed under the Apache License, Version 2.0.
  *
  */
- /*
-* To change this license header, choose License Headers in Project Properties.
-* To change this template file, choose Tools | Templates
-* and open the template in the editor.
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package sh.isaac.provider.commit;
 
@@ -47,24 +47,38 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
-import java.util.concurrent.*;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Future;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Stream;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import javafx.application.Platform;
 import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
 import javafx.concurrent.Task;
 import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
@@ -80,17 +94,17 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeChecker;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CheckAndWriteTask;
-import sh.isaac.api.commit.CheckPhase;
 import sh.isaac.api.commit.ChronologyChangeListener;
+import sh.isaac.api.commit.CommitListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.commit.CommitTask;
-import sh.isaac.api.commit.UncommittedStamp;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.datastore.ExtendedStoreData;
 import sh.isaac.api.externalizable.IsaacExternalizable;
@@ -100,16 +114,16 @@ import sh.isaac.api.externalizable.StampComment;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
-import sh.isaac.api.task.SequentialAggregateTask;
+import sh.isaac.api.task.TimedTask;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.DataToBytesUtils;
 import sh.isaac.model.ChronologyImpl;
-import sh.isaac.model.VersionImpl;
+import sh.isaac.model.DataStoreSubService;
 import sh.isaac.model.concept.ConceptChronologyImpl;
 import sh.isaac.model.observable.ObservableChronologyImpl;
-import sh.isaac.model.observable.version.ObservableVersionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class CommitProvider.
  *
@@ -124,6 +138,10 @@ public class CommitProvider
      * The Constant LOG.
      */
     private static final Logger LOG = LogManager.getLogger();
+
+    private static boolean singleTransactionOnly = false;
+
+    private static boolean logTransactionCreation = false;
 
     /**
      * The Constant DEFAULT_COMMIT_MANAGER_FOLDER.
@@ -152,7 +170,7 @@ public class CommitProvider
 
     private Optional<UUID> dataStoreId = Optional.empty();
 
-    private AtomicLong lastCommitTime = new AtomicLong(Long.MIN_VALUE);
+    private AtomicReference<Instant> lastCommitTime = new AtomicReference<>(Instant.MIN);
 
     /**
      * The uncommitted nid lock.
@@ -174,6 +192,8 @@ public class CommitProvider
      * The change listeners.
      */
     ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners = new ConcurrentSkipListSet<>();
+
+    ConcurrentSkipListSet<WeakReference<CommitListener>> commitListeners = new ConcurrentSkipListSet<>();
 
     /**
      * The checkers.
@@ -207,23 +227,27 @@ public class CommitProvider
 
     /**
      * Persistent stamp nid.
+     * TODO: move field to transaction for multi-user environment.
      */
-    private final NidSet uncommittedConceptsWithChecksNidSet = NidSet.concurrent();
+    private final ConcurrentSkipListSet<Integer>  uncommittedConceptsWithChecksNidSet = new ConcurrentSkipListSet<>();
 
     /**
      * The uncommitted concepts no checks nid set.
+     * TODO: move field to transaction for multi-user environment.
      */
-    private final NidSet uncommittedConceptsNoChecksNidSet = NidSet.concurrent();
+    private final ConcurrentSkipListSet<Integer>  uncommittedConceptsNoChecksNidSet = new ConcurrentSkipListSet<>();
 
     /**
      * The uncommitted semantics with checks nid set.
+     * TODO: move field to transaction for multi-user environment.
      */
-    private final NidSet uncommittedSemanticsWithChecksNidSet = NidSet.concurrent();
+    private final ConcurrentSkipListSet<Integer>  uncommittedSemanticsWithChecksNidSet = new ConcurrentSkipListSet<>();
 
     /**
      * The uncommitted semantics no checks nid set.
+     * TODO: move field to transaction for multi-user environment.
      */
-    private final NidSet uncommittedSemanticsNoChecksNidSet = NidSet.concurrent();
+    private final ConcurrentSkipListSet<Integer>  uncommittedSemanticsNoChecksNidSet = new ConcurrentSkipListSet<>();
 
     private Set<Task<?>> pendingCommitTasks = ConcurrentHashMap.newKeySet();
 
@@ -244,12 +268,14 @@ public class CommitProvider
 
     private ExtendedStore dataStore = null;
     private ExtendedStoreData<Integer, NidSet> nidStore;
+    private static final String NID_STORE_NAME = "CommitProviderNidSetStore";
     private static final int uncommittedConceptsWithChecksNidSetId = 0;
     private static final int uncommittedConceptsNoChecksNidSetId = 1;
     private static final int uncommittedSemanticsWithChecksNidSetId = 2;
     private static final int uncommittedSemanticsNoChecksNidSetId = 3;
 
     //~--- constructors --------------------------------------------------------
+
     /**
      * Instantiates a new commit provider.
      *
@@ -260,11 +286,12 @@ public class CommitProvider
     }
 
     //~--- methods -------------------------------------------------------------
+
     /**
      * Adds the alias.
      *
-     * @param stampSequence the stamp nid
-     * @param stampAlias the stamp alias
+     * @param stampSequence      the stamp nid
+     * @param stampAlias         the stamp alias
      * @param aliasCommitComment the alias commit comment
      */
     @Override
@@ -293,26 +320,39 @@ public class CommitProvider
      * stop getting change notifications!.
      *
      * @param changeListener the change listener
-     * @see
-     * sh.isaac.api.commit.CommitService#addChangeListener(sh.isaac.api.commit.ChronologyChangeListener)
+     * @see sh.isaac.api.commit.CommitService#addChangeListener(sh.isaac.api.commit.ChronologyChangeListener)
      */
     @Override
     public void addChangeListener(ChronologyChangeListener changeListener) {
         this.changeListeners.add(new ChangeListenerReference(changeListener));
     }
 
+
+    public Task<Void> addUncommitted(Transaction transaction, Chronology chronology) {
+        checkComponentInTransaction((TransactionImpl) transaction, chronology);
+        if (chronology instanceof ConceptChronology) {
+            return addUncommitted(transaction, (ConceptChronology) chronology);
+        }
+        return addUncommitted(transaction, (SemanticChronology) chronology);
+    }
+
+    private void checkComponentInTransaction(TransactionImpl transaction, Chronology chronology) {
+        if (!transaction.containsComponent(chronology.getNid())) {
+            throw new IllegalStateException("Chronology is unknown to transaction: " + chronology);
+        }
+    }
+
     /**
      * Adds the uncommitted.
      *
      * @param cc the cc
      * @return the task
      */
-    @Override
-    public CheckAndWriteTask addUncommitted(ConceptChronology cc) {
+    private CheckAndWriteTask addUncommitted(Transaction transaction, ConceptChronology cc) {
         if (cc instanceof ObservableChronologyImpl) {
             cc = (ConceptChronology) ((ObservableChronologyImpl) cc).getWrappedChronology();
         }
-        return checkAndWrite(cc, this.writePermitReference.get());
+        return checkAndWrite(transaction, cc, this.writePermitReference.get());
     }
 
     /**
@@ -321,12 +361,11 @@ public class CommitProvider
      * @param sc the sc
      * @return the task
      */
-    @Override
-    public CheckAndWriteTask addUncommitted(SemanticChronology sc) {
+     private CheckAndWriteTask addUncommitted(Transaction transaction, SemanticChronology sc) {
         if (sc instanceof ObservableChronologyImpl) {
             sc = (SemanticChronology) ((ObservableChronologyImpl) sc).getWrappedChronology();
         }
-        return checkAndWrite(sc, this.writePermitReference.get());
+        return checkAndWrite(transaction, sc, this.writePermitReference.get());
     }
 
     /**
@@ -335,12 +374,11 @@ public class CommitProvider
      * @param cc the cc
      * @return the task
      */
-    @Override
-    public Task<Void> addUncommittedNoChecks(ConceptChronology cc) {
+    public Task<Void> addUncommittedNoChecks(Transaction transaction, ConceptChronology cc) {
         if (cc instanceof ObservableChronologyImpl) {
             cc = (ConceptChronology) ((ObservableChronologyImpl) cc).getWrappedChronology();
         }
-        return write(cc, this.writePermitReference.get());
+        return write(transaction, cc, this.writePermitReference.get());
     }
 
     /**
@@ -349,137 +387,77 @@ public class CommitProvider
      * @param sc the sc
      * @return the task
      */
-    @Override
-    public Task<Void> addUncommittedNoChecks(SemanticChronology sc) {
+    public Task<Void> addUncommittedNoChecks(Transaction transaction, SemanticChronology sc) {
         if (sc instanceof ObservableChronologyImpl) {
             sc = (SemanticChronology) ((ObservableChronologyImpl) sc).getWrappedChronology();
         }
-        return write(sc, this.writePermitReference.get());
+        return write(transaction, sc, this.writePermitReference.get());
     }
 
     /**
      * Cancel.
      *
-     * @param editCoordinate the edit coordinate
+     * @param transaction the transaction
      * @return the task
+     * TODO: Consider removal
      */
-    @Override
-    public Task<Void> cancel(EditCoordinate editCoordinate) {
+    protected TimedTask<Void> cancel(TransactionImpl transaction) {
+        PendingTransactions.removeTransaction(transaction);
         return Get.stampService()
-                .cancel(editCoordinate.getAuthorNid());
-    }
-
-    /**
-     * Cancel.
-     *
-     * @param chronicle the chronicle
-     * @param editCoordinate the edit coordinate
-     * @return the task
-     */
-    @Override
-    public Task<Void> cancel(Chronology chronicle, EditCoordinate editCoordinate) {
-        if (chronicle instanceof ObservableChronologyImpl) {
-            chronicle = ((ObservableChronologyImpl) chronicle).getWrappedChronology();
-        }
-        final List<Version> versionList = chronicle.getVersionList();
-        for (final Version version : versionList) {
-            if (version.isUncommitted()) {
-                if (version.getAuthorNid() == editCoordinate.getAuthorNid()) {
-                    if (version instanceof VersionImpl) {
-                        ((VersionImpl) version).cancel();
-                    } else if (version instanceof ObservableVersionImpl) {
-                        ((ObservableVersionImpl) version).cancel();
-                    }
-
-                }
-            }
-        }
-
-        final Collection<Task<?>> subTasks = new ArrayList<>();
-
-        if (chronicle instanceof ConceptChronology) {
-            final ConceptChronology conceptChronology = (ConceptChronology) chronicle;
-
-            if (this.uncommittedConceptsNoChecksNidSet.contains(conceptChronology.getNid())) {
-                subTasks.add(addUncommittedNoChecks(conceptChronology));
-            }
-
-            if (this.uncommittedConceptsWithChecksNidSet.contains(conceptChronology.getNid())) {
-                subTasks.add(addUncommitted(conceptChronology));
-            }
-        } else if (chronicle instanceof SemanticChronology) {
-            final SemanticChronology semanticChronology = (SemanticChronology) chronicle;
-
-            if (this.uncommittedSemanticsNoChecksNidSet.contains(semanticChronology.getNid())) {
-                subTasks.add(addUncommittedNoChecks(semanticChronology));
-            }
-
-            if (this.uncommittedSemanticsWithChecksNidSet.contains(semanticChronology.getNid())) {
-                subTasks.add(addUncommitted(semanticChronology));
-            }
-        } else {
-            throw new RuntimeException("Unsupported chronology type: " + chronicle);
-        }
-
-        return new SequentialAggregateTask<>("Canceling change", subTasks);
+                .cancel(transaction);
     }
 
     /**
      * Commit.
      *
-     * @param editCoordinate the edit coordinate
+     * @param transaction   the transaction for the commit.
      * @param commitComment the commit comment
      * @return the task
+     * TODO: Consider removal
      */
-    @Override
-    public CommitTask commit(EditCoordinate editCoordinate, String commitComment) {
-        // TODO, make this only commit those components with changes from the provided edit coordinate.
-        // Also do we need to lock around the CommitTask creation to makre sure the uncommitted lists are consistent during copy?
+    public CommitTask commit(Transaction transaction, String commitComment, ConcurrentSkipListSet<AlertObject> alertCollection) {
+        return this.commit(transaction, commitComment, alertCollection, getTimeForCommit());
+    }
+
+    public CommitTask commit(Transaction transaction, String commitComment,
+                      ConcurrentSkipListSet<AlertObject> alertCollection, Instant commitTime) {
+        LOG.debug("Start commit with transaction:\n{}, \n  comment: {}, alert count {}, commitTime {}", transaction, commitComment, alertCollection.size(), commitTime);
         Semaphore pendingWrites = writePermitReference.getAndSet(new Semaphore(WRITE_POOL_SIZE));
         pendingWrites.acquireUninterruptibly(WRITE_POOL_SIZE);
 
+        TransactionCommitTask task = null;
         try {
             this.uncommittedSequenceLock.lock();
             lastCommit = incrementAndGetSequence();
 
-            final Map<UncommittedStamp, Integer> pendingStampsForCommit = Get.stampService()
-                    .getPendingStampsForCommit();
-
-            final Map<UncommittedStamp, Integer> stampsToReturn = new HashMap<>();
-
-            pendingStampsForCommit.forEach((uncommittedStamp, stampSequence) -> {
-                if (uncommittedStamp.authorNid != editCoordinate.getAuthorNid()) {
-                    stampsToReturn.put(uncommittedStamp, stampSequence);
-                }
-            });
-            Get.stampService().addPendingStampsForCommit(stampsToReturn);
-
-            CommitTaskGlobal task = CommitTaskGlobal.get(commitComment,
-                    uncommittedConceptsWithChecksNidSet,
-                    uncommittedConceptsNoChecksNidSet,
-                    uncommittedSemanticsWithChecksNidSet,
-                    uncommittedSemanticsNoChecksNidSet,
-                    lastCommit,
-                    checkers,
-                    pendingStampsForCommit,
-                    this);
+            task = TransactionCommitTask.get(commitComment,
+                    this,
+                    this.checkers,
+                    alertCollection,
+                    (TransactionImpl) transaction, commitTime);
+            this.pendingCommitTasks.add(task);
             return task;
         } finally {
             this.uncommittedSequenceLock.unlock();
+            if (task != null) {
+                this.pendingCommitTasks.remove(task);
+            }
         }
     }
 
-    @Override
-    public CommitTask commit(
-            EditCoordinate editCoordinate,
-            String commitComment,
-            ObservableVersion... versionToCommit) {
+    /**
+     *
+     * TODO: Consider removal
+     */
+    public CommitTask commitObservableVersions(
+            Transaction transaction,
+            String commitComment, ObservableVersion... versionsToCommit) {
 
         SingleCommitTask commitTask = new SingleCommitTask(
-                editCoordinate,
+                transaction,
                 commitComment,
-                this,
-                versionToCommit);
+                this.checkers,
+                versionsToCommit);
         Get.executor().execute(commitTask);
         return commitTask;
     }
@@ -511,16 +489,15 @@ public class CommitProvider
                 if (!semanticChronology.getVersionList().isEmpty()) {
                     Get.assemblageService()
                             .writeSemanticChronology(semanticChronology);
+                    deferNidAction(semanticChronology.getNid());
                 }
-
-                deferNidAction(semanticChronology.getNid());
                 break;
 
             case STAMP_ALIAS:
                 final StampAlias stampAlias = (StampAlias) isaacExternalizable;
 
                 this.stampAliasMap.addAlias(stampAlias.getStampSequence(), stampAlias.getStampAlias());
-                //TODO [DAN 3] with Stamp Alias, I'm not sure on the implications this may have for the index.  There
+                //TODO [DAN 3] with Filter Alias, I'm not sure on the implications this may have for the index.  There
                 //may be a required index update, with a stamp alias....
                 break;
 
@@ -554,11 +531,9 @@ public class CommitProvider
                         Get.conceptService()
                                 .writeConcept(conceptChronology);
                     }
-
-
                 }
             }
-                break;
+            break;
 
             case SEMANTIC:
                 final SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) isaacExternalizable;
@@ -569,22 +544,23 @@ public class CommitProvider
                 if (optionalExistingSemantic.isEmpty()) {
                     Get.assemblageService()
                             .writeSemanticChronology(semanticChronology);
+                    deferNidAction(semanticChronology.getNid());
                 } else {
                     removeDuplicates(optionalExistingSemantic, semanticChronology);
                     if (!semanticChronology.getVersionList().isEmpty()) {
                         Get.assemblageService()
                                 .writeSemanticChronology(semanticChronology);
+                        deferNidAction(semanticChronology.getNid());
                     }
                 }
 
-                deferNidAction(semanticChronology.getNid());
                 break;
 
             case STAMP_ALIAS:
                 final StampAlias stampAlias = (StampAlias) isaacExternalizable;
 
                 this.stampAliasMap.addAlias(stampAlias.getStampSequence(), stampAlias.getStampAlias());
-                //TODO [DAN 3] with Stamp Alias, I'm not sure on the implications this may have for the index.  There
+                //TODO [DAN 3] with Filter Alias, I'm not sure on the implications this may have for the index.  There
                 //may be a required index update, with a stamp alias....
                 break;
 
@@ -600,8 +576,9 @@ public class CommitProvider
         }
 
     }
+
     private void removeDuplicates(Optional<? extends Chronology> optionalExistingChronology, ChronologyImpl newChronology) {
-        HashSet<String> existingSamps = new HashSet();
+        HashSet<String> existingSamps = new HashSet<>();
         for (Version v : optionalExistingChronology.get().getVersionList()) {
             existingSamps.add(v.getSampKey());
         }
@@ -613,11 +590,12 @@ public class CommitProvider
                 versions.remove(v);
             }
         }
-   }
+    }
+
     /**
-     * Increment and get nid.
+     * Increment and get commit sequence.
      *
-     * @return the long
+     * @return the commit sequence
      */
     @Override
     public long incrementAndGetSequence() {
@@ -634,6 +612,7 @@ public class CommitProvider
     @Override
     public void postProcessImportNoChecks() {
         final Set<Integer> nids = this.deferredImportNoCheckNids.getAndSet(new ConcurrentSkipListSet<>());
+        ArrayList<Exception> exceptions = new ArrayList<>();
         if (nids != null) {
             LOG.info("Post processing import. Deferred set size: " + nids.size());
 
@@ -650,9 +629,8 @@ public class CommitProvider
                         try {
                             Get.taxonomyService().updateTaxonomy(sc);
                         } catch (RuntimeException e) {
-                            //TODO better way of reporting errors without stopping processing of remaining content
-                            e.printStackTrace();
-                            LOG.error("While processing: " + sc);
+                            LOG.error("While processing: " + sc, e);
+                            exceptions.add(e);
                         }
                     }
                 } else {
@@ -662,7 +640,7 @@ public class CommitProvider
                             " in deferred set: " + nid + " UUIDs: " + Arrays.toString(Get.identifierService().getUuidArrayForNid(nid)));
                 }
             }
-            if (Get.useLuceneIndexes()) {
+            if (Get.configurationService().getGlobalDatastoreConfiguration().enableLuceneIndexes()) {
                 ArrayList<Future<Long>> futures = new ArrayList<>();
                 List<IndexBuilderService> indexers = Get.services(IndexBuilderService.class);
                 for (final int nid : nids) {
@@ -689,6 +667,7 @@ public class CommitProvider
                         f.get();
                     } catch (InterruptedException | ExecutionException e) {
                         LOG.error("Unexpected error waiting for index update", e);
+                        exceptions.add(e);
                     }
                 }
 
@@ -696,11 +675,16 @@ public class CommitProvider
                     try {
                         ibs.sync().get();
                     } catch (Exception e) {
-                        throw new RuntimeException(e);
+                        LOG.error("Error rebuilding indexes!", e);
+                        exceptions.add(e);
                     }
                 }
             }
             LOG.info("Post processing import complete");
+        }
+        if (exceptions.size() > 0) {
+            LOG.error("Encountered {} errors during postProcessImportNoChecks", exceptions.size());
+            throw new RuntimeException("Errors during import!", exceptions.get(0));
         }
     }
 
@@ -741,13 +725,14 @@ public class CommitProvider
         });
     }
 
+
     /**
-     * Adds the comment.
+     * Associate a comment with a stamp.
      *
-     * @param stamp the stamp
-     * @param commitComment the commit comment
+     * @param stamp
+     * @param commitComment
      */
-    protected void addComment(int stamp, String commitComment) {
+    public void addComment(int stamp, String commitComment) {
         this.stampCommentMap.addComment(stamp, commitComment);
         LOG.trace("stamp {} comment: {}", stamp, commitComment);
     }
@@ -757,7 +742,7 @@ public class CommitProvider
      *
      * @param commitRecord the commit record
      */
-    protected void handleCommitNotification(CommitRecord commitRecord) {
+    public void handleCommitNotification(CommitRecord commitRecord) {
         this.changeListeners.forEach((listenerRef) -> {
             final ChronologyChangeListener listener = listenerRef.get();
 
@@ -767,14 +752,23 @@ public class CommitProvider
                 listener.handleCommit(commitRecord);
             }
         });
+        this.commitListeners.forEach((listenerRef) -> {
+            final CommitListener listener = listenerRef.get();
+
+            if (listener == null) {
+                this.commitListeners.remove(listenerRef);
+            } else {
+                listener.handleCommit(commitRecord);
+            }
+        });
     }
 
     /**
-     * Handle commit notification.
+     * Handle change notification.
      *
      * @param chronology
      */
-    protected void handleChangeNotification(Chronology chronology) {
+    public void handleChangeNotification(Chronology chronology) {
         this.changeListeners.forEach((listenerRef) -> {
             final ChronologyChangeListener listener = listenerRef.get();
 
@@ -791,54 +785,32 @@ public class CommitProvider
         });
     }
 
-    /**
-     * Revert commit.
-     *
-     * @param conceptsToCommit the concepts to commit
-     * @param conceptsToCheck the concepts to check
-     * @param semanticsToCommit the semantics to commit
-     * @param semanticsToCheck the semantics to check
-     * @param pendingStampsForCommit the pending stamps for commit
-     */
-    protected void revertCommit(NidSet conceptsToCommit,
-            NidSet conceptsToCheck,
-            NidSet semanticsToCommit,
-            NidSet semanticsToCheck,
-            Map<UncommittedStamp, Integer> pendingStampsForCommit) {
-        Get.stampService()
-                .addPendingStampsForCommit(pendingStampsForCommit);
-        this.uncommittedSequenceLock.lock();
-
-        try {
-            this.uncommittedConceptsWithChecksNidSet.or(conceptsToCheck);
-            this.uncommittedConceptsNoChecksNidSet.or(conceptsToCommit);
-            this.uncommittedConceptsNoChecksNidSet.andNot(conceptsToCheck);
-            this.uncommittedSemanticsWithChecksNidSet.or(semanticsToCheck);
-            this.uncommittedSemanticsNoChecksNidSet.or(semanticsToCommit);
-            this.uncommittedSemanticsNoChecksNidSet.andNot(semanticsToCheck);
-        } finally {
-            this.uncommittedSequenceLock.unlock();
-        }
-    }
 
     /**
      * Check and write.
      *
-     * @param cc the cc
+     * @param cc             the cc
      * @param writeSemaphore the write semaphore
      * @return the task
      */
-    private CheckAndWriteTask checkAndWrite(ConceptChronology cc,
-            Semaphore writeSemaphore) {
+    private CheckAndWriteTask checkAndWrite(Transaction transaction, ConceptChronology cc,
+                                            Semaphore writeSemaphore) {
+        return getCheckAndWriteTask(transaction, cc, writeSemaphore);
+    }
+
+    private CheckAndWriteTask getCheckAndWriteTask(Transaction transaction, Chronology chronology, Semaphore writeSemaphore) {
+        checkComponentInTransaction((TransactionImpl) transaction, chronology);
         writeSemaphore.acquireUninterruptibly();
 
         try {
-            final WriteAndCheckConceptChronicle task = new WriteAndCheckConceptChronicle(cc,
+            final WriteAndCheckChronicle task = new WriteAndCheckChronicle(
+                    transaction,
+                    chronology,
                     this.checkers,
                     writeSemaphore,
                     this.changeListeners,
                     (semanticOrConceptChronicle,
-                            changeCheckerActive) -> handleUncommittedNidSet(
+                     changeCheckerActive) -> handleUncommittedNidSet(
                             semanticOrConceptChronicle,
                             changeCheckerActive));
 
@@ -854,31 +826,13 @@ public class CommitProvider
     /**
      * Check and write.
      *
-     * @param sc the sc
+     * @param sc             the sc
      * @param writeSemaphore the write semaphore
      * @return the task
      */
-    private CheckAndWriteTask checkAndWrite(SemanticChronology sc,
-            Semaphore writeSemaphore) {
-        writeSemaphore.acquireUninterruptibly();
-
-        try {
-            final WriteAndCheckSemanticChronology task = new WriteAndCheckSemanticChronology(sc,
-                    this.checkers,
-                    writeSemaphore,
-                    this.changeListeners,
-                    (semanticOrConceptChronicle,
-                            changeCheckerActive) -> handleUncommittedNidSet(
-                            semanticOrConceptChronicle,
-                            changeCheckerActive));
-
-            this.writeCompletionService.submit(task);
-            return task;
-        } catch (Exception e) {
-            //release semaphore, if we didn't successfully submit the task
-            writeSemaphore.release();
-            throw e;
-        }
+    private CheckAndWriteTask checkAndWrite(Transaction transaction, SemanticChronology sc,
+                                            Semaphore writeSemaphore) {
+        return getCheckAndWriteTask(transaction, sc, writeSemaphore);
     }
 
     /**
@@ -894,7 +848,7 @@ public class CommitProvider
     /**
      * Handle uncommitted nid set.
      *
-     * @param chronicle the semantic or concept chronicle
+     * @param chronicle           the semantic or concept chronicle
      * @param changeCheckerActive the change checker active
      */
     private void handleUncommittedNidSet(Chronology chronicle, boolean changeCheckerActive) {
@@ -907,7 +861,7 @@ public class CommitProvider
             switch (chronicle.getIsaacObjectType()) {
                 case CONCEPT: {
                     final int nid = chronicle.getNid();
-                    final NidSet set = changeCheckerActive ? this.uncommittedConceptsWithChecksNidSet
+                    final ConcurrentSkipListSet<Integer> set = changeCheckerActive ? this.uncommittedConceptsWithChecksNidSet
                             : this.uncommittedConceptsNoChecksNidSet;
 
                     if (chronicle.isUncommitted()) {
@@ -921,7 +875,7 @@ public class CommitProvider
 
                 case SEMANTIC: {
                     final int nid = chronicle.getNid();
-                    final NidSet set = changeCheckerActive ? this.uncommittedSemanticsWithChecksNidSet
+                    final ConcurrentSkipListSet<Integer> set = changeCheckerActive ? this.uncommittedSemanticsWithChecksNidSet
                             : this.uncommittedSemanticsNoChecksNidSet;
 
                     if (chronicle.isUncommitted()) {
@@ -954,23 +908,25 @@ public class CommitProvider
             ConfigurationService configurationService = LookupService.getService(ConfigurationService.class);
             Path dataStorePath = configurationService.getDataStoreFolderPath();
 
-            if (Get.dataStore().implementsExtendedStoreAPI()) {
+            //Continue using our own local storage in the case of FileSystem data even though the file system store
+            //now supports the extended APIs for performance reasons
+            if (Get.dataStore().implementsExtendedStoreAPI() && Get.dataStore().getDataStoreType() != DatabaseImplementation.FILESYSTEM) {
                 dataStore = (ExtendedStore) Get.dataStore();
-                nidStore = dataStore.<Integer, byte[], NidSet>getStore("CommitProviderNidSetStore",
+                nidStore = dataStore.<Integer, byte[], NidSet>getStore(NID_STORE_NAME,
                         (valueToSerialize) -> valueToSerialize == null ? null : DataToBytesUtils.getBytes(valueToSerialize::write),
                         (valueToDeserialize)
-                        -> {
-                    try {
-                        NidSet ns = new NidSet();
-                        if (valueToDeserialize != null) {
-                            ns.read(DataToBytesUtils.getDataInput(valueToDeserialize));
-                        }
-                        return ns;
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
-                });
-                LOG.info("DataStore implements extended API, will be used for Commit Provider");
+                                -> {
+                            try {
+                                NidSet ns = new NidSet();
+                                if (valueToDeserialize != null) {
+                                    ns.read(DataToBytesUtils.getDataInput(valueToDeserialize));
+                                }
+                                return ns;
+                            } catch (IOException e) {
+                                throw new RuntimeException(e);
+                            }
+                        });
+                LOG.info("DataStore implements extended API, will be used for Commit provider");
             } else {
                 this.dbFolderPath = dataStorePath.resolve("commit-provider");
 
@@ -990,7 +946,7 @@ public class CommitProvider
 
                 Files.createDirectories(this.commitManagerFolder);
 
-                LOG.debug("Commit provider starting in {} using local storage", this.commitManagerFolder.toFile().getCanonicalFile().toString());
+                LOG.info("Commit provider starting in {} using local storage", this.commitManagerFolder.toFile().getCanonicalFile().toString());
 
                 if (!this.dataStoreId.isPresent()) {
                     this.dataStoreId = LookupService.get().getService(MetadataService.class).getDataStoreId();
@@ -998,7 +954,7 @@ public class CommitProvider
                 }
             }
 
-            this.lastCommitTime.set(Long.MIN_VALUE);
+            this.lastCommitTime.set(Instant.MIN);
             this.changeListeners.clear();
             this.checkers.clear();
             this.lastCommit = Long.MIN_VALUE;
@@ -1021,13 +977,13 @@ public class CommitProvider
                     LOG.info("Reading " + COMMIT_MANAGER_DATA_FILENAME);
 
                     try (DataInputStream in
-                            = new DataInputStream(new FileInputStream(new File(this.commitManagerFolder.toFile(),
-                                    COMMIT_MANAGER_DATA_FILENAME)))) {
+                                 = new DataInputStream(new FileInputStream(new File(this.commitManagerFolder.toFile(),
+                            COMMIT_MANAGER_DATA_FILENAME)))) {
                         this.databaseSequence.set(in.readLong());
-                        this.uncommittedConceptsWithChecksNidSet.read(in);
-                        this.uncommittedConceptsNoChecksNidSet.read(in);
-                        this.uncommittedSemanticsWithChecksNidSet.read(in);
-                        this.uncommittedSemanticsNoChecksNidSet.read(in);
+                        this.uncommittedConceptsWithChecksNidSet.addAll(NidSet.of(in).box());
+                        this.uncommittedConceptsNoChecksNidSet.addAll(NidSet.of(in).box());
+                        this.uncommittedSemanticsWithChecksNidSet.addAll(NidSet.of(in).box());
+                        this.uncommittedSemanticsNoChecksNidSet.addAll(NidSet.of(in).box());
                     }
 
                     LOG.info("Reading: " + STAMP_ALIAS_MAP_FILENAME);
@@ -1040,10 +996,10 @@ public class CommitProvider
                     // If a DB is just built by a loader, its possible that the databaseSequence was never incremented, and then, never stored to the data store.
                     // It needs to stay the default value, startup value, in this case.  
                     this.databaseSequence.set(dataStore.getSharedStoreLong(DEFAULT_COMMIT_MANAGER_FOLDER + "databaseSequence").orElse(this.databaseSequence.get()));
-                    this.uncommittedConceptsWithChecksNidSet.addAll(nidStore.get(uncommittedConceptsWithChecksNidSetId));
-                    this.uncommittedConceptsNoChecksNidSet.addAll(nidStore.get(uncommittedConceptsNoChecksNidSetId));
-                    this.uncommittedSemanticsWithChecksNidSet.addAll(nidStore.get(uncommittedSemanticsWithChecksNidSetId));
-                    this.uncommittedSemanticsNoChecksNidSet.addAll(nidStore.get(uncommittedSemanticsNoChecksNidSetId));
+                    this.uncommittedConceptsWithChecksNidSet.addAll(nidStore.get(uncommittedConceptsWithChecksNidSetId).box());
+                    this.uncommittedConceptsNoChecksNidSet.addAll(nidStore.get(uncommittedConceptsNoChecksNidSetId).box());
+                    this.uncommittedSemanticsWithChecksNidSet.addAll(nidStore.get(uncommittedSemanticsWithChecksNidSetId).box());
+                    this.uncommittedSemanticsNoChecksNidSet.addAll(nidStore.get(uncommittedSemanticsNoChecksNidSetId).box());
                 }
                 stampAliasMap = new StampAliasMap(dataStore);  //doen't need to read, it reads live as necessary
                 stampCommentMap = new StampCommentMap(dataStore); //doen't need to read, it reads live as necessary
@@ -1054,30 +1010,25 @@ public class CommitProvider
             //of the same object, then committing, then not being able to figure out where their previous changes went.
             checkers.add(new ChangeChecker() {
                 @Override
-                public AlertObject check(Chronology chronology,
-                        CheckPhase checkPhase) {
-                    if (checkPhase == CheckPhase.ADD_UNCOMMITTED) {
-                        // Accumulate uncommitted versions in passed chronology
-                        final List<Version> uncommittedVersions = new ArrayList<>();
-                        for (Version version : chronology.getVersionList()) {
-                            if (version.isUncommitted()) {
-                                uncommittedVersions.add(version);
+                public Optional<AlertObject> check(Version version, Transaction transaction) {
+                    // Accumulate uncommitted versions in passed chronology
+                    final List<Version> uncommittedVersions = new ArrayList<>();
+                    if (version.getChronology() != null) {
+                        for (Version v : version.getChronology().getVersionList()) {
+                            if (v.isUncommitted()) {
+                                uncommittedVersions.add(v);
                             }
                         }
-                        // Warn or fail if multiple uncommitted versions in passed chronology
-                        if (uncommittedVersions.size() > 1) {
-                            return new AlertObject("Data loss warning",
-                                    "Found " + uncommittedVersions.size() + " uncommitted versions in chronology " + chronology.getPrimordialUuid(), AlertType.WARNING,
-                                    AlertCategory.ADD_UNCOMMITTED);
-                        }
-                        // Warn or fail if chronology sequence in uncommitted sets
-                        if (uncommittedSemanticsWithChecksNidSet.contains(chronology.getNid()) || uncommittedSemanticsWithChecksNidSet.contains(chronology.getNid())
-                                || uncommittedConceptsWithChecksNidSet.contains(chronology.getNid()) || uncommittedConceptsNoChecksNidSet.contains(chronology.getNid())) {
-                            return new AlertObject("Data loss warning", "Found " + uncommittedVersions.size() + " uncommitted versions for  " + chronology.getPrimordialUuid(),
-                                    AlertType.WARNING, AlertCategory.ADD_UNCOMMITTED);
-                        }
+
                     }
-                    return new SuccessAlert("Passed change checker", "Passed change checker", AlertCategory.ADD_UNCOMMITTED);
+                    // Warn or fail if multiple uncommitted versions in passed chronology
+                    if (uncommittedVersions.size() > 1) {
+                        return Optional.of(new AlertObject("Data loss warning",
+                                "Found " + uncommittedVersions.size() + " uncommitted versions in chronology " + version.getPrimordialUuid()
+                                + "\n" + version.getChronology(), AlertType.WARNING,
+                                AlertCategory.ADD_UNCOMMITTED));
+                    }
+                    return Optional.empty();
                 }
 
                 @Override
@@ -1090,20 +1041,15 @@ public class CommitProvider
             // required fields.
             checkers.add(new ChangeChecker() {
                 @Override
-                public AlertObject check(Chronology sc,
-                        CheckPhase checkPhase) {
-                    if (checkPhase == CheckPhase.ADD_UNCOMMITTED) {
-                        if (sc.getVersionType() == VersionType.DESCRIPTION) {
-                            for (Version sv : sc.getUnwrittenVersionList()) {
-                                if (((DescriptionVersion) sv).getCaseSignificanceConceptNid() == 0 || ((DescriptionVersion) sv).getLanguageConceptNid() == 0
-                                        || ((DescriptionVersion) sv).getDescriptionTypeConceptNid() == 0 || ((DescriptionVersion) sv).getText() == null) {
-                                    return new AlertObject("Invalid Description", "Failed to set all required fields on a description!", AlertType.ERROR,
-                                            AlertCategory.ADD_UNCOMMITTED);
-                                }
-                            }
+                public Optional<AlertObject> check(Version version, Transaction transaction) {
+                    if (version.getSemanticType() == VersionType.DESCRIPTION) {
+                        if (((DescriptionVersion) version).getCaseSignificanceConceptNid() == 0 || ((DescriptionVersion) version).getLanguageConceptNid() == 0
+                                || ((DescriptionVersion) version).getDescriptionTypeConceptNid() == 0 || ((DescriptionVersion) version).getText() == null) {
+                            return Optional.of(new AlertObject("Invalid Description", "Failed to set all required fields on a description!", AlertType.ERROR,
+                                    AlertCategory.ADD_UNCOMMITTED));
                         }
                     }
-                    return new SuccessAlert("Passed change checker", "Passed change checker", AlertCategory.ADD_UNCOMMITTED);
+                    return Optional.of(new SuccessAlert("Passed change checker", "Passed change checker", AlertCategory.ADD_UNCOMMITTED));
                 }
 
                 @Override
@@ -1130,25 +1076,85 @@ public class CommitProvider
         LOG.info("Stopping CommitProvider pre-destroy for change to runlevel: " + LookupService.getProceedingToRunLevel());
 
         try {
-            sync().get();
-            this.writeCompletionService.stop();
-            this.dataStoreId = Optional.empty();
-            this.lastCommitTime.set(Long.MIN_VALUE);
-            this.changeListeners.clear();
-            this.checkers.clear();
-            this.lastCommit = Long.MIN_VALUE;
-            this.deferredImportNoCheckNids.get().clear();
-            this.stampAliasMap = null;
-            this.stampCommentMap = null;
-            this.databaseSequence.set(0);
-            this.uncommittedConceptsWithChecksNidSet.clear();
-            this.uncommittedConceptsNoChecksNidSet.clear();
-            this.uncommittedSemanticsWithChecksNidSet.clear();
-            this.uncommittedSemanticsNoChecksNidSet.clear();
-            this.pendingCommitTasks.clear();
+            StopMeTask stopMeTask = new StopMeTask();
+            Get.workExecutors().getExecutor().submit(stopMeTask);
+            stopMeTask.get();
         } catch (Exception ex) {
             LOG.error("error stopping commit provider", ex);
             throw new RuntimeException(ex);
+        }
+        LOG.info("Stopped CommitProvider pre-destroy");
+    }
+
+    private class StopMeTask extends TimedTaskWithProgressTracker {
+        public StopMeTask() {
+            updateTitle("Stopping commit provider");
+            addToTotalWork(16);
+            Get.activeTasks().add(this);
+        }
+
+        @Override
+        protected Object call() throws Exception {
+            try {
+                this.updateMessage("CommitProvider sync");
+                sync().get();
+                if (nidStore != null) {
+                    dataStore.closeStore(NID_STORE_NAME);
+                    nidStore = null;
+                }
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider write completion service stop");
+                CommitProvider.this.writeCompletionService.stop();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider datastore id reset");
+                CommitProvider.this.dataStoreId = Optional.empty();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider last commit time reset");
+                CommitProvider.this.lastCommitTime.set(Instant.MIN);
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider change listeners reset");
+                CommitProvider.this.changeListeners.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider checkers reset");
+                CommitProvider.this.checkers.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider last commit reset");
+                CommitProvider.this.lastCommit = Long.MIN_VALUE;
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider deferred import no checks reset");
+                CommitProvider.this.deferredImportNoCheckNids.get().clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider stamp alias map reset");
+                CommitProvider.this.stampAliasMap.shutdown();
+                CommitProvider.this.stampAliasMap = null;
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider stamp commit map reset");
+                CommitProvider.this.stampCommentMap.shutdown();
+                CommitProvider.this.stampCommentMap = null;
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider database sequence reset");
+                CommitProvider.this.databaseSequence.set(0);
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider uncommitted concepts with checks");
+                CommitProvider.this.uncommittedConceptsWithChecksNidSet.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider uncommitted concepts no checks");
+                CommitProvider.this.uncommittedConceptsNoChecksNidSet.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider uncommitted semantics with checks");
+                CommitProvider.this.uncommittedSemanticsWithChecksNidSet.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider uncommitted semantics no checks");
+                CommitProvider.this.uncommittedSemanticsNoChecksNidSet.clear();
+                this.completedUnitOfWork();
+                this.updateMessage("CommitProvider pending commit tasks");
+                CommitProvider.this.pendingCommitTasks.clear();
+                this.completedUnitOfWork();
+                CommitProvider.this.dataStore = null;
+                return null;
+            } finally {
+                Get.activeTasks().remove(this);
+            }
         }
     }
 
@@ -1163,29 +1169,29 @@ public class CommitProvider
                                     this.commitManagerFolder.toFile(),
                                     COMMIT_MANAGER_DATA_FILENAME)))) {
                 out.writeLong(this.databaseSequence.get());
-                this.uncommittedConceptsWithChecksNidSet.write(out);
-                this.uncommittedConceptsNoChecksNidSet.write(out);
-                this.uncommittedSemanticsWithChecksNidSet.write(out);
-                this.uncommittedSemanticsNoChecksNidSet.write(out);
+                NidSet.of(this.uncommittedConceptsWithChecksNidSet.stream()).write(out);
+                NidSet.of(this.uncommittedConceptsNoChecksNidSet.stream()).write(out);
+                NidSet.of(this.uncommittedSemanticsWithChecksNidSet.stream()).write(out);
+                NidSet.of(this.uncommittedSemanticsNoChecksNidSet.stream()).write(out);
             }
         } else {
-            //Just need to write the uncommitted nidset data.   Everything else  is written on change
-            nidStore.put(uncommittedConceptsWithChecksNidSetId, this.uncommittedConceptsWithChecksNidSet);
-            nidStore.put(uncommittedConceptsNoChecksNidSetId, this.uncommittedConceptsNoChecksNidSet);
-            nidStore.put(uncommittedSemanticsWithChecksNidSetId, this.uncommittedSemanticsWithChecksNidSet);
-            nidStore.put(uncommittedSemanticsNoChecksNidSetId, this.uncommittedSemanticsNoChecksNidSet);
+            //Just need to write the uncommitted nidset data.   Everything else  is written on change in the MV store, 
+            nidStore.put(uncommittedConceptsWithChecksNidSetId, NidSet.of(this.uncommittedConceptsWithChecksNidSet.stream()));
+            nidStore.put(uncommittedConceptsNoChecksNidSetId, NidSet.of(this.uncommittedConceptsNoChecksNidSet.stream()));
+            nidStore.put(uncommittedSemanticsWithChecksNidSetId, NidSet.of(this.uncommittedSemanticsWithChecksNidSet.stream()));
+            nidStore.put(uncommittedSemanticsNoChecksNidSetId, NidSet.of(this.uncommittedSemanticsNoChecksNidSet.stream()));
         }
     }
 
     /**
      * Write.
      *
-     * @param cc the cc
+     * @param cc             the cc
      * @param writeSemaphore the write semaphore
      * @return the task
      */
-    private Task<Void> write(ConceptChronology cc,
-            Semaphore writeSemaphore) {
+    private Task<Void> write(Transaction transaction, ConceptChronology cc,
+                             Semaphore writeSemaphore) {
         writeSemaphore.acquireUninterruptibly();
 
         try {
@@ -1193,7 +1199,7 @@ public class CommitProvider
                     writeSemaphore,
                     this.changeListeners,
                     (semanticOrConceptChronicle,
-                            changeCheckerActive) -> handleUncommittedNidSet(
+                     changeCheckerActive) -> handleUncommittedNidSet(
                             semanticOrConceptChronicle,
                             changeCheckerActive));
 
@@ -1209,16 +1215,16 @@ public class CommitProvider
     /**
      * Write.
      *
-     * @param sc the sc
+     * @param sc             the sc
      * @param writeSemaphore the write semaphore
      * @return the task
      */
-    private Task<Void> write(SemanticChronology sc,
-            Semaphore writeSemaphore) {
+    private Task<Void> write(Transaction transaction, SemanticChronology sc,
+                             Semaphore writeSemaphore) {
         writeSemaphore.acquireUninterruptibly();
         /*
- * The Class WriteSemanticChronology.
- * TODO: unnecessary overhead in this task. reimplement without task...
+         * The Class WriteSemanticChronology.
+         * TODO: unnecessary overhead in this task. reimplement without task...
          */
 
         try {
@@ -1226,7 +1232,7 @@ public class CommitProvider
                     writeSemaphore,
                     this.changeListeners,
                     (semanticOrConceptChronicle,
-                            changeCheckerActive) -> handleUncommittedNidSet(
+                     changeCheckerActive) -> handleUncommittedNidSet(
                             semanticOrConceptChronicle,
                             changeCheckerActive));
 
@@ -1240,6 +1246,7 @@ public class CommitProvider
     }
 
     //~--- get methods ---------------------------------------------------------
+
     /**
      * Gets the aliases.
      *
@@ -1263,11 +1270,12 @@ public class CommitProvider
     }
 
     //~--- set methods ---------------------------------------------------------
+
     /**
      * Set comment.
      *
      * @param stampSequence the stamp nid
-     * @param comment the comment
+     * @param comment       the comment
      */
     @Override
     public void setComment(int stampSequence, String comment) {
@@ -1275,6 +1283,7 @@ public class CommitProvider
     }
 
     //~--- get methods ---------------------------------------------------------
+
     /**
      * Gets the commit manager nid.
      *
@@ -1310,40 +1319,34 @@ public class CommitProvider
         return dataStore == null ? this.databaseValidity : dataStore.getDataStoreStartState();
     }
 
-    /**
-     * Gets the stamp alias stream.
-     *
-     * @return the stamp alias stream
-     */
     @Override
-    public Stream<StampAlias> getStampAliasStream() {
-        return this.stampAliasMap.getStampAliasStream();
+    public Stream<StampAlias> getStampAliasStream(boolean parallel) {
+        return this.stampAliasMap.getStampAliasStream(parallel);
     }
 
     public Set<Task<?>> getPendingCommitTasks() {
         return pendingCommitTasks;
     }
 
-    /**
-     * Gets the stamp comment stream.
-     *
-     * @return the stamp comment stream
-     */
     @Override
-    public Stream<StampComment> getStampCommentStream() {
-        return this.stampCommentMap.getStampCommentStream();
+    public Stream<StampComment> getStampCommentStream(boolean parallel) {
+        return this.stampCommentMap.getStampCommentStream(parallel);
     }
 
-    protected long getTimeForCommit() {
-        long commitTime = System.currentTimeMillis();
+    @Override
+    public Instant getTimeForCommit() {
+        Instant commitTime = Instant.now();
 
         //Make it impossible to have two commits happen in the same MS - because this messes up the RelativePositionCalculator
         //This could probably be done without a sync block, if I wanted to be clever enough, but I'm sure it won't matter...
+        // TODO: sort this out on another day... There is a use case for supporting multiple commits at the same instants.
+        // For example, releasing multiple concurrent editions.
         synchronized (lastCommitTime) {
-            if (commitTime > lastCommitTime.get()) {
+            if (commitTime.isAfter(lastCommitTime.get())) {
                 lastCommitTime.set(commitTime);
             } else {
-                commitTime = lastCommitTime.incrementAndGet();
+                lastCommitTime.set(lastCommitTime.get().plusMillis(1));
+                commitTime = lastCommitTime.get();
             }
         }
         return commitTime;
@@ -1382,42 +1385,20 @@ public class CommitProvider
     }
 
     //~--- inner classes -------------------------------------------------------
-    /**
-     * The Class ChangeListenerReference.
-     */
-    private static class ChangeListenerReference
-            extends WeakReference<ChronologyChangeListener>
-            implements Comparable<ChangeListenerReference> {
+
+    private static class CommitListenerReference <T extends CommitListener> extends WeakReference<T>
+            implements Comparable<CommitListenerReference> {
 
         /**
          * The listener uuid.
          */
         UUID listenerUuid;
 
-        //~--- constructors -----------------------------------------------------
-        /**
-         * Instantiates a new change listener reference.
-         *
-         * @param referent the referent
-         */
-        public ChangeListenerReference(ChronologyChangeListener referent) {
+        public CommitListenerReference(T referent) {
             super(referent);
             this.listenerUuid = referent.getListenerUuid();
         }
 
-        /**
-         * Instantiates a new change listener reference.
-         *
-         * @param referent the referent
-         * @param q the q
-         */
-        public ChangeListenerReference(ChronologyChangeListener referent,
-                ReferenceQueue<? super ChronologyChangeListener> q) {
-            super(referent, q);
-            this.listenerUuid = referent.getListenerUuid();
-        }
-
-        //~--- methods ----------------------------------------------------------
         /**
          * Compare to.
          *
@@ -1425,7 +1406,7 @@ public class CommitProvider
          * @return the int
          */
         @Override
-        public int compareTo(ChangeListenerReference o) {
+        public int compareTo(CommitListenerReference o) {
             return this.listenerUuid.compareTo(o.listenerUuid);
         }
 
@@ -1445,9 +1426,9 @@ public class CommitProvider
                 return false;
             }
 
-            final ChangeListenerReference other = (ChangeListenerReference) obj;
+            final UUID otherUUID = ((CommitListenerReference) obj).listenerUuid;
 
-            return Objects.equals(this.listenerUuid, other.listenerUuid);
+            return this.listenerUuid.equals(otherUUID);
         }
 
         /**
@@ -1463,8 +1444,86 @@ public class CommitProvider
             return hash;
         }
     }
+    /**
+     * The Class ChangeListenerReference.
+     */
+    private static class ChangeListenerReference
+            extends CommitListenerReference<ChronologyChangeListener> {
+
+        //~--- constructors -----------------------------------------------------
+
+        /**
+         * Instantiates a new change listener reference.
+         *
+         * @param referent the referent
+         */
+        public ChangeListenerReference(ChronologyChangeListener referent) {
+            super(referent);
+        }
+
+        //~--- methods ----------------------------------------------------------
+
+    }
 
     public ConcurrentSkipListSet<ChangeChecker> getCheckers() {
         return checkers;
+    }
+
+    @Override
+    public ObservableSet<Transaction> getPendingTransactionList() {
+        return PendingTransactions.getPendingTransactionList();
+    }
+
+    @Override
+    public Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode, boolean indexOnCommit) {
+        if (singleTransactionOnly && PendingTransactions.getPendingTransactionCount() > 0) {
+            for (Transaction transaction: PendingTransactions.getConcurrentPendingTransactionList()) {
+                LOG.info("Pending transaction: " + transaction.getTransactionId());
+            }
+            throw new IllegalStateException("Second transaction.");
+        }
+        TransactionImpl transaction = new TransactionImpl(transactionName, changeCheckerMode, indexOnCommit);
+        if (logTransactionCreation) {
+            logStackTrace(transaction);
+        }
+        PendingTransactions.addTransaction(transaction);
+        return transaction;
+    }
+
+    private void logStackTrace(TransactionImpl transaction) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("New transaction:").append(transaction.getTransactionId()).append("\n");
+        for (StackTraceElement element: Thread.currentThread().getStackTrace()) {
+            if (element.toString().startsWith("java.base/java.lang.Thread.getStackTrace")) {
+                continue;
+            }
+            if (element.toString().startsWith("org.testng")) {
+                break;
+            }
+            sb.append("   ").append(element).append("\n");
+        }
+        LOG.info(sb);
+    }
+
+    @Override
+    public Task<Void> addUncommitted(Transaction transaction, Version version) {
+        if (!version.isUncommitted()) {
+            throw new RuntimeException("Invalid API pattern!  Cannot call addUncommitted with a stamp that was not created with a transaction");
+        }
+        transaction.addVersionToTransaction(version);
+        if (version.getChronology().getIsaacObjectType() == IsaacObjectType.CONCEPT) {
+            return addUncommitted(transaction, (ConceptChronology) version.getChronology());
+        }
+        return addUncommitted(transaction, (SemanticChronology) version.getChronology());
+    }
+
+    @Override
+    public void addCommitListener(CommitListener commitListener) {
+        this.commitListeners.add(new CommitListenerReference<>(commitListener));
+    }
+
+    @Override
+    public void removeCommitListener(CommitListener commitListener) {
+        this.commitListeners.remove(new CommitListenerReference<>(commitListener));
     }
 }

@@ -39,37 +39,28 @@
 
 package sh.isaac.model.observable.version;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import javafx.beans.property.IntegerProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import javafx.beans.property.StringProperty;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
-import sh.isaac.model.observable.CommitAwareStringProperty;
-import sh.isaac.model.observable.ObservableChronologyImpl;
-import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
+import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareStringProperty;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 
 /**
  * The Class ObservableDescriptionVersionImpl.
@@ -98,8 +89,6 @@ public class ObservableDescriptionVersionImpl
     * The description type concept nid property.
     */
    IntegerProperty descriptionTypeConceptNidProperty;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * A constructor for de novo creation. For example when creating a new component prior to being committed for 
@@ -130,23 +119,17 @@ public class ObservableDescriptionVersionImpl
       setDescriptionTypeConceptNid(versionToClone.getDescriptionTypeConceptNid());
    }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableDescriptionVersionImpl analog = new ObservableDescriptionVersionImpl(this, getChronology());
         copyLocalFields(analog);
-        analog.setModuleNid(ec.getModuleNid());
-        analog.setAuthorNid(ec.getAuthorNid());
-        analog.setPathNid(ec.getPathNid());
+        analog.setModuleNid(mc.getModuleNidForAnalog(this));
+        analog.setAuthorNid(mc.getAuthorNidForChanges());
+        analog.setPathNid(mc.getPathNidForAnalog());
         return (V) analog;
     }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Case significance concept nid property.
-    *
-    * @return the integer property
-    */
    @Override
    public IntegerProperty caseSignificanceConceptNidProperty() {
       if (this.stampedVersionProperty == null && caseSignificanceConceptNidProperty == null) {
@@ -169,11 +152,6 @@ public class ObservableDescriptionVersionImpl
       return this.caseSignificanceConceptNidProperty;
    }
 
-   /**
-    * Description type concept nid property.
-    *
-    * @return the integer property
-    */
    @Override
    public IntegerProperty descriptionTypeConceptNidProperty() {
       if (this.stampedVersionProperty == null && descriptionTypeConceptNidProperty == null) {
@@ -196,11 +174,6 @@ public class ObservableDescriptionVersionImpl
       return this.descriptionTypeConceptNidProperty;
    }
 
-   /**
-    * Language concept nid property.
-    *
-    * @return the integer property
-    */
    @Override
    public IntegerProperty languageConceptNidProperty() {
       if (this.stampedVersionProperty == null && languageConceptNidProperty == null) {
@@ -223,11 +196,6 @@ public class ObservableDescriptionVersionImpl
       return this.languageConceptNidProperty;
    }
 
-   /**
-    * Sets the language concept nid.
-    *
-    * @param languageConceptNid the new language concept nid
-    */
    @Override
    public final void setLanguageConceptNid(int languageConceptNid) {
        if (this.stampedVersionProperty == null) {
@@ -242,11 +210,6 @@ public class ObservableDescriptionVersionImpl
       }
    }
 
-   /**
-    * Gets the language concept nid.
-    *
-    * @return the language concept nid
-    */
    @Override
    public int getLanguageConceptNid() {
       if (this.languageConceptNidProperty != null) {
@@ -256,19 +219,16 @@ public class ObservableDescriptionVersionImpl
       return ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getLanguageConceptNid();
    }
 
+   @SuppressWarnings("unchecked")
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      DescriptionVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      ObservableDescriptionVersionImpl newObservableVersion = new ObservableDescriptionVersionImpl(
-                                                                  newVersion,
-                                                                        (ObservableSemanticChronology) chronology);
-
-      ((ObservableChronologyImpl) chronology).getVersionList()
-            .add(newObservableVersion);
+   public <V extends Version> V makeAnalog(int stampSequence) {
+      DescriptionVersion newVersion = getOptionalStampedVersion().get().makeAnalog(stampSequence);
+      ObservableDescriptionVersionImpl newObservableVersion = new ObservableDescriptionVersionImpl(newVersion, getChronology());
+      getChronology().getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
-   }
+    }
 
-   /**
+    /**
     * Text property.
     *
     * @return the string property
@@ -297,7 +257,7 @@ public class ObservableDescriptionVersionImpl
 
    @Override
    public String toString() {
-      return "ObservableDescriptionImpl{text:" + getText() + ", case: " + Get.conceptDescriptionText(
+      return "ObservableDescriptionVersionImpl{text:" + getText() + ", case: " + Get.conceptDescriptionText(
           getCaseSignificanceConceptNid()) + ", language:" + Get.conceptDescriptionText(
               getLanguageConceptNid()) + ", type: " + Get.conceptDescriptionText(
                   getDescriptionTypeConceptNid()) + " " + Get.stampService().describeStampSequence(
@@ -330,13 +290,6 @@ public class ObservableDescriptionVersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the case significance concept nid.
-    *
-    * @return the case significance concept nid
-    */
    @Override
    public int getCaseSignificanceConceptNid() {
       if (this.caseSignificanceConceptNidProperty != null) {
@@ -346,13 +299,6 @@ public class ObservableDescriptionVersionImpl
       return ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getCaseSignificanceConceptNid();
    }
 
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the case significance concept nid.
-    *
-    * @param caseSignificanceConceptSequence the new case significance concept nid
-    */
    @Override
    public final void setCaseSignificanceConceptNid(int caseSignificanceConceptSequence) {
        if (this.stampedVersionProperty == null) {
@@ -368,13 +314,6 @@ public class ObservableDescriptionVersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the description type concept nid.
-    *
-    * @return the description type concept nid
-    */
    @Override
    public int getDescriptionTypeConceptNid() {
       if (this.descriptionTypeConceptNidProperty != null) {
@@ -384,13 +323,6 @@ public class ObservableDescriptionVersionImpl
       return ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getDescriptionTypeConceptNid();
    }
 
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the description type concept nid.
-    *
-    * @param descriptionTypeConceptNid the new description type concept nid
-    */
    @Override
    public final void setDescriptionTypeConceptNid(int descriptionTypeConceptNid) {
        if (this.stampedVersionProperty == null) {
@@ -404,12 +336,6 @@ public class ObservableDescriptionVersionImpl
         ((DescriptionVersionImpl) this.stampedVersionProperty.get()).setDescriptionTypeConceptNid(descriptionTypeConceptNid);
       }
    }
-
-   //~--- get methods ---------------------------------------------------------
-
-   //~--- set methods ---------------------------------------------------------
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public List<ReadOnlyProperty<?>> getProperties() {
@@ -432,11 +358,6 @@ public class ObservableDescriptionVersionImpl
       return properties;
     }
 
-   /**
-    * Gets the text.
-    *
-    * @return the text
-    */
    @Override
    public String getText() {
       if (this.textProperty != null) {
@@ -446,13 +367,6 @@ public class ObservableDescriptionVersionImpl
       return ((DescriptionVersionImpl) this.stampedVersionProperty.get()).getText();
    }
 
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the text.
-    *
-    * @param text the new text
-    */
    @Override
    public final void setText(String text) {
        if (this.stampedVersionProperty == null) {
@@ -495,4 +409,3 @@ public class ObservableDescriptionVersionImpl
         return sc;
     }
 }
-

@@ -42,6 +42,8 @@ package sh.isaac.api.memory;
 //~--- non-JDK imports --------------------------------------------------------
 
 import java.time.Duration;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.util.FxTimer;
 
 //~--- classes ----------------------------------------------------------------
@@ -51,6 +53,7 @@ import sh.isaac.api.util.FxTimer;
  */
 public class HeapUseTicker {
    private static FxTimer fxTimer;
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- methods -------------------------------------------------------------
 
@@ -67,7 +70,7 @@ public class HeapUseTicker {
    }
    
    private static void printHeapUse() {
-       System.out.println(MemoryUtil.getHeapPercentUse());
+       LOG.info(MemoryUtil.getHeapPercentUse());
    }
 
    /**

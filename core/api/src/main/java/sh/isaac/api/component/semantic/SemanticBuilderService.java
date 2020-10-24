@@ -228,6 +228,21 @@ public interface SemanticBuilderService<C extends SemanticChronology> {
     /**
      * Gets the long semantic builder.
      *
+     * @param componentNid the component nid for the semantic
+     * @param longValue the long value for the semantic
+     * @param referencedComponentNid the referenced component nid
+     * @param assemblageConceptNid the assemblage concept nid
+     * @return the long semantic builder
+     */
+    SemanticBuilder<C> getComponentLongSemanticBuilder(int componentNid, long longValue,
+                                                       int referencedComponentNid, int assemblageConceptNid);
+    SemanticBuilder<C> getComponentLongSemanticBuilder(int componentNid, long longValue,
+                                                       IdentifiedComponentBuilder<? extends CommittableComponent> referencedComponent,
+                                                       int assemblageConceptNid);
+    /**
+     * Gets the component long semantic builder.
+     *
+     * @param longValue the long value
      * @param longValue the long value
      * @param referencedComponentNid the referenced component nid
      * @param assemblageConceptNid the assemblage concept nid

@@ -38,17 +38,16 @@ package sh.isaac.api.query;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import sh.isaac.api.collections.NidSet;
+import sh.isaac.api.component.concept.ConceptSpecification;
+
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlRootElement;
+
+import static sh.isaac.api.query.ForSet.deepClone;
 
 //~--- non-JDK imports --------------------------------------------------------
-import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptSpecification;
-import static sh.isaac.api.query.ForSet.deepClone;
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -57,8 +56,6 @@ import static sh.isaac.api.query.ForSet.deepClone;
  *
  * @author kec
  */
-@XmlRootElement(name = "and")
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class And
         extends ParentClause {
 

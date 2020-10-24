@@ -10,6 +10,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
+import sh.komet.gui.util.FxGet;
 import sh.komet.progress.view.TaskProgressNode;
 import sh.komet.progress.view.TaskProgressNodeFactory;
 
@@ -40,10 +41,10 @@ public class StartupScreenController {
         assert progressAnchor != null : "fx:id=\"progressAnchor\" was not injected: check your FXML file 'StartupScreen.fxml'.";
 
         TaskProgressNodeFactory factory = new TaskProgressNodeFactory();
-        taskProgressNode  = factory.createNode(null, null);
+        taskProgressNode  = factory.createNode(null, null, null);
         taskDisplayNode = taskProgressNode.getNode();
         AnchorPane.setBottomAnchor(taskDisplayNode, 0.0);
-        AnchorPane.setTopAnchor(taskDisplayNode, 0.0);
+        AnchorPane.setTopAnchor(taskDisplayNode, 75.0);
         AnchorPane.setLeftAnchor(taskDisplayNode, 0.0);
         AnchorPane.setRightAnchor(taskDisplayNode, 0.0);
         progressAnchor.getChildren().add(taskDisplayNode);

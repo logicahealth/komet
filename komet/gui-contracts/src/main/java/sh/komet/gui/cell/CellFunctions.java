@@ -4,21 +4,25 @@ import javafx.beans.property.ReadOnlyDoubleProperty;
 import javafx.scene.Node;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.layout.GridPane;
+import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.komet.gui.control.FixedSizePane;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 public interface CellFunctions {
     void search();
 
     void initializeConceptBuilder();
 
-    Manifold getManifold();
+    ManifoldCoordinate getManifoldCoordinate();
 
     double getWidth();
 
     ReadOnlyDoubleProperty widthProperty();
 
-    FixedSizePane getPaneForText();
+    VersionType getVersionType();
+
+    FixedSizePane getPaneForVersionDisplay();
 
     void setContentDisplay(ContentDisplay value);
 

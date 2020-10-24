@@ -16,7 +16,7 @@
  */
 package sh.isaac.api.query.properties;
 
-import javax.xml.bind.annotation.XmlElement;
+
 import sh.isaac.api.query.LetItemKey;
 
 /**
@@ -25,7 +25,6 @@ import sh.isaac.api.query.LetItemKey;
  */
 public interface StampCoordinateClause {
 
-    @XmlElement
     LetItemKey getStampCoordinateKey();
 
     void setStampCoordinateKey(LetItemKey stampCoordinateKey);

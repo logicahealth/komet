@@ -16,17 +16,18 @@
  */
 package sh.komet.progress.view;
 
-import javax.inject.Singleton;
-import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
+import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+
+import jakarta.inject.Singleton;
 
 /**
  *
@@ -42,11 +43,9 @@ public class TasksCompletedNodeFactory
          implements ExplorationNodeFactory {
    
    public static final String TITLE_BASE = "Completions";
-   public static final String TITLE_BASE_SINGULAR = "Completion";
    @Override
-   public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      //TODO why does this exist?  Its returning the same thing as the TaskProgressNodeFactory....
-      TaskProgressNode taskProgressNode = new TaskProgressNode(manifold);
+   public ExplorationNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+      TaskProgressNode taskProgressNode = new CompletedTasksProgressNode(viewProperties);
       return taskProgressNode;
    }
 
@@ -61,21 +60,14 @@ public class TasksCompletedNodeFactory
    public String getMenuText() {
       return TITLE_BASE;
    }
-   
-   /**
-    * {@inheritDoc}
-    */
-   @Override
-   public PanelPlacement getPanelPlacement() {
-      return null;
-   }
 
   /** 
    * {@inheritDoc}
+   * @return
    */
   @Override
-  public ManifoldGroup[] getDefaultManifoldGroups() {
-     return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
+  public String[] getDefaultActivityFeed() {
+     return new String[] {ViewProperties.UNLINKED};
   }
 
    @Override

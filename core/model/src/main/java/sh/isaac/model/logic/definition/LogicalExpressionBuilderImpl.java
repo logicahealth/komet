@@ -56,19 +56,8 @@ import org.apache.mahout.math.map.OpenShortObjectHashMap;
 
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.logic.LogicNode;
-import sh.isaac.api.logic.LogicalExpression;
-import sh.isaac.api.logic.LogicalExpressionBuilder;
-import sh.isaac.api.logic.NodeSemantic;
-import sh.isaac.api.logic.assertions.AllRole;
-import sh.isaac.api.logic.assertions.Assertion;
-import sh.isaac.api.logic.assertions.ConceptAssertion;
-import sh.isaac.api.logic.assertions.Feature;
-import sh.isaac.api.logic.assertions.LogicalSet;
-import sh.isaac.api.logic.assertions.NecessarySet;
-import sh.isaac.api.logic.assertions.SomeRole;
-import sh.isaac.api.logic.assertions.SufficientSet;
-import sh.isaac.api.logic.assertions.Template;
+import sh.isaac.api.logic.*;
+import sh.isaac.api.logic.assertions.*;
 import sh.isaac.api.logic.assertions.connectors.And;
 import sh.isaac.api.logic.assertions.connectors.Connector;
 import sh.isaac.api.logic.assertions.connectors.DisjointWith;
@@ -152,8 +141,12 @@ public class LogicalExpressionBuilderImpl
 
       if (logicalSet instanceof NecessarySet) {
          axiom = new GenericAxiom(NodeSemantic.NECESSARY_SET, this);
-      } else {
+      } else if (logicalSet instanceof SufficientSet) {
          axiom = new GenericAxiom(NodeSemantic.SUFFICIENT_SET, this);
+      } else if (logicalSet instanceof PropertySet) {
+         axiom = new GenericAxiom(NodeSemantic.PROPERTY_SET, this);
+      } else {
+         throw new IllegalStateException();
       }
 
       this.rootSets.add(axiom);
@@ -379,13 +372,13 @@ public class LogicalExpressionBuilderImpl
     * @return the feature
     */
    @Override
-   public Feature feature(ConceptChronology featureTypeChronology, LiteralAssertion literal) {
+   public Feature feature(ConceptChronology featureTypeChronology, ConceptChronology measureSemanticChronology, ConcreteDomainOperators operator, LiteralAssertion literal) {
       checkNotBuilt();
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.FEATURE, this);
 
       addToDefinitionTree(axiom, literal);
-      this.axiomParameters.put(axiom.getIndex(), featureTypeChronology);
+      this.axiomParameters.put(axiom.getIndex(), new Object[] {featureTypeChronology.getNid(), measureSemanticChronology.getNid(), operator});
       return axiom;
    }
 
@@ -397,13 +390,13 @@ public class LogicalExpressionBuilderImpl
     * @return the feature
     */
    @Override
-   public Feature feature(ConceptSpecification featureTypeSpecification, LiteralAssertion literal) {
+   public Feature feature(ConceptSpecification featureTypeSpecification, ConceptSpecification measureSemanticSpecification, ConcreteDomainOperators operator, LiteralAssertion literal) {
       checkNotBuilt();
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.FEATURE, this);
 
       addToDefinitionTree(axiom, literal);
-      this.axiomParameters.put(axiom.getIndex(), featureTypeSpecification);
+      this.axiomParameters.put(axiom.getIndex(), new Object[] {featureTypeSpecification.getNid(), measureSemanticSpecification.getNid(), operator} );
       return axiom;
    }
 
@@ -514,6 +507,20 @@ public class LogicalExpressionBuilderImpl
       }
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.NECESSARY_SET, this);
+
+      this.rootSets.add(axiom);
+      addToDefinitionTree(axiom, connector);
+      return axiom;
+   }
+
+   @Override
+   public PropertySet propertySet(Connector connector) {
+      checkNotBuilt();
+      if (!(connector instanceof And)) {
+         throw new RuntimeException("Only expect And as a connector on a property set");
+      }
+
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.PROPERTY_SET, this);
 
       this.rootSets.add(axiom);
       addToDefinitionTree(axiom, connector);
@@ -712,6 +719,17 @@ public class LogicalExpressionBuilderImpl
                    .addChildren(newNode);
          return newNode;
       }
+      case PROPERTY_SET:
+       {
+            AbstractLogicNode[] children = getChildren(axiom, definition);
+            if (children.length != 1) {
+               throw new IllegalStateException("Incorrect property set construction - try adding an and or or node");
+            }
+            newNode = definition.PropertySet((ConnectorNode)children[0]);
+            definition.getRoot()
+                    .addChildren(newNode);
+            return newNode;
+       }
       case SUFFICIENT_SET:
       {
          AbstractLogicNode[] children = getChildren(axiom, definition);
@@ -730,10 +748,16 @@ public class LogicalExpressionBuilderImpl
          return definition.Or(getChildren(axiom, definition));
 
       case FEATURE:
-          // TODO, the feature node requires 3 things: type, measure semantic, and operator. 
-          // The getIndex scheme used here seems to only provide for 1 thing, so 
-          // not sure what the solution space might be...
-         throw new UnsupportedOperationException();
+      {
+         Object[] parameters = (Object[]) axiomParameters.get(axiom.getIndex());
+         // this.axiomParameters.put(axiom.getIndex(), new Object[] {featureTypeChronology.getNid(), measureSemanticChronology.getNid(), operator});
+         // int typeNid, int measureSemanticNid, ConcreteDomainOperators operator, AbstractLogicNode literal
+         return definition.Feature((int) parameters[0], (int) parameters[1], (ConcreteDomainOperators) parameters[2], getChildren(axiom, definition)[0]);
+      }
+
+      case PROPERTY_PATTERN_IMPLICATION:
+         Object[] parameters = (Object[]) axiomParameters.get(axiom.getIndex());
+         return definition.PropertyPatternImplication((int[]) parameters[0], (int) parameters[1]);
 
       case CONCEPT:
          if (this.axiomParameters.get(axiom.getIndex()) instanceof Integer) {
@@ -931,13 +955,13 @@ public class LogicalExpressionBuilderImpl
     * @param literal the literal
     * @return the feature
     */
-   private Feature feature(Integer featureTypeNid, LiteralAssertion literal) {
+   private Feature feature(Integer featureTypeNid, LiteralAssertion literal, ConcreteDomainOperators operator) {
       checkNotBuilt();
 
       final GenericAxiom axiom = new GenericAxiom(NodeSemantic.FEATURE, this);
 
       addToDefinitionTree(axiom, literal);
-      this.axiomParameters.put(axiom.getIndex(), featureTypeNid);
+      this.axiomParameters.put(axiom.getIndex(), new Object[] {featureTypeNid, literal, operator} );
       return axiom;
    }
 
@@ -952,6 +976,14 @@ public class LogicalExpressionBuilderImpl
       case DEFINITION_ROOT:
          break;
 
+         case PROPERTY_SET:
+         {
+            List<? extends Assertion> assertions = makeAssertionsFromNodeDescendants(logicNode);
+            if (assertions.size() != 1) {
+               throw new RuntimeException("Invalid construction");
+            }
+            return propertySet((Connector)assertions.get(0));
+         }
       case NECESSARY_SET:
       {
          List<? extends Assertion> assertions = makeAssertionsFromNodeDescendants(logicNode);
@@ -996,7 +1028,7 @@ public class LogicalExpressionBuilderImpl
          final FeatureNodeWithNids featureNode = (FeatureNodeWithNids) logicNode;
 
          return feature(featureNode.getTypeConceptNid(),
-                        (LiteralAssertion) makeAssertionFromNode(featureNode.getOnlyChild()));
+                        (LiteralAssertion) makeAssertionFromNode(featureNode.getOnlyChild()), featureNode.getOperator());
 
       case LITERAL_BOOLEAN:
          final LiteralNodeBoolean literalNodeBoolean = (LiteralNodeBoolean) logicNode;
@@ -1117,6 +1149,32 @@ public class LogicalExpressionBuilderImpl
     */
    public short getNextAxiomIndex() {
       return this.nextAxiomId++;
+   }
+
+   @Override
+   public PropertyPatternImplication propertyPatternImplication(int[] propertyPatternNids, int implicationNid) {
+      checkNotBuilt();
+
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.PROPERTY_PATTERN_IMPLICATION, this);
+      Object[] parameters = new Object[] { propertyPatternNids, implicationNid};
+
+      this.axiomParameters.put(axiom.getIndex(), parameters);
+      return axiom;
+   }
+
+   @Override
+   public PropertyPatternImplication propertyPatternImplication(ConceptSpecification[] propertyPattern, ConceptSpecification implication, LogicalExpressionBuilder builder) {
+
+      final GenericAxiom axiom = new GenericAxiom(NodeSemantic.PROPERTY_PATTERN_IMPLICATION, this);
+      int[] propertyPatternNids = new int[propertyPattern.length];
+      for (int i = 0; i < propertyPattern.length; i++) {
+         propertyPatternNids[i] = propertyPattern[i].getNid();
+      }
+
+      Object[] parameters = new Object[] { propertyPatternNids, implication.getNid() };
+
+      this.axiomParameters.put(axiom.getIndex(), parameters);
+      return axiom;
    }
 }
 

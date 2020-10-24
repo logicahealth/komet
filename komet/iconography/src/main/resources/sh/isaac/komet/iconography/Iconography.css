@@ -525,6 +525,15 @@ limitations under the License.
    -glyph-size: 18;
 }
 
+.icon-import {
+   -glyph-name: "IMPORT";
+   -glyph-size: 18;
+}
+
+.import-glyph {
+   -glyph-name: "IMPORT";
+   -glyph-size: 75;
+}
 
 .icon-goto-link {
    -fx-graphic: url("/sh/isaac/komet/iconography/svg_icons/14x14/icon_goToLink.png");
@@ -805,7 +814,7 @@ limitations under the License.
 }
 
 .checkered-flag {
-   -glyph-name: "CHECKERED_FLAG";
+   -glyph-name: "FLAG_CHECKERED";
    -glyph-size: 18;
    
 }
@@ -837,7 +846,6 @@ limitations under the License.
 .inferred-form {
    -glyph-name: "GEARS";
    -glyph-size: 18;
-    
 }
 
 .inferred-form:hover{
@@ -939,4 +947,31 @@ limitations under the License.
    -glyph-size: 18;
    -icons-color: #52646d;
 
+}
+
+.list-icon {
+   -glyph-name: "SCRIPT";
+   -glyph-size: 18;
+   -icons-color: #52646d;
+}
+
+.coordinates {
+   -glyph-name: "CROSSHAIRS_GPS";
+   -glyph-size: 18;
+   -icons-color: #52646d;
+}
+
+.settings-sliders {
+   -glyph-name: "SLIDERS";
+   -glyph-size: 18;
+   -icons-color: #52646d;
+}
+.navigation-badge {
+   -glyph-size: 10;
+   -icons-color: darkgrey;
+}
+
+.tree-cell:selected * .navigation-badge  {
+   -glyph-size: 10;
+   -icons-color: lightgrey;
 }

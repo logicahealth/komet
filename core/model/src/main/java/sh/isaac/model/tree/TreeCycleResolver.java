@@ -44,6 +44,8 @@ package sh.isaac.model.tree;
 import java.util.Arrays;
 import java.util.Timer;
 import java.util.TimerTask;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -66,6 +68,7 @@ import sh.isaac.api.tree.TreeNodeVisitData;
 public class TreeCycleResolver
          implements Resolver {
    final TreeCycleError treeCycleError;
+   private static final Logger LOG = LogManager.getLogger();
 
    //~--- constructors --------------------------------------------------------
 
@@ -110,8 +113,8 @@ public class TreeCycleResolver
          int parentConceptIndex;
          int maxDepth = 0;
 
-         for (int i = 0; i < treeCycleError.cycle.length; i++) {
-            int conceptSeqeuence = treeCycleError.cycle[i];
+         for (int i = 0; i < treeCycleError.getAffectedComponents().length; i++) {
+            int conceptSeqeuence = treeCycleError.getAffectedComponents()[i];
             int newDepth         = treeCycleError.visitData.getDistance(conceptSeqeuence);
 
             if (newDepth > maxDepth) {
@@ -120,16 +123,16 @@ public class TreeCycleResolver
             }
          }
 
-         int bottomConceptSequence = treeCycleError.cycle[bottomConceptIndex];
+         int bottomConceptSequence = treeCycleError.getAffectedComponents()[bottomConceptIndex];
 
          if (bottomConceptIndex > 0) {
-            parentConceptIndex = treeCycleError.cycle[bottomConceptIndex - 1];
+            parentConceptIndex = treeCycleError.getAffectedComponents()[bottomConceptIndex - 1];
          } else {
-            parentConceptIndex = treeCycleError.cycle[1];
+            parentConceptIndex = treeCycleError.getAffectedComponents()[1];
          }
 
-         System.out.println("Parent concept in cycle is: " + Get.conceptDescriptionText(parentConceptIndex));
-         System.out.println("Bottom concept in cycle is: " + Get.conceptDescriptionText(bottomConceptSequence));
+         LOG.debug("Parent concept in cycle is: " + Get.conceptDescriptionText(parentConceptIndex));
+         LOG.debug("Bottom concept in cycle is: " + Get.conceptDescriptionText(bottomConceptSequence));
          treeCycleError.tree.removeParent(bottomConceptSequence, parentConceptIndex);
 
          // test resolution
@@ -140,9 +143,9 @@ public class TreeCycleResolver
 
          if (!visitData.getCycleSet()
                        .isEmpty()) {
-            System.out.println("Cycle found: " + Arrays.asList(visitData.getCycleSet()));
+            LOG.debug("Cycle found: " + Arrays.asList(visitData.getCycleSet()));
          } else {
-            System.out.println("Cycle fixed. ");
+            LOG.debug("Cycle fixed. ");
             Alert.publishRetraction(treeCycleError);
             SuccessAlert alert = new SuccessAlert("Cycle fixed.", "Cycle temporarily fixed in computed tree. ", AlertCategory.TAXONOMY);
             Alert.publishAddition(alert);

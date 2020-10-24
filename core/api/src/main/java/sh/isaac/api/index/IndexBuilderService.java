@@ -39,9 +39,7 @@
 
 package sh.isaac.api.index;
 
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import org.jvnet.hk2.annotations.Contract;
 import sh.isaac.api.DatastoreServices;
@@ -73,14 +71,6 @@ public interface IndexBuilderService extends DatastoreServices, IndexQueryServic
     * Call this when a batch-reindex is complete.  
     */
    void finishBatchReindex();
-   
-   /**
-    * After content is indexed, it may be up to 60 seconds until it is visible in queries, unless the user queries with a target 
-    * generation.
-    * 
-    * Alternatively, call this after indexing, to force a reopen now.
-    */
-   void refreshQueryEngine();
 
    /**
     * To maximize search performance, you can optionally call forceMerge.
@@ -111,7 +101,7 @@ public interface IndexBuilderService extends DatastoreServices, IndexQueryServic
    CompletableFuture<Long> index(Chronology chronicle);
    
    /**
-    * Index the Chronology in a maner appropriate to the indexer implementation.  Unlike {@link #index(Chronology)}, this 
+    * Index the Chronology in a manner appropriate to the indexer implementation.  Unlike {@link #index(Chronology)}, this 
     * operation occurs on the calling thread, and does not return until the index operation is complete.
     * 
     * @param chronicle
@@ -121,15 +111,6 @@ public interface IndexBuilderService extends DatastoreServices, IndexQueryServic
     * a search where the chronicle's results must be included.
     */
    long indexNow(Chronology chronicle);
-
-   /**
-    * Locate the concept most closely tied to a search result, and merge them together, maintaining the best score.
-    * This is a convenience method.
-    *
-    * @param searchResult the search result
-    * @return the merged results, in a collection that iterates in the same order as they were passed in.
-    */
-   Collection<ConceptSearchResult> mergeResultsOnConcept(List<SearchResult> searchResult);
 
    /**
     * Report indexed items.

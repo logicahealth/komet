@@ -1,25 +1,18 @@
 package sh.komet.gui.search.flwor;
 
-import java.util.HashMap;
-import java.util.Map;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.MapChangeListener;
-import javafx.collections.ObservableList;
-import javafx.collections.ObservableMap;
+import javafx.collections.*;
 import javafx.event.ActionEvent;
-import javafx.scene.control.Button;
-import javafx.scene.layout.AnchorPane;
-import org.controlsfx.control.PropertySheet;
-import sh.komet.gui.manifold.Manifold;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
 import javafx.scene.control.MenuButton;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.BorderPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.PropertySheet;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.bootstrap.TermAux;
@@ -27,17 +20,21 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LanguageCoordinate;
 import sh.isaac.api.coordinate.LogicCoordinate;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.observable.ObservableConceptProxy;
 import sh.isaac.api.observable.coordinate.ObservableLanguageCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableLogicCoordinate;
-import sh.isaac.api.observable.coordinate.ObservableStampCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
+import sh.isaac.api.observable.coordinate.ObservableStampPath;
 import sh.isaac.api.query.LetItemKey;
-import sh.isaac.api.query.ManifoldCoordinateForQuery;
-import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl; 
+import sh.isaac.model.observable.coordinate.ObservableLanguageCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableLogicCoordinateImpl;
-import sh.isaac.model.observable.coordinate.ObservableStampCoordinateImpl;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  *
@@ -49,7 +46,7 @@ public class LetPropertySheet {
 
     private final BorderPane propertySheetBorderPane = new BorderPane();
     private final ObservableList<PropertySheet.Item> items;
-    private final Manifold manifoldForDisplay;
+    private final ViewProperties viewProperties;
     private final MenuButton addLetClauseButton = new MenuButton("Add let clause...");
     private final Button removeLetClause = new Button("Remove let clause");
     {
@@ -64,7 +61,7 @@ public class LetPropertySheet {
     private final HashMap<LetItemKey, LetItemPanel> letItemPanelMap = new HashMap();
     private final ObservableMap<LetItemKey, Object> letItemObjectMap = FXCollections.observableHashMap();
 
-    private final ObservableList<LetItemKey> stampCoordinateKeys = FXCollections.observableArrayList();
+    private final ObservableList<LetItemKey> stampFilterKeys = FXCollections.observableArrayList();
     private final ObservableList<LetItemKey> languageCoordinateKeys = FXCollections.observableArrayList();
     private final ObservableList<LetItemKey> logicCoordinateKeys = FXCollections.observableArrayList();
     private final ObservableList<LetItemKey> manifoldCoordinateKeys = FXCollections.observableArrayList();
@@ -73,31 +70,31 @@ public class LetPropertySheet {
 
     private final FLWORQueryController fLWORQueryController;
 
-    public LetPropertySheet(Manifold manifold, FLWORQueryController fLWORQueryController) {
-        this.manifoldForDisplay = manifold;
+    public LetPropertySheet(ViewProperties viewProperties, FLWORQueryController fLWORQueryController) {
+        this.viewProperties = viewProperties;
         this.fLWORQueryController = fLWORQueryController;
         this.items = FXCollections.observableArrayList();
-        MenuItem addStampCoordinate = new MenuItem("Add stamp coordinate");
+        MenuItem addStampCoordinate = new MenuItemWithText("Add stamp coordinate");
         addStampCoordinate.setOnAction(this::addStampCoordinate);
         this.addLetClauseButton.getItems().add(addStampCoordinate);
 
-        MenuItem addLanguageCoordinate = new MenuItem("Add language coordinate");
+        MenuItem addLanguageCoordinate = new MenuItemWithText("Add language coordinate");
         addLanguageCoordinate.setOnAction(this::addLanguageCoordinate);
         this.addLetClauseButton.getItems().add(addLanguageCoordinate);
 
-        MenuItem addLogicCoordinate = new MenuItem("Add logic coordinate");
+        MenuItem addLogicCoordinate = new MenuItemWithText("Add logic coordinate");
         addLogicCoordinate.setOnAction(this::addLogicCoordinate);
         this.addLetClauseButton.getItems().add(addLogicCoordinate);
 
-        MenuItem addManifoldCoordinate = new MenuItem("Add manifold coordinate");
+        MenuItem addManifoldCoordinate = new MenuItemWithText("Add manifold coordinate");
         addManifoldCoordinate.setOnAction(this::addManifoldCoordinate);
         this.addLetClauseButton.getItems().add(addManifoldCoordinate);
         
-        MenuItem addConceptSpecification = new MenuItem("Add concept specification");
+        MenuItem addConceptSpecification = new MenuItemWithText("Add concept specification");
         addConceptSpecification.setOnAction(this::addConceptSpecification);
         this.addLetClauseButton.getItems().add(addConceptSpecification);
                 
-        MenuItem addString = new MenuItem("Add string");
+        MenuItem addString = new MenuItemWithText("Add string");
         addString.setOnAction(this::addString);
         this.addLetClauseButton.getItems().add(addString);
                 
@@ -110,8 +107,8 @@ public class LetPropertySheet {
         this.letItemObjectMap.addListener(this::letItemsChanged);
     }
 
-    public ObservableList<LetItemKey> getStampCoordinateKeys() {
-        return this.stampCoordinateKeys;
+    public ObservableList<LetItemKey> getStampFilterKeys() {
+        return this.stampFilterKeys;
     }
 
     public ObservableList<LetItemKey> getLanguageCoordinateKeys() {
@@ -135,26 +132,23 @@ public class LetPropertySheet {
     }
 
     private void setupLetItemSubLists() {
-        this.stampCoordinateKeys.clear();
+        this.stampFilterKeys.clear();
         this.languageCoordinateKeys.clear();
         this.logicCoordinateKeys.clear();
         this.manifoldCoordinateKeys.clear();
         this.conceptSpecificationKeys.clear();
         for (Map.Entry<LetItemKey, Object> entry : this.letItemObjectMap.entrySet()) {
-            if (entry.getValue() instanceof StampCoordinate
-                    && !(entry.getValue() instanceof ManifoldCoordinate)) {
-                if (!this.stampCoordinateKeys.contains(entry.getKey())) {
-                    this.stampCoordinateKeys.add(entry.getKey());
+            if (entry.getValue() instanceof StampFilter) {
+                if (!this.stampFilterKeys.contains(entry.getKey())) {
+                    this.stampFilterKeys.add(entry.getKey());
                 }
             }
-            if (entry.getValue() instanceof LanguageCoordinate
-                    && !(entry.getValue() instanceof ManifoldCoordinate)) {
+            if (entry.getValue() instanceof LanguageCoordinate) {
                 if (!this.languageCoordinateKeys.contains(entry.getKey())) {
                     this.languageCoordinateKeys.add(entry.getKey());
                 }
             }
-            if (entry.getValue() instanceof LogicCoordinate
-                    && !(entry.getValue() instanceof ManifoldCoordinate)) {
+            if (entry.getValue() instanceof LogicCoordinate) {
                 if (!this.logicCoordinateKeys.contains(entry.getKey())) {
                     this.logicCoordinateKeys.add(entry.getKey());
                 }
@@ -163,8 +157,9 @@ public class LetPropertySheet {
                 if (!this.manifoldCoordinateKeys.contains(entry.getKey())) {
                     this.manifoldCoordinateKeys.add(entry.getKey());
                 }
-                if (entry.getValue() instanceof ManifoldCoordinateForQuery) {
-                    ((ManifoldCoordinateForQuery) entry.getValue()).setQuery(fLWORQueryController.getQuery());
+                if (entry.getValue() instanceof ObservableManifoldCoordinate) {
+                    // TODO
+                    //((ObservableManifoldCoordinate) entry.getValue()).setQuery(fLWORQueryController.getQuery());
                 }
             }
             if (entry.getValue() instanceof ConceptSpecification) {
@@ -190,10 +185,10 @@ public class LetPropertySheet {
         if (newLanguageCoordinate instanceof ObservableLanguageCoordinate) {
             languageCoordinate = (ObservableLanguageCoordinate) newLanguageCoordinate;
         } else {
-            languageCoordinate = new ObservableLanguageCoordinateImpl(newLanguageCoordinate);
+            languageCoordinate = new ObservableLanguageCoordinateImpl(newLanguageCoordinate.toLanguageCoordinateImmutable());
         }
         this.letItemObjectMap.put(newLetItem, languageCoordinate);
-        LetItemPanel newLetItemPanel = new LetItemPanel(this.manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), languageCoordinate, this);
+        LetItemPanel newLetItemPanel = new LetItemPanel(this.viewProperties, newLetItem, this.letItemsController.getLetListViewletListView(), languageCoordinate, this);
         this.letItemPanelMap.put(newLetItem, newLetItemPanel);
 
         this.letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
@@ -203,26 +198,21 @@ public class LetPropertySheet {
 
     public void reset() {
         this.letItemPanelMap.clear();
-        this.stampCoordinateKeys.clear();
+        this.stampFilterKeys.clear();
         this.languageCoordinateKeys.clear();
         this.letItemsController.reset();
         this.letItemObjectMap.clear();
     }
     
     public void addItem(LetItemKey newLetItem, Object newObject) {
-        if (newObject instanceof StampCoordinate
-                && !(newObject instanceof ManifoldCoordinate)) {
-            addStampCoordinate(newLetItem, (StampCoordinate) newObject);
-        } else if (newObject instanceof String) {
+        if (newObject instanceof String) {
             addString(newLetItem, (String) newObject);
-        } else if (newObject instanceof LanguageCoordinate
-                && !(newObject instanceof ManifoldCoordinate)) {
+        } else if (newObject instanceof LanguageCoordinate) {
             addLanguageCoordinate(newLetItem, (LanguageCoordinate) newObject);
-        } else if (newObject instanceof LogicCoordinate
-                && !(newObject instanceof ManifoldCoordinate)) {
+        } else if (newObject instanceof LogicCoordinate) {
             addLogicCoordinate(newLetItem, (LogicCoordinate) newObject);
-        } else if (newObject instanceof ManifoldCoordinate) {
-            addManifoldCoordinate(newLetItem, (ManifoldCoordinateForQuery) newObject);
+        } else if (newObject instanceof ObservableManifoldCoordinate) {
+            addManifoldCoordinate(newLetItem, (ObservableManifoldCoordinate) newObject);
         } else if (newObject instanceof ConceptProxy) {
             ObservableConceptProxy newObjectProxy = new ObservableConceptProxy(newObject, TermAux.CONCEPT_FIELD.toExternalString(), (ConceptProxy) newObject);
             addConceptSpecification(newLetItem, newObjectProxy);
@@ -257,7 +247,7 @@ public class LetPropertySheet {
         stringProperty.addListener((observable, oldValue, newValue) -> {
             this.letItemObjectMap.put(newLetItem, string);
         });
-        LetItemPanel newLetItemPanel = new LetItemPanel(this.manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), stringProperty, this);
+        LetItemPanel newLetItemPanel = new LetItemPanel(this.viewProperties, newLetItem, this.letItemsController.getLetListViewletListView(), stringProperty, this);
         this.letItemPanelMap.put(newLetItem, newLetItemPanel);
 
         this.letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
@@ -267,31 +257,31 @@ public class LetPropertySheet {
 
     public void addLanguageCoordinate(ActionEvent action) {
         LetItemKey newLetItem = new LetItemKey(createUniqueKey("[US, UK] English"));
-        addLanguageCoordinate(newLetItem, this.manifoldForDisplay.getLanguageCoordinate().deepClone());
+        addLanguageCoordinate(newLetItem, this.viewProperties.getManifoldCoordinate().getLanguageCoordinate());
     }
 
     public void addManifoldCoordinate(ActionEvent action) {
 
         LetItemKey newLetItem = new LetItemKey(createUniqueKey("Manifold"));
-
-        ManifoldCoordinateForQuery manifoldCoordinate = new ManifoldCoordinateForQuery();
-        if (!this.stampCoordinateKeys.isEmpty()) {
-            manifoldCoordinate.setStampCoordinateKey(this.stampCoordinateKeys.get(0));
-        }
-        if (!this.languageCoordinateKeys.isEmpty()) {
-            manifoldCoordinate.setLanguageCoordinateKey(this.languageCoordinateKeys.get(0));
-        }
-        if (!this.logicCoordinateKeys.isEmpty()) {
-            manifoldCoordinate.setLogicCoordinateKey(this.logicCoordinateKeys.get(0));
-        }
-        manifoldCoordinate.setQuery(this.fLWORQueryController.getQuery());
-        addManifoldCoordinate(newLetItem, manifoldCoordinate);
+        throw new UnsupportedOperationException();
+//        ManifoldCoordinateForQuery manifoldCoordinate = new ManifoldCoordinateForQuery();
+//        if (!this.stampFilterKeys.isEmpty()) {
+//            manifoldCoordinate.setOriginStampCoordinateKey(this.stampFilterKeys.get(0));
+//        }
+//        if (!this.languageCoordinateKeys.isEmpty()) {
+//            manifoldCoordinate.setLanguageCoordinateKey(this.languageCoordinateKeys.get(0));
+//        }
+//        if (!this.logicCoordinateKeys.isEmpty()) {
+//            manifoldCoordinate.setLogicCoordinateKey(this.logicCoordinateKeys.get(0));
+//        }
+//        manifoldCoordinate.setQuery(this.fLWORQueryController.getQuery());
+//        addManifoldCoordinate(newLetItem, manifoldCoordinate);
     }
 
-    public void addManifoldCoordinate(LetItemKey newLetItem, ManifoldCoordinateForQuery newManifoldCoordinate) {
+    public void addManifoldCoordinate(LetItemKey newLetItem, ObservableManifoldCoordinate newManifoldCoordinate) {
         this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
         this.letItemObjectMap.put(newLetItem, newManifoldCoordinate);
-        LetItemPanel newLetItemPanel = new LetItemPanel(manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), newManifoldCoordinate, this);
+        LetItemPanel newLetItemPanel = new LetItemPanel(viewProperties, newLetItem, this.letItemsController.getLetListViewletListView(), newManifoldCoordinate, this);
         this.letItemPanelMap.put(newLetItem, newLetItemPanel);
 
         this.letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
@@ -303,7 +293,7 @@ public class LetPropertySheet {
     public void addConceptSpecification(LetItemKey newLetItem, ObservableConceptProxy newConceptSpecification) {
         this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
         this.letItemObjectMap.put(newLetItem, newConceptSpecification);
-        LetItemPanel newLetItemPanel = new LetItemPanel(this.manifoldForDisplay, newLetItem,
+        LetItemPanel newLetItemPanel = new LetItemPanel(this.viewProperties, newLetItem,
                 this.letItemsController.getLetListViewletListView(),
                 new ObservableConceptProxy(this, TermAux.CONCEPT_FIELD.toExternalString(), new ConceptProxy(newConceptSpecification.get().getNid())), this);
         this.letItemPanelMap.put(newLetItem, newLetItemPanel);
@@ -335,8 +325,9 @@ public class LetPropertySheet {
     public void addStampCoordinate(ActionEvent action) {
 
         LetItemKey newLetItem = new LetItemKey(createUniqueKey("STAMP"));
-        ObservableStampCoordinate stampCoordinate = this.manifoldForDisplay.getStampCoordinate().deepClone();
-        addStampCoordinate(newLetItem, stampCoordinate);
+        throw new UnsupportedOperationException();
+//        ObservableStampPath stampCoordinate = this.manifoldForDisplay.getStampCoordinate().deepClone();
+//        addStampFilter(newLetItem, stampCoordinate);
     }
 
     public void addConceptSpecification(ActionEvent action) {
@@ -351,7 +342,7 @@ public class LetPropertySheet {
         String keyName = createUniqueKey("Logic");
 
         LetItemKey newLetItem = new LetItemKey(keyName);
-        ObservableLogicCoordinate logicCoordinate = this.manifoldForDisplay.getLogicCoordinate().deepClone();
+        ObservableLogicCoordinate logicCoordinate = this.viewProperties.getManifoldCoordinate().getLogicCoordinate();
         addLogicCoordinate(newLetItem, logicCoordinate);
     }
 
@@ -381,14 +372,14 @@ public class LetPropertySheet {
 
     public void addLogicCoordinate(LetItemKey newLetItem, LogicCoordinate newLogicCoordinate) {
         ObservableLogicCoordinate logicCoordinate;
-        if (newLogicCoordinate instanceof ObservableStampCoordinate) {
+        if (newLogicCoordinate instanceof ObservableStampPath) {
             logicCoordinate = (ObservableLogicCoordinate) newLogicCoordinate;
         } else {
-            logicCoordinate = new ObservableLogicCoordinateImpl(newLogicCoordinate);
+            logicCoordinate = new ObservableLogicCoordinateImpl(newLogicCoordinate.toLogicCoordinateImmutable());
         }
         this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
         this.letItemObjectMap.put(newLetItem, logicCoordinate);
-        LetItemPanel newLetItemPanel = new LetItemPanel(this.manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), logicCoordinate, this);
+        LetItemPanel newLetItemPanel = new LetItemPanel(this.viewProperties, newLetItem, this.letItemsController.getLetListViewletListView(), logicCoordinate, this);
         this.letItemPanelMap.put(newLetItem, newLetItemPanel);
 
         this.letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
@@ -397,22 +388,23 @@ public class LetPropertySheet {
 
     }
 
-    public void addStampCoordinate(LetItemKey newLetItem, StampCoordinate newStampCoordinate) {
-        ObservableStampCoordinate stampCoordinate;
-        if (newStampCoordinate instanceof ObservableStampCoordinate) {
-            stampCoordinate = (ObservableStampCoordinate) newStampCoordinate;
-        } else {
-            stampCoordinate = new ObservableStampCoordinateImpl(newStampCoordinate);
-        }
-        this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
-        this.letItemObjectMap.put(newLetItem, stampCoordinate);
-
-        LetItemPanel newLetItemPanel = new LetItemPanel(this.manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), stampCoordinate, this);
-        this.letItemPanelMap.put(newLetItem, newLetItemPanel);
-
-        this.letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
-
-        this.letItemsController.getLetListViewletListView().getSelectionModel().select(newLetItem);
+    public void addStampFilter(LetItemKey newLetItem, StampFilter newStampFilter) {
+        throw new UnsupportedOperationException();
+//        ObservableStampPath stampCoordinate;
+//        if (newStampFilter instanceof ObservableStampPath) {
+//            stampCoordinate = (ObservableStampPath) newStampFilter;
+//        } else {
+//            stampCoordinate = new ObservableStampPathImpl(newStampFilter);
+//        }
+//        this.letItemsController.getLetListViewletListView().getItems().add(newLetItem);
+//        this.letItemObjectMap.put(newLetItem, stampCoordinate);
+//
+//        LetItemPanel newLetItemPanel = new LetItemPanel(this.manifoldForDisplay, newLetItem, this.letItemsController.getLetListViewletListView(), stampCoordinate, this);
+//        this.letItemPanelMap.put(newLetItem, newLetItemPanel);
+//
+//        this.letItemsController.getLetItemBorderPane().setCenter(newLetItemPanel.getNode());
+//
+//        this.letItemsController.getLetListViewletListView().getSelectionModel().select(newLetItem);
     }
 
     public ObservableMap<LetItemKey, Object> getLetItemObjectMap() {

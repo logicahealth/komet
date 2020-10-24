@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>solor</artifactId>
-      <version>5.1.1</version>
+      <version>6.0.0</version>
    </parent>
    <groupId>sh.isaac.solor</groupId>
    <artifactId>solor-mojo</artifactId>
@@ -33,11 +33,27 @@
          <artifactId>direct-import</artifactId>
          <version>${project.version}</version>
       </dependency>
+      <!-- When mojos execute, route all logging through log4j2 -->
+      <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>log-config</artifactId>
+         <version>${project.parent.version}</version>
+         <scope>compile</scope>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.collections</groupId>
+         <artifactId>eclipse-collections-api</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>org.eclipse.collections</groupId>
+         <artifactId>eclipse-collections</artifactId>
+      </dependency>
    </dependencies>
 
    <build>
       <plugins>
          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-plugin-plugin</artifactId>
             <executions>
                <execution>

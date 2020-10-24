@@ -41,8 +41,10 @@ package sh.isaac.api.logic;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import org.apache.mahout.math.set.OpenIntHashSet;
-import sh.isaac.api.collections.IntObjectHashMap;
+import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
+import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import sh.isaac.api.tree.TreeNodeVisitData;
 
 import java.util.Arrays;
@@ -197,9 +199,10 @@ public class IsomorphicSolution
     * @param comparisonTreeVisitData the comparison tree visit data
     */
    final void score(TreeNodeVisitData referenceTreeVisitData, TreeNodeVisitData comparisonTreeVisitData) {
-      final OpenIntHashSet                       parentNodeIds = new OpenIntHashSet(this.solution.length);
+      final MutableIntSet parentNodeIds = IntSets.mutable.empty();
       final BitSet                       usedNodeIds = new BitSet(this.solution.length);
-      final IntObjectHashMap<OpenIntHashSet> siblingGroupToNodeSequenceMap = new IntObjectHashMap<>();
+
+      final MutableIntObjectMap<MutableIntSet> siblingGroupToNodeSequenceMap = IntObjectMaps.mutable.empty();
       int                                        sum                           = 0;
 
       // give a bonus point ever time a common parent is used in the solution.
@@ -219,10 +222,10 @@ public class IsomorphicSolution
 
             final OptionalInt referenceParentNodeId = referenceTreeVisitData.getPredecessorNid(i);
             final int      siblingGroup             = referenceTreeVisitData.getSiblingGroupForNid(i);
-            OpenIntHashSet nodesInSiblingGroup      = siblingGroupToNodeSequenceMap.get(siblingGroup);
+            MutableIntSet nodesInSiblingGroup      = siblingGroupToNodeSequenceMap.get(siblingGroup);
 
             if (nodesInSiblingGroup == null) {
-               nodesInSiblingGroup = new OpenIntHashSet();
+               nodesInSiblingGroup = IntSets.mutable.empty();
                siblingGroupToNodeSequenceMap.put(siblingGroup, nodesInSiblingGroup);
             }
 
@@ -240,13 +243,14 @@ public class IsomorphicSolution
 
       // For all logicNodes corresponding to a sibling group in the reference expression, the logicNodes in the
       // comparison expression must all be in the same sibling group in the comparison expression
-      for (final int siblingGroup: siblingGroupToNodeSequenceMap.keys()
-            .elements()) {
-         final OpenIntHashSet groupMembers           = siblingGroupToNodeSequenceMap.get(siblingGroup);
+      siblingGroupToNodeSequenceMap.keySet().forEach(siblingGroup -> {
+
+      });
+      for (final int siblingGroup: siblingGroupToNodeSequenceMap.keySet().toArray()) {
+         final MutableIntSet groupMembers           = siblingGroupToNodeSequenceMap.get(siblingGroup);
          int                  comparisonSiblingGroup = -1;
 
-         for (final int groupMember: groupMembers.keys()
-               .elements()) {
+         for (final int groupMember: groupMembers.toArray()) {
             if (comparisonSiblingGroup == -1) {
                comparisonSiblingGroup = comparisonTreeVisitData.getSiblingGroupForNid(this.solution[groupMember]);
             } else {

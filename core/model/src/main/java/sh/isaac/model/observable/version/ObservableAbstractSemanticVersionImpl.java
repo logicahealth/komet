@@ -36,7 +36,6 @@
  */
 package sh.isaac.model.observable.version;
 
-//~--- non-JDK imports --------------------------------------------------------
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -51,14 +50,13 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.model.observable.CommitAwareIntegerProperty;
+import sh.isaac.model.observable.commitaware.CommitAwareIntegerProperty;
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.observable.semantic.version.ObservableSemanticVersion;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
-//~--- classes ----------------------------------------------------------------
 /**
  * The Class ObservableSemanticVersionImpl.
  *
@@ -91,7 +89,7 @@ public abstract class ObservableAbstractSemanticVersionImpl
     public ObservableAbstractSemanticVersionImpl(VersionType versionType,
             UUID primordialUuid, UUID referencedComponentUuid, int assemblageNid) {
         super(versionType, primordialUuid, assemblageNid);
-        this.referencedComponentUuidProperty = new SimpleObjectProperty(
+        this.referencedComponentUuidProperty = new SimpleObjectProperty<>(
                 this,
                 ObservableFields.REFERENCED_COMPONENT_UUID_FOR_SEMANTIC.toExternalString(),
                 referencedComponentUuid);
@@ -121,11 +119,6 @@ public abstract class ObservableAbstractSemanticVersionImpl
         this.setStatus(versionToClone.getStatus());
     }
 
-    /**
-     * referenced component nid property.
-     *
-     * @return the integer property
-     */
     @Override
     public final ReadOnlyIntegerProperty referencedComponentNidProperty() {
         if (this.referencedComponentNidProperty == null) {
@@ -167,23 +160,11 @@ public abstract class ObservableAbstractSemanticVersionImpl
         return new ArrayList<>();
     }
 
-    //~--- get methods ---------------------------------------------------------
-
-    /**
-     * Gets the chronology.
-     *
-     * @return the chronology
-     */
     @Override
     public ObservableSemanticChronology getChronology() {
         return (ObservableSemanticChronology) this.chronology;
     }
 
-    /**
-     * Gets the referenced component nid.
-     *
-     * @return the referenced component nid
-     */
     @Override
     public int getReferencedComponentNid() {
         if (this.stampedVersionProperty != null) {

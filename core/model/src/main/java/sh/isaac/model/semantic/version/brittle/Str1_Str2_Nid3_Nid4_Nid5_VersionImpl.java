@@ -20,9 +20,7 @@ import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.brittle.Str1_Str2_Nid3_Nid4_Nid5_Version;
-import sh.isaac.api.coordinate.EditCoordinate;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.model.semantic.SemanticChronologyImpl;
 import sh.isaac.model.semantic.version.AbstractVersionImpl;
 
 /**
@@ -38,8 +36,6 @@ public class Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
    int    nid4 = Integer.MAX_VALUE;
    int    nid5 = Integer.MAX_VALUE;
 
-   //~--- constructors --------------------------------------------------------
-
    public Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(SemanticChronology container, int stampSequence) {
       super(container, stampSequence);
    }
@@ -53,7 +49,17 @@ public class Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       this.nid4 = data.getNid();
       this.nid5 = data.getNid();
    }
+   
+   private Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(Str1_Str2_Nid3_Nid4_Nid5_VersionImpl old,
+                                               int stampSequence) {
+      super(old.getChronology(), stampSequence);
+      setStr1(old.str1);
+      setStr2(old.str2);
+      setNid3(old.nid3);
+      setNid4(old.nid4);
+      setNid5(old.nid5);
 
+   }
    /**
     * Write version data.
     *
@@ -69,26 +75,11 @@ public class Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       data.putNid(this.nid5);
    }
 
-   //~--- methods -------------------------------------------------------------
-
-   @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      final int stampSequence = Get.stampService()
-                                   .getStampSequence(
-                                       this.getStatus(),
-                                       Long.MAX_VALUE,
-                                       ec.getAuthorNid(),
-                                       this.getModuleNid(),
-                                       ec.getPathNid());
-      SemanticChronologyImpl chronologyImpl = (SemanticChronologyImpl) this.chronicle;
-      final Str1_Str2_Nid3_Nid4_Nid5_Version newVersion = new Str1_Str2_Nid3_Nid4_Nid5_VersionImpl((SemanticChronology) this, stampSequence);
-      newVersion.setStr1(this.str1);
-      newVersion.setStr2(this.str2);
-      newVersion.setNid3(this.nid3);
-      newVersion.setNid4(this.nid4);
-      newVersion.setNid5(this.nid5);
-      chronologyImpl.addVersion(newVersion);
-      return (V) newVersion;   
+   @SuppressWarnings("unchecked")
+   public <V extends Version> V makeAnalog(int stampSequence) {
+      final Str1_Str2_Nid3_Nid4_Nid5_Version newVersion = new Str1_Str2_Nid3_Nid4_Nid5_VersionImpl(this, stampSequence);
+      getChronology().addVersion(newVersion);
+      return (V) newVersion;
    }
 
    @Override
@@ -118,28 +109,20 @@ public class Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       return editDistance;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid3() {
       return nid3;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid3(int nid3) {
       this.nid3 = nid3;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    @Override
    public int getNid4() {
       return nid4;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    @Override
    public void setNid4(int nid4) {
@@ -151,39 +134,43 @@ public class Str1_Str2_Nid3_Nid4_Nid5_VersionImpl
       return nid5;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    @Override
    public void setNid5(int nid5) {
       this.nid5 = nid5;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public String getStr1() {
       return str1;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    @Override
    public void setStr1(String str1) {
       this.str1 = str1;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public String getStr2() {
       return str2;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    @Override
    public void setStr2(String str2) {
       this.str2 = str2;
    }
+
+   @Override
+   public StringBuilder toString(StringBuilder builder) {
+      builder.append(" ")
+              .append("{Str1: ").append(str1).append(" ")
+              .append(", Str2: ").append(str2).append(" ")
+              .append(", Nid3: ").append(Get.getTextForComponent(nid3))
+              .append(", Nid4: ").append(Get.getTextForComponent(nid4))
+              .append(", Nid5: ").append(Get.getTextForComponent(nid5))
+              .append(Get.stampService()
+                      .describeStampSequence(this.getStampSequence())).append("}");
+      return builder;
+   }
+
 }
 

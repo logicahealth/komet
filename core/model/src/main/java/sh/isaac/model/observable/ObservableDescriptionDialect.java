@@ -34,9 +34,10 @@ import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.CommitStates;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.model.observable.version.ObservableComponentNidVersionImpl;
 import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
 
@@ -46,12 +47,12 @@ import sh.isaac.model.observable.version.ObservableDescriptionVersionImpl;
  */
 public class ObservableDescriptionDialect implements ObservableVersion {
     SimpleObjectProperty<ObservableDescriptionVersionImpl> descriptionProperty = 
-            new SimpleObjectProperty(
+            new SimpleObjectProperty<>(
                  this,
                  ObservableFields.DESCRIPTION_DIALECT_DESCRIPTION.toExternalString(),
                  null);
     SimpleObjectProperty<ObservableComponentNidVersionImpl> dialectProperty = 
-            new SimpleObjectProperty(
+            new SimpleObjectProperty<>(
                  this,
                  ObservableFields.DESCRIPTION_DIALECT_DIALECT.toExternalString(),
                  null);
@@ -150,7 +151,7 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     }
 
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -170,7 +171,7 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     }
 
     @Override
-    public <V extends Version> V makeAnalog(EditCoordinate ec) {
+    public <V extends Version> V makeAnalog(int stampSequence) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -180,27 +181,27 @@ public class ObservableDescriptionDialect implements ObservableVersion {
     }
 
     @Override
-    public void setStatus(Status state) {
+    public void setStatus(Status state, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setAuthorNid(int authorSequence) {
+    public void setAuthorNid(int authorSequence, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setModuleNid(int moduleSequence) {
+    public void setModuleNid(int moduleSequence, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setPathNid(int pathSequence) {
+    public void setPathNid(int pathSequence, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    public void setTime(long time) {
+    public void setTime(long time, Transaction t) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -249,4 +250,11 @@ public class ObservableDescriptionDialect implements ObservableVersion {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
+    @Override
+    public String toString() {
+        return "ObservableDescriptionDialect{" +
+                "descriptionProperty=" + descriptionProperty.get() +
+                ", dialectProperty=" + dialectProperty.get() +
+                '}';
+    }
 }

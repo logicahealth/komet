@@ -39,123 +39,96 @@
 
 package sh.isaac.api.classifier;
 
-import java.util.HashSet;
+import static sh.isaac.api.util.time.DateTimeUtil.TEXT_FORMAT_WITH_ZONE;
+import java.time.Instant;
+import java.time.ZoneOffset;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import org.apache.mahout.math.list.IntArrayList;
+import sh.isaac.api.Get;
 import sh.isaac.api.commit.CommitRecord;
+import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.marshal.Marshalable;
 
 /**
- * The Class ClassifierResults.
+ * The interface ClassifierResults.
  *
  * @author kec
  */
-public class ClassifierResults {
-   /**
-    * Set of concepts potentially affected by the last classification.
-    */
-   private final Set<Integer> affectedConcepts;
-
-   /** The equivalent sets. */
-   private final Set<IntArrayList> equivalentSets;
-
-   /** The commit record. */
-   private final Optional<CommitRecord> commitRecord;
-   
-   //A map of a concept nid, to a HashSet of int arrays, where each int[] is a cycle present on the concept.
-   private Optional<Map<Integer, Set<int[]>>> conceptsWithCycles = Optional.empty();
-   
-   private HashSet<Integer> orphanedConcepts = new HashSet<>();
+public interface ClassifierResults extends Marshalable{
 
    /**
-    * Instantiates a new classifier results.
+    * Get the set of concepts sent to the classifier for evaluation.
     *
-    * @param affectedConcepts the affected concepts
-    * @param equivalentSets the equivalent sets
-    * @param commitRecord the commit record
+    * @return the concepts included in the classification.
     */
-   public ClassifierResults(Set<Integer> affectedConcepts,
-                            Set<IntArrayList> equivalentSets,
-                            Optional<CommitRecord> commitRecord) {
-      this.affectedConcepts = affectedConcepts;
-      this.equivalentSets   = equivalentSets;
-      this.commitRecord     = commitRecord;
-   }
-   
-   /**
-    * This constructor is only intended to be used when a classification wasn't performed, because there were cycles present.
-    * @param conceptsWithCycles
-    * @param orphans
-    */
-   public ClassifierResults(Map<Integer, Set<int[]>> conceptsWithCycles, Set<Integer> orphans) {
-      this.affectedConcepts = new HashSet<>();
-      this.equivalentSets   = new HashSet<>();
-      this.commitRecord     = Optional.empty();
-      this.conceptsWithCycles = Optional.of(conceptsWithCycles);
-      this.orphanedConcepts.addAll(orphans);
-   }
-
-   @Override
-   public String toString() {
-      return "ClassifierResults{" + "written semantics: " 
-            + (this.commitRecord.isPresent() && this.commitRecord.get().getSemanticNidsInCommit() != null ? this.commitRecord.get().getSemanticNidsInCommit().size(): "0") 
-            + " affectedConcepts=" + this.affectedConcepts.size() + ", equivalentSets=" 
-            + this.equivalentSets.size() + ", Orphans detected=" + orphanedConcepts.size() 
-            + " Concepts with cycles=" + (conceptsWithCycles.isPresent() ? conceptsWithCycles.get().size() : 0) + '}';
-   }
+   Set<Integer> getClassificationConceptSet();
 
    /**
-    * Get the set of concepts potentially affected by the last classification.
+    * Get the set of concepts that had inferred form changes as a result
+    * of classification.
     *
-    * @return the affected concepts
+    * @return the concepts with inferred changes.
     */
-   public Set<Integer> getAffectedConcepts() {
-      return this.affectedConcepts;
-   }
+   Set<Integer> getConceptsWithInferredChanges();
 
    /**
     * Gets the commit record.
     *
     * @return the commit record
     */
-   public Optional<CommitRecord> getCommitRecord() {
-      return this.commitRecord;
-   }
+   Optional<CommitRecord> getCommitRecord();
 
    /**
     * Gets the equivalent sets.
     *
     * @return the equivalent sets
     */
-   public Set<IntArrayList> getEquivalentSets() {
-      return this.equivalentSets;
-   }
-   
+   Set<int[]> getEquivalentSets();
+
    /**
-    * If this returns a value, then the classification was not performed due to these cycles that were found.
-    * 
+    * If this Optional is present, then the classification was not performed due to these cycles that were found.
+    *
     * When a cycle was detected, the rest of the classification is aborted, so no other details in this class are populated.
-    * 
-    * @return A map of concept nids to sets of nid arrays, each set represents a cycle that the concept nid is 
+    *
+    * @return A map of concept nids to sets of nid arrays, each set represents a cycle that the concept nid is
     * involved in, and the nid[] is the cycle path.  Returns an empty object, if no cycles were detected.
     */
-   public Optional<Map<Integer, Set<int[]>>> getCycles() {
-      return conceptsWithCycles;
-   }
-   
+   Optional<Map<Integer, Set<int[]>>> getCycles();
+
    /**
     * Add concept nids that were detected as orphans
     * @param orphans
     */
-   public void addOrphans(Set<Integer> orphans) {
-      orphanedConcepts.addAll(orphans);
-   }
-   
+   void addOrphans(Set<Integer> orphans);
+
    /**
     * @return The list of orphaned concept nids that were detected during classification
     */
-   public Set<Integer> getOrphans() {
-      return orphanedConcepts;
+   Set<Integer> getOrphans();
+
+   ManifoldCoordinate getManifoldCoordinate();
+
+   Instant getCommitTime();
+
+   default String getDefaultText() {
+      StringBuilder sb = new StringBuilder();
+      sb.append(TEXT_FORMAT_WITH_ZONE.format(getCommitTime().atZone(ZoneOffset.systemDefault())));
+      sb.append(" written to the ");
+      sb.append(Get.conceptDescriptionText(getEditCoordinate().getDefaultModuleNid()));
+      return sb.toString();
+   }
+   
+
+   @Deprecated
+   default public LogicCoordinate getLogicCoordinate() {
+       return getManifoldCoordinate().getLogicCoordinate();
+   }
+
+   @Deprecated
+   default EditCoordinate getEditCoordinate() {
+       return getManifoldCoordinate().getEditCoordinate();
    }
 }

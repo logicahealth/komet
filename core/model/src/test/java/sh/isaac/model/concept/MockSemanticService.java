@@ -55,20 +55,20 @@ import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.glassfish.hk2.api.Rank;
 
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.coordinate.StampCoordinate;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.SingleAssemblageSnapshot;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.collections.NidSet;
-import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.externalizable.IsaacObjectType;
 
 //~--- classes ----------------------------------------------------------------
@@ -107,28 +107,6 @@ public class MockSemanticService
 
       this.semanticMap.put(semanticChronicle.getNid(),
                          (SemanticChronology) semanticChronicle);
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the database folder.
-    *
-    * @return the database folder
-    */
-   @Override
-   public Path getDataStorePath() {
-      return null;
-   }
-
-   /**
-    * Gets the database validity status.
-    *
-    * @return the database validity status
-    */
-   @Override
-   public DataStoreStartState getDataStoreStartState() {
-      return DataStoreStartState.NO_DATASTORE;
    }
 
    /**
@@ -173,27 +151,15 @@ public class MockSemanticService
       return this.semanticMap.get(semanticId);
    }
 
-   /**
-    * Gets the semantic chronology stream.
-    *
-    * @return the semantic chronology stream
-    */
    @Override
-   public Stream<SemanticChronology> getSemanticChronologyStream() {
-      return this.semanticMap.values()
-                           .stream();
+   public Stream<SemanticChronology> getSemanticChronologyStream(boolean parallel) {
+      return parallel ? this.semanticMap.values().parallelStream() : this.semanticMap.values().stream();
    }
 
-   /**
-    * Gets the semantic key stream.
-    *
-    * @return the semantic key stream
-    */
    @Override
-   public IntStream getSemanticNidStream() {
-      return this.semanticMap.keySet()
-                           .stream()
-                           .mapToInt(i -> i);
+   public IntStream getSemanticNidStream(boolean parallel) {
+      return parallel ? this.semanticMap.keySet().parallelStream().mapToInt(i -> i) : 
+              this.semanticMap.keySet().stream().mapToInt(i -> i);
    }
 
    /**
@@ -203,7 +169,7 @@ public class MockSemanticService
     * @return the semantic sequences for component
     */
    @Override
-   public NidSet getSemanticNidsForComponent(int componentNid) {
+   public ImmutableIntSet getSemanticNidsForComponent(int componentNid) {
       throw new UnsupportedOperationException();
    }
 
@@ -215,8 +181,8 @@ public class MockSemanticService
     * @return the semantic sequences for component from assemblage
     */
    @Override
-   public NidSet getSemanticNidsForComponentFromAssemblage(int componentNid,
-         int assemblageConceptNid) {
+   public ImmutableIntSet getSemanticNidsForComponentFromAssemblage(int componentNid,
+                                                                    int assemblageConceptNid) {
       throw new UnsupportedOperationException();
    }
 
@@ -228,7 +194,7 @@ public class MockSemanticService
     * @return the semantic sequences from assemblage
     */
    @Override
-   public NidSet getSemanticNidsFromAssemblage(int assemblageConceptNid) {
+   public ImmutableIntSet getSemanticNidsFromAssemblage(int assemblageConceptNid) {
       throw new UnsupportedOperationException();
    }
 
@@ -239,7 +205,7 @@ public class MockSemanticService
     * @return the semantics for component
     */
    @Override
-   public Stream<SemanticChronology> getSemanticChronologyStreamForComponent(int componentNid) {
+   public Stream<SemanticChronology> getSemanticChronologyStreamForComponent(int componentNid, boolean parallel) {
       throw new UnsupportedOperationException();
    }
 
@@ -252,7 +218,7 @@ public class MockSemanticService
     */
    @Override
    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblage(int componentNid,
-         int assemblageConceptNid) {
+         int assemblageConceptNid, boolean parallel) {
       throw new UnsupportedOperationException();
    }
 
@@ -263,7 +229,7 @@ public class MockSemanticService
     * @return the semantics from assemblage
     */
    @Override
-   public Stream<SemanticChronology> getSemanticChronologyStream(int assemblageConceptNid) {
+   public Stream<SemanticChronology> getSemanticChronologyStream(int assemblageConceptNid, boolean parallel) {
       throw new UnsupportedOperationException();
    }
 
@@ -272,18 +238,13 @@ public class MockSemanticService
     *
     * @param <V> the value type
     * @param versionType the version type
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return the snapshot
     */
    @Override
    public <V extends SemanticVersion> SemanticSnapshotService<V> getSnapshot(Class<V> versionType,
-         StampCoordinate stampCoordinate) {
+                                                                             StampFilter stampFilter) {
       throw new UnsupportedOperationException();
-   }
-
-   @Override
-   public Optional<UUID> getDataStoreId() {
-      return Optional.of(UUID.randomUUID());
    }
 
    @Override
@@ -297,17 +258,12 @@ public class MockSemanticService
    }
 
    @Override
-   public IntStream getSemanticNidStream(int assemblageNid) {
+   public IntStream getSemanticNidStream(int assemblageNid, boolean parallel) {
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
    }
 
    @Override
-   public Future<?> sync() {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-   }
-
-   @Override
-   public NidSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids) {
+   public ImmutableIntSet getSemanticNidsForComponentFromAssemblages(int componentNid, Set<Integer> assemblageConceptNids) {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 
@@ -336,18 +292,18 @@ public class MockSemanticService
     }
 
     @Override
-    public <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptNid) {
+    public <C extends Chronology> Stream<C> getChronologyStream(int assemblageConceptNid, boolean parallel) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
    
    @Override
    public <C extends SemanticChronology> Stream<C> getSemanticChronologyStreamForComponentFromAssemblages(int componentNid,
-      Set<Integer> assemblageConceptNids) {
+      Set<Integer> assemblageConceptNids, boolean parallel) {
       throw new UnsupportedOperationException("Not supported yet.");
    }
 
     @Override
-    public <V extends SemanticVersion> SingleAssemblageSnapshot<V> getSingleAssemblageSnapshot(int assemblageConceptNid, Class<V> versionType, StampCoordinate stampCoordinate) {
+    public <V extends SemanticVersion> SingleAssemblageSnapshot<V> getSingleAssemblageSnapshot(int assemblageConceptNid, Class<V> versionType, StampFilter stampFilter) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 

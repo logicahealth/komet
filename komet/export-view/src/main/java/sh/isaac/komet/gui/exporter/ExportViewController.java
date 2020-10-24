@@ -1,5 +1,9 @@
 package sh.isaac.komet.gui.exporter;
 
+import java.io.File;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.controlsfx.control.CheckListView;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -8,14 +12,11 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import sh.isaac.MetaData;
 import sh.isaac.api.Get;
-import sh.isaac.solor.DirectExporterFactory;
+import sh.isaac.solor.rf2.RF2DirectExporter;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.exportation.ExportFormatType;
-import sh.komet.gui.manifold.Manifold;
-
-import java.io.File;
 
 
 /*
@@ -25,7 +26,7 @@ public class ExportViewController {
 
     protected static final Logger LOG = LogManager.getLogger();
     private Stage exportStage;
-    private Manifold manifold;
+    private ViewProperties viewProperties;
 
     @FXML
     private Button directoryBrowseButton;
@@ -35,10 +36,17 @@ public class ExportViewController {
     private ChoiceBox<ExportFormatType> exportTypeChoiceBox;
     @FXML
     private TextField directoryTextField;
+    @FXML
+    private CheckListView<String> manufacturerCheckListView;
+    @FXML
+    private CheckListView<String> modelCheckedListView;
+    @FXML
+    private CheckListView<String> analyteCheckedListView;
+    @FXML
+    private CheckListView<String> specimenCheckListView;
 
     private final ObservableList<ExportFormatType> exportFormatTypes = FXCollections.observableArrayList();
     private File selectedDirectory;
-
 
     @FXML
     void initialize(){
@@ -52,6 +60,15 @@ public class ExportViewController {
         this.exportTypeChoiceBox.setItems(this.exportFormatTypes);
         this.exportButton.setDisable(true);
         this.exportTypeChoiceBox.getSelectionModel().selectFirst();
+
+        Get.assemblageService().getSemanticNidStream(MetaData.LIVD_ASSEMBLAGE____SOLOR.getNid(), false)
+                .forEach(nid -> {
+
+//                    System.out.println("break");
+
+
+        });
+
     }
 
     @FXML
@@ -70,14 +87,16 @@ public class ExportViewController {
     public void exportData(){
         switch(this.exportTypeChoiceBox.getSelectionModel().getSelectedItem()){
             case RF2:
-                Get.executor().execute(DirectExporterFactory.GetRF2DirectExporter(
-                        this.manifold,
+                Get.executor().execute(new RF2DirectExporter(
+                        this.viewProperties.getManifoldCoordinate(),
                         this.selectedDirectory,
                         this.exportTypeChoiceBox.getSelectionModel().getSelectedItem().toString()
                 ));
                 break;
             case SRF:
-                break;
+            case SOF:
+            default :
+                throw new RuntimeException("Unsupported type");
         }
         this.exportStage.close();
     }
@@ -86,8 +105,8 @@ public class ExportViewController {
         this.exportStage = exportStage;
     }
 
-    public void setManifold(Manifold manifold) {
-        this.manifold = manifold;
+    public void setManifold(ViewProperties manifold) {
+        this.viewProperties = manifold;
     }
 
 }

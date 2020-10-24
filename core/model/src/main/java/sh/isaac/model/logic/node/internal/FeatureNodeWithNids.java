@@ -43,17 +43,17 @@ package sh.isaac.model.logic.node.internal;
 
 
 import java.util.UUID;
-import org.apache.mahout.math.set.OpenIntHashSet;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.model.logic.ConcreteDomainOperators;
+import sh.isaac.api.logic.ConcreteDomainOperators;
 import sh.isaac.model.logic.LogicalExpressionImpl;
 import sh.isaac.model.logic.node.AbstractLogicNode;
 import sh.isaac.model.logic.node.external.FeatureNodeWithUuids;
@@ -131,7 +131,7 @@ public final class FeatureNodeWithNids
      * @param conceptNidSet the concept nid set
      */
     @Override
-    public void addConceptsReferencedByNode(OpenIntHashSet conceptNidSet) {
+    public void addConceptsReferencedByNode(RoaringBitmap conceptNidSet) {
         super.addConceptsReferencedByNode(conceptNidSet);
         conceptNidSet.add(measureSemanticNid);
     }
@@ -276,6 +276,14 @@ public final class FeatureNodeWithNids
    }
 
    //~--- get methods ---------------------------------------------------------
+
+   public void setOperator(ConcreteDomainOperators operator) {
+      this.operator = operator;
+   }
+
+   public void setMeasureSemanticNid(int measureSemanticNid) {
+      this.measureSemanticNid = measureSemanticNid;
+   }
 
    /**
     * Gets the node semantic.

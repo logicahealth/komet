@@ -45,11 +45,10 @@ import java.util.Collection;
 
 //~--- non-JDK imports --------------------------------------------------------
 
+import org.eclipse.collections.api.set.ImmutableSet;
 import org.jvnet.hk2.annotations.Contract;
 
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampPath;
-import sh.isaac.api.coordinate.StampPosition;
+import sh.isaac.api.coordinate.*;
 import sh.isaac.api.identity.StampedVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 
@@ -70,6 +69,13 @@ public interface VersionManagmentPathService {
     */
    boolean exists(int pathConceptId);
 
+   /**
+    *
+    * @param pathConceptNid
+    * @return the branches originating on this path.
+    */
+   ImmutableSet<StampBranchImmutable> getBranches(int pathConceptNid);
+
    //~--- get methods ---------------------------------------------------------
 
    /**
@@ -78,14 +84,14 @@ public interface VersionManagmentPathService {
     * @param stampPathNid the stamp path nid
     * @return the origins
     */
-   Collection<? extends StampPosition> getOrigins(int stampPathNid);
+   ImmutableSet<StampPositionImmutable> getOrigins(int stampPathNid);
 
    /**
     * Gets the paths.
     *
     * @return the paths
     */
-   Collection<? extends StampPath> getPaths();
+   Collection<? extends StampPathImmutable> getPaths();
 
    /**
     * Gets the relative position.
@@ -101,18 +107,18 @@ public interface VersionManagmentPathService {
     *
     * @param v1 the v 1
     * @param v2 the v 2
-    * @return the relative position
+    * @return the relative position BEFORE, AFTER, EQUALS, or UNREACHABLE. Should never return CONTRADICTION
     */
    RelativePosition getRelativePosition(StampedVersion v1, StampedVersion v2);
 
    /**
     * Gets the relative position.
     *
-    * @param stampSequence1 the v1 stampSequence1
-    * @param v2 the v2 coordinate
+    * @param stamp the v1 stampSequence1
+    * @param position the v2 coordinate
     * @return the relative position
     */
-   RelativePosition getRelativePosition(int stampSequence1, StampCoordinate v2);
+   RelativePosition getRelativePosition(int stamp, StampPosition position);
 
 
    /**

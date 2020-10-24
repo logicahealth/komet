@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>isaac</artifactId>
-        <version>5.1.1</version>
+        <version>6.0.0</version>
     </parent>
     <artifactId>komet</artifactId>
     <name>ISAAC’s KOMET: (MMP)</name>
@@ -13,23 +13,24 @@
      <modules>
         <module>taxonomy-view</module>
         <module>iconography</module>
-        <!--<module>drag-tab</module>-->
-        <module>application</module>
         <module>gui-contracts</module>
-        <module>search-view</module>
         <module>css</module>
         <module>dialog</module>
         <module>concept-detail</module>
         <module>progress-view</module>
         <module>assemblage-view</module>
-        <module>scripting</module>
+         <module>scripting</module>
+         <module>rules</module>
         <module>statement-view</module>
         <module>semantic-view</module>
         <module>countries-flags</module>
         <module>export-view</module>
-        <module>open-jdk-fixes</module>
         <module>komet-preferences</module>
-    <module>changeset-view</module>
-         <module>batch</module>
+        <module>changeset-view</module>
+        <module>batch</module>
+        <module>livd</module>
+        <module>classification</module>
+         <module>search-view</module>
+         <module>application</module>
      </modules>
 </project>

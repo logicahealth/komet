@@ -24,9 +24,9 @@ import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.concept.PropertySheetItemConceptNidWrapper;
 import sh.komet.gui.control.measure.PropertySheetMeasureWrapper;
-import sh.komet.gui.control.PropertySheetTextWrapper;
+import sh.komet.gui.control.property.wrapper.PropertySheetTextWrapper;
 import sh.komet.gui.control.circumstance.PropertySheetCircumstanceWrapper;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -34,7 +34,7 @@ import sh.komet.gui.manifold.Manifold;
  */
 public class StatementPropertySheet {
     
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     
     
     private final PropertySheet propertySheet = new PropertySheet();
@@ -43,9 +43,9 @@ public class StatementPropertySheet {
         this.propertySheet.setSearchBoxVisible(true);
     }
 
-    public StatementPropertySheet(Manifold manifold) {
-        this.manifold = manifold;
-        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifold));
+    public StatementPropertySheet(ViewProperties viewProperties) {
+        this.viewProperties = viewProperties;
+        this.propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.viewProperties.getManifoldCoordinate()));
     }
     
     public void setClinicalStatement(ClinicalStatementImpl clinicalStatement) {
@@ -59,17 +59,17 @@ public class StatementPropertySheet {
     public List<PropertySheet.Item> getProperties(ClinicalStatementImpl clinicalStatement) {
         ArrayList<PropertySheet.Item> items = new ArrayList<>();
         
-        items.add(new PropertySheetItemConceptNidWrapper(manifold, 
+        items.add(new PropertySheetItemConceptNidWrapper(viewProperties.getManifoldCoordinate(),
                 clinicalStatement.modeProperty(),
         TermAux.TEMPLATE.getNid(), TermAux.INSTANCE.getNid()));
         
         
         
-        items.add(new PropertySheetTextWrapper(manifold, clinicalStatement.narrativeProperty()));
-        items.add(new PropertySheetItemConceptNidWrapper(manifold, 
+        items.add(new PropertySheetTextWrapper(viewProperties.getManifoldCoordinate(), clinicalStatement.narrativeProperty()));
+        items.add(new PropertySheetItemConceptNidWrapper(viewProperties.getManifoldCoordinate(),
                 clinicalStatement.statementTypeProperty(),
             TermAux.REQUEST_STATEMENT.getNid(), TermAux.PERFORMANCE_STATEMENT.getNid()));
-        items.add(new PropertySheetItemConceptNidWrapper(manifold, 
+        items.add(new PropertySheetItemConceptNidWrapper(viewProperties.getManifoldCoordinate(),
                 clinicalStatement.subjectOfInformationProperty(), 
                 TermAux.SUBJECT_OF_RECORD.getNid(),
                 TermAux.MOTHER_OF_SUBJECT_OF_RECORD.getNid(), 
@@ -78,10 +78,10 @@ public class StatementPropertySheet {
                 TermAux.PATERNAL_ANCESTOR_OF_SUBJECT_OF_RECORD.getNid()
                 
         ));
-        items.add(new PropertySheetItemConceptNidWrapper(manifold, 
+        items.add(new PropertySheetItemConceptNidWrapper(viewProperties.getManifoldCoordinate(),
                 clinicalStatement.topicProperty()));
-        items.add(new PropertySheetMeasureWrapper(manifold, clinicalStatement.statementTimeProperty()));
-        items.add(new PropertySheetCircumstanceWrapper(manifold, clinicalStatement.circumstanceProperty()));
+        items.add(new PropertySheetMeasureWrapper(viewProperties.getManifoldCoordinate(), clinicalStatement.statementTimeProperty()));
+        items.add(new PropertySheetCircumstanceWrapper(viewProperties, clinicalStatement.circumstanceProperty()));
         
         
         

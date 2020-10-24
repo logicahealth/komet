@@ -21,7 +21,7 @@ package sh.isaac.solor.direct;
  * @author kec
  */
 public enum ImportType {
-    FULL, SNAPSHOT, ACTIVE_ONLY, DELTA;
+    FULL, SNAPSHOT, SNAPSHOT_ACTIVE_ONLY, DELTA;
 
     /**
      * @param stringValue
@@ -35,12 +35,13 @@ public enum ImportType {
             return SNAPSHOT;
         }
         //Provide lots of parse options, because this is a classifier a user can hand enter when configuring the conversion...
-        else if (stringValue.toLowerCase().equals(ACTIVE_ONLY.name().toLowerCase()) 
+        else if (stringValue.toLowerCase().equals(SNAPSHOT_ACTIVE_ONLY.name().toLowerCase()) 
+                || stringValue.toLowerCase().equals("active_only")
                 || stringValue.toLowerCase().equals("active only")
                 || stringValue.toLowerCase().equals("snapshot active only")
                 || stringValue.toLowerCase().equals("snapshot_active_only")
                 || stringValue.toLowerCase().equals("snapshot-active-only")) {
-            return ACTIVE_ONLY;
+            return SNAPSHOT_ACTIVE_ONLY;
         }
         else if (stringValue.toLowerCase().equals(DELTA.name().toLowerCase())) {
             return DELTA;

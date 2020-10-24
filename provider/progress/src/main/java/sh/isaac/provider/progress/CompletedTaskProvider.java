@@ -16,9 +16,16 @@
  */
 package sh.isaac.provider.progress;
 
-import javax.inject.Singleton;
+import jakarta.inject.Singleton;
+
+import javafx.collections.SetChangeListener;
+import javafx.concurrent.Task;
 import org.jvnet.hk2.annotations.Service;
+import sh.isaac.api.Get;
 import sh.isaac.api.progress.CompletedTasks;
+
+import java.util.Deque;
+import java.util.LinkedList;
 
 /**
  *
@@ -28,5 +35,23 @@ import sh.isaac.api.progress.CompletedTasks;
 @Singleton
 public class CompletedTaskProvider  extends TaskListProvider
          implements CompletedTasks {
-   
+    private static final int MAX_LIST_SIZE = 100;
+    private final Deque<Task<?>> completedTasks = new LinkedList<>();
+
+
+    public CompletedTaskProvider() {
+        Get.activeTasks().addListener(this::onChanged);
+    }
+
+    private void onChanged(SetChangeListener.Change<? extends Task<?>> change) {
+        if (change.wasRemoved()) {
+            Task<?> element = change.getElementRemoved();
+            this.add(element);
+            this.completedTasks.addFirst(element);
+            while (completedTasks.size() > MAX_LIST_SIZE) {
+                Task<?> elementToRemove = this.completedTasks.removeLast();
+                this.remove(elementToRemove);
+            }
+        }
+    }
 }

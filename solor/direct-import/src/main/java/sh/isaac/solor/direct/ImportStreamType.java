@@ -59,6 +59,7 @@ public enum ImportStreamType {
    ALTERNATIVE_IDENTIFIER,
    NID1_NID2_INT3_REFSET,
    NID1_INT2_REFSET,
+   NID1_LONG2_REFSET,
    NID1_INT2_STR3_STR4_NID5_NID6_REFSET,
    NID1_REFSET,
    STR1_STR2_NID3_NID4_REFSET,
@@ -76,70 +77,113 @@ public enum ImportStreamType {
    DYNAMIC,
    RXNORM_CONSO,
    LOINC,
-   CLINVAR
+   CLINVAR,
+   CVX,
+   LIVD,
+   SRF_CONCEPT,
+   SRF_DESCRIPTION,
+   SRF_STATED_RELATIONSHIP,
+   SRF_INFERRED_RELATIONSHIP,
+   SRF_NID1_NID2_INT3_ASSEMBLAGE,
+   SRF_NID1_INT2_ASSEMBLAGE,
+   SRF_NID1_LONG2_ASSEMBLAGE,
+   SRF_NID1_INT2_STR3_STR4_NID5_NID6_ASSEMBLAGE,
+   SRF_NID1_ASSEMBLAGE,
+   SRF_STR1_STR2_NID3_NID4_ASSEMBLAGE,
+   SRF_STR1_STR2_ASSEMBLAGE,
+   SRF_STR1_STR2_STR3_STR4_STR5_STR6_STR7_ASSEMBLAGE,
+   SRF_MEMBER_ASSEMBLAGE,
+   SRF_INT1_INT2_STR3_STR4_STR5_NID6_NID7_ASSEMBLAGE,
+   SRF_STR1_ASSEMBLAGE,
+   SRF_NID1_NID2_ASSEMBLAGE,
+   SRF_NID1_NID2_STR3_ASSEMBLAGE,
+   SRF_NID1_STR2_ASSEMBLAGE,
+   SRF_INT1_ASSEMBLAGE,
+   SRF_STR1_NID2_NID3_NID4_ASSEMBLAGE,
+   SRF_STR1_STR2_NID3_NID4_NID5_ASSEMBLAGE
    ;
 
    public VersionType getSemanticVersionType() {
       switch (this) {
-      case NID1_NID2_INT3_REFSET:
-         return VersionType.Nid1_Nid2_Int3;
+         case SRF_NID1_NID2_INT3_ASSEMBLAGE:
+         case NID1_NID2_INT3_REFSET:
+            return VersionType.Nid1_Nid2_Int3;
 
-      case NID1_INT2_REFSET:
-         return VersionType.Nid1_Int2;
+         case SRF_NID1_INT2_ASSEMBLAGE:
+         case NID1_INT2_REFSET:
+            return VersionType.Nid1_Int2;
 
-      case NID1_INT2_STR3_STR4_NID5_NID6_REFSET:
-         return VersionType.Nid1_Int2_Str3_Str4_Nid5_Nid6;
+         case SRF_NID1_LONG2_ASSEMBLAGE:
+         case NID1_LONG2_REFSET:
+            return VersionType.Nid1_Long2;
 
-      case NID1_REFSET:
-         return VersionType.COMPONENT_NID;
+         case SRF_NID1_INT2_STR3_STR4_NID5_NID6_ASSEMBLAGE:
+         case NID1_INT2_STR3_STR4_NID5_NID6_REFSET:
+            return VersionType.Nid1_Int2_Str3_Str4_Nid5_Nid6;
 
-      case STR1_STR2_NID3_NID4_REFSET:
-         return VersionType.Str1_Str2_Nid3_Nid4;
+         case SRF_NID1_ASSEMBLAGE:
+         case NID1_REFSET:
+            return VersionType.COMPONENT_NID;
 
-      case STR1_STR2_REFSET:
-         return VersionType.Str1_Str2;
+         case SRF_STR1_STR2_NID3_NID4_ASSEMBLAGE:
+         case STR1_STR2_NID3_NID4_REFSET:
+            return VersionType.Str1_Str2_Nid3_Nid4;
 
-      case STR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET:
-         return VersionType.Str1_Str2_Str3_Str4_Str5_Str6_Str7;
+         case SRF_STR1_STR2_ASSEMBLAGE:
+         case STR1_STR2_REFSET:
+            return VersionType.Str1_Str2;
 
-      case MEMBER_REFSET:
-         return VersionType.MEMBER;
+         case SRF_STR1_STR2_STR3_STR4_STR5_STR6_STR7_ASSEMBLAGE:
+         case STR1_STR2_STR3_STR4_STR5_STR6_STR7_REFSET:
+            return VersionType.Str1_Str2_Str3_Str4_Str5_Str6_Str7;
 
-      case INT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET:
-         return VersionType.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7;
+         case SRF_MEMBER_ASSEMBLAGE:
+         case MEMBER_REFSET:
+            return VersionType.MEMBER;
 
-      case STR1_REFSET:
-         return VersionType.STRING;
+         case SRF_INT1_INT2_STR3_STR4_STR5_NID6_NID7_ASSEMBLAGE:
+         case INT1_INT2_STR3_STR4_STR5_NID6_NID7_REFSET:
+            return VersionType.Int1_Int2_Str3_Str4_Str5_Nid6_Nid7;
 
-      case NID1_NID2_REFSET:
-         return VersionType.Nid1_Nid2;
+         case SRF_STR1_ASSEMBLAGE:
+         case STR1_REFSET:
+            return VersionType.STRING;
 
-      case NID1_NID2_STR3_REFSET:
-         return VersionType.Nid1_Nid2_Str3;
+         case SRF_NID1_NID2_ASSEMBLAGE:
+         case NID1_NID2_REFSET:
+            return VersionType.Nid1_Nid2;
 
-      case NID1_STR2_REFSET:
-         return VersionType.Nid1_Str2;
+         case SRF_NID1_NID2_STR3_ASSEMBLAGE:
+         case NID1_NID2_STR3_REFSET:
+            return VersionType.Nid1_Nid2_Str3;
 
-      case INT1_REFSET:
-         return VersionType.LONG;
+         case SRF_NID1_STR2_ASSEMBLAGE:
+         case NID1_STR2_REFSET:
+            return VersionType.Nid1_Str2;
 
-      case STR1_NID2_NID3_NID4_REFSET:
-          return VersionType.Str1_Nid2_Nid3_Nid4;
-          
-      case STR1_STR2_NID3_NID4_NID5_REFSET:
-          return VersionType.Str1_Str2_Nid3_Nid4_Nid5;
-         
-      case DYNAMIC:
-          return VersionType.DYNAMIC;
-          
-      case ALTERNATIVE_IDENTIFIER:
-      case CONCEPT:
-      case DESCRIPTION:
-      case DIALECT:
-      case INFERRED_RELATIONSHIP:
-      case STATED_RELATIONSHIP:
-      default :
-         throw new UnsupportedOperationException("No version type for: " + this);
+         case SRF_INT1_ASSEMBLAGE:
+         case INT1_REFSET:
+            return VersionType.LONG;
+
+         case SRF_STR1_NID2_NID3_NID4_ASSEMBLAGE:
+         case STR1_NID2_NID3_NID4_REFSET:
+             return VersionType.Str1_Nid2_Nid3_Nid4;
+
+         case SRF_STR1_STR2_NID3_NID4_NID5_ASSEMBLAGE:
+         case STR1_STR2_NID3_NID4_NID5_REFSET:
+             return VersionType.Str1_Str2_Nid3_Nid4_Nid5;
+
+         case DYNAMIC:
+             return VersionType.DYNAMIC;
+
+         case ALTERNATIVE_IDENTIFIER:
+         case CONCEPT:
+         case DESCRIPTION:
+         case DIALECT:
+         case INFERRED_RELATIONSHIP:
+         case STATED_RELATIONSHIP:
+         default :
+            throw new UnsupportedOperationException("No version type for: " + this);
       }
    }
 }

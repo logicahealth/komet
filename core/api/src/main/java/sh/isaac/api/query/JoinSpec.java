@@ -16,18 +16,12 @@
  */
 package sh.isaac.api.query;
 
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlRootElement;
 import sh.isaac.api.component.concept.ConceptSpecification;
 
 /**
  *
  * @author kec
  */
-@XmlRootElement
-@XmlAccessorType(value = XmlAccessType.NONE)
 public class JoinSpec implements JoinSpecification {
     ConceptSpecification firstAssemblage;
     JoinProperty firstField;
@@ -55,10 +49,9 @@ public class JoinSpec implements JoinSpecification {
         this.firstField = js.getFirstField();
         this.secondAssemblage = js.getSecondAssemblage();
         this.secondField = js.getSecondField();
-        this.stampCoordinateKey = js.getStampCoordinateKey();
+        this.stampCoordinateKey = js.getStampFilterKey();
     }
 
-    @XmlElement
     @Override
     public ConceptSpecification getFirstAssemblage() {
         return firstAssemblage;
@@ -69,7 +62,6 @@ public class JoinSpec implements JoinSpecification {
         this.firstAssemblage = firstAssemblage;
     }
 
-    @XmlElement
     @Override
     public JoinProperty getFirstField() {
         return firstField;
@@ -80,7 +72,6 @@ public class JoinSpec implements JoinSpecification {
         this.firstField = firstField;
     }
 
-    @XmlElement
     @Override
     public ConceptSpecification getSecondAssemblage() {
         return secondAssemblage;
@@ -91,7 +82,6 @@ public class JoinSpec implements JoinSpecification {
         this.secondAssemblage = secondAssemblage;
     }
 
-    @XmlElement
     @Override
     public JoinProperty getSecondField() {
         return secondField;
@@ -102,9 +92,8 @@ public class JoinSpec implements JoinSpecification {
         this.secondField = secondField;
     }
 
-    @XmlElement
     @Override
-    public LetItemKey getStampCoordinateKey() {
+    public LetItemKey getStampFilterKey() {
         return stampCoordinateKey;
     }
 

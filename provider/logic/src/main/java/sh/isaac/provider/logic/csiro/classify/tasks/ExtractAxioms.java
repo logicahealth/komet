@@ -40,15 +40,12 @@
 package sh.isaac.provider.logic.csiro.classify.tasks;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+
 import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.bootstrap.TestConcept;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
@@ -63,20 +60,15 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierData;
 public class ExtractAxioms
         extends TimedTaskWithProgressTracker<ClassifierData> {
 
-   Logger log = LogManager.getLogger();
-   StampCoordinate stampCoordinate;
-
-   LogicCoordinate logicCoordinate;
+    ManifoldCoordinate manifoldCoordinate;
 
    /**
     * Instantiates a new extract axioms.
+    * @param manifoldCoordinate the stamp coordinate
     *
-    * @param stampCoordinate the stamp coordinate
-    * @param logicCoordinate the logic coordinate
     */
-   public ExtractAxioms(StampCoordinate stampCoordinate, LogicCoordinate logicCoordinate) {
-      this.stampCoordinate = stampCoordinate;
-      this.logicCoordinate = logicCoordinate;
+   public ExtractAxioms(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
       updateTitle("Extract axioms");
       
    }
@@ -85,51 +77,64 @@ public class ExtractAxioms
    protected ClassifierData call()
             throws Exception {
       Get.activeTasks().add(this);
+      setStartTime();
        try {
+           LOG.info("Extract Axioms running");
            final AtomicInteger logicGraphMembers = new AtomicInteger();
-           final ClassifierData cd = ClassifierData.get(this.stampCoordinate, this.logicCoordinate);
+           final ClassifierData cd = ClassifierData.get(this.manifoldCoordinate);
            
            if (cd.isIncrementalAllowed()) {
                // axioms are already extracted.
            } else {
                cd.clearAxioms();
-               processAllStatedAxioms(this.stampCoordinate, this.logicCoordinate, cd, logicGraphMembers);
+               processAllStatedAxioms(this.manifoldCoordinate, cd, logicGraphMembers);
            }
-           
            return cd;
        } finally {
            Get.activeTasks().remove(this);
+           LOG.info("Extract Axioms complete");
        }
    }
 
    /**
     * Process all stated axioms.
-    *
-    * @param stampCoordinate the stamp coordinate
-    * @param logicCoordinate the logic coordinate
+    * @param manifoldCoordinate the stamp coordinate
     * @param cd the cd
     * @param logicGraphMembers the logic graph members
     */
-   protected void processAllStatedAxioms(StampCoordinate stampCoordinate,
-         LogicCoordinate logicCoordinate,
-         ClassifierData cd,
-         AtomicInteger logicGraphMembers) {
+   protected void processAllStatedAxioms(ManifoldCoordinate manifoldCoordinate,
+                                         ClassifierData cd,
+                                         AtomicInteger logicGraphMembers) {
       final SemanticSnapshotService<LogicGraphVersionImpl> semanticSnapshot = Get.assemblageService()
                                                                             .getSnapshot(LogicGraphVersionImpl.class,
-                                                                                  stampCoordinate);
+                                                                                    manifoldCoordinate.getViewStampFilter());
 
-      semanticSnapshot.getLatestSemanticVersionsFromAssemblage(logicCoordinate.getStatedAssemblageNid(), this)
+      AtomicInteger inactiveConcepts = new AtomicInteger(0);
+
+       StampFilterImmutable viewFilter = manifoldCoordinate.getViewStampFilter().toStampFilterImmutable();
+
+      semanticSnapshot.getLatestSemanticVersionsFromAssemblage(manifoldCoordinate.getLogicCoordinate().getStatedAssemblageNid(), this)
                     .forEach((LatestVersion<LogicGraphVersionImpl> latest) -> {
                                 final LogicGraphVersionImpl lgs = latest.get();
                                 final int conceptNid = lgs.getReferencedComponentNid();
 
                                 if (Get.conceptService()
-                                       .isConceptActive(conceptNid, stampCoordinate)) {
+                                       .isConceptActive(conceptNid, viewFilter)) {
                                    cd.translate(lgs);
                                    logicGraphMembers.incrementAndGet();
+                                } else {
+                                    inactiveConcepts.incrementAndGet();
                                 }
                              });
-      
-      log.info("Extracted " + logicGraphMembers + " logical definitions from: " + Get.conceptDescriptionText(logicCoordinate.getStatedAssemblageNid()));
+
+       StringBuilder sb = new StringBuilder();
+       sb.append("Extracted ");
+       sb.append(logicGraphMembers);
+       sb.append(" active (");
+       sb.append(inactiveConcepts.get());
+       sb.append(" inactive) logical definitions from: ");
+       sb.append(Get.conceptDescriptionText(manifoldCoordinate.getLogicCoordinate().getStatedAssemblageNid()));
+
+       LOG.info(sb);
    }
 }

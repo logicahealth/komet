@@ -18,6 +18,7 @@ package sh.komet.gui.control.list;
 
 import java.util.function.Function;
 import java.util.function.Supplier;
+
 import javafx.event.Event;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
@@ -29,13 +30,14 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import org.controlsfx.property.editor.PropertyEditor;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.query.properties.ManifoldClause;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
- *
- * @author kec
  * @param <T>
+ * @author kec
  */
 public class ListEditorCell<T extends Object> extends ListCell<T> {
     Button cancelButton = new Button("", Iconography.CANCEL.getIconographic());
@@ -43,23 +45,28 @@ public class ListEditorCell<T extends Object> extends ListCell<T> {
     VBox buttonBox = new VBox(cancelButton, duplicateButton);
     GridPane gridPane = new GridPane();
     private final ListView listView;
-    private final Manifold manifold;
+    private final ManifoldCoordinate manifoldCoordinate;
     private PropertyEditor<T> propertyEditor;
-    private final Function<Manifold,PropertyEditor<T>> newEditorSupplier;
+    private final Function<ManifoldCoordinate, PropertyEditor<T>> newEditorSupplier;
     private final Supplier<T> newObjectSupplier;
 
-    public ListEditorCell(ListView listView, 
-            Function<Manifold,PropertyEditor<T>> newEditorSupplier, 
-            Supplier<T> newObjectSupplier,
-            Manifold manifold) {
+    public ListEditorCell(ListView listView,
+                          Function<ManifoldCoordinate, PropertyEditor<T>> newEditorSupplier,
+                          Supplier<T> newObjectSupplier,
+                          ManifoldCoordinate manifoldCoordinate) {
         this.listView = listView;
-        this.manifold = manifold;
-        this.duplicateButton.setOnAction(this::duplicate);
+        this.manifoldCoordinate = manifoldCoordinate;
         this.cancelButton.setOnAction(this::cancel);
         this.newEditorSupplier = newEditorSupplier;
         this.newObjectSupplier = newObjectSupplier;
+        if (newEditorSupplier == null || newObjectSupplier ==  null) {
+            this.duplicateButton.setVisible(false);
+        } else {
+            this.duplicateButton.setOnAction(this::duplicate);
+        }
+
     }
-    
+
     @Override
     protected void updateItem(T item, boolean empty) {
         super.updateItem(item, empty);
@@ -72,43 +79,45 @@ public class ListEditorCell<T extends Object> extends ListCell<T> {
                 this.gridPane.getChildren().clear();
             }
         } else {
-            
-            if (this.propertyEditor == null) {
-                this.propertyEditor = newEditorSupplier.apply(manifold);
-                Node editorNode = propertyEditor.getEditor();
-                GridPane.setConstraints(this.buttonBox,
-                                  0,
-                                  0,
-                                  1,
-                                  1,
-                                  HPos.LEFT,
-                                  VPos.TOP, 
-                                  Priority.NEVER, 
-                                  Priority.NEVER);
-                GridPane.setConstraints(editorNode,
-                                  1,
-                                  0,
-                                  1,
-                                  2,
-                                  HPos.LEFT,
-                                  VPos.TOP, 
-                                  Priority.ALWAYS, 
-                                  Priority.NEVER);
-                this.gridPane.getChildren().setAll(this.buttonBox, this.propertyEditor.getEditor());
-                this.setGraphic(this.gridPane);
-            }
-            if (item != propertyEditor.getValue()) {
-                propertyEditor.setValue(item);
+            if (this.newEditorSupplier != null) {
+                if (this.propertyEditor == null) {
+                    this.propertyEditor = newEditorSupplier.apply(manifoldCoordinate);
+                    Node editorNode = propertyEditor.getEditor();
+                    GridPane.setConstraints(this.buttonBox,
+                            0,
+                            0,
+                            1,
+                            1,
+                            HPos.LEFT,
+                            VPos.TOP,
+                            Priority.NEVER,
+                            Priority.NEVER);
+                    GridPane.setConstraints(editorNode,
+                            1,
+                            0,
+                            1,
+                            2,
+                            HPos.LEFT,
+                            VPos.TOP,
+                            Priority.ALWAYS,
+                            Priority.NEVER);
+                    this.gridPane.getChildren().setAll(this.buttonBox, this.propertyEditor.getEditor());
+                    this.setGraphic(this.gridPane);
+                }
+                if (item != propertyEditor.getValue()) {
+                    propertyEditor.setValue(item);
+                }
             }
             setText("");
         }
     }
-    
+
     private void duplicate(Event event) {
         T newObject = this.newObjectSupplier.get();
         // TODO: copy all fields. 
         listView.getItems().add(this.getIndex() + 1, newObject);
     }
+
     private void cancel(Event event) {
         listView.getItems().remove(this.getIndex());
     }

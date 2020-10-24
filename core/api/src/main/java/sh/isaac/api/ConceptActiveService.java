@@ -45,7 +45,7 @@ import java.util.EnumSet;
 import org.jvnet.hk2.annotations.Contract;
 
 import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -73,18 +73,18 @@ public interface ConceptActiveService {
     * Checks if concept active.
     *
     * @param conceptNid the concept nid
-    * @param stampCoordinate the stamp coordinate
+    * @param stampFilter the stamp coordinate
     * @return true, if concept active
     */
-   boolean isConceptActive(int conceptNid, StampCoordinate stampCoordinate);
+   boolean isConceptActive(int conceptNid, StampFilterImmutable stampFilter);
    
    /**
     * Returns the (possibly contradicting) states of the concept as of the stamp coordinate.
     *
     * @param conceptNid the concept nid
-    * @param stampCoordinate the stamp coordinate
-    * @return the set of status current status values for the concept. 
+    * @param stampFilter the stamp coordinate
+    * @return the set of status current status values for the concept.
     */
-   EnumSet<Status> getConceptStates(int conceptNid, StampCoordinate stampCoordinate);
+   EnumSet<Status> getConceptStates(int conceptNid, StampFilterImmutable stampFilter);
 }
 

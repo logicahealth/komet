@@ -43,8 +43,6 @@ package sh.isaac.api.util;
  * {@link StringUtils}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
- * TODO consider replacing with NaturalOrder comparator. Does not depend on 
- * external library, and uses less memory, and is faster. 
  */
 public class StringUtils
         extends org.apache.commons.lang3.StringUtils {

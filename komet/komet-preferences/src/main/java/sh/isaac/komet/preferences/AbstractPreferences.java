@@ -18,6 +18,7 @@ package sh.isaac.komet.preferences;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.prefs.BackingStoreException;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.Property;
@@ -40,15 +41,19 @@ import javafx.scene.layout.Region;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PropertySheet;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.preferences.IsaacPreferences;
-import static sh.isaac.komet.preferences.PreferenceGroup.Keys.INITIALIZED;
-import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.CHILDREN_NODES;
-import static sh.isaac.komet.preferences.PreferencesTreeItem.Properties.PROPERTY_SHEET_CLASS;
+
+import sh.komet.gui.contract.preferences.KometPreferencesController;
+import sh.komet.gui.contract.preferences.PreferenceGroup;
+import sh.komet.gui.contract.preferences.PreferencesTreeItem;
 import sh.komet.gui.control.concept.PreferenceChanged;
 import sh.komet.gui.control.property.PropertyEditorFactory;
 import sh.komet.gui.control.property.PropertySheetItem;
 import sh.komet.gui.control.property.PropertySheetPurpose;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
+
+import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.*;
 
 /**
  *
@@ -69,7 +74,18 @@ public abstract class AbstractPreferences implements PreferenceGroup {
             makePropertySheet();
         });
     }
-    private final Manifold manifold;
+
+
+    protected static final String getGroupName(IsaacPreferences preferencesNode) {
+        return preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME, UUID.randomUUID().toString());
+    }
+
+
+    protected static final String getGroupName(IsaacPreferences preferencesNode, String defaultValue) {
+        return preferencesNode.get(PreferenceGroup.Keys.GROUP_NAME, defaultValue);
+    }
+
+    private final ViewProperties viewProperties;
     protected final KometPreferencesController kpc;
     protected PreferencesTreeItem treeItem;
     private final Button revertButton = new Button("Revert");
@@ -104,18 +120,38 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         });
     }
     Region spacer = new Region();
+    Region spacer2 = new Region();
 
     {
         HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox.setHgrow(spacer2, Priority.ALWAYS);
     }
-    ToolBar bottomBar = new ToolBar(revertButton, saveButton, spacer, deleteButton);
+    ToolBar bottomBar = new ToolBar(spacer, revertButton, saveButton, spacer2, deleteButton);
 
-    public AbstractPreferences(IsaacPreferences preferencesNode, String groupName, Manifold manifold,
-            KometPreferencesController kpc) {
+    public AbstractPreferences(IsaacPreferences preferencesNode, String groupName, ViewProperties viewProperties,
+                               KometPreferencesController kpc) {
+        if (preferencesNode == null) {
+            throw new NullPointerException("preferencesNode cannot be null.");
+        }
+        if (groupName == null) {
+            throw new NullPointerException("groupName cannot be null.");
+        }
+        if (viewProperties == null) {
+            throw new NullPointerException("Manifold cannot be null.");
+        }
+        if (viewProperties.getManifoldCoordinate().getLanguageCoordinate() == null) {
+            throw new NullPointerException("Manifold.getLanguageCoordinate() cannot be null.");
+        }
+        if (viewProperties.getManifoldCoordinate().getLogicCoordinate() == null) {
+            throw new NullPointerException("Manifold.getLogicCoordinate() cannot be null.");
+        }
+        if (kpc == null) {
+            throw new NullPointerException("KometPreferencesController cannot be null.");
+        }
         this.preferencesNode = preferencesNode;
         this.initialized.setValue(preferencesNode.getBoolean(INITIALIZED, false));
         this.groupNameProperty.set(groupName);
-        this.manifold = manifold;
+        this.viewProperties = viewProperties;
         this.kpc = kpc;
         this.groupNameProperty.addListener(this::changeGroupName);
     }
@@ -129,7 +165,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         }
     }
 
-    private void deleteSelf(ActionEvent event) {
+    protected void deleteSelf(ActionEvent event) {
         try {
             PreferencesTreeItem parentTreeItem = (PreferencesTreeItem) this.treeItem.getParent();
             ParentPanel parentPanel = (ParentPanel) parentTreeItem.getValue();
@@ -152,7 +188,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
     @Override
     public void setTreeItem(PreferencesTreeItem treeItem) {
         this.treeItem = treeItem;
-        this.treeItem.preferences = this.preferencesNode;
+        this.treeItem.setPreferences(this.preferencesNode);
         addChildren();
     }
 
@@ -177,7 +213,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         }
     }
 
-    protected final void addChild(String childName, Class<? extends AbstractPreferences> childPreferencesClass) {
+    protected final IsaacPreferences addChild(String childName, Class<? extends AbstractPreferences> childPreferencesClass) {
         IsaacPreferences childNode = this.preferencesNode.node(childName);
         childNode.put(PROPERTY_SHEET_CLASS, childPreferencesClass.getName());
         List<String> childPreferences = this.preferencesNode.getList(CHILDREN_NODES);
@@ -186,6 +222,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         }
 
         this.preferencesNode.putList(CHILDREN_NODES, childPreferences);
+        return childNode;
     }
 
     @Override
@@ -236,7 +273,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         sheet.setMode(PropertySheet.Mode.NAME);
         sheet.setSearchBoxVisible(false);
         sheet.setModeSwitcherVisible(false);
-        sheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
+        sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties.getManifoldCoordinate()));
         sheet.getItems().addAll(itemList);
         for (PropertySheet.Item item : itemList) {
             if (item instanceof PreferenceChanged) {
@@ -251,7 +288,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
                 Optional<ObservableValue<? extends Object>> observable = item.getObservableValue();
                 if (observable.isPresent()) {
                     observable.get().addListener((obs, oldValue, newValue) -> {
-                        changed.set(true);
+                        validateChange(oldValue, newValue);
                     });
                 }
             }
@@ -259,8 +296,20 @@ public abstract class AbstractPreferences implements PreferenceGroup {
         this.propertySheetBorderPane.setCenter(sheet);
     }
 
+    private void validateChange(Object oldValue, Object newValue) {
+        if (oldValue != newValue) {
+        if (newValue != null) {
+            if (!newValue.equals(oldValue)) {
+                changed.set(true);
+            }
+        } else {
+            changed.set(true);
+        }
+    }
+    }
+
     @Override
-    public final Node getCenterPanel(Manifold manifold) {
+    public Node getCenterPanel(ViewProperties viewProperties) {
         if (this.propertySheet == null) {
             makePropertySheet();
         }
@@ -269,7 +318,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
 
     protected final void addProperty(ObservableValue<?> observableValue) {
         observableValue.addListener(new WeakChangeListener<>((observable, oldValue, newValue) -> {
-            changed.set(true);
+            validateChange(oldValue, newValue);
         }));
     }
 
@@ -280,36 +329,44 @@ public abstract class AbstractPreferences implements PreferenceGroup {
     }
 
     protected PropertySheetItem createPropertyItem(Property<?> property) {
-        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, manifold, PropertySheetPurpose.DESCRIPTION_DIALECT);
+        PropertySheetItem wrappedProperty = new PropertySheetItem(property.getValue(), property, viewProperties.getManifoldCoordinate(), PropertySheetPurpose.DESCRIPTION_DIALECT);
         return wrappedProperty;
     }
 
     @Override
-    public Node getTopPanel(Manifold manifold) {
+    public Node getTopPanel(ViewProperties viewProperties) {
         return null;
     }
 
     @Override
-    public Node getLeftPanel(Manifold manifold) {
+    public Node getLeftPanel(ViewProperties viewProperties) {
         return null;
     }
 
     @Override
-    public final Node getBottomPanel(Manifold manifold) {
+    public Node getBottomPanel(ViewProperties viewProperties) {
         if (showRevertAndSave()) {
-            deleteButton.setVisible(showDelete());
+            if (showDelete()) {
+                bottomBar = new ToolBar(deleteButton, spacer, revertButton, saveButton);
+            } else {
+                bottomBar = new ToolBar(spacer, revertButton, saveButton);
+            }
             return this.bottomBar;
         }
         return null;
     }
 
     @Override
-    public Node getRightPanel(Manifold manifold) {
+    public Node getRightPanel(ViewProperties viewProperties) {
         return null;
     }
 
-    public Manifold getManifold() {
-        return manifold;
+    public ManifoldCoordinate getManifoldCoordinate() {
+        return viewProperties.getManifoldCoordinate();
+    }
+
+    public ViewProperties getViewProperties() {
+        return viewProperties;
     }
 
     /**

@@ -15,7 +15,6 @@ import javafx.scene.control.Label;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.FileChooser;
-import javafx.stage.Window;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
@@ -24,7 +23,8 @@ import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.solor.sof.SofExporter;
 import sh.komet.gui.control.concept.PropertySheetConceptSetWrapper;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.util.FxGet;
 
 import java.io.File;
 import java.net.URL;
@@ -76,7 +76,7 @@ public class ExportSpecificationController {
     @FXML
     void selectFile(ActionEvent event) {
         FileChooser chooser = new FileChooser();
-        chooser.setInitialDirectory(new File(System.getProperty("user.home"), "Solor"));
+        chooser.setInitialDirectory(FxGet.solorDirectory());
         chooser.setInitialFileName("export.sof");
         chooser.setTitle("Specify file for export...");
         File chosen = chooser.showSaveDialog(topBorderPane.getScene().getWindow());
@@ -93,16 +93,16 @@ public class ExportSpecificationController {
         this.exportFormat.getSelectionModel().select(ExportFormatType.SOF);
     }
 
-    public void setManifold(Manifold manifold) {
-        this.moduleConceptsWrapper = new PropertySheetConceptSetWrapper(manifold, moduleConceptProperty);
-        this.pathConceptsWrapper = new PropertySheetConceptSetWrapper(manifold, pathConceptProperty);
+    public void setViewProperties(ViewProperties viewProperties) {
+        this.moduleConceptsWrapper = new PropertySheetConceptSetWrapper(viewProperties, moduleConceptProperty);
+        this.pathConceptsWrapper = new PropertySheetConceptSetWrapper(viewProperties, pathConceptProperty);
         this.itemList.add(this.moduleConceptsWrapper);
         this.itemList.add(this.pathConceptsWrapper);
         PropertySheet sheet = new PropertySheet();
         sheet.setMode(PropertySheet.Mode.NAME);
         sheet.setSearchBoxVisible(false);
         sheet.setModeSwitcherVisible(false);
-        sheet.setPropertyEditorFactory(new PropertyEditorFactory(manifold));
+        sheet.setPropertyEditorFactory(new PropertyEditorFactory(viewProperties.getManifoldCoordinate()));
         sheet.getItems().addAll(itemList);
         topBorderPane.setCenter(sheet);
     }

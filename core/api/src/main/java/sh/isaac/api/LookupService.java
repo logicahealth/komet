@@ -56,6 +56,10 @@ import java.util.function.BiConsumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.factory.Sets;
+import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.glassfish.hk2.api.MultiException;
 import org.glassfish.hk2.api.ServiceLocator;
 import org.glassfish.hk2.api.ServiceLocatorFactory;
@@ -66,6 +70,7 @@ import javafx.application.Platform;
 import net.sagebits.HK2Utilities.HK2RuntimeInitializer;
 import sh.isaac.api.DatastoreServices.DataStoreStartState;
 import sh.isaac.api.constants.SystemPropertyConstants;
+import sh.isaac.api.datastore.MasterDataStore;
 import sh.isaac.api.index.IndexQueryService;
 import sh.isaac.api.progress.Stoppable;
 import sh.isaac.api.util.HeadlessToolkit;
@@ -195,6 +200,13 @@ public class LookupService {
                      }
                      System.setProperty("javafxHack", i + "");
                      System.setProperty("javafx.version", "mavenHack" + i);
+                     if (!GraphicsEnvironment.isHeadless())
+                     {
+                        //We are probably running the content manager with a GUI, but trying to run maven in a different classloader.
+                        //The world just works a lot better if we make that classloader think it is headless.
+                         LOG.info("Installing headless toolkit in maven classloader");
+                         HeadlessToolkit.installToolkit();
+                     }
                   }
                   PlatformImpl.startup(() -> {
                      // No need to do anything here
@@ -229,6 +241,17 @@ public class LookupService {
     * Start all core isaac services, blocking until started (or failed).
     */
    public static void startupIsaac() {
+      // Service provider hack since parallel threads where not finding the factories on startup.
+      // See org.eclipse.collections.api.factory.ServiceLoaderUtils; "Check that eclipse-collections.jar is on the classpath"
+      IntSets.mutable.empty();
+      IntSets.immutable.empty();
+      IntLists.mutable.empty();
+      IntLists.mutable.empty();
+      Lists.mutable.empty();
+      Lists.immutable.empty();
+      Sets.mutable.empty();
+      Sets.immutable.empty();
+
       try {
          // So Fortify does not complain about Locale dependent comparison
          // when the application uses .equals or
@@ -267,11 +290,8 @@ public class LookupService {
          }
          
          //Make sure metadata is imported, if the user prefs said to import metadata.
-         if (Get.useLuceneIndexes()) {
-            get().getService(MetadataService.class).importMetadata();
-         }
+         get().getService(MetadataService.class).importMetadata();
 
-         
          //Now, check and make sure every provider has the same DB ID
          UUID expected = get().getService(MetadataService.class).getDataStoreId().get();
          
@@ -284,9 +304,8 @@ public class LookupService {
                               .append(" has an id of ").append(handle.getService().getDataStoreId())
                               .append(".  Expected ")
                               .append(expected);
-                      LOG.warn(builder);
-                   //TODO, add a configuration paramater. 
-                  // throw new RuntimeException(builder.toString());
+                      LOG.error(builder);
+                      throw new RuntimeException(builder.toString());
                   }
                }
             });
@@ -385,9 +404,8 @@ public class LookupService {
                            .append(handle.getService().getDataStoreStartState())
                            .append(".  Expected ")
                            .append(discoveredValidityValue);
-                   LOG.warn(builder);
-                   //TODO, add a configuration paramater. 
-                  // throw new RuntimeException(builder.toString());
+                   LOG.error(builder);
+                   throw new RuntimeException(builder.toString());
                }
             }
          });
@@ -612,9 +630,13 @@ public class LookupService {
    public static <T> T getService(Class<T> contractOrImpl) {
       final T service = get().getService(contractOrImpl, new Annotation[0]);
 
-      LOG.debug("LookupService returning {} for {}", ((service != null) ? service.getClass()
-            .getName()
-            : null), contractOrImpl.getName());
+      //Quiet this down, partially due to https://issues.apache.org/jira/browse/LOG4J2-2738
+      if (service == null) {
+          LOG.debug("LookupService returning {} for {}", ((service != null) ? service.getClass().getName() : null), contractOrImpl.getName());
+      }
+      else {
+          LOG.trace("LookupService returning {} for {}", ((service != null) ? service.getClass().getName() : null), contractOrImpl.getName());
+      }
       return service;
    }
    
@@ -629,8 +651,12 @@ public class LookupService {
     */
    public static <T> List<T> getServices(Class<T> contractOrImpl) {
       final List<T> services = get().getAllServices(contractOrImpl, new Annotation[0]);
-
-      LOG.debug("LookupService returning {} for {}", services, contractOrImpl.getName());
+      final List<String> serviceNames = new ArrayList<>();
+      
+      for (T service : services) {
+          serviceNames.add(service.getClass().getName());
+      }
+      LOG.debug("LookupService returning {} for {}", serviceNames, contractOrImpl.getName());
       return services;
    }
    
@@ -642,14 +668,16 @@ public class LookupService {
    public static <T> List<T> getActiveServices(Class<T> contractOrImpl) {
       
       final List<T> services = new ArrayList<>();
+      final List<String> serviceNames = new ArrayList<>();
       get().getAllServiceHandles(contractOrImpl).forEach(serviceHandle ->
       {
          if (serviceHandle.isActive()) {
             services.add(serviceHandle.getService());
+            serviceNames.add(serviceHandle.getClass().getName());
          }
       });
 
-      LOG.debug("LookupService returning active services {} for {}", services, contractOrImpl.getName());
+      LOG.debug("LookupService returning active services {} for {}", serviceNames, contractOrImpl.getName());
       return services;
    }
 
@@ -704,12 +732,29 @@ public class LookupService {
       return get().getServiceHandle(contractOrService, name, new Annotation[0]) != null;
    }
 
-   public static void syncAll() {
-      List<DatastoreServices> syncServiceList =  getActiveServices(DatastoreServices.class);
-      for (DatastoreServices syncService:  syncServiceList) {
+   public static void syncAll()
+   {
+      List<DatastoreServices> syncServiceList = getActiveServices(DatastoreServices.class);
+      DatastoreServices later = null;
+      for (DatastoreServices syncService : syncServiceList) {
          try {
-            syncService.sync().get();
-         } catch (Throwable ex) {
+            //Other stores might write to this as part of sync, so sync it last
+            if (syncService instanceof MasterDataStore) {
+               later = syncService;
+            }
+            else {
+               syncService.sync().get();
+            }
+         }
+         catch (Throwable ex) {
+            LOG.error(ex);
+         }
+      }
+      if (later != null) {
+         try {
+            later.sync().get();
+         }
+         catch (Throwable ex) {
             LOG.error(ex);
          }
       }

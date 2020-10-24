@@ -38,7 +38,7 @@ package sh.komet.gui.drag.drop;
 
 import java.util.function.IntSupplier;
 
-import javafx.scene.layout.Region;
+import javafx.scene.control.ListView;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 //~--- non-JDK imports --------------------------------------------------------
@@ -53,6 +53,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import sh.isaac.api.Get;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.query.CompositeQueryResult;
 import sh.komet.gui.interfaces.DraggableWithImage;
 
 //~--- classes ----------------------------------------------------------------
@@ -84,13 +85,13 @@ public class DragDetectedCellEventHandler
     public void handle(MouseEvent event) {
         /* drag was detected, start a drag-and-drop gesture */
  /* allow any transfer mode */
-        Region eventNode = null;
+        Node eventNode = null;
         IdentifiedObject identifiedObject = null;
 
         if (nidSupplier != null) {
             identifiedObject = Get.identifiedObjectService().getChronology(nidSupplier.getAsInt()).get();
-            if (event.getSource() instanceof Region) {
-                eventNode = (Region) event.getSource();
+            if (event.getSource() instanceof Node) {
+                eventNode = (Node) event.getSource();
             } else {
                 LOG.warn("Non node source of drag? {}", event.getSource());
             }
@@ -110,10 +111,28 @@ public class DragDetectedCellEventHandler
                     .getSelectedItem() instanceof IdentifiedObject) {
                 identifiedObject = tableView.getSelectionModel()
                         .getSelectedItem();
-                eventNode = (Region) event.getPickResult()
+                eventNode = (Node) event.getPickResult()
                         .getIntersectedNode();
-                eventNode = (Region) eventNode.getParent();
+                eventNode = (Node) eventNode.getParent();
             }
+        } else if (event.getSource() instanceof ListView) {
+
+            ListView listView = (ListView) event.getSource();
+            Object selectedObject = listView.getSelectionModel().getSelectedItem();
+            if (selectedObject instanceof IdentifiedObject) {
+                identifiedObject = (IdentifiedObject) selectedObject;
+                eventNode = (Node) event.getPickResult()
+                        .getIntersectedNode().getParent().getParent();
+
+            } else if (selectedObject instanceof CompositeQueryResult) {
+                eventNode = (Node) event.getPickResult()
+                        .getIntersectedNode().getParent().getParent().getParent();
+                identifiedObject = ((CompositeQueryResult) selectedObject).getContainingConcept();
+            } else {
+                LOG.warn("unhandled selected object type {}" + selectedObject);
+            }
+
+
         } else {
             LOG.warn("unhandled event source {}" + event.getSource());
         }

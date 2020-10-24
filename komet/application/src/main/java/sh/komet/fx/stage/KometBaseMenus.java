@@ -15,46 +15,68 @@
  */
 package sh.komet.fx.stage;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Optional;
+import com.opencsv.CSVParserBuilder;
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuItem;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
-import javax.inject.Singleton;
-
+import org.apache.commons.io.input.BOMInputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.checkerframework.checker.units.qual.A;
+import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.list.primitive.ImmutableLongList;
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.jvnet.hk2.annotations.Service;
-import sh.isaac.api.ConfigurationService;
-import sh.isaac.api.Get;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.RemoteServiceInfo;
+import sh.isaac.MetaData;
+import sh.isaac.api.*;
+import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.commit.ChangeCheckerMode;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.query.Query;
+import sh.isaac.api.index.IndexBuilderService;
+import sh.isaac.api.logic.LogicServiceElk;
+import sh.isaac.api.logic.LogicalExpressionBuilder;
 import sh.isaac.api.sync.MergeFailOption;
 import sh.isaac.api.sync.MergeFailure;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.UuidFactory;
+import sh.isaac.api.util.UuidT5Generator;
+import sh.isaac.api.util.time.DateTimeUtil;
+import sh.isaac.komet.gui.exporter.ExportView;
+import sh.isaac.model.concept.ConceptChronologyImpl;
+import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.version.ComponentNidVersionImpl;
+import sh.isaac.model.semantic.version.DescriptionVersionImpl;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
-import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
-import sh.isaac.solor.direct.LoincDirectImporter;
-import sh.isaac.solor.direct.LoincExpressionToConcept;
-import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
+import sh.komet.fx.stage.spreadsheet.IndustryImporter;
+import sh.komet.fx.stage.spreadsheet.OccupationImporter;
+import sh.komet.fx.stage.spreadsheet.SocImporter2010;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
-import sh.isaac.komet.gui.exporter.ExportView;
+import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.importation.ImportView;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.menu.MenuItemWithText;
 import sh.komet.gui.util.FxGet;
+
+import jakarta.inject.Singleton;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 /**
  *
@@ -86,37 +108,27 @@ public class KometBaseMenus implements MenuProvider {
     public EnumSet<AppMenu> getParentMenus() {
         return EnumSet.of(AppMenu.FILE, AppMenu.TOOLS);
     }
-
+/*
+ */
     @Override
-    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window) {
+    public MenuItem[] getMenuItems(AppMenu parentMenu, Window window, WindowPreferences windowPreference) {
         switch (parentMenu) {
             case FILE: {
-                MenuItem selectiveImport = new MenuItem("Selective import and transform");
+                MenuItem selectiveImport = new MenuItemWithText("Selective import and transform");
+                selectiveImport.setUserData(windowPreference);
                 selectiveImport.setOnAction((ActionEvent event) -> {
-                    ImportView.show(FxGet.getManifold(Manifold.ManifoldGroup.TAXONOMY));
+                    ImportView.show(FxGet.newDefaultViewProperties());
                 });
 
-                MenuItem selectiveExport = new MenuItem("Selective export");
-                selectiveExport.setOnAction(event -> ExportView.show(FxGet.getManifold(Manifold.ManifoldGroup.UNLINKED)));
+                MenuItem selectiveExport = new MenuItemWithText("Selective export");
+                selectiveExport.setUserData(windowPreference);
+                selectiveExport.setOnAction(event -> ExportView.show(FxGet.newDefaultViewProperties()));
 
-                MenuItem importTransformFull = new MenuItem("Import and transform - FULL");
-
-                importTransformFull.setOnAction((ActionEvent event) -> {
-                    ImportAndTransformTask itcTask = new ImportAndTransformTask(FxGet.getManifold(Manifold.ManifoldGroup.TAXONOMY),
-                            ImportType.FULL);
-                    Get.executor().submit(itcTask);
-
-                });
-
-                MenuItem importSourcesFull = new MenuItem("Import terminology content - FULL");
-                importSourcesFull.setOnAction((ActionEvent event) -> {
-                    DirectImporter importerFull = new DirectImporter(ImportType.FULL);
-                    Get.executor().submit(importerFull);
-                });
 
                 Menu synchronize = new Menu("Synchronize");
 
-                MenuItem initializeLocal = new MenuItem("Initialize local");
+                MenuItem initializeLocal = new MenuItemWithText("Initialize local");
+                initializeLocal.setUserData(windowPreference);
                 synchronize.getItems().add(initializeLocal);
                 initializeLocal.setOnAction((ActionEvent event) -> {
                     //
@@ -132,7 +144,7 @@ public class KometBaseMenus implements MenuProvider {
                     if (!syncService.isRootLocationConfiguredForSCM()) {
                         try {
                             LOG.info("Initializing for git: " + changeSetFolder);
-                            syncService.initialize();
+                            syncService.initializeLocalRepository();
                         } catch (IOException ex) {
                             LOG.error(ex.getLocalizedMessage(), ex);
                         }
@@ -142,11 +154,13 @@ public class KometBaseMenus implements MenuProvider {
 
                 });
 
-                MenuItem initializeFromRemote = new MenuItem("Initialize from remote...");
+                MenuItem initializeFromRemote = new MenuItemWithText("Initialize from remote...");
+                initializeFromRemote.setUserData(windowPreference);
                 synchronize.getItems().add(initializeFromRemote);
                 initializeFromRemote.setOnAction(KometBaseMenus::setupGit);
 
-                MenuItem pullFromRemote = new MenuItem("Pull...");
+                MenuItem pullFromRemote = new MenuItemWithText("Pull...");
+                pullFromRemote.setUserData(windowPreference);
                 synchronize.getItems().add(pullFromRemote);
                 pullFromRemote.setOnAction((event) -> {
                     SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
@@ -164,7 +178,8 @@ public class KometBaseMenus implements MenuProvider {
                     });
                 });
 
-                MenuItem pushToRemote = new MenuItem("Push...");
+                MenuItem pushToRemote = new MenuItemWithText("Push...");
+                pushToRemote.setUserData(windowPreference);
                 synchronize.getItems().add(pushToRemote);
                 pushToRemote.setOnAction((event) -> {
                     SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
@@ -183,82 +198,244 @@ public class KometBaseMenus implements MenuProvider {
                     });
                 });
 
-                MenuItem exportNative = new MenuItem("Native format export to file...");
+                MenuItem exportNative = new MenuItemWithText("Native format export to file...");
+                exportNative.setUserData(windowPreference);
                 exportNative.setOnAction(this::exportNative);
 
-                MenuItem importNative = new MenuItem("Native format file to CSV...");
+                MenuItem importNative = new MenuItemWithText("Native format file to CSV...");
+                importNative.setUserData(windowPreference);
                 importNative.setOnAction(this::importNative);
 
-                MenuItem splitChangeSet = new MenuItem("Split change set...");
+                MenuItem splitChangeSet = new MenuItemWithText("Split change set...");
+                splitChangeSet.setUserData(windowPreference);
                 splitChangeSet.setOnAction(this::splitChangeSet);
 
-                MenuItem executeFlwor = new MenuItem("Execute FLWOR...");
+                MenuItem executeFlwor = new MenuItemWithText("Execute FLWOR...");
+                executeFlwor.setUserData(windowPreference);
                 executeFlwor.setOnAction(this::executeFlwor);
 
-                return new MenuItem[]{selectiveImport, selectiveExport, importTransformFull,
-                    importSourcesFull, synchronize, exportNative, importNative, splitChangeSet, executeFlwor};
+                MenuItem executeSctOwl = new MenuItemWithText("SimpleExtensionFunction SNOMED OWL");
+                executeSctOwl.setUserData(windowPreference);
+                executeSctOwl.setOnAction(this::executeSctOwl);
+
+                MenuItem executeRxNormOwl = new MenuItemWithText("SimpleExtensionFunction RxNorm OWL");
+                executeRxNormOwl.setUserData(windowPreference);
+                executeRxNormOwl.setOnAction(this::executeRxNormOwl);
+
+                return new MenuItem[]{selectiveImport, selectiveExport,
+                    synchronize, exportNative, importNative, splitChangeSet, executeFlwor,
+                        executeSctOwl, executeRxNormOwl
+                };
             }
 
             case TOOLS: {
 
-                MenuItem transformSourcesFull = new MenuItem("Transform RF2 to EL++ - FULL");
+                MenuItem showCommitTimes = new MenuItemWithText("Show commit times");
+                showCommitTimes.setUserData(windowPreference);
+                showCommitTimes.setOnAction((ActionEvent event) -> {
+                    ImmutableLongList timesInUse = Get.stampService().getTimesInUse();
+                    StringBuilder builder = new StringBuilder();
+                    timesInUse.forEach(time -> {
+                        builder.append(DateTimeUtil.format(time)).append("\n");
+                    });
+                    FxGet.dialogs().showInformationDialog("Commit times (" + timesInUse.size() + ")", builder.toString());
+                });
+
+                MenuItem showActiveAuthors = new MenuItemWithText("Show active authors");
+                showActiveAuthors.setUserData(windowPreference);
+                showActiveAuthors.setOnAction((ActionEvent event) -> {
+                    ImmutableIntSet authorsInUse = Get.stampService().getAuthorsInUse();
+                    ImmutableList<String> authorNames = windowPreference.getViewPropertiesForWindow().getManifoldCoordinate().getPreferredDescriptionTextList(authorsInUse.toArray());
+                    StringBuilder builder = new StringBuilder();
+                    authorNames.forEach(moduleName -> builder.append(moduleName).append("\n"));
+                    FxGet.dialogs().showInformationDialog("Active authors (" + authorNames.size() + ")", builder.toString());
+                });
+
+                MenuItem showActivePaths = new MenuItemWithText("Show active paths");
+                showActivePaths.setUserData(windowPreference);
+                showActivePaths.setOnAction((ActionEvent event) -> {
+                    ImmutableIntSet pathsInUse = Get.stampService().getPathsInUse();
+                    ImmutableList<String> pathNames = windowPreference.getViewPropertiesForWindow().getManifoldCoordinate().getPreferredDescriptionTextList(pathsInUse.toArray());
+                    StringBuilder builder = new StringBuilder();
+                    pathNames.forEach(moduleName -> builder.append(moduleName).append("\n"));
+
+                    FxGet.dialogs().showInformationDialog("Active paths(" + pathsInUse.size() + ")", builder.toString());
+                });
+
+                MenuItem showActiveModules = new MenuItemWithText("Show active modules");
+                showActiveModules.setUserData(windowPreference);
+                showActiveModules.setOnAction((ActionEvent event) -> {
+                    ImmutableIntSet moduleNids = Get.stampService().getModulesInUse();
+                    ImmutableList<String> moduleNames = windowPreference.getViewPropertiesForWindow().getManifoldCoordinate().getPreferredDescriptionTextList(moduleNids.toArray());
+                    StringBuilder builder = new StringBuilder();
+                    moduleNames.forEach(moduleName -> builder.append(moduleName).append("\n"));
+
+                    FxGet.dialogs().showInformationDialog("Active modules(" + moduleNames.size() + ")", builder.toString());
+                });
+
+
+                MenuItem transformModuleDependencies = new MenuItemWithText("Transform Module dependencies (SCT) to Dependency management (Solor)");
+                transformModuleDependencies.setUserData(windowPreference);
+                transformModuleDependencies.setOnAction((ActionEvent event) -> {
+                    Get.executor().submit(new DependencyManagementCollector(windowPreference.getViewPropertiesForWindow().getManifoldCoordinate()));
+                });
+
+                MenuItem transformSourcesFull = new MenuItemWithText("Transform RF2 to EL++ - FULL");
+                transformSourcesFull.setUserData(windowPreference);
                 transformSourcesFull.setOnAction((ActionEvent event) -> {
-                    Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.FULL);
+                    Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(null, ImportType.FULL);
                     Get.executor().submit(transformer);
                 });
 
-                MenuItem transformSourcesActiveOnly = new MenuItem("Transform RF2 to EL++ - ACTIVE");
+                MenuItem transformSourcesActiveOnly = new MenuItem("Transform RF2 to EL++ - SNAPSHOT ACTIVE ONLY");
+                transformSourcesActiveOnly.setUserData(windowPreference);
                 transformSourcesActiveOnly.setOnAction((ActionEvent event) -> {
-                    Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(ImportType.ACTIVE_ONLY);
+                    Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(null, ImportType.SNAPSHOT_ACTIVE_ONLY);
                     Get.executor().submit(transformer);
                 });
 
-                MenuItem completeClassify = new MenuItem("Complete classify");
+                MenuItem testGAE = new MenuItemWithText("SimpleExtensionFunction GAE");
+                testGAE.setUserData(windowPreference);
+                testGAE.setOnAction(this::testGAE);
+
+                MenuItem completeClassify = new MenuItemWithText("Complete classify");
+                completeClassify.setUserData(windowPreference);
                 completeClassify.setOnAction((ActionEvent event) -> {
                     //TODO change how we get the edit coordinate. 
                     EditCoordinate editCoordinate = Get.coordinateFactory().createDefaultUserSolorOverlayEditCoordinate();
-                    ClassifierService classifierService = Get.logicService().getClassifierService(FxGet.getManifold(Manifold.ManifoldGroup.SEARCH), editCoordinate);
+                    ClassifierService classifierService = Get.logicService().getClassifierService(windowPreference.getViewPropertiesForWindow().getManifoldCoordinate().toManifoldCoordinateImmutable());
                     classifierService.classify();
                 });
 
-                MenuItem completeReindex = new MenuItem("Complete reindex");
+                MenuItem completeReindex = new MenuItemWithText("Complete reindex");
+                completeReindex.setUserData(windowPreference);
                 completeReindex.setOnAction((ActionEvent event) -> {
                     Get.startIndexTask();
                 });
 
-                MenuItem recomputeTaxonomy = new MenuItem("Recompute taxonomy");
+                MenuItem recomputeTaxonomy = new MenuItemWithText("Recompute taxonomy");
+                recomputeTaxonomy.setUserData(windowPreference);
                 recomputeTaxonomy.setOnAction((ActionEvent event) -> {
                     Get.taxonomyService().notifyTaxonomyListenersToRefresh();
                 });
 
-                MenuItem importLoincRecords = new MenuItem("Import LOINC records");
-                importLoincRecords.setOnAction((ActionEvent event) -> {
-                    LoincDirectImporter importTask = new LoincDirectImporter();
-                    Get.executor().execute(importTask);
+
+                MenuItem loadIndustry = new MenuItemWithText("Load Industry");
+                loadIndustry.setUserData(windowPreference);
+                loadIndustry.setOnAction((ActionEvent event) -> {
+                    IndustryImporter importer = new IndustryImporter();
+                    Get.workExecutors().getExecutor().execute(importer);
                 });
 
-                MenuItem addLabNavigationConcepts = new MenuItem("Add lab navigation concepts");
-                addLabNavigationConcepts.setOnAction((ActionEvent event) -> {
-                    LoincExpressionToNavConcepts conversionTask = new LoincExpressionToNavConcepts(FxGet.getManifold(Manifold.ManifoldGroup.UNLINKED));
-                    Get.executor().execute(conversionTask);
+                MenuItem loadSOC = new MenuItemWithText("Load SOC");
+                loadSOC.setUserData(windowPreference);
+                loadSOC.setOnAction((ActionEvent event) -> {
+                    SocImporter2010 importer = new SocImporter2010();
+                    Get.workExecutors().getExecutor().execute(importer);
                 });
 
-                MenuItem convertLoincExpressions = new MenuItem("Convert LOINC expressions");
-                convertLoincExpressions.setOnAction((ActionEvent event) -> {
-                    LoincExpressionToConcept conversionTask = new LoincExpressionToConcept();
-                    Get.executor().execute(conversionTask);
+                MenuItem loadOccupation = new MenuItemWithText("Load Occupation");
+                loadOccupation.setUserData(windowPreference);
+                loadOccupation.setOnAction((ActionEvent event) -> {
+                    OccupationImporter importer = new OccupationImporter();
+                    Get.workExecutors().getExecutor().execute(importer);
                 });
 
+                MenuItem testElk = new MenuItemWithText("Test elk");
+                testElk.setUserData(windowPreference);
+                testElk.setOnAction((ActionEvent event) -> {
+                    LogicServiceElk logicServiceElk = Get.service(LogicServiceElk.class);
+                    if (logicServiceElk != null) {
+                        Get.workExecutors().getExecutor().execute(() -> {
+                            ClassifierService elkClassifier = logicServiceElk.getClassifierService(windowPreference.getViewPropertiesForWindow().getManifoldCoordinate().toManifoldCoordinateImmutable());
+                            elkClassifier.classify();
+                            LOG.info("Classify complete...");
+                        });
+                    }
+                });
 
                 return new MenuItem[]{
-                    completeClassify, completeReindex, recomputeTaxonomy,
-                    importLoincRecords, addLabNavigationConcepts, convertLoincExpressions,
-                    transformSourcesFull, transformSourcesActiveOnly
+                        showActiveModules, showActivePaths, showActiveAuthors, showCommitTimes,
+                        completeClassify, completeReindex, recomputeTaxonomy,
+                    transformSourcesFull, transformSourcesActiveOnly, testGAE,
+                        transformModuleDependencies, testElk, loadOccupation, loadIndustry, loadSOC
                 };
             }
         }
 
         return new MenuItem[]{};
+    }
+
+
+    private void testGAE(ActionEvent actionEvent) {
+        ConceptProxy gaeProxy = new ConceptProxy("Granulomatous amebic encephalitis (disorder)", UUID.fromString("8202f7c4-8390-3c72-96fa-a34d3d21c032"));
+        List<SemanticChronology> semanticChronologies = Get.assemblageService().getSemanticChronologiesForComponentFromAssemblage(gaeProxy.getNid(), MetaData.EL_PLUS_PLUS_STATED_FORM_ASSEMBLAGE____SOLOR.getNid());
+        for (SemanticChronology semanticChronology: semanticChronologies) {
+            Get.taxonomyService().updateTaxonomy(semanticChronology);
+        }
+    }
+
+    private void executeSctOwl(ActionEvent actionEvent) {
+        // refset id = 733073007
+        // 9a119252-b2da-3e62-8767-706558be8e4b
+        try {
+            File sctOwlFile = new File("/Users/kec/solor-source-artifact-transformer/solor-terminology-sources/", "SnomedCT_InternationalRF2_PRODUCTION_20190731T120000Z.zip");
+            try (ZipFile zipFile = new ZipFile(sctOwlFile, Charset.forName("UTF-8"))) {
+                zipFile.stream()
+                        .filter(entry -> !entry.getName().contains("__MACOSX") && !entry.getName().contains("._") && !entry.getName().contains(".DS_Store"))
+                        .forEach((ZipEntry zipEntry) -> {
+                            if (zipEntry.getName().equals("SnomedCT_InternationalRF2_PRODUCTION_20190731T120000Z/Full/Terminology/sct2_sRefset_OWLExpressionFull_INT_20190731.txt")) {
+                                LOG.info("SCT Entry: " + zipEntry.getName());
+                                try (BufferedReader br = new BufferedReader(new InputStreamReader(zipFile.getInputStream(zipEntry)))) {
+
+                                    final int ID = 0;
+                                    final int EFFECTIVE_TIME = 1;
+                                    final int ACTIVE = 2;
+                                    final int MODULE_ID = 3;
+                                    final int REFSET_ID = 4;
+                                    final int REFERENCED_COMPONENT_ID = 5;
+                                    final int OWL_EXPRESSION = 6;
+                                    String line = br.readLine();
+                                    // First line is header
+                                    // id	effectiveTime	active	moduleId	refsetId	referencedComponentId	owlExpression
+                                    while((line = br.readLine()) != null) {
+                                        String[] fields = line.split("\t");
+                                        LOG.info(fields[OWL_EXPRESSION]);
+                                        //LogicalExpression expression = SctOwlUtilities.sctToLogicalExpression(fields[REFERENCED_COMPONENT_ID], new BufferedReader(new StringReader(fields[OWL_EXPRESSION])));
+                                        //LOG.info(expression);
+                                    }
+
+                                } catch (IOException ex) {
+                                    FxGet.dialogs().showErrorDialog(ex);
+                                }
+                            }
+                        });
+            }
+        } catch (IOException e) {
+            FxGet.dialogs().showErrorDialog(e);
+        }
+    }
+    private void executeRxNormOwl(ActionEvent actionEvent) {
+        try {
+            File rxNormOwlFile = new File("/Users/kec/solor-source-artifact-transformer/solor-terminology-sources/", "RxNorm-defined-with-SNCT-classes-20190719.zip");
+            try (ZipFile zipFile = new ZipFile(rxNormOwlFile, Charset.forName("UTF-8"))) {
+                zipFile.stream()
+                        .filter(entry -> !entry.getName().contains("__MACOSX") && !entry.getName().contains("._") && !entry.getName().contains(".DS_Store"))
+                        .forEach((ZipEntry zipEntry) -> {
+                            if (zipEntry.getName().equals("RxNorm-defined-with-SNCT-classes-20190719.owl")) {
+                                LOG.info("RxNorm Entry: " + zipEntry.getName());
+                                try (InputStream inputStream = zipFile.getInputStream(zipEntry)) {
+
+                                } catch (IOException ex) {
+                                    FxGet.dialogs().showErrorDialog(ex);
+                                }
+
+                            }
+                        });
+            }
+        } catch (IOException e) {
+            FxGet.dialogs().showErrorDialog(e);
+        }
     }
 
     private void exportNative(ActionEvent event) {
@@ -284,7 +461,6 @@ public class KometBaseMenus implements MenuProvider {
             NativeImport importFile = new NativeImport(zipFile);
             Get.executor().submit(importFile);
         }
-
     }
 
     private void splitChangeSet(ActionEvent event) {
@@ -305,26 +481,27 @@ public class KometBaseMenus implements MenuProvider {
         File flworFile = fileChooser.showOpenDialog(null);
         if (flworFile != null) {
             try (FileReader reader = new FileReader(flworFile)) {
-                Query queryFromDisk = Query.fromXml(reader);
-
-                fileChooser.setTitle("Specify query result file");
-                fileChooser.setInitialFileName("results.txt");
-                File resultsFile = fileChooser.showSaveDialog(null);
-                
-                List<List<String>> results = queryFromDisk.executeQuery();
-                
-                try (FileWriter writer = new FileWriter(resultsFile)) {
-                    for (List<String> row: results) {
-                        for (int i = 0; i < row.size(); i++) {
-                            writer.append(row.get(i));
-                            if (i < row.size() -1) {
-                                writer.append("\t");
-                            } else {
-                                writer.append("\n");
-                            }
-                        }
-                    }
-                }
+                throw new UnsupportedOperationException();
+//                Query queryFromDisk = Query.fromXml(reader);
+//
+//                fileChooser.setTitle("Specify query result file");
+//                fileChooser.setInitialFileName("results.txt");
+//                File resultsFile = fileChooser.showSaveDialog(null);
+//
+//                List<List<String>> results = queryFromDisk.executeQuery();
+//
+//                try (FileWriter writer = new FileWriter(resultsFile, Charset.forName(StandardCharsets.UTF_8.name()))) {
+//                    for (List<String> row: results) {
+//                        for (int i = 0; i < row.size(); i++) {
+//                            writer.append(row.get(i));
+//                            if (i < row.size() -1) {
+//                                writer.append("\t");
+//                            } else {
+//                                writer.append("\n");
+//                            }
+//                        }
+//                    }
+//                }
 
             } catch (Throwable ex) {
                 FxGet.dialogs().showErrorDialog("Error importing " + flworFile.getName(), ex);

@@ -65,7 +65,7 @@ public class SequentialAggregateTask<T>
     * @param subTasks the sub tasks
     */
    public SequentialAggregateTask(String title, Collection<Task<?>> subTasks) {
-      this(title, subTasks.toArray(new Task<?>[subTasks.size()]));
+      this(title, subTasks.toArray(new Task[subTasks.size()]));
    }
 
    /**
@@ -97,13 +97,13 @@ public class SequentialAggregateTask<T>
 
 
    /**
-    * Sequentially execute the subTasks using the WorkExecutor service, and
-    * return the value of the last task in the sequence.
+    * Sequentially execute the subTasks , and return the value of the last task in the sequence.
     * @see javafx.concurrent.Task#call()
     *
     * @return T value returned by call() method of the last task
     * @throws Exception exception thrown by any subtask
     */
+   @SuppressWarnings("unchecked")
    @Override
    protected T call()
             throws Exception {
@@ -112,17 +112,15 @@ public class SequentialAggregateTask<T>
 
       try {
          Object returnValue = null;
-
+         LOG.debug("Executing {} subtasks", this.subTasks.length);
          for (; this.currentTask < this.subTasks.length; this.currentTask++) {
             if (this.subTasks[this.currentTask] instanceof AggregateTaskInput) {
                ((AggregateTaskInput)this.subTasks[this.currentTask]).setInput(returnValue);
             }
-            Get.workExecutors()
-               .getExecutor()
-               .execute(this.subTasks[this.currentTask]);
+            this.subTasks[this.currentTask].run();
             returnValue = this.subTasks[this.currentTask].get();
          }
-
+         LOG.debug("Subtasks complete");
          return (T) returnValue;
       } finally {
          Get.activeTasks()

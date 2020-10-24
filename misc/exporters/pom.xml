@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>sh.isaac</groupId>
 		<artifactId>misc</artifactId>
-		<version>5.1.1</version>
+		<version>6.0.0</version>
 	</parent>
 	<groupId>sh.isaac.misc</groupId>
 	<artifactId>exporters</artifactId>
@@ -16,11 +16,6 @@
 		<dependency>
 			<groupId>sh.isaac.misc</groupId>
 			<artifactId>util</artifactId>
-			<version>${project.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>sh.isaac.provider</groupId>
-			<artifactId>concept</artifactId>
 			<version>${project.version}</version>
 		</dependency>
 		<dependency>
@@ -85,6 +80,10 @@
 		<dependency>
 			<groupId>org.apache.poi</groupId>
 			<artifactId>poi-ooxml</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.commons</groupId>
+			<artifactId>commons-lang3</artifactId>
 		</dependency>
 	</dependencies>
 </project>

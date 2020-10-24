@@ -47,9 +47,9 @@ import java.util.List;
 
 import sh.isaac.api.ProgressTracker;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.stream.VersionStream;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.StampCoordinate;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -110,9 +110,9 @@ public interface SemanticSnapshotService<V extends SemanticVersion> {
    
    /**
     * 
-    * @param stampCoordinate 
+    * @param stampFilter
     * @return a new SemanticSnapshotService based on the provided stamp coordinate;
     */
-   SemanticSnapshotService<V> makeAnalog(StampCoordinate stampCoordinate);
+   SemanticSnapshotService<V> makeAnalog(StampFilter stampFilter);
 }
 

@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.OptionalInt;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.function.BiConsumer;
 import javafx.scene.control.MenuItem;
@@ -32,16 +31,15 @@ import sh.isaac.api.Get;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.model.observable.version.*;
-import sh.komet.gui.control.PropertySheetMenuItem;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
-import sh.komet.gui.util.FxGet;
+import sh.komet.gui.menu.MenuItemWithText;
 
 /**
  *
@@ -52,14 +50,14 @@ public class AddAttachmentMenuItems {
     private static final Logger LOG = LogManager.getLogger();
 
     final List<MenuItem> menuItems = new ArrayList<>();
-    final Manifold manifold;
+    final ManifoldCoordinate manifoldCoordinate;
     final ObservableCategorizedVersion categorizedVersion;
     final BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer;
     final HashMap<String, PropertySheetMenuItem> propertySheetMenuItems = new HashMap<>();
 
-    public AddAttachmentMenuItems(Manifold manifold, ObservableCategorizedVersion categorizedVersion,
-            BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
-        this.manifold = manifold;
+    public AddAttachmentMenuItems(ManifoldCoordinate manifoldCoordinate, ObservableCategorizedVersion categorizedVersion,
+                                  BiConsumer<PropertySheetMenuItem, ConceptSpecification> newAttachmentConsumer) {
+        this.manifoldCoordinate = manifoldCoordinate;
         this.categorizedVersion = categorizedVersion;
         this.newAttachmentConsumer = newAttachmentConsumer;
     }
@@ -84,9 +82,9 @@ public class AddAttachmentMenuItems {
         if (propertySheetMenuItems.containsKey(menuText)) {
             return propertySheetMenuItems.get(menuText);
         }
-        PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifold, categorizedVersion);
+        PropertySheetMenuItem propertySheetMenuItem = new PropertySheetMenuItem(manifoldCoordinate, categorizedVersion);
         propertySheetMenuItems.put(menuText, propertySheetMenuItem);
-        MenuItem menuItem = new MenuItem(menuText);
+        MenuItem menuItem = new MenuItemWithText(menuText);
         menuItem.setOnAction((event) -> {
             try {
                 ObservableVersion newVersion = makeNewVersion(assemblageSpecification);
@@ -104,7 +102,7 @@ public class AddAttachmentMenuItems {
     }
 
     protected ObservableVersion makeNewVersion(ConceptSpecification assemblageSpecification) throws NoSuchElementException, InterruptedException, IllegalStateException, ExecutionException {
-        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageSpecification, manifold);
+        OptionalInt optionalSemanticConceptNid = Get.assemblageService().getSemanticTypeConceptForAssemblage(assemblageSpecification, manifoldCoordinate.getViewStampFilter());
         if (optionalSemanticConceptNid.isPresent()) {
             int semanticTypeNid = optionalSemanticConceptNid.getAsInt();
             if (semanticTypeNid == MetaData.CONCEPT_SEMANTIC____SOLOR.getNid()
@@ -161,10 +159,10 @@ public class AddAttachmentMenuItems {
     }
 
     protected void setupWithChronicle(ObservableVersionImpl version) throws NoSuchElementException {
-        version.setStatus(Status.ACTIVE);
-        version.setAuthorNid(FxGet.editCoordinate().getAuthorNid());
-        version.setModuleNid(FxGet.editCoordinate().getModuleNid());
-        version.setPathNid(FxGet.editCoordinate().getPathNid());
+        version.setStatus(Status.ACTIVE, null);
+        version.setAuthorNid(this.manifoldCoordinate.getAuthorNidForChanges(), null);
+        version.setModuleNid(this.manifoldCoordinate.getModuleNidForAnalog(version), null);
+        version.setPathNid(this.manifoldCoordinate.getPathNidForAnalog(), null);
         version.setChronology(new ObservableSemanticChronologyImpl((SemanticChronology) version.createIndependentChronicle()));
     }
 

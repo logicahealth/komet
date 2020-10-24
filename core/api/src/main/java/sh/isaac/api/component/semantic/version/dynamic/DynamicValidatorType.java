@@ -350,13 +350,13 @@ public enum DynamicValidatorType {
                
                return Get.taxonomyService().getStatedLatestSnapshot(
                      Get.stampService().getPathNidForStamp(stampSequence), 
-                     new HashSet(),  //the stamp sequence is only going to tell us the module this semantic is being created on, 
+                     new HashSet<>(),  //the stamp sequence is only going to tell us the module this semantic is being created on, 
                      //but often, the is_child_of check is about a different concept entirely, likely in a different module.
                      Status.ACTIVE_ONLY_SET, false).isChildOf(childId, parentId);
             } else {  //IS_KIND_OF
                return Get.taxonomyService().getStatedLatestSnapshot(
                       Get.stampService().getPathNidForStamp(stampSequence), 
-                      new HashSet(),  //the stamp sequence is only going to tell us the module this semantic is being created on, 
+                      new HashSet<>(),  //the stamp sequence is only going to tell us the module this semantic is being created on, 
                       //but often, the is_child_of check is about a different concept entirely, likely in a different module.
                       Status.ACTIVE_ONLY_SET, false).isKindOf(childId, parentId);
             }
@@ -405,6 +405,9 @@ public enum DynamicValidatorType {
             if ((expectedCT == IsaacObjectType.SEMANTIC) && (valData.length == 2)) {
                // they specified a specific type.  Verify.
                final VersionType st = VersionType.parse(valData[1].getDataString(), false);
+               if (st == VersionType.UNKNOWN) {
+                  throw new RuntimeException("Validator data is invalid for VersionType: " + valData[1].getDataString());
+               }
                final SemanticChronology semanticChronology = Get.assemblageService()
                                                                               .getSemanticChronology(nid);
 

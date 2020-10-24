@@ -16,16 +16,17 @@
  */
 package sh.komet.gui.action.dashboard;
 
-import javax.inject.Singleton;
-import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
+import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+
+import jakarta.inject.Singleton;
 
 /**
  *
@@ -38,8 +39,8 @@ public class DashboardNodeFactory
    public static final String MENU_TEXT  = "System Dashboard";
 
     @Override
-    public DashboardView createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      DashboardView dashboard = new DashboardView(manifold);
+    public DashboardView createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+      DashboardView dashboard = new DashboardView(viewProperties);
       return dashboard;
     }
 
@@ -52,21 +53,14 @@ public class DashboardNodeFactory
     public Node getMenuIcon() {
         return Iconography.DASHBOARD.getIconographic();
     }
-    
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public PanelPlacement getPanelPlacement() {
-       return null;
-    }
 
    /** 
     * {@inheritDoc}
+    * @return
     */
    @Override
-   public ManifoldGroup[] getDefaultManifoldGroups() {
-      return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
+   public String[] getDefaultActivityFeed() {
+      return new String[] {ViewProperties.UNLINKED};
    }
 
     @Override

@@ -39,19 +39,18 @@ package sh.isaac.api.query;
 //~--- JDK imports ------------------------------------------------------------
 
 
-import javax.xml.bind.annotation.XmlRootElement;
-
-//~--- non-JDK imports --------------------------------------------------------
-import java.util.HashMap;
-import java.util.Map;
 import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.ConceptVersion;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
+
+import java.util.HashMap;
+import java.util.Map;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -61,7 +60,6 @@ import sh.isaac.api.coordinate.StampCoordinate;
  *
  * @author kec
  */
-@XmlRootElement()
 public class Not
         extends ParentClause {
 
@@ -114,11 +112,11 @@ public class Not
         assert this.forSet != null;
 
         final NidSet activeSet = new NidSet();
-        StampCoordinate stampCoordinate = (StampCoordinate) getEnclosingQuery().getLetDeclarations().get(stampCoordinateKey);
+        StampFilter stampFilter = (StampFilter) getEnclosingQuery().getLetDeclarations().get(stampCoordinateKey);
 
-        Get.conceptService().getConceptChronologyStream(incomingComponents.get(this.getAssemblageForIteration())).forEach((ConceptChronology cc) -> {
+        Get.conceptService().getConceptChronologyStream(incomingComponents.get(this.getAssemblageForIteration()), false).forEach((ConceptChronology cc) -> {
             final LatestVersion<ConceptVersion> latestVersion
-                    = cc.getLatestVersion(stampCoordinate);
+                    = cc.getLatestVersion(stampFilter);
 
             if (latestVersion.isPresent()) {
                 activeSet.add(cc.getNid());

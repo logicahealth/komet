@@ -25,20 +25,19 @@ import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import org.apache.logging.log4j.LogManager;
 import org.apache.mahout.math.Arrays;
+import sh.isaac.MetaData;
 import sh.isaac.api.AssemblageService;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
-import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
-import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
+import sh.isaac.model.semantic.version.StringVersionImpl;
 import sh.isaac.model.semantic.version.brittle.Rf2RelationshipImpl;
 
 /**
@@ -65,55 +64,25 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
    private static final int RF2_REL_CHARACTERISTIC_NID_INDEX = 8;
    private static final int RF2_REL_MODIFIER_NID_INDEX = 9;
 
-    private static final int SRF_ID_INDEX = 0;
-    private static final int SRF_STATUS_INDEX = 1;
-    private static final int SRF_TIME_INDEX = 2;
-    private static final int SRF_AUTHOR_INDEX = 3;
-    private static final int SRF_MODULE_INDEX = 4;
-    private static final int SRF_PATH_INDEX = 5;
-    private static final int SRF_SOURCE_ID_INDEX = 6;
-    private static final int SRF_DESTINATION_ID_INDEX = 7;
-    private static final int SRF_RELATIONSHIP_GROUP_INDEX = 8;
-    private static final int SRF_TYPE_ID_INDEX = 9;
-    private static final int SRF_CHARACTERISTIC_TYPE_ID_INDEX = 10;
-    private static final int SRF_MODIFIER_ID_INDEX = 11;
-
-    private final List<String[]> relationshipRecords;
+   private final List<String[]> relationshipRecords;
    private final Semaphore writeSemaphore;
-   private final List<IndexBuilderService> indexers;
    private final ImportType importType;
-   private final boolean solorReleaseFormat;
-
    private final ImportSpecification importSpecification;
 
-   public Rf2RelationshipWriter(List<String[]> descriptionRecords, 
+   public Rf2RelationshipWriter(List<String[]> relationshipRecords,
             Semaphore writeSemaphore, String message, 
-            ImportSpecification importSpecification, ImportType importType, boolean solorReleaseFormat) {
-      this.relationshipRecords = descriptionRecords;
+            ImportSpecification importSpecification, ImportType importType) {
+      this.relationshipRecords = relationshipRecords;
       this.writeSemaphore = writeSemaphore;
       this.writeSemaphore.acquireUninterruptibly();
-      this.solorReleaseFormat = solorReleaseFormat;
-      indexers = LookupService.get().getAllServices(IndexBuilderService.class);
       this.importSpecification = importSpecification;
-      updateTitle(this.solorReleaseFormat
-              ? "Importing srf relationship batch of size: " + descriptionRecords.size()
-              : "Importing rf2 relationship batch of size: " + descriptionRecords.size());
+      updateTitle("Importing relationship batch of size: " + relationshipRecords.size());
       updateMessage(message);
-      addToTotalWork(descriptionRecords.size());
+      addToTotalWork(relationshipRecords.size());
       Get.activeTasks().add(this);
       this.importType = importType;
    }
    protected static final org.apache.logging.log4j.Logger LOG = LogManager.getLogger();
-
-   private void index(Chronology chronicle) {
-//      for (IndexService indexer : indexers) {
-//         try {
-//            indexer.index(chronicle).get();
-//         } catch (InterruptedException | ExecutionException ex) {
-//            LOG.error(ex);
-//         }
-//      }
-   }
 
    @Override
    protected Void call() throws Exception {
@@ -121,87 +90,79 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
          AssemblageService assemblageService = Get.assemblageService();
          IdentifierService identifierService = Get.identifierService();
          StampService stampService = Get.stampService();
-         int authorNid = 1;
-         int pathNid = 1;
-         int relAssemblageNid;
 
-         if(this.solorReleaseFormat){
-             relAssemblageNid = TermAux.SRF_INFERRED_RELATIONSHIP_ASSEMBLAGE.getNid();
-             if (importSpecification.streamType == ImportStreamType.STATED_RELATIONSHIP) {
-                 relAssemblageNid = TermAux.SRF_STATED_RELATIONSHIP_ASSEMBLAGE.getNid();
-             }
-         }else{
-             authorNid = TermAux.USER.getNid();
-             pathNid = TermAux.DEVELOPMENT_PATH.getNid();
-             relAssemblageNid = TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE.getNid();
-             if (importSpecification.streamType == ImportStreamType.STATED_RELATIONSHIP) {
-                 relAssemblageNid = TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid();
-             }
+         int authorNid = TermAux.USER.getNid();
+         int pathNid = TermAux.DEVELOPMENT_PATH.getNid();
+         int relAssemblageNid = TermAux.RF2_INFERRED_RELATIONSHIP_ASSEMBLAGE.getNid();
+
+         if (importSpecification.streamType == ImportStreamType.STATED_RELATIONSHIP) {
+             relAssemblageNid = TermAux.RF2_STATED_RELATIONSHIP_ASSEMBLAGE.getNid();
          }
-
 
          for (String[] relationshipRecord : relationshipRecords) {
              try {
-                 final Status state = Status.fromZeroOneToken(this.solorReleaseFormat
-                         ? relationshipRecord[SRF_STATUS_INDEX]
-                         : relationshipRecord[RF2_ACTIVE_INDEX]);
-                 if (state == Status.INACTIVE && importType == ImportType.ACTIVE_ONLY) {
-                     continue;
-                 }
-                 UUID referencedConceptUuid = this.solorReleaseFormat
-                         ? UUID.fromString(relationshipRecord[SRF_SOURCE_ID_INDEX])
-                         : UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
-                 if (importType == ImportType.ACTIVE_ONLY) {
+                 final Status state = Status.fromZeroOneToken(relationshipRecord[RF2_ACTIVE_INDEX]);
+                 //We cannot skip inactive records when importing snapshot_active_only, because we will end up with the wrong date
+                 //on the logic graph, since it combines all of these records into a single graph.
+                 UUID referencedConceptUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]);
+                 UUID destinationUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_DESTINATION_NID_INDEX]);
+                 UUID relTypeUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_TYPE_NID_INDEX]);
+                 if (importType == ImportType.SNAPSHOT_ACTIVE_ONLY) {
                      if (!identifierService.hasUuid(referencedConceptUuid)) {
-                         // if concept was not imported because inactive then skip
+                         // if concept was not imported because inactive then skip, we wouldn't process this row.
                          continue;
+                     }
+                     if (!identifierService.hasUuid(destinationUuid)) {
+                         //This is trickier - if its inactive, will point at a placeholder, so we can load, and keep the timestamp.
+                         //If its active, I think that is just an error, and will fail for now. 
+                         if (state == Status.INACTIVE) {
+                            destinationUuid = MetaData.UNINITIALIZED_COMPONENT____SOLOR.getPrimordialUuid();
+                         }
+                         else {
+                            throw new RuntimeException("Unexpected case of snapshot active only with an active rel that references a missing destination:" 
+                                  + Arrays.toString(relationshipRecord));
+                         }
+                     }
+                     if (!identifierService.hasUuid(relTypeUuid)) {
+                         //This is trickier - if its inactive, will point at a placeholder, so we can load, and keep the timestamp.
+                         //If its active, I think that is just an error, and will fail for now. 
+                         if (state == Status.INACTIVE) {
+                             relTypeUuid = MetaData.UNINITIALIZED_COMPONENT____SOLOR.getPrimordialUuid();
+                         }
+                         else {
+                            throw new RuntimeException("Unexpected case of snapshot active only with an active rel that references a missing reltype:" 
+                                  + Arrays.toString(relationshipRecord));
+                         }
                      }
                  }
 
-                 UUID betterRelUuid, moduleUuid, destinationUuid, relTypeUuid, relCharacteristicUuid, relModifierUuid;
+                 UUID betterRelUuid, moduleUuid, relCharacteristicUuid, relModifierUuid;
                  TemporalAccessor accessor;
 
-                 if(this.solorReleaseFormat){
-                     authorNid = identifierService.getNidForUuids(UUID.fromString(relationshipRecord[SRF_AUTHOR_INDEX]));
-                     pathNid = identifierService.getNidForUuids(UUID.fromString(relationshipRecord[SRF_PATH_INDEX]));
-                     betterRelUuid = UuidT5Generator.get(
-                             relationshipRecord[SRF_ID_INDEX]
-                                     + relationshipRecord[SRF_SOURCE_ID_INDEX]
-                                     + relationshipRecord[SRF_TYPE_ID_INDEX]
-                                     + relationshipRecord[SRF_DESTINATION_ID_INDEX]
-                                     + relationshipRecord[SRF_CHARACTERISTIC_TYPE_ID_INDEX]
-                                     + relationshipRecord[SRF_MODIFIER_ID_INDEX]
-                                     + importSpecification.streamType
-                     );
-                     moduleUuid = UUID.fromString(relationshipRecord[SRF_MODULE_INDEX]);
-                     destinationUuid = UUID.fromString(relationshipRecord[SRF_DESTINATION_ID_INDEX]);
-                     relTypeUuid = UUID.fromString(relationshipRecord[SRF_TYPE_ID_INDEX]);
-                     relCharacteristicUuid = UUID.fromString(relationshipRecord[SRF_CHARACTERISTIC_TYPE_ID_INDEX]);
-                     relModifierUuid = UUID.fromString(relationshipRecord[SRF_MODIFIER_ID_INDEX]);
-                     accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(relationshipRecord[SRF_TIME_INDEX]));
-                 }else{
-                     betterRelUuid = UuidT5Generator.get(
-                             relationshipRecord[RF2_REL_SCT_ID_INDEX]
-                                     + relationshipRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]
-                                     + relationshipRecord[RF2_REL_TYPE_NID_INDEX]
-                                     + relationshipRecord[RF2_DESTINATION_NID_INDEX]
-                                     + relationshipRecord[RF2_REL_CHARACTERISTIC_NID_INDEX]
-                                     + relationshipRecord[RF2_REL_MODIFIER_NID_INDEX]
-                                     + importSpecification.streamType
-                     );
-                     moduleUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_MODULE_SCTID_INDEX]);
-                     destinationUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_DESTINATION_NID_INDEX]);
-                     relTypeUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_TYPE_NID_INDEX]);
-                     relCharacteristicUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_CHARACTERISTIC_NID_INDEX]);
-                     relModifierUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_MODIFIER_NID_INDEX]);
-                     accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(relationshipRecord[RF2_EFFECTIVE_TIME_INDEX]));
-                 }
-                 
+                 betterRelUuid = UuidT5Generator.get(
+                         relationshipRecord[RF2_REL_SCT_ID_INDEX]
+                                 + relationshipRecord[RF2_REFERENCED_CONCEPT_SCT_ID_INDEX]
+                                 + relationshipRecord[RF2_REL_TYPE_NID_INDEX]
+                                 + relationshipRecord[RF2_DESTINATION_NID_INDEX]
+                                 + relationshipRecord[RF2_REL_CHARACTERISTIC_NID_INDEX]
+                                 + relationshipRecord[RF2_REL_MODIFIER_NID_INDEX]
+                                 + importSpecification.streamType
+                 );
+                 moduleUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_MODULE_SCTID_INDEX]);
+                 relCharacteristicUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_CHARACTERISTIC_NID_INDEX]);
+                 relModifierUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_MODIFIER_NID_INDEX]);
+                 accessor = DateTimeFormatter.ISO_INSTANT.parse(DirectImporter.getIsoInstant(relationshipRecord[RF2_EFFECTIVE_TIME_INDEX]));
 
                  long time = accessor.getLong(INSTANT_SECONDS) * 1000;
 
                  // add to rel assemblage
-                 int destinationNid = identifierService.getNidForUuids(destinationUuid);
+                 int destinationNid = 0;
+                 try {
+                     destinationNid = identifierService.getNidForUuids(destinationUuid);
+                 } catch (NoSuchElementException e) {
+                     LOG.warn("No element for [2]: " + relationshipRecord[RF2_DESTINATION_NID_INDEX]);
+                     destinationNid = identifierService.assignNid(destinationUuid);
+                 }
                  int moduleNid = identifierService.getNidForUuids(moduleUuid);
                  int referencedConceptNid = identifierService.getNidForUuids(referencedConceptUuid);
                  int relTypeNid = identifierService.getNidForUuids(relTypeUuid);
@@ -213,12 +174,8 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                                  relAssemblageNid, referencedConceptNid);
                  // Add in original uuids for AMT content...
                  // 900062011000036108 = AU module
-                 if (relationshipRecord[RF2_MODULE_SCTID_INDEX].equals("900062011000036108")
-                         || relationshipRecord[SRF_MODULE_INDEX].equals("cee6956f-7f49-388d-9c48-f0116b5af980")) {
-                     UUID relUuid = this.solorReleaseFormat
-                             ? UUID.fromString(relationshipRecord[SRF_ID_INDEX])
-                             : UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_SCT_ID_INDEX]);
-                     identifierService.addUuidForNid(relUuid, relationshipToWrite.getNid());
+                 if (relationshipRecord[RF2_MODULE_SCTID_INDEX].equals("900062011000036108")) {
+                     UUID relUuid = UuidT3Generator.fromSNOMED(relationshipRecord[RF2_REL_SCT_ID_INDEX]);
                      relationshipToWrite.addAdditionalUuids(relUuid);
                  }
                  
@@ -228,11 +185,25 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                  relVersion.setDestinationNid(destinationNid);
                  relVersion.setModifierNid(relModifierNid);
                  relVersion.setTypeNid(relTypeNid);
-                 relVersion.setRelationshipGroup(this.solorReleaseFormat
-                         ? Integer.parseInt(relationshipRecord[SRF_RELATIONSHIP_GROUP_INDEX])
-                         : Integer.parseInt(relationshipRecord[RF2_REL_GROUP_INDEX]));
-                 index(relationshipToWrite);
+                 relVersion.setRelationshipGroup(Integer.parseInt(relationshipRecord[RF2_REL_GROUP_INDEX]));
+
                  assemblageService.writeSemanticChronology(relationshipToWrite);
+
+                 // add to sct identifier assemblage
+                 UUID identifierUuid;
+
+                 identifierUuid = UuidT5Generator.get(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(),
+                         betterRelUuid.toString() + relationshipRecord[RF2_REL_SCT_ID_INDEX]);
+
+                 SemanticChronologyImpl sctIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
+                         identifierUuid,
+                         TermAux.SNOMED_IDENTIFIER.getNid(),
+                         relationshipToWrite.getNid());
+
+                 StringVersionImpl idVersion = sctIdentifierToWrite.createMutableVersion(relStamp);
+                 idVersion.setString(relationshipRecord[RF2_REL_SCT_ID_INDEX]);
+                 assemblageService.writeSemanticChronology(sctIdentifierToWrite);
+
              } catch (NoSuchElementException noSuchElementException) {
                  StringBuilder builder = new StringBuilder();
                  builder.append("Error importing record: \n").append(Arrays.toString(relationshipRecord));

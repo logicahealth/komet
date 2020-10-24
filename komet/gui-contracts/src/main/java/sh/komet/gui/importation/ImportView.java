@@ -22,7 +22,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -33,7 +33,7 @@ public class ImportView {
     final Stage stage;
     ImportViewController controller;
     
-    private ImportView(Manifold manifold) {
+    private ImportView(ViewProperties manifold) {
         try {
             this.stage = new Stage();
             //stage.initModality(Modality.NONE);
@@ -62,7 +62,7 @@ public class ImportView {
         }
     }
 
-    public static void show(Manifold manifold) {
+    public static void show(ViewProperties manifold) {
         ImportView importView = new ImportView(manifold);
         //show the stage
         //center stage on screen

@@ -16,11 +16,17 @@
  */
 package sh.komet.gui.control.text;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.text.Text;
 
 /**
  *
@@ -28,12 +34,37 @@ import javafx.scene.layout.Priority;
  */
 public class TextAreaReadOnly extends TextArea {
 
+    TextAreaSkinNoScroller textAreaSkinNoScroller;
+
     public TextAreaReadOnly() {
+        setSkin(new TextAreaSkinNoScroller(this));
+        this.textAreaSkinNoScroller = (TextAreaSkinNoScroller) this.getSkin();
+        this.textAreaSkinNoScroller.getContentView().heightProperty().addListener((observable, oldValue, newValue) -> {
+            setTheHeight(newValue.doubleValue());
+        });
         setEditable(false);
         setWrapText(true);
+        setPrefRowCount(4);
+
+        this.textProperty().addListener((observable, oldValue, newValue) -> {
+            double height = textAreaSkinNoScroller.computePrefHeight(getWidth());
+            setTheHeight(height);
+        });
+
+        this.widthProperty().addListener((observable, oldValue, newValue) -> {
+            double height = textAreaSkinNoScroller.computePrefHeight(newValue.doubleValue());
+            setTheHeight(height);
+        });
+
         focusedProperty().addListener((observable, oldValue, newValue) -> {
             selectRange(0,0);
         });
+    }
+
+    private void setTheHeight(Double height) {
+        setPrefHeight(height);
+        setMaxHeight(height);
+        setHeight(height);
     }
 
 

@@ -39,39 +39,31 @@
 
 package sh.isaac.model.builder;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.commit.ChangeCheckerMode;
-import sh.isaac.api.commit.Stamp;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.concept.description.DescriptionBuilder;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.task.OptionalWaitTask;
-import sh.isaac.api.util.UuidFactory;
-import sh.isaac.api.util.UuidT5Generator;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.component.semantic.version.DescriptionVersion;
-import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticBuilderService;
-import sh.isaac.model.ModelGet;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.coordinate.WriteCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
+import sh.isaac.api.task.OptionalWaitTask;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.UuidFactory;
+import sh.isaac.api.util.UuidT5Generator;
 
 /**
  * The Class DescriptionBuilderImpl.
@@ -103,7 +95,6 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
    /** The concept builder. */
    private final ConceptBuilder conceptBuilder;
 
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new description builder.
@@ -144,47 +135,22 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
       this.conceptBuilder         = null;
    }
 
-   //~--- methods -------------------------------------------------------------
 
-   /**
-    * Adds the acceptable in dialect assemblage.
-    *
-    * @param dialectAssemblage the dialect assemblage
-    * @return the description builder
-    */
    @Override
    public DescriptionBuilder addAcceptableInDialectAssemblage(ConceptSpecification dialectAssemblage) {
       this.acceptableInDialectAssemblages.put(dialectAssemblage, null);
       return this;
    }
 
-   /**
-    * Adds the preferred in dialect assemblage.
-    *
-    * @param dialectAssemblage the dialect assemblage
-    * @return the description builder
-    */
    @Override
    public DescriptionBuilder addPreferredInDialectAssemblage(ConceptSpecification dialectAssemblage) {
       this.preferredInDialectAssemblages.put(dialectAssemblage, null);
       return this;
    }
 
-   /**
-    * Builds the.
-    *
-    * @param stampSequence the stamp sequence
-    * @param builtObjects the built objects
-    * @return the t
-    * @throws IllegalStateException the illegal state exception
-    */
-   @Override
-   public T build(int stampSequence,
-                  List<Chronology> builtObjects)
-            throws IllegalStateException {
+   private SemanticBuilder<? extends SemanticChronology> buildInternal(List<Chronology> builtObjects) throws IllegalStateException {
       if (this.conceptNid == Integer.MAX_VALUE) {
-         this.conceptNid = Get.identifierService()
-                                   .getNidForUuids(this.conceptBuilder.getUuids());
+         this.conceptNid = Get.identifierService().getNidForUuids(this.conceptBuilder.getUuids());
       }
 
       final SemanticBuilderService semanticBuilder = LookupService.getService(SemanticBuilderService.class);
@@ -195,73 +161,34 @@ public class DescriptionBuilderImpl<T extends SemanticChronology, V extends Desc
                                                    this.descriptionText,this.conceptNid);
 
       descBuilder.setPrimordialUuid(this.getPrimordialUuid());
-
-      if (getModule().isPresent()) {
-          Stamp requested = Get.stampService().getStamp(stampSequence);
-          stampSequence = Get.stampService().getStampSequence(requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
-      }
-       
-      final int finalStamp = stampSequence;
-
-      final SemanticChronology newDescription = (SemanticChronology) descBuilder.build(finalStamp, builtObjects);
-      ModelGet.identifierService().setupNid(newDescription.getNid(), newDescription.getAssemblageNid(), newDescription.getIsaacObjectType(), newDescription.getVersionType());
-      getSemanticBuilders().forEach((builder) -> builder.build(finalStamp, builtObjects));
-      return (T) newDescription;
+      return descBuilder;
    }
 
-   /**
-    * Builds the.
-    *
-    * @param editCoordinate the edit coordinate
-    * @param changeCheckerMode the change checker mode
-    * @param builtObjects the built objects
-    * @return the optional wait task
-    * @throws IllegalStateException the illegal state exception
-    */
    @Override
-   public OptionalWaitTask<T> build(EditCoordinate editCoordinate,
-                                    ChangeCheckerMode changeCheckerMode,
-                                    List<Chronology> builtObjects)
-            throws IllegalStateException {
-      if (this.conceptNid == Integer.MAX_VALUE) {
-         this.conceptNid = Get.identifierService()
-                                   .getNidForUuids(this.conceptBuilder.getUuids());
-      }
-
-      final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
-      final SemanticBuilderService semanticBuilder = LookupService.getService(SemanticBuilderService.class);
-      final SemanticBuilder<? extends SemanticChronology> descBuilder =
-         semanticBuilder.getDescriptionBuilder(Get.languageCoordinateService()
-                                                      .caseSignificanceToConceptNid(false),
-                                                   this.languageForDescription.getNid(),
-                                                   this.descriptionType.getNid(),
-                                                   this.descriptionText,this.conceptNid);
-
-      descBuilder.setPrimordialUuid(this.getPrimordialUuid());
-      getModule().ifPresent((moduleSpec) -> {
-          descBuilder.setModule(moduleSpec);
-      });
-      
-
-      final OptionalWaitTask<SemanticChronology> newDescription =
-         (OptionalWaitTask<SemanticChronology>) descBuilder.setStatus(this.state).build(editCoordinate,
-                                                                                          changeCheckerMode,
-                                                                                          builtObjects);
-
-      nestedBuilders.add(newDescription);
-
-      getSemanticBuilders().forEach((builder) -> {
-            getModule().ifPresent((moduleSpec) -> {
-                builder.setModule(moduleSpec);
-            });
-          
-            nestedBuilders.add(builder.build(editCoordinate,
-            changeCheckerMode,
-            builtObjects));
-                      });
-      return new OptionalWaitTask<>(null, (T) newDescription.getNoWait(), nestedBuilders);
+    public T build(Transaction transaction, int stampSequence, List<Chronology> builtObjects) throws IllegalStateException {
+       WriteCoordinate main = adjustForModule(new WriteCoordinateImpl(transaction, stampSequence));
+       
+       SemanticBuilder<? extends SemanticChronology> descBuilder = buildInternal(builtObjects);
+       final SemanticChronology newDescription = (SemanticChronology) descBuilder.build(
+             status == null ? main : new WriteCoordinateImpl(new WriteCoordinateImpl(transaction, stampSequence), status), builtObjects);
+       getSemanticBuilders().forEach((builder) -> builder.build(main, builtObjects));
+       return (T) newDescription;
    }
    
+   @Override
+   public OptionalWaitTask<T> buildAndWrite(WriteCoordinate writeCoordinate, List<Chronology> builtObjects) throws IllegalStateException
+   {
+      final ArrayList<OptionalWaitTask<?>> nestedBuilders = new ArrayList<>();
+      WriteCoordinate main = adjustForModule(writeCoordinate);
+
+      SemanticBuilder<? extends SemanticChronology> descBuilder = buildInternal(builtObjects);
+      
+      final OptionalWaitTask<SemanticChronology> newDescription = (OptionalWaitTask<SemanticChronology>) descBuilder.buildAndWrite(
+            status == null ? main : new WriteCoordinateImpl(main, status), builtObjects);
+      getSemanticBuilders().forEach((builder) -> nestedBuilders.add(builder.buildAndWrite(main, builtObjects)));
+      return new OptionalWaitTask<>(null, (T) newDescription.getNoWait(), nestedBuilders);
+   }
+
    @Override
    public String getDescriptionText() {
       return descriptionText;

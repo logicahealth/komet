@@ -39,27 +39,22 @@
 
 package sh.isaac.api;
 
-//~--- JDK imports ------------------------------------------------------------
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BiConsumer;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import sh.isaac.api.commit.ChangeCheckerMode;
-import sh.isaac.api.commit.CommittableComponent;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.identity.IdentifiedObject;
-import sh.isaac.api.task.OptionalWaitTask;
-import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.CommittableComponent;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.coordinate.WriteCoordinate;
+import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.task.OptionalWaitTask;
+import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.UuidT5Generator;
 
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface IdentifiedComponentBuilder.
@@ -99,50 +94,76 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     */
    IdentifiedComponentBuilder<T> addUuids(UUID... uuids);
 
-   /**
-    * Create a component with a state of ACTIVE.
-    *
-    * @param editCoordinate the edit coordinate that determines the author, module and path for the change
-    * @param changeCheckerMode determines if added to the commit manager with or without checks.
-    * @return a task which will return the constructed component after it has been added to the commit manager -
-    * the write to the commit manager is not complete until the task is complete (the task has already been launched)
-    * @throws IllegalStateException the illegal state exception
-    */
-   OptionalWaitTask<T> build(EditCoordinate editCoordinate,
-                             ChangeCheckerMode changeCheckerMode)
-            throws IllegalStateException;
+  /**
+   * @param writeCoordinate the transaction and STAMP details governing the component builder
+   * @return a task which will return the constructed component after it has been added to the commit manager -
+   * the write to the commit manager is not complete until the task is complete (the task has already been launched)
+   * @throws IllegalStateException the illegal state exception
+   */
+    default OptionalWaitTask<T> buildAndWrite(WriteCoordinate writeCoordinate) throws IllegalStateException {
+       return buildAndWrite(writeCoordinate, new ArrayList<Chronology>());
+    }
 
    /**
     * The caller is responsible to write the component to the proper store when
     * all updates to the component are complete.
     *
+    * @param transaction the transaction governing the component builder
     * @param stampSequence the stamp sequence
-    * @param builtObjects a list objects build as a result of call build.
+    * @param builtObjects a list objects build as a result of call build, including any subobjects
     * Includes top-level object being built.
     * The caller is also responsible to write all build objects to the proper store.
     * @return the constructed component, not yet written to the database.
     * @throws IllegalStateException the illegal state exception
     */
-   T build(int stampSequence,
-           List<Chronology> builtObjects)
-            throws IllegalStateException;
-
+   T build(Transaction transaction, int stampSequence, List<Chronology> builtObjects) throws IllegalStateException;
+   
    /**
-    * Create a component with a state of ACTIVE.
-    *
-    * @param editCoordinate the edit coordinate that determines the author, module (unless overridden) and path for the change
-    * @param changeCheckerMode determines if added to the commit manager with or without checks.
-    * @param subordinateBuiltObjects a list of subordinate objects also build as a result of building this object.  Includes top-level object being built.
+    * The caller is responsible to write the component to the proper store when
+    * all updates to the component are complete.
+    * 
+    * @see #build(Transaction, int, List)
+    * 
+    * @param writeCoordinate the transaction and STAMP details governing the component builder
+    * @param builtObjects a list of subordinate objects also build as a result of building this object.  Includes top-level object being built.
+    * @return the constructed component, not yet written to the database.
+    * @throws IllegalStateException the illegal state exception
+    */
+   default T build(WriteCoordinate writeCoordinate, List<Chronology> builtObjects) throws IllegalStateException {
+      return build(writeCoordinate.getTransaction().get(), writeCoordinate.getStampSequence(), builtObjects);
+   }
+   
+   /**
+    * The caller is responsible to write the component to the proper store when
+    * all updates to the component are complete.
+    * 
+    * @see #build(Transaction, int, List)
+    * 
+    * @param writeCoordinate the transaction and STAMP details governing the component builder
+    * @return the constructed component, not yet written to the database.
+    * @throws IllegalStateException the illegal state exception
+    * @Deprecated: I've found this method swallows sub-component build by the builder, by not writing them to
+    * a data store. I recommend buildAndWrite, or the build method this default method calls... I've modified to
+    * throw an exception that hopefully makes the developer aware of the problem when sub-components are built.
+    */
+   @Deprecated
+   default T build(WriteCoordinate writeCoordinate) throws IllegalStateException {
+       ArrayList<Chronology> buildObjects = new ArrayList<>();
+       T result =  build(writeCoordinate.getTransaction().get(), writeCoordinate.getStampSequence(), buildObjects);
+       if (buildObjects.size() != 1) {
+          throw new IllegalStateException();
+       }
+       return result;
+   }
+   
+   /**
+    * @param writeCoordinate the transaction and STAMP details governing the component builder
+    * @param builtObjects a list of subordinate objects also build as a result of building this object.  Includes top-level object being built.
     * @return a task which will return the constructed component after it has been added to the commit manager -
     * the write to the commit manager is not complete until the task is complete (the task has already been launched)
     * @throws IllegalStateException the illegal state exception
     */
-   OptionalWaitTask<T> build(EditCoordinate editCoordinate,
-                             ChangeCheckerMode changeCheckerMode,
-                             List<Chronology> subordinateBuiltObjects)
-            throws IllegalStateException;
-
-   //~--- set methods ---------------------------------------------------------
+   OptionalWaitTask<T> buildAndWrite(WriteCoordinate writeCoordinate, List<Chronology> builtObjects) throws IllegalStateException;
 
    /**
     * Set the identifier for authority.
@@ -171,16 +192,14 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
 
    /**
     * define the state that the component will be created with.  if setState is not called,
-    * the component will be build as active.  Note, this will not impact any nested builders.
+    * the component will default to the state provided in the STAMP with the build call.  Note, this will not impact any nested builders.
     * Nested builders should have their own state set, if you wish to override the default
-    * active value.  This is only used for calls to {@link #build(EditCoordinate, ChangeCheckerMode)}
-    * or {@link #build(EditCoordinate, ChangeCheckerMode, List)} (where a active state would otherwise be assumed)
-    * It is not used with a call to {@link #build(int, List)}
+    * value.  
     *
-    * @param state the state
+    * @param status the state
     * @return the builder for chaining of operations in a fluent pattern.
     */
-   IdentifiedComponentBuilder<T> setStatus(Status state);
+   IdentifiedComponentBuilder<T> setStatus(Status status);
    
    
    /**
@@ -197,7 +216,7 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     * Throws runtime exception if Primordial UUID has been set and is random (t4).
     * Does nothing if UUID has already been set to a non-random (Not a Type 4 UUID) value.
     * 
-    * @param namespace - optional - what namespace to use to generate the UUIDs.  Defaults to {@link UuidT5Generator.PATH_ID_FROM_FS_DESC} 
+    * @param namespace - optional - what namespace to use to generate the UUIDs.  Defaults to {@link UuidT5Generator.PATH_ID_FROM_FS_DESC}
     * if not provided
     * @param consumer - an optional function that can be passed in.  Has no impact on the UUID generation.  Implementors of 
     * the method will receive the UUID seed string into the consumer during generation (useful as a debug aid), and the resulting UUID
@@ -226,16 +245,17 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     public VersionType getVersionType();
     
     /**
+     * Note that this module will be used for the create of the top level AND child builders.
+     * Which is NOT the same behavior as {@link #setStatus(Status)}
      * 
      * @param moduleSpecification the module within which this builder should create its content. 
      */
     public void setModule(ConceptSpecification moduleSpecification);
     
     /**
-     * 
      * @return the module (if specified) within which this builder will create its content. 
      * If this method returns Optional.empty(), then the module provided by the edit coordinate will be used. 
      */
-    public Optional<ConceptSpecification> getModule();    
+    public Optional<Integer> getModule();
 }
 

@@ -4,7 +4,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>isaac</artifactId>
-      <version>5.1.1</version>
+      <version>6.0.0</version>
    </parent>
    <artifactId>integration</artifactId>
    <name>ISAAC integration: (MMP)</name>

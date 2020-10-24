@@ -30,7 +30,7 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
    final ContentProvider contentProvider;
    final BrittleDataTypes[] refsetBrittleTypes;
    private boolean solorReleaseFormat;
-   
+
    public ImportSpecification(ContentProvider contentProvider, ImportStreamType streamType, String refsetFileName, boolean solorReleaseFormat) {
        this.streamType = streamType;
        this.contentProvider = contentProvider;
@@ -51,9 +51,9 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
                spec = refsetFileName.substring(start, refsetFileName.length()).toLowerCase()
                        .replace("assemblage_", "").split(" ")[0];
            } else {
-               int end = refsetFileName.toLowerCase().lastIndexOf("refset_");
-               int start = refsetFileName.substring(0, end).lastIndexOf('_');
-               spec = refsetFileName.substring(start + 1, end).toLowerCase();
+           int end = refsetFileName.toLowerCase().lastIndexOf("refset_");
+           int start = refsetFileName.substring(0, end).lastIndexOf('_');
+           spec = refsetFileName.substring(start + 1, end).toLowerCase();
            }
            for (char c : spec.toCharArray()) {
                switch (c) {
@@ -87,10 +87,18 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
          this.contentProvider = contentProvider;
          this.refsetBrittleTypes = null;
          this.solorReleaseFormat = solorReleaseFormat;
-   }
+    }
 
     public boolean isSolorReleaseFormat() {
         return solorReleaseFormat;
+    }
+
+    public ImportStreamType getStreamType() {
+        return streamType;
+    }
+
+    public ContentProvider getContentProvider() {
+        return contentProvider;
     }
 
     @Override
@@ -129,10 +137,18 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
       //because this refset tells me what the columns / orders / etc are for every other refset.
       //This comes from Refset/Metadata/der2_cciRefset_RefsetDescriptor.....
 
+       if (this.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_") &&
+               this.contentProvider.getStreamSourceName().toLowerCase().contains("refsetdescriptor")) {
+           return -1;
+       }
+       else if (o.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_") &&
+               o.contentProvider.getStreamSourceName().toLowerCase().contains("refsetdescriptor")) {
+           return 1;
+       }
        if(this.solorReleaseFormat){
            if ( this.contentProvider.getStreamSourceName().toLowerCase().contains("assemblage/metadata/assemblage_cci descriptor")) {
-               return -1;
-           }
+           return -1;
+       }
            else if (o.contentProvider.getStreamSourceName().toLowerCase().contains("assemblage/metadata/assemblage_cci descriptor")) {
                return 1;
            }
@@ -141,10 +157,10 @@ public class ImportSpecification implements Comparable<ImportSpecification>{
                return -1;
            }
            else if (o.contentProvider.getStreamSourceName().toLowerCase().contains("refset/metadata/der2_ccirefset_refsetdescriptor")) {
-               return 1;
-           }
+           return 1;
        }
-      
+       }
+
       //finally, just sort by file name...
       return this.contentProvider.getStreamSourceName().compareTo(o.contentProvider.getStreamSourceName());
    }

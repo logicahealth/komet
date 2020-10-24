@@ -18,18 +18,20 @@ package sh.isaac.model.taxonomy;
 
 import java.util.EnumSet;
 import sh.isaac.api.Get;
+import sh.isaac.api.coordinate.TaxonomyFlag;
+import sh.isaac.api.navigation.TypeStampNavigationRecord;
 
 /**
  * The Class TypeStampTaxonomyRecord.
  */
-public class TypeStampTaxonomyRecord {
+public class TypeStampTaxonomyRecord implements sh.isaac.api.navigation.TypeStampNavigationRecord {
 
    /** The type sequence. */
    int typeNid;
    /** The stamp sequence. */
    int stamp;
    /** The taxonomy flags. */
-    EnumSet<TaxonomyFlag> taxonomyFlags;
+   int taxonomyFlagBits;
 
    //~--- constructors -----------------------------------------------------
 
@@ -46,14 +48,13 @@ public class TypeStampTaxonomyRecord {
       }
       this.typeNid = typeNid;
       this.stamp = stampSequence;
-      this.taxonomyFlags = TaxonomyFlag.getTaxonomyFlags(taxonomyFlags);
+      this.taxonomyFlagBits = taxonomyFlags;
    }
    
+   @Override
    public long getTypeStampKey() {
        return (long)this.typeNid << 32 | this.stamp & 0xFFFFFFFFL;
    }
-
-   //~--- methods ----------------------------------------------------------
    /**
     * Equals.
     *
@@ -75,7 +76,7 @@ public class TypeStampTaxonomyRecord {
       if (this.typeNid != other.typeNid) {
          return false;
       }
-      return this.taxonomyFlags.equals(other.taxonomyFlags);
+      return this.taxonomyFlagBits == other.taxonomyFlagBits;
    }
 
    @Override
@@ -83,6 +84,7 @@ public class TypeStampTaxonomyRecord {
       int hash = 7;
       hash = 89 * hash + this.typeNid;
       hash = 89 * hash + this.stamp;
+      hash = 89 * hash + this.taxonomyFlagBits;
       return hash;
    }
 
@@ -108,48 +110,30 @@ public class TypeStampTaxonomyRecord {
       return sb.toString();
    }
 
-   //~--- get methods ------------------------------------------------------
-
-   /**
-    * Gets the stamp sequence.
-    *
-    * @return the stamp sequence
-    */
+   @Override
    public int getStampSequence() {
       return this.stamp;
    }
 
-   /**
-    * Gets the taxonomy flags.
-    *
-    * @return the taxonomy flags
-    */
+   @Override
    public int getTaxonomyFlags() {
-      return TaxonomyFlag.getTaxonomyFlagsAsInt(taxonomyFlags);
+      return this.taxonomyFlagBits;
    }
 
-   /**
-    * Gets the taxonomy flags as enum.
-    *
-    * @return the taxonomy flags as enum
-    */
+   @Override
    public EnumSet<TaxonomyFlag> getTaxonomyFlagsAsEnum() {
-      return this.taxonomyFlags;
+      return TaxonomyFlag.getTaxonomyFlags(this.taxonomyFlagBits);
    }
 
-   /**
-    * Gets the type sequence.
-    *
-    * @return the type sequence
-    */
+   @Override
    public int getTypeNid() {
       return this.typeNid;
    }
    
-   public boolean merge(TypeStampTaxonomyRecord another) {
-       if (this.typeNid == another.typeNid &&
-               this.stamp ==  another.stamp) {
-           this.taxonomyFlags.addAll(another.taxonomyFlags);
+   public boolean merge(TypeStampNavigationRecord another) {
+       if (this.typeNid == another.getTypeNid() &&
+               this.stamp ==  another.getStampSequence()) {
+           this.taxonomyFlagBits = this.taxonomyFlagBits | another.getTaxonomyFlags();
            return true;
        }
        return false;

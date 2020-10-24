@@ -46,10 +46,10 @@ package sh.isaac.api.observable.coordinate;
 
 import javafx.beans.property.ObjectProperty;
 
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-
-import java.util.Optional;
+import javafx.beans.property.Property;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.*;
 
 //~--- interfaces -------------------------------------------------------------
 
@@ -59,69 +59,78 @@ import java.util.Optional;
  * @author kec
  */
 public interface ObservableManifoldCoordinate
-        extends ManifoldCoordinate, ObservableCoordinate {
+        extends ManifoldCoordinate, ObservableCoordinate<ManifoldCoordinateImmutable> {
+
+   default Property<?>[] getBaseProperties() {
+      return new Property<?>[] {
+              activityProperty(),
+              getViewStampFilter().allowedStatusProperty(),
+              vertexStatusSetProperty(),
+              vertexSortProperty(),
+      };
+   }
+
+   default ObservableCoordinate<?>[] getCompositeCoordinates() {
+      return new ObservableCoordinate<?>[] {
+              getViewStampFilter(),
+              getEditCoordinate(),
+              getLogicCoordinate(),
+              getLanguageCoordinate(),
+              getNavigationCoordinate(),
+      };
+   }
+
+   @Override
+   ObservableNavigationCoordinate getNavigationCoordinate();
+
    /**
-    * Language coordinate property.
     *
-    * @return the object property
+    * @return the digraph coordinate property.
     */
-   ObjectProperty<ObservableLanguageCoordinate> languageCoordinateProperty();
+   ObjectProperty<NavigationCoordinateImmutable> navigationCoordinateProperty();
+
+
+   @Override
+   StatusSet getVertexStatusSet();
+   ObjectProperty<StatusSet> vertexStatusSetProperty();
+
+   @Override
+   ObservableStampFilter getViewStampFilter();
+   ObjectProperty<StampFilterImmutable> viewStampFilterProperty();
+
+   @Override
+   ObservableLanguageCoordinate getLanguageCoordinate();
+   ObjectProperty<LanguageCoordinateImmutable> languageCoordinateProperty();
+
+   @Override
+   ObservableLogicCoordinate getLogicCoordinate();
+   ObjectProperty<LogicCoordinateImmutable> logicCoordinateProperty();
+
+   @Override
+   ObservableEditCoordinate getEditCoordinate();
+   ObjectProperty<EditCoordinateImmutable> editCoordinateProperty();
 
    /**
-    * Logic coordinate property.
     *
-    * @return the object property
+    * @return the vertexSort property.
     */
-   ObjectProperty<ObservableLogicCoordinate> logicCoordinateProperty();
+   ObjectProperty<VertexSort> vertexSortProperty();
+
+   ObjectProperty<Activity> activityProperty();
 
    /**
-    * Premise type property.
-    *
-    * @return the object property
+    * Will change all contained paths (vertex, edge, and language), to the provided path.
     */
-   ObjectProperty<PremiseType> taxonomyPremiseTypeProperty();
+   default void setManifoldPath(int pathConceptNid) {
+      setManifoldPath(Get.concept(pathConceptNid));
+   }
 
-   /**
-    * Stamp coordinate property.
-    *
-    * @return the object property
-    */
-   ObjectProperty<ObservableStampCoordinate> stampCoordinateProperty();
+   void setManifoldPath(ConceptSpecification pathConcept);
 
-   /**
-    * 
-    * @return an observable coordinate, instead of the simple stamp coordinate
-    */
-   @Override
-   public ObservableStampCoordinate getStampCoordinate();
-   
-   /**
-    * @see sh.isaac.api.coordinate.ManifoldCoordinate#getOptionalDestinationStampCoordinate()
-    */
-   @Override
-   public Optional<? extends ObservableStampCoordinate> getOptionalDestinationStampCoordinate();
-   
-   /**
-    * @return An observable version of {@link #getOptionalDestinationStampCoordinate()}
-    */
-   public ObjectProperty<ObservableStampCoordinate> destinationStampCoordinateProperty();
+   default void setPremiseType(PremiseType premiseType) {
+      getNavigationCoordinate().setPremiseType(premiseType);
+   }
 
-   /**
-    * 
-    * @return an observable coordinate, instead of the simple language coordinate
-    */
-   @Override
-   public ObservableLanguageCoordinate getLanguageCoordinate();
-
-   /**
-    * 
-    * @return an observable coordinate, instead of the simple logic coordinate
-    */
-   @Override
-   public ObservableLogicCoordinate getLogicCoordinate();
-   
-   
-   @Override
-   public ObservableManifoldCoordinate deepClone();
+   void setAllowedStates(StatusSet statusSet);
 }
 

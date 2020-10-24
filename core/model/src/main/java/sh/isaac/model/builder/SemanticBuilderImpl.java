@@ -36,29 +36,30 @@
  */
 package sh.isaac.model.builder;
 
-//~--- JDK imports ------------------------------------------------------------
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.BiConsumer;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-//~--- non-JDK imports --------------------------------------------------------
 import javafx.concurrent.Task;
-
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
-import sh.isaac.api.LookupService;
-import sh.isaac.api.commit.ChangeCheckerMode;
-import sh.isaac.api.commit.Stamp;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.component.semantic.SemanticBuilder;
+import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
+import sh.isaac.api.component.semantic.version.brittle.Nid1_Long2_Version;
+import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
+import sh.isaac.api.coordinate.WriteCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinateImpl;
 import sh.isaac.api.logic.LogicalExpression;
 import sh.isaac.api.task.OptionalWaitTask;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -69,16 +70,8 @@ import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
 import sh.isaac.model.semantic.version.LongVersionImpl;
 import sh.isaac.model.semantic.version.SemanticVersionImpl;
 import sh.isaac.model.semantic.version.StringVersionImpl;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.component.semantic.SemanticBuildListenerI;
-import sh.isaac.api.component.semantic.SemanticBuilder;
-import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.component.semantic.version.brittle.Nid1_Int2_Version;
-import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
-import sh.isaac.model.ModelGet;
 
-//~--- classes ----------------------------------------------------------------
+
 /**
  * The Class SemanticBuilderImpl.
  *
@@ -149,54 +142,25 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
 
     @Override
     public SemanticBuilderImpl<C> setPrimordialUuid(UUID uuid) {
-        return (SemanticBuilderImpl<C>) super.setPrimordialUuid(uuid); //To change body of generated methods, choose Tools | Templates.
+        return (SemanticBuilderImpl<C>) super.setPrimordialUuid(uuid); 
     }
-
+    
     @Override
     public SemanticBuilderImpl<C> setPrimordialUuid(String uuidString) {
-        return (SemanticBuilderImpl<C>) super.setPrimordialUuid(uuidString); //To change body of generated methods, choose Tools | Templates.
+        return (SemanticBuilderImpl<C>) super.setPrimordialUuid(uuidString);
     }
-
-    //~--- methods -------------------------------------------------------------
-    /**
-     * Builds the.
-     *
-     * @param stampSequence the stamp sequence
-     * @param builtObjects the built objects
-     * @return the c
-     * @throws IllegalStateException the illegal state exception
+    
+    /*
+     * Does not build subs, when buildSubs is false, or fire the after listener
      */
-    @Override
-    public C build(int stampSequence,
-            List<Chronology> builtObjects)
-            throws IllegalStateException {
+    private C buildInternal(WriteCoordinate writeCoordinate, List<Chronology> builtObjects, boolean buildSubs) throws IllegalStateException {
         if (this.referencedComponentNid == Integer.MAX_VALUE) {
             this.referencedComponentNid = Get.identifierService()
                     .getNidForUuids(this.referencedComponentBuilder.getUuids());
         }
-        
-        if (getModule().isPresent()) {
-            Stamp requested = Get.stampService().getStamp(stampSequence);
-            stampSequence = Get.stampService().getStampSequence(requested.getStatus(), requested.getTime(), requested.getAuthorNid(), getModule().get().getNid(), requested.getPathNid());
-        }
-         
-        final int finalStamp = stampSequence;
-        
-        List<SemanticBuildListenerI> semanticBuildListeners = LookupService.get().getAllServices(SemanticBuildListenerI.class);
-        for (SemanticBuildListenerI listener : semanticBuildListeners) {
-            if (listener != null) {
-                if (listener.isEnabled()) {
-                    // LOG.info("Calling " + listener.getListenerName() + ".applyBefore(...)");
-                    try {
-                        listener.applyBefore(finalStamp, builtObjects);
-                    } catch (RuntimeException e) {
-                        LOG.error("FAILED running " + listener.getListenerName() + ".applyBefore(...): ", e);
-                    }
-                } else {
-                    LOG.info("NOT calling " + listener.getListenerName() + ".applyBefore(...) because listener has been disabled");
-                }
-            }
-        }
+
+        WriteCoordinate forMain = status == null ? writeCoordinate : new WriteCoordinateImpl(writeCoordinate, status);
+
         SemanticVersion version = null;
         SemanticChronologyImpl semanticChronicle;
         
@@ -204,12 +168,35 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
         if (Get.assemblageService().hasSemantic(semanticNid)) {
             semanticChronicle = (SemanticChronologyImpl) Get.assemblageService()
                     .getSemanticChronology(semanticNid);
-            
-            if ((semanticChronicle.getVersionType() != this.semanticType)
-                    || !semanticChronicle.isIdentifiedBy(getPrimordialUuid())
-                    || (semanticChronicle.getAssemblageNid() != this.assemblageId)
-                    || (semanticChronicle.getReferencedComponentNid() != this.referencedComponentNid)) {
-                throw new RuntimeException("Builder is being used to attempt a mis-matched edit of an existing semantic!");
+
+            if ((semanticChronicle.getVersionType() != this.semanticType)) {
+                throw new RuntimeException("1. Builder is being used to attempt a mis-matched edit of an existing semantic! \n" +
+                        "Version types do not match: " + semanticChronicle.getVersionType() + " " + this.semanticType + "\n" +
+                        semanticChronicle + "\n" + this.toString());
+            }
+            if (!semanticChronicle.isIdentifiedBy(getPrimordialUuid())) {
+                throw new RuntimeException("2. Builder is being used to attempt a mis-matched edit of an existing semantic! \n" +
+                        "UUID mismatch: " + semanticChronicle.getPrimordialUuid() + " vs " + this.getPrimordialUuid() + "\n" +
+                        semanticChronicle + "\n" + this.toString());
+            }
+            if (semanticChronicle.getAssemblageNid() != this.assemblageId) {
+                throw new RuntimeException("3. Builder is being used to attempt a mis-matched edit of an existing semantic! \n" +
+                        " Assemblage nids do not match: " +
+                        Get.identifierService().getUuidPrimordialStringForNid(semanticChronicle.getAssemblageNid()) +
+                        " vs " +
+                        Get.identifierService().getUuidPrimordialStringForNid(this.assemblageId) + "\n" +
+                        semanticChronicle + "\n" + this.toString());
+            }
+            if (semanticChronicle.getReferencedComponentNid() != this.referencedComponentNid) {
+                LOG.error("UUID info before throw: " + this.getUuidList());
+                throw new RuntimeException("4. Builder is being used to attempt a mis-matched edit of an existing semantic! \n" +
+                        " Referenced component nids do not match: " +
+                        Get.identifierService().getUuidPrimordialStringForNid(semanticChronicle.getReferencedComponentNid()) +
+                        " vs " +
+                        Get.identifierService().getUuidPrimordialStringForNid(this.referencedComponentNid) + "\n" +
+                        Get.conceptDescriptionText(semanticChronicle.getReferencedComponentNid()) + "\n" +
+                        Get.conceptDescriptionText(this.referencedComponentNid) + "\n" +
+                        semanticChronicle + "\n" + this.toString());
             }
         } else {
             semanticChronicle = new SemanticChronologyImpl(this.semanticType,
@@ -223,47 +210,59 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
         switch (this.semanticType) {
             case COMPONENT_NID:
                 final ComponentNidVersionImpl cnsi
-                        = (ComponentNidVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                        = (ComponentNidVersionImpl) semanticChronicle.createMutableVersion(forMain);
                 
                 cnsi.setComponentNid((Integer) this.parameters[0]);
+                version = cnsi;
                 break;
-            
+
             case Nid1_Int2:
                 final Nid1_Int2_Version nid1int2
-                        = (Nid1_Int2_Version) semanticChronicle.createMutableVersion(finalStamp);
-                
+                        = (Nid1_Int2_Version) semanticChronicle.createMutableVersion(forMain);
+
                 nid1int2.setNid1((Integer) this.parameters[0]);
                 nid1int2.setInt2((Integer) this.parameters[1]);
-                
+                version = nid1int2;
+
                 break;
-            
+
+            case Nid1_Long2:
+                final Nid1_Long2_Version nid1long2
+                        = (Nid1_Long2_Version) semanticChronicle.createMutableVersion(forMain);
+
+                nid1long2.setNid1((Integer) this.parameters[0]);
+                nid1long2.setLong2((Long) this.parameters[1]);
+                version = nid1long2;
+
+                break;
+
             case LONG:
-                final LongVersionImpl lsi = (LongVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                final LongVersionImpl lsi = (LongVersionImpl) semanticChronicle.createMutableVersion(forMain);
                 version = lsi;
                 lsi.setLongValue((Long) this.parameters[0]);
                 break;
             
             case LOGIC_GRAPH:
                 final LogicGraphVersionImpl lgsi
-                        = (LogicGraphVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                        = (LogicGraphVersionImpl) semanticChronicle.createMutableVersion(forMain);
                 version = lgsi;
                 lgsi.setGraphData(((LogicalExpression) this.parameters[0]).getData(DataTarget.INTERNAL));
                 break;
             
             case MEMBER:
-                SemanticVersionImpl svi = semanticChronicle.createMutableVersion(finalStamp);
+                SemanticVersionImpl svi = semanticChronicle.createMutableVersion(forMain);
                 version = svi;
                 break;
             
             case STRING:
-                final StringVersionImpl ssi = (StringVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                final StringVersionImpl ssi = (StringVersionImpl) semanticChronicle.createMutableVersion(forMain);
                 version = ssi;
                 ssi.setString((String) this.parameters[0]);
                 break;
             
             case DESCRIPTION: {
                 final DescriptionVersionImpl dsi
-                        = (DescriptionVersionImpl) semanticChronicle.createMutableVersion(finalStamp);
+                        = (DescriptionVersionImpl) semanticChronicle.createMutableVersion(forMain);
                 version = dsi;
                 dsi.setCaseSignificanceConceptNid((Integer) this.parameters[0]);
                 dsi.setDescriptionTypeConceptNid((Integer) this.parameters[1]);
@@ -273,7 +272,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             }
             
             case DYNAMIC: {
-                final DynamicImpl dsi = (DynamicImpl) semanticChronicle.createMutableVersion(finalStamp);
+                final DynamicImpl dsi = (DynamicImpl) semanticChronicle.createMutableVersion(forMain);
                 if (referencedComponentBuilder != null) {
                     dsi.setReferencedComponentVersionType(referencedComponentBuilder.getVersionType());
                 }
@@ -291,182 +290,30 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             default:
                 throw new UnsupportedOperationException("p Can't handle: " + this.semanticType);
         }
-        
-        getSemanticBuilders().forEach((builder) -> builder.build(finalStamp, builtObjects));
         builtObjects.add(semanticChronicle);
-        ModelGet.identifierService().setupNid(semanticChronicle.getNid(), semanticChronicle.getAssemblageNid(), semanticChronicle.getIsaacObjectType(), semanticChronicle.getVersionType());
-
-        for (SemanticBuildListenerI listener : semanticBuildListeners) {
-            if (listener != null) {
-                if (listener.isEnabled()) {
-                    // LOG.info("Calling " + listener.getListenerName() + ".applyAfter(...)");
-                    try {
-                        listener.applyAfter(finalStamp, version, builtObjects);
-                    } catch (RuntimeException e) {
-                        LOG.error("FAILED running " + listener.getListenerName() + ".applyAfter(...): ", e);
-                    }
-                } else {
-                    LOG.info("NOT calling " + listener.getListenerName() + ".applyAfter(...) because listener has been disabled");
-                }
-            }
+        
+        if (buildSubs) {
+            getSemanticBuilders().forEach((builder) -> builder.build(writeCoordinate, builtObjects));
         }
         return (C) semanticChronicle;
     }
 
-    /**
-     * Builds the.
-     *
-     * @param editCoordinate the edit coordinate
-     * @param changeCheckerMode the change checker mode
-     * @param builtObjects the built objects
-     * @return the optional wait task
-     * @throws IllegalStateException the illegal state exception
-     */
     @Override
-    public OptionalWaitTask<C> build(EditCoordinate editCoordinate,
-            ChangeCheckerMode changeCheckerMode,
-            List<Chronology> builtObjects)
-            throws IllegalStateException {
-        
-        List<SemanticBuildListenerI> semanticBuildListeners = LookupService.get().getAllServices(SemanticBuildListenerI.class);
-        for (SemanticBuildListenerI listener : semanticBuildListeners) {
-            if (listener != null) {
-                if (listener.isEnabled()) {
-                    // LOG.info("Calling " + listener.getListenerName() + ".applyBefore(...)");
-                    try {
-                        listener.applyBefore(editCoordinate, changeCheckerMode, builtObjects);
-                    } catch (RuntimeException e) {
-                        LOG.error("FAILED running " + listener.getListenerName() + ".applyBefore(...): ", e);
-                    }
-                } else {
-                    LOG.info("NOT calling " + listener.getListenerName() + ".applyBefore(...) because listener has been disabled");
-                }
-            }
-        }
-        
-        if (this.referencedComponentNid == Integer.MAX_VALUE) {
-            this.referencedComponentNid = Get.identifierService()
-                    .getNidForUuids(this.referencedComponentBuilder.getUuids());
-        }
-        
-        SemanticVersion version;
-        SemanticChronologyImpl semanticChronology;
-        
-        final int semanticNid = getNid();
-        if (Get.assemblageService().hasSemantic(semanticNid)) {
-            semanticChronology = (SemanticChronologyImpl) Get.assemblageService().getSemanticChronology(semanticNid);
-            
-            if ((semanticChronology.getVersionType() != this.semanticType)
-                    || !semanticChronology.isIdentifiedBy(getPrimordialUuid())
-                    || (semanticChronology.getAssemblageNid() != this.assemblageId)
-                    || (semanticChronology.getReferencedComponentNid() != this.referencedComponentNid)) {
-                throw new RuntimeException("Builder is being used to attempt a mis-matched edit of an existing semantic!");
-            }
-        } else {
-            semanticChronology = new SemanticChronologyImpl(this.semanticType,
-                    getPrimordialUuid(),
-                    this.assemblageId,
-                    this.referencedComponentNid);
-        }
-        
-        semanticChronology.setAdditionalUuids(this.additionalUuids);
-        
-        switch (this.semanticType) {
-            case COMPONENT_NID:
-                final ComponentNidVersionImpl cnsi
-                        = (ComponentNidVersionImpl) semanticChronology.createMutableVersion(this.state,
-                                editCoordinate, getModule());
-                version = cnsi;
-                cnsi.setComponentNid((Integer) this.parameters[0]);
-                break;
-            
-            case LONG:
-                final LongVersionImpl lsi = (LongVersionImpl) semanticChronology.createMutableVersion(this.state,
-                        editCoordinate, getModule());
-                version = lsi;
-                lsi.setLongValue((Long) this.parameters[0]);
-                break;
-            
-            case LOGIC_GRAPH:
-                final LogicGraphVersionImpl lgsi
-                        = (LogicGraphVersionImpl) semanticChronology.createMutableVersion(this.state,
-                                editCoordinate, getModule());
-                version = lgsi;
-                lgsi.setGraphData(((LogicalExpression) this.parameters[0]).getData(DataTarget.INTERNAL));
-                break;
-            
-            case MEMBER:
-                final SemanticVersionImpl svi = semanticChronology.createMutableVersion(this.state, editCoordinate, getModule());
-                version = svi;
-                break;
-            
-            case STRING:
-                final StringVersionImpl ssi = (StringVersionImpl) semanticChronology.createMutableVersion(this.state,
-                        editCoordinate, getModule());
-                version = ssi;
-                ssi.setString((String) this.parameters[0]);
-                break;
-            
-            case DESCRIPTION: {
-                final DescriptionVersionImpl dsi
-                        = (DescriptionVersionImpl) semanticChronology.createMutableVersion(this.state,
-                                editCoordinate, getModule());
-                version = dsi;
-                dsi.setCaseSignificanceConceptNid((Integer) this.parameters[0]);
-                dsi.setDescriptionTypeConceptNid((Integer) this.parameters[1]);
-                dsi.setLanguageConceptNid((Integer) this.parameters[2]);
-                dsi.setText((String) this.parameters[3]);
-                break;
-            }
-            
-            case DYNAMIC: {
-                final DynamicImpl dsi = (DynamicImpl) semanticChronology.createMutableVersion(this.state,
-                        editCoordinate, getModule());
-                
-                if ((this.parameters != null) && (this.parameters.length > 0)) {
-                    // See notes in SemanticBuilderProvider - this casting / wrapping nonesense it to work around Java being stupid.
-                    dsi.setData(((AtomicReference<DynamicData[]>) this.parameters[0]).get());
-                }
-                version = dsi;
-                break;
-            }
-            
-            default:
-                throw new UnsupportedOperationException("q Can't handle: " + this.semanticType);
-        }
-        
-        Task<Void> primaryNested;
-        
-        if (changeCheckerMode == ChangeCheckerMode.ACTIVE) {
-            primaryNested = Get.commitService()
-                    .addUncommitted(semanticChronology);
-        } else {
-            primaryNested = Get.commitService()
-                    .addUncommittedNoChecks(semanticChronology);
-        }
-        
+    public C build(Transaction transaction, int stampSequence, List<Chronology> builtObjects) throws IllegalStateException
+    {
+        return buildInternal(adjustForModule(new WriteCoordinateImpl(transaction, stampSequence)), builtObjects, true);
+    }
+
+    @Override
+    public OptionalWaitTask<C> buildAndWrite(WriteCoordinate writeCoordinate, List<Chronology> builtObjects) throws IllegalStateException
+    {
+        WriteCoordinate forWrite = adjustForModule(writeCoordinate);
+        SemanticChronology sc = buildInternal(forWrite, builtObjects, false);
+        Task<Void> primaryNested = Get.commitService().addUncommitted(forWrite.getTransaction().get(), sc);
         final ArrayList<OptionalWaitTask<?>> nested = new ArrayList<>();
+        getSemanticBuilders().forEach((builder) -> nested.add(builder.buildAndWrite(forWrite, builtObjects)));
         
-        getSemanticBuilders().forEach((builder) -> {
-            getModule().ifPresent((moduleSpec) -> {
-                builder.setModule(moduleSpec);
-            });
-            nested.add(builder.build(editCoordinate,
-                    changeCheckerMode,
-                    builtObjects));
-        });
-        builtObjects.add(semanticChronology);
-        for (SemanticBuildListenerI listener : semanticBuildListeners) {
-            if (listener != null) {
-                if (listener.isEnabled()) {
-                    // LOG.info("Calling " + listener.getListenerName() + ".applyAfter(...)");
-                    listener.applyAfter(editCoordinate, changeCheckerMode, version, builtObjects);
-                } else {
-                    LOG.info("NOT calling " + listener.getListenerName() + ".applyAfter(...) because listener has been disabled");
-                }
-            }
-        }
-        return new OptionalWaitTask<>(primaryNested, (C) semanticChronology, nested);
+        return new OptionalWaitTask<>(primaryNested, (C) sc, nested);
     }
     
     @Override
@@ -489,25 +336,78 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
                namespace = UuidT5Generator.PATH_ID_FROM_FS_DESC;
             }
             
-            if (semanticType == VersionType.LOGIC_GRAPH) {
-                setPrimordialUuid(UuidFactory.getUuidForLogicGraphSemantic(namespace, assemblageUuid, refCompUuid, (LogicalExpression) parameters[0], consumer));
-            } else if (semanticType == VersionType.MEMBER) {
-                setPrimordialUuid(UuidFactory.getUuidForMemberSemantic(namespace, assemblageUuid, refCompUuid, consumer));
-            } else if (semanticType == VersionType.DYNAMIC) {
-                setPrimordialUuid(UuidFactory.getUuidForDynamic(namespace, assemblageUuid, refCompUuid,
-                        (parameters != null && parameters.length > 0 ? ((AtomicReference<DynamicData[]>) parameters[0]).get() : null), consumer));
-            } else if (semanticType == VersionType.COMPONENT_NID) {
-                UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]);
-                setPrimordialUuid(UuidFactory.getUuidForComponentNidSemantic(namespace, assemblageUuid, refCompUuid, componentUuid, consumer));
-            } else if (semanticType == VersionType.DESCRIPTION) {
-                setPrimordialUuid(UuidFactory.getUuidForDescriptionSemantic(namespace, refCompUuid,
-                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]),
-                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[1]),
-                        Get.identifierService().getUuidPrimordialForNid((Integer) parameters[2]),
-                        (String) parameters[3],
-                        consumer));
-            } else if (semanticType == VersionType.STRING) {
-                setPrimordialUuid(UuidFactory.getUuidForStringSemantic(namespace, assemblageUuid, refCompUuid, (String) parameters[0], consumer));
+            switch (semanticType) {
+                case COMPONENT_NID:
+                {
+                    UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]);
+                    setPrimordialUuid(UuidFactory.getUuidForComponentNidSemantic(namespace, assemblageUuid, refCompUuid, componentUuid, consumer));
+                    break;
+                }
+                case DESCRIPTION:
+                {
+                    setPrimordialUuid(UuidFactory.getUuidForDescriptionSemantic(namespace, refCompUuid,
+                            Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]),
+                            Get.identifierService().getUuidPrimordialForNid((Integer) parameters[1]),
+                            Get.identifierService().getUuidPrimordialForNid((Integer) parameters[2]),
+                            (String) parameters[3],
+                            consumer));
+                    break;
+                }
+                case DYNAMIC:
+                {
+                    setPrimordialUuid(UuidFactory.getUuidForDynamic(namespace, assemblageUuid, refCompUuid,
+                            (parameters != null && parameters.length > 0 ? ((AtomicReference<DynamicData[]>) parameters[0]).get() : null), consumer));
+                    break;
+                }
+                case LOGIC_GRAPH:
+                {
+                    setPrimordialUuid(UuidFactory.getUuidForLogicGraphSemantic(namespace, assemblageUuid, refCompUuid, (LogicalExpression) parameters[0], consumer));
+                    break;
+                }
+                case LONG:
+                {
+                    setPrimordialUuid(UuidFactory.getUuidForLongSemantic(namespace, assemblageUuid, refCompUuid, (Long) parameters[0], consumer));
+                    break;
+                }
+                case MEMBER:
+                {
+                    setPrimordialUuid(UuidFactory.getUuidForMemberSemantic(namespace, assemblageUuid, refCompUuid, consumer));
+                    break;
+                }
+                case Nid1_Int2:
+                {
+                    UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]);
+                    setPrimordialUuid(UuidFactory.getUuidForNidIntSemantic(namespace, assemblageUuid, refCompUuid, componentUuid, (Integer) parameters[1], consumer));
+                    break;
+                }
+                case Nid1_Long2:
+                {
+                    UUID componentUuid = Get.identifierService().getUuidPrimordialForNid((Integer) parameters[0]);
+                    setPrimordialUuid(UuidFactory.getUuidForNidLongSemantic(namespace, assemblageUuid, refCompUuid, componentUuid, (Long) parameters[1], consumer));
+                    break;
+                }
+                case STRING:
+                {
+                    setPrimordialUuid(UuidFactory.getUuidForStringSemantic(namespace, assemblageUuid, refCompUuid, (String) parameters[0], consumer));
+                    break;
+                }
+                case Str1_Nid2_Nid3_Nid4:
+                case Str1_Str2:
+                case Str1_Str2_Nid3_Nid4:
+                case Str1_Str2_Nid3_Nid4_Nid5:
+                case Str1_Str2_Str3_Str4_Str5_Str6_Str7:
+                case Int1_Int2_Str3_Str4_Str5_Nid6_Nid7:
+                case MEASURE_CONSTRAINTS:
+                case Nid1_Int2_Str3_Str4_Nid5_Nid6:
+                case Nid1_Nid2:
+                case Nid1_Nid2_Int3:
+                case Nid1_Nid2_Str3:
+                case Nid1_Str2:
+                case RF2_RELATIONSHIP:
+                case CONCEPT:
+                case UNKNOWN:
+                default :
+                    throw new UnsupportedOperationException("Cannot generate proper UUID for type " + semanticType);
             }
         }
         return this;

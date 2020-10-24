@@ -19,6 +19,7 @@ package sh.isaac.api.tree;
 import java.util.OptionalInt;
 import java.util.Set;
 import org.apache.mahout.math.set.OpenIntHashSet;
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.logic.LogicNode;
 
 /**
@@ -83,7 +84,7 @@ public interface TreeNodeVisitData {
     *
     * @return the leaf nodes
     */
-   OpenIntHashSet getLeafNodes();
+   RoaringBitmap getLeafNodes();
 
    /**
     * Gets the max depth.
@@ -98,7 +99,7 @@ public interface TreeNodeVisitData {
     * @param depth the depth
     * @return the node ids for depth
     */
-   OpenIntHashSet getNodeIdsForDepth(int depth);
+   RoaringBitmap getNodeIdsForDepth(int depth);
 
    /**
     * Gets the node status.
@@ -156,7 +157,7 @@ public interface TreeNodeVisitData {
     * @param nodeId the node id
     * @return the concepts referenced at node or above
     */
-   OpenIntHashSet getUserNodeSet(String nodeSetKey, int nodeId);
+   RoaringBitmap getUserNodeSet(String nodeSetKey, int nodeId);
 
    //~--- set methods ---------------------------------------------------------
    /**
@@ -210,7 +211,7 @@ public interface TreeNodeVisitData {
     * @param nodeId the node id
     * @param conceptSet the concept set
     */
-   void setUserNodeSet(String nodeSetKey, int nodeId, OpenIntHashSet conceptSet);
+   void setUserNodeSet(String nodeSetKey, int nodeId, RoaringBitmap conceptSet);
 
    /**
     * Start node visit.

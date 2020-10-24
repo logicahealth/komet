@@ -41,8 +41,8 @@ package sh.isaac.komet.preferences;
 
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -99,6 +99,7 @@ public class PreferencesProvider
          LOG.error("Unexpected error stopping prefs provider", ex);
          throw new RuntimeException(ex);
       }
+      LOG.info("Stopped Preferences Provider.");
    }
 
    //~--- get methods ---------------------------------------------------------

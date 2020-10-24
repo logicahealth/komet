@@ -21,7 +21,8 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import sh.isaac.api.Get;
-import sh.komet.gui.manifold.Manifold;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -35,19 +36,19 @@ public class AssemblageDashboardRow {
         return assemblageNid;
     }
     
-    public Manifold getManifold() {
-        return manifold;
+    public ManifoldCoordinate getManifoldCoordinate() {
+        return viewProperties.getManifoldCoordinate();
     }
-    private final Manifold manifold;
+    private final ViewProperties viewProperties;
     private final StringProperty assemblageName;
     private SimpleIntegerProperty semanticCount;
     private SimpleIntegerProperty assemblageMemoryUsage;
     private SimpleIntegerProperty assemblageDiskSpaceUsage;
     
-    public AssemblageDashboardRow(int assemblageNid, Manifold manifold) {
+    public AssemblageDashboardRow(int assemblageNid, ViewProperties viewProperties) {
         this.assemblageNid = assemblageNid;
-        this.manifold = manifold;
-        this.assemblageName = new SimpleStringProperty(this, "Assemblage Name", manifold.getPreferredDescriptionText(assemblageNid));
+        this.viewProperties = viewProperties;
+        this.assemblageName = new SimpleStringProperty(this, "Assemblage Name", viewProperties.getPreferredDescriptionText(assemblageNid));
     }
     
     public final String getAssemblageName() {

@@ -39,30 +39,22 @@
 
 package sh.isaac.api.commit;
 
-//~--- JDK imports ------------------------------------------------------------
-
+import java.time.Instant;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Stream;
-
-//~--- non-JDK imports --------------------------------------------------------
-
-import javafx.collections.ObservableList;
-
-import javafx.concurrent.Task;
-
 import org.jvnet.hk2.annotations.Contract;
-
+import javafx.collections.ObservableList;
+import javafx.collections.ObservableSet;
+import javafx.concurrent.Task;
 import sh.isaac.api.DatastoreServices;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.alert.AlertObject;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
-import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.externalizable.IsaacExternalizable;
-import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.observable.ObservableVersion;
-
-//~--- interfaces -------------------------------------------------------------
+import sh.isaac.api.transaction.Transaction;
 
 /**
  * The Interface CommitService.
@@ -73,14 +65,14 @@ import sh.isaac.api.observable.ObservableVersion;
 public interface CommitService
         extends DatastoreServices {
    /**
-    * Adds the alias.
+    * Adds the alias.  Note, you should only add the alias after 
+    * the first stamp has been committed, otherwise, your alias comment
+    * will be overwritten when the transaction with the first stamp is committed.
     *
     * @param stampSequence the stamp sequence
     * @param stampAlias the stamp alias
     * @param aliasCommitComment the alias commit comment
     */
-
-   // should the change set get generated here?
    void addAlias(int stampSequence, int stampAlias, String aliasCommitComment);
 
    /**
@@ -98,78 +90,34 @@ public interface CommitService
     */
    void addChangeListener(ChronologyChangeListener changeListener);
 
-   /**
-    * Adds the uncommitted.
-    *
-    * @param cc the cc
-    * @return the task
-    */
-   Task<Void> addUncommitted(ConceptChronology cc);
+   void addCommitListener(CommitListener commitListener);
+   void removeCommitListener(CommitListener commitListener);
+
+   Task<Void> addUncommitted(Transaction transaction, Version version);
 
    /**
-    * Adds the uncommitted.
+    * TODO remove and depend on transaction? Make it a private interface or service for transactions?
     *
-    * @param sc the sc
-    * @return the task
+    * @param transaction
+    * @param chronology
+    * @return
     */
-   Task<Void> addUncommitted(SemanticChronology sc);
-
-   /**
-    * Adds the uncommitted no checks.
-    *
-    * @param cc the cc
-    * @return the task
-    */
-   Task<Void> addUncommittedNoChecks(ConceptChronology cc);
-
-   /**
-    * Adds the uncommitted no checks.
-    *
-    * @param sc the sc
-    * @return the task
-    */
-   Task<Void> addUncommittedNoChecks(SemanticChronology sc);
-
-   /**
-    * Cancels all pending changes using the provided EditCoordinate. The caller
-    * may chose to block on the returned task if synchronous operation is
-    * desired.
-    *
-    * @param editCoordinate the edit coordinate to determine which changes to
-    *                       cancel.
-    * @return task representing the cancel.
-    */
-   Task<Void> cancel(EditCoordinate editCoordinate);
-
-   /**
-    * Cancels all pending changes using the provided EditCoordinate. The caller
-    * may chose to block on the returned task if synchronous operation is
-    * desired.
-    *
-    * @param chronicle      the chronicle to cancel changes upon.
-    * @param editCoordinate the edit coordinate to determine which changes to
-    *                       cancel.
-    * @return task representing the cancel.
-    */
-   Task<Void> cancel(Chronology chronicle, EditCoordinate editCoordinate);
+   Task<Void> addUncommitted(Transaction transaction, Chronology chronology);
 
    /**
     * Commit all pending changes for the provided EditCoordinate. The caller may
     * chose to block on the returned task if synchronous operation is desired.
     *
-    * @param editCoordinate the edit coordinate to determine which changes to
+    * @param transaction the transaction to determine which changes to
     *                       commit.
     * @param commitComment  comment to associate with the commit.
     * @return task representing the cancel.
+    * TODO remove and depend on transaction?
     */
-   CommitTask commit(EditCoordinate editCoordinate, String commitComment);
+   CommitTask commit(Transaction transaction, String commitComment, ConcurrentSkipListSet<AlertObject> alertCollection);
 
-
-   
-   CommitTask commit(
-         EditCoordinate editCoordinate,
-         String commitComment, 
-         ObservableVersion... versionsToCommit);
+   CommitTask commit(Transaction transaction, String commitComment,
+                     ConcurrentSkipListSet<AlertObject> alertCollection, Instant commitTime);
 
    /**
     * Import a object and immediately write to the proper service with no checks of any type performed.
@@ -222,8 +170,6 @@ public interface CommitService
     */
    void removeChangeListener(ChronologyChangeListener changeListener);
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the aliases.
     *
@@ -240,17 +186,16 @@ public interface CommitService
     */
    Optional<String> getComment(int stampSequence);
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
-    * Set comment.
+    * This method should NOT be considered part of the public API, and should NOT be used.
+    * It is only for internal use when loading from IBDF.
+    * 
+    * Specify comments and stamps during commit.
     *
     * @param stampSequence the stamp sequence
     * @param comment the comment
     */
    void setComment(int stampSequence, String comment);
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the commit manager sequence.
@@ -262,16 +207,18 @@ public interface CommitService
    /**
     * Gets the stamp alias stream.
     *
+    * @param parallel true to allow parallel, false for single threaded
     * @return the stamp alias stream
     */
-   Stream<StampAlias> getStampAliasStream();
+   Stream<StampAlias> getStampAliasStream(boolean parallel);
 
    /**
     * Gets the stamp comment stream.
     *
+    * @param parallel true to allow parallel, false for single threaded
     * @return the stamp comment stream
     */
-   Stream<StampComment> getStampCommentStream();
+   Stream<StampComment> getStampCommentStream(boolean parallel);
 
    /**
     * Gets the uncommitted component text summary.
@@ -286,5 +233,46 @@ public interface CommitService
     * @return the uncommitted concept nids
     */
    ObservableList<Integer> getUncommittedConceptNids();
+   
+   /**
+   * Calls {@link #newTransaction(Optional, ChangeCheckerMode)} with {@link ChangeCheckerMode#ACTIVE}
+   * @param transactionName name for the transaction
+   * @return a new transaction that will perform tests depending on value of performTests.
+   */
+   default Transaction newTransaction(String transactionName) {
+      return newTransaction(Optional.ofNullable(transactionName), ChangeCheckerMode.ACTIVE);
+   }
+
+   /**
+    * Calls {@link #newTransaction(Optional, ChangeCheckerMode)} with {@link ChangeCheckerMode#ACTIVE} and indexOnCommit=true
+    * @param transactionName optional name for the transaction
+    * @param changeCheckerMode true if tests should be performed.
+    * @return a new transaction that will perform tests depending on value of performTests.
+    */
+   default Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode) {
+       return newTransaction(transactionName, changeCheckerMode, true);
+   }
+   
+   /**
+   * @param transactionName optional name for the transaction
+   * @param changeCheckerMode true if tests should be performed.
+   * @param indexOnCommit if true, let indexers run after commit, if false, do not index after commit (typical only 
+   * for a batch operation that handles its own indexing)
+   * @return a new transaction that will perform tests depending on value of performTests.
+   */
+  Transaction newTransaction(Optional<String> transactionName, ChangeCheckerMode changeCheckerMode, boolean indexOnCommit);
+
+   /**
+    *
+    * @return get a list of pending transactions.
+    */
+   ObservableSet<Transaction> getPendingTransactionList();
+
+   /**
+    * @return a current Instant that can be used as a commit time for a long-lived process, such as
+    * wanting to commit the results of a classification process at the time of the stamp position used
+    * to determine current axioms.
+    */
+   Instant getTimeForCommit();
 }
 

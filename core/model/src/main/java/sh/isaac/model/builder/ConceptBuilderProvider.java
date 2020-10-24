@@ -39,19 +39,17 @@
 
 package sh.isaac.model.builder;
 
-//~--- non-JDK imports --------------------------------------------------------
 
 import org.jvnet.hk2.annotations.Service;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.LogicCoordinate;
+import sh.isaac.api.coordinate.LogicCoordinateImmutable;
 import sh.isaac.api.logic.LogicalExpression;
 
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class ConceptBuilderProvider.
@@ -63,16 +61,19 @@ public class ConceptBuilderProvider
          implements ConceptBuilderService {
    /** The default language for descriptions. */
    private ConceptSpecification defaultLanguageForDescriptions =
-      TermAux.getConceptSpecificationForLanguageNid(Get.configurationService().getGlobalDatastoreConfiguration()
-                                                            .getDefaultLanguageCoordinate()
-                                                            .getLanguageConceptNid());
+      TermAux.ENGLISH_LANGUAGE;
 
    /** The default dialect assemblage for descriptions. */
    private ConceptSpecification defaultDialectAssemblageForDescriptions = TermAux.US_DIALECT_ASSEMBLAGE;
 
    /** The default logic coordinate. */
-   private LogicCoordinate defaultLogicCoordinate = Get.configurationService().getGlobalDatastoreConfiguration()
-                                                       .getDefaultLogicCoordinate();
+   private LogicCoordinate defaultLogicCoordinate = LogicCoordinateImmutable.make(TermAux.SNOROCKET_CLASSIFIER,
+           TermAux.EL_PLUS_PLUS_LOGIC_PROFILE,
+           TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE,
+           TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE,
+           TermAux.SOLOR_CONCEPT_ASSEMBLAGE,
+           TermAux.EL_PLUS_PLUS_DIGRAPH,
+           TermAux.SOLOR_ROOT);
 
    //~--- get methods ---------------------------------------------------------
 
@@ -113,8 +114,6 @@ public class ConceptBuilderProvider
                                          assemblageId);
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Set default dialect assemblage for descriptions.
     *
@@ -127,8 +126,6 @@ public class ConceptBuilderProvider
       this.defaultDialectAssemblageForDescriptions = defaultDialectAssemblageForDescriptions;
       return this;
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the default dialect for descriptions.
@@ -150,8 +147,6 @@ public class ConceptBuilderProvider
       return this.defaultLanguageForDescriptions;
    }
 
-   //~--- set methods ---------------------------------------------------------
-
    /**
     * Set default language for descriptions.
     *
@@ -165,8 +160,6 @@ public class ConceptBuilderProvider
       return this;
    }
 
-   //~--- get methods ---------------------------------------------------------
-
    /**
     * Gets the default logic coordinate.
     *
@@ -176,8 +169,6 @@ public class ConceptBuilderProvider
    public LogicCoordinate getDefaultLogicCoordinate() {
       return this.defaultLogicCoordinate;
    }
-
-   //~--- set methods ---------------------------------------------------------
 
    /**
     * Set default logic coordinate.

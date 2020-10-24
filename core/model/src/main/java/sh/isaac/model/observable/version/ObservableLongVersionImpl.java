@@ -39,35 +39,26 @@
 
 package sh.isaac.model.observable.version;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import javafx.beans.property.LongProperty;
 import javafx.beans.property.Property;
 import javafx.beans.property.ReadOnlyProperty;
 import sh.isaac.api.chronicle.Chronology;
-
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.version.LongVersion;
 import sh.isaac.api.component.semantic.version.MutableLongVersion;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableVersion;
-import sh.isaac.api.observable.semantic.version.ObservableLongVersion;
-import sh.isaac.model.observable.CommitAwareLongProperty;
-import sh.isaac.model.observable.ObservableChronologyImpl;
-import sh.isaac.model.observable.ObservableFields;
-import sh.isaac.model.semantic.version.LongVersionImpl;
 import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
+import sh.isaac.api.observable.semantic.version.ObservableLongVersion;
+import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.commitaware.CommitAwareLongProperty;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
-
-//~--- classes ----------------------------------------------------------------
+import sh.isaac.model.semantic.version.LongVersionImpl;
 
 /**
  *
@@ -76,10 +67,7 @@ import sh.isaac.model.semantic.SemanticChronologyImpl;
 public class ObservableLongVersionImpl
         extends ObservableAbstractSemanticVersionImpl
          implements ObservableLongVersion {
-   /** The long property. */
    LongProperty longProperty;
-
-   //~--- constructors --------------------------------------------------------
 
    /**
     * Instantiates a new observable component nid version impl.
@@ -98,25 +86,18 @@ public class ObservableLongVersionImpl
     public ObservableLongVersionImpl(UUID primordialUuid, UUID referencedComponentUuid, int assemblageNid) {
         super(VersionType.LONG, primordialUuid, referencedComponentUuid, assemblageNid);
     }
-   
 
+    @SuppressWarnings("unchecked")
     @Override
-    public <V extends ObservableVersion> V makeAutonomousAnalog(EditCoordinate ec) {
+    public <V extends ObservableVersion> V makeAutonomousAnalog(ManifoldCoordinate mc) {
         ObservableLongVersionImpl analog = new ObservableLongVersionImpl(this, getChronology());
         copyLocalFields(analog);
-        analog.setModuleNid(ec.getModuleNid());
-        analog.setAuthorNid(ec.getAuthorNid());
-        analog.setPathNid(ec.getPathNid());
+        analog.setModuleNid(mc.getModuleNidForAnalog(this));
+        analog.setAuthorNid(mc.getAuthorNidForChanges());
+        analog.setPathNid(mc.getPathNidForAnalog());
         return (V) analog;
     }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Case significance concept nid property.
-    *
-    * @return the integer property
-    */
    @Override
    public LongProperty longValueProperty() {
       if (this.stampedVersionProperty == null && this.longProperty == null) {
@@ -139,15 +120,12 @@ public class ObservableLongVersionImpl
       return this.longProperty;
    }
 
+   @SuppressWarnings("unchecked")
    @Override
-   public <V extends Version> V makeAnalog(EditCoordinate ec) {
-      LongVersion newVersion = this.stampedVersionProperty.get().makeAnalog(ec);
-      ObservableLongVersionImpl newObservableVersion = new ObservableLongVersionImpl(
-                                                           newVersion,
-                                                                 (ObservableSemanticChronology) chronology);
-
-      ((ObservableChronologyImpl) chronology).getVersionList()
-            .add(newObservableVersion);
+   public <V extends Version> V makeAnalog(int stampSequence) {
+      LongVersion newVersion = getOptionalStampedVersion().get().makeAnalog(stampSequence);
+      ObservableLongVersionImpl newObservableVersion = new ObservableLongVersionImpl(newVersion, getChronology());
+      getChronology().getVersionList().add(newObservableVersion);
       return (V) newObservableVersion;
    }
 
@@ -163,13 +141,6 @@ public class ObservableLongVersionImpl
       }
    }
 
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the long value.
-    *
-    * @return the case significance concept nid
-    */
    @Override
    public long getLongValue() {
       if (this.longProperty != null) {
@@ -179,13 +150,6 @@ public class ObservableLongVersionImpl
       return ((LongVersion) this.stampedVersionProperty.get()).getLongValue();
    }
 
-   //~--- set methods ---------------------------------------------------------
-
-   /**
-    * Sets the long value.
-    *
-    * @param longValue the new long value
-    */
    @Override
    public final void setLongValue(long longValue) {
        if (this.stampedVersionProperty == null) {
@@ -199,8 +163,6 @@ public class ObservableLongVersionImpl
          ((MutableLongVersion) this.stampedVersionProperty.get()).setLongValue(longValue);
       }
    }
-
-   //~--- get methods ---------------------------------------------------------
 
    @Override
    public List<ReadOnlyProperty<?>> getProperties() {
@@ -239,4 +201,3 @@ public class ObservableLongVersionImpl
         return sc;
     }
 }
-

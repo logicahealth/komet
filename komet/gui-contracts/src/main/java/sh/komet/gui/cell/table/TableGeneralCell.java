@@ -40,49 +40,36 @@ package sh.komet.gui.cell.table;
 
 import javafx.application.Platform;
 import javafx.beans.property.Property;
-import javafx.beans.value.ObservableValue;
-import javafx.beans.value.WeakChangeListener;
 import javafx.event.ActionEvent;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.text.Text;
-import javafx.scene.text.TextFlow;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PropertySheet;
 import sh.isaac.api.Get;
-import sh.isaac.api.bootstrap.TermAux;
-import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
-import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.*;
-import sh.isaac.api.component.semantic.version.brittle.*;
-import sh.isaac.api.coordinate.PremiseType;
-import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableVersion;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.cell.CellFunctions;
 import sh.komet.gui.cell.CellHelper;
-import sh.komet.gui.contract.GuiConceptBuilder;
-import sh.komet.gui.contract.GuiSearcher;
 import sh.komet.gui.control.FixedSizePane;
-import sh.komet.gui.control.PropertyToPropertySheetItem;
-import sh.komet.gui.control.axiom.AxiomView;
+import sh.komet.gui.control.property.PropertyToPropertySheetItem;
 import sh.komet.gui.control.property.PropertyEditorFactory;
-import sh.komet.gui.manifold.Manifold;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
-import java.time.Instant;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutionException;
@@ -101,7 +88,7 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
 
     //~--- fields --------------------------------------------------------------
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private final Manifold manifold;
+    private final ManifoldCoordinate manifoldCoordinate;
     private final Button editButton = new Button("", Iconography.EDIT_PENCIL.getIconographic());
     private final GridPane textAndEditGrid = new GridPane();
     private final BorderPane editPanel = new BorderPane();
@@ -112,15 +99,15 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
     private final CellHelper cellHelper = new CellHelper(this);
 
     //~--- constructors --------------------------------------------------------
-    public TableGeneralCell(Manifold manifold) {
-        this.manifold = manifold;
+    public TableGeneralCell(ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
         getStyleClass().add("komet-version-general-cell");
         getStyleClass().add("isaac-version");
         editButton.getStyleClass()
                 .setAll(StyleClasses.EDIT_COMPONENT_BUTTON.toString());
         editButton.setOnAction(this::toggleEdit);
         textAndEditGrid.getChildren().addAll(paneForText, editButton, editPanel);
-        setContextMenu(cellHelper.makeContextMenu());
+        //setContextMenu(cellHelper.makeContextMenu());
         // setConstraints(Node child, int columnIndex, int rowIndex, int columnspan, int rowspan, HPos halignment, VPos valignment, Priority hgrow, Priority vgrow)
         GridPane.setConstraints(paneForText, 0, 0, 1, 2, HPos.LEFT, VPos.TOP, Priority.ALWAYS, Priority.NEVER);
         GridPane.setConstraints(editButton, 2, 0, 1, 1, HPos.RIGHT, VPos.TOP, Priority.NEVER, Priority.NEVER);
@@ -146,7 +133,7 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
     //~--- methods -------------------------------------------------------------
 
     @Override
-    public FixedSizePane getPaneForText() {
+    public FixedSizePane getPaneForVersionDisplay() {
         return paneForText;
     }
 
@@ -156,8 +143,8 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
     }
 
     @Override
-    public Manifold getManifold() {
-        return manifold;
+    public ManifoldCoordinate getManifoldCoordinate() {
+        return this.manifoldCoordinate;
     }
 
     public void initializeConceptBuilder() {
@@ -177,10 +164,8 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
     }
 
     private void commitEdit(ActionEvent event) {
-        CommitTask commitTask = Get.commitService().commit(
-                FxGet.editCoordinate(),
-                "No comment",
-                this.mutableVersion);
+        Transaction transaction = Get.commitService().newTransaction(Optional.of("TreeTableGeneralCell commitEdit"), ChangeCheckerMode.ACTIVE);
+        CommitTask commitTask = transaction.commitObservableVersions("No comment", this.mutableVersion);
         Get.executor().execute(() -> {
             try {
                 Optional<CommitRecord> commitRecord = commitTask.get();
@@ -190,8 +175,22 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
                         editButton.setVisible(true);
                     });
                 } else {
-                    // TODO show errors. 
-                    commitTask.getAlerts();
+                    for (AlertObject alert : commitTask.getAlerts()) {
+                        switch (alert.getAlertType()) {
+                            case ERROR:
+                                FxGet.dialogs().showErrorDialog(alert.getAlertTitle(), alert.getAlertCategory().toString(),
+                                        alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
+                                break;
+                            case INFORMATION:
+                                FxGet.dialogs().showInformationDialog(alert.getAlertTitle(),
+                                        alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
+                                break;
+                            case WARNING:
+                                FxGet.dialogs().showInformationDialog(alert.getAlertTitle(),
+                                        alert.getAlertDescription(), textAndEditGrid.getScene().getWindow());
+                                break;
+                        }
+                    }
                 }
             } catch (InterruptedException | ExecutionException ex) {
                 LOG.error("Error committing change.", ex);
@@ -205,16 +204,16 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
         if (editPanel.getChildren().isEmpty()) {
             if (this.version != null) {
                 if (this.version instanceof ObservableVersion) {
-                    ObservableVersion currentVersion = (ObservableVersion) this.version;
-                    mutableVersion = currentVersion.makeAutonomousAnalog(FxGet.editCoordinate());
+                    ObservableVersion currentVersion = this.version;
+                    mutableVersion = currentVersion.makeAutonomousAnalog(manifoldCoordinate);
 
                     List<Property<?>> propertiesToEdit = mutableVersion.getEditableProperties();
                     PropertySheet propertySheet = new PropertySheet();
                     propertySheet.setMode(PropertySheet.Mode.NAME);
                     propertySheet.setSearchBoxVisible(false);
                     propertySheet.setModeSwitcherVisible(false);
-                    propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifold));
-                    propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifold));
+                    propertySheet.setPropertyEditorFactory(new PropertyEditorFactory(this.manifoldCoordinate));
+                    propertySheet.getItems().addAll(PropertyToPropertySheetItem.getItems(propertiesToEdit, this.manifoldCoordinate));
 
                     editPanel.setTop(toolBar);
                     editPanel.setCenter(propertySheet);
@@ -228,7 +227,16 @@ public class TableGeneralCell extends KometTableCell implements CellFunctions {
     }
 
     @Override
+    public VersionType getVersionType() {
+        if (version != null) {
+            return version.getSemanticType();
+        }
+        return VersionType.UNKNOWN;
+    }
+
+    @Override
     protected void updateItem(TableRow<ObservableChronology> row, ObservableVersion cellValue) {
+        this.version = cellValue;
         cellHelper.updateItem(cellValue, this, this.getTableColumn());
     }
 }

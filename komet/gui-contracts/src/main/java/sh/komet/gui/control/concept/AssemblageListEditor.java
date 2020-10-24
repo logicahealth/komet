@@ -36,8 +36,10 @@ import sh.isaac.MetaData;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.menu.MenuItemWithText;
 
 /**
  *
@@ -49,7 +51,7 @@ public class AssemblageListEditor implements PropertyEditor<ObservableList<Conce
    
     BorderPane editorPane = new BorderPane();
     AnchorPane anchorPane = new AnchorPane();
-    Manifold manifold;
+    ManifoldCoordinate manifoldCoordinate;
     ListView<ConceptSpecification> conceptListView = new ListView<>();
     {
         conceptListView.setPrefHeight(152);
@@ -60,7 +62,7 @@ public class AssemblageListEditor implements PropertyEditor<ObservableList<Conce
             protected void updateItem(ConceptSpecification item, boolean empty) {
                 super.updateItem(item, empty); 
                 if (!empty) {
-                    this.setText(manifold.getPreferredDescriptionText(item));
+                    this.setText(manifoldCoordinate.getPreferredDescriptionText(item));
                 } else {
                     this.setText("");
                 }
@@ -89,8 +91,8 @@ public class AssemblageListEditor implements PropertyEditor<ObservableList<Conce
         deleteButton.setOnAction(this::deleteSelection);
     }
 
-    public AssemblageListEditor(Manifold manifold) {
-        this.manifold = manifold;
+    public AssemblageListEditor(ManifoldCoordinate manifoldCoordinate) {
+        this.manifoldCoordinate = manifoldCoordinate;
         setupForMenu();
     }
 
@@ -174,7 +176,7 @@ public class AssemblageListEditor implements PropertyEditor<ObservableList<Conce
     }
 
     protected MenuItem makeMenuFromAssemblageNid(int assemblageNid) {
-        MenuItem menu = new MenuItem(manifold.getPreferredDescriptionText(assemblageNid));
+        MenuItem menu = new MenuItemWithText(manifoldCoordinate.getPreferredDescriptionText(assemblageNid));
         menu.setOnAction((event) -> {
             this.conceptListView.getItems().add(Get.conceptSpecification(assemblageNid));
         });

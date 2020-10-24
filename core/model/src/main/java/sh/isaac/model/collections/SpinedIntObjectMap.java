@@ -30,8 +30,9 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.model.ModelGet;
-import sh.isaac.model.collections.store.ByteArrayArrayStore;
 
 /**
  *
@@ -40,6 +41,8 @@ import sh.isaac.model.collections.store.ByteArrayArrayStore;
  */
 public class SpinedIntObjectMap<E> implements IntObjectMap<E> {
 
+    private static final Logger LOG = LogManager.getLogger();
+    // TODO Consider replacement with TaskCountManager
     private static final int SEMAPHORE_COUNT = Runtime.getRuntime().availableProcessors() * 2;
     private final Semaphore readWriteSemaphore = new Semaphore(SEMAPHORE_COUNT);
 
@@ -68,11 +71,11 @@ public class SpinedIntObjectMap<E> implements IntObjectMap<E> {
     public void printToConsole() {
         if (elementStringConverter != null) {
             forEach((key, value) -> {
-                System.out.println(key + ": " + elementStringConverter.apply(value));
+                LOG.info(key + ": " + elementStringConverter.apply(value));
             });
         } else {
             forEach((key, value) -> {
-                System.out.println(key + ": " + value);
+                LOG.info(key + ": " + value);
             });
         }
     }

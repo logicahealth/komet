@@ -42,6 +42,7 @@ package sh.isaac.model.logic;
 //~--- non-JDK imports --------------------------------------------------------
 
 import org.apache.mahout.math.set.OpenIntHashSet;
+import org.roaringbitmap.RoaringBitmap;
 import sh.isaac.api.logic.LogicNode;
 
 //~--- classes ----------------------------------------------------------------
@@ -56,7 +57,7 @@ public class RelationshipKey
    /** The concepts referenced at node or below. */
    final int nodeId;
    final boolean necessarySet;
-   OpenIntHashSet conceptsReferencedAtNodeOrBelow = new OpenIntHashSet();
+   RoaringBitmap conceptsReferencedAtNodeOrBelow = new RoaringBitmap();
 
    //~--- constructors --------------------------------------------------------
 
@@ -85,14 +86,14 @@ public class RelationshipKey
       if (this.necessarySet != o.necessarySet) {
           return Boolean.compare(this.necessarySet, o.necessarySet);
       }
-      int comparison = Integer.compare(this.conceptsReferencedAtNodeOrBelow.size(), o.conceptsReferencedAtNodeOrBelow.size());
+      int comparison = Integer.compare(this.conceptsReferencedAtNodeOrBelow.getCardinality(), o.conceptsReferencedAtNodeOrBelow.getCardinality());
 
       if (comparison != 0) {
          return comparison;
       }
 
-      final int[] thisKeys  = this.conceptsReferencedAtNodeOrBelow.keys().elements();
-      final int[] otherKeys = o.conceptsReferencedAtNodeOrBelow.keys().elements();
+      final int[] thisKeys  = this.conceptsReferencedAtNodeOrBelow.toArray();
+      final int[] otherKeys = o.conceptsReferencedAtNodeOrBelow.toArray();
 
       for (int i = 0; i < thisKeys.length; i++) {
          if (thisKeys[i] != otherKeys[i]) {

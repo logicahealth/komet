@@ -41,26 +41,23 @@ package sh.isaac.model.observable.coordinate;
 
 //~--- JDK imports ------------------------------------------------------------
 
-import sh.isaac.api.observable.coordinate.ObservableCoordinateImpl;
-import java.util.List;
-import java.util.stream.Collectors;
-import javafx.beans.InvalidationListener;
+import javafx.beans.property.ListProperty;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.SetProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import org.eclipse.collections.api.set.ImmutableSet;
+import sh.isaac.api.Get;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.coordinate.StampPath;
+import sh.isaac.api.coordinate.StampPathImmutable;
+import sh.isaac.api.coordinate.StampPositionImmutable;
+import sh.isaac.model.observable.ObservableFields;
+import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedListProperty;
+import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedObjectProperty;
+import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedSetProperty;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import javafx.beans.property.ReadOnlyIntegerProperty;
-import javafx.beans.property.ReadOnlyListProperty;
-import javafx.beans.property.ReadOnlyListWrapper;
-import javafx.beans.property.SimpleIntegerProperty;
-
-import javafx.collections.FXCollections;
-import sh.isaac.api.component.concept.ConceptSpecification;
-
-import sh.isaac.api.coordinate.StampPath;
-import sh.isaac.api.observable.coordinate.ObservableStampPath;
-import sh.isaac.api.observable.coordinate.ObservableStampPosition;
-import sh.isaac.model.coordinate.StampPathImpl;
-import sh.isaac.model.observable.ObservableFields;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -69,122 +66,72 @@ import sh.isaac.model.observable.ObservableFields;
  *
  * @author kec
  */
+
 public class ObservableStampPathImpl
-        extends ObservableCoordinateImpl
-         implements ObservableStampPath {
-   /** The stamp path. */
-   StampPathImpl stampPath;
+        extends ObservableStampPathBase {
 
-   /** The path concept nid property. */
-   ReadOnlyIntegerProperty pathConceptSequenceProperty;
-
-   /** The path origins property. */
-   ReadOnlyListWrapper<ObservableStampPosition> pathOriginsProperty;
 
    //~--- constructors --------------------------------------------------------
 
-   /**
-    * Instantiates a new observable stamp path impl.
-    *
-    * @param stampPath the stamp path
-    */
-   public ObservableStampPathImpl(StampPath stampPath) {
-      this.stampPath = (StampPathImpl) stampPath;
-   }
+    private ObservableStampPathImpl(int pathConceptNid,
+                                    ImmutableSet<StampPositionImmutable> origins) {
+        this(StampPathImmutable.make(pathConceptNid, origins));
+    }
 
-   //~--- methods -------------------------------------------------------------
-
-   /**
-    * Compare to.
-    *
-    * @param o the o
-    * @return the int
-    */
-   @Override
-   public int compareTo(StampPath o) {
-      return this.stampPath.compareTo(o);
-   }
-
-   /**
-    * Path concept nid property.
-    *
-    * @return the read only integer property
-    */
-   @Override
-   public ReadOnlyIntegerProperty pathConceptNidProperty() {
-      if (this.pathConceptSequenceProperty == null) {
-         this.pathConceptSequenceProperty = new SimpleIntegerProperty(this,
-               ObservableFields.PATH_NID_FOR_STAMP_PATH.toExternalString(),
-               getPathConceptNid());
-         this.pathConceptSequenceProperty.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
-      }
-
-      return this.pathConceptSequenceProperty;
-   }
-
-   /**
-    * Path origins property.
-    *
-    * @return the read only list property
-    */
-   @Override
-   public ReadOnlyListProperty<ObservableStampPosition> pathOriginsProperty() {
-      if (this.pathOriginsProperty == null) {
-         this.pathOriginsProperty = new ReadOnlyListWrapper<>(this,
-               ObservableFields.PATH_ORIGIN_LIST_FOR_STAMP_PATH.toExternalString(),
-               FXCollections.<ObservableStampPosition>observableList(getPathOrigins()));
-         this.pathOriginsProperty.addListener((InvalidationListener)(invalidation) -> fireValueChangedEvent());
-      }
-
-      return this.pathOriginsProperty;
-   }
-
-   /**
-    * To string.
-    *
-    * @return the string
-    */
-   @Override
-   public String toString() {
-      return "ObservableStampPathImpl{" + this.stampPath + '}';
-   }
-
-   //~--- get methods ---------------------------------------------------------
-
-   /**
-    * Gets the path concept nid.
-    *
-    * @return the path concept nid
-    */
-   @Override
-   public int getPathConceptNid() {
-      if (this.pathConceptSequenceProperty != null) {
-         return this.pathConceptSequenceProperty.get();
-      }
-
-      return this.stampPath.getPathConceptNid();
-   }
-
-   /**
-    * Gets the path origins.
-    *
-    * @return the path origins
-    */
-   @Override
-   public List<ObservableStampPosition> getPathOrigins() {
-      if (this.pathOriginsProperty != null) {
-         return this.pathOriginsProperty.get();
-      }
-
-      return this.stampPath.getPathOrigins()
-                           .stream()
-                           .map((origin) -> new ObservableStampPositionImpl(origin))
-                           .collect(Collectors.toList());
-   }
+    private ObservableStampPathImpl(StampPathImmutable stampPathImmutable, String coordinateName) {
+        super(stampPathImmutable, coordinateName);
+    }
+    private ObservableStampPathImpl(StampPathImmutable stampPathImmutable) {
+        super(stampPathImmutable, "Stamp path");
+    }
 
     @Override
-    public ConceptSpecification getPathConcept() {
-        return this.stampPath.getPathConcept();
+    public void setExceptOverrides(StampPathImmutable updatedCoordinate) {
+        setValue(updatedCoordinate);
     }
+
+    public static ObservableStampPathImpl make(StampPathImmutable stampPathImmutable) {
+        return new ObservableStampPathImpl(stampPathImmutable);
+    }
+
+    public static ObservableStampPathImpl make(StampPathImmutable stampPathImmutable, String coordinateName) {
+        return new ObservableStampPathImpl(stampPathImmutable, coordinateName);
+    }
+
+    @Override
+    protected ListProperty<StampPositionImmutable> makePathOriginsAsListProperty(StampPath stampPath) {
+        return new SimpleEqualityBasedListProperty<StampPositionImmutable>(this,
+                ObservableFields.PATH_ORIGIN_LIST_FOR_STAMP_PATH.toExternalString(),
+                FXCollections.observableList(stampPath.getPathOrigins().toList()));
+    }
+
+    @Override
+    protected SetProperty<StampPositionImmutable> makePathOriginsProperty(StampPath stampPath) {
+        return new SimpleEqualityBasedSetProperty<StampPositionImmutable>(this,
+                ObservableFields.PATH_ORIGIN_LIST_FOR_STAMP_PATH.toExternalString(),
+                FXCollections.observableSet(stampPath.getPathOrigins().toSet()));
+    }
+
+    @Override
+    protected ObjectProperty<ConceptSpecification> makePathConceptProperty(StampPath stampPath) {
+        return new SimpleEqualityBasedObjectProperty<>(this,
+                ObservableFields.PATH_FOR_PATH_COORDINATE.toExternalString(),
+                stampPath.getPathConcept());
+    }
+
+    @Override
+    public StampPathImmutable getOriginalValue() {
+        return getValue();
+    }
+
+
+    @Override
+    protected final StampPathImmutable baseCoordinateChangedListenersRemoved(ObservableValue<? extends StampPathImmutable> observable, StampPathImmutable oldValue, StampPathImmutable newValue) {
+        this.pathConceptProperty().setValue(Get.conceptSpecification(newValue.getPathConceptNid()));
+        this.pathOriginsProperty().setValue(FXCollections.observableSet(newValue.getPathOrigins().toSet()));
+        this.pathOriginsAsListProperty().setValue(FXCollections.observableList(newValue.getPathOrigins().toList()));
+        return newValue;
+    }
+
 }
 

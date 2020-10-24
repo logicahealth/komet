@@ -19,9 +19,10 @@ package sh.komet.gui.control;
 import javafx.scene.control.Label;
 import javafx.scene.control.Tooltip;
 import sh.isaac.api.Get;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.komet.gui.control.property.ViewProperties;
 
 import static sh.komet.gui.control.badged.BadgedVersionPaneModel.FIRST_COLUMN_WIDTH;
+import static sh.komet.gui.style.PseudoClasses.UNCOMMITTED_PSEUDO_CLASS;
 import static sh.komet.gui.style.StyleClasses.STAMP_INDICATOR;
 
 /**
@@ -39,12 +40,17 @@ public class StampControl extends Label {
       this.getStyleClass().setAll(STAMP_INDICATOR.toString());
    }
 
-   public void setStampedVersion(int stampSequence, ManifoldCoordinate manifoldCoordinate, int stampOrder) {
+   public void setStampedVersion(int stampSequence, ViewProperties viewProperties, int stampOrder) {
+      if (Get.stampService().isUncommitted(stampSequence)) {
+         pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, true);
+      } else {
+         pseudoClassStateChanged(UNCOMMITTED_PSEUDO_CLASS, false);
+      }
       this.setMinSize(FIRST_COLUMN_WIDTH, FIRST_COLUMN_WIDTH);
       this.setPrefSize(FIRST_COLUMN_WIDTH, FIRST_COLUMN_WIDTH);
       this.setMaxSize(FIRST_COLUMN_WIDTH, FIRST_COLUMN_WIDTH);
       this.setText(Integer.toString(stampOrder));
-      String toolTipText = Get.stampService().describeStampSequenceForTooltip(stampSequence, manifoldCoordinate);
+      String toolTipText = Get.stampService().describeStampSequenceForTooltip(stampSequence, viewProperties.getManifoldCoordinate());
       Tooltip stampTip = new Tooltip(toolTipText);
       this.setTooltip(stampTip);
    }

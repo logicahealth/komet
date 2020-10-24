@@ -17,19 +17,21 @@
 package sh.komet.gui.importation;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Future;
 import sh.isaac.api.Get;
 import sh.isaac.api.classifier.ClassifierService;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.progress.PersistTaskResult;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.solor.ContentProvider;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.LoincExpressionToConcept;
 import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.util.FxGet;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
@@ -37,14 +39,16 @@ import sh.komet.gui.util.FxGet;
  */
 public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker<Void> implements PersistTaskResult {
    
-   final Manifold manifold;
+   final ViewProperties viewProperties;
    final ImportType importType;
    final List<ContentProvider> entriesToImport;
-   
-   public ImportSelectedAndTransformTask(Manifold manifold, ImportType importType,
-         List<ContentProvider> entriesToImport) {
+   private final Transaction transaction;
+
+   public ImportSelectedAndTransformTask(Transaction transaction, ViewProperties viewProperties, ImportType importType,
+                                         List<ContentProvider> entriesToImport) {
+      this.transaction = transaction;
       this.entriesToImport = entriesToImport;
-      this.manifold = manifold;
+      this.viewProperties = viewProperties;
       this.importType = importType;
       updateTitle("Import and transform " + importType.toString());
       
@@ -55,33 +59,34 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
    @Override
    protected Void call() throws Exception {
       try {
+         Transaction transaction = Get.commitService().newTransaction(Optional.of("ImportSelectedAndTransformTask"), ChangeCheckerMode.INACTIVE, false);
          completedUnitOfWork();
          updateMessage("Importing new content...");
-         DirectImporter importer = new DirectImporter(importType, entriesToImport);
+         DirectImporter importer = new DirectImporter(transaction, importType, entriesToImport);
          Future<?> importTask = Get.executor().submit(importer);
          importTask.get();
          completedUnitOfWork();
 
          updateMessage("Transforming to SOLOR...");
-         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(importType);
+         Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(transaction, importType);
          Future<?> transformTask = Get.executor().submit(transformer);
          transformTask.get();
          completedUnitOfWork();
 
          updateMessage("Convert LOINC expressions...");
-         LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept();
+         LoincExpressionToConcept convertLoinc = new LoincExpressionToConcept(transaction);
          Future<?> convertLoincTask = Get.executor().submit(convertLoinc);
          convertLoincTask.get();
          completedUnitOfWork();
 
          updateMessage("Adding navigation concepts...");
-         LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(manifold);
+         LoincExpressionToNavConcepts addNavigationConcepts = new LoincExpressionToNavConcepts(transaction, viewProperties.getManifoldCoordinate());
          Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
          addNavigationConceptsTask.get();
          completedUnitOfWork();
 
          updateMessage("Classifying new content...");
-         ClassifierService classifierService = Get.logicService().getClassifierService(manifold, FxGet.editCoordinate());
+         ClassifierService classifierService = Get.logicService().getClassifierService(viewProperties.getManifoldCoordinate().toManifoldCoordinateImmutable());
          Future<?> classifyTask = classifierService.classify();
          classifyTask.get();
          completedUnitOfWork();

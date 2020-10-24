@@ -253,6 +253,14 @@ public class DBConfigurationCreator
 			pd.setScope("compile");
 			
 			plugin.getDependencies().getDependency().add(pd);
+			
+			pd = new Dependency();
+			pd.setGroupId("sh.isaac.provider");
+			pd.setArtifactId("identifier");
+			pd.setVersion(metadataVersion);
+			pd.setScope("compile");
+			
+			plugin.getDependencies().getDependency().add(pd);
 			executions = new Executions();
 
 			// setup isaac
@@ -282,9 +290,10 @@ public class DBConfigurationCreator
 
 			// count
 			pe = new PluginExecution();
-			pe.setId("count-after-load");
+			pe.setId("count-and-check-after-load");
 			goals = new Goals();
 			goals.getGoal().add("count-concepts");
+			goals.getGoal().add("scan-refs");
 			pe.setGoals(goals);
 			executions.getExecution().add(pe);
 

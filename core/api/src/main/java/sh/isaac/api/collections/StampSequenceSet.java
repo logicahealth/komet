@@ -41,14 +41,13 @@ package sh.isaac.api.collections;
 
 //~--- JDK imports ------------------------------------------------------------
 
+import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
+import sh.isaac.api.Get;
+
 import java.util.Collection;
 import java.util.stream.IntStream;
 
 //~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.mahout.math.set.OpenIntHashSet;
-
-import sh.isaac.api.Get;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -63,15 +62,6 @@ public class StampSequenceSet
     * Instantiates a new stamp sequence set.
     */
    public StampSequenceSet() {}
-
-   /**
-    * Instantiates a new stamp sequence set.
-    *
-    * @param concurrency the concurrency
-    */
-   protected StampSequenceSet(Concurrency concurrency) {
-      super(concurrency);
-   }
 
    /**
     * Instantiates a new stamp sequence set.
@@ -96,20 +86,11 @@ public class StampSequenceSet
     *
     * @param members the members
     */
-   protected StampSequenceSet(OpenIntHashSet members) {
+   protected StampSequenceSet(ImmutableIntSet members) {
       super(members);
    }
 
    //~--- methods -------------------------------------------------------------
-
-   /**
-    * Concurrent.
-    *
-    * @return the stamp sequence set
-    */
-   public static StampSequenceSet concurrent() {
-      return new StampSequenceSet(Concurrency.THREAD_SAFE);
-   }
 
    /**
     * Of.
@@ -147,7 +128,7 @@ public class StampSequenceSet
     * @param members the members
     * @return the stamp sequence set
     */
-   public static StampSequenceSet of(OpenIntHashSet members) {
+   public static StampSequenceSet of(ImmutableIntSet members) {
       return new StampSequenceSet(members);
    }
 

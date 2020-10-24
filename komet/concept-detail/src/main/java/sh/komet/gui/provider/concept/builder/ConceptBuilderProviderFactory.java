@@ -16,18 +16,17 @@
  */
 package sh.komet.gui.provider.concept.builder;
 
-import javax.inject.Singleton;
-import org.jvnet.hk2.annotations.Service;
 import javafx.scene.Node;
+import org.jvnet.hk2.annotations.Service;
 import sh.isaac.MetaData;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
-import sh.komet.gui.contract.DetailNodeFactory;
-import sh.komet.gui.contract.DetailType;
-import sh.komet.gui.interfaces.DetailNode;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
+import sh.komet.gui.contract.ExplorationNodeFactory;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+
+import jakarta.inject.Singleton;
 
 /**
  *
@@ -35,21 +34,16 @@ import sh.komet.gui.manifold.Manifold.ManifoldGroup;
  */
 @Service(name = "Logic Detail Provider")
 @Singleton
-public class ConceptBuilderProviderFactory implements DetailNodeFactory {
+public class ConceptBuilderProviderFactory implements ExplorationNodeFactory {
 
     @Override
-    public DetailType getSupportedType() {
-        return DetailType.Builder;
-    }
-
-    @Override
-    public DetailNode createNode(Manifold manifold, IsaacPreferences preferencesNode) {
-      return new ConceptBuilderNode(manifold);
+    public ConceptBuilderNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferencesNode) {
+      return new ConceptBuilderNode(viewProperties, preferencesNode);
     }
 
     @Override
     public String getMenuText() {
-        return "Concept builder";
+        return "Concept Builder";
     }
 
     @Override
@@ -59,19 +53,12 @@ public class ConceptBuilderProviderFactory implements DetailNodeFactory {
 
     /** 
      * {@inheritDoc}
+     * @return
      */
     @Override
-    public ManifoldGroup[] getDefaultManifoldGroups() {
-        return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
+    public String[] getDefaultActivityFeed() {
+        return new String[] {ViewProperties.UNLINKED};
     }
-
-   /** 
-    * {@inheritDoc}
-    */
-   @Override
-   public PanelPlacement getPanelPlacement() {
-      return PanelPlacement.CENTER;
-   }
 
     @Override
     public ConceptSpecification getPanelType() {

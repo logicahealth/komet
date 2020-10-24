@@ -20,53 +20,74 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+
+import javafx.beans.property.*;
 import javafx.geometry.Orientation;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.SplitPane;
-import javafx.scene.layout.BorderPane;
-import sh.isaac.api.Status;
 import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.control.axiom.AxiomView;
+import sh.komet.gui.control.concept.AddToContextMenu;
 import sh.komet.gui.control.concept.ConceptLabelToolbar;
-import sh.komet.gui.control.concept.ManifoldLinkedConceptLabel;
-import sh.komet.gui.interfaces.DetailNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.concept.ConceptLabelWithDragAndDrop;
+import sh.komet.gui.control.concept.MenuSupplierForFocusConcept;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.interfaces.DetailNodeAbstract;
 import sh.komet.gui.style.StyleClasses;
 
 /**
  *
  * @author kec
  */
-public class ExpressionView implements DetailNode, Supplier<List<MenuItem>> {
+public class ExpressionView extends DetailNodeAbstract implements Supplier<List<MenuItem>> {
 
-    private final BorderPane conceptDetailPane = new BorderPane();
-    private final SimpleStringProperty titleProperty = new SimpleStringProperty("empty");
-    private final SimpleStringProperty toolTipProperty = new SimpleStringProperty("empty");
-    private final SimpleObjectProperty<LogicalExpression> expressionProperty = new SimpleObjectProperty<>();
+    {
+        titleProperty.setValue("empty");
+        toolTipProperty.setValue("empty");
+        menuIconProperty.setValue(Iconography.LAMBDA.getIconographic());
+    }
+     private final SimpleObjectProperty<LogicalExpression> expressionProperty = new SimpleObjectProperty<>();
 
-    private final Manifold conceptDetailManifold;
-    private ManifoldLinkedConceptLabel titleLabel = null;
     private final ConceptLabelToolbar conceptLabelToolbar;
 
+    private final SimpleObjectProperty<ActivityFeed> activityFeedProperty = new SimpleObjectProperty<>();
+    private final SimpleObjectProperty<IdentifiedObject> identifiedObjectFocusProperty = new SimpleObjectProperty<>();
+
     //~--- constructors --------------------------------------------------------
-    public ExpressionView(Manifold conceptDetailManifold) {
-        this.conceptDetailManifold = conceptDetailManifold;
-        this.conceptDetailManifold.getStampCoordinate().allowedStatesProperty().add(Status.INACTIVE);
-        this.conceptLabelToolbar = ConceptLabelToolbar.make(conceptDetailManifold, this, Optional.of(false));
-        conceptDetailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
-        conceptDetailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
+    public ExpressionView(ViewProperties viewProperties, String activityGroupName, IsaacPreferences preferences) {
+        super(viewProperties, viewProperties.getActivityFeed(activityGroupName), preferences, MenuSupplierForFocusConcept.getArray());
+        this.conceptLabelToolbar = ConceptLabelToolbar.make(this.viewProperties,
+                this.identifiedObjectFocusProperty,
+                ConceptLabelWithDragAndDrop::setPreferredText,
+                this.selectionIndexProperty,
+                () -> this.unlinkFromActivityFeed(),
+                this.activityFeedProperty,
+                Optional.of(true),
+                MenuSupplierForFocusConcept.getArray());
+        detailPane.setTop(this.conceptLabelToolbar.getToolbarNode());
+        detailPane.getStyleClass().add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
         expressionProperty().addListener((observable, oldValue, newValue) -> {
             getLogicDetail();
         });
     }
-    
+
+    @Override
+    public Node getMenuIconGraphic() {
+        return Iconography.LAMBDA.getIconographic();
+    }
+
+    @Override
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
+    }
+
     public final SimpleObjectProperty<LogicalExpression> expressionProperty() {
         return expressionProperty;
     }
@@ -74,62 +95,34 @@ public class ExpressionView implements DetailNode, Supplier<List<MenuItem>> {
     public LogicalExpression getExpression() {
         return expressionProperty.get();
     }
-    
+
+    @Override
+    public void updateFocusedObject(IdentifiedObject component) {
+        setExpression((LogicalExpression) component);
+    }
+
     public void setExpression(LogicalExpression expression) {
         expressionProperty.set(expression);
     }
     
-    
-
-    @Override
-    public Node getMenuIcon() {
-       return Iconography.LAMBDA.getIconographic();
-    }
-
-
     private void getLogicDetail() {
         SplitPane splitPane = new SplitPane();
         splitPane.setOrientation(Orientation.VERTICAL);
-        conceptDetailPane.setCenter(splitPane);
+        detailPane.setCenter(splitPane);
         if (expressionProperty.get() != null) {
-            splitPane.getItems().add(AxiomView.createWithCommitPanel(expressionProperty.get(), PremiseType.STATED, conceptDetailManifold));
+            splitPane.getItems().add(AxiomView.createWithCommitPanel(expressionProperty.get(), PremiseType.STATED, this.viewProperties.getManifoldCoordinate()));
         } else {
-            conceptDetailPane.setCenter(new Label("No stated form"));
+            detailPane.setCenter(new Label("No stated form"));
         }
     }
 
     //~--- get methods ---------------------------------------------------------
-    @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return this.titleProperty;
-    }
-
-    @Override
-    public Optional<Node> getTitleNode() {
-        // MaterialDesignIcon.LAMBDA
-        if (titleLabel == null) {
-            this.titleLabel = new ManifoldLinkedConceptLabel(conceptDetailManifold, ManifoldLinkedConceptLabel::setPreferredText, this);
-            this.titleLabel.setGraphic(Iconography.LAMBDA.getIconographic());
-            this.titleProperty.set("");
-        }
-        return Optional.of(titleLabel);
-    }
-
-    @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return this.toolTipProperty;
-    }
 
     @Override
     public List<MenuItem> get() {
         List<MenuItem> assemblageMenuList = new ArrayList<>();
         // No extra menu items added yet. 
         return assemblageMenuList;
-    }
-
-    @Override
-    public Manifold getManifold() {
-        return this.conceptDetailManifold;
     }
 
     @Override
@@ -142,8 +135,17 @@ public class ExpressionView implements DetailNode, Supplier<List<MenuItem>> {
      */
     @Override
     public Node getNode() {
-        return conceptDetailPane;
-    }    
-    
-    
+        return detailPane;
+    }
+
+
+    @Override
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
 }

@@ -15,146 +15,177 @@
  */
 package sh.komet.gui.control.concept;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.function.Supplier;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.ReadOnlyBooleanProperty;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
-import javafx.beans.value.WeakChangeListener;
+import javafx.beans.property.SimpleIntegerProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.event.ActionEvent;
 import javafx.event.Event;
 import javafx.geometry.HPos;
 import javafx.geometry.VPos;
 import javafx.scene.Node;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Label;
-import javafx.scene.control.MenuButton;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import org.controlsfx.control.ToggleSwitch;
-import sh.isaac.api.Get;
-import sh.isaac.api.component.concept.ConceptChronology;
-import sh.isaac.api.component.concept.ConceptSpecification;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.control.manifold.ManifoldMenuModel;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.control.toggle.OnOffToggleSwitch;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
-import sh.komet.gui.util.FxGet;
+import sh.komet.gui.menu.MenuItemWithText;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.Optional;
+import java.util.function.Consumer;
+
+import static sh.komet.gui.control.property.ViewProperties.UNLINKED;
 
 /**
  *
  * @author kec
  */
-public class ConceptLabelToolbar implements ChangeListener<String> {
+public class ConceptLabelToolbar {
 
    protected static final Logger LOG = LogManager.getLogger();
-   final MenuButton manifoldLinkMenu = new MenuButton();
-   final ManifoldLinkedConceptLabel conceptLabel;
+   final ViewProperties viewProperties;
+   final MenuButton coordinateMenuButton = new MenuButton();
+   final Menu coordinatesMenu = new Menu("Coordinates", Iconography.COORDINATES.getStyledIconographic());
+   final Menu activityFeedMenu = new Menu("Activity feed");
+   {
+      coordinateMenuButton.getItems().addAll(coordinatesMenu, activityFeedMenu);
+      coordinateMenuButton.setGraphic(Iconography.COORDINATES.getStyledIconographic());
+
+   }
+   ManifoldMenuModel manifoldMenuModel;
+
+   final ConceptLabelWithDragAndDrop conceptLabel;
    final Label rightInfoLabel = new Label("");
-   final Manifold manifold;
-   final Supplier<List<MenuItem>> menuSupplier;
    final GridPane toolBarGrid = new GridPane();
    final OnOffToggleSwitch focusOnChange = new OnOffToggleSwitch();
+   final SimpleObjectProperty<ActivityFeed> activityFeedProperty;
 
 
-   public void manifoldEventHandler(Event event) {
+   public void activityFeedEventHandler(Event event) {
       try {
          MenuItem menuItem = (MenuItem) event.getSource();
-           String manifoldGroup = (String) menuItem.getUserData();
-           Optional<ConceptSpecification> spec = manifold.getConceptForGroup(manifoldGroup);
-           manifold.setGroupName(manifoldGroup);
-           if (spec.isPresent()) {
-              ConceptChronology focusedConcept = Get.concept(spec.get());
-              manifold.setFocusedConceptChronology(focusedConcept);
-           } else {
-              if (!manifold.getGroupName().equals(ManifoldGroup.UNLINKED.getGroupName())) {
-                 manifold.setFocusedConceptChronology(null);
-              }
-           }
-           manifoldLinkMenu.setGraphic(getNodeForManifold(manifoldGroup));
-      }
+           String activityFeedSpec = (String) menuItem.getUserData();
+           ActivityFeed activityFeed = this.viewProperties.getActivityFeed(activityFeedSpec);
+           this.activityFeedProperty.set(activityFeed);
+       }
       catch (Exception e) {
          LOG.warn("Failure handling manifold event!", e);
       }
    }
 
-   public final Node getNodeForManifold(Manifold manifold) {
-      return getNodeForManifold(manifold.getGroupName());
+   public final Node getGraphicForActivityFeed(String activityFeedName) {
+      Optional<Node> optionalIcon = ViewProperties.getOptionalGraphicForActivityFeed(activityFeedName);
+      if (optionalIcon.isPresent()) {
+         return optionalIcon.get();
+      }
+      return new Label(" ?");
    }
-   // TODO make the manifold menu it's own object to be used in many places
-   public final Node getNodeForManifold(String manifoldGroup) {
+
+   public final Node getGraphicForActivityFeedOld(String activityFeedName) {
+      // TODO make the activity menu it's own object to be used in many places
       HBox combinedGraphic = new HBox(1);
       combinedGraphic.setMinWidth(45);
       combinedGraphic.setPrefWidth(45);
       combinedGraphic.setMaxWidth(45);
-      if (manifoldGroup.equals(ManifoldGroup.UNLINKED.getGroupName())) {
+      if (activityFeedName.equals(UNLINKED)) {
          Node linkBroken = Iconography.LINK_BROKEN.getIconographic();
          Rectangle rect = new Rectangle(16, 16, Color.TRANSPARENT);
-         combinedGraphic.getChildren().addAll(linkBroken,rect);
+         combinedGraphic.getChildren().addAll(linkBroken, rect);
       } else {
-         combinedGraphic.getChildren().addAll(
-              Iconography.LINK.getIconographic(), 
-         Manifold.getIconographic(manifoldGroup));
+         Optional<Node> optionalIcon = ViewProperties.getOptionalGraphicForActivityFeed(activityFeedName);
+         if (optionalIcon.isPresent()) {
+            combinedGraphic.getChildren().addAll(
+                    Iconography.LINK.getIconographic(),
+                    optionalIcon.get());
+         } else {
+            combinedGraphic.getChildren().addAll(
+                    Iconography.LINK.getIconographic());
+         }
       }
       return combinedGraphic;
    }
 
-   private ConceptLabelToolbar(Manifold manifold, Supplier<List<MenuItem>> menuSupplier, Optional<Boolean> focusTabOnConceptChange) {
-      this.manifold = manifold;
-      this.menuSupplier = menuSupplier;
-      this.conceptLabel = new ManifoldLinkedConceptLabel(manifold, ManifoldLinkedConceptLabel::setFullySpecifiedText, menuSupplier);
+   private ConceptLabelToolbar(ViewProperties viewProperties,
+                               SimpleObjectProperty<IdentifiedObject> conceptFocusProperty,
+                               Consumer<ConceptLabelWithDragAndDrop> descriptionTextUpdater,
+                               SimpleIntegerProperty selectionIndexProperty,
+                               Runnable unlink,
+                               SimpleObjectProperty<ActivityFeed> activityFeedProperty,
+                               Optional<Boolean> focusTabOnConceptChange,
+                               AddToContextMenu[] contextMenuProviders) {
+      this.viewProperties = viewProperties;
+      this.conceptLabel = new ConceptLabelWithDragAndDrop(viewProperties,
+              conceptFocusProperty,
+              descriptionTextUpdater,
+              selectionIndexProperty,
+              unlink,
+              contextMenuProviders);
+
       if (focusTabOnConceptChange.isPresent())
       {
          this.focusOnChange.selectedProperty().set(focusTabOnConceptChange.get());
-      }
-      else
-      {
+      } else {
          this.focusOnChange.setManaged(false);
          this.focusOnChange.setVisible(false);
       }
 
-      // Manifold
-      Manifold.getGroupNames().stream().filter((groupString) -> {
-          if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-              return true;
-          } 
-          return !groupString.toLowerCase().startsWith("flwor");
-      }).map((m) -> {
-         MenuItem manifoldItem = new MenuItem(m, getNodeForManifold(m));
-         manifoldItem.setUserData(m);
-         manifoldItem.addEventHandler(ActionEvent.ACTION, this::manifoldEventHandler);
-         return manifoldItem;
-      }).forEachOrdered((manifoldItem) -> {
-         manifoldLinkMenu.getItems().add(manifoldItem);
+      this.viewProperties.getActivityFeeds().forEach(feed -> {
+         MenuItem activityItem = new MenuItemWithText(feed.getFeedName(), getGraphicForActivityFeed(feed.getFeedName()));
+         activityItem.setUserData(feed.getFullyQualifiedActivityFeedName());
+         activityItem.addEventHandler(ActionEvent.ACTION, this::activityFeedEventHandler);
+         activityFeedMenu.getItems().add(activityItem);
       });
+      activityFeedMenu.getItems().sort(Comparator.comparing(MenuItem::getText));
 
-      manifoldLinkMenu.setGraphic(getNodeForManifold(manifold));
-      manifold.groupNameProperty().addListener(new WeakChangeListener<>(this));
-// History
-// 
+      ArrayList<Menu> otherViewFeeds = new ArrayList<>();
+      ViewProperties.getAll().forEach(anotherView -> {
+         if (anotherView != this.viewProperties) {
+            otherViewFeeds.add(new Menu(anotherView.getViewName()));
+            anotherView.getActivityFeeds().forEach(feed -> {
+               MenuItem activityItem = new MenuItemWithText(feed.getFeedName(), getGraphicForActivityFeed(feed.getFeedName()));
+               activityItem.setUserData(feed.getFullyQualifiedActivityFeedName());
+               activityItem.addEventHandler(ActionEvent.ACTION, this::activityFeedEventHandler);
+               otherViewFeeds.get(otherViewFeeds.size() - 1).getItems().add(activityItem);
+            });
+            otherViewFeeds.get(otherViewFeeds.size() - 1).getItems().sort(Comparator.comparing(MenuItem::getText));
+         }
+      });
+      otherViewFeeds.sort(Comparator.comparing(Menu::getText));
+
+      activityFeedMenu.getItems().addAll(otherViewFeeds);
+
+      activityFeedMenu.setGraphic(getGraphicForActivityFeed(activityFeedProperty.get().getFeedName()));
+      this.activityFeedProperty = activityFeedProperty;
+      manifoldMenuModel = new ManifoldMenuModel(viewProperties, coordinateMenuButton, this.coordinatesMenu);
+      activityFeedProperty.addListener((observable, oldValue, newValue) -> {
+         activityFeedMenu.setGraphic(getGraphicForActivityFeed(newValue.getFeedName()));
+      });
    }
 
-   /**
-    * 
-    * @param manifold
-    * @param menuSupplier
-    * @param focusTabOnConceptChange - Optional.empty, if you don't want this feature, other wise true or false to set the initial state
-    * @return
-    */
-   public static ConceptLabelToolbar make(Manifold manifold, Supplier<List<MenuItem>> menuSupplier, Optional<Boolean> focusTabOnConceptChange) {
-
-      ConceptLabelToolbar gctb = new ConceptLabelToolbar(manifold, menuSupplier, focusTabOnConceptChange);
-      GridPane.setConstraints(gctb.manifoldLinkMenu, 0, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.NEVER, Priority.NEVER);
-      gctb.toolBarGrid.getChildren().add(gctb.manifoldLinkMenu);
+      public static ConceptLabelToolbar make(ViewProperties viewProperties,
+                                             SimpleObjectProperty<IdentifiedObject> conceptFocusProperty,
+                                             Consumer<ConceptLabelWithDragAndDrop> descriptionTextUpdater,
+                                             SimpleIntegerProperty selectionIndexProperty,
+                                             Runnable unlink,
+                                             SimpleObjectProperty<ActivityFeed> activityFeedProperty,
+                                             Optional<Boolean> focusTabOnConceptChange,
+                                             AddToContextMenu[] contextMenuProviders) {
+      ConceptLabelToolbar gctb = new ConceptLabelToolbar(viewProperties, conceptFocusProperty,
+              descriptionTextUpdater, selectionIndexProperty, unlink, activityFeedProperty, focusTabOnConceptChange,
+              contextMenuProviders);
+      GridPane.setConstraints(gctb.coordinateMenuButton, 0, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.NEVER, Priority.NEVER);
+      gctb.toolBarGrid.getChildren().add(gctb.coordinateMenuButton);
       GridPane.setConstraints(gctb.conceptLabel, 1, 0, 1, 1, HPos.LEFT, VPos.CENTER, Priority.ALWAYS, Priority.NEVER);
       gctb.conceptLabel.setMaxWidth(2000);
       gctb.conceptLabel.setMinWidth(100);
@@ -180,10 +211,6 @@ public class ConceptLabelToolbar implements ChangeListener<String> {
 
    public Node getToolbarNode() {
        return this.toolBarGrid;
-   }
-   @Override
-   public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-      manifoldLinkMenu.setGraphic(getNodeForManifold(manifold));      
    }
 
     public Label getRightInfoLabel() {

@@ -17,43 +17,64 @@
 package sh.isaac.api.chronicle;
 
 import java.util.UUID;
+import sh.isaac.api.Get;
 import sh.isaac.api.commit.IdentifiedStampedVersion;
-import sh.isaac.api.coordinate.EditCoordinate;
+import sh.isaac.api.coordinate.WriteCoordinate;
 
 /**
- *
  * @author kec
  */
 public interface Version extends MutableStampedVersion, IdentifiedStampedVersion {
-  /**
-    * Gets the chronology.
-    *
-    * @return the chronology
-    */
-   Chronology getChronology();
-   
-   VersionType getSemanticType();
-   
-   /**
-    * Create a analog version with Long.MAX_VALUE as the time, indicating
-    * the version is uncommitted. It is the responsibility of the caller to
-    * add the mutable version to the commit manager when changes are complete
-    * prior to committing the component. Values for all properties except author,
-    * time, and path (which are provided by the edit coordinate) will be copied 
-    * from this version. 
-    *
-    * @param <V> the mutable version type
-    * @param ec edit coordinate to provide the author, module, and path for the mutable version
-    * @return the mutable version
-    */
-   <V extends Version> V makeAnalog(EditCoordinate ec);
-   
-   /**
-    * Adds the additional uuids.
-    *
-    * @param uuids the uuid
-    */
-   public void addAdditionalUuids(UUID ...uuids);
+
+    default int getNid() {
+        return getChronology().getNid();
+    }
+    /**
+     * Gets the chronology.
+     *
+     * @return the chronology
+     */
+    Chronology getChronology();
+
+    VersionType getSemanticType();
+
+    /**
+     * Calls {@link #makeAnalog(int)} with a stamp created from the values provided by the supplied WriteCoordinate.
+     * This version will be passed into the WriteCoordinate for selecting the moduleNid.
+     *
+     * @param <V>         the mutable version type
+     * @param wc   the write coordinate to determine status, time, author, module, and path for the analog.
+     * @return the mutable version, with all properties beyond STAMP properties copied from this version.
+     */
+    default <V extends Version> V makeAnalog(WriteCoordinate wc) {
+        final int stampSequence = Get.stampService()
+                .getStampSequence(wc.getTransaction().orElse(null),
+                        wc.getStatus(),
+                        wc.getTime(),
+                        wc.getAuthorNid(),
+                        wc.getModuleNid(),
+                        wc.getPathNid());
+        return makeAnalog(stampSequence);
+    }
+
+    /**
+     * Create a analog version with the specified stamp.
+     * It is the responsibility of the caller to directly write the chronology to the store after 
+     * making any further changes.  Values for all properties except the STAMP properties will be copied 
+     * from this version. 
+     *
+     * @param <V> the mutable version type
+     * @param stampSequence the complete stamp for the mutable version
+     * @return the mutable version, with all properties beyond STAMP properties copied from this version.
+     */
+    <V extends Version> V makeAnalog(int stampSequence);
+    
+    /**
+     * Adds the additional uuids.
+     *
+     * @param uuids the uuid
+     */
+    public void addAdditionalUuids(UUID... uuids);
 
     /**
      * DeepEquals considers all fields, not just the stamp and the assumptions that the commit manager will not allow

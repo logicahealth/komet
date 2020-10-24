@@ -17,26 +17,27 @@
 package sh.komet.gui.cell.treetable;
 
 import javafx.scene.control.TreeTableRow;
+import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.control.property.ViewProperties;
 
 /**
  *
  * @author kec
  */
 public class TreeTableModulePathCell extends KometTreeTableCell<ObservableCategorizedVersion> {
-   private final Manifold manifold;
+   private final ManifoldCoordinate manifoldCoordinate;
 
-   public TreeTableModulePathCell(Manifold manifold) {
-      this.manifold = manifold;
+   public TreeTableModulePathCell(ManifoldCoordinate manifoldCoordinate) {
+      this.manifoldCoordinate = manifoldCoordinate;
       getStyleClass().add("komet-version-module-path-cell");
       getStyleClass().add("isaac-version");
    }
 
    @Override
    protected void updateItem(TreeTableRow<ObservableCategorizedVersion> row, ObservableCategorizedVersion cellValue) {
-        setText(manifold.getPreferredDescriptionText(cellValue.getModuleNid()) + "\n" +
-                manifold.getPreferredDescriptionText(cellValue.getPathNid())
+        setText(manifoldCoordinate.getPreferredDescriptionText(cellValue.getModuleNid()) + "\n" +
+                manifoldCoordinate.getPreferredDescriptionText(cellValue.getPathNid())
         );
    }
    

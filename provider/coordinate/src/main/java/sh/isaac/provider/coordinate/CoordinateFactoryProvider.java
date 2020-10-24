@@ -47,30 +47,20 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Optional;
 
-import javax.inject.Singleton;
-
 //~--- non-JDK imports --------------------------------------------------------
+import org.eclipse.collections.impl.factory.primitive.IntLists;
+import org.eclipse.collections.impl.factory.primitive.IntSets;
+import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptSpecification;
-import sh.isaac.api.coordinate.CoordinateFactory;
-import sh.isaac.api.coordinate.EditCoordinate;
-import sh.isaac.api.coordinate.LanguageCoordinate;
-import sh.isaac.api.coordinate.LogicCoordinate;
-import sh.isaac.api.coordinate.ManifoldCoordinate;
-import sh.isaac.api.coordinate.StampCoordinate;
-import sh.isaac.api.coordinate.StampPrecedence;
-import sh.isaac.model.configuration.EditCoordinates;
-import sh.isaac.model.configuration.LanguageCoordinates;
-import sh.isaac.model.configuration.LogicCoordinates;
-import sh.isaac.model.configuration.ManifoldCoordinates;
-import sh.isaac.model.configuration.StampCoordinates;
-import sh.isaac.model.coordinate.StampCoordinateImpl;
-import sh.isaac.model.coordinate.StampPositionImpl;
+import sh.isaac.api.coordinate.*;
+import sh.isaac.model.configuration.*;
 import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.component.semantic.version.ComponentNidVersion;
 import sh.isaac.api.component.semantic.SemanticChronology;
@@ -83,7 +73,7 @@ import sh.isaac.api.component.semantic.SemanticSnapshotService;
  * @author kec
  */
 @Service
-@Singleton
+@RunLevel(value = LookupService.SL_L2)
 public class CoordinateFactoryProvider
         implements CoordinateFactory {
 
@@ -95,7 +85,7 @@ public class CoordinateFactoryProvider
      */
     @Override
     public int caseSignificanceToConceptNid(boolean initialCaseSignificant) {
-        return LanguageCoordinates.caseSignificanceToConceptSequence(initialCaseSignificant);
+        return TermAux.caseSignificanceToConceptNid(initialCaseSignificant);
     }
 
     /**
@@ -106,18 +96,7 @@ public class CoordinateFactoryProvider
      */
     @Override
     public boolean conceptIdToCaseSignificance(int id) {
-        return LanguageCoordinates.conceptIdToCaseSignificance(id);
-    }
-
-    /**
-     * Concept id to iso 639.
-     *
-     * @param nid the nid
-     * @return the string
-     */
-    @Override
-    public String conceptIdToIso639(int nid) {
-        return LanguageCoordinates.conceptNidToIso639(nid);
+        return TermAux.conceptIdToCaseSignificance(id);
     }
 
     /**
@@ -138,7 +117,7 @@ public class CoordinateFactoryProvider
     @Override
     public ManifoldCoordinate createDefaultInferredManifoldCoordinate() {
         return createInferredManifoldCoordinate(
-                createDevelopmentLatestActiveOnlyStampCoordinate(),
+                createDevelopmentLatestActiveOnlyStampFilter(),
                 getUsEnglishLanguageFullySpecifiedNameCoordinate(),
                 createStandardElProfileLogicCoordinate());
     }
@@ -151,7 +130,7 @@ public class CoordinateFactoryProvider
     @Override
     public ManifoldCoordinate createDefaultStatedManifoldCoordinate() {
         return createStatedManifoldCoordinate(
-                createDevelopmentLatestActiveOnlyStampCoordinate(),
+                createDevelopmentLatestActiveOnlyStampFilter(),
                 getUsEnglishLanguageFullySpecifiedNameCoordinate(),
                 createStandardElProfileLogicCoordinate());
     }
@@ -182,8 +161,8 @@ public class CoordinateFactoryProvider
      * @return the stamp coordinate
      */
     @Override
-    public StampCoordinate createDevelopmentLatestActiveOnlyStampCoordinate() {
-        return StampCoordinates.getDevelopmentLatestActiveOnly();
+    public StampFilter createDevelopmentLatestActiveOnlyStampFilter() {
+        return Coordinates.Filter.DevelopmentLatestActiveOnly();
     }
 
     /**
@@ -192,23 +171,23 @@ public class CoordinateFactoryProvider
      * @return the stamp coordinate
      */
     @Override
-    public StampCoordinate createDevelopmentLatestStampCoordinate() {
-        return StampCoordinates.getDevelopmentLatest();
+    public StampFilter createDevelopmentLatestStampFilter() {
+        return Coordinates.Filter.DevelopmentLatest();
     }
 
     /**
      * Creates the inferred taxonomy coordinate.
      *
-     * @param stampCoordinate the stamp coordinate
+     * @param stampFilter the stamp coordinate
      * @param languageCoordinate the language coordinate
      * @param logicCoordinate the logic coordinate
      * @return the taxonomy coordinate
      */
     @Override
-    public ManifoldCoordinate createInferredManifoldCoordinate(StampCoordinate stampCoordinate,
-            LanguageCoordinate languageCoordinate,
-            LogicCoordinate logicCoordinate) {
-        return ManifoldCoordinates.getInferredManifoldCoordinate(stampCoordinate, languageCoordinate, logicCoordinate);
+    public ManifoldCoordinate createInferredManifoldCoordinate(StampFilter stampFilter,
+                                                                                         LanguageCoordinate languageCoordinate,
+                                                                                         LogicCoordinate logicCoordinate) {
+        return ManifoldCoordinateImmutable.makeInferred(stampFilter, languageCoordinate, logicCoordinate, Activity.DEVELOPING, Coordinates.Edit.Default());
     }
 
     /**
@@ -217,8 +196,8 @@ public class CoordinateFactoryProvider
      * @return the stamp coordinate
      */
     @Override
-    public StampCoordinate createMasterLatestActiveOnlyStampCoordinate() {
-        return StampCoordinates.getMasterLatestActiveOnly();
+    public StampFilter createMasterLatestActiveOnlyStampFilter() {
+        return Coordinates.Filter.MasterLatestActiveOnly();
     }
 
     /**
@@ -227,15 +206,14 @@ public class CoordinateFactoryProvider
      * @return the stamp coordinate
      */
     @Override
-    public StampCoordinate createMasterLatestStampCoordinate() {
-        return StampCoordinates.getMasterLatest();
+    public StampFilter createMasterLatestStampFilter() {
+        return Coordinates.Filter.MasterLatest();
     }
 
     /**
      * Creates the stamp coordinate.
      *
      * @param stampPath the stamp path
-     * @param precedence the precedence
      * @param moduleSpecificationList the module specification list
      * @param modulePriorityList
      * @param allowedStateSet the allowed state set
@@ -243,19 +221,19 @@ public class CoordinateFactoryProvider
      * @return the stamp coordinate
      */
     @Override
-    public StampCoordinate createStampCoordinate(ConceptSpecification stampPath, StampPrecedence precedence, List<ConceptSpecification> moduleSpecificationList, java.util.List modulePriorityList, EnumSet<Status> allowedStateSet, CharSequence dateTimeText) {
-        final StampPositionImpl stampPosition = new StampPositionImpl(
+    public StampFilter createStampFilter(ConceptSpecification stampPath, List<ConceptSpecification> moduleSpecificationList, List<ConceptSpecification> modulePriorityList, EnumSet<Status> allowedStateSet, CharSequence dateTimeText) {
+        final StampPosition stampPosition = StampPositionImmutable.make(
                 LocalDateTime.parse(dateTimeText).toEpochSecond(ZoneOffset.UTC),
                 stampPath.getNid());
-
-        return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, modulePriorityList, allowedStateSet);
+        return StampFilterImmutable.make(StatusSet.of(allowedStateSet), stampPosition,
+                IntSets.immutable.of(moduleSpecificationList.stream().mapToInt(value -> value.getNid()).toArray()),
+                IntLists.immutable.of(modulePriorityList.stream().mapToInt(value -> value.getNid()).toArray()));
     }
 
     /**
      * Creates the stamp coordinate.
      *
      * @param stampPath the stamp path
-     * @param precedence the precedence
      * @param moduleSpecificationList the module specification list
      * @param modulePriorityList
      * @param allowedStateSet the allowed state set
@@ -263,24 +241,25 @@ public class CoordinateFactoryProvider
      * @return the stamp coordinate
      */
     @Override
-    public StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
-            StampPrecedence precedence,
-            Collection<ConceptSpecification> moduleSpecificationList,
-            List<ConceptSpecification> modulePriorityList,
-            EnumSet<Status> allowedStateSet,
-            TemporalAccessor temporal) {
-        final StampPositionImpl stampPosition = new StampPositionImpl(
+    public StampFilter createStampFilter(ConceptSpecification stampPath,
+                                         Collection<ConceptSpecification> moduleSpecificationList,
+                                         List<ConceptSpecification> modulePriorityList,
+                                         EnumSet<Status> allowedStateSet,
+                                         TemporalAccessor temporal) {
+        final StampPosition stampPosition = StampPositionImmutable.make(
                 LocalDateTime.from(temporal).toEpochSecond(ZoneOffset.UTC),
                 stampPath.getNid());
 
-        return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, modulePriorityList, allowedStateSet);
+        return StampFilterImmutable.make(StatusSet.of(allowedStateSet),
+                stampPosition,
+                IntSets.immutable.of(moduleSpecificationList.stream().mapToInt(value -> value.getNid()).toArray()),
+                IntLists.immutable.of(modulePriorityList.stream().mapToInt(value -> value.getNid()).toArray()));
     }
 
     /**
      * Creates the stamp coordinate.
      *
      * @param stampPath the stamp path
-     * @param precedence the precedence
      * @param moduleSpecificationList the module specification list
      * @param modulePriorityList
      * @param allowedStateSet the allowed state set
@@ -293,18 +272,17 @@ public class CoordinateFactoryProvider
      * @return the stamp coordinate
      */
     @Override
-    public StampCoordinate createStampCoordinate(ConceptSpecification stampPath,
-            StampPrecedence precedence,
-            Collection<ConceptSpecification> moduleSpecificationList,
-            List<ConceptSpecification> modulePriorityList,
-            EnumSet<Status> allowedStateSet,
-            int year,
-            int month,
-            int dayOfMonth,
-            int hour,
-            int minute,
-            int second) {
-        final StampPositionImpl stampPosition = new StampPositionImpl(
+    public StampFilter createStampFilter(ConceptSpecification stampPath,
+                                         Collection<ConceptSpecification> moduleSpecificationList,
+                                         List<ConceptSpecification> modulePriorityList,
+                                         EnumSet<Status> allowedStateSet,
+                                         int year,
+                                         int month,
+                                         int dayOfMonth,
+                                         int hour,
+                                         int minute,
+                                         int second) {
+        final StampPosition stampPosition = StampPositionImmutable.make(
                 LocalDateTime.of(
                         year,
                         month,
@@ -314,7 +292,9 @@ public class CoordinateFactoryProvider
                         second).toEpochSecond(ZoneOffset.UTC),
                 stampPath.getNid());
 
-        return new StampCoordinateImpl(precedence, stampPosition, moduleSpecificationList, modulePriorityList, allowedStateSet);
+        return StampFilterImmutable.make(StatusSet.of(allowedStateSet), stampPosition,
+                IntSets.immutable.of(moduleSpecificationList.stream().mapToInt(value -> value.getNid()).toArray()),
+                IntLists.immutable.of(modulePriorityList.stream().mapToInt(value -> value.getNid()).toArray()));
     }
 
     /**
@@ -324,36 +304,24 @@ public class CoordinateFactoryProvider
      */
     @Override
     public LogicCoordinate createStandardElProfileLogicCoordinate() {
-        return LogicCoordinates.getStandardElProfile();
+        return Coordinates.Logic.ElPlusPlus();
     }
 
     /**
      * Creates the stated taxonomy coordinate.
      *
-     * @param stampCoordinate the stamp coordinate
+     * @param stampFilter the stamp coordinate
      * @param languageCoordinate the language coordinate
      * @param logicCoordinate the logic coordinate
      * @return the taxonomy coordinate
      */
     @Override
-    public ManifoldCoordinate createStatedManifoldCoordinate(StampCoordinate stampCoordinate,
-            LanguageCoordinate languageCoordinate,
-            LogicCoordinate logicCoordinate) {
-        return ManifoldCoordinates.getStatedManifoldCoordinate(stampCoordinate, languageCoordinate, logicCoordinate);
+    public ManifoldCoordinate createStatedManifoldCoordinate(StampFilter stampFilter,
+                                                                                       LanguageCoordinate languageCoordinate,
+                                                                                       LogicCoordinate logicCoordinate) {
+        return ManifoldCoordinateImmutable.makeStated(stampFilter, languageCoordinate, logicCoordinate, Activity.DEVELOPING, Coordinates.Edit.Default());
     }
 
-    /**
-     * Iso 639 to concept nid.
-     *
-     * @param iso639text the iso 639 text
-     * @return the int
-     */
-    @Override
-    public int iso639toConceptNid(String iso639text) {
-        return LanguageCoordinates.iso639toConceptNid(iso639text);
-    }
-
-    //~--- get methods ---------------------------------------------------------
     /**
      * Gets the acceptable concept nid.
      *
@@ -380,7 +348,7 @@ public class CoordinateFactoryProvider
      * @return the gb english language fully specified name coordinate
      */
     public static LanguageCoordinate getGbEnglishLanguageFullySpecifiedNameCoordinate() {
-        return LanguageCoordinates.getGbEnglishLanguageFullySpecifiedNameCoordinate();
+        return Coordinates.Language.GbEnglishFullyQualifiedName();
     }
 
     /**
@@ -390,7 +358,7 @@ public class CoordinateFactoryProvider
      */
     @Override
     public LanguageCoordinate getGbEnglishLanguagePreferredTermCoordinate() {
-        return LanguageCoordinates.getGbEnglishLanguagePreferredTermCoordinate();
+        return Coordinates.Language.GbEnglishPreferredName();
     }
 
     /**
@@ -404,19 +372,29 @@ public class CoordinateFactoryProvider
     }
 
     /**
-     * @see sh.isaac.api.LanguageCoordinateService#getSpecifiedDescription(sh.isaac.api.coordinate.StampCoordinate, java.util.List, sh.isaac.api.coordinate.LanguageCoordinate)
+     * @see sh.isaac.api.LanguageCoordinateService#getSpecifiedDescription(StampFilter, List, LanguageCoordinate)
      */
     @Override
-    public LatestVersion<DescriptionVersion> getSpecifiedDescription(StampCoordinate stampCoordinate, List<SemanticChronology> descriptionList,
-            LanguageCoordinate languageCoordinate) {
-        final List<DescriptionVersion> descriptionsForLanguageOfType = new ArrayList<>();
+    public LatestVersion<DescriptionVersion> getSpecifiedDescription(StampFilter stampFilter,
+                                                                     List<SemanticChronology> descriptionList,
+                                                                     LanguageCoordinate languageCoordinate) {
+        int[] descriptionTypes = languageCoordinate.getDescriptionTypePreferenceList();
+        return getSpecifiedDescription(stampFilter, descriptionList, descriptionTypes, languageCoordinate);
 
-        //Find all descriptions that match the language and description type - moving through the desired description types until 
+    }
+
+    @Override
+    public LatestVersion<DescriptionVersion> getSpecifiedDescription(StampFilter stampFilter,
+                                                                     List<SemanticChronology> descriptionList,
+                                                                     int[] descriptionTypePriority,
+                                                                     LanguageCoordinate languageCoordinate) {
+        final List<DescriptionVersion> descriptionsForLanguageOfType = new ArrayList<>();
+        //Find all descriptions that match the language and description type - moving through the desired description types until
         //we find at least one.
-        for (final int descType : languageCoordinate.getDescriptionTypePreferenceList()) {
+        for (final int descType : descriptionTypePriority) {
             for (SemanticChronology descriptionChronicle : descriptionList) {
-                final LatestVersion<DescriptionVersion> latestDescription = ((SemanticChronology) descriptionChronicle).getLatestVersion(stampCoordinate);
-    
+                final LatestVersion<DescriptionVersion> latestDescription = ((SemanticChronology) descriptionChronicle).getLatestVersion(stampFilter);
+
                 if (latestDescription.isPresent()) {
                     for (DescriptionVersion descriptionVersion : latestDescription.versionList()) {
                         if ((descriptionVersion.getLanguageConceptNid() == languageCoordinate.getLanguageConceptNid() ||
@@ -435,9 +413,9 @@ public class CoordinateFactoryProvider
 
         if (descriptionsForLanguageOfType.isEmpty()) {
             //Didn't find any that matched any of the allowed description types.  See if there is another priority coordinate to continue with
-            Optional<LanguageCoordinate> nextPriorityCoordinate = languageCoordinate.getNextProrityLanguageCoordinate();
+            Optional<? extends LanguageCoordinate> nextPriorityCoordinate = languageCoordinate.getNextPriorityLanguageCoordinate();
             if (nextPriorityCoordinate.isPresent()) {
-                return getSpecifiedDescription(stampCoordinate, descriptionList, nextPriorityCoordinate.get());
+                return getSpecifiedDescription(stampFilter, descriptionList, nextPriorityCoordinate.get());
             }
             else {
                 return new LatestVersion<>();
@@ -447,17 +425,19 @@ public class CoordinateFactoryProvider
         // handle dialect...
         final LatestVersion<DescriptionVersion> preferredForDialect = new LatestVersion<>(DescriptionVersion.class);
         final SemanticSnapshotService<ComponentNidVersion> acceptabilitySnapshot = Get.assemblageService().getSnapshot(ComponentNidVersion.class,
-                stampCoordinate);
-        for (int dialectAssemblageNid : languageCoordinate.getDialectAssemblagePreferenceList()) {
-            if (!preferredForDialect.isPresent()) {
-                for (DescriptionVersion description : descriptionsForLanguageOfType) {
-                    for (LatestVersion<ComponentNidVersion> acceptabilityVersion : acceptabilitySnapshot
-                            .getLatestSemanticVersionsForComponentFromAssemblage(description.getNid(), dialectAssemblageNid)) {
-                        acceptabilityVersion.ifPresent((acceptability) -> {
-                            if (acceptability.getComponentNid() == getPreferredConceptNid()) {
-                                preferredForDialect.addLatest(description);
-                            }
-                        });
+                stampFilter);
+        if (languageCoordinate.getDialectAssemblagePreferenceList() != null) {
+            for (int dialectAssemblageNid : languageCoordinate.getDialectAssemblagePreferenceList()) {
+                if (!preferredForDialect.isPresent()) {
+                    for (DescriptionVersion description : descriptionsForLanguageOfType) {
+                        for (LatestVersion<ComponentNidVersion> acceptabilityVersion : acceptabilitySnapshot
+                                .getLatestSemanticVersionsForComponentFromAssemblage(description.getNid(), dialectAssemblageNid)) {
+                            acceptabilityVersion.ifPresent((acceptability) -> {
+                                if (acceptability.getComponentNid() == getPreferredConceptNid()) {
+                                    preferredForDialect.addLatest(description);
+                                }
+                            });
+                        }
                     }
                 }
             }
@@ -470,7 +450,7 @@ public class CoordinateFactoryProvider
             });
         }
 
-        // add in module preferences if there is more than one. 
+        // add in module preferences if there is more than one.
         if (languageCoordinate.getModulePreferenceListForLanguage() != null && languageCoordinate.getModulePreferenceListForLanguage().length != 0) {
             for (int preference : languageCoordinate.getModulePreferenceListForLanguage()) {
                 for (DescriptionVersion descriptionVersion : preferredForDialect.versionList()) {
@@ -481,11 +461,13 @@ public class CoordinateFactoryProvider
                                 preferredForModule.addLatest(alternateVersion);
                             }
                         }
+                        preferredForModule.sortByState();
                         return preferredForModule;
                     }
                 }
             }
         }
+        preferredForDialect.sortByState();
         return preferredForDialect;
     }
 
@@ -506,7 +488,7 @@ public class CoordinateFactoryProvider
      */
     @Override
     public LanguageCoordinate getUsEnglishLanguageFullySpecifiedNameCoordinate() {
-        return LanguageCoordinates.getUsEnglishLanguageFullySpecifiedNameCoordinate();
+        return Coordinates.Language.UsEnglishFullyQualifiedName();
     }
 
     /**
@@ -515,7 +497,7 @@ public class CoordinateFactoryProvider
      * @return the us english language preferred term coordinate
      */
     @Override
-    public LanguageCoordinate getUsEnglishLanguagePreferredTermCoordinate() {
-        return LanguageCoordinates.getUsEnglishLanguagePreferredTermCoordinate();
+    public LanguageCoordinate getUsEnglishLanguageRegularTermCoordinate() {
+        return Coordinates.Language.UsEnglishRegularName();
     }
 }

@@ -47,17 +47,15 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.stream.IntStream;
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
 //~--- non-JDK imports --------------------------------------------------------
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
@@ -69,12 +67,13 @@ import sh.isaac.api.collections.UuidIntMapMapFileBased;
 import sh.isaac.api.collections.uuidnidmap.DataStoreUuidToIntMap;
 import sh.isaac.api.collections.uuidnidmap.UuidToIntMap;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.constants.DatabaseImplementation;
 import sh.isaac.api.datastore.DataStore;
 import sh.isaac.api.datastore.ExtendedStore;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
+import sh.isaac.model.DataStoreSubService;
 
-//~--- classes ----------------------------------------------------------------
 /**
  *
  * @author kec
@@ -85,14 +84,7 @@ public class IdentifierProvider
         implements IdentifierService {
 
     private static final Logger LOG = LogManager.getLogger();
-    //~--- fields --------------------------------------------------------------
-/*
-   nid -> assemblage nid
-   nid -> entry sequence
-   nid -> uuid[] (store as single byte array?)
-   entry sequence + assemblage nid -> nid
-   uuid -> nid with generation...
-     */
+
     private transient DataStore store;
     private UuidToIntMap uuidIntMapMap;
 
@@ -101,13 +93,12 @@ public class IdentifierProvider
     private IdentifierProvider() {
         //Construct with HK2 only
     }
-    //~--- methods -------------------------------------------------------------
 
     @Override
     public void addUuidForNid(UUID uuid, int nid) {
         OptionalInt old = this.uuidIntMapMap.get(uuid);
         if (old.isPresent() && old.getAsInt() != nid) {
-            throw new RuntimeException("Reassignment of nid for " + uuid + " from " + old + " to " + nid);
+            throw new IllegalArgumentException("Reassignment of nid for " + uuid + " from " + old + " to " + nid);
         }
         this.uuidIntMapMap.put(uuid, nid);
     }
@@ -124,7 +115,9 @@ public class IdentifierProvider
             this.store = Get.service(DataStore.class);
             uuidNidMapDirectory = new File(store.getDataStorePath().toAbsolutePath().toFile(), "uuid-nid-map");
 
-            if (this.store.implementsExtendedStoreAPI()) {
+            //Continue using local implementation when the FileSystem store is in use, even though the filesystem store
+            //now supports extended APIs for performance reasons
+            if (this.store.implementsExtendedStoreAPI() && Get.dataStore().getDataStoreType() != DatabaseImplementation.FILESYSTEM) {
                 uuidIntMapMap = new DataStoreUuidToIntMap((ExtendedStore) this.store);
             } else {
                 this.uuidIntMapMap = UuidIntMapMapFileBased.create(uuidNidMapDirectory);
@@ -147,13 +140,14 @@ public class IdentifierProvider
         try {
             LOG.info("Stopping identifier provider for change to runlevel: " + LookupService.getProceedingToRunLevel());
             this.sync().get();
-            this.store.sync().get();
-            this.store = null;
+            uuidIntMapMap.shutdown();
             uuidIntMapMap = null;
+            store = null;
         } catch (Throwable ex) {
             LOG.error("Unexpected error while stopping identifier provider", ex);
             throw new RuntimeException(ex);
         }
+        LOG.info("Stopped identifier provider. ");
     }
 
     @Override
@@ -182,7 +176,6 @@ public class IdentifierProvider
         }
     }
 
-    //~--- getValueSpliterator methods ---------------------------------------------------------
     @Override
     public IsaacObjectType getObjectTypeForComponent(int componentNid) {
         OptionalInt optionalAssemblageNid = getAssemblageNid(componentNid);
@@ -217,13 +210,12 @@ public class IdentifierProvider
         }
         throw new NoSuchElementException("No nid found for " + Arrays.toString(uuids));
     }
-
     @Override
     public int assignNid(UUID... uuids) throws IllegalArgumentException {
         int lastFoundNid = Integer.MAX_VALUE;
         ArrayList<UUID> uuidsWithoutNid = new ArrayList<>(uuids.length);
         for (final UUID uuid : uuids) {
-            final OptionalInt nid = this.uuidIntMapMap.get(uuid);
+             final OptionalInt nid = this.uuidIntMapMap.get(uuid);
 
             if (nid.isPresent()) {
                 if (lastFoundNid != Integer.MAX_VALUE && lastFoundNid != nid.getAsInt()) {
@@ -320,8 +312,8 @@ public class IdentifierProvider
     }
 
     @Override
-    public IntStream getNidsForAssemblage(int assemblageNid) {
-        return store.getNidsForAssemblage(assemblageNid);
+    public IntStream getNidsForAssemblage(int assemblageNid, boolean parallel) {
+        return store.getNidsForAssemblage(assemblageNid, parallel);
     }
 
     @Override
@@ -340,14 +332,31 @@ public class IdentifierProvider
     }
 
     @Override
-    public IntStream getNidStreamOfType(IsaacObjectType objectType) {
+    public IntStream getNidStreamOfType(IsaacObjectType objectType, boolean parallel) {
         int maxNid = this.uuidIntMapMap.getMaxNid();
         NidSet allowedAssemblages = this.store.getAssemblageNidsForType(objectType);
 
-        return IntStream.rangeClosed(Integer.MIN_VALUE + 1, maxNid)
+        IntStream is = IntStream.rangeClosed(IdentifierProvider.FIRST_NID, maxNid)
                 .filter((value) -> {
                     return allowedAssemblages.contains(this.store.getAssemblageOfNid(value).orElseGet(() -> Integer.MAX_VALUE));
                 });
+        if (parallel) {
+            is = is.parallel();
+        }
+        return is;
+    }
+
+    @Override
+    public IntStream getNidStream(boolean parallel) {
+        int maxNid = this.uuidIntMapMap.getMaxNid();
+        IntStream is = IntStream.rangeClosed(IdentifierService.FIRST_NID, maxNid)
+                .filter((value) -> {
+                    return this.store.getAssemblageOfNid(value).isPresent();
+                });
+        if (parallel) {
+            is = is.parallel();
+        }
+        return is;
     }
 
     @Override
@@ -355,11 +364,11 @@ public class IdentifierProvider
         return Get.executor().submit(() -> {
             try {
                 LOG.info("writing uuid-nid-map.");
-                if (!store.implementsExtendedStoreAPI()) {
+                if (this.uuidIntMapMap instanceof UuidIntMapMapFileBased) {
                     ((UuidIntMapMapFileBased) this.uuidIntMapMap).write();
                 }
-                this.store.sync().get();
-            } catch (IOException | InterruptedException | ExecutionException ex) {
+                //Don't sync the data store here, and we don't need to do anything if it is an extended store based storage
+            } catch (IOException ex) {
                 LOG.error("error syncing identifier provider", ex);
             }
         });

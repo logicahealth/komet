@@ -43,6 +43,7 @@ package sh.isaac.api.tree;
 
 import java.util.function.ObjIntConsumer;
 import java.util.function.Supplier;
+
 import sh.isaac.api.collections.NidSet;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -126,7 +127,7 @@ public interface Tree {
     * descendents.
     * @return {@code BitSet} of the descendents of the {@code parentNid}
     */
-   NidSet getDescendentNidSet(int parentNid);
+   int[] getDescendentNids(int parentNid);
 
    /**
     * Gets the parent identifiers.
@@ -165,6 +166,10 @@ public interface Tree {
     * @return true if the childNid is a descendent of the parentNid by any route. 
     */
    boolean isChildOf(int childNid, int parentNid);
+
+   int[] getLowestCommonAncestor(int nid1, int nid2);
+
+   float getTaxonomyDistance(int nid1, int nid2, boolean directed);
 
    /**
     * 

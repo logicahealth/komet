@@ -21,13 +21,13 @@
  * are work of the U.S. Government and are not subject to copyright
  * protection in the United States. Portions contributed by government
  * employees are USGovWork (17USC §105). Not subject to copyright.
- * 
+ *
  * Contribution by contractors to the US Veterans Health Administration
  * during this period are contractually contributed under the
  * Apache License, Version 2.0.
  *
  * See: https://www.usa.gov/government-works
- * 
+ *
  * Contributions prior to 2013:
  *
  * Copyright (C) International Health Terminology Standards Development Organisation.
@@ -38,24 +38,25 @@ package sh.isaac.komet.gui.assemblageviewer;
 
 import java.io.IOException;
 import java.util.Optional;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.PerLookup;
 import org.jvnet.hk2.annotations.Service;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Label;
 import javafx.scene.layout.Region;
 import sh.isaac.MetaData;
-import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.contract.ExplorationNodeFactory;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
-import sh.komet.gui.manifold.Manifold.ManifoldGroup;
 import sh.komet.gui.util.FxGet;
 
 /**
@@ -67,10 +68,12 @@ import sh.komet.gui.util.FxGet;
 @PerLookup
 public class AssemblageViewer implements ExplorationNodeFactory
 {
-	private final Logger LOG = LoggerFactory.getLogger(this.getClass());
+	private final Logger LOG = LogManager.getLogger(this.getClass());
 
 	private AssemblageViewerController drlvc_;
-	private Manifold manifold_;
+	private ViewProperties viewProperties;
+	private ActivityFeed activityFeed;
+	private IsaacPreferences nodePreferences;
 
 	private AssemblageViewer()
 	{
@@ -84,23 +87,23 @@ public class AssemblageViewer implements ExplorationNodeFactory
 		{
 			try
 			{
-				drlvc_ = AssemblageViewerController.construct(manifold_);
+				drlvc_ = AssemblageViewerController.construct(viewProperties, activityFeed, nodePreferences);
 			}
 			catch (IOException e)
 			{
-				LoggerFactory.getLogger(this.getClass()).error("Unexpected error initing AssemblageViewer", e);
+				LOG.error("Unexpected error initing AssemblageViewer", e);
 				FxGet.dialogs().showErrorDialog("Unexpected error creating AssemblageViewer", e);
 				return new Label("Unexpected error initializing view, see log file");
 			}
 
 		}
-		
+
 		String style = AssemblageViewer.class.getResource("/css/semantic-view.css").toString();
 		if (!drlvc_.getRoot().getStylesheets().contains(style))
 		{
 			drlvc_.getRoot().getStylesheets().add(style);
 		}
-		
+
 		return drlvc_.getRoot();
 	}
 
@@ -126,40 +129,23 @@ public class AssemblageViewer implements ExplorationNodeFactory
 	 * {@inheritDoc}
 	 */
 	@Override
-	public PanelPlacement getPanelPlacement()
+	public ExplorationNode createNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences nodePreferences)
 	{
-		return null;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ManifoldGroup[] getDefaultManifoldGroups()
-	{
-		return new ManifoldGroup[] {ManifoldGroup.UNLINKED};
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ExplorationNode createNode(Manifold manifold, IsaacPreferences preferencesNode)
-	{
-		manifold_ = manifold;
+		this.activityFeed = activityFeed;
+		this.viewProperties = viewProperties;
+		this.nodePreferences = nodePreferences;
+		
 
 		return new ExplorationNode()
 		{
+			private final SimpleObjectProperty<Node> menuIconProperty = new SimpleObjectProperty<>(Iconography.PAPERCLIP.getIconographic());
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Node getMenuIcon()
-	{
-		return Iconography.PAPERCLIP.getIconographic();
-	}
-
+			@Override
+			public ObjectProperty<Node> getMenuIconProperty()
+			{
+				return menuIconProperty;
+			}
+			
 			@Override
 			public ReadOnlyProperty<String> getToolTip()
 			{
@@ -185,9 +171,51 @@ public class AssemblageViewer implements ExplorationNodeFactory
 			}
 
 			@Override
-			public Manifold getManifold()
+			public void close()
 			{
-				return manifold_;
+				// noop
+			}
+
+			@Override
+			public boolean canClose()
+			{
+				return true;
+			}
+
+			@Override
+			public void savePreferences()
+			{
+				// noop
+			}
+
+			@Override
+			public ViewProperties getViewProperties()
+			{
+				return viewProperties;
+			}
+
+			@Override
+			public ActivityFeed getActivityFeed()
+			{
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public SimpleObjectProperty<ActivityFeed> activityFeedProperty()
+			{
+				return new SimpleObjectProperty<>(activityFeed);
+			}
+
+			@Override
+			public void setNodeSelectionMethod(Runnable nodeSelectionMethod)
+			{
+				//don't care
+			}
+
+			@Override
+			public Node getMenuIconGraphic()
+			{
+				return menuIconProperty.get();
 			}
 		};
 	}
@@ -195,5 +223,11 @@ public class AssemblageViewer implements ExplorationNodeFactory
 	@Override
 	public ConceptSpecification getPanelType() {
 		return MetaData.ASSEMBLAGE_PANEL____SOLOR;
+	}
+
+	@Override
+	public String[] getDefaultActivityFeed()
+	{
+		return new String[] {ViewProperties.UNLINKED};
 	}
 }

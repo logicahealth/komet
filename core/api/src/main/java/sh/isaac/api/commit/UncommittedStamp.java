@@ -39,42 +39,28 @@
 
 package sh.isaac.api.commit;
 
-//~--- JDK imports ------------------------------------------------------------
-
 import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
-
-//~--- non-JDK imports --------------------------------------------------------
-
+import java.util.UUID;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sh.isaac.api.Get;
 import sh.isaac.api.Status;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.Hashcode;
-
-//~--- classes ----------------------------------------------------------------
 
 /**
  * The Class UncommittedStamp.
  *
  * @author kec
  */
-public class UncommittedStamp {
-   /** The hash code. */
-   public int hashCode = Integer.MAX_VALUE;
+public class UncommittedStamp extends Stamp {
+   private static final Logger LOG = LogManager.getLogger();
 
-   /** The status. */
-   public Status status;
+   public long transactionMsb;
 
-   /** The author nid. */
-   public int authorNid;
-
-   /** The module nid. */
-   public int moduleNid;
-
-   /** The path nid. */
-   public int pathNid;
-
-   //~--- constructors --------------------------------------------------------
+   public long transactionLsb;
 
    /**
     * Instantiates a new uncommitted stamp.
@@ -84,17 +70,10 @@ public class UncommittedStamp {
     */
    public UncommittedStamp(DataInput input)
             throws IOException {
-      super();
+      super(input);
 
-      if (input.readBoolean()) {
-         this.status = Status.ACTIVE;
-      } else {
-         this.status = Status.INACTIVE;
-      }
-
-      this.authorNid = input.readInt();
-      this.moduleNid = input.readInt();
-      this.pathNid   = input.readInt();
+      this.transactionMsb = input.readLong();
+      this.transactionLsb = input.readLong();
    }
 
    /**
@@ -105,23 +84,18 @@ public class UncommittedStamp {
     * @param moduleNid the module nid
     * @param pathNid the path nid
     */
-   public UncommittedStamp(Status status, int authorNid, int moduleNid, int pathNid) {
-      super();
-      this.status         = status;
-      this.authorNid = authorNid;
-      this.moduleNid = moduleNid;
-      this.pathNid   = pathNid;
-      assert status != null:
-             "s: " + status + " a: " + authorNid + " " + " m: " + moduleNid + " p: " + pathNid;
-      assert pathNid < 0:
-             "s: " + status + " a: " + authorNid + " " + " m: " + moduleNid + " p: " + pathNid;
-      assert moduleNid < 0:
-             "s: " + status + " a: " + authorNid + " " + " m: " + moduleNid + " p: " + pathNid;
-      assert authorNid < 0:
-             "s: " + status + " a: " + authorNid + " " + " m: " + moduleNid + " p: " + pathNid;
+   public UncommittedStamp(Transaction transaction, Status status, long time, int authorNid, int moduleNid, int pathNid) {
+      super(status, time, authorNid, moduleNid, pathNid);
+      this.transactionLsb = transaction == null ? 0 : transaction.getTransactionId().getLeastSignificantBits();
+      this.transactionMsb = transaction == null ? 0 : transaction.getTransactionId().getMostSignificantBits();
    }
 
-   //~--- methods -------------------------------------------------------------
+   @Deprecated
+   public UncommittedStamp(Status status, int authorNid, int moduleNid, int pathNid) {
+      super(status, Long.MAX_VALUE, authorNid, moduleNid, pathNid);
+      this.transactionLsb = 0;
+      this.transactionMsb = 0;
+   }
 
    /**
     * Equals.
@@ -134,10 +108,9 @@ public class UncommittedStamp {
       if (obj instanceof UncommittedStamp) {
          final UncommittedStamp other = (UncommittedStamp) obj;
 
-         if ((this.status == other.status) &&
-               (this.authorNid == other.authorNid) &&
-               (this.pathNid == other.pathNid) &&
-               (this.moduleNid == other.moduleNid)) {
+         if (super.equals(obj) &&
+                 (this.transactionLsb == other.transactionLsb) &&
+                 (this.transactionMsb == other.transactionMsb)) {
             return true;
          }
       }
@@ -153,11 +126,14 @@ public class UncommittedStamp {
    @Override
    public int hashCode() {
       if (this.hashCode == Integer.MAX_VALUE) {
-         this.hashCode = Hashcode.compute(new int[] { this.status.ordinal(), this.authorNid, this.pathNid,
-               this.moduleNid });
+         this.hashCode = Hashcode.compute(super.hashCode(), Long.valueOf(this.transactionLsb).hashCode(), Long.valueOf(this.transactionMsb).hashCode());
       }
 
       return this.hashCode;
+   }
+
+   public UUID getTransactionId() {
+      return new UUID(transactionMsb, transactionLsb);
    }
 
    /**
@@ -169,28 +145,38 @@ public class UncommittedStamp {
    public String toString() {
       
       try {
+          final StringBuilder sb = new StringBuilder();
+          sb.append("UncommittedStamp{s:");
+          sb.append(this.getStatus());
+          sb.append(", t:");
+          sb.append(" UNCOMMITTED: ");
+          sb.append(getTimeAsInstant());
+          sb.append(", a:");
+          sb.append(Get.conceptDescriptionText(this.getAuthorNid()));
+          sb.append(", m:");
+          sb.append(Get.conceptDescriptionText(this.getModuleNid()));
+          sb.append(", p: ");
+          sb.append(Get.conceptDescriptionText(this.getPathNid()));
+          sb.append(", transaction: ");
+          sb.append(getTransactionId().toString());
+          sb.append('}');
+          return sb.toString();
+      } catch (RuntimeException e) {
+         LOG.trace("Failure in toString of uncommitted stamp: ", e.getMessage());
       final StringBuilder sb = new StringBuilder();
          sb.append("UncommittedStamp{s:");
-         sb.append(this.status);
+         sb.append(this.getStatus());
+         sb.append(", t:");
+         sb.append(" UNCOMMITTED: ");
+         sb.append(getTimeAsInstant());
          sb.append(", a:");
-         sb.append(Get.conceptDescriptionText(this.authorNid));
+         sb.append(this.getAuthorNid());
          sb.append(", m:");
-         sb.append(Get.conceptDescriptionText(this.moduleNid));
+         sb.append(this.getModuleNid());
          sb.append(", p: ");
-         sb.append(Get.conceptDescriptionText(this.pathNid));
-         sb.append('}');
-         return sb.toString();
-      } catch (RuntimeException e) {
-         e.printStackTrace();
-      final StringBuilder sb = new StringBuilder();
-          sb.append("UncommittedStamp{s:");
-         sb.append(this.status);
-         sb.append(", a:");
-         sb.append(this.authorNid);
-         sb.append(", m:");
-         sb.append(this.moduleNid);
-         sb.append(", p: ");
-         sb.append(this.pathNid);
+         sb.append(this.getPathNid());
+         sb.append(", transaction: ");
+         sb.append(getTransactionId().toString());
          sb.append('}');
          return sb.toString();
      }
@@ -202,12 +188,10 @@ public class UncommittedStamp {
     * @param output the output
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public void write(DataOutput output)
-            throws IOException {
-      output.writeBoolean(this.status.isActive());
-      output.writeInt(this.authorNid);
-      output.writeInt(this.moduleNid);
-      output.writeInt(this.pathNid);
+   @Override
+   public void write(DataOutput output) throws IOException {
+      super.write(output);
+      output.writeLong(this.transactionMsb);
+      output.writeLong(this.transactionLsb);
    }
 }
-

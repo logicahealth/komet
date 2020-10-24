@@ -52,7 +52,7 @@ public class AssemblageDashboardStats extends TimedTaskWithProgressTracker<Void>
             addToTotalWork(count);
             
             Stream<Chronology> chronologyStream
-                    = Get.assemblageService().getChronologyStream(assemblageNid);
+                    = Get.assemblageService().getChronologyStream(assemblageNid, true);
             
             chronologyStream.forEach((Chronology chronology) -> {
                 semanticCount.incrementAndGet();

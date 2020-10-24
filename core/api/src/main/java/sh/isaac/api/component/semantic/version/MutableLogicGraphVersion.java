@@ -39,6 +39,9 @@
 
 package sh.isaac.api.component.semantic.version;
 
+import sh.isaac.api.DataTarget;
+import sh.isaac.api.logic.LogicalExpression;
+
 /**
  * The Interface MutableLogicGraphVersion.
  *
@@ -52,5 +55,9 @@ public interface MutableLogicGraphVersion
     * @param setGraphData the new graph data
     */
    void setGraphData(byte[][] setGraphData);
+
+   default void setLogicalExpression(LogicalExpression logicalExpression) {
+      setGraphData(logicalExpression.getData(DataTarget.INTERNAL));
+   }
 }
 

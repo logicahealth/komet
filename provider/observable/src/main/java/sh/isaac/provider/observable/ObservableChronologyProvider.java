@@ -37,19 +37,12 @@
 package sh.isaac.provider.observable;
 
 //~--- JDK imports ------------------------------------------------------------
-import java.util.NoSuchElementException;
-import java.util.UUID;
 
-import javax.annotation.PostConstruct;
-import javax.annotation.PreDestroy;
-
-//~--- non-JDK imports --------------------------------------------------------
+import javafx.application.Platform;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
-
-import javafx.application.Platform;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifierService;
 import sh.isaac.api.LookupService;
@@ -59,7 +52,8 @@ import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.semantic.SemanticChronology;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampFilterImmutable;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.observable.ObservableChronology;
 import sh.isaac.api.observable.ObservableChronologyService;
@@ -73,6 +67,13 @@ import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
 import sh.isaac.model.observable.ObservableConceptChronologyImpl;
 import sh.isaac.model.observable.ObservableSemanticChronologyImpl;
 import sh.isaac.model.observable.ObservableSemanticChronologyWeakRefImpl;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.annotation.PreDestroy;
+import java.util.NoSuchElementException;
+import java.util.UUID;
+
+//~--- non-JDK imports --------------------------------------------------------
 
 //~--- classes ----------------------------------------------------------------
 /**
@@ -225,6 +226,7 @@ public class ObservableChronologyProvider
         Get.commitService().removeChangeListener(this);
         observableConceptMap.clear();
         observableSemanticMap.clear();
+        LOG.info("Stopped ObservableChronologyProvider");
     }
 
     //~--- get methods ---------------------------------------------------------
@@ -272,8 +274,8 @@ public class ObservableChronologyProvider
     }
 
     @Override
-    public ObservableSnapshotService getObservableSnapshotService(StampCoordinate stampCoordinate) {
-        return new ObservableSnapshotServiceProvider(stampCoordinate);
+    public ObservableSnapshotService getObservableSnapshotService(StampFilter stampFilter) {
+        return new ObservableSnapshotServiceProvider(stampFilter);
     }
 
     @Override
@@ -290,12 +292,12 @@ public class ObservableChronologyProvider
 
     private class ObservableSnapshotServiceProvider implements ObservableSnapshotService {
 
-        final StampCoordinate stampCoordinate;
+        final StampFilterImmutable stampFilter;
         final RelativePositionCalculator relativePositionCalculator;
 
-        public ObservableSnapshotServiceProvider(StampCoordinate stampCoordinate) {
-            this.stampCoordinate = stampCoordinate;
-            this.relativePositionCalculator = RelativePositionCalculator.getCalculator(this.stampCoordinate);
+        public ObservableSnapshotServiceProvider(StampFilter stampFilter) {
+            this.stampFilter = stampFilter.toStampFilterImmutable();
+            this.relativePositionCalculator = RelativePositionCalculator.getCalculator(this.stampFilter);
         }
 
         @Override
@@ -368,8 +370,8 @@ public class ObservableChronologyProvider
         }
 
         @Override
-        public ObservableSnapshotService getObservableSnapshotService(StampCoordinate stampCoordinate) {
-            return new ObservableSnapshotServiceProvider(stampCoordinate);
+        public ObservableSnapshotService getObservableSnapshotService(StampFilter stampFilter) {
+            return new ObservableSnapshotServiceProvider(stampFilter);
         }
 
     }

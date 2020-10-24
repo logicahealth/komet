@@ -22,6 +22,7 @@ import java.io.FileReader;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.Semaphore;
 import sh.isaac.MetaData;
@@ -30,6 +31,7 @@ import sh.isaac.api.LookupService;
 import sh.isaac.api.Status;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
+import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.component.concept.ConceptBuilderService;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -43,6 +45,7 @@ import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
 import sh.isaac.api.logic.LogicalExpressionBuilderService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.solor.direct.BrittleRefsetWriter;
 import static sh.isaac.solor.direct.DirectImporter.trimZipName;
@@ -83,12 +86,13 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
     protected Void call() throws Exception {
         ZonedDateTime zonedDateTime = DateTimeUtil.epochToZonedDateTime(System.currentTimeMillis());
         String dateTime = DateTimeUtil.format(zonedDateTime);
-        ConceptSpecification assemblageSpec = build(makeBuilder(assemblageName, "SOLOR", MetaData.ASSEMBLAGE____SOLOR), UUID.randomUUID().toString());
+        Transaction transaction = Get.commitService().newTransaction(Optional.of("StringAssemblageLoadTask"), ChangeCheckerMode.INACTIVE, false);
+        ConceptSpecification assemblageSpec = build(transaction, makeBuilder(assemblageName, "SOLOR", MetaData.ASSEMBLAGE____SOLOR), UUID.randomUUID().toString());
         final int writeSize = 102400;
         ArrayList<String[]> columnsToWrite = new ArrayList<>(writeSize);
         int writePermits = 4;
         Semaphore writeSemaphore = new Semaphore(writePermits);
-        ImportSpecification importSpecification = new ImportSpecification(null, ImportStreamType.STR1_REFSET, true);
+        ImportSpecification importSpecification = new ImportSpecification(null, ImportStreamType.STR1_REFSET, false);
         String rowString;
         try (BufferedReader reader = new BufferedReader(new FileReader(fileToImport))) {
             while ((rowString = reader.readLine()) != null) {
@@ -108,7 +112,7 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
                 if (columnsToWrite.size() == writeSize) {
                     BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, writeSemaphore,
                             "Processing s semantics from: " + fileToImport.getName(),
-                            importSpecification, ImportType.ACTIVE_ONLY, true);
+                            importSpecification, ImportType.SNAPSHOT_ACTIVE_ONLY);
                     columnsToWrite = new ArrayList<>(writeSize);
                     Get.executor()
                             .submit(writer);
@@ -117,22 +121,15 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
             if (!columnsToWrite.isEmpty()) {
                 BrittleRefsetWriter writer = new BrittleRefsetWriter(columnsToWrite, writeSemaphore,
                         "Processing s semantics from: " + fileToImport.getName(),
-                        importSpecification, ImportType.ACTIVE_ONLY, true);
+                        importSpecification, ImportType.SNAPSHOT_ACTIVE_ONLY);
                 Get.executor()
                         .submit(writer);
             }
             writeSemaphore.acquireUninterruptibly(writePermits);
-            for (IndexBuilderService indexer : LookupService.get().getAllServices(IndexBuilderService.class)) {
-                try {
-                    indexer.sync().get();
-                } catch (Exception e) {
-                    LOG.error("problem calling sync on index", e);
-                }
-            }
-            updateMessage("Synchronizing semantic database...");
-            Get.assemblageService().sync();
             writeSemaphore.release(writePermits);
         }
+        transaction.commit();
+        LookupService.syncAll();
         return null;
     }
 
@@ -146,16 +143,16 @@ public class StringAssemblageLoadTask extends TimedTaskWithProgressTracker<Void>
         return defBuilder.build();
     }
 
-    private ConceptSpecification build(ConceptBuilder builder, String uuidStr) throws IllegalStateException {
+    private ConceptSpecification build(Transaction transaction, ConceptBuilder builder, String uuidStr) throws IllegalStateException {
         int stampSequence = Get.stampService()
-                .getStampSequence(Status.ACTIVE,
+                .getStampSequence(transaction, Status.ACTIVE,
                         System.currentTimeMillis(),
                         MetaData.USER____SOLOR.getNid(),
                         MetaData.SOLOR_MODULE____SOLOR.getNid(),
                         MetaData.DEVELOPMENT_PATH____SOLOR.getNid());
         builder.setPrimordialUuid(uuidStr);
         final List<Chronology> builtObjects = new ArrayList<>();
-        builder.build(stampSequence, builtObjects);
+        builder.build(transaction, stampSequence, builtObjects);
         builtObjects.forEach((builtObject) -> {
             if (builtObject instanceof ConceptChronology) {
                 Get.conceptService().writeConcept(

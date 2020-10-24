@@ -39,55 +39,82 @@
 
 package sh.komet.gui.search.simple;
 
-import javafx.beans.property.ReadOnlyProperty;
-import javafx.beans.property.SimpleListProperty;
-import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.*;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
+import javafx.event.Event;
 import javafx.fxml.FXML;
 import javafx.scene.Cursor;
 import javafx.scene.Node;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.TransferMode;
+import javafx.scene.input.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.FlowPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.mahout.math.set.OpenIntHashSet;
+import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
+import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.component.concept.ConceptChronology;
+import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableSnapshotService;
 import sh.isaac.api.observable.semantic.version.ObservableDescriptionVersion;
-import sh.isaac.komet.gui.treeview.MultiParentTreeCell;
+import sh.isaac.komet.gui.graphview.MultiParentGraphCell;
 import sh.isaac.komet.iconography.Iconography;
+import sh.komet.gui.clipboard.ClipboardHelper;
+import sh.komet.gui.control.manifold.CoordinateMenuFactory;
+import sh.komet.gui.control.manifold.ManifoldMenuModel;
+import sh.komet.gui.control.property.ActivityFeed;
+import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
-import sh.komet.gui.interfaces.ExplorationNode;
-import sh.komet.gui.manifold.Manifold;
+import sh.komet.gui.interfaces.ConceptExplorationNode;
+import sh.komet.gui.interfaces.ExplorationNodeAbstract;
 import sh.komet.gui.table.DescriptionTableCell;
 
 import java.util.*;
+import java.util.function.Predicate;
+
 import sh.komet.gui.util.FxGet;
 import sh.komet.gui.contract.GuiSearcher;
 
 /**
  * @author kec
  */
-public class SimpleSearchController implements ExplorationNode, GuiSearcher {
+public class SimpleSearchController extends ExplorationNodeAbstract implements GuiSearcher, ConceptExplorationNode, Predicate<DescriptionVersion> {
+
+    {
+        titleProperty.setValue(SimpleSearchViewFactory.MENU_TEXT);
+        toolTipProperty.setValue("Simple Search Panel. ");
+        menuIconProperty.setValue(Iconography.SIMPLE_SEARCH.getIconographic());
+    }
+
+    private static final KeyCodeCombination keyCodeCopy = new KeyCodeCombination(KeyCode.C, KeyCombination.SHORTCUT_DOWN);
     private static final Logger              LOG               = LogManager.getLogger();
-    private final SimpleStringProperty       titleProperty     =
-        new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
-    private final SimpleStringProperty       titleNodeProperty =
-        new SimpleStringProperty(SimpleSearchViewFactory.MENU_TEXT);
-    private final SimpleStringProperty                     toolTipText       = new SimpleStringProperty("Simple Search Panel");
-    private final SimpleObjectProperty<Node> iconProperty      =
-        new SimpleObjectProperty<>(Iconography.SIMPLE_SEARCH.getIconographic());
-    private final SimpleSearchService                         searchService        = new SimpleSearchService();
+
+    private final SimpleSearchService                         searchService        = new SimpleSearchService(this::test);
     private final SimpleListProperty<Integer> draggedTaxonomyConceptsForFilteringListProperty =
             new SimpleListProperty<>(FXCollections.observableArrayList());
-    private Manifold                                          manifold;
+
+    private final SimpleObjectProperty<ConceptSpecification> selectedConceptSpecificationProperty = new SimpleObjectProperty<>();
+
+    private final ContextMenu copyMenu = new ContextMenu();
+
+    @FXML
+    MenuButton searchPanelMenuButton;
+
+    @FXML
+    Menu coordinatesMenu;
+
+    private ActivityFeed activityFeed;
+
+    private ManifoldMenuModel manifoldMenuModel;
+
 
     @FXML
     AnchorPane                                                mainAnchorPane;
@@ -104,11 +131,28 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
     @FXML
     private Label searchTextFieldLabel;
 
+    @FXML
+    private CheckBox defCheckBox;
 
-   @Override
-   public Node getMenuIcon() {
-      return Iconography.SIMPLE_SEARCH.getIconographic();
-   }
+    @FXML
+    private CheckBox namCheckBox;
+
+    @FXML
+    private CheckBox fqnCheckBox;
+
+    @FXML
+    private CheckBox anyCheckBox;
+
+
+    @Override
+    public void savePreferences() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public Node getMenuIconGraphic() {
+        return Iconography.SIMPLE_SEARCH.getIconographic();
+    }
 
     @Override
     public void executeSearch(String searchString) {
@@ -134,13 +178,13 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
             case SUCCEEDED:
                 this.searchService.restart();
                 break;
-         case CANCELLED:
-            break;
-         case FAILED:
-            break;
-         default:
-            LOG.error("These cases were forgotten.... {}", this.searchService.getState());
-            break;
+            case CANCELLED:
+                break;
+            case FAILED:
+                break;
+            default:
+                LOG.error("These cases were forgotten.... {}", this.searchService.getState());
+                break;
         }
     }
 
@@ -159,32 +203,165 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
         assert searchTextFieldLabel != null :
                 "fx:id=\"searchTextFieldLabel\" was not injected: check your FXML file 'SimpleSearch.fxml'.";
 
+
+        searchPanelMenuButton.setGraphic(Iconography.COORDINATES.getStyledIconographic());
+
+        anyCheckBox.selectedProperty().addListener(((observable, wasSelected, isSelected) -> {
+            if (isSelected == false && fqnCheckBox.isSelected() && namCheckBox.isSelected() && defCheckBox.isSelected()) {
+                defCheckBox.setSelected(false);
+            }
+            updateTypeChecks(isSelected);
+        }));
+        fqnCheckBox.selectedProperty().addListener(((observable, wasSelected, isSelected) -> {
+            updateTypeChecks(isSelected);
+        }));
+        namCheckBox.selectedProperty().addListener(((observable, wasSelected, isSelected) -> {
+            updateTypeChecks(isSelected);
+        }));
+        defCheckBox.selectedProperty().addListener(((observable, wasSelected, isSelected) -> {
+            updateTypeChecks(isSelected);
+        }));
+
         this.resultTable.setOnDragDetected(new DragDetectedCellEventHandler());
         this.resultTable.setOnDragDone(new DragDoneEventHandler());
-        this.resultColumn.setCellValueFactory(new PropertyValueFactory("Result"));
+        //this.resultColumn.setCellValueFactory(new PropertyValueFactory("Result"));
         this.resultColumn.setCellValueFactory((TableColumn.CellDataFeatures<ObservableDescriptionVersion,
                 String> param) -> param.getValue()
                 .textProperty());
-        this.resultColumn.setCellFactory((TableColumn<ObservableDescriptionVersion,
-                String> stringText) -> new DescriptionTableCell());
-        this.resultTable.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                this.manifold.setFocusedConceptChronology(
-                        Get.conceptService().getConceptChronology(newSelection.getReferencedComponentNid()));
+
+        resultTable.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        resultTable.widthProperty().addListener((observable, oldValue, newValue) -> {
+            this.resultColumn.setMaxWidth(newValue.doubleValue() - 20);
+            this.resultColumn.setMinWidth(newValue.doubleValue() - 20);
+            this.resultColumn.setPrefWidth(newValue.doubleValue() - 20);
+        });
+
+        this.resultTable.setContextMenu(copyMenu);
+        this.resultTable.getSelectionModel().getSelectedItems().addListener((ListChangeListener<? super ObservableDescriptionVersion>)  c -> {
+            while (c.next()) {
+                if (c.wasPermutated()) {
+                    for (int i = c.getFrom(); i < c.getTo(); ++i) {
+                        //nothing to do...
+                    }
+                } else if (c.wasUpdated()) {
+                    //nothing to do
+                } else {
+                    for (ObservableDescriptionVersion remitem : c.getRemoved()) {
+                        activityFeed.feedSelectionProperty().remove(new ComponentProxy(Get.concept(remitem.getReferencedComponentNid())));
+                    }
+                    for (ObservableDescriptionVersion additem : c.getAddedSubList()) {
+                        activityFeed.feedSelectionProperty().add(new ComponentProxy(Get.concept(additem.getReferencedComponentNid())));
+                    }
+                }
+            }
+            if (activityFeed.feedSelectionProperty().size() != c.getList().size()) {
+                ArrayList<ComponentProxy> selectionList = new ArrayList<>(c.getList().size());
+                for (ObservableDescriptionVersion descriptionVersion: c.getList()) {
+                    selectionList.add(new ComponentProxy(Get.concept(descriptionVersion.getReferencedComponentNid())));
+                }
+                activityFeed.feedSelectionProperty().setAll(selectionList);
+
             }
         });
 
-        if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-            searchTextField.setText("+tetra* +fallot");
-        }
         FxGet.searchers().add(this);
+        resultTable.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            try {
+                if (newValue != null) {
+                    this.selectedConceptSpecificationProperty.set(Get.concept(newValue.getReferencedComponentNid()));
+                } else {
+                    this.selectedConceptSpecificationProperty.set(null);
+                }
+            } catch (Exception e) {
+                FxGet.dialogs().showErrorDialog(e);
+            }
+        });
+
+        resultTable.setOnKeyPressed(event -> {
+            if (keyCodeCopy.match(event)) {
+                copySelectedDescriptionsToClipboard(event);
+            }
+        });
+
     }
 
+    private void updateTypeChecks(Boolean isSelected) {
+        if (!isSelected) {
+            anyCheckBox.setSelected(false);
+        } else if (fqnCheckBox.isSelected() && namCheckBox.isSelected() && defCheckBox.isSelected()) {
+            anyCheckBox.setSelected(true);
+        }
+        if (anyCheckBox.isSelected()) {
+            fqnCheckBox.setSelected(true);
+            namCheckBox.setSelected(true);
+            defCheckBox.setSelected(true);
+        }
+        executeSearch();
+    }
+
+    @FXML
+    public void copySelectedConceptsToClipboard(Event event) {
+        final Set<Integer> rows = new TreeSet<>();
+        for (final TablePosition tablePosition : resultTable.getSelectionModel().getSelectedCells()) {
+            rows.add(tablePosition.getRow());
+        }
+        ArrayList<IdentifiedObject> objects = new ArrayList<>();
+        OpenIntHashSet addedObjectIds = new OpenIntHashSet();
+        for (final Integer row : rows) {
+            ObservableDescriptionVersion description = resultTable.getItems().get(row);
+            if (!addedObjectIds.contains(description.getReferencedComponentNid())) {
+                objects.add(Get.concept(description.getReferencedComponentNid()));
+                addedObjectIds.add(description.getReferencedComponentNid());
+            }
+        }
+        ClipboardHelper.copyToClipboard(objects);
+        event.consume();
+    }
+    @FXML
+    public void copyAllConceptsToClipboard(Event event) {
+
+        ArrayList<IdentifiedObject> objects = new ArrayList<>();
+        OpenIntHashSet addedObjectIds = new OpenIntHashSet();
+        for (final ObservableDescriptionVersion description : resultTable.getItems()) {
+            if (!addedObjectIds.contains(description.getReferencedComponentNid())) {
+                objects.add(Get.concept(description.getReferencedComponentNid()));
+                addedObjectIds.add(description.getReferencedComponentNid());
+            }
+        }
+        ClipboardHelper.copyToClipboard(objects);
+        event.consume();
+    }
+    @FXML
+    public void copyAllDescriptionsToClipboard(Event event) {
+        ClipboardHelper.copyToClipboard(resultTable.getItems());
+        event.consume();
+    }
+    @FXML
+    public void copySelectedDescriptionsToClipboard(Event event) {
+        final Set<Integer> rows = new TreeSet<>();
+        for (final TablePosition tablePosition : resultTable.getSelectionModel().getSelectedCells()) {
+            rows.add(tablePosition.getRow());
+        }
+        ArrayList<IdentifiedObject> objects = new ArrayList<>();
+        for (final Integer row : rows) {
+            objects.add(resultTable.getItems().get(row));
+        }
+        ClipboardHelper.copyToClipboard(objects);
+        event.consume();
+    }
     private void initializeControls() {
         initializeSearchTextField();
         initializeProgressBar();
         initializeSearchService();
         initializeSearchTagFlowPlane();
+
+        this.coordinatesMenu.setGraphic(Iconography.COORDINATES.getStyledIconographic());
+
+        this.manifoldMenuModel = new ManifoldMenuModel(viewProperties, searchPanelMenuButton, this.coordinatesMenu);
+
+        CoordinateMenuFactory.makeCoordinateDisplayMenu(this.viewProperties.getManifoldCoordinate(),
+                this.coordinatesMenu.getItems(), this.viewProperties.getManifoldCoordinate());
+
     }
 
     private void initializeSearchTextField(){
@@ -201,9 +378,9 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
 
         Label allLabel = new Label();
         allLabel.setGraphic(Iconography.SEARCH_FILTER.getIconographic());
-        allLabel.setText("All");
+        allLabel.setText("All concept kinds");
         allLabel.setStyle("-fx-background-color: transparent;" +"-fx-background-insets: 0;" + "-fx-padding:5;"
-        + "-fx-font-weight:bold;");
+                + "-fx-font-weight:bold;");
 
         //Tool Tip for All Filter
         Tooltip allFilterToolTip = new Tooltip();
@@ -222,7 +399,7 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
         this.searchTagFlowPane.setOnDragDropped(event -> {
             Label labelFromDrop = new Label();
 
-            ConceptChronology droppedChronology = ((MultiParentTreeCell)event.getGestureSource()).getTreeItem().getValue();
+            ConceptChronology droppedChronology = ((MultiParentGraphCell)event.getGestureSource()).getTreeItem().getValue();
             labelFromDrop.setGraphic(Iconography.SEARCH_MINUS.getIconographic());
             labelFromDrop.setText(droppedChronology.getFullyQualifiedName());
             labelFromDrop.setStyle("-fx-background-color: transparent;" +"-fx-background-insets: 0;" + "-fx-padding:5;"
@@ -239,10 +416,18 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
             labelFromDrop.setTooltip(dragAndDropToolTip);
             labelFromDrop.setOnMouseEntered(mouseEnteredEvent
                     -> labelFromDrop.setCursor(Cursor.HAND));
-
             this.searchTagFlowPane.getChildren().add(labelFromDrop);
             this.draggedTaxonomyConceptsForFilteringListProperty.get().add(droppedChronology.getNid());
 
+        });
+
+        this.draggedTaxonomyConceptsForFilteringListProperty.addListener((ListChangeListener<Integer>) c -> {
+            if (c.getList().isEmpty()) {
+                allLabel.setText("All concept kinds");
+            } else {
+                allLabel.setText("Only: ");
+            }
+            executeSearch();
         });
     }
 
@@ -257,7 +442,7 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
     }
 
     private void initializeSearchService(){
-        this.searchService.setManifold(this.manifold);
+        this.searchService.setViewProperties(this.viewProperties);
         this.searchService.luceneQueryProperty().bind(this.searchTextField.textProperty());
         this.searchService.parentNidsProperty().bind(this.draggedTaxonomyConceptsForFilteringListProperty);
 
@@ -266,7 +451,7 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
             switch (newValue) {
                 case SUCCEEDED:
                     ObservableList<ObservableDescriptionVersion> tableItems = this.resultTable.getItems();
-                    ObservableSnapshotService snapshot = Get.observableSnapshotService(this.manifold);
+                    ObservableSnapshotService snapshot = Get.observableSnapshotService(this.viewProperties.getViewStampFilter());
 
                     if(this.searchService.getValue().size() == 0) {
                         this.resultTable.setPlaceholder(new Label("No Results Found..."));
@@ -278,9 +463,9 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
                                 (LatestVersion<ObservableDescriptionVersion>) snapshot.getObservableSemanticVersion(nid);
 
                         if (latestDescription.isPresent()) {
-                           tableItems.add(latestDescription.get());
+                            tableItems.add(latestDescription.get());
                         } else {
-                           LOG.error("No latest description for: " + nid);
+                            LOG.error("No latest description for: " + nid);
                         }
                     });
                     break;
@@ -296,15 +481,16 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
     public void setSearchText(String searchText) {
         searchTextField.setText(searchText);
     }
-    
-    
-    @Override
-    public Manifold getManifold() {
-        return manifold;
-    }
 
-    public void setManifold(Manifold manifold) {
-        this.manifold = manifold;
+    public void setViewProperties(ViewProperties viewProperties, ActivityFeed activityFeed) {
+        this.viewProperties = viewProperties;
+        this.viewProperties.getManifoldCoordinate().addListener((observable, oldValue, newValue) -> {
+            executeSearch();
+        });
+        this.activityFeed = activityFeed;
+        this.resultColumn.setCellFactory((TableColumn<ObservableDescriptionVersion,
+                String> stringText) -> new DescriptionTableCell(this.viewProperties));
+
         initializeControls();
     }
 
@@ -314,23 +500,62 @@ public class SimpleSearchController implements ExplorationNode, GuiSearcher {
     }
 
     @Override
-    public ReadOnlyProperty<String> getTitle() {
-        return titleProperty;
-    }
-
-    @Override
     public Optional<Node> getTitleNode() {
         Label titleLabel = new Label();
 
-        titleLabel.graphicProperty().bind(iconProperty);
-        titleLabel.textProperty().bind(titleNodeProperty);
+        titleLabel.graphicProperty().bind(menuIconProperty);
+        titleLabel.textProperty().bind(titleProperty);
         titleProperty.set("");
 
         return Optional.of(titleLabel);
     }
 
     @Override
-    public ReadOnlyProperty<String> getToolTip() {
-        return toolTipText;
+    public void close() {
+        // nothing to do...
+    }
+
+    @Override
+    public boolean canClose() {
+        return true;
+    }
+
+    @Override
+    public ReadOnlyObjectProperty<ConceptSpecification> selectedConceptSpecification() {
+        return selectedConceptSpecificationProperty;
+    }
+
+    @Override
+    public void focusOnInput() {
+        this.searchTextField.requestFocus();
+    }
+
+    @Override
+    public void focusOnResults() {
+        this.resultTable.requestFocus();
+    }
+
+    @Override
+    public ActivityFeed getActivityFeed() {
+        return this.activityFeed;
+    }
+
+    @Override
+    public boolean test(DescriptionVersion descriptionVersion) {
+        if (anyCheckBox.isSelected()) {
+            return true;
+        }
+
+        if (fqnCheckBox.isSelected() && descriptionVersion.getDescriptionTypeConceptNid() == TermAux.FULLY_QUALIFIED_NAME_DESCRIPTION_TYPE.getNid()) {
+            return true;
+        }
+        if (namCheckBox.isSelected() && descriptionVersion.getDescriptionTypeConceptNid() == TermAux.REGULAR_NAME_DESCRIPTION_TYPE.getNid()) {
+            return true;
+        }
+
+        if (defCheckBox.isSelected() && descriptionVersion.getDescriptionTypeConceptNid() == TermAux.DEFINITION_DESCRIPTION_TYPE.getNid()) {
+            return true;
+        }
+        return false;
     }
 }

@@ -37,9 +37,7 @@
 package sh.isaac.misc.associations;
 
 import java.util.Optional;
-
 import org.apache.logging.log4j.LogManager;
-
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.component.semantic.version.DynamicVersion;
@@ -47,7 +45,7 @@ import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicDataType;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicNid;
 import sh.isaac.api.component.semantic.version.dynamic.types.DynamicUUID;
-import sh.isaac.api.coordinate.StampCoordinate;
+import sh.isaac.api.coordinate.StampFilter;
 
 
 /**
@@ -57,36 +55,36 @@ import sh.isaac.api.coordinate.StampCoordinate;
  */
 public class AssociationInstance
 {
-   private DynamicVersion<?> semantic;
-   private StampCoordinate stampCoord;
+   private DynamicVersion semantic;
+   private StampFilter stampFilter;
    
    private transient AssociationType assnType_;
 
    //TODO [DAN 3] Write the code that checks the index states on startup
    
-   private AssociationInstance(DynamicVersion<?> data, StampCoordinate stampCoordinate)
+   private AssociationInstance(DynamicVersion data, StampFilter stampFilter)
    {
       this.semantic = data;
-      this.stampCoord = stampCoordinate;
+      this.stampFilter = stampFilter;
    }
    
    /**
     * Read the dynamic semantic instance (that represents an association) and turn it into an association object.
     * @param data - the semantic to read
-    * @param stampCoordinate - optional - only used during readback of the association type - will only be utilized
-    * if one calls {@link AssociationInstance#getAssociationType()} - see {@link AssociationType#read(int, StampCoordinate)}
+    * @param stampFilter - optional - only used during readback of the association type - will only be utilized
+    * if one calls {@link AssociationInstance#getAssociationType()} - see {@link AssociationType#read(int, StampFilter)}
     * @return
     */
-   public static AssociationInstance read(DynamicVersion<?> data, StampCoordinate stampCoordinate)
+   public static AssociationInstance read(DynamicVersion data, StampFilter stampFilter)
    {
-      return new AssociationInstance(data, stampCoordinate);
+      return new AssociationInstance(data, stampFilter);
    }
    
    public AssociationType getAssociationType()
    {
       if (assnType_ == null)
       {
-         assnType_ = AssociationType.read(this.semantic.getAssemblageNid(), stampCoord, Get.languageCoordinateService().getUsEnglishLanguagePreferredTermCoordinate());
+         assnType_ = AssociationType.read(this.semantic.getAssemblageNid(), stampFilter, Get.languageCoordinateService().getUsEnglishLanguageRegularTermCoordinate());
       }
       return assnType_;
    }
@@ -182,7 +180,7 @@ public class AssociationInstance
       return this.semantic.getAssemblageNid();
    }
 
-   public DynamicVersion<?> getData()
+   public DynamicVersion getData()
    {
       return this.semantic;
    }

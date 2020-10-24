@@ -56,6 +56,7 @@ import org.apache.commons.io.input.BOMInputStream;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 import sh.isaac.api.util.NaturalOrder;
 
 /**
@@ -82,8 +83,9 @@ public class LoincCsvFileReader extends LOINCReader
 	 *
 	 * @param is the is
 	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws CsvValidationException 
 	 */
-	public LoincCsvFileReader(InputStream is) throws IOException
+	public LoincCsvFileReader(InputStream is) throws IOException, CsvValidationException
 	{
 		// Their new format includes the (optional) UTF-8 BOM, which chokes java for stupid legacy reasons.
 		readAllData(new CSVReader(new BufferedReader(new InputStreamReader(new BOMInputStream(is)))), false);
@@ -97,8 +99,9 @@ public class LoincCsvFileReader extends LOINCReader
 	 * @param path the path to read
 	 * @param populateVersionTimeMap the populate version time map
 	 * @throws IOException Signals that an I/O exception has occurred.
+	 * @throws CsvValidationException 
 	 */
-	public LoincCsvFileReader(Path path, boolean populateVersionTimeMap) throws IOException
+	public LoincCsvFileReader(Path path, boolean populateVersionTimeMap) throws IOException, CsvValidationException
 	{
 		log.info("Using the data file " + path);
 
@@ -108,7 +111,7 @@ public class LoincCsvFileReader extends LOINCReader
 		readReleaseNotes(path.getParent(), populateVersionTimeMap);
 	}
 	
-	private void readAllData(CSVReader reader, boolean closeAtEnd) throws IOException
+	private void readAllData(CSVReader reader, boolean closeAtEnd) throws IOException, CsvValidationException
 	{
 		String[] temp = reader.readNext();
 
@@ -188,9 +191,11 @@ public class LoincCsvFileReader extends LOINCReader
 					new SimpleDateFormat("MMMyyyy"), new SimpleDateFormat("MM/dd/yy") };
 			try (final BufferedReader br = new BufferedReader(new InputStreamReader(Files.newInputStream(relNotes.get(), StandardOpenOption.READ))))
 			{
+				int lineNo = 1;
 				String line = br.readLine();
 				boolean first = true;
 				String versionCache = null;
+				boolean betaVersion = false;
 
 				while (line != null)
 				{
@@ -199,11 +204,17 @@ public class LoincCsvFileReader extends LOINCReader
 						final String temp = line.substring(line.indexOf("Version") + "Version ".length());
 
 						versionCache = temp.replace('|', ' ').trim();
+						//Our regex doesn't match beta lines
+						betaVersion = false;
 
 						if (first)
 						{
 							this.version = versionCache;
 						}
+					}
+					else if (line.contains("Beta"))
+					{
+						betaVersion = true;
 					}
 
 					if (line.matches("\\s*\\|\\s*Released [\\w\\s/,]*\\|"))
@@ -245,7 +256,14 @@ public class LoincCsvFileReader extends LOINCReader
 
 						if (versionCache == null)
 						{
-							log.error("No version for line " + line);
+							if (betaVersion)
+							{
+								log.info("Ignoring Beta release for line " + lineNo + ": " + line);
+							}
+							else
+							{
+								log.error("No version for line " + lineNo + ": " + line);
+							}
 						}
 						else
 						{
@@ -256,6 +274,7 @@ public class LoincCsvFileReader extends LOINCReader
 					}
 
 					line = br.readLine();
+					lineNo++;
 				}
 
 				br.close();
