@@ -32,5 +32,6 @@
         <module>identifier</module>
         <module>qa</module>
         <module>xslt-provider</module>
+        <!--module>classifier-elk</module-->
     </modules>
 </project>
