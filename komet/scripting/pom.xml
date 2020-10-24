@@ -4,7 +4,7 @@
     <parent>
         <groupId>sh.isaac</groupId>
         <artifactId>komet</artifactId>
-        <version>5.1.1-BATCH-SNAPSHOT</version>
+        <version>6.0.0-SNAPSHOT</version>
     </parent>
     <groupId>sh.isaac.komet</groupId>
     <artifactId>scripting</artifactId>
