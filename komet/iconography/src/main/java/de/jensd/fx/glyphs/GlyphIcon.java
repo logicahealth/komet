@@ -68,7 +68,7 @@ public abstract class GlyphIcon<T extends Enum<T> & GlyphIcons> extends Text {
         glyphNameProperty().addListener(observable -> {
             updateIcon();
         });
-        setIcon(getDefaultGlyph());
+        //setIcon(getDefaultGlyph());
     }
 
     // convenience method
