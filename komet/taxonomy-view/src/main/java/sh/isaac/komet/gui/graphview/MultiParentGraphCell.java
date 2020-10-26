@@ -81,6 +81,10 @@ import sh.isaac.komet.iconography.Iconography;
 import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.menu.MenuItemWithText;
+import sh.komet.gui.style.PseudoClasses;
+
+import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_CELL;
+import static sh.komet.gui.style.StyleClasses.MULTI_PARENT_TREE_NODE;
 
 //~--- classes ----------------------------------------------------------------
 
@@ -109,6 +113,7 @@ final public class MultiParentGraphCell
 
    MultiParentGraphCell(TreeView<ConceptChronology> treeView) {
       super();
+      this.getStyleClass().add(MULTI_PARENT_TREE_CELL.toString());
       updateTreeView(treeView);
       setSkin(new MultiParentGraphCellSkin(this));
 
@@ -135,6 +140,7 @@ final public class MultiParentGraphCell
             setText("");
             conceptDescriptionText = null;
             setGraphic(null);
+            this.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, false);
          } else {
             final MultiParentGraphItemImpl treeItem = (MultiParentGraphItemImpl) getTreeItem();
             conceptDescriptionText = treeItem.toString();
@@ -150,13 +156,10 @@ final public class MultiParentGraphCell
                        .getSnapshot(treeItem.getGraphView().getManifoldCoordinate());
 
             if (concept != null) {
-               if (conceptSnapshotService.isConceptActive(concept.getNid())) {
-                  setFont(Font.font(getFont().getFamily(), FontPosture.REGULAR, getFont().getSize()));
-               } else {
-                  setFont(Font.font(getFont().getFamily(), FontPosture.ITALIC, getFont().getSize()));
-               }
-
+               boolean conceptActive = conceptSnapshotService.isConceptActive(concept.getNid());
+               this.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !conceptActive);
                setText(conceptDescriptionText);
+
                setGraphic(treeItem.computeGraphic());
             }
          }

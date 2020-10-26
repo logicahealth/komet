@@ -18,11 +18,13 @@ package sh.komet.gui.control.text;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.event.EventHandler;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.TextArea;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -59,6 +61,17 @@ public class TextAreaReadOnly extends TextArea {
         focusedProperty().addListener((observable, oldValue, newValue) -> {
             selectRange(0,0);
         });
+
+        addEventFilter(
+                MouseEvent.MOUSE_CLICKED,
+                new EventHandler<MouseEvent>() {
+                    @Override
+                    public void handle(MouseEvent event) {
+                        if (event.getClickCount() > 2)
+                        System.out.println("ClickCount: " + event.getClickCount());
+                    }
+                }
+        );
     }
 
     private void setTheHeight(Double height) {

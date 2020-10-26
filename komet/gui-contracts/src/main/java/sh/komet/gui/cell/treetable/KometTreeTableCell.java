@@ -23,6 +23,7 @@ import sh.isaac.api.component.concept.ConceptVersion;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import static sh.komet.gui.style.PseudoClasses.*;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
+import sh.komet.gui.style.StyleClasses;
 
 /**
  * Parent class to handle setting of inactive, uncommitted, and uncommitted-with-error pseudo-classes.
@@ -86,6 +87,7 @@ public abstract class KometTreeTableCell<C> extends TreeTableCell<ObservableCate
             switch (semanticVersion.getSemanticType()) {
                case DESCRIPTION:
                   pseudoClassStateChanged(DESCRIPTION_PSEUDO_CLASS, true);
+                  this.getStyleClass().add(StyleClasses.DESCRIPTION_CELL.toString());
                   break;
                case LOGIC_GRAPH:
                   pseudoClassStateChanged(LOGICAL_DEFINITION_PSEUDO_CLASS, true);

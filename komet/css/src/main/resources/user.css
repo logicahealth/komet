@@ -29,11 +29,27 @@ limitations under the License.
    -komet-inactive-color: #b3b3b3;
    -komet-box-border: #d1d1d1;
    -fx-font-family: "Open Sans";
-   -komet-uncommitted-fill: #f5f6cb;
-   -komet-uncommitted-border: #ffef00;
+    -komet-uncommitted-fill: #f5f6cb;
+    -komet-uncommitted-border: #ffef00;
    -komet-error-background: #ff5000;
    -komet-warning-background: #ffef00;
    -komet-confirm-background: #009414;
+   -komet-inactive-background: linear-gradient(
+            from 0em 0.75em to 0.75em 0px,
+            repeat,
+            derive(-komet-inactive-color, 70%) 0%,
+            derive(-komet-inactive-color, 70%) 49%,
+            derive(-komet-inactive-color, 95%) 50%,
+            derive(-komet-inactive-color, 95%) 99%
+    );
+    -komet-inactive-background-selected: linear-gradient(
+            from 0em 0.75em to 0.75em 0px,
+            repeat,
+            -komet-blue-color 0%,
+            -komet-blue-color 49%,
+            derive(-komet-blue-color, 30%) 50%,
+            derive(-komet-blue-color, 30%) 99%
+    );
 }
 
 .button {
@@ -202,26 +218,97 @@ limitations under the License.
     /*-fx-border-color: white;*/
     /*-fx-border-width: 1 0 1 0; */
     -fx-border-width: 1 0 1 0;
-    -fx-background-color: linear-gradient(
-            from 0em 0.75em to 0.75em 0px,
-            repeat,
-            derive(-komet-inactive-color, 80%) 0%,
-            derive(-komet-inactive-color, 80%) 49%,
-            derive(-komet-inactive-color, 95%) 50%,
-            derive(-komet-inactive-color, 95%) 99%
-    );
+    -fx-background-color: -komet-inactive-background;
 }
-.tree-table-row-cell:selected .komet-version-general-cell:inactive {
+
+.tree-table-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-table-row-cell:filled:selected:inactive,
+.tree-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-cell:filled:selected:inactive {
+    -fx-background-color: -komet-inactive-background-selected;
+}
+.multi-parent-tree-cell  {
+    -fx-border-color: white;
+    -fx-border-width: 0 0 0 0;
+    -fx-background-insets: 4 0 4 0;
+}
+
+.multi-parent-tree-cell:inactive  {
+    -fx-border-color: white;
+    /*-fx-border-width: 1 0 1 0; */
+    -fx-border-width: 1 0 1 0;
+    -fx-background-color: -komet-inactive-background;
+}
+.component-panel:inactive  {
     /*-fx-border-color: white;*/
     /*-fx-border-width: 1 0 1 0; */
-    -fx-background-color: linear-gradient(
-            from 0em 0.75em to 0.75em 0px,
-            repeat,
-            -komet-blue-color 0%,
-            -komet-blue-color 49%,
-            derive(-komet-blue-color, 30%) 50%,
-            derive(-komet-blue-color, 30%) 99%
-    );
+    -fx-border-width: 1 0 1 0;
+    -fx-background-color: -komet-inactive-background;
+}
+.component-panel:inactive .text-area,
+.component-panel:inactive .viewport,
+.component-panel:inactive .scroll-pane,
+.component-panel:inactive .text-area .content {
+    /*-fx-border-color: white;*/
+    /*-fx-border-width: 1 0 1 0; */
+    -fx-background-color: transparent;
+    -fx-highlight-text-fill: white;
+    -fx-text-fill: black;
+    -fx-border-color: transparent;
+}
+
+.component-panel:inactive .component-text,
+.component-panel:inactive .component-text .text-area {
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+
+.def-root:inactive {
+    -fx-background-color: -komet-inactive-background;
+}
+.def-concept:inactive {
+    -fx-background-color: -komet-inactive-background;
+}
+.description-cell {
+    -fx-border-color: white;
+    -fx-border-width: 3 0 3 0;
+    -fx-background-insets: 4 0 4 0;
+ }
+
+.table-view:focused > .virtual-flow > .clipped-container > .sheet > .table-row-cell:filled:focused:selected .description-cell {
+    -fx-background-color: -komet-blue-color;
+}
+
+
+.description-cell:inactive {
+    /*-fx-text-fill: yellow;*/
+    /*-fx-fill: aqua;*/
+    /*-fx-strikethrough: true;*/
+   /* -fx-underline: true;*/
+   /* -fx-font-style: oblique;*/
+    /*-fx-fill: red; */
+}
+.component-text .description-text:inactive .text {
+    -fx-strikethrough: true;
+}
+
+.description-text:inactive {
+    -fx-strikethrough: true;
+}
+
+
+.description-cell:referenced-component-inactive {
+    -fx-background-color: -komet-inactive-background;
+}
+.table-view {
+    -fx-control-inner-background-alt: -fx-control-inner-background ;
+}
+
+.table-view:focused > .virtual-flow > .clipped-container > .sheet > .table-row-cell:filled:focused:selected .description-cell:referenced-component-inactive,
+.tree-table-view:focused > .virtual-flow > .clipped-container > .sheet > .tree-table-row-cell:filled:focused:selected .description-cell:referenced-component-inactive {
+    -fx-background-color: -komet-inactive-background-selected;
+}
+
+.text-area .content {
+    /* -fx-background-color: red; */
 }
 
 .komet-version-author-time-cell {
@@ -346,8 +433,15 @@ limitations under the License.
 .version-panel:uncommitted {
     -fx-background-color: -komet-uncommitted-fill;
     -fx-border-color:  -komet-uncommitted-fill;
-
 }
+
+.version-panel {
+    -fx-background-color: white;
+}
+.version-panel:inactive {
+    -fx-background-color: -komet-inactive-background;
+}
+
 
 .version-panel:uncommitted * .component-text {
     -fx-background-color: -komet-uncommitted-fill;
@@ -366,6 +460,25 @@ limitations under the License.
    -fx-text-fill: -komet-inactive-color;
    -fx-border-width: 1 1 1 5;
    -fx-border-insets: 0 0 0 -5;
+}
+
+.component-panel:other-version {
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border black;
+    -fx-text-fill: -komet-inactive-color;
+    -fx-border-width: 1 1 1 5;
+    -fx-border-insets: 4 2 2 4;
+    -fx-background-color: white, transparent;
+    -fx-background-insets: 0, 4 2 2 4;
+
+}
+.component-panel:other-version:inactive {
+    -fx-border-color: -komet-box-border -komet-box-border -komet-box-border -komet-inactive-color;
+    -fx-text-fill: -komet-inactive-color;
+    -fx-border-width: 1 1 1 5;
+    -fx-border-insets: 4 2 2 4;
+    -fx-background-color: white, -komet-inactive-background ;
+    -fx-background-insets: 0, 4 2 2 4;
+
 }
 
 .component-panel:concept-version:inactive * .component-version-what-cell {
@@ -490,28 +603,13 @@ limitations under the License.
 }
 
 
-.component-panel:concept-version * .header-panel {
-   -fx-border-color: -komet-concept-color;
+.component-panel .header-panel {
+   -fx-border-color: -komet-inactive-color;
    -fx-text-fill: black;
-   -fx-border-width: 0 0 2 0;
+   -fx-border-width: 0 0 1 0;
    -fx-border-insets: 0 0 0 0;   
 }
 
-
-.component-panel:description-version * .header-panel {
-   -fx-border-color: -komet-description-color;
-   -fx-text-fill: black;
-   -fx-border-width: 0 0 2 0;
-   -fx-border-insets: 0 0 0 0;   
-}
-
-
-.component-panel:logical-definition-version * .header-panel {
-   -fx-border-color: -komet-definition-color;
-   -fx-text-fill: black;
-   -fx-border-width: 0 0 2 0;
-   -fx-border-insets: 0 0 0 0;   
-}
 
 .header-panel .popover .button .glyph-icon {
     -fx-fill: black;
@@ -1103,7 +1201,7 @@ limitations under the License.
  
 
 .tab-header-area {
-    -fx-background-color: greenyellow;
+    /* -fx-background-color: greenyellow; */
     -fx-border-color: -komet-blue-color;
 }
 

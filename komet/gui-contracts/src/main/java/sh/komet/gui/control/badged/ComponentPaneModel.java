@@ -30,6 +30,7 @@ import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.model.observable.equalitybased.SimpleEqualityBasedListProperty;
 import sh.komet.gui.control.property.wrapper.PropertySheetMenuItem;
 import sh.komet.gui.control.property.ViewProperties;
+import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 
 public class ComponentPaneModel extends BadgedVersionPaneModel {
@@ -50,6 +51,7 @@ public class ComponentPaneModel extends BadgedVersionPaneModel {
         // gridpane.gridLinesVisibleProperty().set(true);
         getBadgedPane().getStyleClass()
                 .add(StyleClasses.COMPONENT_PANEL.toString());
+        getBadgedPane().pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !categorizedVersion.isActive());
 
         ObservableVersion observableVersion = getCategorizedVersion().getObservableVersion();
 
