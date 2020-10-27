@@ -254,9 +254,26 @@ limitations under the License.
     -fx-text-fill: black;
     -fx-border-color: transparent;
 }
+.version-panel:inactive .text-area,
+.version-panel:inactive .viewport,
+.version-panel:inactive .scroll-pane,
+.version-panel:inactive .text-area .content
+{
+    /*-fx-border-color: white;*/
+    /*-fx-border-width: 1 0 1 0; */
+    -fx-background-color: transparent;
+    -fx-highlight-text-fill: white;
+    -fx-text-fill: black;
+    -fx-border-color: transparent;
+}
 
 .component-panel:inactive .component-text,
 .component-panel:inactive .component-text .text-area {
+    -fx-border-color: transparent;
+    -fx-background-color: transparent;
+}
+.version-panel:inactive .component-text,
+.version-panel:inactive .component-text .text-area {
     -fx-border-color: transparent;
     -fx-background-color: transparent;
 }
@@ -275,6 +292,7 @@ limitations under the License.
 
 .table-view:focused > .virtual-flow > .clipped-container > .sheet > .table-row-cell:filled:focused:selected .description-cell {
     -fx-background-color: -komet-blue-color;
+    -fx-fill: white;
 }
 
 
