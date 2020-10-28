@@ -97,7 +97,12 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
   /**
    * @param writeCoordinate the transaction and STAMP details governing the component builder
    * @return a task which will return the constructed component after it has been added to the commit manager -
-   * the write to the commit manager is not complete until the task is complete (the task has already been launched)
+   * the write to the commit manager is not complete until the task is complete (the task has already been launched).
+   * 
+   * Note that this operation may build and write more than 1 component, if the component has children, and the children 
+   * will NOT be returned by this call.  See {@link #buildAndWrite(WriteCoordinate, List)} for a method that will return 
+   * all build components.
+   * 
    * @throws IllegalStateException the illegal state exception
    */
     default OptionalWaitTask<T> buildAndWrite(WriteCoordinate writeCoordinate) throws IllegalStateException {
@@ -131,29 +136,6 @@ public interface IdentifiedComponentBuilder<T extends CommittableComponent>
     */
    default T build(WriteCoordinate writeCoordinate, List<Chronology> builtObjects) throws IllegalStateException {
       return build(writeCoordinate.getTransaction().get(), writeCoordinate.getStampSequence(), builtObjects);
-   }
-   
-   /**
-    * The caller is responsible to write the component to the proper store when
-    * all updates to the component are complete.
-    * 
-    * @see #build(Transaction, int, List)
-    * 
-    * @param writeCoordinate the transaction and STAMP details governing the component builder
-    * @return the constructed component, not yet written to the database.
-    * @throws IllegalStateException the illegal state exception
-    * @Deprecated: I've found this method swallows sub-component build by the builder, by not writing them to
-    * a data store. I recommend buildAndWrite, or the build method this default method calls... I've modified to
-    * throw an exception that hopefully makes the developer aware of the problem when sub-components are built.
-    */
-   @Deprecated
-   default T build(WriteCoordinate writeCoordinate) throws IllegalStateException {
-       ArrayList<Chronology> buildObjects = new ArrayList<>();
-       T result =  build(writeCoordinate.getTransaction().get(), writeCoordinate.getStampSequence(), buildObjects);
-       if (buildObjects.size() != 1) {
-          throw new IllegalStateException();
-       }
-       return result;
    }
    
    /**
