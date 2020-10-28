@@ -129,7 +129,7 @@ public class FxGet implements StaticIsaacCache {
 
     private static ViewProperties preferenceViewProperties;
 
-    private static Robot robot = new Robot();
+    private static Robot robot = null;
 
     public static List<GuiSearcher> searchers() {
         return SEARCHER_LIST;
@@ -147,6 +147,9 @@ public class FxGet implements StaticIsaacCache {
     }
 
     public static Point2D getMouseLocation() {
+        if (robot == null) {
+            robot = new Robot();
+        }
         return robot.getMousePosition();
     }
 
