@@ -130,7 +130,7 @@ public class SolorMojo extends AbstractMojo {
                 transformTask.get();
 
                 getLog().info(" Converting SNOMED OWL expressions...");
-                Rf2OwlTransformer rf2OwlTransformer = new Rf2OwlTransformer(ImportType.parseFromString(importType), transformTransaction);
+                Rf2OwlTransformer rf2OwlTransformer = new Rf2OwlTransformer(transformTransaction);
                 Future<?> rf2OwlTransformTask = Get.executor().submit(rf2OwlTransformer);
                 rf2OwlTransformTask.get();
 

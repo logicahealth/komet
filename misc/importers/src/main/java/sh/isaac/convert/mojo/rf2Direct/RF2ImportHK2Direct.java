@@ -62,7 +62,6 @@ import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.coordinate.Coordinates;
-import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.coordinate.StampFilter;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
@@ -78,6 +77,7 @@ import sh.isaac.solor.direct.DirectImporter;
 import sh.isaac.solor.direct.ImportType;
 import sh.isaac.solor.direct.LoincExpressionToConcept;
 import sh.isaac.solor.direct.LoincExpressionToNavConcepts;
+import sh.isaac.solor.direct.Rf2OwlTransformer;
 import sh.isaac.solor.direct.Rf2RelationshipTransformer;
 
 /**
@@ -191,6 +191,11 @@ public class RF2ImportHK2Direct extends DirectConverterBaseMojo implements Direc
 			Rf2RelationshipTransformer transformer = new Rf2RelationshipTransformer(transaction, it);
 			Future<?> transformTask = Get.executor().submit(transformer);
 			transformTask.get();
+			
+			log.info("Converting SNOMED OWL expressions");
+			Rf2OwlTransformer rf2OwlTransformer = new Rf2OwlTransformer(transaction);
+			Future<?> rf2OwlTransformTask = Get.executor().submit(rf2OwlTransformer);
+			rf2OwlTransformTask.get();
 			
 			if (processLoincCoop)
 			{
