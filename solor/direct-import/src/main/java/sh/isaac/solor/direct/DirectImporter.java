@@ -1739,7 +1739,7 @@ public class DirectImporter
             if (columnsToWrite.size() == writeSize) {
                 DynamicRefsetWriter writer = new DynamicRefsetWriter(columnsToWrite, this.writeSemaphore,
                         "Processing dynamic semantics from: " + trimZipName(
-                                importSpecification.contentProvider.getStreamSourceName()), importSpecification, importType);
+                                importSpecification.contentProvider.getStreamSourceName()), importSpecification, importType, transaction);
                 columnsToWrite = new ArrayList<>(writeSize);
                 Get.executor()
                         .submit(writer);
@@ -1752,7 +1752,7 @@ public class DirectImporter
         if (!columnsToWrite.isEmpty()) {
             DynamicRefsetWriter writer = new DynamicRefsetWriter(columnsToWrite, this.writeSemaphore,
                     "Processing dynamic semantics from: " + trimZipName(
-                            importSpecification.contentProvider.getStreamSourceName()), importSpecification, importType);
+                            importSpecification.contentProvider.getStreamSourceName()), importSpecification, importType, transaction);
             Get.executor()
                     .submit(writer);
             writers.add(writer);
