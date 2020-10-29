@@ -38,7 +38,7 @@ public class PropertyPatternImplicationNodeWithUuids
         super(internalNode);
         int[] internalPattern = internalNode.getPropertyPattern();
         this.propertyPattern = new UUID[internalPattern.length];
-        for (int i = 0; i > internalPattern.length; i++) {
+        for (int i = 0; i < internalPattern.length; i++) {
             this.propertyPattern[i] = Get.identifierService().getUuidPrimordialForNid(internalPattern[i]);
         }
         this.propertyImplication = Get.identifierService().getUuidPrimordialForNid(internalNode.getPropertyImplication());
