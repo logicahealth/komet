@@ -96,6 +96,7 @@ import sh.isaac.model.logic.node.SubstitutionNodeString;
 import sh.isaac.model.logic.node.SufficientSetNode;
 import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
 import sh.isaac.model.logic.node.external.FeatureNodeWithUuids;
+import sh.isaac.model.logic.node.external.PropertyPatternImplicationNodeWithUuids;
 import sh.isaac.model.logic.node.external.RoleNodeAllWithUuids;
 import sh.isaac.model.logic.node.external.RoleNodeSomeWithUuids;
 import sh.isaac.model.logic.node.external.TemplateNodeWithUuids;
@@ -348,7 +349,17 @@ public class LogicalExpressionImpl
                         break;
 
                     case PROPERTY_PATTERN_IMPLICATION:
-                        PropertyPatternImplication(dataInputStream);
+                        switch (dataSource) {
+                            case EXTERNAL:
+                                new PropertyPatternImplicationNodeWithUuids(this, dataInputStream);
+                                break;
+                            case INTERNAL:
+                                new PropertyPatternImplicationWithNids(this, dataInputStream);
+                                break;
+
+                            default:
+                                throw new UnsupportedOperationException("Can't handle: " + dataSource);
+                        }
                         break;
 
                     default:
