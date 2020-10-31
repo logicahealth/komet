@@ -162,7 +162,8 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         DESCRIPTION_TYPE_ORDER,
         CONCEPT_SEMANTICS_ORDER,
         DESCRIPTION_SEMANTIC_ORDER,
-        AXIOM_SEMANTIC_ORDER;
+        AXIOM_SEMANTIC_ORDER,
+        FOCUS_CONCEPT;
     }
 
     private static final Logger LOG = LogManager.getLogger();
@@ -266,11 +267,13 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
             ObservableFields.WILDCARD_FOR_ORDER
     };
 
+    private final Runnable saveAction = () -> this.savePreferences();
+
     //~--- constructors --------------------------------------------------------
     public ConceptDetailPanelNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferences) {
         super(viewProperties, activityFeed, preferences, MenuSupplierForFocusConcept.getArray());
 
-
+        viewProperties.addSaveAction(saveAction);
 
         this.detailPane.getStyleClass()
                 .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
@@ -311,8 +314,9 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         this.semanticOrderForAxiomDetails.setAll(preferences.getConceptList(ConceptDetailNodeKeys.AXIOM_SEMANTIC_ORDER, defaultSemanticOrderForAxiom));
 
 
+        this.revertPreferences();
         this.savePreferences();
-        Platform.runLater(() ->  resetConceptFromFocus());
+
         this.viewProperties.getManifoldCoordinate().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() ->  resetConceptFromFocus());
         });
@@ -397,6 +401,25 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         return Iconography.CONCEPT_DETAILS.getIconographic();
     }
 
+    private void revertList(ConceptDetailNodeKeys detailOrder, SimpleEqualityBasedListProperty<ConceptSpecification> detailOrderList) {
+        if (this.preferences.hasKey(detailOrder)) {
+            detailOrderList.setAll(this.preferences.getConceptList(detailOrder));
+        }
+    }
+
+    @Override
+    public void revertPreferences() {
+        this.selectionIndexProperty.setValue(this.preferences.getInt(Keys.ACTIVITY_SELECTION_INDEX, this.selectionIndexProperty.getValue()));
+        revertList(ConceptDetailNodeKeys.DETAIL_ORDER, this.detailOrderList);
+        revertList(ConceptDetailNodeKeys.DESCRIPTION_TYPE_ORDER, this.descriptionTypeList);
+        revertList(ConceptDetailNodeKeys.AXIOM_ORDER, this.axiomSourceList);
+        revertList(ConceptDetailNodeKeys.CONCEPT_SEMANTICS_ORDER, this.semanticOrderForConceptDetails);
+        revertList(ConceptDetailNodeKeys.DESCRIPTION_SEMANTIC_ORDER, this.semanticOrderForDescriptionDetails);
+        revertList(ConceptDetailNodeKeys.AXIOM_SEMANTIC_ORDER, this.semanticOrderForAxiomDetails);
+        this.preferences.getConceptSpecification(ConceptDetailNodeKeys.FOCUS_CONCEPT).ifPresent(
+                conceptSpecification -> this.focusedObjectProperty().setValue(conceptSpecification));
+    }
+
     @Override
     public void savePreferences() {
         Optional<IdentifiedObject> optionalFocus = this.getFocusedObject();
@@ -411,6 +434,10 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         this.preferences.putConceptList(ConceptDetailNodeKeys.CONCEPT_SEMANTICS_ORDER, this.semanticOrderForConceptDetails);
         this.preferences.putConceptList(ConceptDetailNodeKeys.DESCRIPTION_SEMANTIC_ORDER, this.semanticOrderForDescriptionDetails);
         this.preferences.putConceptList(ConceptDetailNodeKeys.AXIOM_SEMANTIC_ORDER, this.semanticOrderForAxiomDetails);
+        this.getFocusedObject().ifPresentOrElse(identifiedObject -> {
+            this.preferences.putConceptSpecification(ConceptDetailNodeKeys.FOCUS_CONCEPT, Get.concept(identifiedObject.getNid()));
+        }, () -> this.preferences.remove(ConceptDetailNodeKeys.FOCUS_CONCEPT));
+
 
         try {
             this.preferences.sync();
@@ -989,7 +1016,7 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
 
     @Override
     public void close() {
-        // nothing to do...
+        viewProperties.removeSaveAction(saveAction);
     }
 
     @Override

@@ -91,7 +91,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     @Override
     public void resetUserPreferences() {
         try {
-            IsaacPreferences userPreferences = FxGet.userNode(ConfigurationPreferencePanel.class);
+            IsaacPreferences userPreferences = FxGet.kometUserRootNode();
             clearNodeAndChildren(userPreferences);
         } catch (BackingStoreException ex) {
             LOG.error(ex.getLocalizedMessage(), ex);
@@ -108,9 +108,9 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
 
     @Override
     public void loadPreferences() {
+        IsaacPreferences preferences = FxGet.kometConfigurationRootNode();
         this.viewProperties = FxGet.preferenceViewProperties();
-        IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
-        setupPreferencesController(viewProperties, preferences);
+         setupPreferencesController(viewProperties, preferences);
     }
 
     private void setupPreferencesController(ViewProperties viewProperties, IsaacPreferences preferences) {
@@ -175,7 +175,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
     public void reloadPreferences() {
         Get.preferencesService().reloadConfigurationPreferences();
 
-        IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
+        IsaacPreferences preferences = FxGet.kometConfigurationRootNode();
         Optional<PreferencesTreeItem> treeRoot = PreferencesTreeItem.from(preferences, viewProperties, kpc);
         setupRoot(treeRoot);
     }
@@ -249,7 +249,7 @@ public class KometPreferencesImpl implements KometPreferences, ListChangeListene
 
     @Override
     public Stage showPreferences() {
-        IsaacPreferences preferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
+        IsaacPreferences preferences = FxGet.kometConfigurationRootNode();
         setupPreferencesController(viewProperties, preferences);
         preferencesStage.show();
         preferencesStage.setAlwaysOnTop(true);

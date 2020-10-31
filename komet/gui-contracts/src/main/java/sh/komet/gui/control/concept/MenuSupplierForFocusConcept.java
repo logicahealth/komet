@@ -13,8 +13,12 @@ import javafx.scene.input.ClipboardContent;
 import sh.isaac.MetaData;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.Get;
+import sh.isaac.api.chronicle.Chronology;
+import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.component.concept.ConceptChronology;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.component.semantic.version.DescriptionVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
 import sh.isaac.api.docbook.DocBook;
 import sh.isaac.api.identity.IdentifiedObject;
@@ -64,7 +68,7 @@ public class MenuSupplierForFocusConcept implements AddToContextMenu {
             hangledViewProperties.add(viewProperties.getRootUuid());
             Menu historyMenuForFeed = new Menu(activityFeed.getFeedName());
             contextMenu.getItems().add(historyMenuForFeed);
-            MenuSupplierForFocusConcept.setupHistoryMenuItem(activityFeed.feedHistoryProperty(), historyMenuForFeed,
+            MenuSupplierForFocusConcept.setupHistoryMenuItem(viewProperties, activityFeed.feedHistoryProperty(), historyMenuForFeed,
                     conceptFocusProperty, selectionIndexProperty, unlink);
         }
         contextMenu.getItems()
@@ -78,28 +82,47 @@ public class MenuSupplierForFocusConcept implements AddToContextMenu {
                 for (ActivityFeed activityFeed: propertiesForAnotherView.getActivityFeedMap().values()) {
                     Menu historyMenuForFeed = new Menu(activityFeed.getFeedName());
                     historyMenuForOtherView.getItems().add(historyMenuForFeed);
-                    MenuSupplierForFocusConcept.setupHistoryMenuItem(activityFeed.feedHistoryProperty(), historyMenuForFeed,
+                    MenuSupplierForFocusConcept.setupHistoryMenuItem(viewProperties, activityFeed.feedHistoryProperty(), historyMenuForFeed,
                             conceptFocusProperty, selectionIndexProperty, unlink);
                 }
             }
         }
     }
 
-    private static void setupHistoryMenuItem(SimpleListProperty<ComponentProxy> historyCollection,
+    private static void setupHistoryMenuItem(ViewProperties viewProperties,
+                                             SimpleListProperty<IdentifiedObject> historyCollection,
                                              Menu historyMenu,
                                              SimpleObjectProperty<IdentifiedObject> identifiedObjectFocusProperty,
                                              SimpleIntegerProperty selectionIndexProperty,
                                              Runnable unlink) {
-        for (ComponentProxy historyRecord : historyCollection) {
-            MenuItem historyItem = new MenuItemWithText(historyRecord.getComponentString());
-            historyItem.setUserData(historyRecord);
-            historyItem.setOnAction((ActionEvent actionEvent) -> {
-                unlink.run();
-                //MenuItem historyMenuItem = (MenuItem) actionEvent.getSource();
-                ComponentProxy  itemHistoryRecord = (ComponentProxy)  historyItem.getUserData();
-                identifiedObjectFocusProperty.set(Get.concept(itemHistoryRecord.getNid()));
+        for (IdentifiedObject historyRecord : historyCollection) {
+            Optional<? extends Chronology> optionalObject = Get.identifiedObjectService().getChronology(historyRecord.getNid());
+            optionalObject.ifPresent(chronology -> {
+                StringBuilder sb = new StringBuilder();
+                switch (chronology.getVersionType()) {
+                    case CONCEPT:
+                        sb.append(viewProperties.getManifoldCoordinate().getPreferredDescriptionText(chronology.getNid()));
+                        break;
+                    case DESCRIPTION:
+                        LatestVersion<Version> latest = chronology.getLatestVersion(viewProperties.getManifoldCoordinate().getViewStampFilter());
+                        latest.ifPresent(version -> {
+                            sb.append(((DescriptionVersion) latest.get()).getText());
+                        });
+                        break;
+                    default:
+                        sb.append(Get.getTextForComponent(chronology));
+                }
+
+                MenuItem historyItem = new MenuItemWithText(sb.toString());
+                historyItem.setUserData(chronology);
+                historyItem.setOnAction((ActionEvent actionEvent) -> {
+                    unlink.run();
+                    //MenuItem historyMenuItem = (MenuItem) actionEvent.getSource();
+                    IdentifiedObject  itemHistoryRecord = (IdentifiedObject)  historyItem.getUserData();
+                    identifiedObjectFocusProperty.set(Get.concept(itemHistoryRecord.getNid()));
+                });
+                historyMenu.getItems().add(historyItem);
             });
-            historyMenu.getItems().add(historyItem);
         }
     }
 

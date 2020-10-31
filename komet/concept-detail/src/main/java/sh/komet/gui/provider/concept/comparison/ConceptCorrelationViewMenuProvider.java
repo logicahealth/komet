@@ -63,7 +63,7 @@ public class ConceptCorrelationViewMenuProvider implements MenuProvider {
         MenuItem eventMenu = (MenuItem) event.getSource();
         IsaacPreferences parentPreferences = (IsaacPreferences) eventMenu.getProperties().get(MenuProvider.PARENT_PREFERENCES);
         IsaacPreferences correlationPreferences = parentPreferences.node(UUID.randomUUID().toString());
-        ViewProperties correlationViewProperties = FxGet.newDefaultViewProperties();
+        ViewProperties correlationViewProperties = FxGet.newDefaultViewProperties(correlationPreferences);
         ActivityFeed correlationViewFeed = correlationViewProperties.getActivityFeed(ViewProperties.CORRELATION);
         ConceptCorrelationController conceptCorrelationController = ConceptCorrelationView.show(correlationViewProperties,
                 correlationViewFeed,

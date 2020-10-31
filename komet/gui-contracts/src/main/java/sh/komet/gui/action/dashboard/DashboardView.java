@@ -190,6 +190,11 @@ public class DashboardView
     }
 
     @Override
+    public void revertPreferences() {
+
+    }
+
+    @Override
     public SimpleObjectProperty<ActivityFeed> activityFeedProperty() {
         throw new UnsupportedOperationException();
     }

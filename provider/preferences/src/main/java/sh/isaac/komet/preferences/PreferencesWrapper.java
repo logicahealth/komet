@@ -98,6 +98,9 @@ public class PreferencesWrapper implements IsaacPreferences {
 
    @Override
    public void putByteArray(String key, byte[] value) {
+      if (key.equals("navigation")) {
+         System.out.println("navigation 1: " + java.util.Base64.getEncoder().encodeToString(value));
+      }
       delegate.putByteArray(key, value);
    }
 

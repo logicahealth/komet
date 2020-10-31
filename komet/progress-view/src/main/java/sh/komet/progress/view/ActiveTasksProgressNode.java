@@ -56,6 +56,11 @@ public class ActiveTasksProgressNode extends TaskProgressNode {
     }
 
     @Override
+    public void revertPreferences() {
+
+    }
+
+    @Override
     public void savePreferences() {
         throw new UnsupportedOperationException();
     }

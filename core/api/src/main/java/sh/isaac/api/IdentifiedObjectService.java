@@ -42,6 +42,7 @@ package sh.isaac.api;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Stream;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -66,7 +67,11 @@ public interface IdentifiedObjectService {
     * @return the identified object chronology
     */
    Optional<? extends Chronology> getChronology(int nid);
-   
+
+   default Optional<? extends Chronology> getChronology(UUID... uuids) {
+      return getChronology(Get.nidForUuids(uuids));
+   }
+
    void putChronologyData(Chronology chronology);
 
    /**

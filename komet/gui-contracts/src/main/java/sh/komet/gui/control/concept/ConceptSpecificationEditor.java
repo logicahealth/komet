@@ -41,6 +41,7 @@ import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.Get;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.komet.iconography.IconographyHelper;
 import sh.komet.gui.contract.ConceptSearchNodeFactory;
 import sh.komet.gui.contract.preferences.WindowPreferences;
@@ -126,9 +127,9 @@ public class ConceptSpecificationEditor implements PropertyEditor<ConceptSpecifi
                     if (!activityFeed.feedHistoryProperty().isEmpty()) {
                         Menu activityFeedHistory = new Menu(activityFeed.getFeedName());
                         this.menuButton.getItems().add(activityFeedHistory);
-                        for (ComponentProxy record : activityFeed.feedHistoryProperty()) {
+                        for (IdentifiedObject record : activityFeed.feedHistoryProperty()) {
 
-                            MenuItem historyMenuItem = new MenuItem(record.getComponentString());
+                            MenuItem historyMenuItem = new MenuItem(record.toUserString());
                             historyMenuItem.setUserData(record);
                             historyMenuItem.setOnAction(this::handleAction);
                             activityFeedHistory.getItems().add(historyMenuItem);

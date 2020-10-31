@@ -41,6 +41,7 @@ import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.component.semantic.SemanticSnapshotService;
 import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.coordinate.ManifoldCoordinate;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.logic.ConcreteDomainOperators;
 import sh.isaac.api.logic.LogicNode;
 import sh.isaac.api.logic.LogicalExpression;
@@ -256,7 +257,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 List<Action> actions = new ArrayList<>();
                 ActionGroup actionGroup = newActionGroup("Change restriction from " + feed.getFeedName() + " history",
                         ViewProperties.getOptionalGraphicForActivityFeed(feed), actions);
-                for (ComponentProxy historyRecord : feed.feedHistoryProperty()) {
+                for (IdentifiedObject historyRecord : feed.feedHistoryProperty()) {
                     Action addIsaAction = new Action("Change role restriction to " +
                             manifoldCoordinate.getPreferredDescriptionText(historyRecord.getNid()),
                             new CatchThrowableEventHandler((ActionEvent event) -> {
@@ -295,7 +296,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 List<Action> actions = new ArrayList<>();
                 ActionGroup actionGroup = newActionGroup("Change type from " + feed.getFeedName() + " history",
                         ViewProperties.getOptionalGraphicForActivityFeed(feed), actions);
-                for (ComponentProxy historyRecord : feed.feedHistoryProperty()) {
+                for (IdentifiedObject historyRecord : feed.feedHistoryProperty()) {
                     Action addAction = new Action("Change role type to " + manifoldCoordinate.getPreferredDescriptionText(historyRecord.getNid()), new CatchThrowableEventHandler((ActionEvent event) -> {
                         RoleNodeSomeWithNids roleNode = (RoleNodeSomeWithNids) this.nodeToEdit;
                         roleNode.setTypeConceptNid(historyRecord.getNid());
@@ -354,7 +355,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 List<Action> actions = new ArrayList<>();
                 ActionGroup actionGroup = newActionGroup("Change feature units from " + feed.getFeedName() + " history",
                         ViewProperties.getOptionalGraphicForActivityFeed(feed), actions);
-                for (ComponentProxy historyRecord : feed.feedHistoryProperty()) {
+                for (IdentifiedObject historyRecord : feed.feedHistoryProperty()) {
                     Action addAction = new Action("Change feature units to " + manifoldCoordinate.getPreferredDescriptionText(historyRecord.getNid()), new CatchThrowableEventHandler((ActionEvent event) -> {
                         FeatureNodeWithNids featureNode = (FeatureNodeWithNids) this.nodeToEdit;
                         featureNode.setMeasureSemanticNid(historyRecord.getNid());
@@ -396,7 +397,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 List<Action> actions = new ArrayList<>();
                 ActionGroup actionGroup = newActionGroup("Change feature type from " + feed.getFeedName() + " history",
                         ViewProperties.getOptionalGraphicForActivityFeed(feed), actions);
-                for (ComponentProxy historyRecord : feed.feedHistoryProperty()) {
+                for (IdentifiedObject historyRecord : feed.feedHistoryProperty()) {
                     Action addAction = new Action("Change feature type to " + manifoldCoordinate.getPreferredDescriptionText(historyRecord.getNid()), new CatchThrowableEventHandler((ActionEvent event) -> {
                         FeatureNodeWithNids featureNode = (FeatureNodeWithNids) this.nodeToEdit;
                         featureNode.setTypeConceptNid(historyRecord.getNid());
@@ -420,7 +421,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
                 List<Action> actions = new ArrayList<>();
                 ActionGroup actionGroup = newActionGroup("Change concept from " + feed.getFeedName() + " history",
                         ViewProperties.getOptionalGraphicForActivityFeed(feed), actions);
-                for (ComponentProxy historyRecord : feed.feedHistoryProperty()) {
+                for (IdentifiedObject historyRecord : feed.feedHistoryProperty()) {
                     Action addIsaAction = new Action("Change to " + manifoldCoordinate.getPreferredDescriptionText(historyRecord.getNid()), new CatchThrowableEventHandler((ActionEvent event) -> {
                         ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) this.nodeToEdit;
                         conceptNode.setConceptNid(historyRecord.getNid());
@@ -592,7 +593,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
                     feed.getFeedName() + " history",
                     ViewProperties.getOptionalGraphicForActivityFeed(feed.getFeedName()),
                     actions);
-            for (ComponentProxy historyRecord : feed.feedHistoryProperty()) {
+            for (IdentifiedObject historyRecord : feed.feedHistoryProperty()) {
                 Action addIsaAction = new Action("Add is-a " + manifoldCoordinate.getPreferredDescriptionText(historyRecord.getNid()), new CatchThrowableEventHandler((ActionEvent event) -> {
                     ConceptNodeWithNids newIsa = expressionContiningNode.Concept(historyRecord.getNid());
                     for (LogicNode node : nodeToEdit.getChildren()) {
@@ -663,7 +664,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
             List<Action> actions = new ArrayList<>();
             ActionGroup actionGroup = newActionGroup("Add role type from " + feed.getFeedName() + " history",
                     ViewProperties.getOptionalGraphicForActivityFeed(feed), actions);
-            for (ComponentProxy historyRecord : feed.feedHistoryProperty()) {
+            for (IdentifiedObject historyRecord : feed.feedHistoryProperty()) {
                 Action roleTypeAction = new Action("Add role type " + manifoldCoordinate.getPreferredDescriptionText(historyRecord.getNid()), new CatchThrowableEventHandler((ActionEvent event) -> {
                     RoleNodeSomeWithNids newRole = expressionContiningNode.SomeRole(historyRecord.getNid(),
                             expressionContiningNode.Concept(MetaData.HEALTH_CONCEPT____SOLOR.getNid()));
@@ -739,7 +740,7 @@ public class AddEditLogicalExpressionNodeMenuItems {
             List<Action> actions = new ArrayList<>();
             ActionGroup actionGroup = newActionGroup("Add feature type from " + feed.getFeedName() + " history",
                     ViewProperties.getOptionalGraphicForActivityFeed(feed), actions);
-            for (ComponentProxy historyRecord : feed.feedHistoryProperty()) {
+            for (IdentifiedObject historyRecord : feed.feedHistoryProperty()) {
                 Action roleTypeAction = new Action("Add feature type " + manifoldCoordinate.getPreferredDescriptionText(historyRecord.getNid()), new CatchThrowableEventHandler((ActionEvent event) -> {
                     FeatureNodeWithNids newFeature = expressionContiningNode.Feature(historyRecord.getNid(),
                             MetaData.MEASURE_SEMANTIC____SOLOR.getNid(), ConcreteDomainOperators.EQUALS, expressionContiningNode.DoubleLiteral(0.0));

@@ -54,7 +54,7 @@ public class SynchronizationItems extends ParentPanel {
     private static IsaacPreferences getEquivalentUserPreferenceNode(IsaacPreferences configurationPreferences) {
         try {
             if (configurationPreferences.getNodeType() == PreferenceNodeType.CONFIGURATION) {
-                IsaacPreferences userPreferences = FxGet.userNode(ConfigurationPreferencePanel.class).node(SYNCHRONIZATION_ITEMS_GROUP_NAME);
+                IsaacPreferences userPreferences = FxGet.kometUserRootNode().node(SYNCHRONIZATION_ITEMS_GROUP_NAME);
                 // for version upgrade forward compatibility...
                 userPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_USER_NAME");
                 userPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_URL");

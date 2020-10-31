@@ -198,7 +198,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
     private static IsaacPreferences getEquivalentUserPreferenceNode(IsaacPreferences configurationPreferencesNode) {
         try {
             if (configurationPreferencesNode.getNodeType() == PreferenceNodeType.CONFIGURATION) {
-                IsaacPreferences userPreferences = FxGet.userNode(ConfigurationPreferencePanel.class).node(configurationPreferencesNode.absolutePath());
+                IsaacPreferences userPreferences = FxGet.kometUserRootNode().node(configurationPreferencesNode.absolutePath());
                 
                 userPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_USER_NAME");
                 userPreferences.remove("85526abf-c427-3db0-b001-b4223427becf.Keys.GIT_LOCAL_FOLDER");
@@ -223,7 +223,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
     @Override
     protected void saveFields() throws BackingStoreException {
         getPreferencesNode().put(AttachmentActionPanel.Keys.ITEM_NAME, nameProperty.get());
-        IsaacPreferences configurationNode = FxGet.configurationNode(ConfigurationPreferencePanel.class).node(getPreferencesNode().absolutePath());
+        IsaacPreferences configurationNode = FxGet.kometConfigurationRootNode().node(getPreferencesNode().absolutePath());
         configurationNode.putBoolean(ITEM_ACTIVE, activeProperty.get());
         getPreferencesNode().put(GIT_USER_NAME, gitUserName.get());
         getPreferencesNode().putPassword(GIT_PASSWORD, gitPassword.get().toCharArray());
@@ -236,7 +236,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
     @Override
     final protected void revertFields() {
         this.nameProperty.set(getPreferencesNode().get(AttachmentActionPanel.Keys.ITEM_NAME, getGroupName()));
-        IsaacPreferences configurationNode = FxGet.configurationNode(ConfigurationPreferencePanel.class).node(getPreferencesNode().absolutePath());
+        IsaacPreferences configurationNode = FxGet.kometConfigurationRootNode().node(getPreferencesNode().absolutePath());
         activeProperty.set(configurationNode.getBoolean(ITEM_ACTIVE, false));
         gitUserName.set(getPreferencesNode().get(GIT_USER_NAME, "username"));
         gitPassword.set(new String(getPreferencesNode().getPassword(GIT_PASSWORD, "password".toCharArray())));

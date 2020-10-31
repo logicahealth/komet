@@ -190,6 +190,11 @@ public class ClassificationResultsNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    public void revertPreferences() {
+
+    }
+
+    @Override
     public void savePreferences() {
 
     }

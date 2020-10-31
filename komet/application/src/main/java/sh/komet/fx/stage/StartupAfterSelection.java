@@ -36,7 +36,6 @@ import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.komet.iconography.Iconography;
 import sh.isaac.komet.iconography.IconographyHelper;
-import sh.isaac.komet.preferences.ConfigurationPreferencePanel;
 import sh.isaac.komet.preferences.UserPreferencesPanel;
 import sh.isaac.model.builder.ConceptBuilderImpl;
 import sh.komet.gui.contract.MenuProvider;
@@ -88,7 +87,7 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
             this.updateMessage("Starting preference service");
             LookupService.startupPreferenceProvider();
 
-            mainApp.configurationPreferences = FxGet.configurationNode(ConfigurationPreferencePanel.class);
+            mainApp.configurationPreferences = FxGet.kometConfigurationRootNode();
 
             if (mainApp.configurationPreferences.getBoolean(PreferenceGroup.Keys.INITIALIZED, false)) {
                 mainApp.firstRun = false;

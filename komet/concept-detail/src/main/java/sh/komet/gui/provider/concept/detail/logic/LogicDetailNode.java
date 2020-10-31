@@ -95,6 +95,11 @@ public class LogicDetailNode extends DetailNodeAbstract {
     }
 
     @Override
+    public void revertPreferences() {
+
+    }
+
+    @Override
     public void savePreferences() {
         throw new UnsupportedOperationException();
     }

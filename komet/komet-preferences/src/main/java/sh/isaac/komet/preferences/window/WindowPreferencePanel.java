@@ -21,6 +21,7 @@ import sh.komet.gui.control.property.ViewProperties;
 import sh.komet.gui.util.FxGet;
 
 import java.util.*;
+import java.util.prefs.BackingStoreException;
 
 /**
  * The window preferences must be able to reconstruct, and save state for an arbitrary number of
@@ -40,6 +41,8 @@ import java.util.*;
  *
  *     3. The exploration and detail nodes store the factory class to construct to be used to reconstruct
  *     them.
+ *
+ *     TODO: extract "model" for window preferences from the preference panel.
  */
 public class WindowPreferencePanel extends ParentPanel implements WindowPreferences {
 
@@ -160,9 +163,9 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
         if (preferencesNode.hasKey(ViewProperties.Keys.VIEW_PROPERTIES_UUID)) {
             return ViewProperties.make(preferencesNode);
         }
-        ViewProperties viewPropertiesForWindow = FxGet.newDefaultViewProperties();
+        ViewProperties viewPropertiesForWindow = FxGet.newDefaultViewProperties(preferencesNode);
         viewPropertiesForWindow.viewNameProperty().set(windowNameProperty.getValue() + " view");
-        viewPropertiesForWindow.save(preferencesNode);
+        viewPropertiesForWindow.save();
         return viewPropertiesForWindow;
     }
 
@@ -261,26 +264,36 @@ public class WindowPreferencePanel extends ParentPanel implements WindowPreferen
     }
 
     @Override
-    protected void saveFields() {
-        this.viewPropertiesForWindow.save(getPreferencesNode());
-        getPreferenceNode().put(PreferenceGroup.Keys.GROUP_NAME, this.windowNameProperty.get());
-        getPreferencesNode().putList(Keys.LEFT_TAB_NODES, TabSpecification.toStringList(leftTabNodesProperty));
-        getPreferencesNode().putList(Keys.CENTER_TAB_NODES, TabSpecification.toStringList(centerTabNodesProperty));
-        getPreferencesNode().putList(Keys.RIGHT_TAB_NODES, TabSpecification.toStringList(rightTabNodesProperty));
+    public void saveLocationAndFocus() {
         getPreferenceNode().putDouble(Keys.X_LOC, this.xLocationProperty.doubleValue());
         getPreferenceNode().putDouble(Keys.Y_LOC, this.yLocationProperty.doubleValue());
         getPreferenceNode().putDouble(Keys.HEIGHT, this.heightProperty.doubleValue());
         getPreferenceNode().putDouble(Keys.WIDTH, this.widthProperty.doubleValue());
+        getPreferenceNode().putInt(Keys.LEFT_TAB_SELECTION, leftTabSelectionProperty.get());
+        getPreferenceNode().putInt(Keys.CENTER_TAB_SELECTION, centerTabSelectionProperty.get());
+        getPreferenceNode().putInt(Keys.RIGHT_TAB_SELECTION, rightTabSelectionProperty.get());
+        getPreferenceNode().putDoubleArray(Keys.DIVIDER_POSITIONS, dividerPositionsProperty.get());
+        try {
+            getPreferenceNode().sync();
+        } catch (BackingStoreException e) {
+            FxGet.dialogs().showErrorDialog(e);
+        }
+    }
+
+    @Override
+    protected void saveFields() {
+        this.viewPropertiesForWindow.save();
+        saveLocationAndFocus();
+        getPreferenceNode().put(PreferenceGroup.Keys.GROUP_NAME, this.windowNameProperty.get());
+        getPreferencesNode().putList(Keys.LEFT_TAB_NODES, TabSpecification.toStringList(leftTabNodesProperty));
+        getPreferencesNode().putList(Keys.CENTER_TAB_NODES, TabSpecification.toStringList(centerTabNodesProperty));
+        getPreferencesNode().putList(Keys.RIGHT_TAB_NODES, TabSpecification.toStringList(rightTabNodesProperty));
         getPreferencesNode().putBoolean(Keys.ENABLE_LEFT_PANE, this.enableLeftPaneProperty.get());
         getPreferencesNode().putBoolean(Keys.ENABLE_CENTER_PANE, this.enableCenterPaneProperty.get());
         getPreferencesNode().putBoolean(Keys.ENABLE_RIGHT_PANE, this.enableRightPaneProperty.get());
         if (personaItem != null) {
             getPreferenceNode().putUuid(Keys.PERSONA_UUID, personaItem.getPersonaUuid());
         }
-        getPreferenceNode().putInt(Keys.LEFT_TAB_SELECTION, leftTabSelectionProperty.get());
-        getPreferenceNode().putInt(Keys.CENTER_TAB_SELECTION, centerTabSelectionProperty.get());
-        getPreferenceNode().putInt(Keys.RIGHT_TAB_SELECTION, rightTabSelectionProperty.get());
-        getPreferenceNode().putDoubleArray(Keys.DIVIDER_POSITIONS, dividerPositionsProperty.get());
     }
 
     @Override

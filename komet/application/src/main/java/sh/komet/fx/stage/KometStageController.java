@@ -578,22 +578,22 @@ public class KometStageController
 
         this.stage.xProperty().addListener((observable, oldValue, newValue) -> {
             windowPreferences.xLocationProperty().setValue(newValue);
-            windowPreferences.save();
+            windowPreferences.saveLocationAndFocus();
         });
 
         this.stage.yProperty().addListener((observable, oldValue, newValue) -> {
             windowPreferences.yLocationProperty().setValue(newValue);
-            windowPreferences.save();
+            windowPreferences.saveLocationAndFocus();
         });
 
         this.stage.widthProperty().addListener((observable, oldValue, newValue) -> {
             windowPreferences.widthProperty().setValue(newValue);
-            windowPreferences.save();
+            windowPreferences.saveLocationAndFocus();
         });
 
         this.stage.heightProperty().addListener((observable, oldValue, newValue) -> {
             windowPreferences.heightProperty().setValue(newValue);
-            windowPreferences.save();
+            windowPreferences.saveLocationAndFocus();
         });
 
         this.leftTabPane.getSelectionModel().select(this.windowPreferences.leftTabSelectionProperty().get());
@@ -632,7 +632,7 @@ public class KometStageController
 
     void handleFocusEvents(ObservableValue<? extends Boolean> observable, Boolean oldValue, Boolean newValue) {
         KometStageController.this.windowPreferences.setFocusOwner(newValue);
-        KometStageController.this.windowPreferences.save();
+        KometStageController.this.windowPreferences.saveLocationAndFocus();
     }
 
     void setupFocusOwner(boolean focusOwner) {
@@ -648,7 +648,7 @@ public class KometStageController
         for (SplitPane.Divider divider: this.windowSplitPane.getDividers()) {
             divider.positionProperty().addListener((observable, oldValue, newValue) -> {
                 this.windowPreferences.dividerPositionsProperty().setValue(this.windowSplitPane.getDividerPositions());
-                this.windowPreferences.save();
+                this.windowPreferences.saveLocationAndFocus();
             });
         }
     }

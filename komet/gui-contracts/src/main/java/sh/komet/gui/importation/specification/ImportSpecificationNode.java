@@ -74,4 +74,9 @@ public class ImportSpecificationNode extends ExplorationNodeAbstract {
     public void savePreferences() {
 
     }
+
+    @Override
+    public void revertPreferences() {
+
+    }
 }

@@ -84,6 +84,11 @@ public class ExpressionView extends DetailNodeAbstract implements Supplier<List<
     }
 
     @Override
+    public void revertPreferences() {
+
+    }
+
+    @Override
     public void savePreferences() {
         throw new UnsupportedOperationException();
     }
