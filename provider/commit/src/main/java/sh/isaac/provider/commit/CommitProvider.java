@@ -457,6 +457,7 @@ public class CommitProvider
                 transaction,
                 commitComment,
                 this.checkers,
+                this.changeListeners,
                 versionsToCommit);
         Get.executor().execute(commitTask);
         return commitTask;

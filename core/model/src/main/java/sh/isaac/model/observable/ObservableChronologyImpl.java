@@ -248,7 +248,7 @@ public abstract class ObservableChronologyImpl
     */
    @Override
    public void handleCommit(CommitRecord commitRecord) {
-      // TODO implement handle commit...
+      // already resolved via handleChange(...)
    }
 
    /**
