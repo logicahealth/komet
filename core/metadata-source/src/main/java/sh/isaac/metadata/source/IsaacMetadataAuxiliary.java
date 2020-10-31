@@ -421,7 +421,6 @@ public class IsaacMetadataAuxiliary extends IsaacTaxonomy {
                   createConcept(TermAux.ENGLISH_DIALECT_ASSEMBLAGE).addComponentSemantic(TermAux.CONCEPT_SEMANTIC, TermAux.SEMANTIC_TYPE);
                   pushParent(current());
                      createConcept("GB English dialect").mergeFromSpec(TermAux.GB_DIALECT_ASSEMBLAGE)
-//TODO ask about why the UUIDs where removed in the merge...
                              .addComponentSemantic(CONCEPT_SEMANTIC, SEMANTIC_TYPE)
                                 .addAssemblageMembership(DESCRIPTION_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE, TermAux.DIALECT_ASSEMBLAGE);
                      createConcept("US English dialect").mergeFromSpec(TermAux.US_DIALECT_ASSEMBLAGE)

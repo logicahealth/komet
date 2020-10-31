@@ -276,7 +276,8 @@ public class SOPTImportHK2Direct extends DirectConverterBaseMojo implements Dire
 			String codeSystemCode = dataFetchers.get(SOPTDataColumnsV1.CodeSystemCode).apply(row);
 			String codeSystemVersion = dataFetchers.get(SOPTDataColumnsV1.CodeSystemVersion).apply(row);
 			String hl7TableCode = dataFetchers.get(SOPTDataColumnsV1.HL7Table0396Code).apply(row);
-			String valueSetConceptDefinitionText= dataFetchers.get(SOPTDataColumnsV1.ValueSetConceptDefinitionText).apply(row);
+			String valueSetConceptDefinitionText = dataFetchers.get(SOPTDataColumnsV1.ValueSetConceptDefinitionText) == null ? null :
+				dataFetchers.get(SOPTDataColumnsV1.ValueSetConceptDefinitionText).apply(row);
 			
 			String key = codeSystemOid + codeSystemName + codeSystemCode + codeSystemVersion + hl7TableCode;
 			

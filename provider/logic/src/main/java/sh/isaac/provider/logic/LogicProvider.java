@@ -93,7 +93,7 @@ import sh.isaac.provider.logic.csiro.classify.ClassifierProvider;
 @Service(name = "logic provider")
 @RunLevel(value = LookupService.SL_L3_DATABASE_SERVICES_STARTED_RUNLEVEL)
 public class LogicProvider
-        implements LogicServiceSnoRocket {
+        implements LogicServiceSnoRocket, DatastoreServices {
 
     private static final Logger LOG = LogManager.getLogger();
 
@@ -379,19 +379,23 @@ public class LogicProvider
                 });
     }
 
+    @Override
     public Path getDataStorePath() {
         return store.getDataStorePath();
     }
 
+    @Override
      public DataStoreStartState getDataStoreStartState() {
         return store.getDataStoreStartState();
     }
 
+    @Override
     public Optional<UUID> getDataStoreId() {
         return store.getDataStoreId();
     }
 
     @SuppressWarnings("rawtypes")
+    @Override
     public Future<?> sync() {
         return Get.executor().submit(() -> {
             if (classifierResultMap instanceof ExtendedStoreStandAlone) {

@@ -1,20 +1,41 @@
 package sh.isaac.solor.direct;
 
+import java.io.IOException;
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.TreeSet;
+import java.util.UUID;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import sh.isaac.MetaData;
-import sh.isaac.api.*;
+import sh.isaac.api.DataTarget;
+import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
+import sh.isaac.api.Status;
+import sh.isaac.api.TaxonomyService;
 import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
+import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.component.semantic.SemanticBuilder;
 import sh.isaac.api.component.semantic.SemanticChronology;
+import sh.isaac.api.component.semantic.version.DynamicVersion;
 import sh.isaac.api.component.semantic.version.MutableLogicGraphVersion;
+import sh.isaac.api.component.semantic.version.SemanticVersion;
 import sh.isaac.api.component.semantic.version.StringVersion;
-import sh.isaac.api.coordinate.*;
+import sh.isaac.api.coordinate.PremiseType;
+import sh.isaac.api.coordinate.StampFilter;
+import sh.isaac.api.coordinate.StampFilterImmutable;
+import sh.isaac.api.coordinate.StampPosition;
+import sh.isaac.api.coordinate.StampPositionImmutable;
+import sh.isaac.api.coordinate.StatusSet;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.logic.IsomorphicResults;
@@ -23,12 +44,6 @@ import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.version.LogicGraphVersionImpl;
-
-import java.io.IOException;
-import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> {
 
@@ -41,14 +56,6 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
 
     private final NidSet definingCharacteristicSet = new NidSet();
 
-    private final int isaNid = TermAux.IS_A.getNid();
-
-    private final int legacyImplicationAssemblageNid = TermAux.RF2_LEGACY_RELATIONSHIP_IMPLICATION_ASSEMBLAGE.getNid();
-
-    private final int sufficientDefinition = TermAux.SUFFICIENT_CONCEPT_DEFINITION.getNid();
-
-    private final int primitiveDefinition = TermAux.NECESSARY_BUT_NOT_SUFFICIENT_CONCEPT_DEFINITION.getNid();
-    private final int solorOverlayModuleNid = TermAux.SOLOR_OVERLAY_MODULE.getNid();
     private final int statedAssemblageNid = TermAux.EL_PLUS_PLUS_STATED_ASSEMBLAGE.getNid();
     private final int inferredAssemblageNid = TermAux.EL_PLUS_PLUS_INFERRED_ASSEMBLAGE.getNid();
     private final int authorNid = TermAux.USER.getNid();
@@ -68,7 +75,6 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
     private final Semaphore writeSemaphore;
     private final List<TransformationGroup> transformationRecords;
     private final List<IndexBuilderService> indexers;
-    private final ImportType importType;
     private final Instant commitTime;
     private Transaction transaction;
 
@@ -82,11 +88,10 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
      * @param commitTime
      */
     public OwlTransformerAndWriter(Transaction transaction, List<TransformationGroup> transformationRecords,
-                                   Semaphore writeSemaphore, ImportType importType, Instant commitTime) {
+                                   Semaphore writeSemaphore, Instant commitTime) {
         this.transaction = transaction;
         this.transformationRecords = transformationRecords;
         this.writeSemaphore = writeSemaphore;
-        this.importType = importType;
         this.commitTime = commitTime;
         this.writeSemaphore.acquireUninterruptibly();
         this.taxonomyService = Get.taxonomyService();
@@ -115,6 +120,7 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
             }
             int count = 0;
 
+            LOG.debug("starting batch transform of {} records", transformationRecords.size());
             for (TransformationGroup transformationGroup : transformationRecords) {
 
                 try {
@@ -124,6 +130,7 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
                 }
                 if (count % 1000 == 0) {
                     updateMessage("Processing concept: " + Get.conceptDescriptionText(transformationGroup.conceptNid));
+                    LOG.trace("Processing concept: {}", Get.conceptDescriptionText(transformationGroup.conceptNid));
                 }
                 count++;
                 completedUnitOfWork();
@@ -131,6 +138,7 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
             if (commitTransaction) {
                 transaction.commit("OWL transformer");
             }
+            LOG.debug("Finished processing batch of: {}", count);
             return null;
         } finally {
             this.writeSemaphore.release();
@@ -164,11 +172,16 @@ public class OwlTransformerAndWriter extends TimedTaskWithProgressTracker<Void> 
             List<String> owlExpressionsToProcess = new ArrayList<>();
 
             for (SemanticChronology owlChronology: owlChronologiesForConcept) {
-                LatestVersion<StringVersion> latestVersion = owlChronology.getLatestVersion(stampFilterForPosition);
-                if (latestVersion.isPresent()) {
-                    StringVersion sv = latestVersion.get();
-                    if (sv.getStatus() == Status.ACTIVE) {
-                        owlExpressionsToProcess.add(sv.getString());
+                LatestVersion<SemanticVersion> latestVersion = owlChronology.getLatestVersion(stampFilterForPosition);
+                if (latestVersion.isPresent() && latestVersion.get().getStatus() == Status.ACTIVE) {
+                    if (latestVersion.get().getSemanticType() == VersionType.STRING) {
+                        owlExpressionsToProcess.add(((StringVersion)latestVersion.get()).getString());
+                    }
+                    else if (latestVersion.get().getSemanticType() == VersionType.DYNAMIC) {
+                        owlExpressionsToProcess.add(((DynamicVersion)latestVersion.get()).getData()[0].dataToString());
+                    }
+                    else {
+                        throw new RuntimeException("Unexpected data type for the owlNid: " + latestVersion.get());
                     }
                 }
             }

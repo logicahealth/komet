@@ -62,7 +62,7 @@ public class TransactionImpl implements Transaction, Comparable<Transaction> {
             return true;
         }
         for (TransactionsForPath child: children.values()) {
-            if (child.transactionId.equals(transactionId)) {
+            if (child.containsTransactionId(transactionId)) {
                 return true;
             }
         }

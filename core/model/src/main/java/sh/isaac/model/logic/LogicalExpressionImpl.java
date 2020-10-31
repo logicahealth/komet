@@ -38,7 +38,6 @@ package sh.isaac.model.logic;
 
 //~--- JDK imports ------------------------------------------------------------
 import java.time.Instant;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.EnumSet;
@@ -48,16 +47,16 @@ import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiConsumer;
-
-//~--- non-JDK imports --------------------------------------------------------
-import org.apache.mahout.math.list.IntArrayList;
-
-import javafx.beans.property.SimpleObjectProperty;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+//~--- non-JDK imports --------------------------------------------------------
+import org.apache.mahout.math.list.IntArrayList;
 import org.roaringbitmap.IntConsumer;
 import org.roaringbitmap.RoaringBitmap;
+import javafx.beans.property.SimpleObjectProperty;
 import sh.isaac.api.DataSource;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
@@ -65,16 +64,49 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.commit.CommitStates;
 import sh.isaac.api.component.concept.ConceptSpecification;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
-import sh.isaac.api.logic.*;
+import sh.isaac.api.logic.ConcreteDomainOperators;
+import sh.isaac.api.logic.IsomorphicResults;
+import sh.isaac.api.logic.LogicNode;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.NodeSemantic;
 import sh.isaac.api.logic.assertions.substitution.SubstitutionFieldSpecification;
 import sh.isaac.api.tree.TreeNodeVisitData;
-import sh.isaac.model.logic.node.*;
+import sh.isaac.model.logic.node.AbstractLogicNode;
+import sh.isaac.model.logic.node.AndNode;
+import sh.isaac.model.logic.node.ConnectorNode;
+import sh.isaac.model.logic.node.DisjointWithNode;
+import sh.isaac.model.logic.node.LiteralNode;
+import sh.isaac.model.logic.node.LiteralNodeBoolean;
+import sh.isaac.model.logic.node.LiteralNodeDouble;
+import sh.isaac.model.logic.node.LiteralNodeInstant;
+import sh.isaac.model.logic.node.LiteralNodeInteger;
+import sh.isaac.model.logic.node.LiteralNodeString;
+import sh.isaac.model.logic.node.NecessarySetNode;
+import sh.isaac.model.logic.node.OrNode;
+import sh.isaac.model.logic.node.PropertySetNode;
+import sh.isaac.model.logic.node.RootNode;
+import sh.isaac.model.logic.node.SubstitutionNode;
+import sh.isaac.model.logic.node.SubstitutionNodeBoolean;
+import sh.isaac.model.logic.node.SubstitutionNodeConcept;
+import sh.isaac.model.logic.node.SubstitutionNodeFloat;
+import sh.isaac.model.logic.node.SubstitutionNodeInstant;
+import sh.isaac.model.logic.node.SubstitutionNodeInteger;
+import sh.isaac.model.logic.node.SubstitutionNodeLiteral;
+import sh.isaac.model.logic.node.SubstitutionNodeString;
+import sh.isaac.model.logic.node.SufficientSetNode;
 import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
 import sh.isaac.model.logic.node.external.FeatureNodeWithUuids;
+import sh.isaac.model.logic.node.external.PropertyPatternImplicationNodeWithUuids;
 import sh.isaac.model.logic.node.external.RoleNodeAllWithUuids;
 import sh.isaac.model.logic.node.external.RoleNodeSomeWithUuids;
 import sh.isaac.model.logic.node.external.TemplateNodeWithUuids;
-import sh.isaac.model.logic.node.internal.*;
+import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
+import sh.isaac.model.logic.node.internal.FeatureNodeWithNids;
+import sh.isaac.model.logic.node.internal.PropertyPatternImplicationWithNids;
+import sh.isaac.model.logic.node.internal.RoleNodeAllWithNids;
+import sh.isaac.model.logic.node.internal.RoleNodeSomeWithNids;
+import sh.isaac.model.logic.node.internal.TemplateNodeWithNids;
+import sh.isaac.model.logic.node.internal.TypedNodeWithNids;
 import sh.isaac.model.tree.TreeNodeVisitDataImpl;
 
 //~--- classes ----------------------------------------------------------------
@@ -98,6 +130,7 @@ public class LogicalExpressionImpl
     private static final String CONCEPT_NIDS_AT_OR_ABOVE_NODE = "ConceptsReferencedAtNodeOrAbove";
 
     public static final byte SERIAL_FORMAT_VERSION = 1;
+    private static final AtomicInteger terminationErrorWarningCount = new AtomicInteger();
 
     /**
      * The Constant NODE_SEMANTICS.
@@ -316,7 +349,17 @@ public class LogicalExpressionImpl
                         break;
 
                     case PROPERTY_PATTERN_IMPLICATION:
-                        PropertyPatternImplication(dataInputStream);
+                        switch (dataSource) {
+                            case EXTERNAL:
+                                new PropertyPatternImplicationNodeWithUuids(this, dataInputStream);
+                                break;
+                            case INTERNAL:
+                                new PropertyPatternImplicationWithNids(this, dataInputStream);
+                                break;
+
+                            default:
+                                throw new UnsupportedOperationException("Can't handle: " + dataSource);
+                        }
                         break;
 
                     default:
@@ -1464,11 +1507,15 @@ public class LogicalExpressionImpl
                                             .mapToInt((oldChildNode) -> oldChildNode.getNodeIndex())
                                             .toArray());
                     if (nodes.length == 0) {
+                        int count = terminationErrorWarningCount.getAndIncrement();
+                        if (count == 100) {
+                            LOG.warn("Further role termination errors only logged at TRACE level.");
+                        }
                         if (getConceptBeingDefinedNid() == -1) {
-                            LOG.debug("Role termination error for unspecified isomorphic concept. \n this: {}\n that: {}",
+                            LOG.log(count > 100 ? Level.TRACE : Level.INFO, "Role termination error for unspecified isomorphic concept. \n this: {}\n that: {}",
                                     this, another);
                         } else {
-                            LOG.debug("Role termination error for isomorphic concept: '{}' [{}]\n this: {}\n that: {}",
+                            LOG.log(count > 100 ? Level.TRACE : Level.INFO, "Role termination error for isomorphic concept: '{}' [{}]\n this: {}\n that: {}",
                                     Get.conceptDescriptionText(getConceptBeingDefinedNid()),
                                     Get.identifierService().getUuidPrimordialForNid(getConceptBeingDefinedNid()),
                                     this, another);

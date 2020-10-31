@@ -17,7 +17,6 @@ package sh.isaac.solor.direct;
 
 import sh.isaac.api.*;
 import sh.isaac.api.chronicle.Chronology;
-import sh.isaac.api.commit.ChangeCheckerMode;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicColumnInfo;
 import sh.isaac.api.component.semantic.version.dynamic.DynamicData;
@@ -64,15 +63,17 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 	private final IdentifierService identifierService = Get.identifierService();
 	private final StampService stampService = Get.stampService();
 	private final HashSet<String> refsetsToIgnore = new HashSet<>();
+	private final Transaction transaction;
 
 	public DynamicRefsetWriter(List<String[]> semanticRecords, Semaphore writeSemaphore, String message, ImportSpecification importSpecification,
-			ImportType importType)
+			ImportType importType, Transaction transaction)
 	{
 		this.refsetRecords = semanticRecords;
 		this.writeSemaphore = writeSemaphore;
 		this.importSpecification = importSpecification;
 		this.importType = importType;
 		this.writeSemaphore.acquireUninterruptibly();
+		this.transaction = transaction;
 		indexers = LookupService.get().getAllServices(IndexBuilderService.class);
 		updateTitle("Importing semantic batch of size: " + semanticRecords.size());
 		updateMessage(message);
@@ -129,7 +130,6 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 			List<String[]> noSuchElementList = new ArrayList<>();
 			HashSet<Integer> checkedDynamicTypes = new HashSet<>();
 
-			Transaction transaction = Get.commitService().newTransaction(Optional.of("DynamicRefsetWriter"), ChangeCheckerMode.INACTIVE, false);
 			boolean skippedAny = false;
 			int skipped = 0;
 			for (String[] refsetRecord : refsetRecords)
@@ -192,11 +192,11 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 							{
 								if (importSpecification.refsetBrittleTypes[i].getDynamicColumnType() != dci[i].getColumnDataType())
 								{
-											throw new RuntimeException("The name of the refset file " + importSpecification.contentProvider.getStreamSourceName()
-													+ " does not match the column type information in the 'attributeType' column of the der2_ccirefset_refsetdescriptor file "
-													+ " for 'attributeOrder' " + i);
-										}
-									}
+									throw new RuntimeException("The name of the refset file " + importSpecification.contentProvider.getStreamSourceName()
+											+ " does not match the column type information in the 'attributeType' column of the der2_ccirefset_refsetdescriptor file "
+											+ " for 'attributeOrder' " + i);
+								}
+							}
 						}
 						else
 						{
@@ -284,9 +284,8 @@ public class DynamicRefsetWriter extends TimedTaskWithProgressTracker<Integer>
 			}
 			if (!noSuchElementList.isEmpty())
 			{
-				LOG.error("Continuing after import failed with no such element exception for these records: \n" + noSuchElementList.toString());
+				LOG.error("Continuing after import failed with no such element exception for these records: \n" + Arrays.deepToString(noSuchElementList.toArray()));
 			}
-			transaction.commit("Dynamic refset writer");
 			return skipped;
 		}
 		finally
