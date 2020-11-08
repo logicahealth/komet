@@ -24,11 +24,14 @@ import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
+
+import javafx.application.Platform;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
 import sh.isaac.MetaData;
 import sh.isaac.api.ChangeSetLoadService;
@@ -38,6 +41,7 @@ import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.preferences.PreferenceNodeType;
 import sh.isaac.api.sync.MergeFailOption;
 import sh.isaac.api.sync.MergeFailure;
+import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.util.DirectoryUtil;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_LOCAL_FOLDER;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_PASSWORD;
@@ -83,81 +87,48 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
     Button initializeButton = new Button("Initialize");
     {
         initializeButton.setOnAction((event) -> {
-            try {
-                SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
-
-                //Cleaning the directory causes change sets to disappear for the entire session. Clean is not necessary
-                //in most cases.
-                //DirectoryUtil.cleanDirectory(localFolderAbsolutePath.get());
-
-                syncService.setRootLocation(new File(localFolderAbsolutePath.get()));
-                syncService.linkAndFetchFromRemote(gitUrl.get(), gitUserName.get(), gitPassword.get().toCharArray());
-                setupSyncButtons();
-                if (localFolderAbsolutePath.get().endsWith("preferences")) {
-                    File from = new File(localFolderAbsolutePath.get() + "/sh/isaac/komet/preferences/Change sets");
-                    File to = new File(localFolderAbsolutePath.get() + "/sh/isaac/komet/preferences/" + SYNCHRONIZATION_ITEMS_GROUP_NAME);
-                    DirectoryUtil.moveDirectory(from.toPath(), to.toPath());
-                    FxGet.kometPreferences().reloadPreferences();
-                } else if (localFolderAbsolutePath.get().endsWith("changesets")) {
-                    LOG.info("Reading all synchronized changeset files");
-                    int loaded = LookupService.get().getService(ChangeSetLoadService.class).readChangesetFiles();
-                    LOG.info("Read {} changeset files", loaded);
-                    FxGet.statusMessageService().reportStatus("Read "+ loaded + " changeset files");
-                }
-            } catch (IllegalArgumentException | IOException ex) {
-                LOG.error(ex.getLocalizedMessage(), ex);
-            }
+            InitializeTask initializeTask = new InitializeTask();
+            Get.executor().submit(initializeTask);
         });
     }
     Button pushButton = new Button("Push");
     {
         pushButton.setOnAction((event) -> {
-            try {
-                SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
-                syncService.setRootLocation(new File(localFolderAbsolutePath.get()));
-                syncService.addUntrackedFiles();
-                syncService.updateCommitAndPush("Push commit", gitUserName.get(),
-                        gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
-                setupSyncButtons();
-            } catch (IllegalArgumentException | IOException ex) {
-                FxGet.dialogs().showErrorDialog(ex);
-            } catch (MergeFailure ex) {
-                FxGet.dialogs().showErrorDialog(ex);
-            }
+            PushTask pushTask = new PushTask(true);
+            Get.executor().submit(pushTask);
         });
     }
     Button pullButton = new Button("Pull");
     {
         pullButton.setOnAction((event) -> {
-            try {
-                SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
-                syncService.setRootLocation(new File(localFolderAbsolutePath.get()));
-                syncService.updateFromRemote(gitUserName.get(), 
-                        gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
-                setupSyncButtons();
-                if (localFolder.get().endsWith("preferences")) { 
-                    FxGet.kometPreferences().reloadPreferences();
-                } else if (localFolder.get().endsWith("changesets")) {
-                    LOG.info("Reading all synchronized changeset files");
-                    int loaded = LookupService.get().getService(ChangeSetLoadService.class).readChangesetFiles();
-                    LOG.info("Read {} changeset files", loaded);
-                    FxGet.statusMessageService().reportStatus("Read "+ loaded + " changeset files");
-                }
-            } catch (IllegalArgumentException | IOException ex) {
-                LOG.error(ex.getLocalizedMessage(), ex);
-            } catch (MergeFailure ex) {
-                Logger.getLogger(SynchronizationItemPanel.class.getName()).log(Level.SEVERE, null, ex);
-            }
+            PullTask pullTask = new PullTask(true);
+            Get.executor().submit(pullTask);
         });
     }
-    
+    private final MenuItem pushMenuItem = new MenuItem("Push " + nameProperty.getValueSafe());
+    private final MenuItem pullMenuItem = new MenuItem("Pull " + nameProperty.getValueSafe());
+    {
+        pushMenuItem.setOnAction((event) -> {
+            PushTask pushTask = new PushTask(false);
+            Get.executor().submit(pushTask);
+        });
+        pullMenuItem.setOnAction((event) -> {
+            PullTask pullTask = new PullTask(false);
+            Get.executor().submit(pullTask);
+        });
+    }
+
     public SynchronizationItemPanel(IsaacPreferences preferencesNode, ViewProperties viewProperties,
                                     KometPreferencesController kpc) {
         super(getEquivalentUserPreferenceNode(preferencesNode), preferencesNode.get(GROUP_NAME, "Change sets"),
                 viewProperties, kpc);
         nameProperty.set(groupNameProperty().get());
+        pushMenuItem.setText("Push " + nameProperty.getValueSafe());
+        pullMenuItem.setText("Pull " + nameProperty.getValueSafe());
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
+            pushMenuItem.setText("Push " + newValue);
+            pullMenuItem.setText("Pull " + newValue);
         });
         folderOptions = new String[] {"changesets", "preferences"};
         revertFields();
@@ -188,15 +159,21 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
                 initializeButton.setDisable(true);
                 pushButton.setDisable(false);
                 pullButton.setDisable(false);
+                FxGet.synchronizationMenuItems().add(pullMenuItem);
+                FxGet.synchronizationMenuItems().add(pushMenuItem);
             } else {
                 initializeButton.setDisable(false);
                 pushButton.setDisable(true);
                 pullButton.setDisable(true);
+                FxGet.synchronizationMenuItems().remove(pullMenuItem);
+                FxGet.synchronizationMenuItems().remove(pushMenuItem);
             }
         } else {
             initializeButton.setDisable(true);
             pushButton.setDisable(true);
             pullButton.setDisable(true);
+            FxGet.synchronizationMenuItems().remove(pullMenuItem);
+            FxGet.synchronizationMenuItems().remove(pushMenuItem);
         }
     }
     
@@ -236,6 +213,9 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
         getPreferencesNode().put(GIT_LOCAL_FOLDER, localFolder.get());
         setAbsolutePath(localFolder.get());
         setupSyncButtons();
+        if (!initializeButton.isDisabled()) {
+            initializeButton.fire();
+        }
     }
 
     @Override
@@ -261,6 +241,145 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
     @Override
     public boolean showDelete() {
         return true;
+    }
+
+    private class PullTask extends TimedTaskWithProgressTracker<Void> {
+        boolean updateButtons;
+        public PullTask(boolean updateButtons) {
+            this.updateButtons = updateButtons;
+            updateTitle("Pulling " + getGroupName() +
+                    " files from server");
+            Get.activeTasks().add(this);
+            addToTotalWork(3);
+        }
+
+        @Override
+        protected Void call() throws Exception {
+            try {
+                this.updateMessage("Getting synchronization service");
+                SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
+                this.completedUnitOfWork();
+                syncService.setRootLocation(new File(localFolderAbsolutePath.get()));
+                this.updateMessage("Pulling from remote server");
+                syncService.updateFromRemote(gitUserName.get(),
+                        gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
+                this.completedUnitOfWork();
+                if (updateButtons) {
+                    Platform.runLater(() -> setupSyncButtons());
+                }
+                if (localFolder.get().endsWith("preferences")) {
+                    this.updateMessage("Updating preferences");
+                    FxGet.kometPreferences().reloadPreferences();
+                    this.completedUnitOfWork();
+                } else if (localFolder.get().endsWith("changesets")) {
+                    this.updateMessage("Reading all synchronized changeset files");
+                    LOG.info("Reading all synchronized changeset files");
+                    int loaded = LookupService.get().getService(ChangeSetLoadService.class).readChangesetFiles();
+                    this.updateMessage("Read " + loaded +
+                            " changeset files");
+                    LOG.info("Read {} changeset files", loaded);
+                    FxGet.statusMessageService().reportStatus("Read " + loaded + " changeset files");
+                    this.completedUnitOfWork();
+                }
+                return null;
+            } catch (IllegalArgumentException | IOException ex) {
+                FxGet.dialogs().showErrorDialog(ex);
+                return null;
+            } catch (MergeFailure ex) {
+                FxGet.dialogs().showErrorDialog(ex);
+                return null;
+            } finally {
+                Get.activeTasks().remove(this);
+            }
+        }
+    }
+    private class PushTask extends TimedTaskWithProgressTracker<Void> {
+        boolean updateButtons;
+        public PushTask(boolean updateButtons) {
+            this.updateButtons = updateButtons;
+            updateTitle("Pushing " + getGroupName() +
+                    " files to server");
+            Get.activeTasks().add(this);
+            addToTotalWork(3);
+        }
+
+        @Override
+        protected Void call() throws Exception {
+            try {
+                this.updateMessage("Getting synchronization service");
+                SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
+                this.completedUnitOfWork();
+                syncService.setRootLocation(new File(localFolderAbsolutePath.get()));
+                this.updateMessage("Adding untracked files");
+                syncService.addUntrackedFiles();
+                this.completedUnitOfWork();
+                this.updateMessage("Pushing files");
+                syncService.updateCommitAndPush("Push commit", gitUserName.get(),
+                        gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
+                this.completedUnitOfWork();
+                if (this.updateButtons) {
+                    Platform.runLater(() -> setupSyncButtons());
+               }
+                return null;
+            } catch (IllegalArgumentException | IOException ex) {
+                FxGet.dialogs().showErrorDialog(ex);
+                return null;
+            } catch (MergeFailure ex) {
+                FxGet.dialogs().showErrorDialog(ex);
+                return null;
+            } finally {
+                Get.activeTasks().remove(this);
+            }
+        }
+    }
+
+    private class InitializeTask extends TimedTaskWithProgressTracker<Void> {
+        public InitializeTask() {
+            updateTitle("Initializing " + getGroupName() +
+                    " synchronization");
+            Get.activeTasks().add(this);
+            addToTotalWork(3);
+        }
+
+        @Override
+        protected Void call() throws Exception {
+            try {
+                this.updateMessage("Getting synchronization service");
+                SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
+                this.completedUnitOfWork();
+
+                //Cleaning the directory causes change sets to disappear for the entire session. Clean is not necessary
+                //in most cases.
+                //DirectoryUtil.cleanDirectory(localFolderAbsolutePath.get());
+
+                syncService.setRootLocation(new File(localFolderAbsolutePath.get()));
+                this.updateMessage("Linking and fetching files from server ");
+                syncService.linkAndFetchFromRemote(gitUrl.get(), gitUserName.get(), gitPassword.get().toCharArray());
+                Platform.runLater(() -> setupSyncButtons());
+                this.completedUnitOfWork();
+
+                if (localFolderAbsolutePath.get().endsWith("preferences")) {
+                    this.updateMessage("Reloading preferences ");
+                    FxGet.kometPreferences().reloadPreferences();
+                    this.completedUnitOfWork();
+                } else if (localFolderAbsolutePath.get().endsWith("changesets")) {
+                    this.updateMessage("Reading all synchronized changeset files ");
+                    LOG.info("Reading all synchronized changeset files");
+                    int loaded = LookupService.get().getService(ChangeSetLoadService.class).readChangesetFiles();
+                    this.updateMessage("Read " + loaded +
+                            " changeset files");
+                    LOG.info("Read {} changeset files", loaded);
+                    FxGet.statusMessageService().reportStatus("Read "+ loaded + " changeset files");
+                    this.completedUnitOfWork();
+                }
+                return null;
+            } catch (IllegalArgumentException | IOException ex) {
+                LOG.error(ex.getLocalizedMessage(), ex);
+                return null;
+            } finally {
+                Get.activeTasks().remove(this);
+            }
+        }
     }
 
 }

@@ -267,6 +267,27 @@ public class KometStageController
         classifierMenuButton.setGraphic(Iconography.ICON_CLASSIFIER1.getIconographic());
         classifierMenuButton.getItems().clear();
         classifierMenuButton.getItems().addAll(getTaskMenuItems());
+        FxGet.synchronizationMenuItems().forEach(menuItem -> {
+            classifierMenuButton.getItems().add(menuItem);
+        });
+        FxGet.synchronizationMenuItems().addListener((ListChangeListener<? super MenuItem>) c -> {
+            while (c.next()) {
+                  if (c.wasPermutated()) {
+                      for (int i = c.getFrom(); i < c.getTo(); ++i) {
+                           // Nothing to do...
+                      }
+                  } else if (c.wasUpdated()) {
+                           //Nothing to do...
+                  } else {
+                      for (MenuItem remItem : c.getRemoved()) {
+                          classifierMenuButton.getItems().remove(remItem);
+                      }
+                      for (MenuItem addItem : c.getAddedSubList()) {
+                          classifierMenuButton.getItems().add(addItem);
+                      }
+                  }
+              }
+        });
 
         Image image = new Image(KometStageController.class.getResourceAsStream("/images/viewer-logo-b@2.png"));
         vanityImage.setImage(image);

@@ -112,7 +112,7 @@ public class FxGet implements StaticIsaacCache {
     private static ObservableList<UuidStringKey> LOGIC_COORDINATE_KEY_LIST;
     private static ObservableList<UuidStringKey> MANIFOLD_COORDINATE_KEY_LIST;
     private static ObservableList<ImmutableList<ConceptSpecification>> NAVIGATION_OPTIONS;
-
+    private static ObservableList<MenuItem> SYNCHRONIZATION_ITEMS = FXCollections.observableArrayList();
     private static final ConcurrentHashMap<UuidStringKey, ComponentList> componentListMap = new ConcurrentHashMap();
 
     private static final ObservableList<UuidStringKey> componentListKeys = FXCollections.observableArrayList(new ArrayList<>());
@@ -146,6 +146,10 @@ public class FxGet implements StaticIsaacCache {
             DIALOG_SERVICE = Get.service(DialogService.class);
         }
         return DIALOG_SERVICE;
+    }
+
+    public static ObservableList<MenuItem> synchronizationMenuItems() {
+        return SYNCHRONIZATION_ITEMS;
     }
 
     public static Point2D getMouseLocation() {
