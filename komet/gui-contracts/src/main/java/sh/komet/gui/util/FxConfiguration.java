@@ -42,11 +42,11 @@ import sh.isaac.komet.iconography.Iconography;
  */
 public class FxConfiguration
 {
-	private static final String USER_CSS_LOCATION = "USER_CSS_LOCATION";
-	private static final String ICONOGRAPHY_CSS_LOCATION = "ICONOGRAPHY_CSS_LOCATION";
-	private static final String SHOW_BETA_PROPERTY = "SHOW_BETA_FEATURES";
-	private static final String SHOW_KOMET_ONLY_PROPERTY = "SHOW_KOMET_ONLY_PROPERTY";
-	private Logger LOG = LogManager.getLogger();
+	public static final String USER_CSS_LOCATION = "USER_CSS_LOCATION";
+	public static final String ICONOGRAPHY_CSS_LOCATION = "ICONOGRAPHY_CSS_LOCATION";
+	public static final String SHOW_BETA_PROPERTY = "SHOW_BETA_FEATURES";
+	public static final String SHOW_KOMET_ONLY_PROPERTY = "SHOW_KOMET_ONLY_PROPERTY";
+	public Logger LOG = LogManager.getLogger();
 	
 	UserConfiguration ucStore;
 	

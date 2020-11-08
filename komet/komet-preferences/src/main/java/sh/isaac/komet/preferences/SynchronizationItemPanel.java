@@ -85,7 +85,11 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
         initializeButton.setOnAction((event) -> {
             try {
                 SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
-                DirectoryUtil.cleanDirectory(localFolderAbsolutePath.get());
+
+                //Cleaning the directory causes change sets to disappear for the entire session. Clean is not necessary
+                //in most cases.
+                //DirectoryUtil.cleanDirectory(localFolderAbsolutePath.get());
+
                 syncService.setRootLocation(new File(localFolderAbsolutePath.get()));
                 syncService.linkAndFetchFromRemote(gitUrl.get(), gitUserName.get(), gitPassword.get().toCharArray());
                 setupSyncButtons();
@@ -111,13 +115,14 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
             try {
                 SyncServiceGIT syncService = Get.service(SyncServiceGIT.class);
                 syncService.setRootLocation(new File(localFolderAbsolutePath.get()));
-                syncService.updateCommitAndPush("Push commit", gitUserName.get(), 
+                syncService.addUntrackedFiles();
+                syncService.updateCommitAndPush("Push commit", gitUserName.get(),
                         gitPassword.get().toCharArray(), MergeFailOption.KEEP_LOCAL);
                 setupSyncButtons();
             } catch (IllegalArgumentException | IOException ex) {
-                LOG.error(ex.getLocalizedMessage(), ex);
+                FxGet.dialogs().showErrorDialog(ex);
             } catch (MergeFailure ex) {
-                Logger.getLogger(SynchronizationItemPanel.class.getName()).log(Level.SEVERE, null, ex);
+                FxGet.dialogs().showErrorDialog(ex);
             }
         });
     }

@@ -136,7 +136,17 @@ public class CommitRecord {
    /**
     * Instantiates a new commit record.
     */
-   public CommitRecord() {}
+   public CommitRecord(String comment) {
+      this.commitTime = Instant.now();
+      this.stampsInCommit   = StampSequenceSet.of();
+      this.stampAliases     = new OpenIntIntHashMap();
+      this.conceptNidsInCommit = NidSet.of(new int[0]);
+      this.semanticNidsInCommit  = NidSet.of(new int[0]);
+      this.commitComment    = comment;
+      this.transactionName = Optional.empty();
+      this.transactionId = Optional.empty();
+      this.transaction = Optional.empty();
+   }
 
    /**
     * Instantiates a new commit record.

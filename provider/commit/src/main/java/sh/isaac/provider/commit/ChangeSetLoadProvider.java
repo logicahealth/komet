@@ -42,12 +42,15 @@ import org.glassfish.hk2.runlevel.RunLevel;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.api.*;
 import sh.isaac.api.bootstrap.TermAux;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.LatestVersion;
 import sh.isaac.api.chronicle.Version;
+import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitService;
 import sh.isaac.api.component.semantic.SemanticChronology;
 import sh.isaac.api.component.semantic.version.StringVersion;
 import sh.isaac.api.coordinate.Coordinates;
+import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.metacontent.MetaContentService;
 import sh.isaac.api.util.metainf.MetaInfReader;
 
@@ -109,7 +112,7 @@ public class ChangeSetLoadProvider
     /**
      * The processed changesets.
      */
-    private ConcurrentMap<String, Boolean> processedChangesets;
+    private ConcurrentMap<String, Integer> processedChangesets;
 
     //~--- constructors --------------------------------------------------------
     /**
@@ -150,18 +153,46 @@ public class ChangeSetLoadProvider
                         files.add(path.toString());
                         try {
                             if ((this.processedChangesets != null)
-                            && this.processedChangesets.containsKey(path.getFileName().toString())) {
+                            && this.processedChangesets.getOrDefault(path.getFileName().toString(), 0) >= path.toFile().length()) {
                                 skipped.incrementAndGet();
-                                LOG.debug("Skipping already processed changeset file");
+                                LOG.debug("Skipping already processed changeset: " + path.getFileName().toString());
                             } else {
                                 loaded.incrementAndGet();
-                                LOG.debug("Importing changeset file");
+                                LOG.debug("Importing changeset: " + path.getFileName().toString());
+                                // TODO import change sets with a transaction
+                                CommitRecord commitRecord = new CommitRecord("Importing changeset: " + path.getFileName().toString());
+
                                 Get.binaryDataReader(path)
                                         .getStream()
                                         .forEach(
                                                 o -> {
                                                     try {
-                                                        commitService.importNoChecks(o);
+                                                        commitService.importIfContentChanged(o).ifPresent(chronology -> {
+                                                            switch (chronology.getIsaacObjectType()) {
+                                                                case CONCEPT:
+                                                                    commitRecord.getConceptsInCommit().add(chronology.getNid());
+                                                                    break;
+                                                                case SEMANTIC:
+                                                                    commitRecord.getSemanticNidsInCommit().add(chronology.getNid());
+                                                                    SemanticChronology semanticChronology = (SemanticChronology) chronology;
+
+                                                                    Optional<? extends Chronology> optionalComponent = Get.identifiedObjectService().getChronology(semanticChronology.getReferencedComponentNid());
+                                                                    while (optionalComponent.isPresent()) {
+                                                                        if (optionalComponent.get().getIsaacObjectType() == IsaacObjectType.CONCEPT) {
+                                                                            commitRecord.getConceptsInCommit().add(optionalComponent.get().getNid());
+                                                                            optionalComponent = Optional.empty();
+                                                                        } else {
+                                                                            commitRecord.getSemanticNidsInCommit().add(optionalComponent.get().getNid());
+                                                                            SemanticChronology referencedSemanticChronology = (SemanticChronology) optionalComponent.get();
+                                                                            optionalComponent = Get.identifiedObjectService().getChronology(referencedSemanticChronology.getReferencedComponentNid());
+                                                                        }
+                                                                    }
+
+                                                                    break;
+                                                                default:
+                                                                    LOG.error("Can't handle: " + chronology.getIsaacObjectType() + "\n" +chronology);
+                                                            }
+                                                        });
                                                     } catch (Throwable e) {
                                                         LOG.error("Error importing: "
                                                                 + path.toAbsolutePath() + "\n" + o + "\n", e);
@@ -169,11 +200,12 @@ public class ChangeSetLoadProvider
                                                 });
                                 if (this.processedChangesets != null) {
                                     this.processedChangesets.put(path.getFileName()
-                                            .toString(), true);
+                                            .toString(), (int) path.toFile().length());
                                 }
+                                Get.commitService().notifyListeners(commitRecord);
                             }
                         } catch (final FileNotFoundException e) {
-                            LOG.error("Change Set Load Provider failed to load file {}", path.toAbsolutePath());
+                            LOG.error("Change Set Load Provider failed to load {}", path.toAbsolutePath());
                             throw new RuntimeException(e);
                         }
                     });
@@ -191,6 +223,11 @@ public class ChangeSetLoadProvider
                 loaded.get(),
                 skipped.get());
         return loaded.get();
+    }
+
+    @Override
+    public ConcurrentMap<String, Integer> getProcessedChangesets() {
+        return this.processedChangesets;
     }
 
     /**

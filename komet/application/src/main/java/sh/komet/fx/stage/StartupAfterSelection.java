@@ -18,6 +18,7 @@ import javafx.stage.StageStyle;
 import sh.isaac.MetaData;
 import sh.isaac.api.ConceptProxy;
 //import org.scenicview.ScenicView;
+import sh.isaac.api.ConfigurationService;
 import sh.isaac.api.Get;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.bootstrap.TermAux;
@@ -26,6 +27,7 @@ import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.component.concept.ConceptBuilder;
 import sh.isaac.api.constants.DatabaseInitialization;
 import sh.isaac.api.constants.MemoryConfiguration;
+import sh.isaac.api.constants.SystemPropertyConstants;
 import sh.isaac.api.coordinate.Coordinates;
 import sh.isaac.api.coordinate.WriteCoordinate;
 import sh.isaac.api.coordinate.WriteCoordinateImpl;
@@ -42,6 +44,7 @@ import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.preferences.KometPreferences;
 import sh.komet.gui.contract.preferences.PreferenceGroup;
 import sh.komet.gui.contract.preferences.WindowPreferences;
+import sh.komet.gui.util.FxConfiguration;
 import sh.komet.gui.util.FxGet;
 
 public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
@@ -97,6 +100,8 @@ public class StartupAfterSelection extends TimedTaskWithProgressTracker<Void> {
             Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
             Get.configurationService().getGlobalDatastoreConfiguration().setMemoryConfiguration(MemoryConfiguration.ALL_CHRONICLES_IN_MEMORY);
             this.updateMessage("Starting Solor services");
+            System.setProperty(SystemPropertyConstants.FAIL_ON_DATABASE_IDENTITY_MISMATCH, Boolean.FALSE.toString());
+            System.setProperty(FxConfiguration.SHOW_BETA_PROPERTY, Boolean.TRUE.toString());
             LookupService.startupIsaac();
             
             addUsers();

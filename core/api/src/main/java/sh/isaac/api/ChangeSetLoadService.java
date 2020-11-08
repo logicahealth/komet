@@ -42,6 +42,7 @@ package sh.isaac.api;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentMap;
 
 //~--- non-JDK imports --------------------------------------------------------
 
@@ -61,7 +62,14 @@ public interface ChangeSetLoadService {
     * @return the int
     * @throws IOException Signals that an I/O exception has occurred.
     */
-   public int readChangesetFiles()
+   int readChangesetFiles()
             throws IOException;
+
+   /**
+    *
+    * @return map of the filename of a change set, and the size of the change set
+    * when last processed.
+    */
+   ConcurrentMap<String, Integer> getProcessedChangesets();
 }
 

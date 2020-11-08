@@ -111,6 +111,7 @@ import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.index.IndexBuilderService;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.task.LabelTaskWithIndeterminateProgress;
@@ -194,6 +195,7 @@ public class CommitProvider
     ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners = new ConcurrentSkipListSet<>();
 
     ConcurrentSkipListSet<WeakReference<CommitListener>> commitListeners = new ConcurrentSkipListSet<>();
+
 
     /**
      * The checkers.
@@ -515,7 +517,7 @@ public class CommitProvider
     }
 
     @Override
-    public void importIfContentChanged(IsaacExternalizable isaacExternalizable) {
+    public Optional<Chronology> importIfContentChanged(IsaacExternalizable isaacExternalizable) {
         switch (isaacExternalizable.getIsaacObjectType()) {
             case CONCEPT: {
                 final ConceptChronologyImpl conceptChronology = (ConceptChronologyImpl) isaacExternalizable;
@@ -524,17 +526,17 @@ public class CommitProvider
                 }
                 final Optional<? extends ConceptChronology> optionalExistingChronology = Get.conceptService().getOptionalConcept(conceptChronology.getNid());
                 if (optionalExistingChronology.isEmpty()) {
-                    Get.conceptService()
-                            .writeConcept(conceptChronology);
+                    Get.conceptService().writeConcept(conceptChronology);
+                    return Optional.of(conceptChronology);
                 } else {
                     removeDuplicates(optionalExistingChronology, conceptChronology);
                     if (!conceptChronology.getVersionList().isEmpty()) {
-                        Get.conceptService()
-                                .writeConcept(conceptChronology);
+                        Get.conceptService().writeConcept(conceptChronology);
+                        return Optional.of(conceptChronology);
                     }
-                }
+                 }
             }
-            break;
+            return Optional.empty();
 
             case SEMANTIC:
                 final SemanticChronologyImpl semanticChronology = (SemanticChronologyImpl) isaacExternalizable;
@@ -543,33 +545,31 @@ public class CommitProvider
                 }
                 final Optional<? extends SemanticChronology> optionalExistingSemantic = Get.assemblageService().getOptionalSemanticChronology(semanticChronology.getNid());
                 if (optionalExistingSemantic.isEmpty()) {
-                    Get.assemblageService()
-                            .writeSemanticChronology(semanticChronology);
+                    Get.assemblageService().writeSemanticChronology(semanticChronology);
                     deferNidAction(semanticChronology.getNid());
+                    return Optional.of(semanticChronology);
                 } else {
                     removeDuplicates(optionalExistingSemantic, semanticChronology);
                     if (!semanticChronology.getVersionList().isEmpty()) {
-                        Get.assemblageService()
-                                .writeSemanticChronology(semanticChronology);
+                        Get.assemblageService().writeSemanticChronology(semanticChronology);
                         deferNidAction(semanticChronology.getNid());
+                        return Optional.of(semanticChronology);
                     }
                 }
-
-                break;
-
+                return Optional.empty();
             case STAMP_ALIAS:
                 final StampAlias stampAlias = (StampAlias) isaacExternalizable;
 
                 this.stampAliasMap.addAlias(stampAlias.getStampSequence(), stampAlias.getStampAlias());
                 //TODO [DAN 3] with Filter Alias, I'm not sure on the implications this may have for the index.  There
                 //may be a required index update, with a stamp alias....
-                break;
+                return Optional.empty();
 
             case STAMP_COMMENT:
                 final StampComment stampComment = (StampComment) isaacExternalizable;
 
                 this.stampCommentMap.addComment(stampComment.getStampSequence(), stampComment.getComment());
-                break;
+                return Optional.empty();
 
             default:
                 throw new UnsupportedOperationException("ap Can't handle: " + isaacExternalizable.getClass().getName()
@@ -1526,5 +1526,10 @@ public class CommitProvider
     @Override
     public void removeCommitListener(CommitListener commitListener) {
         this.commitListeners.remove(new CommitListenerReference<>(commitListener));
+    }
+
+    @Override
+    public void notifyListeners(CommitRecord commitRecord) {
+        handleCommitNotification(commitRecord);
     }
 }

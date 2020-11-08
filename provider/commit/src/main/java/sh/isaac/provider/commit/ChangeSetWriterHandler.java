@@ -44,9 +44,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
+import java.util.concurrent.*;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.apache.logging.log4j.LogManager;
@@ -140,18 +139,22 @@ public class ChangeSetWriterHandler
    * {@inheritDoc}
    */
    @Override
-   public void handlePostCommit(CommitRecord commitRecord)
-   {
+   public void handlePostCommit(CommitRecord commitRecord) {
       LOG.info("handle Post Commit");
       if (this.writeEnabled && !Get.configurationService().isInDBBuildMode()) {
          // Do in the backgound
          writePermits.acquireUninterruptibly();  //prevent incoming commits from getting to far ahead
       final TimedTaskWithProgressTracker<Void> tt = new WriteChangeSetTask(commitRecord);
 
-         this.changeSetWriteExecutor.execute(tt);
-      }
-      else
-      {
+         Future<?> result = this.changeSetWriteExecutor.submit(tt);
+         try {
+            result.get();
+         } catch (InterruptedException e) {
+            LOG.error(e);
+         } catch (ExecutionException e) {
+            LOG.error(e);
+         }
+      } else {
          if (Get.configurationService().isInDBBuildMode()) {
             LOG.debug("ChangeSetWriter ignoring commit because in db build mode. ");
          }
