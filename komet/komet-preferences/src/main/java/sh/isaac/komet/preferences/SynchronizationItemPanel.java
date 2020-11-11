@@ -90,6 +90,7 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
             InitializeTask initializeTask = new InitializeTask();
             Get.executor().submit(initializeTask);
         });
+        initializeButton.setVisible(false);
     }
     Button pushButton = new Button("Push");
     {

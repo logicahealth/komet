@@ -36,11 +36,7 @@
  */
 package sh.isaac.model.builder;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.BiConsumer;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
@@ -447,30 +443,37 @@ public class ConceptBuilderImpl
 
     @Override
     public List<SemanticBuilder<?>> getSemanticBuilders() {
-        List<SemanticBuilder<?>> temp = new ArrayList<>(super.getSemanticBuilders().size() + logicalExpressionBuilders.size() + logicalExpressions.size());
-        temp.addAll(super.getSemanticBuilders());
+        try {
+            List<SemanticBuilder<?>> temp = new ArrayList<>(super.getSemanticBuilders().size() + logicalExpressionBuilders.size() + logicalExpressions.size());
+            temp.addAll(super.getSemanticBuilders());
 
-        if (defaultLogicCoordinate == null && (logicalExpressions.size() > 0 || logicalExpressionBuilders.size() > 0)) {
-            throw new IllegalStateException("A logic coordinate is required when a logical expression is passed");
-        }
-
-        SemanticBuilderService<?> builderService = LookupService.getService(SemanticBuilderService.class);
-        for (LogicalExpression logicalExpression : logicalExpressions) {
-            if (!builtLogicalExpressions.containsKey(logicalExpression)) {
-                builtLogicalExpressions.put(logicalExpression,
-                        builderService.getLogicalExpressionBuilder(logicalExpression, this, defaultLogicCoordinate.getStatedAssemblageNid()));
+            if (defaultLogicCoordinate == null && (logicalExpressions.size() > 0 || logicalExpressionBuilders.size() > 0)) {
+                throw new IllegalStateException("A logic coordinate is required when a logical expression is passed");
             }
-            temp.add(builtLogicalExpressions.get(logicalExpression));
-        }
-        for (LogicalExpressionBuilder builder : logicalExpressionBuilders) {
-            if (!builtLogicalExpressionBuilders.containsKey(builder)) {
-                builtLogicalExpressionBuilders.put(builder,
-                        builderService.getLogicalExpressionBuilder(builder.build(), this, defaultLogicCoordinate.getStatedAssemblageNid()));
-            }
-            temp.add(builtLogicalExpressionBuilders.get(builder));
-        }
 
-        return temp;
+            SemanticBuilderService<?> builderService = LookupService.getService(SemanticBuilderService.class);
+            for (LogicalExpression logicalExpression : logicalExpressions) {
+                if (!builtLogicalExpressions.containsKey(logicalExpression)) {
+                    SemanticBuilder<?> logicalExpressionBuilder = builderService.getLogicalExpressionBuilder(logicalExpression, this, defaultLogicCoordinate.getStatedAssemblageNid());
+                    logicalExpressionBuilder.setPrimordialUuid(UuidT5Generator.singleSemanticUuid(defaultLogicCoordinate.getStatedAssemblageNid(), this.getNid()));
+                    builtLogicalExpressions.put(logicalExpression, logicalExpressionBuilder);
+                }
+                temp.add(builtLogicalExpressions.get(logicalExpression));
+            }
+            for (LogicalExpressionBuilder builder : logicalExpressionBuilders) {
+                if (!builtLogicalExpressionBuilders.containsKey(builder)) {
+                    SemanticBuilder<?> logicalExpressionBuilder = builderService.getLogicalExpressionBuilder(builder.build(), this, defaultLogicCoordinate.getStatedAssemblageNid());
+                    logicalExpressionBuilder.setPrimordialUuid(UuidT5Generator.singleSemanticUuid(defaultLogicCoordinate.getStatedAssemblageNid(), this.getNid()));
+                    builtLogicalExpressionBuilders.put(builder, logicalExpressionBuilder);
+                }
+                temp.add(builtLogicalExpressionBuilders.get(builder));
+            }
+
+            return temp;
+        } catch (IllegalStateException| NoSuchElementException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     /**
