@@ -150,7 +150,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
     public SemanticBuilderImpl<C> setPrimordialUuid(String uuidString) {
         return (SemanticBuilderImpl<C>) super.setPrimordialUuid(uuidString);
     }
-    
+
     /*
      * Does not build subs, when buildSubs is false, or fire the after listener
      */

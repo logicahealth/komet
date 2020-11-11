@@ -25,6 +25,7 @@ import javafx.scene.robot.Robot;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.controlsfx.control.PropertySheet;
+import org.controlsfx.control.action.Action;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
@@ -112,7 +113,7 @@ public class FxGet implements StaticIsaacCache {
     private static ObservableList<UuidStringKey> LOGIC_COORDINATE_KEY_LIST;
     private static ObservableList<UuidStringKey> MANIFOLD_COORDINATE_KEY_LIST;
     private static ObservableList<ImmutableList<ConceptSpecification>> NAVIGATION_OPTIONS;
-    private static ObservableList<MenuItem> SYNCHRONIZATION_ITEMS = FXCollections.observableArrayList();
+    private static ObservableList<Action> SYNCHRONIZATION_ITEMS = FXCollections.observableArrayList();
     private static final ConcurrentHashMap<UuidStringKey, ComponentList> componentListMap = new ConcurrentHashMap();
 
     private static final ObservableList<UuidStringKey> componentListKeys = FXCollections.observableArrayList(new ArrayList<>());
@@ -148,7 +149,7 @@ public class FxGet implements StaticIsaacCache {
         return DIALOG_SERVICE;
     }
 
-    public static ObservableList<MenuItem> synchronizationMenuItems() {
+    public static ObservableList<Action> synchronizationMenuItems() {
         return SYNCHRONIZATION_ITEMS;
     }
 

@@ -21,8 +21,6 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 
 import javafx.application.Platform;
@@ -33,6 +31,7 @@ import javafx.scene.Node;
 import javafx.scene.control.Button;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.ToolBar;
+import org.controlsfx.control.action.Action;
 import sh.isaac.MetaData;
 import sh.isaac.api.ChangeSetLoadService;
 import sh.isaac.api.Get;
@@ -42,14 +41,14 @@ import sh.isaac.api.preferences.PreferenceNodeType;
 import sh.isaac.api.sync.MergeFailOption;
 import sh.isaac.api.sync.MergeFailure;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
-import sh.isaac.api.util.DirectoryUtil;
+
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_LOCAL_FOLDER;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_PASSWORD;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_URL;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.GIT_USER_NAME;
 import static sh.komet.gui.contract.preferences.PreferenceGroup.Keys.GROUP_NAME;
 import static sh.isaac.komet.preferences.SynchronizationItemPanel.Keys.ITEM_ACTIVE;
-import static sh.isaac.komet.preferences.SynchronizationItems.SYNCHRONIZATION_ITEMS_GROUP_NAME;
+
 import sh.isaac.model.observable.ObservableFields;
 import sh.isaac.provider.sync.git.SyncServiceGIT;
 import sh.komet.gui.contract.preferences.KometPreferencesController;
@@ -106,30 +105,28 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
             Get.executor().submit(pullTask);
         });
     }
-    private final MenuItem pushMenuItem = new MenuItem("Push " + nameProperty.getValueSafe());
-    private final MenuItem pullMenuItem = new MenuItem("Pull " + nameProperty.getValueSafe());
-    {
-        pushMenuItem.setOnAction((event) -> {
-            PushTask pushTask = new PushTask(false);
-            Get.executor().submit(pushTask);
-        });
-        pullMenuItem.setOnAction((event) -> {
-            PullTask pullTask = new PullTask(false);
-            Get.executor().submit(pullTask);
-        });
-    }
+    private final Action pushAction = new Action("Push " + nameProperty.getValueSafe(),
+            (actionEvent) -> {
+                PushTask pushTask = new PushTask(false);
+                Get.executor().submit(pushTask);
+            });
+    private final Action pullAction = new Action("Pull " + nameProperty.getValueSafe(),
+            (actionEvent) -> {
+                PullTask pullTask = new PullTask(false);
+                Get.executor().submit(pullTask);
+            });
 
     public SynchronizationItemPanel(IsaacPreferences preferencesNode, ViewProperties viewProperties,
                                     KometPreferencesController kpc) {
         super(getEquivalentUserPreferenceNode(preferencesNode), preferencesNode.get(GROUP_NAME, "Change sets"),
                 viewProperties, kpc);
         nameProperty.set(groupNameProperty().get());
-        pushMenuItem.setText("Push " + nameProperty.getValueSafe());
-        pullMenuItem.setText("Pull " + nameProperty.getValueSafe());
+        pushAction.setText("Push " + nameProperty.getValueSafe());
+        pullAction.setText("Pull " + nameProperty.getValueSafe());
         nameProperty.addListener((observable, oldValue, newValue) -> {
             groupNameProperty().set(newValue);
-            pushMenuItem.setText("Push " + newValue);
-            pullMenuItem.setText("Pull " + newValue);
+            pushAction.setText("Push " + newValue);
+            pullAction.setText("Pull " + newValue);
         });
         folderOptions = new String[] {"changesets", "preferences"};
         revertFields();
@@ -160,21 +157,18 @@ public class SynchronizationItemPanel extends AbstractPreferences implements Syn
                 initializeButton.setDisable(true);
                 pushButton.setDisable(false);
                 pullButton.setDisable(false);
-                FxGet.synchronizationMenuItems().add(pullMenuItem);
-                FxGet.synchronizationMenuItems().add(pushMenuItem);
+                Platform.runLater(() -> FxGet.synchronizationMenuItems().addAll(pullAction, pushAction));
             } else {
                 initializeButton.setDisable(false);
                 pushButton.setDisable(true);
                 pullButton.setDisable(true);
-                FxGet.synchronizationMenuItems().remove(pullMenuItem);
-                FxGet.synchronizationMenuItems().remove(pushMenuItem);
+                Platform.runLater(() -> FxGet.synchronizationMenuItems().removeAll(pullAction, pushAction));
             }
         } else {
             initializeButton.setDisable(true);
             pushButton.setDisable(true);
             pullButton.setDisable(true);
-            FxGet.synchronizationMenuItems().remove(pullMenuItem);
-            FxGet.synchronizationMenuItems().remove(pushMenuItem);
+            Platform.runLater(() -> FxGet.synchronizationMenuItems().removeAll(pullAction, pushAction));
         }
     }
     

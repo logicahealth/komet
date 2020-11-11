@@ -82,6 +82,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import org.controlsfx.control.action.Action;
+import org.controlsfx.control.action.ActionUtils;
 import sh.isaac.api.Get;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.classifier.ClassifierService;
@@ -267,10 +269,10 @@ public class KometStageController
         classifierMenuButton.setGraphic(Iconography.ICON_CLASSIFIER1.getIconographic());
         classifierMenuButton.getItems().clear();
         classifierMenuButton.getItems().addAll(getTaskMenuItems());
-        FxGet.synchronizationMenuItems().forEach(menuItem -> {
-            classifierMenuButton.getItems().add(menuItem);
+        FxGet.synchronizationMenuItems().forEach(action -> {
+            classifierMenuButton.getItems().add(ActionUtils.createMenuItem(action));
         });
-        FxGet.synchronizationMenuItems().addListener((ListChangeListener<? super MenuItem>) c -> {
+        FxGet.synchronizationMenuItems().addListener((ListChangeListener<? super Action>) c -> {
             while (c.next()) {
                   if (c.wasPermutated()) {
                       for (int i = c.getFrom(); i < c.getTo(); ++i) {
@@ -279,11 +281,28 @@ public class KometStageController
                   } else if (c.wasUpdated()) {
                            //Nothing to do...
                   } else {
-                      for (MenuItem remItem : c.getRemoved()) {
-                          classifierMenuButton.getItems().remove(remItem);
+                      HashSet<String> itemTextToRemove = new HashSet<>();
+                      for (Action actionItem: c.getRemoved()) {
+                          itemTextToRemove.add(actionItem.getText());
                       }
-                      for (MenuItem addItem : c.getAddedSubList()) {
-                          classifierMenuButton.getItems().add(addItem);
+                      if (!itemTextToRemove.isEmpty()) {
+                          ArrayList<MenuItem> itemsToRemove = new ArrayList<>();
+                          for (MenuItem item: classifierMenuButton.getItems()) {
+                              if (itemTextToRemove.contains(item.getText())) {
+                                  itemsToRemove.add(item);
+                              }
+                          }
+                          classifierMenuButton.getItems().removeAll(itemsToRemove);
+                      }
+
+                      HashSet<String> menuItemTextSet = new HashSet<>();
+                      for (MenuItem item: classifierMenuButton.getItems()) {
+                          menuItemTextSet.add(item.getText());
+                      }
+                      for (Action actionItem: c.getAddedSubList()) {
+                          if (!menuItemTextSet.contains(actionItem.getText())) {
+                              classifierMenuButton.getItems().add(ActionUtils.createMenuItem(actionItem));
+                          }
                       }
                   }
               }
