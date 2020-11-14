@@ -119,6 +119,22 @@
 	</dependencies>
 	<build>
 		<plugins>
+			<plugin>
+				<artifactId>maven-plugin-plugin</artifactId>
+				<executions>
+					<execution>
+						<goals>
+							<goal>descriptor</goal>
+						</goals>
+						<configuration>
+							<skipDescriptor>true</skipDescriptor>
+							<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+							<goalPrefix>importers</goalPrefix>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+
 			<!-- generate code from various xsd files -->
 			<plugin>
 				<groupId>org.jvnet.jaxb2.maven2</groupId>
