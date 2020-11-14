@@ -12,11 +12,21 @@
     <description>Aggregator project for miscellaneous ISAAC modules</description>
     <modules>
        <module>exporters</module>
-       <module>importers</module>
-       <module>importers-mojos</module>
        <module>associations</module>
        <module>util</module>
-       <module>vhat-constants</module>
-       <module>vhat-util</module>
-    </modules>
+     </modules>
+    <profiles>
+        <profile>
+            <id>vhat-and-import</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>importers</module>
+                <module>importers-mojos</module>
+                <module>vhat-constants</module>
+                <module>vhat-util</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>
