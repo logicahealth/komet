@@ -6,7 +6,7 @@
     <parent>
         <artifactId>komet</artifactId>
         <groupId>sh.isaac</groupId>
-        <version>6.0.2-SNAPSHOT</version>
+        <version>6.0.2</version>
     </parent>
 
     <groupId>sh.isaac.komet</groupId>
