@@ -6,7 +6,7 @@
   <parent>
     <groupId>sh.isaac</groupId>
     <artifactId>provider</artifactId>
-    <version>6.0.1</version>
+    <version>6.0.1-SNAPSHOT</version>
   </parent>
   <groupId>sh.isaac.provider</groupId>
   <artifactId>xslt-provider</artifactId>

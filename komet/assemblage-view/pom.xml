@@ -5,7 +5,7 @@
    <parent>
       <groupId>sh.isaac</groupId>
       <artifactId>komet</artifactId>
-      <version>6.0.1</version>
+      <version>6.0.1-SNAPSHOT</version>
    </parent>
    <groupId>sh.isaac.komet</groupId>
    <artifactId>assemblage-view</artifactId>
