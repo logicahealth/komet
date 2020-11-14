@@ -1268,7 +1268,7 @@
                         <versionDigitToIncrement>2</versionDigitToIncrement>
                         <gitFlowConfig>
                            <productionBranch>master</productionBranch>
-                           <developmentBranch>develop-fx11</developmentBranch>
+                           <developmentBranch>develop</developmentBranch>
                            <featureBranchPrefix>feature/</featureBranchPrefix>
                            <releaseBranchPrefix>release/</releaseBranchPrefix>
                            <hotfixBranchPrefix>hotfix/</hotfixBranchPrefix>
