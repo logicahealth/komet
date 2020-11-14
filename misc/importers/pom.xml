@@ -129,6 +129,9 @@
 							<goal>descriptor</goal>
 						</goals>
 						<configuration>
+							<extractors>
+								<extractor/>
+							</extractors>
 							<skip>true</skip>
 							<skipDescriptor>true</skipDescriptor>
 							<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
