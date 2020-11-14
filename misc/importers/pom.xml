@@ -127,6 +127,7 @@
 							<goal>descriptor</goal>
 						</goals>
 						<configuration>
+							<skip>true</skip>
 							<skipDescriptor>true</skipDescriptor>
 							<skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
 							<goalPrefix>importers</goalPrefix>
