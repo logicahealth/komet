@@ -68,7 +68,7 @@ mvn gitflow:feature-finish
 
 * Option 1: To deploy, set a profile in your settings.xml with the repository you want to deploy to, patterned after these entries:
 
-```
+```xml
   <profile>
       <id>release-deploy</id>
       <properties>
@@ -94,7 +94,7 @@ mvn gitflow:feature-finish
 
 **Note, in either case, the value 'central' is a variable that needs to align with a 'server' section in your settings.xml file.**
 
-```
+```xml
   <server>
     <id>central</id>
     <username>your server username</username>

@@ -101,6 +101,8 @@ public interface ExplorationNode {
     */
    void savePreferences();
 
+   void revertPreferences();
+
    Node getMenuIconGraphic();
 
    default Node getTitleIconGraphic() {

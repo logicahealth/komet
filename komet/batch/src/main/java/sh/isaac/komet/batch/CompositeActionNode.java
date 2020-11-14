@@ -58,6 +58,11 @@ public class CompositeActionNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    public void revertPreferences() {
+
+    }
+
+    @Override
     public void savePreferences() {
         throw new UnsupportedOperationException();
     }

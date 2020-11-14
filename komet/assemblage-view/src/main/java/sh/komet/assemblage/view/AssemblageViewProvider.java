@@ -168,6 +168,11 @@ public class AssemblageViewProvider extends DetailNodeAbstract implements Commit
     }
 
     @Override
+    public void revertPreferences() {
+
+    }
+
+    @Override
     public void savePreferences() {
         // TODO save more preferences.
     }

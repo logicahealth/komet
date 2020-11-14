@@ -4,16 +4,16 @@ import java.util.HashSet;
 import java.util.Set;
 import javafx.collections.ObservableSet;
 import javafx.css.PseudoClass;
+import javafx.css.StyleClass;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
+import javafx.scene.Group;
 import javafx.scene.SnapshotParameters;
-import javafx.scene.control.ContentDisplay;
-import javafx.scene.control.Labeled;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumnBase;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.scene.transform.NonInvertibleTransformException;
 import javafx.scene.transform.Transform;
@@ -26,6 +26,8 @@ import sh.komet.gui.drag.drop.DragDetectedCellEventHandler;
 import sh.komet.gui.drag.drop.DragDoneEventHandler;
 import sh.komet.gui.drag.drop.DragImageMaker;
 import sh.komet.gui.interfaces.DraggableWithImage;
+import sh.komet.gui.style.PseudoClasses;
+import sh.komet.gui.style.StyleClasses;
 
 /*
  * Copyright 2017 Organizations participating in ISAAC, ISAAC's KOMET, and SOLOR development include the
@@ -60,6 +62,7 @@ public class DescriptionTableCell<T extends IdentifiedObject> extends TableCell<
       this.viewProperties = viewProperties;
       this.setOnDragDetected(new DragDetectedCellEventHandler());
       this.setOnDragDone(new DragDoneEventHandler());
+      this.getStyleClass().add(StyleClasses.DESCRIPTION_CELL.toString());
    }
 
    @Override
@@ -75,34 +78,41 @@ public class DescriptionTableCell<T extends IdentifiedObject> extends TableCell<
       setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
       text.getStyleClass()
               .addAll(getStyleClass());
+      text.getStyleClass().add(StyleClasses.DESCRIPTION_TEXT.toString());
+
+
 
       ObservableDescriptionVersion rowItem = (ObservableDescriptionVersion) this.getTableRow().getItem();
       if (rowItem == null) {
          this.setGraphic(text);
+         this.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, false);
+         this.pseudoClassStateChanged(PseudoClasses.REFERENCED_COMPONENT_INACTIVE_PSEUDO_CLASS, false);
+         text.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, false);
+         text.pseudoClassStateChanged(PseudoClasses.REFERENCED_COMPONENT_INACTIVE_PSEUDO_CLASS, false);
       } else {
          boolean conceptActive = Get.conceptActiveService().isConceptActive(rowItem.getReferencedComponentNid(), this.viewProperties.getViewStampFilter().toStampFilterImmutable());
          boolean descriptionActive = rowItem.getStatus().isActive();
-         if (conceptActive && descriptionActive) {
-            this.setGraphic(text);
-         } else {
-
-            StringBuilder sb = new StringBuilder();
+         this.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !descriptionActive);
+         this.pseudoClassStateChanged(PseudoClasses.REFERENCED_COMPONENT_INACTIVE_PSEUDO_CLASS, !conceptActive);
+         text.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !descriptionActive);
+         text.pseudoClassStateChanged(PseudoClasses.REFERENCED_COMPONENT_INACTIVE_PSEUDO_CLASS, !conceptActive);
+         this.setGraphic(text);
+         if (!descriptionActive || !conceptActive) {
+            StringBuilder toolTipText = new StringBuilder();
             if (descriptionActive) {
-               sb.append("\u22A8"); // unicode true
+               toolTipText.append("Description is active.\n");
             } else {
-               sb.append("\u22AD"); // unicode not true
+               toolTipText.append("Description INACTIVE.\n");
             }
-            sb.append(" ");
             if (conceptActive) {
-               sb.append("\u22A8"); // unicode true
+               toolTipText.append("Concept is active.");
             } else {
-               sb.append("\u22AD"); // unicode not true
+               toolTipText.append("Concept INACTIVE.");
             }
-            sb.append("| ");
-            sb.append(item);
-            text.setText(sb.toString());
-            //HBox graphic = new HBox(Iconography.DELETE_TRASHCAN.getIconographic(), text);
-            this.setGraphic(text);
+
+            this.setTooltip(new Tooltip(toolTipText.toString()));
+         } else {
+            this.setTooltip(null);
          }
       }
    }

@@ -54,6 +54,7 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.externalizable.IsaacExternalizable;
 import sh.isaac.api.externalizable.StampAlias;
 import sh.isaac.api.externalizable.StampComment;
+import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.transaction.Transaction;
 
 /**
@@ -138,8 +139,9 @@ public interface CommitService
     * to ensure data integrity.
     *
     * @param isaacExternalizable the object to be imported.
+    * @return The Chronology if the IsaacExternalizable contains a new version.
     */
-   void importIfContentChanged(IsaacExternalizable isaacExternalizable);
+   Optional<Chronology> importIfContentChanged(IsaacExternalizable isaacExternalizable);
 
    /**
     * Increment and get sequence.
@@ -274,5 +276,13 @@ public interface CommitService
     * to determine current axioms.
     */
    Instant getTimeForCommit();
+
+
+   /**
+    * Notify listeners of changes in this commit record.
+    * TODO: eliminate this method when import change sets uses a transaction, and a proper commit.
+    * @param commitRecord
+    */
+   void notifyListeners(CommitRecord commitRecord);
 }
 

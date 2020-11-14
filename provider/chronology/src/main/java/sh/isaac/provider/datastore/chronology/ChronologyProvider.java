@@ -256,7 +256,7 @@ public class ChronologyProvider
                                 }
                             });
             commitService.postProcessImportNoChecks();
-        }
+        } 
 
       //Store the DB id as a semantic
       Transaction transaction = Get.commitService().newTransaction(Optional.of("Storing db data"), ChangeCheckerMode.ACTIVE);

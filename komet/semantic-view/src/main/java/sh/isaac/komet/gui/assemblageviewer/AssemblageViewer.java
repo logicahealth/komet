@@ -183,6 +183,11 @@ public class AssemblageViewer implements ExplorationNodeFactory
 			}
 
 			@Override
+			public void revertPreferences() {
+
+			}
+
+			@Override
 			public void savePreferences()
 			{
 				// noop

@@ -29,6 +29,7 @@ import sh.isaac.api.coordinate.EditCoordinateImmutable;
 import sh.isaac.api.coordinate.ManifoldCoordinateImmutable;
 import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.marshal.Marshalable;
 import sh.isaac.api.observable.coordinate.ObservableEditCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableManifoldCoordinate;
 import sh.isaac.api.observable.coordinate.ObservableStampFilter;
@@ -38,12 +39,11 @@ import sh.isaac.model.observable.coordinate.ObservableEditCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateBase;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateImpl;
 import sh.isaac.model.observable.coordinate.ObservableManifoldCoordinateWithOverride;
+import sh.komet.gui.util.FxGet;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Supplier;
+import java.util.prefs.BackingStoreException;
 
 /**
  * @author kec
@@ -77,11 +77,13 @@ public class ViewProperties {
             Lists.immutable.of(ANY, UNLINKED, SEARCH, NAVIGATION, CLASSIFICATION, CORRELATION, LIST, FLWOR, CONCEPT_BUILDER, PREFERENCES);
 
     public enum Keys {
-        NAME_PREFIX, NAME_SUFFIX,
+        NAME_PREFIX,
+        NAME_SUFFIX,
         VIEW_PROPERTIES_UUID,
         VIEW_NAME,
         VIEW_MANIFOLD_COORDINATE,
         VIEW_EDIT_COORDINATE,
+        ACTIVITY_FEED_NAMES
     }
 
     private static final HashMap<String, Supplier<Node>> ICONOGRAPHIC_SUPPLIER = new HashMap<>();
@@ -117,29 +119,84 @@ public class ViewProperties {
     private final ObservableManifoldCoordinate manifoldCoordinate;
     private final ObservableEditCoordinate editCoordinate;
     private final ViewProperties parentViewProperties;
+    private final IsaacPreferences preferencesNode;
 
     SimpleStringProperty viewNameProperty = new SimpleStringProperty();
     ObservableMap<String, ActivityFeed> activityFeedMap = FXCollections.observableHashMap();
+    List<Runnable> saveListeners = new ArrayList<>();
 
     private ViewProperties(UUID viewUuid, String viewName, ObservableManifoldCoordinate observableManifoldCoordinate,
-                           ObservableEditCoordinate editCoordinate) {
+                           ObservableEditCoordinate editCoordinate, IsaacPreferences preferencesNode) {
         this.viewUuid = viewUuid;
         this.manifoldCoordinate = observableManifoldCoordinate;
         this.editCoordinate = editCoordinate;
+        this.preferencesNode = preferencesNode;
         this.parentViewProperties = null;
         this.viewNameProperty.set(viewName);
 
-        activityFeedMap.put(UNLINKED, ActivityFeed.createActivityFeed(this, UNLINKED));
-        activityFeedMap.put(SEARCH, ActivityFeed.createActivityFeed(this, SEARCH));
-        activityFeedMap.put(FLWOR, ActivityFeed.createActivityFeed(this, FLWOR));
-        activityFeedMap.put(NAVIGATION, ActivityFeed.createActivityFeed(this, NAVIGATION));
-        activityFeedMap.put(CLASSIFICATION, ActivityFeed.createActivityFeed(this, CLASSIFICATION));
-        activityFeedMap.put(CORRELATION, ActivityFeed.createActivityFeed(this, CORRELATION));
-        activityFeedMap.put(LIST, ActivityFeed.createActivityFeed(this, LIST));
-        activityFeedMap.put(CONCEPT_BUILDER, ActivityFeed.createActivityFeed(this, CONCEPT_BUILDER));
-        activityFeedMap.put(ANY, ActivityFeed.createActivityFeed(this, ANY));
+        addFeed(UNLINKED, preferencesNode);
+        addFeed(SEARCH, preferencesNode);
+        addFeed(FLWOR, preferencesNode);
+        addFeed(NAVIGATION, preferencesNode);
+        addFeed(CLASSIFICATION, preferencesNode);
+        addFeed(CORRELATION, preferencesNode);
+        addFeed(LIST, preferencesNode);
+        addFeed(CONCEPT_BUILDER, preferencesNode);
+        addFeed(ANY, preferencesNode);
+
         linkAny();
         SINGLETONS.put(viewUuid, this);
+    }
+
+    private void addFeed(String key, IsaacPreferences preferencesNode) {
+        if (preferencesNode.hasKey(key)) {
+            ByteArrayDataBuffer badb = preferencesNode.getByteArrayBuffer(key).get();
+            if (badb.getLimit() > 4) {
+                activityFeedMap.put(key,
+                        ActivityFeed.make(preferencesNode.getByteArrayBuffer(key).get(), this));
+            } else {
+                activityFeedMap.put(key, ActivityFeed.createActivityFeed(this, key));
+            }
+        } else {
+            activityFeedMap.put(key, ActivityFeed.createActivityFeed(this, key));
+        }
+    }
+
+    public void save() {
+        preferencesNode.putUuid(Keys.VIEW_PROPERTIES_UUID, this.getViewUuid());
+        preferencesNode.put(Keys.VIEW_NAME, this.getViewName());
+
+        ByteArrayDataBuffer manifoldBuff = new ByteArrayDataBuffer();
+        this.getManifoldCoordinate().getValue().marshal(manifoldBuff);
+        manifoldBuff.trimToSize();
+        preferencesNode.putByteArray(Keys.VIEW_MANIFOLD_COORDINATE, manifoldBuff.getData());
+
+        ByteArrayDataBuffer editBuff = new ByteArrayDataBuffer();
+        this.getEditCoordinate().getValue().marshal(editBuff);
+        editBuff.trimToSize();
+        preferencesNode.putByteArray(Keys.VIEW_EDIT_COORDINATE, editBuff.getData());
+
+        preferencesNode.putArray(Keys.ACTIVITY_FEED_NAMES, activityFeedMap.keySet().toArray(new String[0]));
+        // Save activity feeds...
+        activityFeedMap.forEach((String feedName, ActivityFeed activityFeed) -> {
+            ByteArrayDataBuffer badb = new ByteArrayDataBuffer();
+            activityFeed.marshal(badb);
+            preferencesNode.putByteArray(feedName, badb.getDataCopy());
+        });
+        try {
+            preferencesNode.sync();
+            preferencesNode.flush();
+        } catch (BackingStoreException e) {
+            FxGet.dialogs().showErrorDialog(e);
+        }
+        for (Runnable saveListener: saveListeners) {
+            saveListener.run();
+        }
+    }
+
+
+    public IsaacPreferences getPreferencesNode() {
+        return preferencesNode;
     }
 
     public UUID getRootUuid() {
@@ -149,19 +206,22 @@ public class ViewProperties {
         return viewUuid;
     }
     private ViewProperties(String viewName, ObservableManifoldCoordinate observableManifoldCoordinate,
-                           ObservableEditCoordinate editCoordinate, ViewProperties parentViewProperties) {
+                           ObservableEditCoordinate editCoordinate, ViewProperties parentViewProperties,
+                           IsaacPreferences preferencesNode) {
         this.viewUuid = parentViewProperties.getViewUuid();
         this.manifoldCoordinate = observableManifoldCoordinate;
         this.editCoordinate = editCoordinate;
+        this.preferencesNode = preferencesNode;
         this.parentViewProperties = parentViewProperties;
         this.viewNameProperty.set(viewName);
-        activityFeedMap = parentViewProperties.activityFeedMap;
+        this.activityFeedMap = parentViewProperties.activityFeedMap;
+        this.saveListeners = parentViewProperties.saveListeners;
     }
 
     public ViewProperties makeOverride() {
         return new ViewProperties(this.getViewName(),
                 new ObservableManifoldCoordinateWithOverride((ObservableManifoldCoordinateBase) this.getManifoldCoordinate()),
-                this.editCoordinate, this);
+                this.editCoordinate, this, preferencesNode);
     }
 
     public UUID getViewUuid() {
@@ -191,6 +251,13 @@ public class ViewProperties {
         return activityFeedMap.values();
     }
 
+    public void addSaveAction(Runnable saveAction) {
+        this.saveListeners.add(saveAction);
+    }
+
+    public void removeSaveAction(Runnable saveAction) {
+        this.saveListeners.remove(saveAction);
+    }
 
     private void linkAny() {
         ActivityFeed anyFeed = activityFeedMap.get(ANY);
@@ -206,8 +273,10 @@ public class ViewProperties {
     public static ViewProperties make(UUID viewUuid,
                                       String viewName,
                                       ObservableManifoldCoordinate providedManifold,
-                                      ObservableEditCoordinate observableEditCoordinate) {
-        return SINGLETONS.computeIfAbsent(viewUuid, uuid -> new ViewProperties(uuid, viewName, providedManifold, observableEditCoordinate));
+                                      ObservableEditCoordinate observableEditCoordinate,
+                                      IsaacPreferences preferencesNode) {
+        return SINGLETONS.computeIfAbsent(viewUuid, uuid -> new ViewProperties(uuid, viewName, providedManifold,
+                observableEditCoordinate, preferencesNode));
     }
 
     public static ViewProperties make(IsaacPreferences preferencesNode) {
@@ -232,23 +301,9 @@ public class ViewProperties {
                 new ViewProperties(uuid,
                         optionalViewName.get(),
                         new ObservableManifoldCoordinateImpl(ManifoldCoordinateImmutable.make(new ByteArrayDataBuffer(optionalManifoldData.get()))),
-                        new ObservableEditCoordinateImpl(EditCoordinateImmutable.make(new ByteArrayDataBuffer(optionalEditCoordinateData.get())))
+                        new ObservableEditCoordinateImpl(EditCoordinateImmutable.make(new ByteArrayDataBuffer(optionalEditCoordinateData.get()))),
+                        preferencesNode
                         ));
-    }
-
-    public void save(IsaacPreferences preferencesNode) {
-        preferencesNode.putUuid(Keys.VIEW_PROPERTIES_UUID, this.getViewUuid());
-        preferencesNode.put(Keys.VIEW_NAME, this.getViewName());
-
-        ByteArrayDataBuffer manifoldBuff = new ByteArrayDataBuffer();
-        this.getManifoldCoordinate().getValue().marshal(manifoldBuff);
-        manifoldBuff.trimToSize();
-        preferencesNode.putByteArray(Keys.VIEW_MANIFOLD_COORDINATE, manifoldBuff.getData());
-
-        ByteArrayDataBuffer editBuff = new ByteArrayDataBuffer();
-        this.getEditCoordinate().getValue().marshal(editBuff);
-        editBuff.trimToSize();
-        preferencesNode.putByteArray(Keys.VIEW_EDIT_COORDINATE, editBuff.getData());
     }
 
     public ObservableMap<String, ActivityFeed> getActivityFeedMap() {

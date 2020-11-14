@@ -15,6 +15,12 @@ import java.util.UUID;
 
 public interface WindowPreferences {
     void save();
+
+    /**
+     * Lightweight save that only saves minimal preferences from
+     * focus and location events.
+     */
+    void saveLocationAndFocus();
     void revert();
     UUID getWindowUuid();
     StringProperty getWindowName();

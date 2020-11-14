@@ -42,6 +42,11 @@ public class ExportSpecificationNode extends ExplorationNodeAbstract {
     }
 
     @Override
+    public void revertPreferences() {
+
+    }
+
+    @Override
     public void savePreferences() {
 
     }

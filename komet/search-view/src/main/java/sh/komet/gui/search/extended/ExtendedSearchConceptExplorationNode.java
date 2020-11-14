@@ -57,6 +57,11 @@ public class ExtendedSearchConceptExplorationNode extends ExplorationNodeAbstrac
     }
 
     @Override
+    public void revertPreferences() {
+
+    }
+
+    @Override
     public void savePreferences() {
 
     }

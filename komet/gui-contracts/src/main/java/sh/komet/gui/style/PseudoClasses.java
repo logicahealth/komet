@@ -24,6 +24,7 @@ import javafx.css.PseudoClass;
  */
 public class PseudoClasses {
    public static final PseudoClass INACTIVE_PSEUDO_CLASS = PseudoClass.getPseudoClass("inactive");
+   public static final PseudoClass REFERENCED_COMPONENT_INACTIVE_PSEUDO_CLASS = PseudoClass.getPseudoClass("referenced-component-inactive");
    /**
     * may be active, but superceded by a different component, so not current in the display
     */

@@ -7,21 +7,32 @@ import javafx.collections.ObservableList;
 import org.eclipse.collections.api.list.ImmutableList;
 import sh.isaac.MetaData;
 import sh.isaac.api.ComponentProxy;
+import sh.isaac.api.Get;
 import sh.isaac.api.TaxonomySnapshot;
+import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.coordinate.*;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.identity.IdentifiedObject;
+import sh.isaac.api.marshal.Marshalable;
+import sh.isaac.api.marshal.Marshaler;
+import sh.isaac.api.marshal.Unmarshaler;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public class ActivityFeed implements ManifoldCoordinate {
+import static sh.komet.gui.control.property.ViewProperties.NAVIGATION;
+
+public class ActivityFeed implements Marshalable {
+
+    private static final int marshalVersion = 1;
+
     private static int historySize = 50;
 
     final UUID activityUuid;
     final ViewProperties owningViewForActivityFeed;
     final String feedName;
     final SimpleListProperty<IdentifiedObject> feedSelectionProperty;
-    final SimpleListProperty<ComponentProxy> feedHistoryProperty;
+    final SimpleListProperty<IdentifiedObject> feedHistoryProperty;
 
     private ActivityFeed(ViewProperties owningViewForActivityFeed, String feedName) {
         this(owningViewForActivityFeed, feedName, UUID.randomUUID());
@@ -36,6 +47,60 @@ public class ActivityFeed implements ManifoldCoordinate {
         this.feedSelectionProperty.addListener(this::onChanged);
     }
 
+    private ActivityFeed(ViewProperties owningViewForActivityFeed, ByteArrayDataBuffer in) {
+        this.owningViewForActivityFeed = owningViewForActivityFeed;
+        this.activityUuid = in.getUuid();
+        this.feedName = in.getUTF();
+        this.feedSelectionProperty = new SimpleListProperty<>(this, feedName + " selection", FXCollections.observableArrayList());
+        for (UUID id: in.getUuidArray()) {
+            Get.identifiedObjectService().getChronology(id).ifPresent(chronology ->
+                    this.feedSelectionProperty.add(chronology));
+        }
+        this.feedHistoryProperty = new SimpleListProperty<>(this, feedName + " history", FXCollections.observableArrayList());
+        for (UUID id: in.getUuidArray()) {
+            Get.identifiedObjectService().getChronology(id).ifPresent(chronology ->
+                    this.feedHistoryProperty.add(chronology));
+        }
+        this.feedSelectionProperty.addListener(this::onChanged);
+    }
+
+    @Override
+    @Marshaler
+    public void marshal(ByteArrayDataBuffer out) {
+         out.putInt(marshalVersion);
+        out.putUuid(activityUuid);
+        out.putUTF(feedName);
+        UUID[] selectedItems = new UUID[feedSelectionProperty.getSize()];
+
+        int i = 0;
+        for (IdentifiedObject identifiedObject: feedSelectionProperty) {
+            selectedItems[i++] = identifiedObject.getPrimordialUuid();
+        }
+        out.putUuidArray(selectedItems);
+
+        UUID[] historyItems = new UUID[feedHistoryProperty.getSize()];
+        i = 0;
+        for (IdentifiedObject identifiedObject: feedHistoryProperty) {
+            historyItems[i++] = identifiedObject.getPrimordialUuid();
+        }
+        out.putUuidArray(historyItems);
+    }
+
+
+    // Using a static method rather than a constructor eliminates the need for
+    // a readResolve method, but allows the implementation to decide how
+    // to handle special cases.
+
+    @Unmarshaler
+    public static ActivityFeed make(ByteArrayDataBuffer in, ViewProperties owningViewForActivityFeed) {
+        int objectMarshalVersion = in.getInt();
+        switch (objectMarshalVersion) {
+            case marshalVersion:
+                return new ActivityFeed(owningViewForActivityFeed, in);
+            default:
+                throw new UnsupportedOperationException("Unsupported version: " + objectMarshalVersion);
+        }
+    }
     private void onChanged(ListChangeListener.Change<? extends IdentifiedObject> c) {
         while (c.next()) {
                   if (c.wasPermutated()) {
@@ -47,14 +112,14 @@ public class ActivityFeed implements ManifoldCoordinate {
                           // nothing to do...;
                       }
                       for (IdentifiedObject additem : c.getAddedSubList()) {
-                          ComponentProxy historyRecord = new ComponentProxy(additem.getNid(), getFullyQualifiedDescriptionText(additem.getNid()));
+                          ComponentProxy historyRecord = new ComponentProxy(additem.getNid(), Get.getTextForComponent(additem.getNid()));
                           addHistory(historyRecord, feedHistoryProperty);
                       }
                   }
               }
     }
 
-    private static void addHistory(ComponentProxy history, ObservableList<ComponentProxy> historyDequeue) {
+    private static void addHistory(IdentifiedObject history, ObservableList<IdentifiedObject> historyDequeue) {
         if (history.getNid() == MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
             return;
         }
@@ -140,78 +205,8 @@ public class ActivityFeed implements ManifoldCoordinate {
         return feedSelectionProperty;
     }
 
-    public SimpleListProperty<ComponentProxy> feedHistoryProperty() {
+    public SimpleListProperty<IdentifiedObject> feedHistoryProperty() {
         return feedHistoryProperty;
-    }
-
-    @Override
-    public ManifoldCoordinateImmutable toManifoldCoordinateImmutable() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().toManifoldCoordinateImmutable();
-    }
-
-    @Override
-    public NavigationCoordinate getNavigationCoordinate() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getNavigationCoordinate();
-    }
-
-    @Override
-    public VertexSort getVertexSort() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getVertexSort();
-    }
-
-    @Override
-    public LogicCoordinate getLogicCoordinate() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getLogicCoordinate();
-    }
-
-    @Override
-    public LanguageCoordinate getLanguageCoordinate() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getLanguageCoordinate();
-    }
-
-    @Override
-    public TaxonomySnapshot getNavigationSnapshot() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getNavigationSnapshot();
-    }
-
-    @Override
-    public StatusSet getVertexStatusSet() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getVertexStatusSet();
-    }
-
-    @Override
-    public StampFilter getViewStampFilter() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getViewStampFilter();
-    }
-
-    @Override
-    public EditCoordinate getEditCoordinate() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getEditCoordinate();
-    }
-
-    @Override
-    public Activity getCurrentActivity() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getCurrentActivity();
-    }
-
-    @Override
-    public ManifoldCoordinate makeCoordinateAnalog(long classifyTimeInEpochMillis) {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().makeCoordinateAnalog(classifyTimeInEpochMillis);
-    }
-
-    @Override
-    public ManifoldCoordinate makeCoordinateAnalog(PremiseType premiseType) {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().makeCoordinateAnalog(premiseType);
-    }
-
-	@Override
-    public PremiseSet getPremiseTypes() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getPremiseTypes();
-    }
-
-    @Override
-    public StampFilter getVertexStampFilter() {
-        return this.owningViewForActivityFeed.getManifoldCoordinate().getVertexStampFilter();
     }
 
     @Override

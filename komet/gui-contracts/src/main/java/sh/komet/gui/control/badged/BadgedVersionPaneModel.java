@@ -81,6 +81,8 @@ import sh.komet.gui.style.PseudoClasses;
 import sh.komet.gui.style.StyleClasses;
 import sh.komet.gui.util.FxGet;
 
+import static sh.komet.gui.style.StyleClasses.DESCRIPTION_TEXT;
+
 public abstract class BadgedVersionPaneModel {
     public static final int FIRST_COLUMN_WIDTH = 32;
     protected static final int BADGE_WIDTH = 25;
@@ -160,8 +162,10 @@ public abstract class BadgedVersionPaneModel {
     protected final SimpleBooleanProperty isDescription = new SimpleBooleanProperty(false);
     protected final SimpleBooleanProperty isInactive = new SimpleBooleanProperty(false);
     protected final SimpleBooleanProperty isLogicalDefinition = new SimpleBooleanProperty(false);
+    protected final SimpleBooleanProperty isOtherVersion = new SimpleBooleanProperty(false);
 
     private Optional<PropertySheetMenuItem> optionalPropertySheetMenuItem = Optional.empty();
+    protected final List<ConceptSpecification> semanticOrderForChronology;
 
 
     //~--- initializers --------------------------------------------------------
@@ -171,6 +175,7 @@ public abstract class BadgedVersionPaneModel {
         isConcept.addListener(this::pseudoStateChanged);
         isLogicalDefinition.addListener(this::pseudoStateChanged);
         isContradiction.addListener(this::pseudoStateChanged);
+        isOtherVersion.addListener(this::pseudoStateChanged);
         expandControl.expandActionProperty()
                 .addListener(this::expand);
         componentType.getStyleClass()
@@ -194,12 +199,14 @@ public abstract class BadgedVersionPaneModel {
 
     protected BadgedVersionPaneModel(ViewProperties viewProperties,
                                      ObservableCategorizedVersion categorizedVersion,
+                                     List<ConceptSpecification> semanticOrderForChronology,
                                      OpenIntIntHashMap stampOrderHashMap,
                                      HashMap<String, AtomicBoolean> disclosureStateMap) {
         this.viewProperties = viewProperties;
         this.disclosureStateMap = disclosureStateMap;
         this.stampOrderHashMap = stampOrderHashMap;
         this.categorizedVersion = categorizedVersion;
+        this.semanticOrderForChronology = semanticOrderForChronology;
         this.isInactive.set(categorizedVersion.getStatus() == Status.INACTIVE);
         int stampSequence = categorizedVersion.getStampSequence();
         if (stampOrderHashMap.containsKey(stampSequence)) {
@@ -243,6 +250,7 @@ public abstract class BadgedVersionPaneModel {
             this.isLogicalDefinition.set(true);
             setupLogicDef((LogicGraphVersion) observableVersion);
         } else {
+            this.isOtherVersion.set(true);
             setupOther(observableVersion);
         }
 
@@ -562,11 +570,16 @@ public abstract class BadgedVersionPaneModel {
             this.outerPane.pseudoClassStateChanged(PseudoClasses.LOGICAL_DEFINITION_PSEUDO_CLASS, newValue);
         } else if (observable == isContradiction) {
             this.outerPane.pseudoClassStateChanged(PseudoClasses.CONTRADICTED_PSEUDO_CLASS, newValue);
+        } else if (observable == isOtherVersion) {
+            this.outerPane.pseudoClassStateChanged(PseudoClasses.OTHER_VERSION_PSEUDO_CLASS, newValue);
         }
     }
 
     protected final void setupDescription(DescriptionVersion description) {
-        componentVBox.getChildren().setAll(addText(description.getText()));
+        TextAreaReadOnly descriptionTextArea = addText(description.getText());
+        descriptionTextArea.getStyleClass().add(DESCRIPTION_TEXT.toString());
+        descriptionTextArea.pseudoClassStateChanged(PseudoClasses.INACTIVE_PSEUDO_CLASS, !description.isActive());
+        componentVBox.getChildren().setAll(descriptionTextArea);
 
         if (isLatestPanel()) {
             int descriptionType = description.getDescriptionTypeConceptNid();
@@ -779,7 +792,7 @@ public abstract class BadgedVersionPaneModel {
         observableVersion.putUserObject(PROPERTY_SHEET_ATTACHMENT, propertySheetMenuItem);
         CategorizedVersions<ObservableCategorizedVersion> categorizedVersions = observableVersion.getChronology().getCategorizedVersions(viewProperties.getManifoldCoordinate().getViewStampFilter());
 
-        ComponentPaneModel componentPane = new ComponentPaneModel(getViewProperties(), categorizedVersions.getUncommittedVersions().get(0), stampOrderHashMap, getDisclosureStateMap());
+        ComponentPaneModel componentPane = new ComponentPaneModel(getViewProperties(), categorizedVersions.getUncommittedVersions().get(0), this.semanticOrderForChronology, stampOrderHashMap, getDisclosureStateMap());
         extensionPaneModels.add(componentPane);
         this.expandControl.setExpandAction(ExpandAction.SHOW_CHILDREN);
         propertySheetMenuItem.addCompletionListener((observable, oldValue, newValue) -> {

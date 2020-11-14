@@ -49,11 +49,6 @@ public class DefaultMultiParentGraphItemDisplayPolicies implements MultiParentGr
    public Node computeGraphic(MultiParentGraphItem item, ManifoldCoordinate manifoldCoordinate) {
        NavigationRecord navigationRecord = Get.taxonomyService().getNavigationRecord(item.getConceptNid());
 
-       boolean conceptActive = navigationRecord.getConceptStates(item.getConceptNid(), manifoldCoordinate.getViewStampFilter().toStampFilterImmutable()).contains(Status.ACTIVE);
-       if (!conceptActive) {
-           return Iconography.DELETE_TRASHCAN.getStyledIconographic();
-       }
-
        ImmutableIntSet navigationConceptNids = manifoldCoordinate.getNavigationCoordinate().getNavigationConceptNids();
 
        Node navigationGraphic = getNavigationGraphic(item);

@@ -64,8 +64,10 @@ import static sh.isaac.api.externalizable.ByteArrayDataBuffer.getInt;
 import sh.isaac.api.externalizable.IsaacObjectType;
 import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.identity.StampedVersion;
+import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.snapshot.calculator.RelativePosition;
 import sh.isaac.api.snapshot.calculator.RelativePositionCalculator;
+import sh.isaac.model.observable.version.ObservableVersionImpl;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
 
 /**
@@ -969,7 +971,12 @@ public abstract class ChronologyImpl
         final OpenIntHashSet builder = new OpenIntHashSet();
 
         for (Version v : this.unwrittenVersions) {
-            builder.add(v.getStampSequence());
+            if (v instanceof ObservableVersion) {
+                ObservableVersionImpl ov = (ObservableVersionImpl) v;
+                ov.getOptionalStampedVersion().ifPresent(version -> builder.add(v.getStampSequence()));
+            } else {
+                builder.add(v.getStampSequence());
+            }
         }
         for (Version v : this.writtenVersions) {
             builder.add(v.getStampSequence());

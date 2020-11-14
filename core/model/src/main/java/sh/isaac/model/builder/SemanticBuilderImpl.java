@@ -47,6 +47,7 @@ import javafx.concurrent.Task;
 import sh.isaac.api.DataTarget;
 import sh.isaac.api.Get;
 import sh.isaac.api.IdentifiedComponentBuilder;
+import sh.isaac.api.Util;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.component.semantic.SemanticBuilder;
@@ -149,7 +150,7 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
     public SemanticBuilderImpl<C> setPrimordialUuid(String uuidString) {
         return (SemanticBuilderImpl<C>) super.setPrimordialUuid(uuidString);
     }
-    
+
     /*
      * Does not build subs, when buildSubs is false, or fire the after listener
      */
@@ -182,8 +183,9 @@ public class SemanticBuilderImpl<C extends SemanticChronology>
             if (semanticChronicle.getAssemblageNid() != this.assemblageId) {
                 throw new RuntimeException("3. Builder is being used to attempt a mis-matched edit of an existing semantic! \n" +
                         " Assemblage nids do not match: " +
+                        Get.conceptDescriptionText(semanticChronicle.getAssemblageNid()) + ": " +
                         Get.identifierService().getUuidPrimordialStringForNid(semanticChronicle.getAssemblageNid()) +
-                        " vs " +
+                        " vs " + Get.conceptDescriptionText(this.assemblageId) + ": " +
                         Get.identifierService().getUuidPrimordialStringForNid(this.assemblageId) + "\n" +
                         semanticChronicle + "\n" + this.toString());
             }

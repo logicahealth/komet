@@ -49,8 +49,11 @@ import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+import java.util.Arrays;
 import java.util.UUID;
 import java.util.function.BiConsumer;
+
+import sh.isaac.api.Get;
 import sh.isaac.api.bootstrap.TermAux;
 
 //~--- classes ----------------------------------------------------------------
@@ -82,7 +85,10 @@ public class UuidT5Generator {
    /** The Constant AUTHOR_TIME_ID. */
    public static final UUID AUTHOR_TIME_ID = UUID.fromString("c6915290-30fc-11e1-b86c-0800200c9a66");
 
-   //~--- get methods ---------------------------------------------------------
+    public static final UUID SINGLE_SEMANTIC_FOR_RC_UUID = UUID.fromString("97c14234-205f-11eb-adc1-0242ac120002");
+
+
+    //~--- get methods ---------------------------------------------------------
 
    /**
     * Gets the.
@@ -103,6 +109,25 @@ public class UuidT5Generator {
        return get(TermAux.RXNORM_CUI.getPrimordialUuid(),
                name);
    }
+
+    /**
+     * For an assemblage that has only one semantic per referenced component, this routine should be
+     * used to generate reproducible UUIDs for semantics.
+     * @param assemblageNid
+     * @param referencedComponentNid
+     * @return
+     */
+   public static UUID singleSemanticUuid(int assemblageNid, int referencedComponentNid) {
+       return singleSemanticUuid(Get.identifierService().getUuidArrayForNid(assemblageNid), Get.identifierService().getUuidArrayForNid(referencedComponentNid));
+   }
+    public static UUID singleSemanticUuid(UUID[] assemblageIds, UUID[] referencedComponentIds) {
+        Arrays.sort(assemblageIds);
+        Arrays.sort(referencedComponentIds);
+        StringBuilder builder = new StringBuilder();
+        builder.append(Arrays.toString(assemblageIds));
+        builder.append(Arrays.toString(referencedComponentIds));
+        return get(SINGLE_SEMANTIC_FOR_RC_UUID, builder.toString());
+    }
    /**
     * Gets the.
     *

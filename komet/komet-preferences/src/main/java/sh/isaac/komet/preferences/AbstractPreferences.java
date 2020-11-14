@@ -208,6 +208,7 @@ public abstract class AbstractPreferences implements PreferenceGroup {
             preferencesNode.putEnum(preferencesNode.getNodeType());
             saveFields();
             preferencesNode.sync();
+            preferencesNode.flush();
         } catch (BackingStoreException ex) {
             throw new RuntimeException(ex);
         }

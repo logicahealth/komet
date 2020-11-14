@@ -1794,6 +1794,12 @@ public class SemanticViewerNode extends DetailNodeAbstract
 	{
 		return true;
 	}
+
+	@Override
+	public void revertPreferences() {
+
+	}
+
 	@Override
 	public void savePreferences()
 	{

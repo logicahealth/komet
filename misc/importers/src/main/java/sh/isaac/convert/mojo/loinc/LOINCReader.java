@@ -193,10 +193,15 @@ public abstract class LOINCReader
 				supportedVersion = 8;
 				mapFileName = "classMappings-2.59.txt";
 			}
-			else if (version.contains("2.65") || version.contains("2.66"))
+			else if (version.contains("2.65") || version.contains("2.66") || version.contains("2.67"))
 			{
 				supportedVersion = 9;
 				mapFileName = "classMappings-2.66.txt";
+			}
+			else if (version.contains("2.68"))
+			{
+				supportedVersion = 10;
+				mapFileName = "classMappings-2.68.txt";
 			}
 			else
 			{

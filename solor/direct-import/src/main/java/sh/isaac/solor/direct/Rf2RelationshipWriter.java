@@ -34,6 +34,7 @@ import sh.isaac.api.bootstrap.TermAux;
 import sh.isaac.api.chronicle.VersionType;
 import sh.isaac.api.commit.StampService;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
+import sh.isaac.api.util.UuidFactory;
 import sh.isaac.api.util.UuidT3Generator;
 import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.model.semantic.SemanticChronologyImpl;
@@ -192,8 +193,8 @@ id	effectiveTime	active	moduleId	sourceId	destinationId	relationshipGroup	typeId
                  // add to sct identifier assemblage
                  UUID identifierUuid;
 
-                 identifierUuid = UuidT5Generator.get(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(),
-                         betterRelUuid.toString() + relationshipRecord[RF2_REL_SCT_ID_INDEX]);
+                 identifierUuid = UuidFactory.getUuidForStringSemantic(TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(), TermAux.SNOMED_IDENTIFIER.getPrimordialUuid(), 
+                         relationshipToWrite.getPrimordialUuid(), relationshipRecord[RF2_REL_SCT_ID_INDEX], null); 
 
                  SemanticChronologyImpl sctIdentifierToWrite = new SemanticChronologyImpl(VersionType.STRING,
                          identifierUuid,

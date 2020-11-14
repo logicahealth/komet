@@ -129,6 +129,11 @@ public class ConceptBuilderNode extends ExplorationNodeAbstract implements GuiCo
     }
 
     @Override
+    public void revertPreferences() {
+
+    }
+
+    @Override
     public void savePreferences() {
         throw new UnsupportedOperationException();
     }

@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+
+import javafx.css.PseudoClass;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.controlsfx.control.PopOver;
@@ -201,9 +203,6 @@ public class AxiomView {
         if (conceptNid == -1
                 || conceptNid == MetaData.UNINITIALIZED_COMPONENT____SOLOR.getNid()) {
             return Iconography.ALERT_CONFIRM2.getIconographic();
-        }
-        if (status != Status.ACTIVE) {
-            return Iconography.DELETE_TRASHCAN.getIconographic();
         }
         int[] parents = new int[]{};
         try {
@@ -432,9 +431,9 @@ public class AxiomView {
                         Status latestStatus = latest.get().getStatus();
                         titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false,
                                 latestStatus, manifoldCoordinate, premiseType));
-                        if (latestStatus != Status.ACTIVE) {
-                            titleLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, true);
-                        }
+                        titleLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, latestStatus != Status.ACTIVE);
+                        rootBorderPane.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, latestStatus != Status.ACTIVE);
+                        rootGridPane.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, latestStatus != Status.ACTIVE);
                     } else {
                         titleLabel.setGraphic(computeGraphic(conceptNode.getConceptNid(), false,
                                 Status.PRIMORDIAL, manifoldCoordinate, premiseType));
@@ -651,6 +650,9 @@ public class AxiomView {
                     if (latest.isPresent()) {
                         titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
                                 latest.get().getStatus(), manifoldCoordinate, premiseType));
+                        rootBorderPane.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !latest.get().isActive());
+                        titleLabel.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !latest.get().isActive());
+                        rootGridPane.pseudoClassStateChanged(INACTIVE_PSEUDO_CLASS, !latest.get().isActive());
                     } else {
                         titleLabel.setGraphic(computeGraphic(expression.getConceptBeingDefinedNid(), false,
                                 Status.PRIMORDIAL, manifoldCoordinate, premiseType));

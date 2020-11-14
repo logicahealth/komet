@@ -768,6 +768,33 @@ public class ByteArrayDataBuffer {
    }
 
    /**
+    * Gets a copy of the data in an independent array. Performs a reset, and then copies the data to a new array.
+    *
+    * @return the byte[] that backs this buffer.
+    */
+
+   public byte[] getDataCopy() {
+      this.rewind();
+      if (this.readOnly) {
+         throw new ReadOnlyBufferException();
+      }
+
+      final long lockStamp = this.sl.writeLock();
+
+      try {
+         if ((this.position < this.data.length) && (this.used < this.data.length)) {
+            final int    newSize = Math.max(this.position, this.used);
+            final byte[] newData = new byte[newSize];
+
+            System.arraycopy(this.data, 0, newData, 0, newSize);
+            return newData;
+         }
+      } finally {
+         this.sl.unlockWrite(lockStamp);
+      }
+      throw new IllegalStateException();
+   }
+   /**
     * Ensure space.
     *
     * @param minSpace the min space

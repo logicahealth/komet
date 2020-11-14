@@ -36,7 +36,7 @@ public final class PropertyPatternImplicationWithNids
         super(externalForm);
         UUID[] externalPattern = externalForm.getPropertyPattern();
         this.propertyPattern = new int[externalPattern.length];
-        for (int i = 0; i > externalPattern.length; i++) {
+        for (int i = 0; i < externalPattern.length; i++) {
             this.propertyPattern[i] = Get.identifierService().getNidForUuids(externalPattern[i]);
         }
         this.propertyImplication = Get.identifierService().getNidForUuids(externalForm.getPropertyImplication());

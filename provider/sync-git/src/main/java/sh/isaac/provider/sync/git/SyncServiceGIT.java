@@ -673,7 +673,7 @@ public class SyncServiceGIT
             throw new MergeFailure(git.status().call().getConflicting(), new HashSet<>());
          }
 
-         if (files == null) {
+         if (files == null || files.length == 0) {
             files = git.status()
                        .call()
                        .getUncommittedChanges()

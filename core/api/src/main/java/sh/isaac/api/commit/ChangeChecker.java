@@ -47,19 +47,11 @@ package sh.isaac.api.commit;
 import sh.isaac.api.Get;
 import sh.isaac.api.alert.AlertObject;
 import sh.isaac.api.alert.AlertType;
-
-//~--- JDK imports ------------------------------------------------------------
-
-//~--- non-JDK imports --------------------------------------------------------
-
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.transaction.Transaction;
-
 import java.util.Optional;
-import java.util.UUID;
 
-//~--- interfaces -------------------------------------------------------------
 
 /**
  * The Interface ChangeChecker.
@@ -85,11 +77,13 @@ public interface ChangeChecker
 
 
         for (Version v: chronology.getVersionList()) {
-            if (v.getPathNid() == pathConceptNid && transaction.containsTransactionId(Get.stampService().getTransactionIdForStamp(v.getStampSequence()))) {
+            if (v.getPathNid() == pathConceptNid && transaction.getStampsForTransaction().contains(v.getStampSequence())) {
                 return check(v, transaction);
             }
         }
-        throw new IllegalStateException("No version to test for: " + chronology + " path: " + Get.conceptDescriptionText(pathConceptNid));
+
+        throw new IllegalStateException("No version to test for: " + chronology + " checking path: " + Get.conceptDescriptionText(pathConceptNid) + 
+            " for transaction " + transaction);
     }
 
 

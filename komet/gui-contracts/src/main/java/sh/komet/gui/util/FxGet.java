@@ -25,6 +25,7 @@ import javafx.scene.robot.Robot;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.subject.Subject;
 import org.controlsfx.control.PropertySheet;
+import org.controlsfx.control.action.Action;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
@@ -87,6 +88,8 @@ import static sh.komet.gui.contract.preferences.GraphConfigurationItem.PREMISE_D
 @Singleton
 public class FxGet implements StaticIsaacCache {
 
+    public static final String KOMET_PREFERENCES_ROOT = "sh/komet/preferences";
+
     public enum PROPERTY_KEYS {
         WINDOW_PREFERENCES
     }
@@ -110,7 +113,7 @@ public class FxGet implements StaticIsaacCache {
     private static ObservableList<UuidStringKey> LOGIC_COORDINATE_KEY_LIST;
     private static ObservableList<UuidStringKey> MANIFOLD_COORDINATE_KEY_LIST;
     private static ObservableList<ImmutableList<ConceptSpecification>> NAVIGATION_OPTIONS;
-
+    private static ObservableList<Action> SYNCHRONIZATION_ITEMS = FXCollections.observableArrayList();
     private static final ConcurrentHashMap<UuidStringKey, ComponentList> componentListMap = new ConcurrentHashMap();
 
     private static final ObservableList<UuidStringKey> componentListKeys = FXCollections.observableArrayList(new ArrayList<>());
@@ -129,7 +132,7 @@ public class FxGet implements StaticIsaacCache {
 
     private static ViewProperties preferenceViewProperties;
 
-    private static Robot robot = new Robot();
+    private static Robot robot = null;
 
     public static List<GuiSearcher> searchers() {
         return SEARCHER_LIST;
@@ -146,7 +149,14 @@ public class FxGet implements StaticIsaacCache {
         return DIALOG_SERVICE;
     }
 
+    public static ObservableList<Action> synchronizationMenuItems() {
+        return SYNCHRONIZATION_ITEMS;
+    }
+
     public static Point2D getMouseLocation() {
+        if (robot == null) {
+            robot = new Robot();
+        }
         return robot.getMousePosition();
     }
 
@@ -249,6 +259,13 @@ public class FxGet implements StaticIsaacCache {
 
     public static IsaacPreferences configurationNode(Class<?> c) {
         return preferenceService().getConfigurationPreferences().node(c);
+    }
+
+    public static IsaacPreferences kometConfigurationRootNode() {
+        return preferenceService().getConfigurationPreferences().node(KOMET_PREFERENCES_ROOT);
+    }
+    public static IsaacPreferences kometUserRootNode() {
+        return preferenceService().getUserPreferences().node(KOMET_PREFERENCES_ROOT);
     }
     public static void load() {
 
@@ -622,18 +639,20 @@ public class FxGet implements StaticIsaacCache {
 
 
     public static ViewProperties preferenceViewProperties() {
+        IsaacPreferences preferences = FxGet.kometConfigurationRootNode();
         if (preferenceViewProperties == null) {
             preferenceViewProperties = ViewProperties.make(UUID.fromString("1db21f81-c884-4dd7-8bf5-2befc955c887"), ViewProperties.PREFERENCES,
                     new ObservableManifoldCoordinateImpl(Coordinates.Manifold.DevelopmentInferredRegularNameSort()),
-                    new ObservableEditCoordinateImpl(Coordinates.Edit.Default()));
+                    new ObservableEditCoordinateImpl(Coordinates.Edit.Default()),
+                    preferences);
         }
         return preferenceViewProperties;
     }
 
-    public static ViewProperties newDefaultViewProperties() {
+    public static ViewProperties newDefaultViewProperties(IsaacPreferences preferences) {
         return ViewProperties.make(UUID.randomUUID(), "Default view",
                 new ObservableManifoldCoordinateImpl(Coordinates.Manifold.DevelopmentInferredRegularNameSort()),
-                new ObservableEditCoordinateImpl(Coordinates.Edit.Default()));
+                new ObservableEditCoordinateImpl(Coordinates.Edit.Default()), preferences);
     }
 
     public static WindowPreferences windowPreferences(Node node) {

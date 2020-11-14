@@ -25,21 +25,17 @@ import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 
 /**
- * TODO:
- * KEC: This class needs to be rewritten so that it does not depend on sh.isaac.provider.logic.IsaacVisitor from a
- * provider module. It must depend on the api and possibly the model class. Metadata is ok.
- * Loader code to convert Loinc into the ISAAC datastore.
  * 
  * See {@link LoincTPMojoRunner} for a way to run this via a main for testing / debug
  */
-@Mojo( name = "convert-loinc-tech-preview-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES )
-public class LoincTPImportMojoDirect extends LoincTPImportHK2Direct
-{
-	/**
-	 * This constructor is for maven and should not be used at runtime. 
-	 */
-	public LoincTPImportMojoDirect()
-	{
-		//for maven
-	}
-}
+//@Mojo( name = "convert-loinc-tech-preview-to-ibdf", defaultPhase = LifecyclePhase.PROCESS_SOURCES )
+//public class LoincTPImportMojoDirect extends LoincTPImportHK2Direct
+//{
+//	/**
+//	 * This constructor is for maven and should not be used at runtime. 
+//	 */
+//	public LoincTPImportMojoDirect()
+//	{
+//		//for maven
+//	}
+//}

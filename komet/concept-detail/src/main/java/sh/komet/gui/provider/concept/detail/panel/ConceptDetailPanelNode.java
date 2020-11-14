@@ -37,6 +37,7 @@
 package sh.komet.gui.provider.concept.detail.panel;
 
 import static javafx.scene.control.ContentDisplay.GRAPHIC_ONLY;
+import static sh.komet.gui.control.badged.ComponentPaneModel.compareWithList;
 import static sh.komet.gui.style.StyleClasses.ADD_DESCRIPTION_BUTTON;
 import static sh.komet.gui.util.FxUtils.setupHeaderPanel;
 import java.util.ArrayList;
@@ -104,6 +105,7 @@ import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.observable.ObservableCategorizedVersion;
 import sh.isaac.api.observable.ObservableVersion;
 import sh.isaac.api.observable.concept.ObservableConceptChronology;
+import sh.isaac.api.observable.semantic.ObservableSemanticChronology;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.NaturalOrder;
@@ -160,7 +162,8 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         DESCRIPTION_TYPE_ORDER,
         CONCEPT_SEMANTICS_ORDER,
         DESCRIPTION_SEMANTIC_ORDER,
-        AXIOM_SEMANTIC_ORDER;
+        AXIOM_SEMANTIC_ORDER,
+        FOCUS_CONCEPT;
     }
 
     private static final Logger LOG = LogManager.getLogger();
@@ -264,11 +267,13 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
             ObservableFields.WILDCARD_FOR_ORDER
     };
 
+    private final Runnable saveAction = () -> this.savePreferences();
+
     //~--- constructors --------------------------------------------------------
     public ConceptDetailPanelNode(ViewProperties viewProperties, ActivityFeed activityFeed, IsaacPreferences preferences) {
         super(viewProperties, activityFeed, preferences, MenuSupplierForFocusConcept.getArray());
 
-
+        viewProperties.addSaveAction(saveAction);
 
         this.detailPane.getStyleClass()
                 .add(StyleClasses.CONCEPT_DETAIL_PANE.toString());
@@ -309,8 +314,9 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         this.semanticOrderForAxiomDetails.setAll(preferences.getConceptList(ConceptDetailNodeKeys.AXIOM_SEMANTIC_ORDER, defaultSemanticOrderForAxiom));
 
 
+        this.revertPreferences();
         this.savePreferences();
-        Platform.runLater(() ->  resetConceptFromFocus());
+
         this.viewProperties.getManifoldCoordinate().addListener((observable, oldValue, newValue) -> {
             Platform.runLater(() ->  resetConceptFromFocus());
         });
@@ -395,6 +401,25 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         return Iconography.CONCEPT_DETAILS.getIconographic();
     }
 
+    private void revertList(ConceptDetailNodeKeys detailOrder, SimpleEqualityBasedListProperty<ConceptSpecification> detailOrderList) {
+        if (this.preferences.hasKey(detailOrder)) {
+            detailOrderList.setAll(this.preferences.getConceptList(detailOrder));
+        }
+    }
+
+    @Override
+    public void revertPreferences() {
+        this.selectionIndexProperty.setValue(this.preferences.getInt(Keys.ACTIVITY_SELECTION_INDEX, this.selectionIndexProperty.getValue()));
+        revertList(ConceptDetailNodeKeys.DETAIL_ORDER, this.detailOrderList);
+        revertList(ConceptDetailNodeKeys.DESCRIPTION_TYPE_ORDER, this.descriptionTypeList);
+        revertList(ConceptDetailNodeKeys.AXIOM_ORDER, this.axiomSourceList);
+        revertList(ConceptDetailNodeKeys.CONCEPT_SEMANTICS_ORDER, this.semanticOrderForConceptDetails);
+        revertList(ConceptDetailNodeKeys.DESCRIPTION_SEMANTIC_ORDER, this.semanticOrderForDescriptionDetails);
+        revertList(ConceptDetailNodeKeys.AXIOM_SEMANTIC_ORDER, this.semanticOrderForAxiomDetails);
+        this.preferences.getConceptSpecification(ConceptDetailNodeKeys.FOCUS_CONCEPT).ifPresent(
+                conceptSpecification -> this.focusedObjectProperty().setValue(conceptSpecification));
+    }
+
     @Override
     public void savePreferences() {
         Optional<IdentifiedObject> optionalFocus = this.getFocusedObject();
@@ -409,6 +434,10 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         this.preferences.putConceptList(ConceptDetailNodeKeys.CONCEPT_SEMANTICS_ORDER, this.semanticOrderForConceptDetails);
         this.preferences.putConceptList(ConceptDetailNodeKeys.DESCRIPTION_SEMANTIC_ORDER, this.semanticOrderForDescriptionDetails);
         this.preferences.putConceptList(ConceptDetailNodeKeys.AXIOM_SEMANTIC_ORDER, this.semanticOrderForAxiomDetails);
+        this.getFocusedObject().ifPresentOrElse(identifiedObject -> {
+            this.preferences.putConceptSpecification(ConceptDetailNodeKeys.FOCUS_CONCEPT, Get.concept(identifiedObject.getNid()));
+        }, () -> this.preferences.remove(ConceptDetailNodeKeys.FOCUS_CONCEPT));
+
 
         try {
             this.preferences.sync();
@@ -462,10 +491,11 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         semanticOrderForAxiomDetailsWrapper.setConstraints(FxGet.activeConceptMembers(TermAux.AXIOM_ATTACHMENT_ORDER_OPTIONS_ASSEMBLAGE,viewProperties.getManifoldCoordinate()));
     }
 
-    private void addCategorizedVersions(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions, List<ConceptSpecification> semanticOrderForChronology, ParallelTransition parallelTransition) {
+    private void addCategorizedVersions(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions,
+                                        List<ConceptSpecification> semanticOrderForChronology, ParallelTransition parallelTransition) {
         categorizedVersions.getLatestVersion().ifPresent(observableCategorizedVersion -> {
             parallelTransition.getChildren()
-                    .add(addComponent(categorizedVersions));
+                    .add(addComponent(categorizedVersions, semanticOrderForChronology));
         });
     }
 
@@ -488,7 +518,8 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
         return ft;
     }
 
-    private Animation addComponent(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions) {
+    private Animation addComponent(CategorizedVersions<ObservableCategorizedVersion> categorizedVersions,
+                                   List<ConceptSpecification> semanticOrderForChronology) {
         ObservableCategorizedVersion categorizedVersion;
 
         if (categorizedVersions.getLatestVersion()
@@ -504,7 +535,7 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
                     "Categorized version has no latest version or uncommitted version: \n" + categorizedVersions);
         }
 
-        ComponentPaneModel componentPaneModel = new ComponentPaneModel(this.viewProperties, categorizedVersion,
+        ComponentPaneModel componentPaneModel = new ComponentPaneModel(this.viewProperties, categorizedVersion, semanticOrderForChronology,
                 stampOrderHashMap, disclosureStateMap);
 
         componentPaneModels.add(componentPaneModel);
@@ -685,7 +716,13 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
             filteredAndSortedSemantics.addAll(semantics);
         }
         // now need to sort...
-        filteredAndSortedSemantics.sort((o1, o2) -> {
+        filteredAndSortedSemantics.sort(compareWithList(assemblageOrderList));
+        return filteredAndSortedSemantics;
+    }
+
+
+    public static Comparator<CategorizedVersions<ObservableCategorizedVersion>> compareWithList(IntList assemblageOrderList) {
+        return (o1, o2) -> {
             int o1index = assemblageOrderList.indexOf(o1.getAssemblageNid());
             int o2index = assemblageOrderList.indexOf(o2.getAssemblageNid());
             if (o1index == o2index) {
@@ -699,11 +736,8 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
                 return -1;
             }
             return (o1index < o2index) ? -1 : 1;
-        });
-        return filteredAndSortedSemantics;
+        };
     }
-
-
 
 
     public static List<CategorizedVersions<ObservableCategorizedVersion>> filterAndSortDescriptions(List<CategorizedVersions<ObservableCategorizedVersion>> descriptionSemantics,
@@ -982,7 +1016,7 @@ implements ChronologyChangeListener, Supplier<List<MenuItem>> {
 
     @Override
     public void close() {
-        // nothing to do...
+        viewProperties.removeSaveAction(saveAction);
     }
 
     @Override

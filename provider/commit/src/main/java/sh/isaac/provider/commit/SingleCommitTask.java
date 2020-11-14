@@ -16,9 +16,12 @@
  */
 package sh.isaac.provider.commit;
 
+import java.lang.ref.WeakReference;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 import javafx.beans.property.IntegerProperty;
 import javafx.concurrent.Task;
@@ -30,6 +33,7 @@ import sh.isaac.api.chronicle.Version;
 import sh.isaac.api.collections.NidSet;
 import sh.isaac.api.collections.StampSequenceSet;
 import sh.isaac.api.commit.ChangeChecker;
+import sh.isaac.api.commit.ChronologyChangeListener;
 import sh.isaac.api.commit.CommitRecord;
 import sh.isaac.api.commit.CommitTask;
 import sh.isaac.api.component.concept.ConceptChronology;
@@ -52,11 +56,15 @@ public class SingleCommitTask extends CommitTask {
     final Transaction transaction;
     final String commitComment;
     final Collection<ChangeChecker> checkers;
+    /** The change listeners. */
+    private final ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners;
+
 
     public SingleCommitTask(
             Transaction transaction,
             String commitComment,
             Collection<ChangeChecker> checkers,
+            ConcurrentSkipListSet<WeakReference<ChronologyChangeListener>> changeListeners,
             ObservableVersion... versionsToCommit) {
         for (ObservableVersion version: versionsToCommit) {
             if (version.getAuthorNid() == 0) throw new IllegalStateException("Author cannot be zero... " + version);
@@ -67,6 +75,7 @@ public class SingleCommitTask extends CommitTask {
         this.transaction = transaction;
         this.commitComment = commitComment;
         this.checkers = checkers;
+        this.changeListeners = changeListeners;
         LOG.info("SingleCommitTask created for transaction {}", transaction);
     }
 
@@ -102,6 +111,7 @@ public class SingleCommitTask extends CommitTask {
         long commitTime = System.currentTimeMillis();
          StampSequenceSet stampsInCommit = new StampSequenceSet();
          OpenIntIntHashMap stampAliases = new OpenIntIntHashMap();
+        ArrayList<Chronology> committedChronologies = new ArrayList<>();
 
         for (ObservableVersion observableVersion : versionsToCommit) {
             // Status status, long time, int authorNid, int moduleNid, int pathNid
@@ -112,6 +122,7 @@ public class SingleCommitTask extends CommitTask {
             stampsInCommit.add(stampSequence);
 
             Chronology chronologyForCommit = observableVersion.createChronologyForCommit(stampSequence);
+            committedChronologies.add(chronologyForCommit);
             Version version = chronologyForCommit.getVersionList().get(0);
             ObservableVersionImpl observableVersionImpl = (ObservableVersionImpl) observableVersion;
             observableVersionImpl.updateVersion(version);
@@ -119,9 +130,22 @@ public class SingleCommitTask extends CommitTask {
             ObservableChronologyImpl observableChronology = (ObservableChronologyImpl) observableVersionImpl.getChronology();
             observableChronology.versionListProperty().add(observableVersionImpl);
             Get.identifiedObjectService().putChronologyData(chronologyForCommit);
+            //
         }
         Task<Void> stampCommitTask = Get.stampService().commit(this.transaction, commitTime);
         stampCommitTask.get();
+        this.changeListeners.forEach((listenerRef) -> {
+            final ChronologyChangeListener listener = listenerRef.get();
+
+            if (listener == null) {
+                this.changeListeners.remove(listenerRef);
+            } else {
+                for (Chronology chronology: committedChronologies) {
+                    listener.handleChange(chronology);
+                }
+            }
+        });
+
         CommitRecord commitRecord = new CommitRecord(Instant.ofEpochMilli(commitTime),
                 stampsInCommit,
                 stampAliases,

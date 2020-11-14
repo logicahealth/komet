@@ -54,6 +54,7 @@ import org.jvnet.hk2.annotations.Contract;
  * chance to update this API to allow persistence.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
+ * @author kec
  */
 @Contract
 public interface MetaContentService {
@@ -93,8 +94,10 @@ public interface MetaContentService {
    public void removeStore(String storeName);
    
    /**
+    * Store the number of processed bytes for a particular change set. If a change set expands after initial
+    * processing, it can be processed again, since the change sets are idempotent.
     * @return The store that carries filename -> true mappings for changeset files that have already been processed into this datastore
     */
-   public ConcurrentMap<String, Boolean> getChangesetStore();
+   public ConcurrentMap<String, Integer> getChangesetStore();
 }
 

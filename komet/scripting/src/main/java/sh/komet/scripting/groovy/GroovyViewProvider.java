@@ -64,6 +64,11 @@ public class GroovyViewProvider extends ExplorationNodeAbstract {
     }
 
     @Override
+    public void revertPreferences() {
+
+    }
+
+    @Override
     public void savePreferences() {
         throw new UnsupportedOperationException();
     }

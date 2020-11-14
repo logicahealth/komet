@@ -164,8 +164,8 @@ public class MVStoreMetaContentProvider
     * {@inheritDoc}
     */
    @Override
-   public ConcurrentMap<String, Boolean> getChangesetStore() {
-      return this.store.<String, Boolean>openMap(PROCESSED_CHANGESETS_STORE);
+   public ConcurrentMap<String, Integer> getChangesetStore() {
+      return this.store.<String, Integer>openMap(PROCESSED_CHANGESETS_STORE);
    }
 
    /**

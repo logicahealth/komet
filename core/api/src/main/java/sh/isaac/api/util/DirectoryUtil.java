@@ -63,7 +63,7 @@ public class DirectoryUtil {
         deleteDirectory(originalPath);
     }
 
-    private static void copy(Path source, Path dest) {
+    public static void copy(Path source, Path dest) {
         try {
             if (Files.exists(dest) && Files.isDirectory(dest)) {
                 // delete directory, then copy. 

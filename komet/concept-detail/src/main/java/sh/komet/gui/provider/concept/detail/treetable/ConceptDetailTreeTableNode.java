@@ -118,6 +118,11 @@ public class ConceptDetailTreeTableNode extends DetailNodeAbstract implements Su
     }
 
     @Override
+    public void revertPreferences() {
+
+    }
+
+    @Override
     public void savePreferences() {
         Platform.runLater(() -> FxGet.dialogs().showInformationDialog("Not implemented",
                 "Save preferences not yet implemented for ConceptDetailTreeTableNode"));

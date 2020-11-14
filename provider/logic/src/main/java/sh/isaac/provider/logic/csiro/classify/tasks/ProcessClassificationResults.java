@@ -46,6 +46,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.logging.log4j.LogManager;
@@ -82,6 +83,7 @@ import sh.isaac.api.task.AggregateTaskInput;
 import sh.isaac.api.task.OptionalWaitTask;
 import sh.isaac.api.task.TimedTaskWithProgressTracker;
 import sh.isaac.api.transaction.Transaction;
+import sh.isaac.api.util.UuidT5Generator;
 import sh.isaac.api.util.time.DateTimeUtil;
 import sh.isaac.model.logic.ClassifierResultsImpl;
 import sh.isaac.provider.logic.csiro.classify.ClassifierData;
@@ -284,6 +286,7 @@ public class ProcessClassificationResults
         final LogicalExpressionBuilderService logicalExpressionBuilderService = Get.logicalExpressionBuilderService();
         final SemanticBuilderService<? extends SemanticChronology> semanticBuilderService = Get.semanticBuilderService();
         final CommitService commitService = Get.commitService();
+        final ConcurrentSkipListSet<Integer> inferredChanges = new ConcurrentSkipListSet<>();
 
         LOG.debug("write back inferred begins with {} axioms", inferredAxioms.getInferredAxioms().size());
         // TODO Dan notes, for reasons not yet understood, this parallelStream call isn't working.  
@@ -365,12 +368,12 @@ public class ProcessClassificationResults
                                                 this.inputData.getLogicCoordinate().getInferredAssemblageNid());
 
                                 // get classifier edit coordinate...
+
+                                builder.setPrimordialUuid(UuidT5Generator.singleSemanticUuid(
+                                        this.manifoldCoordinate.getLogicCoordinate().getInferredAssemblageNid(),
+                                        conceptNid));
                                 submitted.put(builder.buildAndWrite(wc), true);
                                 
-                                if (Get.configurationService().isVerboseDebugEnabled() && TestConcept.CARBOHYDRATE_OBSERVATION.getNid() == conceptNid) {
-                                    log.info("ADDING INFERRED NID FOR: " + TestConcept.CARBOHYDRATE_OBSERVATION);
-                                    TestConcept.WATCH_NID_SET.add(builder.getNid());
-                                }
                             } else {
                                 final SemanticChronology inferredChronology
                                         = assemblageService.getSemanticChronology(inferredSemanticNids.intIterator().next());

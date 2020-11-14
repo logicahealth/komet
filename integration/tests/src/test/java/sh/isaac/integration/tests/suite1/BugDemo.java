@@ -18,6 +18,7 @@ package sh.isaac.integration.tests.suite1;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.And;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.ConceptAssertion;
 import static sh.isaac.api.logic.LogicalExpressionBuilder.NecessarySet;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Optional;
@@ -94,7 +95,7 @@ public class BugDemo
 		Transaction transaction = Get.commitService().newTransaction(Optional.of("BugTestOne"), ChangeCheckerMode.INACTIVE);
 		try {
 			descriptionSemanticBuilder.build(new WriteCoordinateImpl(transaction, 
-					Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get().getStampSequence()));
+					Get.configurationService().getGlobalDatastoreConfiguration().getDefaultWriteCoordinate().get().getStampSequence()), new ArrayList<>());
 			transaction.commit();
 			Assert.fail("build worked when it shouldn't have");
 		} catch (Exception e) {

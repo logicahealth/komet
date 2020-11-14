@@ -84,6 +84,9 @@ public class ImportSelectedAndTransformTask extends TimedTaskWithProgressTracker
          Future<?> addNavigationConceptsTask = Get.executor().submit(addNavigationConcepts);
          addNavigationConceptsTask.get();
          completedUnitOfWork();
+         
+         updateMessage("Committing");
+         transaction.commit().get();
 
          updateMessage("Classifying new content...");
          ClassifierService classifierService = Get.logicService().getClassifierService(viewProperties.getManifoldCoordinate().toManifoldCoordinateImmutable());

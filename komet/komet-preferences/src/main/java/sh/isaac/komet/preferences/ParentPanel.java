@@ -114,7 +114,7 @@ public abstract class ParentPanel extends AbstractPreferences {
 
     private void resetConfigurationAndUserItems(ActionEvent actionEvent) {
         try {
-            IsaacPreferences configurationNode = FxGet.configurationNode(ConfigurationPreferencePanel.class).node(getPreferencesNode().absolutePath());
+            IsaacPreferences configurationNode = FxGet.kometConfigurationRootNode().node(getPreferencesNode().absolutePath());
             configurationNode.remove(CHILDREN_NODES);
             configurationNode.sync();
             FxGet.kometPreferences().resetUserPreferences();

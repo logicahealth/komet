@@ -179,11 +179,10 @@ public class BinaryDataWriterProvider
          final MetaContentService mcs = LookupService.get().getService(MetaContentService.class);
 
          if (mcs != null) {
-            final ConcurrentMap<String, Boolean> processedChangesets = mcs.getChangesetStore();
-            processedChangesets.put(path.getFileName().toString(), true);
-         }
-         else {
-            LOG.warn("No implemantation of a MetaContentService is available, this will lead to reprocessing of all changeset files on each startup");
+            final ConcurrentMap<String, Integer> processedChangesets = mcs.getChangesetStore();
+            processedChangesets.put(path.getFileName().toString(), (int) path.toFile().length());
+         } else {
+            LOG.warn("No implementation of a MetaContentService is available, this will lead to reprocessing of all changeset files on each startup");
          }
       }
    }

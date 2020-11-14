@@ -41,6 +41,7 @@ import de.codecentric.centerdevice.MenuToolkit;
 import de.codecentric.centerdevice.javafxsvg.SvgImageLoaderFactory;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Group;
@@ -53,6 +54,7 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javafx.stage.Window;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.hk2.api.MultiException;
@@ -383,7 +385,8 @@ public class MainApp
     }
 
     private void newStatement(ActionEvent event) {
-        ViewProperties statementManifold = FxGet.newDefaultViewProperties();
+        IsaacPreferences statementPreferences = FxGet.kometConfigurationRootNode().node("Statements").node(UUID.randomUUID().toString());
+        ViewProperties statementManifold = FxGet.newDefaultViewProperties(statementPreferences);
         StatementViewController statementController = StatementView.show(statementManifold,
                 MenuProvider::handleCloseRequest);
 
@@ -477,6 +480,12 @@ public class MainApp
     }
 
     protected void shutdown() {
+        for (Window window: Window.getWindows()) {
+            if (window.getProperties().containsKey(FxGet.PROPERTY_KEYS.WINDOW_PREFERENCES)) {
+                WindowPreferences windowPreferences = (WindowPreferences) window.getProperties().get(FxGet.PROPERTY_KEYS.WINDOW_PREFERENCES);
+                windowPreferences.save();
+            }
+        }
         FxGet.sync();
         for (Transaction transaction: Get.commitService().getPendingTransactionList()) {
             transaction.cancel().getNoThrow();

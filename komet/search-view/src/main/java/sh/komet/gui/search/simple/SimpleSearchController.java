@@ -145,6 +145,11 @@ public class SimpleSearchController extends ExplorationNodeAbstract implements G
 
 
     @Override
+    public void revertPreferences() {
+
+    }
+
+    @Override
     public void savePreferences() {
         throw new UnsupportedOperationException();
     }

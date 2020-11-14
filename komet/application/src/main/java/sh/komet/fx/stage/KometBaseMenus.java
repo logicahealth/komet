@@ -117,12 +117,12 @@ public class KometBaseMenus implements MenuProvider {
                 MenuItem selectiveImport = new MenuItemWithText("Selective import and transform");
                 selectiveImport.setUserData(windowPreference);
                 selectiveImport.setOnAction((ActionEvent event) -> {
-                    ImportView.show(FxGet.newDefaultViewProperties());
+                    ImportView.show(FxGet.newDefaultViewProperties(windowPreference.getPreferenceNode()));
                 });
 
                 MenuItem selectiveExport = new MenuItemWithText("Selective export");
                 selectiveExport.setUserData(windowPreference);
-                selectiveExport.setOnAction(event -> ExportView.show(FxGet.newDefaultViewProperties()));
+                selectiveExport.setOnAction(event -> ExportView.show(FxGet.newDefaultViewProperties(windowPreference.getPreferenceNode())));
 
 
                 Menu synchronize = new Menu("Synchronize");

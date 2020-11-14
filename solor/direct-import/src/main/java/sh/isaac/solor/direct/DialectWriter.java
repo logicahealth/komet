@@ -43,7 +43,7 @@ package sh.isaac.solor.direct;
 
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
-
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
@@ -155,7 +155,7 @@ public class DialectWriter
             try {
                referencedComponentNid = identifierService.getNidForUuids(referencedComponentUuid);
             } catch (NoSuchElementException e) {
-               LOG.warn("No element for [1]: " + descriptionRecord[REFERENCED_COMPONENT_SCT_ID_INDEX] + " in record: \n      " + descriptionRecord);
+               LOG.warn("No element for [1]: " + descriptionRecord[REFERENCED_COMPONENT_SCT_ID_INDEX] + " in record: \n      " + Arrays.toString(descriptionRecord));
                referencedComponentNid = identifierService.assignNid(referencedComponentUuid);;
             }
             int acceptabilityNid     = identifierService.getNidForUuids(acceptabilityUuid);

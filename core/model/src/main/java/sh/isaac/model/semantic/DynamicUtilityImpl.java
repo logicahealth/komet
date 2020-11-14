@@ -246,16 +246,25 @@ public class DynamicUtilityImpl
             .getDescriptionBuilder(semanticDescription, conceptNid, TermAux.DEFINITION_DESCRIPTION_TYPE, TermAux.ENGLISH_LANGUAGE);
       definitionBuilder.addPreferredInDialectAssemblage(TermAux.US_DIALECT_ASSEMBLAGE);
       definitionBuilder.setT5UuidNested(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid());
+      
+      ArrayList<Chronology> builtObjects = new ArrayList<>();
 
-      final SemanticChronology definitionSemantic = write ? definitionBuilder.buildAndWrite(localWc).getNoThrow() 
-            : definitionBuilder.build(localWc);
-      builtSemantics.add(definitionSemantic);
+      final SemanticChronology definitionSemantic = write ? definitionBuilder.buildAndWrite(localWc, builtObjects).getNoThrow() 
+            : definitionBuilder.build(localWc, builtObjects);
+      
+      //Built objects already includes the definition semantic
+      for (Chronology c : builtObjects) {
+          builtSemantics.add((SemanticChronology) c);
+      }
+      
+      builtObjects.clear();
 
       IdentifiedComponentBuilder<? extends SemanticChronology> definitionAnnotation = Get.semanticBuilderService().getDynamicBuilder(definitionSemantic.getNid(), 
             DynamicConstants.get().DYNAMIC_DEFINITION_DESCRIPTION.getNid(), null)
             .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null);
       
-      builtSemantics.add(write ? definitionAnnotation.buildAndWrite(localWc).getNoThrow() : definitionAnnotation.build(localWc));
+      //This doesn't build nested semantics, so can ignore the builtObjects list
+      builtSemantics.add(write ? definitionAnnotation.buildAndWrite(localWc).getNoThrow() : definitionAnnotation.build(localWc, builtObjects));
 
       // define the data columns (if any)
       if (columns != null) {
@@ -267,7 +276,8 @@ public class DynamicUtilityImpl
             final DynamicData[] data = configureDynamicDefinitionDataForColumn(ci);
             IdentifiedComponentBuilder<? extends SemanticChronology> columnInfo = Get.semanticBuilderService().getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_EXTENSION_DEFINITION.getNid(), data)
                         .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null);
-             builtSemantics.add(write ? columnInfo.buildAndWrite(localWc).getNoThrow() : columnInfo.build(localWc));
+             //This doesn't build nested semantics, so can ignore the builtObjects list
+             builtSemantics.add(write ? columnInfo.buildAndWrite(localWc).getNoThrow() : columnInfo.build(localWc, builtObjects));
          }
       }
 
@@ -277,7 +287,8 @@ public class DynamicUtilityImpl
          IdentifiedComponentBuilder<? extends SemanticChronology> restrictionData = Get.semanticBuilderService()
                .getDynamicBuilder(conceptNid, DynamicConstants.get().DYNAMIC_REFERENCED_COMPONENT_RESTRICTION.getNid(), data)
                   .setT5Uuid(DynamicConstants.get().DYNAMIC_NAMESPACE.getPrimordialUuid(), null);
-         builtSemantics.add(write ? restrictionData.buildAndWrite(localWc).getNoThrow() : restrictionData.build(localWc)); 
+         //This doesn't build nested semantics, so can ignore the builtObjects list
+         builtSemantics.add(write ? restrictionData.buildAndWrite(localWc).getNoThrow() : restrictionData.build(localWc, builtObjects)); 
       }
       
       //Move the built description semantic to the end of the list, so that the dynamic aspects are earlier than the description, so that when 

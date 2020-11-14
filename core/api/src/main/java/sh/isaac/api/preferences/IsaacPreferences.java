@@ -28,6 +28,7 @@ import java.util.prefs.Preferences;
 import sh.isaac.api.ComponentProxy;
 import sh.isaac.api.ConceptProxy;
 import sh.isaac.api.component.concept.ConceptSpecification;
+import sh.isaac.api.externalizable.ByteArrayDataBuffer;
 import sh.isaac.api.marshal.MarshalUtil;
 import sh.isaac.api.util.PasswordHasher;
 import sh.isaac.api.util.UuidStringKey;
@@ -593,6 +594,14 @@ public interface IsaacPreferences {
         }
         return Optional.empty();
     }
+    default Optional<ByteArrayDataBuffer> getByteArrayBuffer(String key) {
+        Optional<String> optionalValue = get(key);
+        if (optionalValue.isPresent()) {
+            return Optional.of(new ByteArrayDataBuffer(getByteArray(key, new byte[0])));
+        }
+        return Optional.empty();
+    }
+
 
     default Optional<byte[]> getByteArray(Enum key) {
         return getByteArray(enumToGeneralKey(key));
