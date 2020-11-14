@@ -3,7 +3,7 @@
    <modelVersion>4.0.0</modelVersion>
    <groupId>sh.isaac</groupId>
    <artifactId>isaac</artifactId>
-   <version>6.0.1</version>
+   <version>6.0.2</version>
 
    <name>ISAAC: (MMP) Informatics Analytic Architecture</name>
 
@@ -25,8 +25,8 @@
         <repository>
             <uniqueVersion>false</uniqueVersion>
             <id>informatics</id>
-            <name>informatics artifactory</name>
-            <url>https://artifactory.informatics.com/artifactory/libs-release-local</url>
+            <name>informatics artifact repository</name>
+            <url>https://nexus.informatics.com/repository/komet-release</url>
             <layout>default</layout>
         </repository>
         <site>
