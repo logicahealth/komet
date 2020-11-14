@@ -111,11 +111,6 @@
                         <artifactId>mapping-constants</artifactId>
                         <version>${project.version}</version>
                     </dependency>
-                    <dependency>
-                        <groupId>sh.isaac.misc</groupId>
-                        <artifactId>vhat-constants</artifactId>
-                        <version>${project.version}</version>
-                    </dependency>
                 </dependencies>
                 <executions>
                     <execution>
@@ -238,6 +233,27 @@
                             <dependency>
                                 <groupId>sh.isaac.provider</groupId>
                                 <artifactId>datastore-locator</artifactId>
+                                <version>${project.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>vhat-and-import</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>sh.isaac.core</groupId>
+                        <artifactId>mojo</artifactId>
+                        <dependencies>
+                            <dependency>
+                                <groupId>sh.isaac.misc</groupId>
+                                <artifactId>vhat-constants</artifactId>
                                 <version>${project.version}</version>
                             </dependency>
                         </dependencies>
