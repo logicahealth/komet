@@ -96,10 +96,8 @@ import sh.isaac.api.identity.IdentifiedObject;
 import sh.isaac.api.preferences.IsaacPreferences;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.NaturalOrder;
-import sh.isaac.convert.mojo.turtle.TurtleImportHK2Direct;
 import sh.isaac.komet.gui.exporter.ExportView;
 import sh.isaac.komet.iconography.Iconography;
-import sh.isaac.komet.preferences.RootPreferences;
 import sh.isaac.komet.preferences.window.WindowPreferencePanel;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
@@ -384,46 +382,6 @@ public class KometStageController
                 Get.taxonomyService().notifyTaxonomyListenersToRefresh();
             });
             items.add(recomputeTaxonomy);
-
-            File beer = new File("../../integration/tests/src/test/resources/turtle/bevontology-0.8.ttl");
-            if (beer.isFile()) {
-                // This should only appear if you are running from eclipse / netbeans....
-                MenuItem convertBeer = new MenuItemWithText("Beer me!");
-                convertBeer.setOnAction((ActionEvent event) -> {
-                    Get.executor().execute(() -> {
-                        try {
-                            Transaction transaction = Get.commitService().newTransaction(Optional.of("Import beer"), ChangeCheckerMode.ACTIVE, false);
-                            TurtleImportHK2Direct timd = Get.service(TurtleImportHK2Direct.class);
-                            timd.configure(null, beer.toPath(), "0.8", null, transaction);
-                            timd.convertContent(update -> {}, (work, totalWork) -> {});
-                            Optional<CommitRecord> cr = transaction.commit("Beer has arrived!").get();  //TODO [DAN] this is broken, it isn't returning a commit record
-                            LOG.error("commit record empty? {}", cr);
-                            //if (cr.isPresent()) {
-	                            Get.indexDescriptionService().refreshQueryEngine();
-	                            Platform.runLater(() -> {
-	                                Alert alert = new Alert(AlertType.INFORMATION);
-	                                alert.setTitle("Beer has arrived!");
-	                                alert.setHeaderText("Beer has been imported!");
-	                                alert.initOwner(topGridPane.getScene().getWindow());
-	                                alert.setResizable(true);
-	                                alert.showAndWait();
-	                            });
-                            //}
-                        } catch (Exception e) {
-                            LOG.error("Beer failure", e);
-                            Platform.runLater(() -> {
-                                Alert alert = new Alert(AlertType.ERROR);
-                                alert.setTitle("Party Foul!");
-                                alert.setHeaderText("Something went wrong loading beer!");
-                                alert.initOwner(topGridPane.getScene().getWindow());
-                                alert.setResizable(true);
-                                alert.showAndWait();
-                            });
-                        }
-                    });
-                });
-                items.add(convertBeer);
-            }
         }
         return items;
     }

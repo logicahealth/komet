@@ -11,6 +11,7 @@ import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.menu.MenuItemWithText;
 
 import java.util.EnumSet;
+import java.util.Optional;
 
 @Service
 @Singleton
@@ -28,6 +29,10 @@ public class ArtifactImporterMenuProvider implements MenuProvider {
                 artifactImport.setOnAction((ActionEvent event) -> {
                     ArtifactImporter.startArtifactImport(window);
                 });
+                Optional<MenuItem> beerMenu =  BeerImporter.getBeerMenu(window);
+                if (beerMenu.isPresent()) {
+                    return new MenuItem[] { artifactImport, beerMenu.get() };
+                }
                 return new MenuItem[] { artifactImport };
             }
         }

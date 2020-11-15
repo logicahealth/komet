@@ -196,12 +196,6 @@
         </dependency>
         <dependency>
             <groupId>sh.isaac.komet</groupId>
-            <artifactId>semantic-view</artifactId>
-            <version>${project.parent.version}</version>
-            <type>jar</type>
-        </dependency>
-        <dependency>
-            <groupId>sh.isaac.komet</groupId>
             <artifactId>export-view</artifactId>
             <version>${project.parent.version}</version>
             <type>jar</type>
@@ -469,21 +463,19 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>sh.isaac.core</groupId>
-                        <artifactId>mojo</artifactId>
-                        <dependencies>
-                            <dependency>
-                                <groupId>sh.isaac</groupId>
-                                <artifactId>komet</artifactId>
-                                <version>${project.version}</version>
-                            </dependency>
-                        </dependencies>
-                    </plugin>
-                </plugins>
-            </build>
+            <dependencies>
+                <dependency>
+                    <groupId>sh.isaac.komet</groupId>
+                    <artifactId>semantic-view</artifactId>
+                    <version>${project.parent.version}</version>
+                    <type>jar</type>
+                </dependency>
+                <dependency>
+                    <groupId>sh.isaac.komet</groupId>
+                    <artifactId>importer-menu</artifactId>
+                    <version>${project.parent.version}</version>
+                </dependency>
+            </dependencies>
         </profile>
     </profiles>
 </project>

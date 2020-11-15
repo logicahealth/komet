@@ -23,7 +23,6 @@
         <module>scripting</module>
         <module>rules</module>
         <module>statement-view</module>
-        <module>semantic-view</module>
         <module>countries-flags</module>
         <module>export-view</module>
         <module>komet-preferences</module>
@@ -42,6 +41,7 @@
             </activation>
             <modules>
                 <module>importer-menu</module>
+                <module>semantic-view</module>
             </modules>
         </profile>
     </profiles>

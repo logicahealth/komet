@@ -13,8 +13,19 @@
    <modules>
       <module>db-builder</module>
       <module>db-config-builder</module>
-      <module>db-config-builder-ui</module>
       <module>import-utils</module>
       <module>tests</module>
    </modules>
+   <profiles>
+      <profile>
+         <id>vhat-and-import</id>
+         <activation>
+            <activeByDefault>true</activeByDefault>
+         </activation>
+         <modules>
+            <module>db-config-builder-ui</module>
+         </modules>
+      </profile>
+   </profiles>
+
 </project>
