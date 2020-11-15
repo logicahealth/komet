@@ -74,6 +74,11 @@
          <scope>test</scope>
       </dependency>
       <dependency>
+         <groupId>sh.isaac.core</groupId>
+         <artifactId>metacontent</artifactId>
+         <version>${project.version}</version>
+      </dependency>
+      <dependency>
          <groupId>sh.isaac.provider</groupId>
          <artifactId>progress</artifactId>
          <version>${project.version}</version>
@@ -97,24 +102,24 @@
          <version>${project.version}</version>
          <scope>test</scope>
       </dependency>
-      <dependency>
-         <groupId>sh.isaac.misc</groupId>
-         <artifactId>exporters</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.misc</groupId>
-         <artifactId>importers</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-      </dependency>
-      <dependency>
-         <groupId>sh.isaac.misc</groupId>
-         <artifactId>importers-mojos</artifactId>
-         <version>${project.version}</version>
-         <scope>test</scope>
-      </dependency>
+<!--      <dependency>-->
+<!--         <groupId>sh.isaac.misc</groupId>-->
+<!--         <artifactId>exporters</artifactId>-->
+<!--         <version>${project.version}</version>-->
+<!--         <scope>test</scope>-->
+<!--      </dependency>-->
+<!--      <dependency>-->
+<!--         <groupId>sh.isaac.misc</groupId>-->
+<!--         <artifactId>importers</artifactId>-->
+<!--         <version>${project.version}</version>-->
+<!--         <scope>test</scope>-->
+<!--      </dependency>-->
+<!--      <dependency>-->
+<!--         <groupId>sh.isaac.misc</groupId>-->
+<!--         <artifactId>importers-mojos</artifactId>-->
+<!--         <version>${project.version}</version>-->
+<!--         <scope>test</scope>-->
+<!--      </dependency>-->
       <dependency>
          <groupId>sh.isaac.core</groupId>
          <artifactId>log-config</artifactId>
@@ -124,6 +129,12 @@
       <dependency>
           <groupId>org.apache.commons</groupId>
           <artifactId>commons-collections4</artifactId>
+      </dependency>
+      <dependency>
+         <groupId>sh.komet.converter</groupId>
+         <artifactId>beer</artifactId>
+         <version>${project.parent.version}</version>
+         <scope>test</scope>
       </dependency>
    </dependencies>
    <profiles>

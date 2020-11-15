@@ -44,9 +44,9 @@ import sh.isaac.api.index.AuthorModulePathRestriction;
 import sh.isaac.api.index.SearchResult;
 import sh.isaac.api.transaction.Transaction;
 import sh.isaac.api.util.RecursiveDelete;
-import sh.isaac.convert.mojo.turtle.TurtleImportMojoDirect;
 import sh.isaac.provider.query.lucene.indexers.DescriptionIndexer;
 import sh.isaac.provider.query.lucene.indexers.SemanticIndexer;
+import sh.komet.converter.beer.BeerConverter;
 
 /**
  * These tests have been rewritten to test against the beverage ontology, which is included in the resources folder.
@@ -72,7 +72,7 @@ public class QueryProviderTest {
 		Get.configurationService().setDatabaseInitializationMode(DatabaseInitialization.LOAD_METADATA);
 		LookupService.startupIsaac();
 
-		TurtleImportMojoDirect timd = new TurtleImportMojoDirect();
+		BeerConverter timd = new BeerConverter();
 		Transaction transaction = Get.commitService().newTransaction(Optional.of("QueryProviderTest"), ChangeCheckerMode.ACTIVE, false);
 		timd.configure(null, Paths.get(QueryProviderTest.class.getResource("/turtle/bevontology-0.8.ttl").toURI()), "0.8", null, transaction);
 		timd.convertContent(update -> {}, (work, total) ->{});

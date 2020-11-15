@@ -37,13 +37,12 @@
 
 
 
-package sh.isaac.pombuilder.converter;
+package sh.isaac.api.importers;
 
-//~--- non-JDK imports --------------------------------------------------------
-
-import org.apache.commons.lang3.StringUtils;
 
 //~--- classes ----------------------------------------------------------------
+
+import sh.isaac.api.util.StringUtils;
 
 /**
  *

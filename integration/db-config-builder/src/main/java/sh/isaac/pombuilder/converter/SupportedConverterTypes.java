@@ -44,19 +44,19 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import javafx.util.Pair;
+import org.apache.commons.lang3.StringUtils;
 
+import sh.isaac.api.importers.ConverterInfo;
+import sh.isaac.api.importers.UploadFileInfo;
 import sh.isaac.pombuilder.FileUtil;
-import sh.isaac.pombuilder.upload.SrcUploadCreator;
 
 /**
  * {@link SupportedConverterTypes}.
  *
  * @author <a href="mailto:daniel.armbrust.list@gmail.com">Dan Armbrust</a>
  */
-public enum SupportedConverterTypes
-{
+public enum SupportedConverterTypes implements ConverterInfo {
 	//(?i) and (?-i) constructs are not supported in JavaScript (they are in Ruby)
 	LOINC("loinc-src-data", ".*$", 
 			"A typical LOINC version number is '2.59'.  The version numbers should be used directly from LOINC.  There are no enforced restrictions on the format.",
@@ -342,7 +342,6 @@ public enum SupportedConverterTypes
 	 * @param uploadFileInfo
 	 * @param converterOutputArtifactId
 	 * @param converterMojoName
-	 * @param sourceUploadGroupId
 	 * @param niceName
 	 * @param licenseFilePaths
 	 * @param noticeFilePaths
@@ -382,142 +381,75 @@ public enum SupportedConverterTypes
 	}
 	//~--- get methods ---------------------------------------------------------
 
-	/**
-	 * In order to execute a conversion of the specified type, you must also provide dependencies for each of the listed
-	 * Source artifact identifiers.
-	 *
-	 * This is used during IBDF CONVERSION
-	 *
-	 * @return the artifact dependencies
-	 */
+	@Override
 	public List<String> getArtifactDependencies() {
 		return this.artifactSrcDependencies;
 	}
 
-	/**
-	 * Note that the artifactID may include a wildcard ('*') for some, such as SCT_EXTENSION - note - this is the pattern
-	 * for the source artifact upload, not the artifact id related to the converter.
-	 *
-	 * This is used during SOURCE UPLOAD
-	 *
-	 * @return the artifact id
-	 */
+	@Override
 	public String getArtifactId() {
 		return this.srcArtifactId;
 	}
 
-	/**
-	 * Not for PRISME.
-	 *
-	 * @return the converter artifact id
-	 */
-	protected String getConverterArtifactId() {
+	@Override
+	public String getConverterArtifactId() {
 		return this.converterArtifactId;
 	}
 
-	/**
-	 * Not for PRISME.
-	 *
-	 * @return the converter group id
-	 */
-	protected String getConverterGroupId() {
+	@Override
+	public String getConverterGroupId() {
 		return this.converterGroupId;
 	}
 
-	/**
-	 * Not for PRISME.  
-	 *
-	 * @return the converter mojo name
-	 */
+	@Override
 	public String getConverterMojoName() {
 		return this.converterMojoName;
 	}
 
-	/**
-	 * Not for PRISME.
-	 *
-	 * @return the converter output artifact id
-	 */
+	@Override
 	public String getConverterOutputArtifactId() {
 		return this.converterOutputArtifactId;
 	}
 
-	/**
-	 * In order to execute a conversion of the specified type, you must also provide dependencies for each of the listed
-	 * IBDF artifact identifiers.
-	 *
-	 * This is used during IBDF CONVERSION
-	 *
-	 * @return the IBDF dependencies
-	 */
+	@Override
 	public List<String> getIBDFDependencies() {
 		return this.artifactIBDFDependencies;
 	}
 
-	/**
-	 * Not for PRISME.
-	 *
-	 * @return the license information
-	 */
+	@Override
 	public String[] getLicenseInformation() {
 		return this.licenseInformation;
 	}
 
-	/**
-	 * Not for PRISME (but you can use it if you want).
-	 *
-	 * @return the nice name
-	 */
+	@Override
 	public String getNiceName() {
 		return this.niceName;
 	}
 
-	/**
-	 * Not for PRISME.
-	 *
-	 * @return the notice information
-	 */
+	@Override
 	public String[] getNoticeInformation() {
 		return this.noticeInformation;
 	}
 
-	/**
-	 * 
-	 * This is used during SOURCE UPLOAD
-	 * @return The descriptive text to provide to the end user to meet the regexp requirements given by {@link #getSourceVersionRegExpValidator()}  
-	 */
+	@Override
 	public String getSourceVersionDescription()
 	{
 		return srcVersionDescription;
 	}
 	
-	/**
-	 * The regular expression that should be satisfied for the version number given to the uploaded source artifact(s).  The value provided to 
-	 * the {@link SrcUploadCreator#createSrcUploadConfiguration(SupportedConverterTypes, String, String, List, String, String, char[], String, 
-	 * String, String, java.io.File, boolean, boolean)}
-	 * for the 'version' parameter should meet this regexp.
-	 * 
-	 * This is used during SOURCE UPLOAD
-	 * @return the regular expression 
-	 */
+	@Override
 	public String getSourceVersionRegExpValidator()
 	{
 		return srcVersionRegExpValidator;
 	}
 
-	/**
-	 * The information describing the files that an end user must upload into the system to allow the execution of a particular converter.
-	 *
-	 * This is used during SOURCE UPLOAD
-	 *
-	 * @return the upload file info
-	 */
+	@Override
 	public List<UploadFileInfo> getUploadFileInfo() {
 		return this.uploadFileInfo;
 	}
-	
 	/**
 	 * Find the converter type that would be used to process the specified source artifact
+	 *
 	 * @param srcArtifactId that artifactId of a sdo source file
 	 * @return the type, or null
 	 */
@@ -527,12 +459,11 @@ public enum SupportedConverterTypes
 
 	/**
 	 * @param srcArtifactId that artifactId of a sdo source file
-	 * @return a pair, where the key, is the type of the converter that supports it, and the value 
+	 * @return a pair, where the key, is the type of the converter that supports it, and the value
 	 * is the extension name that should be used to replace wildcard '*-extension' portion when building
-	 * an IBDF file by processing this source artifact id. 
+	 * an IBDF file by processing this source artifact id.
 	 */
-	public static Pair<SupportedConverterTypes, String> findConverterTypeAndExtensionBySrcArtifactId(String srcArtifactId)
-	{
+	public static Pair<SupportedConverterTypes, String> findConverterTypeAndExtensionBySrcArtifactId(String srcArtifactId) {
 		//Split this routine, so we do all of the exact matches first
 		for (SupportedConverterTypes sct : SupportedConverterTypes.values()) {
 			if (sct.getArtifactId().equals(srcArtifactId)) {
@@ -549,18 +480,17 @@ public enum SupportedConverterTypes
 		}
 		return null;
 	}
-	
+
 	public static SupportedConverterTypes findByIBDFArtifactId(String ibdfArtifactId) {
 		for (SupportedConverterTypes sct : SupportedConverterTypes.values()) {
 			if (sct.getConverterOutputArtifactId().equals(ibdfArtifactId)) {
 				return sct;
+			} else if (sct.getArtifactId().contains("*")) {
+				String[] parts = sct.getArtifactId().split("\\*");
+				if (ibdfArtifactId.startsWith(sct.getConverterOutputArtifactId()) && ibdfArtifactId.endsWith(parts[1])) {
+					return sct;
+				}
 			}
-			else if (sct.getArtifactId().contains("*")) {
-				 String[] parts = sct.getArtifactId().split("\\*");
-				 if (ibdfArtifactId.startsWith(sct.getConverterOutputArtifactId()) && ibdfArtifactId.endsWith(parts[1])) {
-					 return sct;
-				 }
-			 }
 		}
 		return null;
 	}
@@ -569,13 +499,13 @@ public enum SupportedConverterTypes
 	 * @param mojoName
 	 * @return the matching enum, or null
 	 */
-	public static SupportedConverterTypes findByMojoName(String mojoName)
-	{
+	static SupportedConverterTypes findByMojoName(String mojoName) {
 		for (SupportedConverterTypes sct : SupportedConverterTypes.values()) {
-				if (sct.getConverterMojoName().equals(mojoName)) {
-					return sct;
-				}
+			if (sct.getConverterMojoName().equals(mojoName)) {
+				return sct;
 			}
-			return null;
+		}
+		return null;
 	}
+
 }

@@ -371,6 +371,11 @@ public class LogicalExpressionImpl
 
     }
 
+    @Override
+    public Set<Integer> getParentConceptNids() {
+        return LogicalExpressionAbstract.getParentConceptNids(this);
+    }
+
     /**
      * Called to generate an isomorphicExpression and a mergedExpression.
      *

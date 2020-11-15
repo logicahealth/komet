@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>isaac</artifactId>
+        <groupId>sh.isaac</groupId>
+        <version>6.0.4-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>sh.komet.converter</groupId>
+    <artifactId>beer</artifactId>
+    <name>ISAAC SOLOR: Beer converter</name>
+    <dependencies>
+        <dependency>
+            <groupId>sh.komet.converter</groupId>
+            <artifactId>turtle</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+    </dependencies>
+</project>

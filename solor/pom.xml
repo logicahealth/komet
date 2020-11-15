@@ -16,5 +16,7 @@
         <module>direct-import</module>
         <module>direct-export</module>
         <module>custom-import</module>
+        <module>beer</module>
+        <module>turtle</module>
     </modules>
 </project>

@@ -25,7 +25,7 @@ import javafx.concurrent.Task;
 import sh.isaac.api.LookupService;
 import sh.isaac.api.util.WorkExecutors;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
-import sh.isaac.pombuilder.converter.UploadFileInfo;
+import sh.isaac.api.importers.UploadFileInfo;
 import sh.isaac.pombuilder.upload.SrcUploadCreator;
 
 /**

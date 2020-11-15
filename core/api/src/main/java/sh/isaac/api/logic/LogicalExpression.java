@@ -42,6 +42,7 @@ package sh.isaac.api.logic;
 //~--- JDK imports ------------------------------------------------------------
 
 import java.util.List;
+import java.util.Set;
 import java.util.function.BiConsumer;
 
 //~--- non-JDK imports --------------------------------------------------------
@@ -60,6 +61,14 @@ import sh.isaac.api.tree.TreeNodeVisitData;
  * @author kec
  */
 public interface LogicalExpression extends CommittableObject {
+
+   /**
+    * Retrieve the set of integer parent concept nids stored in the logic graph necessary sets
+    *
+    * @return the parents
+    */
+   Set<Integer> getParentConceptNids();
+
    /**
     * Contains.
     *

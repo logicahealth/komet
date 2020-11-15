@@ -39,7 +39,7 @@ package sh.isaac.convert.mojo.icd10;
 import org.jvnet.hk2.annotations.Service;
 import sh.isaac.converters.sharedUtils.config.ConfigOptionsDescriptor;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
-import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
+import sh.isaac.api.importers.ConverterOptionParamSuggestedValue;
 
 /**
  * 

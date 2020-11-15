@@ -48,7 +48,7 @@ import java.io.File;
 import org.junit.Assert;
 import org.junit.Test;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
-import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
+import sh.isaac.api.importers.ConverterOptionParamSuggestedValue;
 
 //~--- classes ----------------------------------------------------------------
 

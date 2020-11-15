@@ -37,7 +37,7 @@
 
 
 
-package sh.isaac.pombuilder.converter;
+package sh.isaac.api.importers;
 
 /**
  * {@link UploadFileInfo}.
@@ -75,7 +75,7 @@ public class UploadFileInfo {
     * @param expectedNamingPatternRegExpPattern the expected naming pattern reg exp pattern
     * @param fileIsRequired the file is required
     */
-   protected UploadFileInfo(String suggestedSourceLocation,
+   public UploadFileInfo(String suggestedSourceLocation,
                             String suggestedSourceURL,
                             String sampleName,
                             String expectedNamingPatternDescription,

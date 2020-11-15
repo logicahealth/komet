@@ -31,7 +31,7 @@ import sh.isaac.dbConfigBuilder.artifacts.IBDFFile;
 import sh.isaac.dbConfigBuilder.artifacts.SDOSourceContent;
 import sh.isaac.pombuilder.converter.ContentConverterCreator;
 import sh.isaac.pombuilder.converter.ConverterOptionParam;
-import sh.isaac.pombuilder.converter.ConverterOptionParamSuggestedValue;
+import sh.isaac.api.importers.ConverterOptionParamSuggestedValue;
 import sh.isaac.pombuilder.converter.SupportedConverterTypes;
 import sh.isaac.pombuilder.upload.SrcUploadCreator;
 

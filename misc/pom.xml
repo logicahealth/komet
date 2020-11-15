@@ -11,7 +11,6 @@
     <name>ISAAC misc: (MMP)</name>
     <description>Aggregator project for miscellaneous ISAAC modules</description>
     <modules>
-       <module>exporters</module>
        <module>associations</module>
        <module>util</module>
      </modules>
@@ -22,6 +21,7 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <modules>
+                <module>exporters</module>
                 <module>importers</module>
                 <module>importers-mojos</module>
                 <module>vhat-constants</module>

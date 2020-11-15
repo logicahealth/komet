@@ -39,6 +39,21 @@
 
 package sh.isaac.model.logic;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import sh.isaac.api.Get;
+import sh.isaac.api.logic.LogicNode;
+import sh.isaac.api.logic.LogicalExpression;
+import sh.isaac.api.logic.NodeSemantic;
+import sh.isaac.model.logic.node.AbstractLogicNode;
+import sh.isaac.model.logic.node.AndNode;
+import sh.isaac.model.logic.node.external.ConceptNodeWithUuids;
+import sh.isaac.model.logic.node.internal.ConceptNodeWithNids;
+
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 /**
  * The Class LogicalExpressionAbstract.
  *
@@ -46,6 +61,98 @@ package sh.isaac.model.logic;
  */
 public abstract class LogicalExpressionAbstract
         extends LogicalExpressionImpl {
+   private static Logger LOG = LogManager.getLogger();
+
+   public static Set<Integer> getParentConceptNids(LogicalExpression expression)
+   {
+      Set<Integer> parentConceptSequences = new HashSet<>();
+      List<LogicNode> necessarySets = expression.getNodesOfType(NodeSemantic.NECESSARY_SET);
+      for (LogicNode necessarySetNode : necessarySets)
+      {
+         for (LogicNode childOfNecessarySetNode : necessarySetNode.getChildren())
+         {
+            if (null == childOfNecessarySetNode.getNodeSemantic())
+            {
+               String msg = "Logic graph for concept NID=" + expression.getConceptBeingDefinedNid()
+                       + " has child of NecessarySet logic graph node of unexpected type \"" + childOfNecessarySetNode.getNodeSemantic()
+                       + "\". Expected AndNode or ConceptNode in " + expression;
+               LOG.error(msg);
+               throw new RuntimeException(msg);
+            }
+            else
+               switch (childOfNecessarySetNode.getNodeSemantic())
+               {
+                  case AND:
+                     AndNode andNode = (AndNode) childOfNecessarySetNode;
+                     for (AbstractLogicNode childOfAndNode : andNode.getChildren())
+                     {
+                        if (childOfAndNode.getNodeSemantic() == NodeSemantic.CONCEPT)
+                        {
+                           if (childOfAndNode instanceof ConceptNodeWithNids)
+                           {
+                              ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) childOfAndNode;
+                              parentConceptSequences.add(conceptNode.getConceptNid());
+                           }
+                           else if (childOfAndNode instanceof ConceptNodeWithUuids)
+                           {
+                              ConceptNodeWithUuids conceptNode = (ConceptNodeWithUuids) childOfAndNode;
+                              parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
+                           }
+                           else
+                           {
+                              // Should never happen
+                              String msg = "Logic graph for concept NID=" + expression.getConceptBeingDefinedNid()
+                                      + " has child of AndNode logic graph node of unexpected type \"" + childOfAndNode.getClass().getSimpleName()
+                                      + "\". Expected ConceptNodeWithNids or ConceptNodeWithUuids in " + expression;
+                              LOG.error(msg);
+                              throw new RuntimeException(msg);
+                           }
+                        }
+                     }
+                     break;
+                  case CONCEPT:
+                     if (childOfNecessarySetNode instanceof ConceptNodeWithNids)
+                     {
+                        ConceptNodeWithNids conceptNode = (ConceptNodeWithNids) childOfNecessarySetNode;
+                        parentConceptSequences.add(conceptNode.getConceptNid());
+                     }
+                     else if (childOfNecessarySetNode instanceof ConceptNodeWithUuids)
+                     {
+                        ConceptNodeWithUuids conceptNode = (ConceptNodeWithUuids) childOfNecessarySetNode;
+                        parentConceptSequences.add(Get.identifierService().getNidForUuids(conceptNode.getConceptUuid()));
+                     }
+                     else
+                     {
+                        // Should never happen
+                        String msg = "Logic graph for concept NID=" + expression.getConceptBeingDefinedNid()
+                                + " has child of NecessarySet logic graph node of unexpected type \""
+                                + childOfNecessarySetNode.getClass().getSimpleName() + "\". Expected ConceptNodeWithNids or ConceptNodeWithUuids in "
+                                + expression;
+                        LOG.error(msg);
+                        throw new RuntimeException(msg);
+                     }
+                     break;
+                  default :
+                     String msg = "Logic graph for concept NID=" + expression.getConceptBeingDefinedNid()
+                             + " has child of NecessarySet logic graph node of unexpected type \"" + childOfNecessarySetNode.getNodeSemantic()
+                             + "\". Expected AndNode or ConceptNode in " + expression;
+                     LOG.error(msg);
+                     throw new RuntimeException(msg);
+               }
+         }
+      }
+
+      return parentConceptSequences;
+   }
+   /**
+    * Retrieve the set of integer parent concept nids stored in the logic graph necessary sets
+    *
+    * @return the parents
+    */
+   public Set<Integer> getParentConceptNids()
+   {
+      return getParentConceptNids(this);
+   }
    /**
     * Instantiates a new logical expression abstract.
     */
