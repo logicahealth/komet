@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>sh.isaac</groupId>
@@ -10,7 +11,7 @@
     <name>ISAAC’s KOMET: (MMP)</name>
     <description>Aggregator project for ISAAC's KOMET modules</description>
     <packaging>pom</packaging>
-     <modules>
+    <modules>
         <module>taxonomy-view</module>
         <module>iconography</module>
         <module>gui-contracts</module>
@@ -19,8 +20,8 @@
         <module>concept-detail</module>
         <module>progress-view</module>
         <module>assemblage-view</module>
-         <module>scripting</module>
-         <module>rules</module>
+        <module>scripting</module>
+        <module>rules</module>
         <module>statement-view</module>
         <module>semantic-view</module>
         <module>countries-flags</module>
@@ -30,7 +31,18 @@
         <module>batch</module>
         <module>livd</module>
         <module>classification</module>
-         <module>search-view</module>
-         <module>application</module>
-     </modules>
+        <module>search-view</module>
+        <module>application</module>
+    </modules>
+    <profiles>
+        <profile>
+            <id>vhat-and-import</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>importer-menu</module>
+            </modules>
+        </profile>
+    </profiles>
 </project>

@@ -85,6 +85,7 @@ import javafx.stage.WindowEvent;
 import org.controlsfx.control.action.Action;
 import org.controlsfx.control.action.ActionUtils;
 import sh.isaac.api.Get;
+import sh.isaac.api.LookupService;
 import sh.isaac.api.chronicle.Chronology;
 import sh.isaac.api.classifier.ClassifierService;
 import sh.isaac.api.commit.ChangeCheckerMode;
@@ -98,7 +99,9 @@ import sh.isaac.api.util.NaturalOrder;
 import sh.isaac.convert.mojo.turtle.TurtleImportHK2Direct;
 import sh.isaac.komet.gui.exporter.ExportView;
 import sh.isaac.komet.iconography.Iconography;
+import sh.isaac.komet.preferences.RootPreferences;
 import sh.isaac.komet.preferences.window.WindowPreferencePanel;
+import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
 import sh.komet.gui.contract.NodeFactory;
 import sh.komet.gui.contract.StatusMessageConsumer;
@@ -107,7 +110,6 @@ import sh.komet.gui.contract.preferences.TabSpecification;
 import sh.komet.gui.contract.preferences.WindowPreferences;
 import sh.komet.gui.control.property.ActivityFeed;
 import sh.komet.gui.control.property.ViewProperties;
-import sh.komet.gui.importation.ArtifactImporter;
 import sh.komet.gui.importation.ImportView;
 import sh.komet.gui.interfaces.ExplorationNode;
 import sh.komet.gui.menu.MenuItemWithText;
@@ -333,11 +335,14 @@ public class KometStageController
         items.add(selectiveExport);
 
         if (FxGet.fxConfiguration().isShowBetaFeaturesEnabled()) {
-            MenuItem artifactImport = new MenuItemWithText("Artifact Import");
-            artifactImport.setOnAction((ActionEvent event) -> {
-                ArtifactImporter.startArtifactImport(topGridPane.getScene().getWindow());
-            });
-            items.add(artifactImport);
+
+            for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
+                if (mp.getParentMenus().contains(AppMenu.TASK)) {
+                    for (MenuItem menuItem : mp.getMenuItems(AppMenu.TASK, stage.getOwner(), this.windowPreferences)) {
+                        items.add(menuItem);
+                    }
+                }
+            }
         }
 
 

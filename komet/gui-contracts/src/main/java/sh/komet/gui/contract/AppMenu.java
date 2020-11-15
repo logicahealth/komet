@@ -31,7 +31,8 @@ public enum AppMenu
 	TOOLS("_Tools"),
 	WINDOW("_Window"),
 	NEW_WINDOW("_New Window"), // menu within the window menu
-	HELP("_Help");
+	HELP("_Help"),
+	TASK("Task"); // Task menu button...
 
 	private final String menuName;
 	private Menu menu = null;

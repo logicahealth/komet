@@ -69,12 +69,6 @@
         </dependency>
         <dependency>
             <groupId>sh.isaac.misc</groupId>
-            <artifactId>importers</artifactId>
-            <version>${project.parent.version}</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>sh.isaac.misc</groupId>
             <artifactId>util</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

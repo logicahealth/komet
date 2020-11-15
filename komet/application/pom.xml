@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>sh.isaac</groupId>
@@ -279,7 +280,8 @@
                         </goals>
                         <configuration>
                             <outputDirectory>${project.build.directory}/jfx/libs</outputDirectory>
-                            <excludeArtifactIds>fontawesomefx-commons,solor-db,solor-snap-db,solor-us-db</excludeArtifactIds>
+                            <excludeArtifactIds>fontawesomefx-commons,solor-db,solor-snap-db,solor-us-db
+                            </excludeArtifactIds>
                         </configuration>
                     </execution>
                 </executions>
@@ -296,8 +298,11 @@
                             <goal>copy</goal>
                         </goals>
                         <configuration>
-                            <sourceFile>${project.build.directory}/${project.artifactId}-${project.version}.jar</sourceFile>
-                            <destinationFile>${project.build.directory}/jfx/${project.artifactId}-${project.version}.jar</destinationFile>
+                            <sourceFile>${project.build.directory}/${project.artifactId}-${project.version}.jar
+                            </sourceFile>
+                            <destinationFile>
+                                ${project.build.directory}/jfx/${project.artifactId}-${project.version}.jar
+                            </destinationFile>
                         </configuration>
                     </execution>
                 </executions>
@@ -458,6 +463,27 @@
                     <version>${project.parent.version}</version>
                 </dependency>
             </dependencies>
+        </profile>
+        <profile>
+            <id>vhat-and-import</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>sh.isaac.core</groupId>
+                        <artifactId>mojo</artifactId>
+                        <dependencies>
+                            <dependency>
+                                <groupId>sh.isaac</groupId>
+                                <artifactId>komet</artifactId>
+                                <version>${project.version}</version>
+                            </dependency>
+                        </dependencies>
+                    </plugin>
+                </plugins>
+            </build>
         </profile>
     </profiles>
 </project>

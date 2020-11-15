@@ -1,4 +1,4 @@
-package sh.komet.gui.importation;
+package sh.isaac.komet.importer.menu;
 
 import java.io.File;
 import java.nio.file.FileSystem;
@@ -131,7 +131,7 @@ public class ArtifactImporter
 						{
 							if (root != null)
 							{
-								LOG.error("Didn't expect more than one root!");
+								TimedTask.LOG.error("Didn't expect more than one root!");
 							}
 							root = p;
 						}
@@ -168,7 +168,7 @@ public class ArtifactImporter
 					catch (Exception e)
 					{
 						transaction.cancel();
-						LOG.error("Import failure", e);
+						TimedTask.LOG.error("Import failure", e);
 					}
 					Get.activeTasks().remove(this);
 					return null;
