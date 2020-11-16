@@ -149,12 +149,13 @@
       <tilesfx.version>1.6.8</tilesfx.version>
       <wagon-provider-api.version>3.4.1</wagon-provider-api.version>
       <jackson-databind.version>2.11.2</jackson-databind.version>
-      <javafx.version>15</javafx.version>
+      <javafx.version>15.0.1</javafx.version>
       <java.version>11</java.version>
       <java.vendor>openjdk</java.vendor>
       <jakarta.xml.bind-api.version>3.0.0-RC3</jakarta.xml.bind-api.version>
       <jaxb-runtime.version>3.0.0-M4</jaxb-runtime.version>
       <xercesImpl.version>2.12.0</xercesImpl.version>
+       <controlsfx.version>11.0.3</controlsfx.version>
    </properties>
 
    <developers>
@@ -662,17 +663,17 @@
          <dependency>
             <groupId>org.controlsfx</groupId>
             <artifactId>controlsfx</artifactId>
-            <version>9.0.0</version>
+            <version>${controlsfx.version}</version>
          </dependency>
          <dependency>
             <groupId>org.jfxtras</groupId>
             <artifactId>jfxtras-controls</artifactId>
-            <version>10.0-r1</version>
+            <version>15-r1</version>
          </dependency>
          <dependency>
             <groupId>org.jfxtras</groupId>
             <artifactId>jfxtras-menu</artifactId>
-            <version>10.0-r1</version>
+            <version>15-r1</version>
          </dependency>
          <dependency>
             <groupId>de.codecentric.centerdevice</groupId>

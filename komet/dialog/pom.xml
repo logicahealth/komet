@@ -18,7 +18,8 @@
       <dependency>
          <groupId>org.controlsfx</groupId>
          <artifactId>controlsfx</artifactId>
-      </dependency>       
+          <version>${controlsfx.version}</version>
+      </dependency>
       <dependency>
          <groupId>sh.isaac.komet</groupId>
          <artifactId>gui-contracts</artifactId>

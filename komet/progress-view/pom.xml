@@ -35,6 +35,7 @@
       <dependency>
          <groupId>org.controlsfx</groupId>
          <artifactId>controlsfx</artifactId>
-      </dependency>      
+          <version>${controlsfx.version}</version>
+      </dependency>
    </dependencies>  
 </project>
