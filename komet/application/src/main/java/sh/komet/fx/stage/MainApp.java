@@ -73,6 +73,7 @@ import sh.isaac.komet.statement.StatementViewController;
 import sh.isaac.model.statement.ClinicalStatementImpl;
 import sh.komet.gui.contract.AppMenu;
 import sh.komet.gui.contract.MenuProvider;
+import sh.komet.gui.contract.OSType;
 import sh.komet.gui.contract.preferences.PersonaChangeListener;
 import sh.komet.gui.contract.preferences.PersonaItem;
 import sh.komet.gui.contract.preferences.WindowPreferences;
@@ -85,6 +86,7 @@ import sh.komet.gui.util.PersonaChangeListeners;
 import java.lang.management.ManagementFactory;
 import java.util.*;
 import java.util.prefs.BackingStoreException;
+import java.util.regex.Pattern;
 
 //~--- classes ----------------------------------------------------------------
 public class MainApp
@@ -98,7 +100,6 @@ public class MainApp
     public IsaacPreferences configurationPreferences;
     public boolean firstRun = true;
     private boolean setupWindowMenu = true;
-    private boolean setupWindowToolkit = true;
 
     //~--- methods -------------------------------------------------------------
 
@@ -156,6 +157,13 @@ public class MainApp
         LOG.info("** Max Memory:   " + (runtime.maxMemory() / mb) + " mb");
     }
 
+    private OSType determineOSType(){
+        return Arrays.stream(OSType.values())
+                .filter(osType -> Pattern.matches(osType.getRegex(), System.getProperty("os.name")))
+                .findFirst()
+                .get();
+    }
+
     public void replacePrimaryStage(Stage primaryStage) {
         Stage oldStage = MainApp.primaryStage;
         MainApp.primaryStage = primaryStage;
@@ -169,7 +177,7 @@ public class MainApp
     protected Parent setupStageMenus(Stage stage, BorderPane root, WindowPreferences windowPreference) throws MultiException {
         BorderPane stageRoot = root;
         // Get the toolkit
-        MenuToolkit tk = MenuToolkit.toolkit();  //Note, this only works on Mac....
+        OSType operatingSystem = determineOSType();
         MenuBar mb = new MenuBar();
         if (setupWindowMenu) {
             setupWindowMenu = false;
@@ -190,6 +198,8 @@ public class MainApp
                 }
                 mb.getMenus().add(ap.getMenu());
 
+                //TODO - Task Menu Bar not populating any dropdown content
+                // Do we need it if it's within the stage? It takes the form of the "Tasks" Button
                 for (MenuProvider mp : LookupService.get().getAllServices(MenuProvider.class)) {
                     if (mp.getParentMenus().contains(ap)) {
                         for (MenuItem mi : mp.getMenuItems(ap, primaryStage.getOwner(), windowPreference)) {
@@ -212,7 +222,7 @@ public class MainApp
 
                 switch (ap) {
                     case APP:
-                        if (tk != null) {
+                        if(operatingSystem == OSType.MAC || operatingSystem == OSType.WINDOWS || operatingSystem == OSType.LINUX){
                             MenuItem aboutItem = new MenuItemWithText("About KOMET...");
                             aboutItem.setOnAction(this::handleAbout);
                             ap.getMenu().getItems().add(aboutItem);
@@ -222,7 +232,9 @@ public class MainApp
                             prefsItem.setOnAction(this::handlePrefs);
                             ap.getMenu().getItems().add(prefsItem);
                             ap.getMenu().getItems().add(new SeparatorMenuItem());
-                        } else {
+                        }
+
+                        if(operatingSystem == OSType.WINDOWS || operatingSystem == OSType.LINUX){
                             MenuItem quitItem = new MenuItemWithText("Quit");
                             quitItem.setOnAction(this::close);
                             ap.getMenu().getItems().add(quitItem);
@@ -235,7 +247,7 @@ public class MainApp
 
                         break;
                     case HELP:
-                        if (tk == null) {
+                        if (operatingSystem == OSType.WINDOWS || operatingSystem == OSType.LINUX){
                             MenuItem aboutItem = new MenuItemWithText("About...");
                             aboutItem.setOnAction(this::handleAbout);
                             ap.getMenu().getItems().add(aboutItem);
@@ -260,38 +272,35 @@ public class MainApp
                     });
         }
 
-        if (tk != null) {
+
+        // Additional OS specific processing of menus
+        if(operatingSystem == OSType.MAC){
             // this is used on Mac... I don't think its uses anywhere else...
             // Dan notes, code is rather confusing, and I can't test... it was making both an appMenu and a defaultApplicationMenu
             //but not being consistent about things, no idea which was actually being used on mac.
             // TBD: services menu
+            MenuToolkit macToolkit = MenuToolkit.toolkit();  //Note, this only works on Mac....
+            macToolkit.setForceQuitOnCmdQ(false);
+            macToolkit.setApplicationMenu(AppMenu.APP.getMenu());
 
+            AppMenu.APP.getMenu().getItems().addAll(macToolkit.createHideMenuItem(AppMenu.APP.getMenu().getText()),
+                    macToolkit.createHideOthersMenuItem(), macToolkit.createUnhideAllMenuItem(),
+                    new SeparatorMenuItem(), macToolkit.createQuitMenuItem(AppMenu.APP.getMenu().getText()));
 
-            if (setupWindowToolkit) {
-                setupWindowToolkit = false;
-                tk.setForceQuitOnCmdQ(false);
-                tk.setApplicationMenu(AppMenu.APP.getMenu());
-
-                AppMenu.APP.getMenu().getItems().addAll(tk.createHideMenuItem(AppMenu.APP.getMenu().getText()), tk.createHideOthersMenuItem(),
-                        tk.createUnhideAllMenuItem(), new SeparatorMenuItem(), tk.createQuitMenuItem(AppMenu.APP.getMenu().getText()));
-
-                AppMenu.WINDOW.getMenu().getItems().addAll(new SeparatorMenuItem(),
-                        tk.createMinimizeMenuItem(),
-                        tk.createZoomMenuItem(), tk.createCycleWindowsItem(),
-                        new SeparatorMenuItem(), tk.createBringAllToFrontItem());
-                tk.autoAddWindowMenuItems(AppMenu.WINDOW.getMenu());
-                tk.setGlobalMenuBar(mb);
-            }
-
-
-        } else {
+            AppMenu.WINDOW.getMenu().getItems().addAll(new SeparatorMenuItem(),
+                    macToolkit.createMinimizeMenuItem(),
+                    macToolkit.createZoomMenuItem(), macToolkit.createCycleWindowsItem(),
+                    new SeparatorMenuItem(), macToolkit.createBringAllToFrontItem());
+            macToolkit.autoAddWindowMenuItems(AppMenu.WINDOW.getMenu());
+            macToolkit.setGlobalMenuBar(mb);
+        } else if(operatingSystem == OSType.WINDOWS || operatingSystem == OSType.LINUX){
             //And for everyone else....
             stageRoot = new BorderPane(stageRoot);
             stageRoot.setTop(mb);
             stage.setHeight(stage.getHeight() + 20);
         }
 
-         return stageRoot;
+        return stageRoot;
     }
 
     Set<UUID> personaUuids = new HashSet<>();
