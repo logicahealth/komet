@@ -222,12 +222,15 @@ public class MainApp
 
                 switch (ap) {
                     case APP:
-                        if(operatingSystem == OSType.MAC || operatingSystem == OSType.WINDOWS || operatingSystem == OSType.LINUX){
+
+                        if(operatingSystem == OSType.MAC){
                             MenuItem aboutItem = new MenuItemWithText("About KOMET...");
                             aboutItem.setOnAction(this::handleAbout);
                             ap.getMenu().getItems().add(aboutItem);
                             ap.getMenu().getItems().add(new SeparatorMenuItem());
+                        }
 
+                        if(operatingSystem == OSType.MAC || operatingSystem == OSType.WINDOWS || operatingSystem == OSType.LINUX){
                             MenuItem prefsItem = new MenuItemWithText("KOMET Preferences...");
                             prefsItem.setOnAction(this::handlePrefs);
                             ap.getMenu().getItems().add(prefsItem);
