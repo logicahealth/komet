@@ -2548,37 +2548,37 @@ The type is the Canonical URL of Resource Definition that is the type this refer
     <xs:restriction base="code-primitive">
       <xs:enumeration value="s">
         <xs:annotation>
-          <xs:documentation xml:lang="en">秒</xs:documentation>
+          <xs:documentation xml:lang="en">seconds</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
       <xs:enumeration value="min">
         <xs:annotation>
-          <xs:documentation xml:lang="en">分钟</xs:documentation>
+          <xs:documentation xml:lang="en">minutes</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
       <xs:enumeration value="h">
         <xs:annotation>
-          <xs:documentation xml:lang="en">小时</xs:documentation>
+          <xs:documentation xml:lang="en">hours</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
       <xs:enumeration value="d">
         <xs:annotation>
-          <xs:documentation xml:lang="en">天</xs:documentation>
+          <xs:documentation xml:lang="en">days</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
       <xs:enumeration value="wk">
         <xs:annotation>
-          <xs:documentation xml:lang="en">星期</xs:documentation>
+          <xs:documentation xml:lang="en">weeks</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
       <xs:enumeration value="mo">
         <xs:annotation>
-          <xs:documentation xml:lang="en">月</xs:documentation>
+          <xs:documentation xml:lang="en">months</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
       <xs:enumeration value="a">
         <xs:annotation>
-          <xs:documentation xml:lang="en">年</xs:documentation>
+          <xs:documentation xml:lang="en">am/pm marker</xs:documentation>
         </xs:annotation>
       </xs:enumeration>
     </xs:restriction>
@@ -27979,7 +27979,9 @@ UDILabelName | UserFriendlyName | PatientReportedName | ManufactureDeviceName | 
         <xs:sequence>
           <xs:element name="text" minOccurs="0" maxOccurs="1" type="string">
             <xs:annotation>
-              <xs:documentation xml:lang="en">Free text dosage can be used for cases where the dosage administered is too complex to code. When coded dosage is present, the free text dosage may still be present for display to humans.The dosage instructions should reflect the dosage of the medication that was administered.</xs:documentation>
+              <xs:documentation xml:lang="en">Free text dosage can be used for cases where the dosage administered is too complex to code. When coded dosage is present, the free text dosage may still be present for display to humans.
+
+The dosage instructions should reflect the dosage of the medication that was administered.</xs:documentation>
            </xs:annotation>
           </xs:element>
           <xs:element name="site" minOccurs="0" maxOccurs="1" type="CodeableConcept">
@@ -34761,7 +34763,8 @@ Deceased patients may also be marked as inactive for the same reasons, but may b
           </xs:element>
           <xs:element name="address" minOccurs="0" maxOccurs="unbounded" type="Address">
             <xs:annotation>
-              <xs:documentation xml:lang="en">Address(es) of the practitioner that are not role specific (typically home address). Work addresses are not typically entered in this property as they are usually role dependent.</xs:documentation>
+              <xs:documentation xml:lang="en">Address(es) of the practitioner that are not role specific (typically home address). 
+Work addresses are not typically entered in this property as they are usually role dependent.</xs:documentation>
            </xs:annotation>
           </xs:element>
           <xs:element name="gender" minOccurs="0" maxOccurs="1" type="AdministrativeGender">
