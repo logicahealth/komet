@@ -90,7 +90,7 @@
       <hk2.version>3.0.0-M2</hk2.version>
       <jakarta.annotation.version>2.0.0-RC1</jakarta.annotation.version>
       <HK2Utilities.version>1.6.0</HK2Utilities.version>
-      <httpclient.version>4.5.12</httpclient.version>
+      <httpclient.version>4.5.13</httpclient.version>
       <javassist.version>3.27.0-GA</javassist.version>
       <jbpm.version>7.30.0.Final</jbpm.version>
       <jacoco-maven-plugin.version>0.8.5</jacoco-maven-plugin.version>
