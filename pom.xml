@@ -152,7 +152,7 @@
       <java.vendor>openjdk</java.vendor>
       <jakarta.xml.bind-api.version>3.0.0-RC3</jakarta.xml.bind-api.version>
       <jaxb-runtime.version>3.0.0-M4</jaxb-runtime.version>
-      <xercesImpl.version>2.12.0</xercesImpl.version>
+      <xercesImpl.version>2.12.2</xercesImpl.version>
        <controlsfx.version>11.0.3</controlsfx.version>
    </properties>
 
