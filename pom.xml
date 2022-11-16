@@ -146,7 +146,7 @@
       <testng.version>7.3.0</testng.version>
       <tilesfx.version>1.6.8</tilesfx.version>
       <wagon-provider-api.version>3.4.1</wagon-provider-api.version>
-      <jackson-databind.version>2.11.2</jackson-databind.version>
+      <jackson-databind.version>2.12.7.1</jackson-databind.version>
       <javafx.version>15.0.1</javafx.version>
       <java.version>11</java.version>
       <java.vendor>openjdk</java.vendor>
